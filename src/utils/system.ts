@@ -1,15 +1,16 @@
-import store from '@/store'
 import app from '@/constants/app'
 import { CacheToken } from '@/constants/cacheKey'
 import baseService from '@/service/baseService'
+import { useAppStore } from '@/store'
 import { setCache } from '@/utils/cache'
 
 /**
- * 获取vuex中存储的所有数据
+ * 获取 store 中存储的所有数据
+ * 注意：必须在函数内部调用 useAppStore()，模块顶层调用会早于 app.use(pinia)
  * @returns
  */
 export const getData = () => {
-  return store.state
+  return useAppStore()
 }
 
 export const isLogin = (): boolean => {

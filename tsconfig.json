@@ -7,24 +7,24 @@
     "jsx": "preserve",
     "allowJs": true,
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
     "types": ["vite/client"],
     "paths": {
-      "@/*": ["src/*"],
-      "@file-viewer/core/browser": ["src/types/file-viewer/core-browser.ts"],
-      "@file-viewer/renderer-word": ["src/types/file-viewer/renderer-word.ts"],
-      "@file-viewer/renderer-spreadsheet": ["src/types/file-viewer/renderer-spreadsheet.ts"]
+      "@/*": ["./src/*"],
+      "@mock/*": ["./mock/*"],
+      "@file-viewer/core/browser": ["./src/types/file-viewer/core-browser.ts"],
+      "@file-viewer/renderer-word": ["./src/types/file-viewer/renderer-word.ts"],
+      "@file-viewer/renderer-spreadsheet": ["./src/types/file-viewer/renderer-spreadsheet.ts"]
     },
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+    "lib": ["esnext", "dom", "dom.iterable"],
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", "tests/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "vite.config.ts"],
+  "exclude": ["node_modules", "dist"]
 }

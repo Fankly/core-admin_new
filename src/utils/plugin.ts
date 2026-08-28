@@ -8,9 +8,13 @@ import globalMixin from '@/core/mixins/global.js'
 import * as staticDict from '@/staticDict'
 import * as utilsCompat from '@/utils'
 import { checkPermission } from '@/utils/utils'
-import store from '@/store'
+import { useAppStore } from '@/store'
+import { watch } from 'vue'
 
 export default (app: any) => {
+  // main.ts 里 pinia 必须先 use，这里才能取到 store
+  const store = useAppStore()
+
   app.use(AutoImport)
 
   app.config.globalProperties.$utils = utilsCompat
@@ -51,7 +55,7 @@ export default (app: any) => {
   /**
    * 按钮权限指令
    *
-   * 权限来源是 store.state.permissions，而它会在切换菜单、返回 keep-alive 缓存页时被重新提交。
+   * 权限来源是 store.permissions，而它会在切换菜单、返回 keep-alive 缓存页时被重新提交。
    * 所以这里不能只在 mounted 判一次：指令要跟着 store 和绑定值的变化重新求值，
    * 否则缓存页里后挂载的元素（懒加载弹窗、v-if 切出来的内容）会拿上一个页面的权限。
    * 无权限时除了隐藏，还要挡住 pointer-events 与捕获阶段的 click，避免元素仍能被程序化点击。
@@ -61,7 +65,7 @@ export default (app: any) => {
   const applyPermission = (el: any) => {
     const state = el.__permissionState
     if (!state) return
-    const allowed = checkPermission(store.state.permissions || [], state.value)
+    const allowed = checkPermission(store.permissions || [], state.value)
     state.allowed = allowed
     el.style.display = allowed ? state.originalDisplay : 'none'
     el.style.pointerEvents = allowed ? state.originalPointerEvents : 'none'
@@ -73,8 +77,9 @@ export default (app: any) => {
   }
 
   // 全局只订阅一次，避免每个 v-permission 元素都建一个 watcher
-  store.watch(
-    (state: any) => state.permissions,
+  // （Pinia 没有 store.watch，直接 watch store 上的字段）
+  watch(
+    () => store.permissions,
     () => permissionElements.forEach(applyPermission)
   )
 

@@ -1,14 +1,54 @@
 import { CacheToken } from '@/constants/cacheKey'
-import { IObject } from '@/types/interface'
 import { getSysRouteMap } from '@/router'
 import baseService from '@/service/baseService'
+import { IObject } from '@/types/interface'
 import { removeCache } from '@/utils/cache'
 import { mergeServerRoute } from '@/utils/router'
-import { createStore } from 'vuex'
-import app from './app'
+import { defineStore } from 'pinia'
+import type { RouteRecordRaw } from 'vue-router'
 
-export default createStore({
-  state: {
+/**
+ * 全局 state。沿用原 Vuex 的扁平大对象结构，索引签名保留 `store[flag]` 这类动态取值
+ * （见 hooks/useUser.ts 用 getter 名字符串取穿透参数的写法）。
+ */
+export interface AppState extends IObject {
+  caches: string[]
+  appIsLogin: boolean
+  appIsReady: boolean
+  appIsRender: boolean
+  routeLoading: boolean
+  permissions: string[]
+  ztbData: IObject
+  htqdData: IObject
+  xmssData: IObject
+  xmsjData: IObject
+  jsyzjzfData: IObject
+  jsyzzData: IObject
+  user: IObject
+  processData: any[]
+  routes: RouteRecordRaw[]
+  menus: any[]
+  tabs: any[]
+  closedTabs: any[]
+  routeToMeta: IObject
+  activeTabName: string
+  hasPermission: boolean
+  penetrateParams: IObject
+  proParams: IObject
+  menuMsg: IObject
+  yssxbm: string
+  oldDwId: string
+  xqGlobalInfo: IObject
+  cbGlobalInfo: IObject
+  JRGlobalInfo: IObject
+  ZlGlobalInfo: IObject
+  LSGlobalInfo: IObject
+  SZWLlobalInfo: IObject
+  loading: boolean
+}
+
+export const useAppStore = defineStore('app', {
+  state: (): AppState => ({
     caches: [], //缓存集合
     appIsLogin: false, //是否登录
     appIsReady: false, //app数据是否就绪
@@ -48,9 +88,10 @@ export default createStore({
     LSGlobalInfo: {},
     SZWLlobalInfo: {},
     loading: false
-  } as IObject,
+  }),
   getters: {
-    hasPermission: (state) => state.hasPermission,
+    // 原 Vuex 里 hasPermission 既是 state 又是同名 getter，Pinia 不允许重名，
+    // 直接读 state.hasPermission（原 getter 也只是透传）
     getPenetrateParams: (state) => state.penetrateParams,
     getProParams: (state) => state.proParams,
     getMenuMsg: (state) => state.menuMsg,
@@ -65,108 +106,98 @@ export default createStore({
     getLSGlobalInfo: (state) => state.LSGlobalInfo,
     getSZWLlobalInfo: (state) => state.SZWLlobalInfo
   },
-  mutations: {
-    setRouteLoading(state, payload) {
-      state.routeLoading = payload
+  actions: {
+    setRouteLoading(payload: boolean) {
+      this.routeLoading = payload
     },
-    showLoading(state) {
-      state.loading = true
+    showLoading() {
+      this.loading = true
     },
-    hideLoading(state) {
-      state.loading = false
+    hideLoading() {
+      this.loading = false
     },
-    setOldDwId(state, payload) {
-      state.oldDwId = payload
+    setLoading(flag: boolean) {
+      this.loading = flag
     },
-    setXqGlobalInfo(state, payload) {
-      state.xqGlobalInfo = payload
+    setOldDwId(payload: string) {
+      this.oldDwId = payload
     },
-    setZlGlobalInfo(state, payload) {
-      state.ZlGlobalInfo = payload
+    setXqGlobalInfo(payload: IObject) {
+      this.xqGlobalInfo = payload
     },
-    setLSGlobalInfo(state, payload) {
-      state.LSGlobalInfo = payload
+    setZlGlobalInfo(payload: IObject) {
+      this.ZlGlobalInfo = payload
     },
-    setSZWLlobalInfo(state, payload) {
-      state.SZWLlobalInfo = payload
+    setLSGlobalInfo(payload: IObject) {
+      this.LSGlobalInfo = payload
     },
-    setJRGlobalInfo(state, payload) {
-      state.JRGlobalInfo = payload
+    setSZWLlobalInfo(payload: IObject) {
+      this.SZWLlobalInfo = payload
     },
-    setCbGlobalInfo(state, payload) {
-      state.cbGlobalInfo = payload
+    setJRGlobalInfo(payload: IObject) {
+      this.JRGlobalInfo = payload
     },
-    seYssxBm(state, payload) {
-      state.yssxbm = payload
+    setCbGlobalInfo(payload: IObject) {
+      this.cbGlobalInfo = payload
     },
-    setMenuMsg(state, payload) {
-      state.menuMsg = payload
+    seYssxBm(payload: string) {
+      this.yssxbm = payload
     },
-    setProParams(state, payload) {
-      state.proParams = payload
+    setMenuMsg(payload: IObject) {
+      this.menuMsg = payload
     },
-    setPenetrateParams(state, payload) {
-      state.penetrateParams = payload
+    setProParams(payload: IObject) {
+      this.proParams = payload
     },
-    updateState(state, payload) {
-      Object.keys(payload).forEach((x: string) => {
-        state[x] = payload[x]
-      })
+    setPenetrateParams(payload: IObject) {
+      this.penetrateParams = payload
     },
-    setHasPermission(state, payload) {
-      state.hasPermission = payload
+    /**
+     * 批量覆盖 state。用 Object.assign 而不是 $patch：$patch 对普通对象是递归合并，
+     * 会让 logout 里的 `user: {}` 保留旧字段，和原 Vuex mutation 的整体替换语义不一致。
+     */
+    updateState(payload: IObject) {
+      Object.assign(this, payload)
     },
-    setPermissions(state, payload) {
-      state.permissions = payload
+    setHasPermission(payload: boolean) {
+      this.hasPermission = payload
     },
-    add(state, payload) {
-      if (!state.caches.includes(payload)) {
-        state.caches.push(payload)
+    setPermissions(payload: string[]) {
+      this.permissions = payload
+    },
+    setTabs(payload: any[]) {
+      this.tabs = payload
+    },
+    add(payload: string) {
+      if (!this.caches.includes(payload)) {
+        this.caches.push(payload)
       }
     },
-    remove(state, payload) {
-      state.caches = state.caches.filter((x: string) => x !== payload)
+    remove(payload: string) {
+      this.caches = this.caches.filter((x: string) => x !== payload)
     },
-    clear(state) {
-      state.caches = []
+    clear() {
+      this.caches = []
     },
-    ztbData(state, payload) {
-      state.ztbData = payload
+    setZtbData(payload: IObject) {
+      this.ztbData = payload
     },
-    htqdData(state, payload) {
-      state.htqdData = payload
+    setHtqdData(payload: IObject) {
+      this.htqdData = payload
     },
-    xmssData(state, payload) {
-      state.xmssData = payload
+    setXmssData(payload: IObject) {
+      this.xmssData = payload
     },
-    xmsjData(state, payload) {
-      state.xmsjData = payload
+    setXmsjData(payload: IObject) {
+      this.xmsjData = payload
     },
-    jsyzjzfData(state, payload) {
-      state.jsyzjzfData = payload
+    setJsyzjzfData(payload: IObject) {
+      this.jsyzjzfData = payload
     },
-    jsyzzData(state, payload) {
-      state.jsyzzData = payload
-    }
-  },
-  actions: {
-    setLoading({ commit }, flag: boolean) {
-      if (flag) commit('showLoading')
-      else commit('hideLoading')
+    setJsyzzData(payload: IObject) {
+      this.jsyzzData = payload
     },
-    add(type, name) {
-      this.commit('add', name)
-    },
-    remove(type, name) {
-      this.commit('remove', name)
-    },
-    clear(type) {
-      this.commit('clear')
-    },
-    updateState(ctx, { payload }) {
-      ctx.commit('updateState', payload)
-    },
-    initApp(ctx) {
+    initApp(): Promise<RouteRecordRaw[]> {
       return Promise.all([
         baseService.get('/sys/menu/nav'), //加载菜单
         baseService.get('/sys/getUserInfo') //加载用户信息
@@ -175,7 +206,7 @@ export default createStore({
           console.error('初始化用户数据错误', user.msg)
         }
         const [routes, routeToMeta] = mergeServerRoute(menus.data || [], getSysRouteMap())
-        ctx.commit('updateState', {
+        this.updateState({
           user: user.data || {},
           routeToMeta: routeToMeta || {},
           menus: []
@@ -185,9 +216,9 @@ export default createStore({
       })
     },
     //退出
-    logout(ctx) {
+    logout() {
       removeCache(CacheToken, true)
-      ctx.commit('updateState', {
+      this.updateState({
         appIsLogin: false,
         permissions: [],
         user: {},
@@ -197,8 +228,7 @@ export default createStore({
         activeTabName: ''
       })
     }
-  },
-  modules: {
-    app: app
   }
 })
+
+export default useAppStore

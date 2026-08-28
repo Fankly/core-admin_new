@@ -7,7 +7,7 @@ import { ElMessage } from 'element-plus'
 import { findIndex } from 'lodash'
 import { defineComponent, reactive, watch } from 'vue'
 import { RouteLocationMatched, useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import { useAppStore } from '@/store'
 
 export default defineComponent({
   name: 'Tabs',
@@ -22,7 +22,7 @@ export default defineComponent({
       { label: '关闭全部标签页', value: 4, icon: 'el-icon-circle-close' }
     ]
     const router = useRouter()
-    const store = useStore()
+    const store = useAppStore()
 
     const firstRoute = (router.options.routes[0] || {}) as RouteLocationMatched
     const home: RouteLocationMatched =
@@ -37,7 +37,7 @@ export default defineComponent({
     watch(
       () => state.tabs,
       (res) => {
-        store.commit('updateState', { tabs: res })
+        store.updateState({ tabs: res })
       },
       { deep: true }
     )
@@ -53,7 +53,7 @@ export default defineComponent({
       if (state.activeTabName !== path) {
         state.activeTabName = path
       }
-      store.commit('add', path)
+      store.add(path)
     })
     emits.on(EMitt.OnCloseCurrTab, () => {
       onClose(5)
@@ -64,14 +64,14 @@ export default defineComponent({
     const onTabRemove = (targetName: string) => {
       const index = findIndex(state.tabs, (x: any) => x.value === targetName)
       if (state.tabs.length > 1) {
-        updateClosedTabs([...store.state.closedTabs, targetName], false)
+        updateClosedTabs([...store.closedTabs, targetName], false)
         if (state.activeTabName === targetName) {
           const toIndex = index === 0 ? index + 1 : index - 1
           state.activeTabName = state.tabs[toIndex].value
           router.push(state.activeTabName)
         }
         state.tabs.splice(index, 1)
-        store.state.caches = store.state.caches.filter((x: any) => x !== targetName)
+        store.remove(targetName)
       } else {
         ElMessage({ type: 'error', message: '只剩下一个标签页，不支持关闭', offset: 0 })
       }
@@ -80,7 +80,7 @@ export default defineComponent({
       if (isTransform) {
         closedTabs = closedTabs.map((x) => x.value)
       }
-      store.commit('updateState', { closedTabs })
+      store.updateState({ closedTabs })
     }
     const onClose = (value: number) => {
       let index = null
@@ -91,9 +91,9 @@ export default defineComponent({
           state.tabs = state.tabs.filter((x: any) =>
             [home.path, state.activeTabName].includes(x.value)
           )
-          store.state.tabs = state.tabs
-          store.commit('clear')
-          store.commit('add', state.activeTabName)
+          store.setTabs(state.tabs)
+          store.clear()
+          store.add(state.activeTabName)
           updateClosedTabs(
             rawTabs.filter((x: any) => ![home.path, state.activeTabName].includes(x.value))
           )
@@ -102,33 +102,33 @@ export default defineComponent({
           //右侧
           index = findIndex(state.tabs, (x: any) => x.value === state.activeTabName)
           state.tabs.splice(index + 1, state.tabs.length - (index + 1))
-          store.state.tabs = state.tabs
+          store.setTabs(state.tabs)
           updateClosedTabs(rawTabs.slice(index + 1))
           break
         case 3:
           //左侧
           index = findIndex(state.tabs, (x: any) => x.value === state.activeTabName)
           state.tabs.splice(1, index - 1)
-          store.state.tabs = state.tabs
+          store.setTabs(state.tabs)
           updateClosedTabs(rawTabs.slice(1, index - 1))
           break
         case 4:
           //全部
           state.tabs = [defaultTab]
           state.activeTabName = defaultTab.value
-          store.commit('clear')
-          store.state.tabs = [defaultTab]
+          store.clear()
+          store.setTabs([defaultTab])
           updateClosedTabs(rawTabs)
           router.push(state.activeTabName)
           break
         case 5:
           //当前
           if (state.activeTabName !== defaultTab.value) {
-            updateClosedTabs([...store.state.closedTabs, state.activeTabName], false)
+            updateClosedTabs([...store.closedTabs, state.activeTabName], false)
             index = findIndex(state.tabs, (x: any) => x.value === state.activeTabName)
             state.tabs.splice(index, 1)
             state.activeTabName = state.tabs[state.tabs.length - 1].value
-            store.state.tabs = state.tabs
+            store.setTabs(state.tabs)
             router.push(state.activeTabName)
           }
           break

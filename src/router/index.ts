@@ -1,5 +1,5 @@
 import { EMitt } from '@/constants/enum'
-import store from '@/store'
+import { useAppStore } from '@/store'
 import { IObject } from '@/types/interface'
 import { getPermissions, getToken } from '@/utils/cache'
 import emits from '@/utils/emits'
@@ -26,10 +26,12 @@ const router = createRouter({
 
 // 路由加载前
 router.beforeEach((to, from, next) => {
+  // pinia 在 main.ts 里晚于 router 模块求值，所以只能在守卫内部取 store
+  const store = useAppStore()
   if (to.meta.url || to.path) {
-    const map = new Map(Object.entries(store.state.routeToMeta))
+    const map = new Map(Object.entries(store.routeToMeta))
     const menuMsg = map.get((to.meta.url || to.path) as string)
-    store.commit('setMenuMsg', {
+    store.setMenuMsg({
       ...(menuMsg as Object),
       url: to.meta.url || to.path
     })
@@ -48,25 +50,25 @@ router.beforeEach((to, from, next) => {
   const isPop = to.query.pop === 'true' //新窗口打开内页
   // const isPop = "true"; //新窗口打开内页
   // 获取tabs
-  const index = store.state.tabs.findIndex((item: any) => item.value === to.path)
+  const index = store.tabs.findIndex((item: any) => item.value === to.path)
 
   // 设置路由loading状态
-  if (index === -1) store.commit('setRouteLoading', true)
+  if (index === -1) store.setRouteLoading(true)
   NProgress.start()
   if (to.path !== '/login') {
     setDomian()
-    if (store.state.routes.length) {
+    if (store.routes.length) {
       if (to.name === 'error') {
         /* const isMatched = autoRegisterDynamicToRouterAndNext(to);
         if (!isMatched) {
-         store.commit("updateState", { appIsRender: true, appIsLogin: true });
+         store.updateState({ appIsRender: true, appIsLogin: true });
           next();
         } */
         next()
       } else {
         if (!to.query.pop) {
           try {
-            const routeMeta: IObject = store.state.routeToMeta[to.path]
+            const routeMeta: IObject = store.routeToMeta[to.path]
             emits.emit(EMitt.OnPushMenuToTabs, {
               label: to.meta.title || routeMeta.title || to.path,
               value: to.fullPath,
@@ -77,22 +79,22 @@ router.beforeEach((to, from, next) => {
           }
         }
         if (!(to.path.includes('workflow') && to.path !== '/workflow/todoTasks')) {
-          store.commit('updateState', { appIsRender: true, appIsLogin: true })
+          store.updateState({ appIsRender: true, appIsLogin: true })
         } else {
-          store.dispatch({ type: 'initApp' }).then(() => {
+          store.initApp().then(() => {
             next()
           })
         }
         next()
       }
     } else if (to.path.includes('workflow') && to.path !== '/workflow/todoTasks') {
-      store.dispatch({ type: 'initApp' }).then(() => {
+      store.initApp().then(() => {
         next()
       })
     } else {
       if (token && permission) {
         //初始化数据
-        store.dispatch({ type: 'initApp' }).then((res: Array<RouteRecordRaw>) => {
+        store.initApp().then((res: Array<RouteRecordRaw>) => {
           const mergeRoute = routers.concat(res).concat(errorRoute)
           router.options.routes = mergeRoute
           registerToRouter(router, mergeRoute)
@@ -100,13 +102,13 @@ router.beforeEach((to, from, next) => {
             registerDynamicToRouterAndNext({ path: to.path, query: to.query })
           }
 
-          store.commit('updateState', {
+          store.updateState({
             appIsReady: true,
             routes: mergeRoute,
-            routeToMeta: { ...store.state.routeToMeta, ...getBaseRouteToMeta(baseRoutes) }
+            routeToMeta: { ...store.routeToMeta, ...getBaseRouteToMeta(baseRoutes) }
           })
           setTimeout(() => {
-            store.commit('updateState', { appIsRender: true, appIsLogin: true })
+            store.updateState({ appIsRender: true, appIsLogin: true })
           }, 600)
           next({ ...to, replace: true })
         })
@@ -114,10 +116,10 @@ router.beforeEach((to, from, next) => {
         if (isPop) {
           if (!to.matched.length) {
             registerDynamicToRouterAndNext({ path: to.path, query: to.query })
-            store.commit('updateState', { appIsRender: true, appIsReady: true })
+            store.updateState({ appIsRender: true, appIsReady: true })
             next(to.fullPath)
           } else {
-            store.commit('updateState', { appIsRender: true, appIsReady: true })
+            store.updateState({ appIsRender: true, appIsReady: true })
             if (to.meta.requiresAuth) {
               next('/login')
             } else {
@@ -125,7 +127,7 @@ router.beforeEach((to, from, next) => {
             }
           }
         } else if (to.path.includes('workflow') && to.path !== '/workflow/todoTasks') {
-          store.dispatch({ type: 'initApp' }).then(() => {
+          store.initApp().then(() => {
             next()
           })
         } else {
@@ -134,7 +136,7 @@ router.beforeEach((to, from, next) => {
       }
     }
   } else {
-    store.commit('updateState', { appIsReady: true, appIsRender: true })
+    store.updateState({ appIsReady: true, appIsRender: true })
     next()
   }
 })
@@ -142,13 +144,13 @@ router.beforeEach((to, from, next) => {
 // 路由加载后
 router.afterEach(() => {
   setTimeout(() => {
-    store.commit('setRouteLoading', false)
+    useAppStore().setRouteLoading(false)
   }, 300)
   NProgress.done()
 })
 
 const setDomian = () => {
-  const domain = store.getters.getUserMsg.domainName || 'sgcc.com.cn'
+  const domain = useAppStore().getUserMsg.domainName || 'sgcc.com.cn'
   try {
     document.domain = domain
   } catch (e) {
