@@ -1,29 +1,25 @@
 import '@/assets/icons/iconfont/iconfont.js'
 import '@/assets/styles/tailwind.css'
 import ElementPlus from 'element-plus'
-import { ElMessageBoxShortcutMethod } from 'element-plus/lib/el-message-box/src/message-box.type'
-import { IMessage } from 'element-plus/lib/el-message/src/types'
-import 'element-plus/lib/theme-chalk/display.css'
-import 'element-plus/lib/theme-chalk/index.css'
+import type { ElMessageBoxShortcutMethod, Message } from 'element-plus'
+import 'element-plus/theme-chalk/display.css'
+import 'element-plus/theme-chalk/index.css'
 import Sortable from 'sortablejs'
-import 'vite-plugin-svg-icons/register'
+import 'virtual:svg-icons/register'
 import { createApp } from 'vue'
-import { Store } from 'vuex'
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
 import VXETablePluginExportXLSX from 'vxe-table-plugin-export-xlsx'
 import ExcelJS from 'exceljs'
 import 'xe-utils'
 import App from './App.vue'
-import { IObject } from './types/interface'
+import { createPinia } from 'pinia'
 import router from './router'
-import store from './store'
 import baseService from '@/service/baseService'
 import '@/assets/css/element.less'
 import zhCn from 'element-plus/lib/locale/lang/zh-cn'
 
 import plugin from '@/utils/plugin'
-import 'echarts-liquidfill'
 import 'echarts'
 import ECharts from 'vue-echarts'
 
@@ -34,17 +30,13 @@ import appConfig from '@/utils/appConfig'
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
     /**
-     * vuex存储库
-     */
-    $store: Store<IObject>
-    /**
      * ref引用
      */
     $refs: any
     /**
      * element-plus消息方法
      */
-    $message: IMessage
+    $message: Message
     /**
      * element-plus弹窗确认
      */
@@ -84,6 +76,9 @@ async function bootstrap() {
   const app = createApp(App)
   app.config.globalProperties.$baseService = baseService
 
+  // pinia 必须先装上，plugin() 和路由守卫里才能调 useAppStore()
+  app.use(createPinia())
+
   /**
    * 引用plugin 自定义指令文件
    */
@@ -91,7 +86,6 @@ async function bootstrap() {
 
   app
     // .use(Base64)
-    .use(store)
     .use(router)
     .use(ElementPlus, { locale: zhCn, size: 'small' })
     .use(VXETable)

@@ -2,13 +2,13 @@
   <!-- element 分页显示中文 -->
   <el-config-provider :locale="locale">
     <div
-      v-if="!store.state.appIsRender && !(route.path.includes('workflow') && route.path !== '/workflow/todoTasks')"
+      v-if="!store.appIsRender && !(route.path.includes('workflow') && route.path !== '/workflow/todoTasks')"
       v-loading="true"
       :element-loading-fullscreen="true"
       :element-loading-lock="true"
       style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 99999; background: #fff"
     ></div>
-    <template v-if="store.state.appIsReady && !(route.path.includes('workflow') && route.path !== '/workflow/todoTasks')">
+    <template v-if="store.appIsReady && !(route.path.includes('workflow') && route.path !== '/workflow/todoTasks')">
       <layout v-if="state.layout === pageTag"></layout>
       <fullscreen-layout v-else></fullscreen-layout>
     </template>
@@ -22,7 +22,7 @@ import Layout from '@/layout/index.vue'
 import '@/assets/theme/index.less'
 import { defineComponent, onMounted, reactive, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import { useAppStore } from '@/store'
 import app from './constants/app'
 import { EMitt, EPageLayoutEnum, EThemeColor, EThemeSetting } from './constants/enum'
 import { IObject } from './types/interface'
@@ -36,7 +36,7 @@ export default defineComponent({
   name: 'App',
   components: { Layout, FullscreenLayout },
   setup() {
-    const store = useStore()
+    const store = useAppStore()
     const route = useRoute()
     const router = useRouter()
     const state = reactive({

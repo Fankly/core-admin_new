@@ -1,39 +1,39 @@
 <script setup lang="ts">
-import { Component, shallowRef, watch, computed } from "vue";
-import { RouteRecordRaw, RouteLocationNormalizedLoaded } from "vue-router";
-import { useMultiFrame } from "@/layout/component/keepAliveFrame/useMultiFrame";
-import app from "@/constants/app";
-import { useStore } from "vuex";
+import { Component, shallowRef, watch, computed } from 'vue'
+import { RouteRecordRaw, RouteLocationNormalizedLoaded } from 'vue-router'
+import { useMultiFrame } from '@/layout/component/keepAliveFrame/useMultiFrame'
+import app from '@/constants/app'
+import { useAppStore } from '@/store'
 
 const props = defineProps<{
-  currRoute: RouteLocationNormalizedLoaded;
-  currComp: Component;
-}>();
+  currRoute: RouteLocationNormalizedLoaded
+  currComp: Component
+}>()
 
-const compList: any = shallowRef([]);
-const { setMap, getMap, MAP, delMap } = useMultiFrame();
+const compList: any = shallowRef([])
+const { setMap, getMap, MAP, delMap } = useMultiFrame()
 
-const store = useStore();
+const store = useAppStore()
 const keep = computed(() => {
-  return app.enabledKeepAlive && props.currRoute.meta?.isIframe && !!props.currRoute.meta?.frameSrc;
-});
+  return app.enabledKeepAlive && props.currRoute.meta?.isIframe && !!props.currRoute.meta?.frameSrc
+})
 // 避免重新渲染 frameView
-const normalComp = computed(() => !keep.value && props.currComp);
+const normalComp = computed(() => !keep.value && props.currComp)
 
-// 监听store.state.tabs变化
+// 监听 store.tabs 变化
 watch(
-  () => store.state.tabs,
+  () => store.tabs,
   (tags: any) => {
     if (!Array.isArray(tags) || !keep.value) {
-      return;
+      return
     }
-    const iframeTags = tags.filter((i) => i.mete?.frameSrc);
+    const iframeTags = tags.filter((i) => i.mete?.frameSrc)
     // tags必须是小于MAP，才是做了关闭动作，因为MAP插入的顺序在tags变化后发生
     if (iframeTags.length < MAP.size) {
       for (const i of MAP.keys()) {
         if (!tags.some((s) => s.value === i)) {
-          delMap(i);
-          compList.value = getMap();
+          delMap(i)
+          compList.value = getMap()
         }
       }
     }
@@ -41,30 +41,30 @@ watch(
   {
     deep: true
   }
-);
+)
 
 watch(
   () => props.currRoute.fullPath,
   (path) => {
-    const multiTags = store.state.tabs as RouteRecordRaw[];
-    const iframeTags = multiTags.filter((i: any) => i.mete?.frameSrc);
+    const multiTags = store.tabs as RouteRecordRaw[]
+    const iframeTags = multiTags.filter((i: any) => i.mete?.frameSrc)
     if (keep.value) {
       if (iframeTags.length !== MAP.size) {
-        const sameKey = [...MAP.keys()].find((i) => path === i);
+        const sameKey = [...MAP.keys()].find((i) => path === i)
         if (!sameKey) {
           // 添加缓存
-          setMap(path, props.currComp);
+          setMap(path, props.currComp)
         }
       }
     }
     if (MAP.size > 0) {
-      compList.value = getMap();
+      compList.value = getMap()
     }
   },
   {
     immediate: true
   }
-);
+)
 </script>
 <template>
   <template v-for="[fullPath, Comp] in compList" :key="fullPath">

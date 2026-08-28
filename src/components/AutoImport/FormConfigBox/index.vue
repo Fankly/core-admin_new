@@ -89,10 +89,6 @@ export default {
     readonly: Boolean,
     disabled: Boolean
   },
-  model: {
-    prop: 'value',
-    event: 'on-model-change'
-  },
   name: 'FormConfigBox',
   data() {
     return {

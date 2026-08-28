@@ -19,12 +19,7 @@ export const mergeServerRoute = (serverRoutes: IServerMenus[], sysRouteMap: IObj
     const [path, meta] = mergeRouteToOpenStyle(x.url, x)
     const viewComponent = sysRouteMap[toSysViewComponentPath(path)]
     const isNotMatchComponent = !viewComponent && !meta.isIframe && !meta.isNewPage && !(x.children && x.children.length)
-    const r: RouteRecordRaw = {
-      path,
-      name: path,
-      component: meta.isIframe ? Iframe : x.children && x.children.length && !viewComponent ? baseView : viewComponent
-    }
-    r.meta = {
+    const routeMeta: IObject = {
       title: x.name,
       icon: x.icon,
       openStyle: x.openStyle,
@@ -34,17 +29,25 @@ export const mergeServerRoute = (serverRoutes: IServerMenus[], sysRouteMap: IObj
       matched: [...matched, { path, title: x.name }],
       ...meta
     }
-
-    r.redirect = x.redirect || (isNotMatchComponent ? { path: '/error', query: { to: 404 }, replace: true } : '')
     if (path) {
-      routeToMeta[path] = r.meta
+      routeToMeta[path] = routeMeta
     }
+    let children: RouteRecordRaw[] | undefined
     if (x.children && x.children.length) {
-      const childrenRoutes = mergeServerRoute(x.children, sysRouteMap, getValueByKeys(r.meta, 'matched', []))
-      r.children = childrenRoutes[0]
+      const childrenRoutes = mergeServerRoute(x.children, sysRouteMap, getValueByKeys(routeMeta, 'matched', []))
+      children = childrenRoutes[0]
       routeToMeta = { ...routeToMeta, ...childrenRoutes[1] }
     }
-    rs.push(r)
+    // RouteRecordRaw 是联合类型，先声明再逐个赋值会被收窄成「无 children/redirect」那一支，
+    // 所以一次性构造完再断言
+    rs.push({
+      path,
+      name: path,
+      component: meta.isIframe ? Iframe : x.children && x.children.length && !viewComponent ? baseView : viewComponent,
+      meta: routeMeta,
+      redirect: x.redirect || (isNotMatchComponent ? { path: '/error', query: { to: 404 }, replace: true } : ''),
+      children
+    } as RouteRecordRaw)
   })
   return [rs, routeToMeta]
 }
@@ -127,7 +130,7 @@ export const mergeRouteToOpenStyle = (url: string, item: IServerMenus): [string,
   url = url || `/iframe/${item.id}`
   let meta: IObject = {}
   const toRoutePath = (url: string): string => {
-    return (url = !/^\//g.test(url) ? '/' + url : url)
+    return !/^\//.test(url) ? '/' + url : url
   }
   //生成变量路由数据
   const renderVariableHook = (url: string): string => {

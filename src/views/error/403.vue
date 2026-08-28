@@ -12,11 +12,11 @@
 
 <script lang="ts">
 export default {
-  name: "403"
-};
+  name: '403'
+}
 </script>
 <script setup lang="ts"></script>
 
 <style scoped lang="less">
-@import "./index.less";
+@import './index.less';
 </style>

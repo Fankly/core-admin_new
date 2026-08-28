@@ -26,9 +26,7 @@ export default defineComponent({
 
     const firstRoute = (router.options.routes[0] || {}) as RouteLocationMatched
     const home: RouteLocationMatched =
-      firstRoute.children && firstRoute.children.length > 0
-        ? (firstRoute.children[0] as RouteLocationMatched)
-        : firstRoute
+      firstRoute.children && firstRoute.children.length > 0 ? (firstRoute.children[0] as RouteLocationMatched) : firstRoute
     const defaultTab = { label: '', value: home.path }
     const state = reactive({
       activeTabName: props.activeTabName || defaultTab.value,
@@ -83,20 +81,16 @@ export default defineComponent({
       store.updateState({ closedTabs })
     }
     const onClose = (value: number) => {
-      let index = null
+      let index: number
       const rawTabs = state.tabs
       switch (value) {
         case 1:
           //其他
-          state.tabs = state.tabs.filter((x: any) =>
-            [home.path, state.activeTabName].includes(x.value)
-          )
+          state.tabs = state.tabs.filter((x: any) => [home.path, state.activeTabName].includes(x.value))
           store.setTabs(state.tabs)
           store.clear()
           store.add(state.activeTabName)
-          updateClosedTabs(
-            rawTabs.filter((x: any) => ![home.path, state.activeTabName].includes(x.value))
-          )
+          updateClosedTabs(rawTabs.filter((x: any) => ![home.path, state.activeTabName].includes(x.value)))
           break
         case 2:
           //右侧
@@ -143,12 +137,7 @@ export default defineComponent({
 </script>
 <template>
   <div class="rr-view-tab-wrap">
-    <el-tabs
-      class="rr-view-tab"
-      v-model="state.activeTabName"
-      @tab-click="onTabClick"
-      @tab-remove="onTabRemove"
-    >
+    <el-tabs class="rr-view-tab" v-model="state.activeTabName" @tab-click="onTabClick" @tab-remove="onTabRemove">
       <el-tab-pane :name="'/home'" :closable="false">
         <template #label>
           {{ '主页' }}

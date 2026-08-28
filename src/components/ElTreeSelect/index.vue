@@ -22,7 +22,7 @@
       style="height: auto; padding: 0; overflow: visible"
       @click.stop="() => {}"
     >
-      <div ref="treeWrapper" class="el-tree-select__tree-wrapper" role="tree" :aria-invalid="placeholder" tabindex="-1" :style="colorStyle">
+      <div ref="treeWrapper" class="el-tree-select__tree-wrapper" role="tree" :aria-label="placeholder" tabindex="-1" :style="colorStyle">
         <div class="el-tree-select__container" ref="container">
           <div v-if="$slots.header" class="el-tree-select__header">
             <slot name="header"></slot>

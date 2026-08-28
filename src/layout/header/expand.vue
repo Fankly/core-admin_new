@@ -22,7 +22,6 @@ import baseService from '@/service/baseService'
 import { useFullscreen } from '@vueuse/core'
 import { defineComponent, ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useStore } from 'vuex'
 import SettingSidebar from '../setting/index.vue'
 import userLogo from '@/assets/images/user.png'
 import '@/assets/css/header.less'
@@ -44,7 +43,6 @@ export default defineComponent({
   },
   setup(props: IExpand) {
     const router = useRouter()
-    const store = useStore()
     const { isFullscreen, toggle } = useFullscreen()
     const messageCount = ref(0)
     const customerMsg = reactive({
@@ -103,7 +101,6 @@ export default defineComponent({
     return reactive({
       props,
       customerMsg,
-      store,
       isFullscreen,
       messageCount,
       userLogo,

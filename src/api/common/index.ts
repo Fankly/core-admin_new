@@ -374,7 +374,6 @@ export const getEjdwData = (id: any): Promise<Result> => {
   return baseService.get(`/xmExpert/getEjdwData?parentId=${id}`)
 }
 
-
 // 根据项目类型获取重点投向
 export const getZdtxByXmlx = (xmlxs: string[]): Promise<Result> => {
   return baseService.post(`/commonCode/getZdtxByXmlx`, xmlxs)

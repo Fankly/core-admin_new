@@ -3,14 +3,14 @@
 </template>
 
 <script setup lang="ts" name="/home">
-import { useStore } from 'vuex'
+import { useAppStore } from '@/store'
 import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { getSysRouteMap } from '@/router'
 import { toSysViewComponentPath } from '@/router'
 import { getMenuMessage } from '@/api/process'
 import emits from '@/utils/emits'
 
-const store = useStore()
+const store = useAppStore()
 
 const path = ref<string>('/baseHome')
 const comp = ref<any>(null)
@@ -20,7 +20,7 @@ const componentMap = ref<Map<string, any>>(new Map())
 const initComponentMap = () => {
   try {
     const sysRouteMap = getSysRouteMap()
-    const route = (store.state as any).routeToMeta
+    const route = store.routeToMeta
     for (const key in route) {
       const component = sysRouteMap[toSysViewComponentPath(key)]
       if (component) {

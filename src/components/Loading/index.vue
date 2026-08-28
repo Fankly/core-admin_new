@@ -9,22 +9,22 @@
 
 <script lang="ts">
 export default {
-  name: "RouteLoading"
-};
+  name: 'RouteLoading'
+}
 </script>
 
 <script lang="ts" setup>
-import AppSpinner from "./spinner.vue";
+import AppSpinner from './spinner.vue'
 
 interface Props {
-  visible?: boolean;
-  text?: string;
+  visible?: boolean
+  text?: string
 }
 
 withDefaults(defineProps<Props>(), {
   visible: false,
-  text: ""
-});
+  text: ''
+})
 </script>
 
 <style scoped>

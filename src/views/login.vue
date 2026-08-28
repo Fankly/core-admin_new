@@ -4,24 +4,19 @@ import baseService from '@/service/baseService'
 import { setCache } from '@/utils/cache'
 import { getUuid } from '@/utils/utils'
 import { Base64 } from 'js-base64'
-import { defineComponent, reactive } from 'vue'
-import { useStore } from 'vuex'
+import { defineComponent, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAppStore } from '@/store'
 
 export default defineComponent({
   setup() {
-    const store = useStore()
-    return reactive({
-      permissions: true,
-      store
-    })
-  },
-  mounted() {
-    this.autoLogin()
-  },
-  methods: {
+    const store = useAppStore()
+    const router = useRouter()
+    const permissions = ref(true)
+
     // 自动登录
     // 万能验证码: HE_YUE_11_22_33
-    async autoLogin() {
+    const autoLogin = async () => {
       let params = {
         a: Base64.encode('admin'),
         b: Base64.encode('admin'),
@@ -30,16 +25,22 @@ export default defineComponent({
       }
       let res = await baseService.post('/login', params)
       const permission = await baseService.get('/sysMenu/hasPermission')
-      this.permissions = permission.data
-      this.store.commit('setHasPermission', this.permissions)
-      if (this.permissions) {
+      permissions.value = permission.data
+      store.setHasPermission(permissions.value)
+      if (permissions.value) {
         // token放到缓存里面
         sessionStorage.setItem('permissions', permission.data)
         setCache(CacheToken, res.data, true)
         setCache(Permissions, permission.data, true)
-        this.$router.push('/home')
+        router.push('/home')
       }
     }
+
+    onMounted(() => {
+      autoLogin()
+    })
+
+    return { permissions }
   }
 })
 </script>

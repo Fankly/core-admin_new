@@ -18,54 +18,54 @@
 
 <script lang="ts">
 export default {
-  name: "AppSpinner"
-};
+  name: 'AppSpinner'
+}
 </script>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch } from 'vue'
 
 interface Props {
-  className?: string;
+  className?: string
   /** 最小加载时间 */
-  minLoadingTime?: number;
+  minLoadingTime?: number
   /** 加载状态 */
-  spinning?: boolean;
+  spinning?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   minLoadingTime: 50,
   spinning: false
-});
+})
 
-const showSpinner = ref(false);
-const renderSpinner = ref(false);
-const timer = ref<ReturnType<typeof setTimeout>>();
+const showSpinner = ref(false)
+const renderSpinner = ref(false)
+const timer = ref<ReturnType<typeof setTimeout>>()
 
 watch(
   () => props.spinning,
   (show) => {
     if (!show) {
-      showSpinner.value = false;
-      clearTimeout(timer.value);
-      return;
+      showSpinner.value = false
+      clearTimeout(timer.value)
+      return
     }
 
     timer.value = setTimeout(() => {
-      showSpinner.value = true;
+      showSpinner.value = true
       if (showSpinner.value) {
-        renderSpinner.value = true;
+        renderSpinner.value = true
       }
-    }, props.minLoadingTime);
+    }, props.minLoadingTime)
   },
   {
     immediate: true
   }
-);
+)
 
 function onTransitionEnd() {
   if (!showSpinner.value) {
-    renderSpinner.value = false;
+    renderSpinner.value = false
   }
 }
 </script>

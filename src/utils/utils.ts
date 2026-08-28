@@ -483,14 +483,12 @@ export const pxWidth = (text: string, font?: string): number => {
 }
 
 export const getTextWidth = (str: string) => {
-  let width = 0
   const html = document.createElement('span')
   html.innerText = str
   html.className = 'getTextWidth'
   document.querySelector('body')?.appendChild(html)
-  const getTextWidth = document.querySelector('.getTextWidth') as any
-  width = getTextWidth.offsetWidth
-  document.querySelector('.getTextWidth')?.remove()
+  const width = html.offsetWidth
+  html.remove()
   return width
 }
 

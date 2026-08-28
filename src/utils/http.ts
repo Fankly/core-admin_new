@@ -1,7 +1,7 @@
 import app from '@/constants/app'
 import router from '@/router'
 import { IHttpResponse, IObject } from '@/types/interface'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import qs from 'qs'
 import { getToken } from './cache'
 import jsonBigint from './jsonBigint/index'
@@ -144,8 +144,8 @@ const redirectLogin = () => {
 }
 
 http.interceptors.request.use(
-  function (config: AxiosRequestConfig) {
-    const headers: IObject = config.headers || (config.headers = {})
+  function (config: InternalAxiosRequestConfig) {
+    const headers: IObject = config.headers
     headers['X-Requested-With'] = 'XMLHttpRequest'
     headers['Request-Start'] = Date.now()
     headers['Accept-Language'] = 'zh-CN'

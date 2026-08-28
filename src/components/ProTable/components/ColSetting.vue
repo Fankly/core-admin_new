@@ -20,24 +20,24 @@
 
 <script lang="ts">
 export default {
-  name: "ColSetting"
-};
+  name: 'ColSetting'
+}
 </script>
 
 <script setup lang="ts" name="ColSetting">
-import { ref } from "vue";
+import { ref } from 'vue'
 
-defineProps<{ colSetting: any[] }>();
+defineProps<{ colSetting: any[] }>()
 
-const drawerVisible = ref<boolean>(false);
+const drawerVisible = ref<boolean>(false)
 
 const openColSetting = () => {
-  drawerVisible.value = true;
-};
+  drawerVisible.value = true
+}
 
 defineExpose({
   openColSetting
-});
+})
 </script>
 
 <style scoped lang="less">

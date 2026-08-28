@@ -2,8 +2,8 @@
  * 页面渲染布局
  */
 export enum EPageLayoutEnum {
-  'page',
-  'fullscreen'
+  page,
+  fullscreen
 }
 
 /**

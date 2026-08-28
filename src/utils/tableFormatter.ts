@@ -22,9 +22,7 @@ class TableFormatter {
   private loadingCodes: Set<string> = new Set()
 
   async getPublicCodes(codes: string[]): Promise<PublicCodeMap> {
-    const needLoadCodes = codes.filter(
-      (code) => !this.publicCodeCache[code] && !this.loadingCodes.has(code)
-    )
+    const needLoadCodes = codes.filter((code) => !this.publicCodeCache[code] && !this.loadingCodes.has(code))
     if (needLoadCodes.length === 0) {
       return this.publicCodeCache
     }
@@ -92,9 +90,7 @@ class TableFormatter {
   }
 
   async preloadPublicCodes(configs: ColumnConfig[]): Promise<void> {
-    const codes = configs
-      .map((config) => config.publicCodeKey)
-      .filter((code): code is string => !!code)
+    const codes = configs.map((config) => config.publicCodeKey).filter((code): code is string => !!code)
     if (codes.length > 0) {
       await this.getPublicCodes(codes)
     }
@@ -131,11 +127,7 @@ export const formatTableData = async (data: any[], columns: ColumnConfig[]) => {
   })
 }
 
-export const formatSingleValue = (
-  value: any,
-  publicCodeKey?: string,
-  defaultValue = ''
-): string => {
+export const formatSingleValue = (value: any, publicCodeKey?: string, defaultValue = ''): string => {
   return tableFormatter.formatValue(value, publicCodeKey, defaultValue)
 }
 
@@ -147,11 +139,7 @@ export const clearPublicCodeCache = (): void => {
   tableFormatter.clearCache()
 }
 
-export const formatMultipleValues = async (
-  values: any[],
-  publicCodeKey: string,
-  defaultValue = ''
-): Promise<string[]> => {
+export const formatMultipleValues = async (values: any[], publicCodeKey: string, defaultValue = ''): Promise<string[]> => {
   await tableFormatter.getPublicCodes([publicCodeKey])
   return values.map((value) => tableFormatter.formatValue(value, publicCodeKey, defaultValue))
 }

@@ -4,7 +4,7 @@ import { EMitt, ESidebarLayoutEnum, EThemeSetting } from '@/constants/enum'
 import emits from '@/utils/emits'
 import { getThemeConfigCacheByKey } from '@/utils/theme'
 import { defineComponent, reactive } from 'vue'
-import { useStore } from 'vuex'
+import { useAppStore } from '@/store'
 import BaseSidebar from '../sidebar/base-sidebar.vue'
 import Breadcrumb from './breadcrumb.vue'
 import CollapseSidebarBtn from './collapse-sidebar-btn.vue'
@@ -20,7 +20,7 @@ export default defineComponent({
   name: 'Header',
   components: { BaseSidebar, Breadcrumb, CollapseSidebarBtn, Expand, HeaderMixNavMenus, Logo },
   setup() {
-    const store = useStore()
+    const store = useAppStore()
     const state = reactive({
       sidebarLayout: getThemeConfigCacheByKey(EThemeSetting.NavLayout)
     })
@@ -37,38 +37,25 @@ export default defineComponent({
 <template>
   <div class="rr-header-ctx">
     <div class="rr-header-ctx-logo hidden-xs-only">
-      <img
-        src="../../assets/images/logo-dark.ab519d9f.png"
-        class="rr-header-ctx-logo-img"
-        alt="项目过程管控平台"
-      />
+      <img src="../../assets/images/logo-dark.ab519d9f.png" class="rr-header-ctx-logo-img" alt="项目过程管控平台" />
       <Logo :logoUrl="logo" logoName="项目过程管控平台"></Logo>
     </div>
     <div class="rr-header-right">
       <div class="rr-header-right-left">
-        <div
-          class="rr-header-right-items rr-header-action"
-          :style="`display:${state.sidebarLayout === ESidebarLayoutEnum.Top ? 'none' : ''}`"
-        >
+        <div class="rr-header-right-items rr-header-action" :style="`display:${state.sidebarLayout === ESidebarLayoutEnum.Top ? 'none' : ''}`">
           <collapse-sidebar-btn></collapse-sidebar-btn>
           <div @click="onRefresh" style="cursor: pointer">
             <i class="el-icon-refresh-right"></i>
           </div>
         </div>
         <div class="rr-header-right-left-br ele-scrollbar-hide hidden-xs-only">
-          <base-sidebar
-            v-if="state.sidebarLayout === ESidebarLayoutEnum.Top"
-            mode="horizontal"
-            :router="true"
-          ></base-sidebar>
-          <header-mix-nav-menus
-            v-else-if="state.sidebarLayout === ESidebarLayoutEnum.Mix"
-          ></header-mix-nav-menus>
+          <base-sidebar v-if="state.sidebarLayout === ESidebarLayoutEnum.Top" mode="horizontal" :router="true"></base-sidebar>
+          <header-mix-nav-menus v-else-if="state.sidebarLayout === ESidebarLayoutEnum.Mix"></header-mix-nav-menus>
           <breadcrumb v-else></breadcrumb>
         </div>
       </div>
       <div style="flex-shrink: 0">
-        <expand :userName="store.state.user.name"></expand>
+        <expand :userName="store.user.name"></expand>
       </div>
     </div>
   </div>

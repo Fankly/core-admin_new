@@ -1,8 +1,8 @@
-import { CacheToken, Permissions } from "@/constants/cacheKey";
-import { ICacheOptions } from "@/types/interface";
-import { isNullOrUndefined } from "./utils";
+import { CacheToken, Permissions } from '@/constants/cacheKey'
+import { ICacheOptions } from '@/types/interface'
+import { isNullOrUndefined } from './utils'
 
-const fix = "v1@";
+const fix = 'v1@'
 
 /**
  * 存储介质适配器
@@ -10,8 +10,8 @@ const fix = "v1@";
  * @returns
  */
 const cacheAdapter = (isSessionStorage?: boolean) => {
-  return isSessionStorage ? sessionStorage : localStorage;
-};
+  return isSessionStorage ? sessionStorage : localStorage
+}
 
 /**
  * 取缓存值
@@ -23,25 +23,19 @@ const cacheAdapter = (isSessionStorage?: boolean) => {
  *       const username = getCache('username')
  */
 export const getCache = (key: string, options?: ICacheOptions, defaultValue?: unknown): any => {
-  key = fix + key;
-  options = { isParse: true, isDelete: false, ...options };
+  key = fix + key
+  options = { isParse: true, isDelete: false, ...options }
   try {
-    const value = cacheAdapter(options.isSessionStorage).getItem(key);
+    const value = cacheAdapter(options.isSessionStorage).getItem(key)
     if (options.isDelete) {
-      cacheAdapter(options.isSessionStorage).removeItem(key);
+      cacheAdapter(options.isSessionStorage).removeItem(key)
     }
-    return isNullOrUndefined(value)
-      ? defaultValue
-      : options.isParse
-        ? value
-          ? JSON.parse(value)
-          : defaultValue
-        : value;
+    return isNullOrUndefined(value) ? defaultValue : options.isParse ? (value ? JSON.parse(value) : defaultValue) : value
   } catch (error) {
-    console.error("getCache", error);
-    return defaultValue;
+    console.error('getCache', error)
+    return defaultValue
   }
-};
+}
 
 /**
  * 设置缓存值
@@ -52,17 +46,10 @@ export const getCache = (key: string, options?: ICacheOptions, defaultValue?: un
  * 例 ：import { setCache } from 'cache'
  *      setCache('username', { username: '张三' }, false)
  */
-export const setCache = (
-  key: string,
-  value: string | Record<string, unknown> | Array<any>[],
-  isSessionStorage?: boolean
-): void => {
-  key = fix + key;
-  cacheAdapter(isSessionStorage).setItem(
-    key,
-    typeof value === "object" ? JSON.stringify(value) : value
-  );
-};
+export const setCache = (key: string, value: string | Record<string, unknown> | Array<any>[], isSessionStorage?: boolean): void => {
+  key = fix + key
+  cacheAdapter(isSessionStorage).setItem(key, typeof value === 'object' ? JSON.stringify(value) : value)
+}
 
 /**
  * 清除缓存
@@ -73,14 +60,14 @@ export const setCache = (
  *       removeCache('username', false)
  */
 export const removeCache = (key: string, isSessionStorage?: boolean): void => {
-  key = fix + key;
-  cacheAdapter(isSessionStorage).removeItem(key);
-};
+  key = fix + key
+  cacheAdapter(isSessionStorage).removeItem(key)
+}
 
 export const getPermissions = (): string => {
-  return getCache(Permissions, { isSessionStorage: true }, {});
-};
+  return getCache(Permissions, { isSessionStorage: true }, {})
+}
 
 export const getToken = (): string => {
-  return getCache(CacheToken, { isSessionStorage: true }, {})["token"];
-};
+  return getCache(CacheToken, { isSessionStorage: true }, {})['token']
+}

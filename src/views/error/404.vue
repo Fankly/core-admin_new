@@ -12,14 +12,14 @@
 </template>
 <script lang="ts">
 export default {
-  name: "404"
-};
+  name: '404'
+}
 </script>
 <script setup lang="ts">
-import { useRouter } from "vue-router";
-const router = useRouter();
+import { useRouter } from 'vue-router'
+const router = useRouter()
 </script>
 
 <style scoped lang="less">
-@import "./index.less";
+@import './index.less';
 </style>

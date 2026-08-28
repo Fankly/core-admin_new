@@ -27,11 +27,13 @@ export default defineConfig({
     chunkSizeWarningLimit: 4096,
     rollupOptions: {
       output: {
-        manualChunks: {
-          elmplus: ['element-plus'],
-          lodash: ['lodash'],
-          lib: ['sortablejs', 'vxe-table', 'xe-utils'],
-          vlib: ['vue', 'vue-router', 'pinia']
+        // rolldown（vite 8）只支持函数形式的 manualChunks，对象形式已被移除
+        manualChunks: (id) => {
+          if (!id.includes('node_modules')) return
+          if (id.includes('element-plus')) return 'elmplus'
+          if (id.includes('lodash')) return 'lodash'
+          if (/[\\/]node_modules[\\/](sortablejs|vxe-table|xe-utils)[\\/]/.test(id)) return 'lib'
+          if (/[\\/]node_modules[\\/](vue|vue-router|pinia)[\\/]/.test(id)) return 'vlib'
         }
       }
     }

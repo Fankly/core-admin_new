@@ -13,9 +13,7 @@ export default defineComponent({
     const { currentRoute } = router
     const firstRoute = router.options.routes[0] as RouteLocationMatched
     const home: RouteLocationMatched =
-      firstRoute.children && firstRoute.children.length > 0
-        ? (firstRoute.children[0] as RouteLocationMatched)
-        : firstRoute
+      firstRoute.children && firstRoute.children.length > 0 ? (firstRoute.children[0] as RouteLocationMatched) : firstRoute
     watch(
       () => currentRoute.value,
       () => {
@@ -32,8 +30,6 @@ export default defineComponent({
     <el-breadcrumb-item :to="{ path: home.path }">
       {{ '主页' }}
     </el-breadcrumb-item>
-    <el-breadcrumb-item v-for="x in breadcrumbs" :key="x.path"
-      >{{ currentRoute.query._mt || x.meta.title || '' }}
-    </el-breadcrumb-item>
+    <el-breadcrumb-item v-for="x in breadcrumbs" :key="x.path">{{ currentRoute.query._mt || x.meta.title || '' }} </el-breadcrumb-item>
   </el-breadcrumb>
 </template>

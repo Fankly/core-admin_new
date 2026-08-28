@@ -14,7 +14,8 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "types": ["vite/client"],
+    // vue 3.5 起不再默认注册全局 JSX 命名空间，tsx 组件（ProTable/TableColumn.vue）需要显式引入
+    "types": ["vite/client", "vue/jsx"],
     "paths": {
       "@/*": ["./src/*"],
       "@mock/*": ["./mock/*"],

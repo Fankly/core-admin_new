@@ -1,6 +1,4 @@
 import baseService from '@/service/baseService'
-import { mapMutations, mapGetters } from 'vuex'
-import { getAppId } from '@/utils'
 
 // 全局mixin对象
 const globalMixin = {
@@ -32,18 +30,6 @@ const globalMixin = {
      */
     showMask(isShow) {
       isShow ? this.loadingManager.showMask() : this.loadingManager.hideMask()
-    },
-    /**
-     * 判读用户是否有权限
-     * @param {String} permCode  权限字
-     */
-    checkPermCodeExist(permCode) {
-      if (getAppId() != null && getAppId() !== '') return true
-      if ((this.getUserInfo || {}).permCodeSet != null) {
-        return this.getUserInfo.permCodeSet.has(permCode)
-      } else {
-        return this.getUserInfo.isAdmin
-      }
     },
     /**
      * 将输入的值转换成指定的类型
@@ -109,14 +95,12 @@ const globalMixin = {
             this.$message.error('下载文件失败')
           }
         })
-    },
-    ...mapMutations(['setLoadingStatus'])
+    }
   },
   computed: {
     defaultFormItemSize() {
       return this.windowWidth <= 1900 ? 'small' : 'medium'
-    },
-    ...mapGetters(['getUserInfo'])
+    }
   },
   watch: {
     'loadingManager.loading': {

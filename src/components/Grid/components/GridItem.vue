@@ -38,7 +38,7 @@ const shouldHiddenIndex = inject<Ref<number>>('shouldHiddenIndex', ref(-1))
 watch(
   () => [shouldHiddenIndex.value, breakPoint.value],
   (n) => {
-    if (!!attrs.index) {
+    if (attrs.index) {
       isShow.value = !(n[0] !== -1 && parseInt(attrs.index) >= Number(n[0]))
     }
   },

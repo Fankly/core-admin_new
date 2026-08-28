@@ -216,8 +216,7 @@ export interface FormField {
     parentValue: any,
     formData: Record<string, any>
   ) =>
-    | Promise<Array<{ label?: string; value: any; name?: string; code?: string }>>
-    | Array<{ label?: string; value: any; name?: string; code?: string }>
+    Promise<Array<{ label?: string; value: any; name?: string; code?: string }>> | Array<{ label?: string; value: any; name?: string; code?: string }>
   cascadeConfig?: {
     parentField: string
     optionsMap: Record<string, Array<{ label?: string; value: any; name?: string; code?: string }>>
@@ -266,7 +265,7 @@ const dynamicOptions = reactive<Record<string, Array<{ label?: string; value: an
 
 const multiDependencyLoading = reactive<Record<string, boolean>>({})
 
-const debounceTimers = reactive<Record<string, number>>({})
+const debounceTimers = reactive<Record<string, ReturnType<typeof setTimeout>>>({})
 
 const debouncedHandleMultiDependency = (fieldProp: string, delay = 300) => {
   if (debounceTimers[fieldProp]) {

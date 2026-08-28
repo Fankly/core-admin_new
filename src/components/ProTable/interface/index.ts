@@ -3,7 +3,7 @@ import { BreakPoint, Responsive } from '@/components/Grid/interface'
 // @ts-ignore
 import { ProTableProps } from '@/components/ProTable/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
-import { TableColumnCtx } from 'element-plus/lib/el-table/src/table-column/defaults'
+import type { TableColumnCtx } from 'element-plus'
 
 export interface EnumProps {
   label?: string // 选项框显示的文字
@@ -17,17 +17,7 @@ export interface EnumProps {
 export type TypeProps = 'index' | 'selection' | 'radio' | 'expand' | 'sort'
 
 export type SearchType =
-  | 'input'
-  | 'input-number'
-  | 'select'
-  | 'select-v2'
-  | 'tree-select'
-  | 'cascader'
-  | 'date-picker'
-  | 'time-picker'
-  | 'time-select'
-  | 'switch'
-  | 'slider'
+  'input' | 'input-number' | 'select' | 'select-v2' | 'tree-select' | 'cascader' | 'date-picker' | 'time-picker' | 'time-select' | 'switch' | 'slider'
 
 export type SearchRenderScope = {
   searchParam: { [key: string]: any }
@@ -56,20 +46,23 @@ export type FieldNamesProps = {
   children?: string
 }
 
-export type RenderScope<T> = {
+// element-plus 的 TableColumnCtx<T> 约束 T extends DefaultRow（Record<PropertyKey, any>），行类型跟着加约束
+export type TableRow = Record<PropertyKey, any>
+
+export type RenderScope<T extends TableRow> = {
   row: T
   $index: number
   column: TableColumnCtx<T>
   [key: string]: any
 }
 
-export type HeaderRenderScope<T> = {
+export type HeaderRenderScope<T extends TableRow> = {
   $index: number
   column: TableColumnCtx<T>
   [key: string]: any
 }
 
-export interface ColumnProps<T = any> extends Partial<Omit<TableColumnCtx<T>, 'type' | 'children' | 'renderCell' | 'renderHeader'>> {
+export interface ColumnProps<T extends TableRow = any> extends Partial<Omit<TableColumnCtx<T>, 'type' | 'children' | 'renderCell' | 'renderHeader'>> {
   type?: TypeProps // 列类型
   tag?: boolean | Ref<boolean> // 是否是标签展示
   isShow?: boolean | Ref<boolean> // 是否显示在表格当中

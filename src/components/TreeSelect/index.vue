@@ -34,7 +34,7 @@
             @check="handleCheckChange"
             :highlight-current="highlightCurrent"
           >
-            <template #default="{ node, data }">
+            <template #default="{ data }">
               <div
                 class="custom-tree-node"
                 :class="{
@@ -53,12 +53,12 @@
 
 <script>
 export default {
-  name: "TreeSelect",
+  name: 'TreeSelect',
   props: {
     // 选中的值
     modelValue: {
       type: [String, Number, Array],
-      default: ""
+      default: ''
     },
     // 数据源
     data: {
@@ -69,20 +69,20 @@ export default {
     props: {
       type: Object,
       default: () => ({
-        label: "label",
-        value: "value",
-        children: "children"
+        label: 'label',
+        value: 'value',
+        children: 'children'
       })
     },
     // 节点唯一标识
     nodeKey: {
       type: String,
-      default: "value"
+      default: 'value'
     },
     // 占位符
     placeholder: {
       type: String,
-      default: "请选择"
+      default: '请选择'
     },
     // 是否禁用
     disabled: {
@@ -131,23 +131,23 @@ export default {
     // 下拉框的类名
     popperClass: {
       type: String,
-      default: ""
+      default: ''
     }
   },
-  emits: ["update:modelValue", "change", "clear"],
+  emits: ['update:modelValue', 'change', 'clear'],
   data() {
     return {
-      selectedValue: this.modelValue !== undefined && this.modelValue !== null ? this.modelValue : this.multiple ? [] : "",
-      selectedLabel: "",
+      selectedValue: this.modelValue !== undefined && this.modelValue !== null ? this.modelValue : this.multiple ? [] : '',
+      selectedLabel: '',
       isPopoverVisible: false,
-      filterText: ""
-    };
+      filterText: ''
+    }
   },
   watch: {
     modelValue: {
       handler(val) {
-        this.selectedValue = val !== undefined && val !== null ? val : this.multiple ? [] : "";
-        this.updateSelected();
+        this.selectedValue = val !== undefined && val !== null ? val : this.multiple ? [] : ''
+        this.updateSelected()
       },
       immediate: true,
       deep: true
@@ -155,257 +155,257 @@ export default {
     data: {
       handler() {
         this.$nextTick(() => {
-          this.updateSelected();
-        });
+          this.updateSelected()
+        })
       },
       deep: true
     },
     filterText(val) {
       if (this.$refs.tree) {
-        this.$refs.tree.filter(val);
+        this.$refs.tree.filter(val)
 
         // 当有搜索文本时，展开所有节点以便查看搜索结果
         if (val && this.$refs.tree.store) {
-          this.$refs.tree.store.defaultExpandAll = true;
+          this.$refs.tree.store.defaultExpandAll = true
         }
       }
     }
   },
   mounted() {
     this.$nextTick(() => {
-      this.updateSelected();
-    });
+      this.updateSelected()
+    })
   },
   methods: {
     // 检查节点是否被选中（多选模式）
     isNodeChecked(node) {
       if (!this.multiple || !Array.isArray(this.selectedValue) || !this.$refs.tree) {
-        return false;
+        return false
       }
-      return this.selectedValue.includes(node[this.nodeKey]);
+      return this.selectedValue.includes(node[this.nodeKey])
     },
 
     // 切换下拉框显示状态
     togglePopover() {
-      this.isPopoverVisible = !this.isPopoverVisible;
+      this.isPopoverVisible = !this.isPopoverVisible
     },
 
     // 辅助方法：应用选中样式
     applySelectedStyle() {
-      if (!this.$refs.tree || this.multiple) return;
+      if (!this.$refs.tree || this.multiple) return
 
       // 先移除所有节点的选中效果
-      const allNodes = document.querySelectorAll(".custom-tree .el-tree-node__content");
+      const allNodes = document.querySelectorAll('.custom-tree .el-tree-node__content')
       allNodes.forEach((node) => {
-        node.style.backgroundColor = "";
-        node.style.color = "";
+        node.style.backgroundColor = ''
+        node.style.color = ''
 
         // 重置所有子元素的颜色
-        const nodeLabel = node.querySelector(".el-tree-node__label");
-        if (nodeLabel) nodeLabel.style.color = "";
+        const nodeLabel = node.querySelector('.el-tree-node__label')
+        if (nodeLabel) nodeLabel.style.color = ''
 
-        const customNode = node.querySelector(".custom-tree-node");
-        if (customNode) customNode.style.color = "";
-      });
+        const customNode = node.querySelector('.custom-tree-node')
+        if (customNode) customNode.style.color = ''
+      })
 
       if (this.selectedValue) {
         // 为当前节点添加选中效果
-        const currentNode = document.querySelector(`.custom-tree .el-tree-node.is-current > .el-tree-node__content`);
+        const currentNode = document.querySelector(`.custom-tree .el-tree-node.is-current > .el-tree-node__content`)
         if (currentNode) {
-          currentNode.style.backgroundColor = "var(--el-color-primary, #00706b)";
-          currentNode.style.color = "#fff";
+          currentNode.style.backgroundColor = 'var(--el-color-primary, #00706b)'
+          currentNode.style.color = '#fff'
 
           // 为当前节点的子元素添加选中效果
-          const nodeLabel = currentNode.querySelector(".el-tree-node__label");
-          if (nodeLabel) nodeLabel.style.color = "#fff";
+          const nodeLabel = currentNode.querySelector('.el-tree-node__label')
+          if (nodeLabel) nodeLabel.style.color = '#fff'
 
-          const customNode = currentNode.querySelector(".custom-tree-node");
-          if (customNode) customNode.style.color = "#fff";
+          const customNode = currentNode.querySelector('.custom-tree-node')
+          if (customNode) customNode.style.color = '#fff'
         }
       }
     },
 
     // 处理下拉框显示状态变化
     handleVisibleChange(visible) {
-      this.isPopoverVisible = visible;
+      this.isPopoverVisible = visible
       if (!visible) {
         // 关闭下拉框时清空过滤文本
-        this.filterText = "";
+        this.filterText = ''
 
         // 重新应用选中样式
         this.$nextTick(() => {
-          this.applySelectedStyle();
-        });
+          this.applySelectedStyle()
+        })
       }
     },
 
     // 远程搜索方法
     remoteMethod(query) {
-      this.filterText = query;
+      this.filterText = query
     },
 
     // 过滤节点的方法
     filterNode(value, data) {
-      if (!value) return true;
+      if (!value) return true
 
       // 获取节点的标签文本
-      const label = data[this.props.label];
+      const label = data[this.props.label]
 
       // 不区分大小写的搜索
-      return label.toLowerCase().includes(value.toLowerCase());
+      return label.toLowerCase().includes(value.toLowerCase())
     },
 
     // 处理节点点击事件
     handleNodeClick(data, node) {
-      if (this.multiple) return;
+      if (this.multiple) return
 
       // 如果不是叶子节点且有子节点，则不选中
-      if (this.onlyLeafSelectable && !node.isLeaf && node.childNodes && node.childNodes.length > 0) return;
+      if (this.onlyLeafSelectable && !node.isLeaf && node.childNodes && node.childNodes.length > 0) return
 
-      this.selectedValue = data[this.nodeKey] || "";
-      this.selectedLabel = data[this.props.label] || "";
-      this.filterText = ""; // 清空搜索文本
+      this.selectedValue = data[this.nodeKey] || ''
+      this.selectedLabel = data[this.props.label] || ''
+      this.filterText = '' // 清空搜索文本
 
       // 设置当前节点为选中状态
       if (this.$refs.tree) {
-        this.$refs.tree.setCurrentKey(data[this.nodeKey]);
+        this.$refs.tree.setCurrentKey(data[this.nodeKey])
 
         // 手动添加选中效果
         this.$nextTick(() => {
-          this.applySelectedStyle();
-        });
+          this.applySelectedStyle()
+        })
       }
 
-      this.$emit("update:modelValue", this.selectedValue);
-      this.$emit("change", data);
+      this.$emit('update:modelValue', this.selectedValue)
+      this.$emit('change', data)
 
       // 关闭下拉框
       this.$nextTick(() => {
-        this.$refs.select.blur();
-      });
+        this.$refs.select.blur()
+      })
     },
 
     // 处理复选框选中状态变化
     handleCheckChange() {
-      if (!this.multiple) return;
+      if (!this.multiple) return
 
-      const checkedNodes = this.$refs.tree.getCheckedNodes();
-      const checkedKeys = checkedNodes.map((node) => node[this.nodeKey]);
+      const checkedNodes = this.$refs.tree.getCheckedNodes()
+      const checkedKeys = checkedNodes.map((node) => node[this.nodeKey])
 
-      this.selectedValue = checkedKeys;
-      this.selectedLabel = checkedNodes.map((node) => node[this.props.label]).join(", ");
+      this.selectedValue = checkedKeys
+      this.selectedLabel = checkedNodes.map((node) => node[this.props.label]).join(', ')
 
-      this.$emit("update:modelValue", this.selectedValue);
-      this.$emit("change", checkedNodes);
+      this.$emit('update:modelValue', this.selectedValue)
+      this.$emit('change', checkedNodes)
     },
 
     // 清空选中
     clearSelected() {
-      this.selectedValue = this.multiple ? [] : "";
-      this.selectedLabel = "";
-      this.filterText = "";
+      this.selectedValue = this.multiple ? [] : ''
+      this.selectedLabel = ''
+      this.filterText = ''
 
       if (this.$refs.tree) {
         if (this.multiple) {
-          this.$refs.tree.setCheckedKeys([]);
+          this.$refs.tree.setCheckedKeys([])
         } else {
-          this.$refs.tree.setCurrentKey(null);
+          this.$refs.tree.setCurrentKey(null)
 
           // 清除选中样式
           this.$nextTick(() => {
-            this.applySelectedStyle();
-          });
+            this.applySelectedStyle()
+          })
         }
       }
 
-      this.$emit("update:modelValue", this.selectedValue);
-      this.$emit("clear");
+      this.$emit('update:modelValue', this.selectedValue)
+      this.$emit('clear')
     },
 
     // 更新选中项的显示
     updateSelected() {
-      if (!this.data || this.data.length === 0) return;
+      if (!this.data || this.data.length === 0) return
 
       if (this.multiple) {
         // 多选模式的回显逻辑
         if (Array.isArray(this.selectedValue) && this.selectedValue.length > 0) {
           this.$nextTick(() => {
             if (this.$refs.tree) {
-              this.$refs.tree.setCheckedKeys(this.selectedValue);
-              const checkedNodes = this.$refs.tree.getCheckedNodes();
-              this.selectedLabel = checkedNodes.map((node) => node[this.props.label]).join(", ");
+              this.$refs.tree.setCheckedKeys(this.selectedValue)
+              const checkedNodes = this.$refs.tree.getCheckedNodes()
+              this.selectedLabel = checkedNodes.map((node) => node[this.props.label]).join(', ')
             }
-          });
+          })
         } else {
-          if (this.$refs.tree) this.$refs.tree.setCheckedKeys([]);
-          this.selectedLabel = "";
+          if (this.$refs.tree) this.$refs.tree.setCheckedKeys([])
+          this.selectedLabel = ''
         }
       } else {
         // 单选模式的回显逻辑
         const findNode = (data, value) => {
           for (let i = 0; i < data.length; i++) {
             if (data[i][this.nodeKey] === value) {
-              return data[i];
+              return data[i]
             }
             if (data[i][this.props.children] && data[i][this.props.children].length > 0) {
-              const result = findNode(data[i][this.props.children], value);
-              if (result) return result;
+              const result = findNode(data[i][this.props.children], value)
+              if (result) return result
             }
           }
-          return null;
-        };
+          return null
+        }
 
         if (this.selectedValue) {
-          const node = findNode(this.data, this.selectedValue);
-          this.selectedLabel = node ? node[this.props.label] : "";
+          const node = findNode(this.data, this.selectedValue)
+          this.selectedLabel = node ? node[this.props.label] : ''
 
           // 设置当前节点为选中状态
           this.$nextTick(() => {
             if (this.$refs.tree) {
-              this.$refs.tree.setCurrentKey(this.selectedValue);
+              this.$refs.tree.setCurrentKey(this.selectedValue)
 
               // 手动添加选中效果
               this.$nextTick(() => {
-                this.applySelectedStyle();
-              });
+                this.applySelectedStyle()
+              })
             }
-          });
+          })
         } else {
-          this.selectedLabel = "";
+          this.selectedLabel = ''
           // 清除当前选中状态
           this.$nextTick(() => {
             if (this.$refs.tree) {
-              this.$refs.tree.setCurrentKey(null);
+              this.$refs.tree.setCurrentKey(null)
 
               // 清除选中样式
               this.$nextTick(() => {
-                this.applySelectedStyle();
-              });
+                this.applySelectedStyle()
+              })
             }
-          });
+          })
         }
       }
     },
 
     // 获取选中的节点数据
     getCheckedNodes() {
-      return this.$refs.tree ? this.$refs.tree.getCheckedNodes() : [];
+      return this.$refs.tree ? this.$refs.tree.getCheckedNodes() : []
     },
 
     // 获取选中的节点的键值
     getCheckedKeys() {
-      return this.$refs.tree ? this.$refs.tree.getCheckedKeys() : [];
+      return this.$refs.tree ? this.$refs.tree.getCheckedKeys() : []
     },
 
     // 设置选中的节点，通过keys
     setCheckedKeys(keys) {
       if (this.$refs.tree) {
-        this.$refs.tree.setCheckedKeys(keys);
-        this.handleCheckChange();
+        this.$refs.tree.setCheckedKeys(keys)
+        this.handleCheckChange()
       }
     }
   }
-};
+}
 </script>
 
 <style>

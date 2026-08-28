@@ -2,6 +2,7 @@ import { isArray } from '@/utils/is'
 import { FieldNamesProps } from '@/components/ProTable/interface'
 import { Base64 } from 'js-base64'
 import { copyToClipboard, treeDataTranslate as translateTreeData } from '@/utils/utils'
+import { IMenuOptions } from '@/types/interface'
 
 const mode = import.meta.env.VITE_ROUTER_MODE
 
@@ -86,7 +87,7 @@ export function isObjectValueEqual(a: { [key: string]: any }, b: { [key: string]
     const propName = aProps[i]
     const propA = a[propName]
     const propB = b[propName]
-    if (!b.hasOwnProperty(propName)) return false
+    if (!Object.prototype.hasOwnProperty.call(b, propName)) return false
     if (propA instanceof Object) {
       if (!isObjectValueEqual(propA, propB)) return false
     } else if (propA !== propB) {
@@ -127,13 +128,7 @@ export function getTimeState() {
  */
 export function getBrowserLang() {
   const browserLang = navigator.language ? navigator.language : navigator.browserLanguage
-  let defaultBrowserLang = ''
-  if (['cn', 'zh', 'zh-cn'].includes(browserLang.toLowerCase())) {
-    defaultBrowserLang = 'zh'
-  } else {
-    defaultBrowserLang = 'en'
-  }
-  return defaultBrowserLang
+  return ['cn', 'zh', 'zh-cn'].includes(browserLang.toLowerCase()) ? 'zh' : 'en'
 }
 
 /**
@@ -153,8 +148,8 @@ export function getUrlWithParams() {
  * @param {Array} menuList 菜单列表
  * @returns {Array}
  */
-export function getFlatMenuList(menuList: Menu.MenuOptions[]): Menu.MenuOptions[] {
-  const newMenuList: Menu.MenuOptions[] = JSON.parse(JSON.stringify(menuList))
+export function getFlatMenuList(menuList: IMenuOptions[]): IMenuOptions[] {
+  const newMenuList: IMenuOptions[] = JSON.parse(JSON.stringify(menuList))
   return newMenuList.flatMap((item) => [item, ...(item.children ? getFlatMenuList(item.children) : [])])
 }
 
@@ -163,8 +158,8 @@ export function getFlatMenuList(menuList: Menu.MenuOptions[]): Menu.MenuOptions[
  * @param {Array} menuList 菜单列表
  * @returns {Array}
  * */
-export function getShowMenuList(menuList: Menu.MenuOptions[]) {
-  const newMenuList: Menu.MenuOptions[] = JSON.parse(JSON.stringify(menuList))
+export function getShowMenuList(menuList: IMenuOptions[]) {
+  const newMenuList: IMenuOptions[] = JSON.parse(JSON.stringify(menuList))
   return newMenuList.filter((item) => {
     item.children?.length && (item.children = getShowMenuList(item.children))
     return !item.meta?.isHide
@@ -178,7 +173,7 @@ export function getShowMenuList(menuList: Menu.MenuOptions[]) {
  * @param {Object} result 处理后的结果
  * @returns {Object}
  */
-export const getAllBreadcrumbList = (menuList: Menu.MenuOptions[], parent = [], result: { [key: string]: any } = {}) => {
+export const getAllBreadcrumbList = (menuList: IMenuOptions[], parent = [], result: { [key: string]: any } = {}) => {
   for (const item of menuList) {
     result[item.path] = [...parent, item]
     if (item.children) getAllBreadcrumbList(item.children, result[item.path], result)
@@ -192,7 +187,7 @@ export const getAllBreadcrumbList = (menuList: Menu.MenuOptions[], parent = [], 
  * @param {Array} menuPathArr 菜单地址的一维数组 ['**','**']
  * @returns {Array}
  */
-export function getMenuListPath(menuList: Menu.MenuOptions[], menuPathArr: string[] = []): string[] {
+export function getMenuListPath(menuList: IMenuOptions[], menuPathArr: string[] = []): string[] {
   for (const item of menuList) {
     if (typeof item === 'object' && item.path) menuPathArr.push(item.path)
     if (item.children?.length) getMenuListPath(item.children, menuPathArr)
@@ -206,7 +201,7 @@ export function getMenuListPath(menuList: Menu.MenuOptions[], menuPathArr: strin
  * @param {String} path 当前访问地址
  * @returns {Object | null}
  */
-export function findMenuByPath(menuList: Menu.MenuOptions[], path: string): Menu.MenuOptions | null {
+export function findMenuByPath(menuList: IMenuOptions[], path: string): IMenuOptions | null {
   for (const item of menuList) {
     if (item.path === path) return item
     if (item.children) {
@@ -223,7 +218,7 @@ export function findMenuByPath(menuList: Menu.MenuOptions[], path: string): Menu
  * @param {Array} keepAliveNameArr 缓存的菜单 name ['**','**']
  * @returns {Array}
  * */
-export function getKeepAliveRouterName(menuList: Menu.MenuOptions[], keepAliveNameArr: string[] = []) {
+export function getKeepAliveRouterName(menuList: IMenuOptions[], keepAliveNameArr: string[] = []) {
   menuList.forEach((item) => {
     item.meta.isKeepAlive && item.name && keepAliveNameArr.push(item.name)
     item.children?.length && getKeepAliveRouterName(item.children, keepAliveNameArr)

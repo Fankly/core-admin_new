@@ -35,13 +35,10 @@
 <script lang="ts">
 import { defineComponent, reactive } from 'vue'
 import baseService from '@/service/baseService'
-import { useStore } from 'vuex'
 
 export default defineComponent({
   setup() {
-    const store = useStore()
     return reactive({
-      store,
       sysInfo: {
         osName: '',
         osVersion: '',

@@ -148,7 +148,9 @@ const textStyle = computed(() => {
   background: #f7fdfd !important;
   border: 1px solid #b8ddd9 !important;
   border-radius: 6px !important;
-  box-shadow: 0 8px 20px rgba(0, 112, 107, 0.12), 0 2px 6px rgba(0, 112, 107, 0.06) !important;
+  box-shadow:
+    0 8px 20px rgba(0, 112, 107, 0.12),
+    0 2px 6px rgba(0, 112, 107, 0.06) !important;
 }
 
 .re-text-tooltip .el-popper__arrow::before,

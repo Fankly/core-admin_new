@@ -54,7 +54,7 @@ import { getValueByKeys } from '@/utils/utils'
 import { useMediaQuery } from '@vueuse/core'
 import { computed, defineComponent, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { RouteRecordRaw, useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import { useAppStore } from '@/store'
 import BaseHeader from './header/base-header.vue'
 import BaseSidebar from './sidebar/base-sidebar.vue'
 import BaseView from './view/base-view.vue'
@@ -84,7 +84,7 @@ export default defineComponent({
   components: { BaseView, BaseHeader, BaseSidebar },
   setup() {
     const isMobile = useMediaQuery('(max-width: 768px)')
-    const store = useStore()
+    const store = useAppStore()
     const themeCache = getThemeConfigCache()
     const sidebarLayoutCache = getThemeConfigCacheByKey(EThemeSetting.NavLayout, themeCache)
     const router = useRouter()
@@ -95,7 +95,7 @@ export default defineComponent({
       loading: false,
       collapseSidebar: getThemeConfigCacheByKey(EThemeSetting.SidebarCollapse) as boolean,
       isSidebarResizing: false,
-      sidebarWidth: readSidebarWidth(String(store.state.user.id || '')),
+      sidebarWidth: readSidebarWidth(String(store.user.id || '')),
       mixLayoutRoutes: router.options.routes.find((x) => x.path === '/')?.children ?? ([] as RouteRecordRaw[])
     })
     const sidebarResizer = ref<HTMLElement>()
@@ -114,7 +114,7 @@ export default defineComponent({
     const layoutStyle = computed(() => ({ '--rr-sidebar-width': `${state.sidebarWidth}px` }))
 
     const persistSidebarWidth = () => {
-      const userId = String(store.state.user.id || '')
+      const userId = String(store.user.id || '')
       if (userId) setCache(getSidebarWidthCacheKey(userId), String(state.sidebarWidth))
     }
 
@@ -210,7 +210,7 @@ export default defineComponent({
       if (state.collapseSidebar) finishSidebarResize(false)
     })
     watch(
-      () => String(store.state.user.id || ''),
+      () => String(store.user.id || ''),
       (userId) => {
         finishSidebarResize(false)
         state.sidebarWidth = readSidebarWidth(userId)

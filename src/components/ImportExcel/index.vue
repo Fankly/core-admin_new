@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts" name="ImportExcel">
-import { ref, defineExpose } from 'vue'
+import { ref } from 'vue'
 import { useDownload } from '@/hooks/useDownload'
 import { ElMessage } from 'element-plus'
 

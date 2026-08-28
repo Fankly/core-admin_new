@@ -82,7 +82,7 @@ export interface OfficePreviewInstance {
 /** spreadsheet 引擎原生可识别的表格扩展名（不含 WPS .et）。 */
 export const SPREADSHEET_NATIVE_EXTS = ['xlsx', 'xls', 'xlsm', 'xlsb', 'xltx', 'xlt', 'xltm', 'csv', 'tsv', 'ods', 'fods', 'numbers'] as const
 
-export type SpreadsheetNativeExt = typeof SPREADSHEET_NATIVE_EXTS[number]
+export type SpreadsheetNativeExt = (typeof SPREADSHEET_NATIVE_EXTS)[number]
 
 export const isSpreadsheetNativeExt = (ext?: string): ext is SpreadsheetNativeExt =>
   !!ext && (SPREADSHEET_NATIVE_EXTS as readonly string[]).includes(ext)
@@ -90,7 +90,7 @@ export const isSpreadsheetNativeExt = (ext?: string): ext is SpreadsheetNativeEx
 /** Word 相关扩展名（含旧版二进制与模板）。 */
 export const WORD_NATIVE_EXTS = ['doc', 'docx', 'docm', 'dot', 'dotx'] as const
 
-export type WordNativeExt = typeof WORD_NATIVE_EXTS[number]
+export type WordNativeExt = (typeof WORD_NATIVE_EXTS)[number]
 
 export const isWordNativeExt = (ext?: string): ext is WordNativeExt => !!ext && (WORD_NATIVE_EXTS as readonly string[]).includes(ext)
 

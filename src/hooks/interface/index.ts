@@ -1,32 +1,22 @@
-export namespace Table {
-  export interface Pageable {
-    current: number;
-    size: number;
-    total: number;
-  }
-  export interface StateProps {
-    tableData: any[];
-    pageable: Pageable;
-    searchParam: {
-      [key: string]: any;
-    };
-    searchInitParam: {
-      [key: string]: any;
-    };
-    totalParam: {
-      [key: string]: any;
-    };
-    icon?: {
-      [key: string]: any;
-    };
-  }
+export interface TablePageable {
+  current: number
+  size: number
+  total: number
 }
 
-export namespace HandleData {
-  export type MessageType = "" | "success" | "warning" | "info" | "error";
-}
-
-export namespace Theme {
-  export type ThemeType = "light" | "inverted" | "dark";
-  export type GreyOrWeakType = "grey" | "weak";
+export interface TableStateProps {
+  tableData: any[]
+  pageable: TablePageable
+  searchParam: {
+    [key: string]: any
+  }
+  searchInitParam: {
+    [key: string]: any
+  }
+  totalParam: {
+    [key: string]: any
+  }
+  icon?: {
+    [key: string]: any
+  }
 }

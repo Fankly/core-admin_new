@@ -135,12 +135,7 @@ const useView = (props: IViewHooksOptions | IObject): IViewHooks => {
     // 删除
     deleteHandle(id?: string, pid?: string): Promise<any> {
       return new Promise((resolve) => {
-        if (
-          state.deleteIsBatch &&
-          !id &&
-          state.dataListSelections &&
-          state.dataListSelections.length <= 0
-        ) {
+        if (state.deleteIsBatch && !id && state.dataListSelections && state.dataListSelections.length <= 0) {
           ElMessage.warning({
             type: 'warning',
             message: '请选择操作项',
@@ -161,10 +156,8 @@ const useView = (props: IViewHooksOptions | IObject): IViewHooks => {
                   ? id
                     ? [id]
                     : state.dataListSelections
-                    ? state.dataListSelections.map(
-                        (item: IObject) => state.deleteIsBatchKey && item[state.deleteIsBatchKey]
-                      )
-                    : {}
+                      ? state.dataListSelections.map((item: IObject) => state.deleteIsBatchKey && item[state.deleteIsBatchKey])
+                      : {}
                   : {}
               )
               .then(() => {

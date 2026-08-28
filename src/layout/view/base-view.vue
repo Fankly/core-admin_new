@@ -1,5 +1,5 @@
 <template>
-  <tabs v-if="state.openTabsPage" :tabs="store.state.tabs" :activeTabName="store.state.activeTabName"></tabs>
+  <tabs v-if="state.openTabsPage" :tabs="store.tabs" :activeTabName="store.activeTabName"></tabs>
   <div class="rr-view-ctx">
     <!--    判断 -->
     <el-card shadow="never" class="rr-view-ctx-card">
@@ -8,7 +8,7 @@
           <template v-slot="{ Component, route }">
             <KeepAliveFrame :curr-comp="Component" :curr-route="route">
               <template #default="{ Comp, fullPath, frameInfo }">
-                <keep-alive v-if="enabledKeepAlive" :include="store.state.caches">
+                <keep-alive v-if="enabledKeepAlive" :include="store.caches">
                   <component :is="Comp" :key="fullPath" :frameInfo="frameInfo" />
                 </keep-alive>
                 <component v-else :is="Comp" :key="fullPath" :frameInfo="frameInfo" />
@@ -16,7 +16,7 @@
             </KeepAliveFrame>
           </template>
         </router-view>
-        <RouteLoading :visible="store.getters.getRouteLoading" />
+        <RouteLoading :visible="store.getRouteLoading" />
       </div>
     </el-card>
   </div>
@@ -28,7 +28,7 @@ import { EMitt, EThemeSetting } from '@/constants/enum'
 import emits from '@/utils/emits'
 import { getThemeConfigCacheByKey } from '@/utils/theme'
 import { computed, defineComponent, nextTick, reactive } from 'vue'
-import { useStore } from 'vuex'
+import { useAppStore } from '@/store'
 import Tabs from './tabs.vue'
 import KeepAliveFrame from '@/layout/component/keepAliveFrame/index.vue'
 import RouteLoading from '@/components/Loading/index.vue'
@@ -40,8 +40,8 @@ export default defineComponent({
   name: 'View',
   components: { Tabs, KeepAliveFrame, RouteLoading },
   setup() {
-    const store: any = useStore()
-    const loading = computed(() => store.state.loading)
+    const store = useAppStore()
+    const loading = computed(() => store.loading)
     const state = reactive({
       openTabsPage: getThemeConfigCacheByKey(EThemeSetting.OpenTabsPage),
       isShowView: true

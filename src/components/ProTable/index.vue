@@ -42,7 +42,7 @@
       <el-table ref="tableRef" v-bind="$attrs" :data="processTableData" :border="border" :row-key="rowKey" @selection-change="selectionChange">
         <!-- 默认插槽 -->
         <slot />
-        <template v-for="item in tableColumns" :key="item">
+        <template v-for="(item, index) in tableColumns" :key="item.prop ?? item.type ?? index">
           <!-- selection || radio || index || expand || sort -->
           <el-table-column
             v-if="item.type && columnTypes.includes(item.type)"
@@ -84,7 +84,7 @@
 
 <script setup lang="ts" name="ProTable">
 import { ref, watch, provide, onMounted, unref, computed, reactive, Ref } from 'vue'
-import { ElTable } from 'element-plus'
+import type { TableInstance } from 'element-plus'
 import { useTable } from '@/hooks/useTable'
 import { useSelection } from '@/hooks/useSelection'
 import { BreakPoint } from '@/components/Grid/interface'
@@ -99,7 +99,8 @@ import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { useGuide } from '@/hooks/useGuide'
 
-type ElTableInstance = InstanceType<typeof ElTable>
+// element-plus 2.14 把 ElTable 声明成泛型函数组件，不能再用 InstanceType，改用官方导出的实例类型
+type ElTableInstance = TableInstance
 
 export interface ProTableProps {
   columns: ColumnProps[] // 列配置项  ==> 必传
@@ -211,7 +212,9 @@ const processTableData = computed(() => {
 watch(() => props.initParam, getTableList, { deep: true })
 
 // 接收 columns 并设置为响应式
-const tableColumns = reactive<ColumnProps[]>(props.columns)
+// ColumnProps 继承 TableColumnCtx，reactive 的 UnwrapNestedRefs 会沿着 TableColumnCtx 递归展开，
+// 撑爆类型实例化深度（TS2589）。这里断言回原类型，运行时仍是完整的深层响应式对象。
+const tableColumns = reactive(props.columns) as unknown as ColumnProps[]
 
 // 扁平化 columns
 const flatColumns = computed(() => flatColumnsFunc(tableColumns))
@@ -239,7 +242,9 @@ const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
 provide('enumMap', enumMap)
 
 // 扁平化 columns 的方法
-const flatColumnsFunc = (columns: ColumnProps[], flatArr: ColumnProps[] = []) => {
+// 返回类型必须显式声明：函数内部递归调用自身，ColumnProps 又继承自很深的 TableColumnCtx，
+// 交给 TS 自行推断会触发 TS2589（类型实例化过深）
+const flatColumnsFunc = (columns: ColumnProps[], flatArr: ColumnProps[] = []): ColumnProps[] => {
   columns.forEach(async (col) => {
     if (col._children?.length) flatArr.push(...flatColumnsFunc(col._children))
     flatArr.push(col)

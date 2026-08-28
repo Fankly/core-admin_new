@@ -33,7 +33,7 @@
       <div class="help-content">
         <!-- 帮助信息 -->
         <div v-if="props.showHelpInfo && activeTab === 'help'" class="help-info">
-          <div v-if="helpText.trim()" :class="helpText.trim() ? '' : help - text" v-html="formatHelpText(helpText)"></div>
+          <div v-if="helpText.trim()" v-html="formatHelpText(helpText)"></div>
           <div v-else class="empty-content">
             <i class="el-icon-info"></i>
             <p>暂无帮助信息</p>
@@ -90,7 +90,7 @@
 import { downloadFj, getConfigByMenuId, listFj } from '@/api/metrics'
 import { getMenuMessage } from '@/api/process'
 import { defineComponent, ref, computed, watch, toRefs } from 'vue'
-import { useStore } from 'vuex'
+import { useAppStore } from '@/store'
 import { handleError } from '@/utils/error'
 
 export default defineComponent({
@@ -114,7 +114,7 @@ export default defineComponent({
     const activeTab = ref(props.showHelpInfo ? 'help' : 'attachments')
     const loading = ref(false)
     const helpText = ref('')
-    const store = useStore()
+    const store = useAppStore()
     interface AttachmentItem {
       fjmc: string
       uuid: string
@@ -218,7 +218,7 @@ export default defineComponent({
     const showModalHandle = async (): Promise<void> => {
       try {
         loading.value = true
-        const url = (props.menuUrl || '').trim() || store.getters.getMenuMsg.url || ''
+        const url = (props.menuUrl || '').trim() || store.getMenuMsg.url || ''
         activeTab.value = props.showHelpInfo ? 'help' : 'attachments'
         const result = await getMenuMessage(url)
         console.log(result)

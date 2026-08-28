@@ -32,7 +32,7 @@ router.beforeEach((to, from, next) => {
     const map = new Map(Object.entries(store.routeToMeta))
     const menuMsg = map.get((to.meta.url || to.path) as string)
     store.setMenuMsg({
-      ...(menuMsg as Object),
+      ...(menuMsg as object),
       url: to.meta.url || to.path
     })
     //外链

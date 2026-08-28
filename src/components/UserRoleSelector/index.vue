@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts" name="UserRoleSelector">
-import { useStore } from 'vuex'
+import { useAppStore } from '@/store'
 import { useRoute, useRouter } from 'vue-router'
 import { inject, onActivated, ref, Ref } from 'vue'
 import { UserInfo, UserRole } from '@/components/UserRoleSelector/interface'
@@ -32,7 +32,7 @@ import { ElMessage } from 'element-plus'
 import emits from '@/utils/emits'
 import { getMenuMessage } from '@/api/process'
 
-const store = useStore()
+const store = useAppStore()
 const route = useRoute()
 const router = useRouter()
 const emit = defineEmits(['loadCompany'])
@@ -51,7 +51,7 @@ const permissions = ref<string[]>([])
 const resetPermissions = () => {
   permissions.value = []
   canRender.value = false
-  store.commit('setPermissions', [])
+  store.setPermissions([])
 }
 
 const fetchRoleByBusicode = (userId: string, busicode: string) => {
@@ -66,13 +66,12 @@ const handleNoPermission = () => {
   resetPermissions()
   ElMessage({
     message: '无权限访问页面',
-    iconClass: 'el-icon-user-solid',
     customClass: 'tipsBox'
   })
-  if (store.getters.getMenuMsg.url === '/home') {
+  if (store.getMenuMsg.url === '/home') {
     emits.emit('isMainPageRole', false)
   }
-  store.state.tabs.pop()
+  store.tabs.pop()
   router.replace('/home')
 }
 
@@ -82,7 +81,7 @@ const handleNoMenuId = () => {
     type: 'error',
     message: '当前菜单未绑定ID'
   })
-  store.state.tabs.pop()
+  store.tabs.pop()
   router.back()
 }
 
@@ -98,19 +97,19 @@ const setCurrentUserRole = (roleData: UserInfo) => {
 }
 
 const resolveCurrentMenuId = async () => {
-  const menuUrl = String(route.meta.url || route.path || store.getters.getMenuMsg.url || '')
+  const menuUrl = String(route.meta.url || route.path || store.getMenuMsg.url || '')
   if (!menuUrl) return ''
 
   // 菜单信息在路由守卫里已经从 routeToMeta 提交进 menuMsg，命中缓存就不必再问一次后端
-  const routeMenu = store.state.routeToMeta?.[route.path] || route.meta
-  const currentMenu = store.getters.getMenuMsg
+  const routeMenu = store.routeToMeta?.[route.path] || route.meta
+  const currentMenu = store.getMenuMsg
   const cachedMenuId = routeMenu?.outsideMenu || (currentMenu?.url === menuUrl ? currentMenu.outsideMenu : '')
   if (cachedMenuId) return String(cachedMenuId)
 
   // 缓存里没有（如直接进外链页、菜单树尚未合并）才回退到接口
   const result = await getMenuMessage(menuUrl)
   if (result.success && result.data?.outsideMenu) {
-    store.commit('setMenuMsg', {
+    store.setMenuMsg({
       ...result.data,
       url: menuUrl
     })
@@ -125,7 +124,7 @@ const getUser = async () => {
   if (loading.value) return
   loading.value = true
   try {
-    const userId = store.getters.getUserMsg.id
+    const userId = store.getUserMsg.id
     currentMenuId.value = await resolveCurrentMenuId()
     if (!currentMenuId.value) {
       handleNoMenuId()
@@ -160,7 +159,6 @@ const confirmRole = async () => {
   if (!currentUserRole.value?.bmId) {
     ElMessage({
       message: '请选择角色再确定',
-      iconClass: 'el-icon-user-solid',
       customClass: 'tipsBox'
     })
     return
@@ -172,8 +170,8 @@ const confirmRole = async () => {
     const res = await fetchButtonList(currentMenuId.value, currentUserRole.value!.spRoleId)
     if (res.success) {
       permissions.value = Array.isArray(res.data) ? res.data : []
-      // v-permission 指令读 store.state.permissions，必须同步提交，否则页面读到上一个菜单残留的权限
-      store.commit('setPermissions', permissions.value)
+      // v-permission 指令读 store.permissions，必须同步提交，否则页面读到上一个菜单残留的权限
+      store.setPermissions(permissions.value)
       canRender.value = true
       emit('loadCompany')
       dialogVisible.value = false
@@ -190,17 +188,17 @@ const confirmRole = async () => {
   }
 }
 
-// keep-alive 缓存页返回时组件不会重新 mounted，但 store.state.permissions 可能已被别的页面覆盖，
+// keep-alive 缓存页返回时组件不会重新 mounted，但 store.permissions 可能已被别的页面覆盖，
 // 这里把本页已取到的权限重新提交回去，无需再发请求
 // 判断依据只能是 canRender（权限已取到），不能用 permissions.length —— 零权限角色也是合法结果
 onActivated(() => {
   if (canRender.value) {
-    store.commit('setPermissions', [...permissions.value])
+    store.setPermissions([...permissions.value])
   }
 })
 
 const cancel = () => {
-  store.state.tabs.pop()
+  store.tabs.pop()
   router.back()
 }
 

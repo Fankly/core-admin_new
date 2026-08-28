@@ -78,10 +78,6 @@ export default {
     readonly: Boolean,
     disabled: Boolean
   },
-  model: {
-    prop: 'value',
-    event: 'on-model-change'
-  },
   name: 'FilterConfigBox',
   data() {
     return {

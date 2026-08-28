@@ -24,7 +24,7 @@ import { getThemeConfigCacheByKey } from '@/utils/theme'
 import { useWindowSize } from '@vueuse/core'
 import { defineComponent, onMounted, reactive, ref, watch } from 'vue'
 import { RouteRecordRaw, useRoute, useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import { useAppStore } from '@/store'
 import SidebarMenusItems from './sidebar-menus-items.vue'
 import logo from '@/assets/images/logo.png'
 
@@ -46,8 +46,8 @@ export default defineComponent({
     const router = useRouter()
     const route = useRoute()
     const win = useWindowSize()
-    const store = useStore()
-    const defaultMenus = toValidRoutes((props.menus ?? store.state.routes) as RouteRecordRaw[])
+    const store = useAppStore()
+    const defaultMenus = toValidRoutes((props.menus ?? store.routes) as RouteRecordRaw[])
     const getPopClassName = () => {
       const sidebarCache = getThemeConfigCacheByKey(EThemeSetting.Sidebar)
       return `rr-sidebar-menu-pop-${props.mode === 'vertical' && sidebarCache === 'dark' ? 'dark' : 'light'}`
@@ -92,7 +92,7 @@ export default defineComponent({
       }
     )
     watch(
-      () => store.state.routes,
+      () => store.routes,
       (vl) => {
         const ms = toValidRoutes(vl as RouteRecordRaw[])
         state.rawMenus = ms

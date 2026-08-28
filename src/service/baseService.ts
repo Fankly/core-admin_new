@@ -18,7 +18,7 @@ const REQUEST_TIMEOUT = 3600000
 function generateSignature(): ISignature {
   const timeStamp = Date.now()
   let random: number
-  if (typeof window !== 'undefined' && window.crypto?.getRandomValues) {
+  if (typeof window !== 'undefined' && typeof window.crypto?.getRandomValues === 'function') {
     random = crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000
   } else {
     random = Math.random()

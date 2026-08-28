@@ -5,7 +5,7 @@ import { getThemeConfigCacheByKey } from '@/utils/theme'
 import { getValueByKeys } from '@/utils/utils'
 import { computed, defineComponent, reactive, watch } from 'vue'
 import { RouteRecordRaw, useRoute, useRouter } from 'vue-router'
-import { useStore } from 'vuex'
+import { useAppStore } from '@/store'
 import BaseSidebar from '../sidebar/base-sidebar.vue'
 
 /**
@@ -15,7 +15,7 @@ export default defineComponent({
   name: 'HeaderMixNavMenus',
   components: { BaseSidebar },
   setup() {
-    const store = useStore()
+    const store = useAppStore()
     const router = useRouter()
     const route = useRoute()
     const routers = router.options.routes
@@ -34,7 +34,7 @@ export default defineComponent({
     )
     const topHeaderMenus = computed(() => {
       const rs: any[] = []
-      store.state.routes.forEach((x: RouteRecordRaw) => {
+      store.routes.forEach((x: RouteRecordRaw) => {
         rs.push({
           path: x.path,
           children: [],

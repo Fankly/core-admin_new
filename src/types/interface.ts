@@ -40,6 +40,29 @@ export interface IServerMenus {
   children?: IServerMenus[]
 }
 
+/**
+ * 前端静态菜单配置项（区别于服务端下发的 IServerMenus）
+ */
+export interface IMenuOptions {
+  path: string
+  name: string
+  component?: string | (() => Promise<unknown>)
+  redirect?: string
+  meta: IMenuMetaProps
+  children?: IMenuOptions[]
+}
+
+export interface IMenuMetaProps {
+  icon: string
+  title: string
+  activeMenu?: string
+  isLink?: string
+  isHide: boolean
+  isFull: boolean
+  isAffix: boolean
+  isKeepAlive: boolean
+}
+
 export interface ICacheOptions {
   /**
    * 是否取值后立即删除缓存

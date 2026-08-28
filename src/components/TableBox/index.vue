@@ -371,10 +371,13 @@ export default {
       // backdrop-filter: blur(8px) saturate(180%);
       // -webkit-backdrop-filter: blur(8px) saturate(180%);
 
-      background-image: radial-gradient(circle at 10% 50%, rgba(14, 139, 141, 0.02), transparent 40%),
+      background-image:
+        radial-gradient(circle at 10% 50%, rgba(14, 139, 141, 0.02), transparent 40%),
         radial-gradient(circle at 90% 100%, rgba(14, 139, 141, 0.08), transparent 40%) !important;
       border: 1px solid rgba(14, 139, 141, 0.2) !important;
-      box-shadow: 0 12px 24px rgba(14, 139, 141, 0.05), 0 4px 8px rgba(0, 0, 0, 0.05) !important;
+      box-shadow:
+        0 12px 24px rgba(14, 139, 141, 0.05),
+        0 4px 8px rgba(0, 0, 0, 0.05) !important;
 
       /* 让里面的单元格背景透明，否则会遮挡玻璃效果 */
       .vxe-body--column {
