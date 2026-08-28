@@ -13,16 +13,14 @@
       <fullscreen-layout v-else></fullscreen-layout>
     </template>
     <fullscreen-layout v-else-if="route.path.includes('workflow') && route.path !== '/workflow/todoTasks'"></fullscreen-layout>
-    <AiChatWidget :available="chatAvailable" />
   </el-config-provider>
 </template>
 
 <script lang="ts">
 import '@/assets/css/app.less'
-import AiChatWidget from '@/components/AiChat/AiChatWidget.vue'
 import Layout from '@/layout/index.vue'
 import '@/assets/theme/index.less'
-import { computed, defineComponent, onMounted, reactive, watch } from 'vue'
+import { defineComponent, onMounted, reactive, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import app from './constants/app'
@@ -36,7 +34,7 @@ import zhCn from 'element-plus/lib/locale/lang/zh-cn'
 
 export default defineComponent({
   name: 'App',
-  components: { Layout, FullscreenLayout, AiChatWidget },
+  components: { Layout, FullscreenLayout },
   setup() {
     const store = useStore()
     const route = useRoute()
@@ -44,10 +42,6 @@ export default defineComponent({
     const state = reactive({
       layout: location.href.includes('pop=true') ? EPageLayoutEnum.fullscreen : EPageLayoutEnum.page
     })
-    const chatAvailable = computed(
-      () =>
-        store.state.appIsReady && state.layout === EPageLayoutEnum.page && !(route.path.includes('workflow') && route.path !== '/workflow/todoTasks')
-    )
     onMounted(() => {
       //读取主题色缓存
       const themeCache = getThemeConfigCache()
@@ -80,7 +74,6 @@ export default defineComponent({
       router,
       state,
       pageTag: EPageLayoutEnum.page,
-      chatAvailable,
       locale: zhCn //element 分页显示中文
     }
   }

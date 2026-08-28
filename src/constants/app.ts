@@ -37,43 +37,8 @@ export default {
 
   /**
    * 全屏渲染的页面
+   *
+   * 业务页面已移除，这里只保留登录页。新增全屏页面时把路由 path 加进来。
    */
-  fullscreenPages: [
-    '/login',
-    '/workflow/deal',
-    '/workflow/targetValue/targetValueDb',
-    '/workflow/workflowDb',
-    '/workflow/fy/deal',
-    '/workflow/xm/deal',
-    '/workflow/xm/dealNew',
-    '/workflow/ysbg/deal',
-    '/workflow/zl/deal',
-    '/workflow/lslx/dealYs',
-    '/workflow/lslx/dealEs',
-    '/workflow/lslx/dealZgkbmYs',
-    '/workflow/fy/view',
-    '/workflow/xm/view',
-    '/workflow/ysbg/view',
-    '/workflow/view',
-    '/workflow/zl/view',
-    '/workflow/lslx/viewYs',
-    '/workflow/lslx/viewEs',
-    '/workflow/lslx/viewZgkbmYs',
-    '/workflow/xmgbdk/deal',
-    '/workflow/xmgbdk/view',
-    '/workflow/xjjz/deal',
-    '/workflow/xjjz/view',
-    '/workflow/syqzcydtx/view',
-    '/workflow/cityTarget/view',
-    '/workflow/cityTarget/deal',
-    '/workflow/targetBudget/provinceTarget/deal',
-    '/workflow/targetBudget/provinceTarget/view',
-    '/workflow/xm/newDeal',
-    '/workflow/xm/newView',
-    '/workflow/deptData/workflowDeal',
-    '/workflow/suzhou/materialTask',
-    '/workflow/sfhs/workflowDeal',
-    '/workflow/suzhou/taskMaterial',
-    '/workflow/cqyj/workflowDeal'
-  ]
+  fullscreenPages: ['/login']
 }
