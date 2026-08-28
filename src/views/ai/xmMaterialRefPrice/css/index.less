@@ -1,0 +1,509 @@
+// =============================================================================
+// 项目物资参考价格库 — 对齐标杆 smartTaskAudit
+// 工具栏 / 查询带 / 表格 三段式，并入唯一一层白底大卡
+// =============================================================================
+@primary-solid: #00706b;
+@primary-solid-active: #005f5a;
+@primary-bg-light: #f2f9f8;
+@primary-bg-hover: #e6f4f3;
+@primary-border-light: #b8ddd9;
+@primary-text-disabled: #a8cfcb;
+
+@text-main: ~'var(--el-text-color-primary, #1e293b)';
+@text-secondary: ~'var(--el-text-color-regular, #475569)';
+@text-muted: ~'var(--el-text-color-secondary, #64748b)';
+@text-disabled: ~'var(--el-text-color-disabled, #94a3b8)';
+@border-light: ~'var(--el-border-color-lighter, #f1f5f9)';
+@border-main: ~'var(--el-border-color-light, #e2e8f0)';
+@page-bg: ~'var(--el-bg-color-page, #f5fbfb)';
+@surface: ~'var(--el-bg-color, #ffffff)';
+
+@table-header-bg: #dff3f0;
+@table-header-text: #00706b;
+@table-hover-bg: #e6f4f3;
+@table-current-bg: #d8efec;
+@table-stripe-bg: #f7fcfb;
+
+@danger: #f56c6c;
+
+// 业务根：外边距交给 .rr-view-ctx（10px），此处不再叠一层
+.xm-material-ref-price {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: @page-bg;
+
+  /* 命令按钮基准：28px 高、6px 圆角、12px/500 */
+  :deep(.el-button) {
+    height: 28px;
+    min-height: 28px;
+    margin-left: 0;
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+  }
+
+  /* ========== 按钮锁色：浅青绿 plain 基准，禁止 Element 默认蓝 ========== */
+  :deep(.el-button--primary),
+  :deep(.el-button--primary.is-plain) {
+    color: @primary-solid !important;
+    background-color: @primary-bg-light !important;
+    border-color: @primary-border-light !important;
+    background-image: none !important;
+    box-shadow: none;
+  }
+
+  :deep(.el-button--primary:hover:not(.is-disabled)),
+  :deep(.el-button--primary:focus:not(.is-disabled)),
+  :deep(.el-button--primary.is-plain:hover:not(.is-disabled)),
+  :deep(.el-button--primary.is-plain:focus:not(.is-disabled)) {
+    color: @primary-solid !important;
+    background-color: @primary-bg-hover !important;
+    border-color: @primary-solid !important;
+    background-image: none !important;
+    box-shadow: none;
+    opacity: 1 !important;
+    transform: none;
+  }
+
+  :deep(.el-button--primary:active:not(.is-disabled)),
+  :deep(.el-button--primary.is-plain:active:not(.is-disabled)) {
+    color: @primary-solid-active !important;
+    background-color: @primary-bg-hover !important;
+    border-color: @primary-solid-active !important;
+    background-image: none !important;
+    transform: none;
+  }
+
+  :deep(.el-button--primary.is-disabled),
+  :deep(.el-button--primary.is-disabled:hover),
+  :deep(.el-button--primary.is-disabled:focus),
+  :deep(.el-button--primary.is-disabled:active),
+  :deep(.el-button--primary.is-plain.is-disabled),
+  :deep(.el-button--primary.is-plain.is-disabled:hover) {
+    color: @primary-text-disabled !important;
+    background-color: @primary-bg-light !important;
+    border-color: @primary-border-light !important;
+    background-image: none !important;
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* 次级命令：白底、正文墨字、结构边，悬停走青绿雾面 */
+  :deep(.el-button.is-plain:not(.el-button--primary)) {
+    color: @text-secondary !important;
+    background: @surface !important;
+    border-color: @border-main !important;
+
+    &:hover:not(.is-disabled),
+    &:focus:not(.is-disabled) {
+      color: @primary-solid !important;
+      background: @primary-bg-light !important;
+      border-color: @primary-border-light !important;
+    }
+  }
+
+  :deep(.el-input__inner) {
+    height: 32px;
+    line-height: 32px;
+    border-radius: 6px;
+    border-color: @border-main;
+    color: @text-secondary;
+  }
+
+  :deep(.el-input__inner:hover) {
+    border-color: @primary-border-light;
+  }
+
+  :deep(.el-input__inner:focus),
+  :deep(.el-input.is-focus .el-input__inner),
+  :deep(.el-select .el-input.is-focus .el-input__inner) {
+    border-color: @primary-solid;
+  }
+}
+
+/* 唯一一层业务外框：白底、1px 结构边、12px 圆角、无阴影 */
+.workbench-panel {
+  flex: 1 1 0;
+  height: 0;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: @surface;
+  border: 1px solid @border-main;
+  border-radius: 12px;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+
+/* 工具栏：命令按钮 + 工具图标，底部轻分割 */
+.xmrp-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  min-height: 48px;
+  padding: 10px 12px;
+  border-bottom: 1px solid @border-light;
+  background: @surface;
+  box-sizing: border-box;
+
+  .xmrp-toolbar__commands {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .xmrp-toolbar__tools {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 12px;
+    border-left: 1px solid @border-main;
+  }
+
+  .xmrp-toolbar__count {
+    flex-shrink: 0;
+    height: 24px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid @primary-border-light;
+    border-radius: 6px;
+    color: @primary-solid;
+    background: @primary-bg-light;
+    font-size: 12px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  :deep(.el-button + .el-button) {
+    margin-left: 0;
+  }
+}
+
+/* 查询带：并入大卡、底部轻分割 */
+:deep(.table-search) {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 12px 12px 4px;
+  border: none;
+  border-bottom: 1px solid @border-light;
+  border-radius: 0;
+  background: @surface;
+
+  .el-form-item {
+    margin-bottom: 8px;
+  }
+
+  .el-form-item__label {
+    color: @text-main;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .el-input__inner,
+  .el-select .el-input__inner {
+    border-radius: 6px;
+    border-color: @border-main;
+    color: @text-secondary;
+    height: 32px;
+    line-height: 32px;
+
+    &:hover {
+      border-color: @primary-border-light;
+    }
+
+    &:focus {
+      border-color: @primary-solid;
+    }
+  }
+
+  .operation {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0 !important;
+
+    .el-button {
+      margin-left: 0 !important;
+    }
+  }
+}
+
+/* 表格区：吃满剩余高度，纵向滚动只归表体 */
+.table-region {
+  flex: 1 1 0;
+  height: 0;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+
+  :deep(.table-main) {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 0;
+    background: @surface;
+    contain: layout paint;
+  }
+
+  /*
+   * vxe border=true → .border--full，用 background-image 画网格。
+   * 列上只写 background-color，禁止 background 简写 / background-image:none。
+   */
+  :deep(.vxe-grid),
+  :deep(.vxe-table) {
+    width: 100% !important;
+    height: 100% !important;
+    color: @text-secondary;
+    --vxe-font-color: @text-secondary;
+    --vxe-table-header-font-color: @table-header-text;
+    --vxe-table-header-background-color: @table-header-bg;
+    --vxe-table-header-font-weight: 600;
+    --vxe-table-border-color: @border-main;
+    --vxe-table-border-width: 1px;
+    --vxe-table-row-height-default: 32px;
+    --vxe-table-row-height-medium: 32px;
+    --vxe-table-row-height-small: 32px;
+    --vxe-table-row-height-mini: 32px;
+    --vxe-table-row-hover-background-color: @table-hover-bg;
+    --vxe-table-row-striped-background-color: @table-stripe-bg;
+    --vxe-table-row-current-background-color: @table-current-bg;
+    --vxe-table-row-checkbox-checked-background-color: @table-current-bg;
+    --vxe-table-row-hover-current-background-color: @table-hover-bg;
+    --vxe-table-row-hover-checkbox-checked-background-color: @table-hover-bg;
+    --vxe-table-row-hover-striped-background-color: @table-hover-bg;
+    background-color: @surface !important;
+  }
+
+  :deep(.vxe-table--border-line) {
+    border-color: @border-main !important;
+  }
+
+  :deep(.vxe-table--header-wrapper),
+  :deep(.vxe-table--header),
+  :deep(.vxe-header--column) {
+    background-color: @table-header-bg !important;
+  }
+
+  :deep(.vxe-header--column) {
+    color: @table-header-text !important;
+    font-size: 13px;
+    font-weight: 600;
+
+    .vxe-cell {
+      color: inherit;
+      font-size: 13px;
+    }
+  }
+
+  :deep(.vxe-body--column) {
+    color: @text-secondary;
+    font-size: 13px;
+
+    .vxe-cell {
+      font-size: 13px;
+    }
+  }
+
+  :deep(.xmrp-cell-text) {
+    width: 100%;
+    min-width: 0;
+    color: inherit;
+  }
+
+  :deep(.xmrp-cell-text:focus-visible) {
+    outline-color: @primary-solid;
+  }
+
+  :deep(.vxe-body--row.row--stripe) {
+    background-color: @table-stripe-bg !important;
+  }
+
+  /* 行态只铺底，不强制改字色 */
+  :deep(.vxe-body--row.row--checked),
+  :deep(.vxe-body--row.row--checked.row--stripe),
+  :deep(.vxe-body--row.row--radio),
+  :deep(.vxe-body--row.row--current) {
+    background-color: @table-current-bg !important;
+  }
+
+  :deep(.vxe-body--row.row--hover),
+  :deep(.vxe-body--row.row--hover.row--stripe),
+  :deep(.vxe-body--row.row--hover.row--checked),
+  :deep(.vxe-body--row.row--hover.row--checked.row--stripe),
+  :deep(.vxe-body--row.row--hover.row--current),
+  :deep(.vxe-body--row.row--hover.row--radio) {
+    background-color: @table-hover-bg !important;
+  }
+
+  :deep(.vxe-body--row.row--stripe .vxe-body--column),
+  :deep(.vxe-body--row.row--checked .vxe-body--column),
+  :deep(.vxe-body--row.row--hover .vxe-body--column),
+  :deep(.vxe-body--row.row--current .vxe-body--column),
+  :deep(.vxe-body--row.row--radio .vxe-body--column) {
+    background-color: transparent !important;
+  }
+
+  /* 表头勾选：主色压在雾面表头上 */
+  :deep(.vxe-header--column .vxe-checkbox--icon),
+  :deep(.vxe-header--column .vxe-checkbox--checked-icon),
+  :deep(.vxe-header--column .vxe-checkbox--indeterminate-icon),
+  :deep(.vxe-header--column .vxe-checkbox--unchecked-icon) {
+    color: @table-header-text !important;
+  }
+
+  :deep(.vxe-checkbox--icon) {
+    font-size: 15px;
+  }
+
+  :deep(.vxe-cell--checkbox .vxe-checkbox--checked-icon),
+  :deep(.vxe-cell--checkbox .vxe-checkbox--indeterminate-icon) {
+    color: @primary-solid !important;
+  }
+
+  /* 空态 */
+  :deep(.vxe-table--empty-placeholder),
+  :deep(.vxe-table--empty-content) {
+    color: @text-muted;
+    font-size: 13px;
+  }
+}
+
+/* 分页：融入白卡片底，右对齐，顶部轻分割线 */
+:deep(.el-pagination) {
+  --el-pagination-bg-color: transparent;
+  --el-pagination-button-bg-color: transparent;
+  --el-pagination-button-color: @text-secondary;
+  --el-pagination-hover-color: @primary-solid;
+  --el-pagination-font-size: 12px;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 2px;
+  margin: 0 !important;
+  padding: 8px 12px;
+  border-top: 1px solid @border-light;
+  color: @text-muted;
+  background: @surface;
+
+  &.is-background .btn-prev,
+  &.is-background .btn-next,
+  &.is-background .el-pager li,
+  .btn-prev,
+  .btn-next,
+  .el-pager li {
+    min-width: 28px;
+    height: 28px;
+    line-height: 28px;
+    margin: 0 2px;
+    border-radius: 6px;
+    color: @text-secondary !important;
+    background-color: transparent !important;
+    border: none !important;
+    font-size: 12px;
+    font-weight: 500;
+    transition: color 0.12s ease, background-color 0.12s ease;
+  }
+
+  .btn-prev .el-icon,
+  .btn-next .el-icon,
+  .btn-prev i,
+  .btn-next i {
+    color: inherit !important;
+  }
+
+  &.is-background .el-pager li:not(.disabled):not(.is-active):hover,
+  &.is-background .btn-prev:not(:disabled):hover,
+  &.is-background .btn-next:not(:disabled):hover,
+  .el-pager li:not(.disabled):not(.is-active):hover,
+  .btn-prev:not(:disabled):hover,
+  .btn-next:not(:disabled):hover {
+    color: @primary-solid !important;
+    background-color: @primary-bg-light !important;
+  }
+
+  &.is-background .el-pager li:not(.disabled).is-active,
+  .el-pager li:not(.disabled).is-active {
+    color: #ffffff !important;
+    background-color: @primary-solid !important;
+    border-color: transparent !important;
+    font-weight: 600;
+    box-shadow: none;
+  }
+
+  &.is-background .btn-prev:disabled,
+  &.is-background .btn-next:disabled,
+  &.is-background .el-pager li.disabled,
+  .btn-prev:disabled,
+  .btn-next:disabled,
+  .btn-prev.is-disabled,
+  .btn-next.is-disabled,
+  .el-pager li.disabled {
+    color: #cbd5e1 !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+  }
+
+  .el-pagination__total,
+  .el-pagination__sizes,
+  .el-pagination__jump {
+    height: 28px;
+    line-height: 28px;
+    color: @text-muted !important;
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .el-pagination__total {
+    margin-right: 10px;
+  }
+
+  .el-pagination__sizes {
+    margin-right: 8px;
+  }
+
+  .el-pagination__jump {
+    margin-left: 8px;
+  }
+
+  .el-pagination__sizes .el-input,
+  .el-pagination__jump .el-input {
+    margin: 0 4px;
+  }
+
+  .el-pagination__sizes .el-input__inner,
+  .el-pagination__jump .el-input__inner,
+  .el-pagination__editor.el-input .el-input__inner {
+    height: 28px;
+    line-height: 28px;
+    border: 1px solid @border-main;
+    border-radius: 6px;
+    background: @surface;
+    color: @text-secondary !important;
+    font-size: 12px;
+  }
+
+  .el-select .el-input .el-select__caret {
+    color: @text-muted;
+  }
+}

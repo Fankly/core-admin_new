@@ -1,0 +1,31 @@
+.search-area {
+  background: #fff;
+  border-radius: 4px;
+
+  .search-form {
+    .search-row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .search-item {
+      width: 25%;
+      box-sizing: border-box;
+      padding: 0 10px;
+      margin-bottom: 10px;
+
+      :deep(.el-form-item__content) {
+        flex: 1;
+      }
+    }
+
+    .search-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
+      padding-top: 4px;
+      margin-left: auto;
+      margin-bottom: 0;
+    }
+  }
+}

@@ -1,0 +1,544 @@
+/* 业务工作台 - 项目评审工作台样式 */
+
+.bw-page {
+  /* 国家电网绿配色体系 */
+  --bw-primary: #008b53;
+  --radius: 8px;
+  
+  /* 悬停与激活状态 */
+  --bw-primary-hover: #007b49;
+  --bw-primary-active: #006a3f;
+  
+  /* 浅色背景与边框 */
+  --bw-primary-light-9: #e6f4ea;
+  --bw-primary-light-8: #c2e7cc;
+  --bw-primary-light-7: #99d9aa;
+  --bw-primary-light-5: color-mix(in srgb, var(--bw-primary) 50%, white);
+  --bw-primary-light-3: color-mix(in srgb, var(--bw-primary) 70%, white);
+  
+  /* 透明度变体 */
+  --bw-primary-op-10: rgba(0, 139, 83, 0.1);
+  --bw-primary-op-20: rgba(0, 139, 83, 0.2);
+  --bw-primary-op-30: rgba(0, 139, 83, 0.3);
+  --bw-primary-op-40: rgba(0, 139, 83, 0.4);
+  --bw-primary-op-50: rgba(0, 139, 83, 0.5);
+
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.bw-page *,
+.bw-page *::before,
+.bw-page *::after {
+  box-sizing: border-box;
+}
+
+/* 重置与规范化按钮和输入框的默认样式 (使用 :where 降低特异性，避免覆盖 Tailwind 类) */
+:where(.bw-page) button {
+  border: 0 solid transparent;
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+:where(.bw-page) input {
+  border: 1px solid #e2e8f0;
+  outline: none;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.bw-page input:focus {
+  border-color: var(--bw-primary);
+  outline: none;
+}
+
+.bw-main {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.bw-main > * + * {
+  margin-top: 16px;
+}
+
+.bw-year-select {
+  width: 132px;
+  flex: 0 0 auto;
+}
+
+.bw-module-card {
+  border-width: 1px;
+  border-color: var(--bw-primary-light-8);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bw-module-card:hover {
+  border-color: var(--bw-primary-light-7);
+  transform: translateY(-2px);
+}
+
+.bw-module-card.is-selected {
+  background: var(--bw-primary-op-10);
+  border: 1px solid var(--bw-primary) !important;
+  box-shadow: 0 4px 12px rgba(0, 139, 83, 0.08);
+}
+
+.bw-meeting-card {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bw-project-row-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 14px 10px 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bw-project-row-card:hover {
+  border-color: var(--bw-primary);
+  transform: translateY(-1px);
+  box-shadow:
+    0 3px 12px rgba(0, 139, 83, 0.1),
+    0 1px 3px rgba(0, 139, 83, 0.06);
+}
+
+.bw-project-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.bw-project-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  margin-bottom: 6px;
+}
+
+.bw-project-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.bw-project-title-row .bw-project-title {
+  margin-bottom: 0;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.bw-project-title-row .bw-project-code {
+  flex: 0 0 auto;
+}
+
+.bw-project-title-row .bw-project-status {
+  flex: 0 0 auto;
+}
+
+.bw-project-title-row .bw-project-code + .bw-project-status {
+  margin-left: auto;
+}
+
+.bw-project-row-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-bottom: 6px;
+}
+
+.bw-project-code,
+.bw-project-status {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  height: 21px;
+  padding: 0 8px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.bw-project-code {
+  color: var(--bw-primary);
+  background: var(--bw-primary-light-9);
+  border: 1px solid var(--bw-primary-light-8);
+}
+
+.bw-project-status {
+  border: 1px solid transparent;
+}
+
+.bw-project-status.is-amber {
+  color: #a85f00;
+  background: #fff4d6;
+  border-color: #ffe1a3;
+}
+
+.bw-project-status.is-green {
+  color: #047a3d;
+  background: #e9f8ed;
+  border-color: #c8ecd2;
+}
+
+.bw-project-status.is-blue {
+  color: #155eef;
+  background: #edf4ff;
+  border-color: #cfe1ff;
+}
+
+.bw-project-status.is-slate {
+  color: #475569;
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.bw-project-title {
+  min-width: 0;
+  margin: 0 0 6px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s ease;
+}
+
+.bw-project-row-card:hover .bw-project-title {
+  color: var(--bw-primary);
+}
+
+.bw-project-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px 12px;
+  color: #334155;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.bw-project-meta-grid span {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 3px 0;
+}
+
+.bw-project-meta-grid em {
+  color: var(--bw-primary);
+  font-style: normal;
+  font-weight: 600;
+  opacity: 0.7;
+  margin-right: 2px;
+}
+
+.bw-project-budget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  min-width: 90px;
+  padding: 10px 8px;
+  border-radius: 10px;
+  background: var(--bw-primary-light-9);
+  border: 1px solid var(--bw-primary-light-8);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bw-project-row-card:hover .bw-project-budget {
+  background: var(--bw-primary-light-8);
+  border-color: var(--bw-primary-light-7);
+  transform: scale(1.02);
+}
+
+.bw-project-budget strong {
+  max-width: 100%;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--bw-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+.bw-project-budget span {
+  margin-top: 4px;
+  color: var(--bw-primary-hover);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.bw-project-budget--plain {
+  background: transparent;
+  border: none;
+  padding: 10px 4px;
+}
+
+.bw-project-row-card:hover .bw-project-budget--plain {
+  background: transparent;
+  border-color: transparent;
+  transform: none;
+}
+
+.bw-project-hover-action {
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.bw-project-row-card:hover .bw-project-hover-action,
+.bw-project-row-card:focus-within .bw-project-hover-action {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.bw-project-action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--bw-primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(0, 139, 83, 0.18);
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.bw-project-action-button:hover {
+  background: var(--bw-primary-hover);
+  box-shadow: 0 3px 10px rgba(0, 139, 83, 0.22);
+}
+
+.bw-project-action-icon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+
+/* 滚动条 */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+/* 动画 */
+@keyframes bwFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: bwFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+@keyframes bwFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-float {
+  animation: bwFloat 3s ease-in-out infinite;
+}
+
+@keyframes bwSpinSlow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin-slow {
+  animation: bwSpinSlow 8s linear infinite;
+}
+
+@keyframes bwPing {
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+.animate-ping {
+  animation: bwPing 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* 渐变背景支持 */
+.tw-bg-gradient-radial {
+  background: radial-gradient(var(--tw-gradient-stops));
+}
+
+/* 平滑过渡 */
+* {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bw-panel-card {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.bw-content-grid,
+.bw-content-cell {
+  min-width: 0;
+  min-height: 0;
+}
+
+.bw-content-cell {
+  display: flex;
+}
+
+.bw-meeting-list,
+.bw-stats-shell {
+  min-width: 0;
+  min-height: 0;
+}
+
+.bw-stats-body {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.bw-stats-grid {
+  grid-template-rows: repeat(4, minmax(72px, 1fr));
+}
+
+@media (max-width: 1023px) {
+  .bw-page,
+  .bw-main {
+    height: auto;
+    overflow: visible;
+  }
+
+  .bw-content-grid {
+    flex: none;
+  }
+
+  .bw-content-cell,
+  .bw-panel-card {
+    height: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .bw-year-select {
+    width: 100%;
+  }
+
+  .bw-project-row-card {
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .bw-project-title {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .bw-project-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+  }
+
+  .bw-project-budget {
+    align-items: flex-start;
+    width: auto;
+    min-width: 0;
+  }
+
+  .bw-project-hover-action {
+    right: 12px;
+    bottom: 12px;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}

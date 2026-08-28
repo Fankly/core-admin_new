@@ -1,0 +1,19 @@
+{
+  "GATEWAY_MAPPING": {
+    "localhost": "http://192.168.9.41:8001",
+    "msplatform.ysyf.js.sgcc.com.cn": "http://msplatform.ysyf.js.sgcc.com.cn:30080",
+    "msa.zs.test.js.sgcc.com.cn": "https://msa.zs.test.js.sgcc.com.cn",
+    "msa.wg.js.sgcc.com.cn": "http://msa.wg.js.sgcc.com.cn"
+  },
+  "SERVICES": {
+    "budget": "/budget-process",
+    "project": "/budget-process",
+    "otherOperatingCose": "/budget-process",
+    "targetBudget": "/budget-process",
+    "fullProcess": "/budget-process",
+    "zgsExpense": "/budget-expense"
+  },
+  "DEFAULT_SERVICE": "budget",
+  "DEFAULT_GATEWAY": "http://msa.wg.js.sgcc.com.cn",
+  "REQUEST_TIMEOUT": 60000
+}

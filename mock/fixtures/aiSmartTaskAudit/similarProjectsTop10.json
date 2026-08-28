@@ -1,0 +1,220 @@
+{
+  "aiSummary": "？？ AI总体结论生成失败：模型返回为空",
+  "projectId": "1478087",
+  "projectName": "国网江苏镇江供电公司本部停车棚维修",
+  "top10": [
+    {
+      "aiConclusion": "？？ AI结论生成失败：模型返回为空",
+      "dimensionMatches": [
+        {
+          "aiConclusion": "？？ AI结论生成失败：模型返回为空",
+          "currentHighlightedText": "国网江苏镇江供电公司本部停车棚维修",
+          "dimensionName": "项目名称",
+          "evidences": [],
+          "historyHighlightedText": "基于大数据的电网设备状态评估与预警平台",
+          "score": 0.00619299
+        },
+        {
+          "aiConclusion": "？？ AI结论生成失败：模型返回为空",
+          "currentHighlightedText": "为满足用户供电需求。",
+          "dimensionName": "存在问题及实施必要性",
+          "evidences": [],
+          "historyHighlightedText": "电网设备检修主要采用定期检修模式，存在过修和失修并存的问题，检修资源浪费严重。设备状态评估缺乏统一标准和量化指标，在线监测数据利用率不足20%。检修决策依赖经验判断，数据驱动的预测性维护能力薄弱，导致设备突发故障频发、检修成本居高不下。随着设备规模增长和运维人员紧张，亟需建立大数据驱动的状态评估平台，实现从周期性检修向状态检修转变。",
+          "score": 0.020215968
+        },
+        {
+          "aiConclusion": "？？ AI结论生成失败：模型返回为空",
+          "currentHighlightedText": "建设方案：计划由10kV石门线青灯9#变维修业扩配套工程，拟维修0.4kV线路0.030km，采用JKLYJ-1-185导线，维修12m电杆1根。",
+          "dimensionName": "技术实施方案",
+          "evidences": [],
+          "historyHighlightedText": "构建设备状态多维特征向量，整合台账、运行、检修、在线监测多源数据。采用随机森林与XGBoost集成学习模型进行健康度评分，引入LSTM时间序列网络预测设备劣化趋势。基于知识图谱整合缺陷案例库，实现相似缺陷关联推荐。设计状态评估指标体系与预警阈值，开发可视化决策看板，支撑检修计划优化。",
+          "score": 0.255158
+        },
+        {
+          "aiConclusion": "？？ AI结论生成失败：模型返回为空",
+          "currentHighlightedText": "",
+          "dimensionName": "效益分析",
+          "evidences": [],
+          "historyHighlightedText": "检修成本降低40%，设备故障率降低30%，延长设备使用寿命15%。预测准确率达85%以上，减少非计划停电。实现状态检修转型，优化检修资源配置，预计年节约检修成本约600万元。",
+          "score": 0.11676402
+        }
+      ],
+      "dimensionScores": {
+        "项目名称": 0.00619299,
+        "存在问题及实施必要性": 0.020215968,
+        "技术实施方案": 0.255158,
+        "效益分析": 0.11676402
+      },
+      "projectId": "HIST_2023_003",
+      "projectName": "",
+      "totalScore": 0.10860589020000001
+    },
+    {
+      "aiConclusion": "？？ AI结论生成失败：模型返回为空",
+      "dimensionMatches": [
+        {
+          "currentHighlightedText": "国网江苏镇江供电公司本部停车棚维修",
+          "dimensionName": "项目名称",
+          "evidences": [],
+          "historyHighlightedText": "基于边缘计算的配电网故障自愈控制系统研发",
+          "score": 0.011732464
+        },
+        {
+          "currentHighlightedText": "为满足用户供电需求。",
+          "dimensionName": "存在问题及实施必要性",
+          "evidences": [],
+          "historyHighlightedText": "配电网故障定位与隔离依赖主站，通信延迟大，自愈速度慢，影响供电可靠性",
+          "score": 0.033844035
+        },
+        {
+          "currentHighlightedText": "建设方案：计划由10kV石门线青灯9#变维修业扩配套工程，拟维修0.4kV线路0.030km，采用JKLYJ-1-185导线，维修12m电杆1根。",
+          "dimensionName": "技术实施方案",
+          "evidences": [],
+          "historyHighlightedText": "采用边缘计算终端部署于配电房，结合IEC61850通信协议，实现故障本地检测、隔离与非故障区间快速恢复供电",
+          "score": 0.28130686
+        },
+        {
+          "currentHighlightedText": "",
+          "dimensionName": "效益分析",
+          "evidences": [],
+          "historyHighlightedText": "故障自愈时间从分钟级缩短至秒级，供电可靠率提升至99.99%，减少停电损失约500万元/年",
+          "score": 0.03963884
+        }
+      ],
+      "dimensionScores": {
+        "项目名称": 0.011732464,
+        "存在问题及实施必要性": 0.033844035,
+        "技术实施方案": 0.28130686,
+        "效益分析": 0.03963884
+      },
+      "projectId": "HIST_TEST_002",
+      "projectName": "",
+      "totalScore": 0.10703068639999999
+    },
+    {
+      "aiConclusion": "？？ AI结论生成失败：模型返回为空",
+      "dimensionMatches": [
+        {
+          "currentHighlightedText": "国网江苏镇江供电公司本部停车棚维修",
+          "dimensionName": "项目名称",
+          "evidences": [],
+          "historyHighlightedText": "配电网故障自愈与智能恢复控制系统研究",
+          "score": 0.012007351
+        },
+        {
+          "currentHighlightedText": "为满足用户供电需求。",
+          "dimensionName": "存在问题及实施必要性",
+          "evidences": [],
+          "historyHighlightedText": "配电网发生故障后目前依赖人工现场排查定位，平均故障恢复时间超过2小时，部分区域自动化开关覆盖率不足30%，无法实现远程遥控隔离。故障信息传递不及时，调度决策缺乏数据支撑，导致停电范围扩大、恢复缓慢。随着分布式电源和高可靠性用户接入，对供电连续性要求日益提高，传统人工处置模式已难以满足99.99%供电可靠性的目标，亟需研发故障自愈控制系统实现毫秒级故障隔离与秒级恢复供电。",
+          "score": 0.13106197
+        },
+        {
+          "currentHighlightedText": "建设方案：计划由10kV石门线青灯9#变维修业扩配套工程，拟维修0.4kV线路0.030km，采用JKLYJ-1-185导线，维修12m电杆1根。",
+          "dimensionName": "技术实施方案",
+          "evidences": [],
+          "historyHighlightedText": "基于图论拓扑分析构建配电网网络模型，采用集中式与分布式相结合的自愈控制策略。利用馈线终端单元（FTU）和智能开关实现故障电流检测与自动隔离，引入强化学习算法优化非故障区域恢复供电路径选择。建立故障特征库，采用波形识别技术实现高阻故障精准检测。设计分布式电源参与的自愈控制逻辑，确保恢复过程电压稳定。",
+          "score": 0.08834723
+        },
+        {
+          "currentHighlightedText": "",
+          "dimensionName": "效益分析",
+          "evidences": [],
+          "historyHighlightedText": "故障定位准确率达98%，非故障区域恢复供电时间缩短至30秒以内，年平均停电时间减少70%。供电可靠性提升至99.99%，用户投诉量下降40%。减少故障扩大化风险，预计年减少停电损失约1200万元。",
+          "score": 0.07906799
+        }
+      ],
+      "dimensionScores": {
+        "项目名称": 0.012007351,
+        "存在问题及实施必要性": 0.13106197,
+        "技术实施方案": 0.08834723,
+        "效益分析": 0.07906799
+      },
+      "projectId": "HIST_2023_002",
+      "projectName": "",
+      "totalScore": 0.0959432901
+    },
+    {
+      "aiConclusion": "？？ AI结论生成失败：模型返回为空",
+      "dimensionMatches": [
+        {
+          "currentHighlightedText": "国网江苏镇江供电公司本部停车棚维修",
+          "dimensionName": "项目名称",
+          "evidences": [],
+          "historyHighlightedText": "",
+          "score": 0.0
+        },
+        {
+          "currentHighlightedText": "为满足用户供电需求。",
+          "dimensionName": "存在问题及实施必要性",
+          "evidences": [],
+          "historyHighlightedText": "",
+          "score": 0.0
+        },
+        {
+          "currentHighlightedText": "建设方案：计划由10kV石门线青灯9#变维修业扩配套工程，拟维修0.4kV线路0.030km，采用JKLYJ-1-185导线，维修12m电杆1根。",
+          "dimensionName": "技术实施方案",
+          "evidences": [],
+          "historyHighlightedText": "融合油色谱、局放、温度、负载等多源数据，采用LSTM时序预测与XGBoost分类模型，构建变压器健康度评分模型",
+          "score": 0.16000336
+        },
+        {
+          "currentHighlightedText": "",
+          "dimensionName": "效益分析",
+          "evidences": [],
+          "historyHighlightedText": "实现变压器状态实时评估，故障预警准确率90%以上，延长设备寿命约5年，节约运维成本150万元/年",
+          "score": 0.21223202
+        }
+      ],
+      "dimensionScores": {
+        "技术实施方案": 0.16000336,
+        "效益分析": 0.21223202
+      },
+      "projectId": "HIST_TEST_003",
+      "projectName": "",
+      "totalScore": 0.09336030168000001
+    },
+    {
+      "aiConclusion": "？？ AI结论生成失败：模型返回为空",
+      "dimensionMatches": [
+        {
+          "currentHighlightedText": "国网江苏镇江供电公司本部停车棚维修",
+          "dimensionName": "项目名称",
+          "evidences": [],
+          "historyHighlightedText": "分布式光伏高比例接入配电网优化控制技术研究",
+          "score": 0.0014493985
+        },
+        {
+          "currentHighlightedText": "为满足用户供电需求。",
+          "dimensionName": "存在问题及实施必要性",
+          "evidences": [],
+          "historyHighlightedText": "高比例分布式光伏接入导致配电网电压越限、功率倒送、谐波超标等问题日益突出。现有调压手段有限，储能配置缺乏科学规划方法，光伏出力预测精度不足影响调度决策。部分区域光伏渗透率已超50%，传统控制策略难以适应，弃光现象时有发生。随着双碳目标推进，光伏装机持续增长，亟需研究优化控制技术提升配电网消纳能力。",
+          "score": 0.06620602
+        },
+        {
+          "currentHighlightedText": "建设方案：计划由10kV石门线青灯9#变维修业扩配套工程，拟维修0.4kV线路0.030km，采用JKLYJ-1-185导线，维修12m电杆1根。",
+          "dimensionName": "技术实施方案",
+          "evidences": [],
+          "historyHighlightedText": "建立光伏出力概率模型，采用场景法优化储能容量配置。提出基于灵敏度分析的无功电压协调控制策略，利用智能逆变器实现就地电压调节。结合模型预测控制（MPC）实现日前-日内多时间尺度优化，采用深度学习提升光伏超短期出力预测精度。设计源网荷储协同控制架构。",
+          "score": 0.039268754
+        },
+        {
+          "currentHighlightedText": "",
+          "dimensionName": "效益分析",
+          "evidences": [],
+          "historyHighlightedText": "光伏消纳率提升25%，电压合格率提升至99.5%以上。储能投资回收周期缩短至6年，弃光率降低30%。为高比例可再生能源接入提供技术支撑，预计年增发电收益约500万元。",
+          "score": 0.07329728
+        }
+      ],
+      "dimensionScores": {
+        "项目名称": 0.0014493985,
+        "存在问题及实施必要性": 0.06620602,
+        "技术实施方案": 0.039268754,
+        "效益分析": 0.07329728
+      },
+      "projectId": "HIST_2023_004",
+      "projectName": "",
+      "totalScore": 0.05306743005
+    }
+  ],
+  "totalScore": 0.10860589020000001
+}

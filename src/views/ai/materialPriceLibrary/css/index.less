@@ -1,0 +1,705 @@
+// =============================================================================
+// 物料价格库 — el-tabs 三页 + vxe-grid，对齐标杆 outsourceAdaptList / aiAuditInuseRange
+// 一层业务外框 + 工具栏/搜索/表/分页分区；网格线交给 vxe border--full
+// 主题以 .list-card 为作用域（RangeVxeTable 的直接父级），兼容独立渲染的子组件
+// =============================================================================
+@primary-color: var(--color-primary, #00706b);
+@primary-bg-light: #f2f9f8;
+@primary-bg-hover: #e6f4f3;
+@primary-border-light: #b8ddd9;
+@primary-solid: #00706b;
+@primary-solid-hover: #2a9a92;
+@primary-solid-active: #005f5a;
+
+@text-main: ~'var(--el-text-color-primary, #1e293b)';
+@text-secondary: ~'var(--el-text-color-regular, #475569)';
+@text-muted: ~'var(--el-text-color-secondary, #64748b)';
+@border-light: ~'var(--el-border-color-lighter, #f1f5f9)';
+@border-main: ~'var(--el-border-color-light, #e2e8f0)';
+@page-bg: ~'var(--el-bg-color-page, #f5fbfb)';
+@surface: ~'var(--el-bg-color, #ffffff)';
+@surface-tint: ~'var(--el-fill-color-extra-light, #f3fbfa)';
+
+@table-header-bg: #dff3f0;
+@table-header-text: #00706b;
+@table-header-border: #b8ddd9;
+@table-hover-bg: #e6f4f3;
+@table-current-bg: #d8efec;
+@table-stripe-bg: #f7fcfb;
+@disabled-text: ~'var(--el-text-color-disabled, #94a3b8)';
+
+@btn-primary-text: @primary-solid;
+@btn-primary-bg: @primary-bg-light;
+@btn-danger: #f56c6c;
+@btn-danger-hover: #f78989;
+@btn-secondary-text: @text-secondary;
+@btn-secondary-bg: @surface;
+@btn-secondary-border: @border-main;
+@btn-hover-soft-bg: @primary-bg-light;
+@btn-hover-soft-border: @primary-border-light;
+@btn-hover-soft-text: @primary-solid;
+
+// 业务根：外边距交给 .rr-view-ctx（10px）
+.material-price-tabs-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: @page-bg;
+
+  /* ========== el-tabs 头部 ========== */
+  .material-price-tabs {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    :deep(> .el-tabs__header) {
+      flex-shrink: 0;
+      margin: 0;
+      padding: 0 12px;
+      background: #f8fcfb;
+      border-bottom: 1px solid @border-main;
+    }
+
+    :deep(.el-tabs__nav-wrap::after) {
+      display: none;
+    }
+
+    :deep(.el-tabs__item) {
+      height: 40px;
+      padding: 0 16px;
+      color: @text-muted;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 40px;
+
+      &:hover,
+      &.is-active {
+        color: @primary-solid;
+      }
+
+      &:focus-visible {
+        outline: 2px solid @primary-solid;
+        outline-offset: -2px;
+      }
+    }
+
+    :deep(.el-tabs__active-bar) {
+      height: 2px;
+      background-color: @primary-solid;
+    }
+
+    :deep(> .el-tabs__content) {
+      flex: 1 1 0;
+      height: 0;
+      min-height: 0;
+      padding: 10px;
+      overflow: hidden;
+      background: @page-bg;
+    }
+
+    :deep(> .el-tabs__content > .el-tab-pane) {
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+  }
+}
+
+/* ========== 主题作用域：.list-card（RangeVxeTable 直接父级） ========== */
+/* 同时兼容 .material-price-tabs-page 内嵌与子组件独立渲染两种场景 */
+.material-price-tabs-page .list-card,
+.list-card {
+  /* 按钮锁色：对齐 smartTaskAudit 浅青绿 plain 基准 */
+  :deep(.el-button--primary),
+  :deep(.el-button--primary.is-plain) {
+    color: @primary-solid !important;
+    background-color: @primary-bg-light !important;
+    border-color: @primary-border-light !important;
+    background-image: none !important;
+  }
+
+  :deep(.el-button--primary:hover:not(.is-disabled)),
+  :deep(.el-button--primary:focus:not(.is-disabled)),
+  :deep(.el-button--primary.is-plain:hover:not(.is-disabled)),
+  :deep(.el-button--primary.is-plain:focus:not(.is-disabled)) {
+    color: @primary-solid !important;
+    background-color: @primary-bg-hover !important;
+    border-color: @primary-solid !important;
+    background-image: none !important;
+    opacity: 1 !important;
+  }
+
+  :deep(.el-button--primary:active:not(.is-disabled)),
+  :deep(.el-button--primary.is-active:not(.is-disabled)),
+  :deep(.el-button--primary.is-plain:active:not(.is-disabled)) {
+    color: @primary-solid-active !important;
+    background-color: @primary-bg-hover !important;
+    border-color: @primary-solid-active !important;
+    background-image: none !important;
+  }
+
+  :deep(.el-button--primary.is-disabled),
+  :deep(.el-button--primary.is-disabled:hover),
+  :deep(.el-button--primary.is-disabled:focus),
+  :deep(.el-button--primary.is-disabled:active),
+  :deep(.el-button--primary.is-plain.is-disabled),
+  :deep(.el-button--primary.is-plain.is-disabled:hover) {
+    color: #a8cfcb !important;
+    background-color: @primary-bg-light !important;
+    border-color: @primary-border-light !important;
+    background-image: none !important;
+  }
+
+  :deep(.el-button--danger),
+  :deep(.el-button--danger.is-plain) {
+    color: #ffffff !important;
+    background-color: @btn-danger !important;
+    border-color: @btn-danger !important;
+    background-image: none !important;
+  }
+
+  :deep(.el-button--danger:hover),
+  :deep(.el-button--danger:focus),
+  :deep(.el-button--danger:active),
+  :deep(.el-button--danger.is-plain:hover),
+  :deep(.el-button--danger.is-plain:focus),
+  :deep(.el-button--danger.is-plain:active) {
+    color: #ffffff !important;
+    background-color: @btn-danger-hover !important;
+    border-color: @btn-danger-hover !important;
+    background-image: none !important;
+  }
+
+  :deep(.el-button--danger.is-disabled),
+  :deep(.el-button--danger.is-disabled:hover),
+  :deep(.el-button--danger.is-plain.is-disabled),
+  :deep(.el-button--danger.is-plain.is-disabled:hover) {
+    color: @text-muted !important;
+    background-color: #f1f5f9 !important;
+    border-color: @border-main !important;
+    background-image: none !important;
+  }
+
+  :deep(.el-button.is-plain:not(.el-button--primary):not(.el-button--danger)) {
+    color: @btn-secondary-text !important;
+    background: @btn-secondary-bg !important;
+    border-color: @btn-secondary-border !important;
+
+    &:hover,
+    &:focus {
+      color: @btn-hover-soft-text !important;
+      border-color: @btn-hover-soft-border !important;
+      background: @btn-hover-soft-bg !important;
+    }
+  }
+
+  /* 唯一一层业务外框 */
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: @surface;
+  border: 1px solid @border-main;
+  border-radius: 12px;
+  box-shadow: none;
+  box-sizing: border-box;
+
+  :deep(.mpl-vxe-table),
+  :deep(.hpl-vxe-table),
+  :deep(.pq-vxe-table),
+  :deep(.range-vxe-table) {
+    flex: 1 1 0;
+    height: 100% !important;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 工具栏：并入大卡，底部分割 */
+  :deep(.operate) {
+    flex-shrink: 0;
+    height: auto !important;
+    min-height: 36px;
+    margin: 0 !important;
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1px solid @border-light;
+    border-radius: 0;
+    background: @surface;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  :deep(.operate-button) {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    min-width: 0;
+
+    .material-price-library__actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .el-button {
+      margin-left: 0 !important;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 7px 12px;
+      height: 28px;
+      min-height: 28px;
+      transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+    }
+  }
+
+  :deep(.operate-filter) {
+    flex-shrink: 0;
+
+    .header-button-ri {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      align-items: center;
+
+      > * {
+        margin-left: 0 !important;
+      }
+    }
+
+    .tool-button__icon {
+      color: @text-muted;
+      transition: color 0.12s ease;
+
+      &:hover {
+        color: @primary-solid;
+      }
+    }
+  }
+
+  /* 搜索区：并入大卡 */
+  :deep(.table-search) {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1px solid @border-light;
+    border-radius: 0;
+    background: @surface;
+
+    .el-form-item__label {
+      color: @text-main;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .el-input__inner,
+    .el-select .el-input__inner {
+      border-radius: 6px;
+      border-color: @border-main;
+      color: @text-secondary;
+      height: 32px;
+      line-height: 32px;
+
+      &:hover {
+        border-color: @primary-border-light;
+      }
+
+      &:focus {
+        border-color: @primary-solid;
+      }
+    }
+
+    .el-input.is-focus .el-input__inner,
+    .el-select .el-input.is-focus .el-input__inner {
+      border-color: @primary-solid;
+    }
+
+    .operation {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0 !important;
+
+      .el-button {
+        margin-left: 0 !important;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        height: 28px;
+        min-height: 28px;
+        padding: 7px 12px;
+      }
+    }
+  }
+
+  /* ReMultipleText 批量输入框：输入框与右侧按钮融为一体（不修改公共组件，仅在页面作用域内 :deep） */
+  :deep(.mpl-search-input .copy-text-input),
+  :deep(.hpl-search-input .copy-text-input),
+  :deep(.pq-search-input .copy-text-input) {
+    overflow: hidden;
+    border: 1px solid @border-main;
+    border-radius: 6px;
+    transition: border-color 0.15s ease;
+
+    &:hover {
+      border-color: @primary-border-light;
+    }
+
+    &:focus-within {
+      border-color: @primary-solid;
+    }
+
+    .el-input__inner {
+      height: 32px;
+      line-height: 32px;
+      border: 0 !important;
+      border-radius: 0;
+      box-shadow: none !important;
+      outline: none;
+    }
+
+    .el-input__wrapper {
+      border-radius: 0;
+      box-shadow: none !important;
+    }
+
+    .el-input-group__append {
+      width: 36px;
+      padding: 0;
+      overflow: hidden;
+      background-color: @primary-bg-light;
+      border: 0;
+      border-left: 1px solid @border-main;
+      border-radius: 0;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    &:hover .el-input-group__append {
+      border-left-color: @primary-border-light;
+    }
+
+    &:focus-within .el-input-group__append {
+      background-color: @primary-bg-hover;
+      border-left-color: @primary-solid;
+    }
+
+    .add-button.el-button {
+      width: 36px;
+      height: 32px;
+      min-height: 32px;
+      margin: 0;
+      padding: 0;
+      color: @primary-solid !important;
+      background-color: transparent !important;
+      border: 0 !important;
+      border-radius: 0;
+    }
+  }
+
+  /* 表格主体：无外框，网格交给 vxe */
+  :deep(.table-main) {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: @surface;
+    overflow: hidden;
+  }
+
+  :deep(.table-grid-wrap) {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  /*
+   * vxe border=true → .border--full，用 background-image 画网格。
+   * 列上只写 background-color，禁止 background 简写 / background-image:none。
+   */
+  :deep(.vxe-grid),
+  :deep(.vxe-table) {
+    height: 100% !important;
+    width: 100% !important;
+    max-width: 100%;
+    color: @text-secondary;
+    --vxe-font-color: @text-secondary;
+    --vxe-table-header-font-color: @table-header-text;
+    --vxe-table-header-background-color: @table-header-bg;
+    --vxe-table-header-font-weight: 600;
+    --vxe-table-border-color: @border-main;
+    --vxe-table-border-width: 1px;
+    --vxe-table-row-hover-background-color: @table-hover-bg;
+    --vxe-table-row-striped-background-color: @table-stripe-bg;
+    --vxe-table-row-current-background-color: @table-current-bg;
+    --vxe-table-row-checkbox-checked-background-color: @table-current-bg;
+    --vxe-table-row-hover-current-background-color: @table-hover-bg;
+    --vxe-table-row-hover-checkbox-checked-background-color: @table-hover-bg;
+    --vxe-table-row-hover-striped-background-color: @table-hover-bg;
+    background-color: @surface !important;
+  }
+
+  :deep(.vxe-table--border-line) {
+    border-color: @border-main !important;
+  }
+
+  :deep(.vxe-table--header-wrapper),
+  :deep(.vxe-table--header) {
+    background-color: @table-header-bg !important;
+  }
+
+  :deep(.vxe-header--column) {
+    background-color: @table-header-bg !important;
+    color: @table-header-text !important;
+    font-weight: 600;
+    font-size: 13px;
+
+    .vxe-cell {
+      color: inherit;
+      font-size: 13px;
+    }
+  }
+
+  :deep(.vxe-body--column) {
+    color: @text-secondary;
+    font-size: 13px;
+
+    .vxe-cell {
+      line-height: 20px;
+      font-size: 13px;
+    }
+  }
+
+  :deep(.mpl-cell-text),
+  :deep(.hpl-cell-text),
+  :deep(.pq-cell-text) {
+    width: 100%;
+    min-width: 0;
+    color: inherit;
+    text-align: inherit;
+  }
+
+  :deep(.mpl-cell-text:focus-visible),
+  :deep(.hpl-cell-text:focus-visible),
+  :deep(.pq-cell-text:focus-visible) {
+    outline-color: @primary-solid;
+  }
+
+  :deep(.vxe-body--row.row--stripe) {
+    background-color: @table-stripe-bg !important;
+  }
+
+  /* 行态只铺底，不强制改字色 */
+  :deep(.vxe-body--row.row--checked),
+  :deep(.vxe-body--row.row--checked.row--stripe),
+  :deep(.vxe-body--row.row--radio),
+  :deep(.vxe-body--row.row--current) {
+    background-color: @table-current-bg !important;
+  }
+
+  :deep(.vxe-body--row.row--hover),
+  :deep(.vxe-body--row.row--hover.row--stripe),
+  :deep(.vxe-body--row.row--hover.row--checked),
+  :deep(.vxe-body--row.row--hover.row--checked.row--stripe),
+  :deep(.vxe-body--row.row--hover.row--current),
+  :deep(.vxe-body--row.row--hover.row--radio) {
+    background-color: @table-hover-bg !important;
+  }
+
+  :deep(.vxe-body--row.row--stripe .vxe-body--column),
+  :deep(.vxe-body--row.row--checked .vxe-body--column),
+  :deep(.vxe-body--row.row--hover .vxe-body--column),
+  :deep(.vxe-body--row.row--current .vxe-body--column),
+  :deep(.vxe-body--row.row--radio .vxe-body--column) {
+    background-color: transparent !important;
+  }
+
+  /* 表头勾选：主色压在雾面表头上 */
+  :deep(.vxe-header--column .vxe-checkbox--icon),
+  :deep(.vxe-header--column .vxe-cell--checkbox .vxe-checkbox--icon),
+  :deep(.vxe-header--column .vxe-checkbox--checked-icon),
+  :deep(.vxe-header--column .vxe-checkbox--indeterminate-icon),
+  :deep(.vxe-header--column .vxe-checkbox--unchecked-icon) {
+    color: @table-header-text !important;
+  }
+
+  :deep(.vxe-checkbox--icon) {
+    font-size: 15px;
+  }
+
+  :deep(.vxe-cell--checkbox .vxe-checkbox--checked-icon),
+  :deep(.vxe-cell--checkbox .vxe-checkbox--indeterminate-icon),
+  :deep(.vxe-body--row.row--checked .vxe-cell--checkbox .vxe-checkbox--checked-icon),
+  :deep(.vxe-body--row.row--checked .vxe-cell--checkbox .vxe-checkbox--indeterminate-icon),
+  :deep(.vxe-body--row.row--hover .vxe-cell--checkbox .vxe-checkbox--checked-icon),
+  :deep(.vxe-body--row.row--hover .vxe-cell--checkbox .vxe-checkbox--indeterminate-icon) {
+    color: @primary-color !important;
+  }
+
+  /* 空态 */
+  :deep(.vxe-table--empty-placeholder),
+  :deep(.vxe-table--empty-content) {
+    color: @text-muted;
+    font-size: 13px;
+  }
+
+  /* 分页：融入白卡片底 */
+  :deep(.el-pagination) {
+    --el-pagination-bg-color: transparent;
+    --el-pagination-button-bg-color: transparent;
+    --el-pagination-button-color: @text-secondary;
+    --el-pagination-hover-color: @primary-solid;
+    --el-pagination-font-size: 12px;
+    --el-text-color-regular: @text-secondary;
+    --el-text-color-primary: @text-main;
+    flex-shrink: 0;
+    margin: 0 !important;
+    padding: 8px 12px;
+    justify-content: flex-end;
+    gap: 2px;
+    background: @surface;
+    border-top: 1px solid @border-light;
+
+    .el-pagination__total,
+    .el-pagination__jump,
+    .el-pagination__sizes {
+      color: @text-muted !important;
+      font-size: 12px;
+      font-weight: 400;
+      margin: 0 6px 0 0;
+    }
+
+    .el-pagination__total {
+      margin-right: 10px;
+    }
+
+    .el-pagination__sizes {
+      margin-right: 8px;
+
+      .el-input {
+        margin: 0;
+      }
+    }
+
+    .el-pagination__jump {
+      margin-left: 8px;
+      color: @text-muted !important;
+
+      .el-input {
+        margin: 0 4px;
+      }
+    }
+
+    &.is-background .btn-prev,
+    &.is-background .btn-next,
+    &.is-background .el-pager li,
+    .btn-prev,
+    .btn-next,
+    .el-pager li {
+      min-width: 28px;
+      height: 28px;
+      line-height: 28px;
+      margin: 0 2px;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 12px;
+      background-color: transparent !important;
+      border: none !important;
+      color: @text-secondary !important;
+      transition: color 0.12s ease, background-color 0.12s ease;
+    }
+
+    .btn-prev .el-icon,
+    .btn-next .el-icon,
+    .btn-prev i,
+    .btn-next i {
+      color: inherit !important;
+    }
+
+    &.is-background .el-pager li:not(.disabled):not(.is-active):hover,
+    .el-pager li:not(.disabled):not(.is-active):hover,
+    .btn-prev:not(.disabled):hover,
+    .btn-next:not(.disabled):hover {
+      color: @primary-solid !important;
+      background-color: @primary-bg-light !important;
+    }
+
+    &.is-background .el-pager li:not(.disabled).is-active,
+    .el-pager li:not(.disabled).is-active {
+      color: #ffffff !important;
+      background-color: @primary-solid !important;
+      font-weight: 600;
+    }
+
+    &.is-background .btn-prev:disabled,
+    &.is-background .btn-next:disabled,
+    &.is-background .el-pager li.disabled,
+    .btn-prev:disabled,
+    .btn-next:disabled,
+    .btn-prev.is-disabled,
+    .btn-next.is-disabled,
+    .el-pager li.disabled {
+      color: #cbd5e1 !important;
+      background-color: transparent !important;
+    }
+
+    .el-select .el-input__inner,
+    .el-pagination__editor.el-input .el-input__inner {
+      border-radius: 6px;
+      border: 1px solid @border-main;
+      background: @surface;
+      color: @text-secondary !important;
+      height: 28px;
+      line-height: 28px;
+      font-size: 12px;
+
+      &:hover {
+        border-color: @primary-border-light;
+      }
+
+      &:focus {
+        border-color: @primary-solid;
+      }
+    }
+
+    .el-select .el-input .el-select__caret {
+      color: @text-muted;
+    }
+  }
+}
+
+.material-price-library__upload {
+  display: inline-flex;
+}

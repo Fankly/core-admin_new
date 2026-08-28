@@ -1,0 +1,643 @@
+// =============================================================================
+// VISUAL BENCHMARK (项目视觉标杆)
+// 本文件是全站业务页视觉权威参考之一，对齐 DESIGN.md。
+// 其它列表/配置页改版应复用此处 token 与按钮/表头/行态策略。
+// =============================================================================
+
+/* 弹窗按钮锁色：覆盖 chalk 默认蓝 */
+.ai-audit-range-modal {
+  .el-button--primary,
+  .el-button--primary.is-plain {
+    color: #ffffff !important;
+    background-color: @primary-solid !important;
+    border-color: @primary-solid !important;
+    background-image: none !important;
+  }
+
+  .el-button--primary:hover,
+  .el-button--primary:focus,
+  .el-button--primary:active,
+  .el-button--primary.is-plain:hover,
+  .el-button--primary.is-plain:focus,
+  .el-button--primary.is-plain:active {
+    color: #ffffff !important;
+    background-color: @primary-solid-hover !important;
+    border-color: @primary-solid-hover !important;
+    background-image: none !important;
+  }
+
+  .el-button.is-plain:not(.el-button--primary):not(.el-button--danger):hover,
+  .el-button.is-plain:not(.el-button--primary):not(.el-button--danger):focus {
+    color: @primary-solid !important;
+    border-color: @primary-border-light !important;
+    background: @primary-bg-light !important;
+  }
+}
+
+// 批量编辑弹窗：与页面 index.less 同色板、同圆角、同表格/按钮质感
+@primary-color: var(--color-primary, #00706b);
+@primary-bg-light: #f2f9f8;
+@primary-bg-hover: #e6f4f3;
+@primary-border-light: #b8ddd9;
+@primary-solid: #00706b;
+@primary-solid-hover: #2a9a92;
+@primary-solid-active: #005f5a;
+@text-main: ~'var(--el-text-color-primary, #1e293b)';
+@text-secondary: ~'var(--el-text-color-regular, #475569)';
+@text-muted: ~'var(--el-text-color-secondary, #64748b)';
+@border-light: ~'var(--el-border-color-lighter, #f1f5f9)';
+@border-main: ~'var(--el-border-color-light, #e2e8f0)';
+@page-bg: ~'var(--el-bg-color-page, #f5fbfb)';
+@surface: ~'var(--el-bg-color, #ffffff)';
+@surface-tint: ~'var(--el-fill-color-extra-light, #f3fbfa)';
+@header-bg: ~'var(--el-bg-color, #fcffff)';
+// 表头：青绿雾面 + 主色字（与行选中同族，比实心主色更轻、更好看）
+@table-header-bg: #dff3f0;
+@table-header-text: #00706b;
+@table-header-border: #b8ddd9;
+// 行态只改底色、不改单元格语义色（Tag/链接/状态字在选中后仍可读）
+// 固定青绿雾面，不用 --el-color-primary-light-*（运行时易掉回 Element 默认蓝）
+@table-hover-bg: #e6f4f3;
+@table-current-bg: #d8efec;
+@table-stripe-bg: #f7fcfb;
+@table-divider: ~'var(--el-border-color-extra-light, #eef2f6)';
+@disabled-text: ~'var(--el-text-color-disabled, #94a3b8)';
+@btn-primary-text: #ffffff;
+@btn-primary-bg: @primary-solid;
+@btn-hover-bg: @primary-solid-hover;
+@btn-hover-text: #ffffff;
+@btn-hover-soft-bg: @primary-bg-light;
+@btn-hover-soft-border: @primary-border-light;
+@btn-hover-soft-text: @primary-solid;
+@btn-primary-hover-bg: @primary-solid-hover;
+@btn-secondary-text: @text-secondary;
+@btn-secondary-bg: @surface;
+@btn-secondary-border: @border-main;
+
+/* vxe-modal 外壳（class-name 挂在 wrapper 上，与页面同色板） */
+.ai-audit-range-modal {
+  .vxe-modal--box {
+    border-radius: 12px !important;
+    border: 1px solid @border-main !important;
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12) !important;
+    overflow: hidden;
+  }
+
+  .vxe-modal--header {
+    min-height: 48px !important;
+    padding: 10px 16px !important;
+    background: @header-bg !important;
+    border-bottom: 1px solid @border-light !important;
+    color: @text-main !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+  }
+
+  .vxe-modal--header-title {
+    color: @text-main !important;
+    font-weight: 700 !important;
+  }
+
+  .vxe-modal--close-btn {
+    color: @text-muted !important;
+
+    &:hover {
+      color: @primary-color !important;
+    }
+  }
+
+  .vxe-modal--body,
+  .vxe-modal--content {
+    background: @page-bg !important;
+  }
+
+  .vxe-modal--content {
+    padding: 10px !important;
+  }
+}
+
+/* 弹窗内容壳 */
+.air-modal-body {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 0;
+  color: @text-secondary;
+}
+
+.air-modal-body--form {
+  padding: 0;
+  background: transparent;
+}
+
+
+.air-modal-body--table > .air-modal-tip {
+  flex-shrink: 0;
+  margin-bottom: 10px;
+}
+
+.air-modal-body--table {
+  height: 100%;
+  min-height: min(460px, calc(85vh - 80px));
+  min-width: 0;
+  overflow: hidden;
+}
+
+.air-modal-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background: @surface;
+  border: 1px solid @border-main;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.air-modal-tip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: @text-secondary;
+  background: @primary-bg-light;
+  border: 1px solid #e2efed;
+  border-radius: 8px;
+
+  &__icon {
+    flex-shrink: 0;
+    color: @primary-color;
+    font-size: 14px;
+  }
+
+  &__text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__count {
+    margin-left: 4px;
+    font-style: normal;
+    font-weight: 600;
+    color: @primary-color;
+  }
+
+  /* 右侧已选模版名称：过长省略，完整内容用 title 悬停查看 */
+  &__names {
+    flex: 0 1 auto;
+    max-width: min(46%, 420px);
+    margin-left: auto;
+    padding-left: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    color: @primary-color;
+    text-align: right;
+  }
+}
+
+/* 注意：本文件由弹窗以「非 scoped」方式 import，勿使用 :deep()，否则选择器不生效 */
+.air-modal-form {
+  .el-form-item__label {
+    color: @text-main;
+    font-weight: 500;
+  }
+
+  .el-input__inner,
+  .el-textarea__inner {
+    border-radius: 6px;
+    border-color: @border-main;
+    color: @text-secondary;
+    transition: border-color 0.15s ease;
+
+    &:focus {
+      border-color: @primary-color;
+    }
+  }
+
+  .el-input.is-disabled .el-input__inner,
+  .el-textarea.is-disabled .el-textarea__inner {
+    background: @surface-tint;
+    color: @text-muted;
+    border-color: @border-light;
+  }
+
+  .el-select .el-input__inner {
+    border-radius: 6px;
+  }
+}
+
+.air-modal-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid @border-light;
+
+  .el-button {
+    min-width: 72px;
+    min-height: 36px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 14px;
+    transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+  }
+
+  // 主操作：与列表工具栏一致 — 实心主题色 + 白字
+  .el-button--primary {
+    color: @btn-primary-text !important;
+    background-color: @btn-primary-bg !important;
+    border-color: @btn-primary-bg !important;
+    background-image: none !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: @btn-hover-text !important;
+      background-color: @primary-solid-hover !important;
+      border-color: @primary-solid-hover !important;
+      background-image: none !important;
+    }
+
+    &.is-disabled,
+    &.is-disabled:hover {
+      color: @disabled-text !important;
+      background-color: #f1f5f9 !important;
+      border-color: @border-main !important;
+      background-image: none !important;
+    }
+  }
+
+  // 次操作（关闭）：白底描边，悬停浅绿
+  .el-button.is-plain:not(.el-button--primary):not(.el-button--danger) {
+    color: @btn-secondary-text !important;
+    background: @btn-secondary-bg !important;
+    border-color: @btn-secondary-border !important;
+
+    &:hover,
+    &:focus {
+      color: @btn-hover-soft-text !important;
+      border-color: @btn-hover-soft-border !important;
+      background: @btn-hover-soft-bg !important;
+    }
+  }
+}
+
+/* 弹窗内表格区：对齐主页面 table-panel；分页融入白卡片 */
+.air-modal-table {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .range-vxe-table {
+    flex: 1 1 0;
+    height: 100% !important;
+    min-width: 0;
+    min-height: 0;
+    padding: 0 !important;
+    background: transparent !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .table-search {
+    flex-shrink: 0;
+    margin-bottom: 10px;
+    padding: 10px 10px 0;
+    border: 1px solid @border-main;
+    border-radius: 10px;
+    background: @surface;
+  }
+
+  .table-main {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 0;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid @border-main;
+    border-radius: 12px;
+    background: @surface !important;
+    overflow: hidden;
+    contain: layout paint;
+  }
+
+  .table-grid-wrap {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .vxe-grid,
+  .vxe-table {
+    height: 100% !important;
+    width: 100% !important;
+    max-width: 100%;
+    color: @text-secondary;
+    --vxe-font-color: @text-secondary;
+    --vxe-table-header-font-color: @table-header-text;
+    --vxe-table-header-background-color: @table-header-bg;
+    --vxe-table-header-font-weight: 600;
+    --vxe-table-border-color: @border-main;
+    --vxe-table-border-width: 1px;
+    --vxe-table-row-hover-background-color: @table-hover-bg;
+    --vxe-table-row-striped-background-color: @table-stripe-bg;
+    --vxe-table-row-current-background-color: @table-current-bg;
+    --vxe-table-row-checkbox-checked-background-color: @table-current-bg;
+    --vxe-table-row-hover-current-background-color: @table-hover-bg;
+    --vxe-table-row-hover-checkbox-checked-background-color: @table-hover-bg;
+    --vxe-table-row-hover-striped-background-color: @table-hover-bg;
+    background-color: @surface !important;
+  }
+
+  .vxe-table--border-line {
+    border-color: @border-main !important;
+  }
+
+  .vxe-table--header-wrapper,
+  .vxe-table--header {
+    background-color: @table-header-bg !important;
+  }
+
+  .vxe-header--column {
+    // 只用 background-color，保留 vxe border--full 的网格线（background-image）
+    background-color: @table-header-bg !important;
+    color: @table-header-text !important;
+    font-weight: 600;
+    font-size: 13px;
+    height: 44px;
+
+    .vxe-cell {
+      color: inherit;
+      font-size: 13px;
+    }
+  }
+
+  .vxe-body--column {
+    color: @text-secondary;
+    font-size: 13px;
+    height: 44px;
+
+    .vxe-cell {
+      font-size: 13px;
+    }
+  }
+
+  // 弹窗内默认 border=false：补一行底部分隔，避免完全无线
+  .vxe-table.border--none .vxe-header--column {
+    border-bottom: 1px solid @table-header-border !important;
+  }
+
+  .vxe-table.border--none .vxe-body--column {
+    border-bottom: 1px solid @table-divider !important;
+  }
+
+  .vxe-body--row.row--stripe {
+    background-color: @table-stripe-bg !important;
+  }
+
+  /*
+   * 行态策略（兼容单元格自带色）：
+   * - 只铺青绿雾面底，不强制改 color
+   * - 正文/链接/Tag/状态色保持各自语义
+   * - 列在行态下透底，让行色透出；自带底的内容块（Tag 等）画在内容层，不受影响
+   * - 悬停略浅，勾选略深
+   */
+  .vxe-body--row.row--checked,
+  .vxe-body--row.row--checked.row--stripe,
+  .vxe-body--row.row--radio,
+  .vxe-body--row.row--current {
+    background-color: @table-current-bg !important;
+  }
+
+  .vxe-body--row.row--hover,
+  .vxe-body--row.row--hover.row--stripe,
+  .vxe-body--row.row--hover.row--checked,
+  .vxe-body--row.row--hover.row--checked.row--stripe,
+  .vxe-body--row.row--hover.row--current,
+  .vxe-body--row.row--hover.row--radio {
+    background-color: @table-hover-bg !important;
+  }
+
+  .vxe-body--row.row--stripe .vxe-body--column,
+  .vxe-body--row.row--checked .vxe-body--column,
+  .vxe-body--row.row--hover .vxe-body--column,
+  .vxe-body--row.row--current .vxe-body--column,
+  .vxe-body--row.row--radio .vxe-body--column {
+    background-color: transparent !important;
+  }
+
+  .vxe-header--column .vxe-checkbox--icon,
+  .vxe-header--column .vxe-cell--checkbox .vxe-checkbox--icon,
+  .vxe-header--column .vxe-checkbox--checked-icon,
+  .vxe-header--column .vxe-checkbox--indeterminate-icon,
+  .vxe-header--column .vxe-checkbox--unchecked-icon {
+    color: @table-header-text !important;
+  }
+
+  .vxe-checkbox--icon {
+    font-size: 15px;
+  }
+
+  .vxe-cell--checkbox .vxe-checkbox--checked-icon,
+  .vxe-cell--checkbox .vxe-checkbox--indeterminate-icon,
+  .vxe-body--row.row--checked .vxe-cell--checkbox .vxe-checkbox--checked-icon,
+  .vxe-body--row.row--checked .vxe-cell--checkbox .vxe-checkbox--indeterminate-icon,
+  .vxe-body--row.row--hover .vxe-cell--checkbox .vxe-checkbox--checked-icon,
+  .vxe-body--row.row--hover .vxe-cell--checkbox .vxe-checkbox--indeterminate-icon {
+    color: @primary-color !important;
+  }
+
+  /*
+   * 分页：与表格同属 .table-main 白卡片
+   * - 覆盖 app.less 的 margin-top: 10px !important
+   * - 覆盖 Element Plus is-background 默认灰/绿底按钮
+   */
+  .el-pagination {
+    --el-pagination-bg-color: transparent;
+    --el-pagination-button-bg-color: transparent;
+    --el-pagination-button-color: @text-secondary;
+    --el-pagination-hover-color: @primary-color;
+    --el-pagination-font-size: 12px;
+    --el-text-color-regular: @text-secondary;
+    --el-text-color-primary: @text-main;
+    --el-color-primary: @primary-color;
+    display: flex !important;
+    flex-shrink: 0;
+    align-items: center;
+    margin: 0 !important;
+    margin-top: 0 !important;
+    padding: 10px !important;
+    justify-content: flex-end !important;
+    gap: 2px;
+    background: #ffffff !important;
+    border-top: 1px solid @border-light;
+    text-align: right !important;
+
+    .el-pagination__total,
+    .el-pagination__jump,
+    .el-pagination__sizes {
+      color: @text-muted !important;
+      font-size: 12px;
+      font-weight: 400;
+      margin: 0 6px 0 0 !important;
+    }
+
+    .el-pagination__total {
+      margin-right: 10px !important;
+    }
+
+    .el-pagination__sizes {
+      margin-right: 8px !important;
+
+      .el-input {
+        margin: 0;
+      }
+    }
+
+    .el-pagination__jump {
+      margin-left: 8px !important;
+      color: @text-muted !important;
+
+      .el-input {
+        margin: 0 4px;
+      }
+    }
+
+    &.is-background .btn-prev,
+    &.is-background .btn-next,
+    &.is-background .el-pager li,
+    .btn-prev,
+    .btn-next,
+    .el-pager li {
+      min-width: 28px !important;
+      height: 28px !important;
+      line-height: 28px !important;
+      margin: 0 2px !important;
+      border-radius: 6px !important;
+      font-weight: 500;
+      font-size: 12px;
+      background-color: transparent !important;
+      background-image: none !important;
+      border: none !important;
+      color: @text-secondary !important;
+      transition: color 0.12s ease, background-color 0.12s ease;
+    }
+
+    .btn-prev .el-icon,
+    .btn-next .el-icon,
+    .btn-prev i,
+    .btn-next i {
+      color: inherit !important;
+    }
+
+    &.is-background .el-pager li:not(.disabled):not(.is-active):hover,
+    .el-pager li:not(.disabled):not(.is-active):hover,
+    .btn-prev:not(.disabled):hover,
+    .btn-next:not(.disabled):hover {
+      color: @primary-color !important;
+      background-color: @primary-bg-light !important;
+    }
+
+    /* 当前页：主色实心，与主列表一致，不再用整条绿色底 */
+    &.is-background .el-pager li:not(.disabled).is-active,
+    .el-pager li:not(.disabled).is-active {
+      color: #ffffff !important;
+      background-color: @primary-color !important;
+      font-weight: 600;
+    }
+
+    &.is-background .btn-prev:disabled,
+    &.is-background .btn-next:disabled,
+    &.is-background .el-pager li.disabled,
+    .btn-prev:disabled,
+    .btn-next:disabled,
+    .btn-prev.is-disabled,
+    .btn-next.is-disabled,
+    .el-pager li.disabled {
+      color: @disabled-text !important;
+      background-color: transparent !important;
+    }
+
+    .el-select .el-input__inner,
+    .el-pagination__editor.el-input .el-input__inner {
+      border-radius: 6px !important;
+      border: 1px solid @border-main !important;
+      background: @surface !important;
+      color: @text-secondary !important;
+      height: 28px !important;
+      line-height: 28px !important;
+      font-size: 12px;
+
+      &:hover {
+        border-color: @primary-border-light !important;
+      }
+
+      &:focus {
+        border-color: @primary-color !important;
+      }
+    }
+
+    .el-select .el-input .el-select__caret {
+      color: @text-muted;
+    }
+  }
+
+  .el-input__inner,
+  .el-select .el-input__inner {
+    border-radius: 6px;
+    border-color: @border-main;
+
+    &:focus {
+      border-color: @primary-color;
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .ai-audit-range-modal {
+    .vxe-modal--box {
+      width: calc(100vw - 24px) !important;
+      max-width: calc(100vw - 24px) !important;
+      height: calc(100vh - 24px) !important;
+      max-height: calc(100vh - 24px) !important;
+    }
+  }
+
+  .air-modal-body--table {
+    min-height: 0;
+  }
+
+  .air-modal-footer .el-button,
+  .ai-audit-range-modal .vxe-modal--close-btn,
+  .air-modal-table .el-pagination .btn-prev,
+  .air-modal-table .el-pagination .btn-next,
+  .air-modal-table .el-pagination .el-pager li {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-audit-range-modal * {
+    transition: none !important;
+  }
+}

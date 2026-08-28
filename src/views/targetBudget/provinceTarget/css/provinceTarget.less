@@ -1,0 +1,23 @@
+.container {
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+
+  &-search {
+    margin-top: 10px;
+  }
+
+  &-table {
+    min-width: 100%;
+    min-height: calc(100% - 110px);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+:deep(input[aria-hidden='true']) {
+  display: none !important;
+}

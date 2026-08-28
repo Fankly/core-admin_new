@@ -1,0 +1,1282 @@
+// =============================================================================
+// VISUAL BENCHMARK (项目视觉标杆)
+// 本文件是全站业务页视觉权威参考之一，对齐 DESIGN.md。
+// 其它列表/配置页改版应复用此处 token 与按钮/表头/行态策略。
+// =============================================================================
+@primary-color: var(--color-primary, #00706b);
+// 固定青绿辅色：不读 --el-color-primary-light-*（chalk 未换肤时仍是默认蓝）
+@primary-bg-light: #f2f9f8;
+@primary-bg-hover: #e6f4f3;
+@primary-border-light: #b8ddd9;
+@primary-solid: #00706b;
+@primary-solid-hover: #2a9a92;
+@primary-solid-active: #005f5a;
+
+@text-main: ~'var(--el-text-color-primary, #1e293b)';
+@text-secondary: ~'var(--el-text-color-regular, #475569)';
+@text-muted: ~'var(--el-text-color-secondary, #64748b)';
+@bg-light: ~'var(--el-fill-color-light, #f2f9f9)';
+@border-light: ~'var(--el-border-color-lighter, #f1f5f9)';
+@border-main: ~'var(--el-border-color-light, #e2e8f0)';
+@page-bg: ~'var(--el-bg-color-page, #f5fbfb)';
+@surface-bg-strong: ~'var(--el-bg-color, #ffffff)';
+@surface-tint: ~'var(--el-fill-color-extra-light, #f3fbfa)';
+@header-bg: ~'var(--el-bg-color, #fcffff)';
+// 表头：青绿雾面 + 主色字（与行选中同族，比实心主色更轻、更好看）
+@table-header-bg: #dff3f0;
+@table-header-text: #00706b;
+@table-header-border: #b8ddd9;
+// 行态 / 树悬停：固定青绿雾面（不用 --el-color-primary-light-*，避免掉回 Element 默认蓝）
+@table-hover-bg: #e6f4f3;
+@table-current-bg: #d8efec;
+@tree-node-hover-bg: #e6f4f3;
+@table-stripe-bg: #f7fcfb;
+@table-divider: ~'var(--el-border-color-extra-light, #eef2f6)';
+@disabled-text: ~'var(--el-text-color-disabled, #94a3b8)';
+// 按钮统一：主实心青绿 / 悬停青绿（禁止蓝色）
+@btn-primary-text: #ffffff;
+@btn-primary-bg: @primary-solid;
+@btn-hover-bg: @primary-solid-hover;
+@btn-hover-text: #ffffff;
+@btn-hover-soft-bg: @primary-bg-light;
+@btn-hover-soft-border: @primary-border-light;
+@btn-hover-soft-text: @primary-solid;
+@btn-primary-hover-bg: @primary-solid-hover;
+@btn-primary-active-bg: @primary-solid-active;
+@btn-secondary-text: @text-secondary;
+@btn-secondary-bg: @surface-bg-strong;
+@btn-secondary-border: @border-main;
+@btn-danger: #f56c6c;
+@btn-danger-hover: #f78989;
+@collapse-duration: 0.28s;
+@collapse-easing: cubic-bezier(0.22, 1, 0.36, 1);
+
+.container {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  /* ========== 按钮锁色：覆盖 Element 默认主色按钮（禁止蓝） ========== */
+  :deep(.el-button--primary),
+  :deep(.el-button--primary.is-plain) {
+    color: #ffffff !important;
+    background-color: @primary-solid !important;
+    border-color: @primary-solid !important;
+    background-image: none !important;
+  }
+
+  :deep(.el-button--primary:hover),
+  :deep(.el-button--primary:focus),
+  :deep(.el-button--primary:active),
+  :deep(.el-button--primary.is-active),
+  :deep(.el-button--primary.is-plain:hover),
+  :deep(.el-button--primary.is-plain:focus),
+  :deep(.el-button--primary.is-plain:active) {
+    color: #ffffff !important;
+    background-color: @primary-solid-hover !important;
+    border-color: @primary-solid-hover !important;
+    background-image: none !important;
+    opacity: 1 !important;
+  }
+
+  :deep(.el-button--primary.is-disabled),
+  :deep(.el-button--primary.is-disabled:hover),
+  :deep(.el-button--primary.is-disabled:focus),
+  :deep(.el-button--primary.is-disabled:active),
+  :deep(.el-button--primary.is-plain.is-disabled),
+  :deep(.el-button--primary.is-plain.is-disabled:hover) {
+    color: #ffffff !important;
+    background-color: #a8cfcb !important;
+    border-color: #a8cfcb !important;
+    background-image: none !important;
+  }
+
+  :deep(.el-button--danger) {
+    color: #ffffff !important;
+    background-color: @btn-danger !important;
+    border-color: @btn-danger !important;
+    background-image: none !important;
+  }
+
+  :deep(.el-button--danger:hover),
+  :deep(.el-button--danger:focus),
+  :deep(.el-button--danger:active) {
+    color: #ffffff !important;
+    background-color: @btn-danger-hover !important;
+    border-color: @btn-danger-hover !important;
+    background-image: none !important;
+  }
+
+  // 外边距交给布局 .rr-view-ctx（padding:10px），此处不再叠一层
+  // 内容区内边距由卡片 body / .table-panel 各自承担
+  padding: 0;
+  box-sizing: border-box;
+  // 单层纯色底，避免径向渐变合成层
+  background: @page-bg;
+  // 吃掉 el-row gutter 负边距，避免整页横向滚动条
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.main-layout {
+  // flex:1 + height:0 强制占满剩余视口，避免内容高度塌缩导致底部大块留白
+  flex: 1 1 0;
+  height: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  // Element Plus gutter 通过 margin-left/right 负值实现间距，会把行撑出父级
+  // 在本页用 box 裁剪，列内自行滚动，页面级不再出现横向条
+  overflow: hidden;
+  box-sizing: border-box;
+
+  > .left-column,
+  > .right-column {
+    min-width: 0;
+    max-width: 100%;
+    height: 100% !important;
+    align-self: stretch;
+    box-sizing: border-box;
+    // 取消 el-row gutter 带来的左右 padding（红圈多层边距来源之一）
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  // 左右卡片之间只保留一道间距
+  > .left-column {
+    padding-right: 10px !important;
+  }
+
+  > .left-column .tree-list-card {
+    opacity: 1;
+    transition: opacity 0.14s ease-out;
+  }
+
+  &--left-collapsed {
+    > .left-column {
+      flex: 0 0 0;
+      max-width: 0;
+      padding-right: 0 !important;
+      padding-left: 0 !important;
+      pointer-events: none;
+      // 收起后跳过子树绘制
+      content-visibility: hidden;
+
+      .tree-list-card {
+        opacity: 0;
+      }
+    }
+
+    > .right-column {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+
+    .left-collapse-toggle {
+      left: 12px;
+    }
+  }
+}
+
+.left-collapse-toggle {
+  position: absolute;
+  top: 50%;
+  left: 25%;
+  z-index: 30;
+  width: 24px;
+  height: 46px;
+  padding: 0;
+  color: @primary-color;
+  cursor: pointer;
+  appearance: none;
+  background-color: @surface-bg-strong;
+  border: 1px solid @primary-border-light;
+  border-radius: 7px;
+  // 轻阴影：单层，避免大模糊半径
+  box-shadow: 0 1px 4px rgba(0, 133, 124, 0.1);
+  transform: translate(-50%, -50%);
+  transition: color 0.12s ease, background-color 0.12s ease;
+
+  &:hover {
+    color: #ffffff;
+    background-color: @primary-color;
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(0, 133, 124, 0.35);
+    outline-offset: 2px;
+  }
+}
+
+.left-collapse-toggle__icon {
+  display: inline-block;
+  transition: transform @collapse-duration @collapse-easing;
+
+  &.is-collapsed {
+    transform: rotate(180deg);
+  }
+}
+
+/* 左侧列 */
+.left-column {
+  height: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tree-list-card {
+  flex: 1 1 0;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid @border-main !important;
+  border-radius: 12px !important;
+  background: @surface-bg-strong !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  contain: layout paint;
+
+  :deep(.el-card__body) {
+    flex: 1 1 0;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.panel-header__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-title {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  margin-bottom: 0;
+  color: @text-main;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.section-title__icon {
+  width: 28px;
+  height: 28px;
+  margin-right: 8px;
+  display: inline-flex;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: @primary-color;
+  font-size: 16px;
+  line-height: 1;
+  background-color: @primary-bg-light;
+  border: 1px solid @primary-border-light;
+  border-radius: 6px;
+}
+
+.section-title__icon--action {
+  margin-right: 0;
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+
+  &:hover {
+    color: #ffffff;
+    background-color: @primary-solid-hover;
+    border-color: @primary-solid-hover;
+  }
+}
+
+.search_panel {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  min-width: 0;
+  flex-shrink: 0;
+
+  :deep(.el-input) {
+    flex: 1;
+    min-width: 0;
+
+    .el-input__inner {
+      border-radius: 6px 0 0 6px;
+      border-right: none;
+      height: 32px;
+      line-height: 32px;
+      font-size: 13px;
+      border-color: @border-main;
+      // 只过渡 border-color，避免 all
+      transition: border-color 0.15s ease;
+
+      &:focus {
+        border-color: @primary-color;
+        box-shadow: none;
+      }
+    }
+
+    .el-input-group__append {
+      border-radius: 0 6px 6px 0;
+      background-color: @bg-light;
+      border-color: @border-main;
+      border-left: none;
+      padding: 0 12px;
+      transition: background-color 0.15s ease;
+      cursor: pointer;
+
+      &:hover {
+        background-color: @border-light;
+      }
+    }
+  }
+}
+
+.tree-search-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: @primary-color;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+
+  &:focus-visible {
+    outline: 2px solid @primary-color;
+    outline-offset: 2px;
+  }
+}
+
+.tree-error {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  color: @text-secondary;
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+}
+
+.tree-error__icon {
+  color: var(--el-color-warning, #b45309);
+  font-size: 24px;
+}
+
+.tree-list {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  padding-right: 2px;
+  // 滚动容器隔离，降低树节点 hover 重绘范围（勿用 size，避免 flex 高度异常）
+  contain: layout paint style;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: @primary-border-light;
+    border-radius: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  :deep(.el-tree) {
+    background: transparent;
+    color: @text-secondary;
+  }
+
+  :deep(.el-tree-node__content) {
+    height: 36px;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      // 与表格行悬停同色：青绿雾面，保留原字色
+      background-color: @tree-node-hover-bg !important;
+    }
+  }
+
+  // 选中：实心主色 + 白字（覆盖全局 app.less）
+  :deep(.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content),
+  :deep(.el-tree-node.is-current > .el-tree-node__content) {
+    background-color: @primary-color !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    box-shadow: none;
+  }
+
+  // 选中节点悬停：保持主色底，不被雾面 hover 盖掉
+  :deep(.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content:hover),
+  :deep(.el-tree-node.is-current > .el-tree-node__content:hover) {
+    background-color: @primary-color !important;
+    color: #ffffff !important;
+  }
+
+  :deep(.el-tree-node.is-current > .el-tree-node__content .el-tree-node__label) {
+    color: #ffffff !important;
+  }
+
+  :deep(.el-tree-node__expand-icon) {
+    color: @text-muted;
+  }
+
+  :deep(.el-tree-node__expand-icon.expanded) {
+    color: @primary-color;
+  }
+
+  // 末级节点不展示箭头
+  :deep(.el-tree-node__expand-icon.is-leaf) {
+    color: transparent !important;
+    cursor: default;
+    visibility: hidden;
+  }
+
+  :deep(.el-tree-node.is-current > .el-tree-node__content .el-tree-node__expand-icon:not(.is-leaf)) {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  :deep(.el-tree-node.is-current > .el-tree-node__content .el-tree-node__expand-icon.expanded:not(.is-leaf)) {
+    color: #ffffff !important;
+  }
+
+  :deep(.el-tree-node__label) {
+    font-size: 13px;
+    color: inherit;
+  }
+
+  /* 自定义树节点：文件/目录 icon + hover 显示编辑/删除 */
+  :deep(.tree-node) {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    padding-right: 4px;
+  }
+
+  :deep(.tree-node__icon) {
+    flex-shrink: 0;
+    margin-right: 6px;
+    color: @primary-color;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  :deep(.tree-node__label) {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: inherit;
+  }
+
+  :deep(.tree-node__actions) {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    padding-left: 8px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+
+  :deep(.el-tree-node__content:hover .tree-node__actions) {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  :deep(.tree-node__action) {
+    color: @text-muted;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.12s ease;
+
+    &:hover {
+      color: @primary-color;
+    }
+  }
+
+  :deep(.tree-node__action--danger:hover) {
+    color: @btn-danger;
+  }
+
+  // 选中节点：icon/actions 反白
+  :deep(.el-tree-node.is-current > .el-tree-node__content) {
+    .tree-node__icon {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .tree-node__action {
+      color: rgba(255, 255, 255, 0.85);
+
+      &:hover {
+        color: #ffffff;
+      }
+    }
+
+    .tree-node__action--danger:hover {
+      color: #ffd6d6;
+    }
+
+    .tree-node__actions {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+}
+
+/* 右侧列 */
+.right-column {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.detail-card {
+  flex: 1 1 0;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid @border-main !important;
+  border-radius: 12px !important;
+  background: @surface-bg-strong !important;
+  // 去掉阴影，避免与描边叠成「双层外框」
+  box-shadow: none !important;
+  overflow: hidden;
+  contain: layout paint;
+
+  :deep(.el-card__body) {
+    flex: 1 1 0;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+    // 与表区同白底，避免 table-panel 四周再露出一层「夹层」底色
+    background: @surface-bg-strong;
+  }
+}
+
+.detail-header {
+  flex-shrink: 0;
+  padding: 0 10px;
+  background-color: @header-bg;
+  border-bottom: 1px solid @border-light;
+}
+
+.detail-header__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 0 4px;
+}
+
+.detail-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.current-node-tag {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+  border-radius: 4px;
+  background-color: @primary-bg-light !important;
+  color: @primary-color !important;
+  border: 1px solid @primary-border-light !important;
+  font-size: 12px;
+  height: 22px;
+  line-height: 20px;
+  padding: 0 8px;
+}
+
+.current-node-placeholder {
+  color: @text-muted;
+  font-size: 12px;
+}
+
+.range-tabs {
+  :deep(.el-tabs__header) {
+    margin: 0;
+  }
+
+  :deep(.el-tabs__nav-wrap::after) {
+    height: 1px;
+    background-color: @border-light;
+  }
+
+  :deep(.el-tabs__item) {
+    height: 40px;
+    line-height: 40px;
+    font-size: 13px;
+    font-weight: 500;
+    color: @text-secondary;
+    transition: color 0.12s ease;
+
+    &:hover {
+      color: @primary-color;
+    }
+
+    &.is-active {
+      color: @primary-color;
+      font-weight: 600;
+    }
+  }
+
+  :deep(.el-tabs__active-bar) {
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background-color: @primary-color;
+  }
+}
+
+.table-panel {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  // 去掉中间层 10px：红圈处「卡中卡」边距来自这里 + table-main 描边
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+
+  .table-pane {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  // RangeVxeTable 根节点：占满 table-pane，内部再分工具栏 + 表格
+  :deep(.range-pro-table),
+  :deep(.range-vxe-table) {
+    flex: 1 1 0;
+    height: 100% !important;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    background: transparent;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 工具栏：并入右侧大卡，不再单独描边成第三层框 */
+  :deep(.operate) {
+    flex-shrink: 0;
+    height: auto !important;
+    min-height: 36px;
+    margin: 0;
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1px solid @border-light;
+    border-radius: 0;
+    background: @surface-bg-strong;
+  }
+
+  :deep(.operate-button) {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+
+    .el-button {
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 7px 12px;
+      height: 28px;
+      min-height: 28px;
+      transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+
+      // 主操作：实心主题色 + 白字（与表头/弹窗保存一致）
+      &--primary:not(.is-link) {
+        color: @btn-primary-text !important;
+        background-color: @btn-primary-bg !important;
+        border-color: @btn-primary-bg !important;
+
+        &:hover:not(.is-disabled),
+        &:focus:not(.is-disabled),
+        &:active:not(.is-disabled) {
+          color: #ffffff !important;
+          background-color: @primary-solid-hover !important;
+          border-color: @primary-solid-hover !important;
+          background-image: none !important;
+        }
+
+        &.is-disabled,
+        &.is-disabled:hover {
+          color: @text-muted !important;
+          background-color: #f1f5f9 !important;
+          border-color: @border-main !important;
+        }
+      }
+
+      // 危险操作：危险色实心 + 白字
+      &--danger:not(.is-link) {
+        color: #ffffff !important;
+        background-color: @btn-danger !important;
+        border-color: @btn-danger !important;
+
+        &:hover:not(.is-disabled),
+        &:focus:not(.is-disabled) {
+          filter: brightness(1.05);
+          color: #ffffff !important;
+        }
+
+        &.is-disabled,
+        &.is-disabled:hover {
+          filter: none;
+          color: @text-muted !important;
+          background-color: #f1f5f9 !important;
+          border-color: @border-main !important;
+        }
+      }
+    }
+  }
+
+
+  // 树区「重新加载」：与工具栏主按钮同系
+  :deep(.tree-error .el-button--primary) {
+    color: @btn-primary-text !important;
+    background-color: @btn-primary-bg !important;
+    border-color: @btn-primary-bg !important;
+    border-radius: 6px;
+
+    &:hover:not(.is-disabled),
+    &:focus:not(.is-disabled) {
+      background-color: @btn-primary-hover-bg !important;
+      border-color: @btn-primary-hover-bg !important;
+      color: @btn-primary-text !important;
+    }
+  }
+
+  :deep(.operate-filter) {
+    .header-button-ri {
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+  }
+
+  :deep(.table-main) {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 0; // 配合 flex 吃满剩余高度，分页贴底
+    display: flex;
+    flex-direction: column;
+    // 不与 detail-card 再套一层外框；网格线由 vxe border--full 负责
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: @surface-bg-strong;
+    overflow: hidden;
+    contain: layout paint;
+  }
+
+  :deep(.table-grid-wrap) {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  /*
+   * 表格边框：vxe border=true → .border--full，用 background-image 画横/竖网格线，
+   * .vxe-table--border-line 画外框。
+   * 注意：列上禁止 background 简写 / background-image:none，否则线会消失。
+   */
+  :deep(.vxe-grid),
+  :deep(.vxe-table) {
+    height: 100% !important;
+    width: 100% !important;
+    max-width: 100%;
+    color: @text-secondary;
+    --vxe-font-color: @text-secondary;
+    --vxe-table-header-font-color: @table-header-text;
+    --vxe-table-header-background-color: @table-header-bg;
+    --vxe-table-header-font-weight: 600;
+    --vxe-table-border-color: @border-main;
+    --vxe-table-border-width: 1px;
+    --vxe-table-row-hover-background-color: @table-hover-bg;
+    --vxe-table-row-striped-background-color: @table-stripe-bg;
+    --vxe-table-row-current-background-color: @table-current-bg;
+    --vxe-table-row-checkbox-checked-background-color: @table-current-bg;
+    --vxe-table-row-hover-current-background-color: @table-hover-bg;
+    --vxe-table-row-hover-checkbox-checked-background-color: @table-hover-bg;
+    --vxe-table-row-hover-striped-background-color: @table-hover-bg;
+    background-color: @surface-bg-strong !important;
+  }
+
+  :deep(.vxe-table--border-line) {
+    border-color: @border-main !important;
+  }
+
+  :deep(.vxe-table--header-wrapper),
+  :deep(.vxe-table--header) {
+    background-color: @table-header-bg !important;
+  }
+
+  :deep(.vxe-header--column) {
+    // 只用 background-color，保留 vxe 的 border 渐变线
+    background-color: @table-header-bg !important;
+    color: @table-header-text !important;
+    font-weight: 600;
+    font-size: 13px;
+    height: 44px;
+
+    .vxe-cell {
+      color: inherit;
+      font-size: 13px;
+    }
+  }
+
+  :deep(.vxe-body--column) {
+    color: @text-secondary;
+    font-size: 13px;
+    height: 44px;
+
+    .vxe-cell {
+      font-size: 13px;
+    }
+  }
+
+  /* 斑马纹默认底；悬停/选中需盖过 stripe */
+  :deep(.vxe-body--row.row--stripe) {
+    background-color: @table-stripe-bg !important;
+  }
+
+  /*
+   * 行态策略（兼容单元格自带色）：
+   * - 只铺青绿雾面底，不强制改 color
+   * - 正文/链接/Tag/状态色保持各自语义
+   * - 列在行态下透底，让行色透出；自带底的内容块（Tag 等）画在内容层，不受影响
+   * - 悬停略浅，勾选略深
+   */
+  :deep(.vxe-body--row.row--checked),
+  :deep(.vxe-body--row.row--checked.row--stripe),
+  :deep(.vxe-body--row.row--radio),
+  :deep(.vxe-body--row.row--current) {
+    background-color: @table-current-bg !important;
+  }
+
+  :deep(.vxe-body--row.row--hover),
+  :deep(.vxe-body--row.row--hover.row--stripe),
+  :deep(.vxe-body--row.row--hover.row--checked),
+  :deep(.vxe-body--row.row--hover.row--checked.row--stripe),
+  :deep(.vxe-body--row.row--hover.row--current),
+  :deep(.vxe-body--row.row--hover.row--radio) {
+    background-color: @table-hover-bg !important;
+  }
+
+  :deep(.vxe-body--row.row--stripe .vxe-body--column),
+  :deep(.vxe-body--row.row--checked .vxe-body--column),
+  :deep(.vxe-body--row.row--hover .vxe-body--column),
+  :deep(.vxe-body--row.row--current .vxe-body--column),
+  :deep(.vxe-body--row.row--radio .vxe-body--column) {
+    background-color: transparent !important;
+  }
+
+  /* 表头勾选：主色，压在雾面表头上 */
+  :deep(.vxe-header--column .vxe-checkbox--icon),
+  :deep(.vxe-header--column .vxe-cell--checkbox .vxe-checkbox--icon),
+  :deep(.vxe-header--column .vxe-checkbox--checked-icon),
+  :deep(.vxe-header--column .vxe-checkbox--indeterminate-icon),
+  :deep(.vxe-header--column .vxe-checkbox--unchecked-icon) {
+    color: @table-header-text !important;
+  }
+
+  :deep(.vxe-checkbox--icon) {
+    font-size: 15px;
+  }
+
+  /* 表体勾选：始终主色，浅底行上对比清晰 */
+  :deep(.vxe-cell--checkbox .vxe-checkbox--checked-icon),
+  :deep(.vxe-cell--checkbox .vxe-checkbox--indeterminate-icon),
+  :deep(.vxe-body--row.row--checked .vxe-cell--checkbox .vxe-checkbox--checked-icon),
+  :deep(.vxe-body--row.row--checked .vxe-cell--checkbox .vxe-checkbox--indeterminate-icon),
+  :deep(.vxe-body--row.row--hover .vxe-cell--checkbox .vxe-checkbox--checked-icon),
+  :deep(.vxe-body--row.row--hover .vxe-cell--checkbox .vxe-checkbox--indeterminate-icon) {
+    color: @primary-color !important;
+  }
+
+  /* 分页：融入表格白卡片，轻量无边框页码（对齐页面主色） */
+  :deep(.el-pagination) {
+    --el-pagination-bg-color: transparent;
+    --el-pagination-button-bg-color: transparent;
+    --el-pagination-button-color: @text-secondary;
+    --el-pagination-hover-color: @primary-color;
+    --el-pagination-font-size: 12px;
+    --el-text-color-regular: @text-secondary;
+    --el-text-color-primary: @text-main;
+    flex-shrink: 0;
+    margin: 0 !important;
+    padding: 8px 12px;
+    justify-content: flex-end;
+    gap: 2px;
+    background: @surface-bg-strong;
+    border-top: 1px solid @border-light;
+
+    .el-pagination__total,
+    .el-pagination__jump,
+    .el-pagination__sizes {
+      color: @text-muted !important;
+      font-size: 12px;
+      font-weight: 400;
+      margin: 0 6px 0 0;
+    }
+
+    .el-pagination__total {
+      margin-right: 10px;
+    }
+
+    .el-pagination__sizes {
+      margin-right: 8px;
+
+      .el-input {
+        margin: 0;
+      }
+    }
+
+    .el-pagination__jump {
+      margin-left: 8px;
+      color: @text-muted !important;
+
+      .el-input {
+        margin: 0 4px;
+      }
+    }
+
+    // 覆盖 background 模式默认灰底：透明底 + 无边框
+    &.is-background .btn-prev,
+    &.is-background .btn-next,
+    &.is-background .el-pager li,
+    .btn-prev,
+    .btn-next,
+    .el-pager li {
+      min-width: 28px;
+      height: 28px;
+      line-height: 28px;
+      margin: 0 2px;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 12px;
+      background-color: transparent !important;
+      border: none !important;
+      color: @text-secondary !important;
+      transition: color 0.12s ease, background-color 0.12s ease;
+    }
+
+    .btn-prev .el-icon,
+    .btn-next .el-icon,
+    .btn-prev i,
+    .btn-next i {
+      color: inherit !important;
+    }
+
+    &.is-background .el-pager li:not(.disabled):not(.is-active):hover,
+    .el-pager li:not(.disabled):not(.is-active):hover,
+    .btn-prev:not(.disabled):hover,
+    .btn-next:not(.disabled):hover {
+      color: @primary-color !important;
+      background-color: @primary-bg-light !important;
+    }
+
+    &.is-background .el-pager li:not(.disabled).is-active,
+    .el-pager li:not(.disabled).is-active {
+      color: #ffffff !important;
+      background-color: @primary-color !important;
+      font-weight: 600;
+    }
+
+    &.is-background .btn-prev:disabled,
+    &.is-background .btn-next:disabled,
+    &.is-background .el-pager li.disabled,
+    .btn-prev:disabled,
+    .btn-next:disabled,
+    .btn-prev.is-disabled,
+    .btn-next.is-disabled,
+    .el-pager li.disabled {
+      color: @disabled-text !important;
+      background-color: transparent !important;
+    }
+
+    .el-select .el-input__inner,
+    .el-pagination__editor.el-input .el-input__inner {
+      border-radius: 6px;
+      border: 1px solid @border-main;
+      background: @surface-bg-strong;
+      color: @text-secondary !important;
+      height: 28px;
+      line-height: 28px;
+      font-size: 12px;
+
+      &:hover {
+        border-color: @primary-border-light;
+      }
+
+      &:focus {
+        border-color: @primary-color;
+      }
+    }
+
+    .el-select .el-input .el-select__caret {
+      color: @text-muted;
+    }
+  }
+}
+
+
+/* 行内编辑：在 32px 行高中保留上下留白，不把操作列填成色块 */
+.table-panel :deep(.row-edit-btn.el-button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  height: 28px;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 10px;
+  color: @primary-color !important;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 1px solid transparent !important;
+  border-radius: 6px;
+  box-shadow: none !important;
+  transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+
+  &:hover:not(.is-disabled),
+  &:focus:not(.is-disabled),
+  &:focus-visible:not(.is-disabled) {
+    color: #ffffff !important;
+    background-color: @primary-solid-hover !important;
+    border-color: @primary-solid-hover !important;
+    outline: none;
+  }
+
+  &:focus-visible:not(.is-disabled) {
+    box-shadow: 0 0 0 2px @primary-border-light !important;
+  }
+
+  &:active:not(.is-disabled) {
+    color: #ffffff !important;
+    background-color: @primary-solid-active !important;
+    border-color: @primary-solid-active !important;
+  }
+
+  &.is-disabled,
+  &.is-disabled:hover,
+  &.is-disabled:focus {
+    color: @disabled-text !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+  }
+}
+
+/* 行选中/悬停只改变行底，操作文字仍保持清晰的主题色 */
+.table-panel :deep(.vxe-body--row.row--checked .row-edit-btn.el-button),
+.table-panel :deep(.vxe-body--row.row--hover .row-edit-btn.el-button) {
+  color: @primary-color !important;
+  background-color: transparent !important;
+
+  &:hover:not(.is-disabled),
+  &:focus:not(.is-disabled),
+  &:focus-visible:not(.is-disabled) {
+    color: #ffffff !important;
+    background-color: @primary-solid-hover !important;
+  }
+}
+
+/* 操作列纯 icon：编辑/删除 */
+.table-panel :deep(.row-action-icon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 2px;
+  color: @primary-color;
+  font-size: 15px;
+  line-height: 1;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+
+  &:hover {
+    color: #ffffff;
+    background-color: @primary-solid-hover;
+    border-color: @primary-solid-hover;
+  }
+
+  &:active {
+    background-color: @primary-solid-active;
+    border-color: @primary-solid-active;
+  }
+}
+
+.table-panel :deep(.row-action-icon--danger) {
+  color: @btn-danger;
+
+  &:hover {
+    color: #ffffff;
+    background-color: @btn-danger;
+    border-color: @btn-danger;
+  }
+
+  &:active {
+    background-color: darken(@btn-danger, 6%);
+    border-color: darken(@btn-danger, 6%);
+  }
+}
+
+/* 行选中/悬停下操作 icon 仍清晰 */
+.table-panel :deep(.vxe-body--row.row--hover .row-action-icon),
+.table-panel :deep(.vxe-body--row.row--checked .row-action-icon) {
+  color: @primary-color;
+
+  &.row-action-icon--danger {
+    color: @btn-danger;
+  }
+}
+
+@media (max-width: 900px) {
+  .container {
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
+  }
+
+  .main-layout {
+    height: auto;
+    min-height: 0;
+    flex: none;
+    flex-wrap: wrap;
+    overflow: visible;
+
+    > .left-column,
+    > .right-column {
+      flex: 0 0 100% !important;
+      max-width: 100% !important;
+      height: auto !important;
+      padding-inline: 0 !important;
+    }
+
+    > .left-column {
+      min-height: 260px;
+      margin-bottom: 10px;
+    }
+
+    > .right-column {
+      min-height: 560px;
+    }
+
+    &--left-collapsed > .left-column {
+      pointer-events: auto;
+      content-visibility: visible;
+
+      .tree-list-card {
+        opacity: 1;
+      }
+    }
+  }
+
+  .left-collapse-toggle {
+    display: none;
+  }
+
+  .detail-header__meta {
+    flex-wrap: wrap;
+  }
+
+  .range-tabs {
+    :deep(.el-tabs__nav-wrap) {
+      overflow-x: auto;
+    }
+  }
+
+  .tree-search-button,
+  :deep(.el-button),
+  :deep(.el-tabs__item),
+  :deep(.el-tree-node__content),
+  :deep(.el-pagination .btn-prev),
+  :deep(.el-pagination .btn-next),
+  :deep(.el-pagination .el-pager li) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .table-panel {
+    padding: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .left-collapse-toggle,
+  .left-collapse-toggle__icon,
+  .tree-list-card,
+  .range-tabs :deep(.el-tabs__item),
+  .table-panel :deep(.el-button),
+  .table-panel :deep(.el-pagination *) {
+    transition: none !important;
+  }
+}
