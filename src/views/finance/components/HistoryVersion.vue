@@ -222,7 +222,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .history-version-container {
   padding: 10px;
   height: 100%;

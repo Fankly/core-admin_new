@@ -322,7 +322,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 /* 覆盖 dialog 的 padding */
 :deep(.projectManagerTransfer .el-dialog__body) {
   padding: 0 !important;

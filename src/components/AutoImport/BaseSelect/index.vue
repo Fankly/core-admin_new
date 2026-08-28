@@ -88,7 +88,7 @@ export default {
   }
 }
 </script>
-<style lang="scss">
+<style lang="less">
 .span-ellipsis {
   display: inline-block;
   // max-width: 200px;

@@ -110,7 +110,7 @@ export default {
   }
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .card-container {
   // display: flex;
   // flex-direction: column;
@@ -150,7 +150,7 @@ export default {
   .card-title {
     font-size: 17px;
     font-weight: bold;
-    color: $--color-primary;
+    color: @color-primary;
     // text-decoration: underline;
   }
 
@@ -188,7 +188,7 @@ export default {
     align-items: flex-start;
     span {
       // font-weight: bold;
-      color: $--color-primary;
+      color: @color-primary;
     }
   }
 
@@ -203,12 +203,12 @@ export default {
     justify-content: center;
     font-size: 22px;
     font-weight: bold;
-    color: $--color-success;
+    color: @color-success;
     .warning {
-      color: $--color-warning;
+      color: @color-warning;
     }
     .danger {
-      color: $--color-danger;
+      color: @color-danger;
     }
   }
 
@@ -224,7 +224,7 @@ export default {
 
   /* 悬浮交互 */
   &:hover {
-    border-color: $--color-primary;
+    border-color: @color-primary;
     box-shadow: 4px 4px 12px rgba(0, 128, 0, 0.2);
     transform: translateY(-4px);
   }
@@ -249,7 +249,7 @@ export default {
     height: 30px;
     line-height: 30px;
     text-align: right;
-    color: $--color-primary;
+    color: @color-primary;
     font-weight: 400;
   }
 }

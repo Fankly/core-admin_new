@@ -67,7 +67,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped lang="less">
 /* ========================
    🌿 背景与边缘流光核心修改
 ======================== */

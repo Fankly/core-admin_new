@@ -259,7 +259,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .table-box {
   background-color: white;
   display: flex;
@@ -305,7 +305,7 @@ export default {
 }
 </style>
 
-<style scoped lang="scss">
+<style scoped lang="less">
 .table-box {
   padding: 0 16px 24px;
 }

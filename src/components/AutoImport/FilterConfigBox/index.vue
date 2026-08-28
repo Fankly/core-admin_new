@@ -125,7 +125,7 @@ export default {
   watch: {}
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .filterConfigBox {
   // border-radius: 5px;
   // overflow: hidden;
@@ -145,6 +145,6 @@ export default {
   cursor: pointer;
 }
 .tooltip-icon:hover {
-  color: $--color-primary;
+  color: @color-primary;
 }
 </style>

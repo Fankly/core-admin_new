@@ -75,7 +75,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped lang="less">
 .text-container__wrapper {
   flex: 1;
   overflow: hidden;
@@ -87,11 +87,11 @@ export default {
   text-overflow: ellipsis;
 }
 .is-link {
-  color: $--color-primary;
+  color: @color-primary;
   text-decoration: underline;
   cursor: pointer;
 }
 .multiline-content {
-  @include textoverflow(var(--wrapNumber));
+  .textoverflow(var(--wrapNumber));
 }
 </style>

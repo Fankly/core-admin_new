@@ -207,7 +207,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .projectSSE {
   height: 100%;
   width: 100%;
@@ -252,7 +252,7 @@ export default {
       transform: translateY(-50%);
       width: 4px;
       height: 18px;
-      background-color: $--color-primary;
+      background-color: @color-primary;
       border-radius: 2px;
     }
   }
@@ -384,6 +384,6 @@ export default {
   color: #27ae60;
 }
 .status-active {
-  color: $--color-primary;
+  color: @color-primary;
 }
 </style>

@@ -19,7 +19,7 @@ import { IObject } from './types/interface'
 import router from './router'
 import store from './store'
 import baseService from '@/service/baseService'
-import '@/assets/css/element.scss'
+import '@/assets/css/element.less'
 import zhCn from 'element-plus/lib/locale/lang/zh-cn'
 
 import plugin from '@/utils/plugin'

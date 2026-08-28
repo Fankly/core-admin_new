@@ -90,7 +90,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 :deep(.el-form-item) {
   display: flex;
   align-items: center;

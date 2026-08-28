@@ -79,7 +79,7 @@ function startResize(mde: MouseEvent) {
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .forbid-select {
   -moz-user-select: none;
   -webkit-user-select: none;

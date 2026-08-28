@@ -1459,13 +1459,13 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="less">
 .rr-view-ctx-card:has(.reserveApprovalDetail) {
   background: transparent;
 }
 </style>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .reserveApprovalDetail {
   &__main {
     display: flex;
@@ -1687,7 +1687,7 @@ export default {
   margin-right: 10px;
   &__tip {
     font-size: 14px;
-    color: $--color-primary;
+    color: @color-primary;
     font-weight: 600;
     margin-right: 10px;
   }
@@ -1696,7 +1696,7 @@ export default {
     font-size: 22px;
     transition: color 0.15s linear;
     &:hover {
-      color: $--color-primary;
+      color: @color-primary;
     }
   }
 }

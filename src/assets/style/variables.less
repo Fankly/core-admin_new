@@ -1,0 +1,48 @@
+// 全局注入（vite.config.ts css.preprocessorOptions.less.additionalData）
+// 取代原 element-variables-green.scss 的 $-- 变量与 mixin.scss 的 @mixin
+// 说明：Element Plus v2 的 --el-color-primary-light-* 在未换肤时仍是默认蓝，
+// 所以这里用青绿主题的字面值，保持与原 SCSS 变量一致的视觉结果。
+
+// 主色及其亮色梯度（原 mix($--color-white, $--color-primary, N0%)）
+@color-primary: #0e8b8d;
+@color-primary-light-1: #269798;
+@color-primary-light-4: #6eb9bb;
+@color-primary-light-7: #b7dcdd;
+
+// 功能色
+@color-success: #67c23a;
+@color-warning: #e6a23c;
+@color-danger: #f56c6c;
+
+// 文字色
+@color-text-secondary: #909399;
+
+// 清除浮动
+.clearfix() {
+  &::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+}
+
+// 多行隐藏
+.textoverflow(@clamp: 1) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: @clamp;
+  /*! autoprefixer: ignore next */
+  -webkit-box-orient: vertical;
+}
+
+// flex box
+.flexbox(@jc: space-between, @ai: center, @fd: row, @fw: nowrap) {
+  display: flex;
+  flex: 1;
+  justify-content: @jc;
+  align-items: @ai;
+  flex-direction: @fd;
+  flex-wrap: @fw;
+}

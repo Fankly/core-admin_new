@@ -83,8 +83,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-@import '@/assets/style/element-variables.scss';
+<style lang="less" scoped>
 .flex-box {
   margin-bottom: 16px;
   background-color: white;
@@ -92,9 +91,9 @@ export default {
 
   .search-btn {
     color: white;
-    border-color: $--color-primary;
+    border-color: @color-primary;
     &:hover {
-      background-color: $--color-primary-light-1;
+      background-color: @color-primary-light-1;
     }
   }
   :deep(.el-form-item) {

@@ -142,7 +142,7 @@ export default {
   watch: {}
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .dialogContainer {
   :deep(.el-scrollbar__bar.is-horizontal) {
     display: none;

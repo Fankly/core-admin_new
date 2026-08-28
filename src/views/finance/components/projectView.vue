@@ -594,7 +594,7 @@ export default {
   }
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .projectView {
   padding: 8px 10px 20px 8px;
   height: 100%;
@@ -621,7 +621,7 @@ export default {
   font-size: 16px;
   cursor: pointer;
   i {
-    color: $--color-primary;
+    color: @color-primary;
   }
 }
 

@@ -138,9 +138,9 @@ export default {
   watch: {}
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .info {
-  color: $--color-primary-light-4;
+  color: @color-primary-light-4;
   margin-left: 35px;
   font-size: 12px;
 }

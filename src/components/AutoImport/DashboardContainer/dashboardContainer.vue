@@ -122,7 +122,7 @@ export default {
   watch: {}
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .dashboardContainer {
   overflow: hidden;
   background: #ffffff;
@@ -213,7 +213,7 @@ export default {
     }
   }
   .subTitle {
-    color: $--color-text-secondary;
+    color: @color-text-secondary;
     font-size: 12px;
   }
   :deep(.full--item) {

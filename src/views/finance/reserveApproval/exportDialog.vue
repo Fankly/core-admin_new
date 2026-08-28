@@ -296,7 +296,7 @@ export default {
   watch: {}
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 :deep(.config-item) {
   .el-select__tags {
     max-width: 100% !important;

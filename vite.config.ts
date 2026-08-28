@@ -47,8 +47,9 @@ export default (config: UserConfig): UserConfigExport => {
     },
     css: {
       preprocessorOptions: {
-        scss: {
-          additionalData: '@import "@/assets/element-variables-green.scss";\n@import "@/assets/style/mixin.scss";\n'
+        less: {
+          additionalData: '@import "@/assets/style/variables.less";\n',
+          javascriptEnabled: true
         }
       }
     },

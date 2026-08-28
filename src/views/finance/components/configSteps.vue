@@ -59,7 +59,7 @@ export default {
   watch: {}
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .configSteps {
   :deep(.el-step__line) {
     top: 25px !important;
@@ -70,8 +70,8 @@ export default {
       color: #999999;
     }
     .is-text {
-      color: $--color-primary-light-7;
-      border-color: $--color-primary-light-7;
+      color: @color-primary-light-7;
+      border-color: @color-primary-light-7;
     }
   }
   :deep(.el-step__icon) {
@@ -80,13 +80,13 @@ export default {
     font-size: 24px;
   }
   :deep(.is-success) {
-    color: $--color-primary;
-    border-color: $--color-primary;
+    color: @color-primary;
+    border-color: @color-primary;
     .el-step__icon-inner {
       color: #fff;
     }
     .el-step__icon {
-      background: $--color-primary;
+      background: @color-primary;
     }
   }
   :deep(.el-step__title) {
@@ -96,28 +96,28 @@ export default {
     color: #999999;
   }
   :deep(.el-step__line) {
-    background-color: $--color-primary-light-7;
+    background-color: @color-primary-light-7;
   }
   :deep(.is-wait) {
-    color: $--color-primary-light-7;
-    border-color: $--color-primary-light-7;
+    color: @color-primary-light-7;
+    border-color: @color-primary-light-7;
     &.el-step__title {
       color: #999999;
     }
     .el-step__line {
-      background-color: $--color-primary-light-7;
+      background-color: @color-primary-light-7;
     }
   }
   .is-wait--color {
     :deep(.el-step__line) {
-      border-color: $--color-primary-light-7;
-      background-color: $--color-primary-light-7;
+      border-color: @color-primary-light-7;
+      background-color: @color-primary-light-7;
     }
     :deep(.is-process) {
       color: #999999;
       .el-step__icon {
-        color: $--color-primary-light-7;
-        border-color: $--color-primary-light-7;
+        color: @color-primary-light-7;
+        border-color: @color-primary-light-7;
       }
       .el-step__description {
         color: #999999;

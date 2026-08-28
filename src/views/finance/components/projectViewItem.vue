@@ -108,7 +108,7 @@ export default {
   watch: {}
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .title-group {
   &:not(:last-child) {
     margin-bottom: 14px;
@@ -118,7 +118,7 @@ export default {
 .main-title {
   font-size: 16px;
   font-weight: 700;
-  color: $--color-primary;
+  color: @color-primary;
   margin-bottom: 8px;
   line-height: 1.2;
   position: relative;
@@ -156,22 +156,22 @@ export default {
 .projectViewItem {
   .primary--text--color {
     :deep(.context) {
-      color: $--color-primary !important;
+      color: @color-primary !important;
     }
   }
   .danger--text--color {
     :deep(.context) {
-      color: $--color-danger !important;
+      color: @color-danger !important;
     }
   }
   .success--text--color {
     :deep(.context) {
-      color: $--color-success !important;
+      color: @color-success !important;
     }
   }
   .warning--text--color {
     :deep(.context) {
-      color: $--color-warning !important;
+      color: @color-warning !important;
     }
   }
 }
