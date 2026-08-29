@@ -2,10 +2,8 @@
  * 定义一些通用性的自定义指令
  * 在标签名添加 v-** 即可使用
  */
-import AutoImport from '@/components/AutoImport'
 import httpUtil from '@/core/http'
 import globalMixin from '@/core/mixins/global.js'
-import * as staticDict from '@/staticDict'
 import * as utilsCompat from '@/utils'
 import { checkPermission } from '@/utils/utils'
 import { useAppStore } from '@/store'
@@ -15,20 +13,12 @@ export default (app: any) => {
   // main.ts 里 pinia 必须先 use，这里才能取到 store
   const store = useAppStore()
 
-  app.use(AutoImport)
-
   app.config.globalProperties.$utils = utilsCompat
   app.config.globalProperties.doUrl = httpUtil.doUrl
   app.config.globalProperties.upload = httpUtil.fetchUpload
   app.config.globalProperties.download = httpUtil.fetchDownload
   app.config.globalProperties.downloadFileName = httpUtil.fetchDownloadFileName
   app.config.globalProperties.loadingManager = httpUtil.loadingManager
-
-  Object.entries(staticDict).forEach(([key, value]) => {
-    if (key !== 'DictionaryBase') {
-      app.config.globalProperties[key] = value
-    }
-  })
 
   app.mixin(globalMixin)
 
