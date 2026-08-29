@@ -1,0 +1,15 @@
+{
+  "extends": "@repo/tsconfig/vue-app.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@mock/*": ["./mock/*"],
+      "@file-viewer/core/browser": ["./src/types/file-viewer/core-browser.ts"],
+      "@file-viewer/renderer-word": ["./src/types/file-viewer/renderer-word.ts"],
+      "@file-viewer/renderer-spreadsheet": ["./src/types/file-viewer/renderer-spreadsheet.ts"]
+    },
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "vite.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,12 @@
+{
+  // 根 tsconfig 只覆盖 workspace 根上的配置文件与 packages/* 下的共享包，
+  // 让编辑器打开 eslint.config.js / prettier.config.js 时有类型上下文。
+  // 业务代码的 tsconfig 在 apps/web/tsconfig.json。
+  "extends": "@repo/tsconfig/base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["*.js", "packages/**/*.js", "packages/**/*.ts"],
+  "exclude": ["node_modules", "**/node_modules", "**/dist", "apps"]
+}

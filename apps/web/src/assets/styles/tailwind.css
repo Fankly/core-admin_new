@@ -1,3 +1,51 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/**
+ * Tailwind CSS v4 入口（CSS-first 配置，已无 tailwind.config.js）。
+ *
+ * 与 v3 的差异，改动前请先读完：
+ *
+ * 1. 类名前缀从 `tw-` 变成 `tw:`。v4 的 prefix 是变体式语法，写 `tw:flex`
+ *    而不是 `tw-flex`，且前缀始终在最前面（`tw:hover:bg-red-600`）。
+ * 2. 不引入 tailwindcss/preflight.css，等价于 v3 的 corePlugins.preflight = false
+ *    （v4 已移除 corePlugins 配置项）。代价是没有 box-sizing 与 border-style 重置，
+ *    所以 `tw:border` 单独用不会显示边框，需要自己给 border-style。
+ * 3. prefix() 必须同时写在 theme.css 与 utilities.css 两个 import 上——
+ *    它既影响工具类也影响生成的 CSS 变量名（--tw-color-*）。
+ * 4. 间距不再需要自定义 token：v4 由 --spacing 乘数动态生成，`tw:p-4.5`
+ *    直接可用（calc(0.25rem * 4.5)），原 v3 里手写的 spacing 4.5 / 5.5 已删除。
+ * 5. 原 v3 config 里的语义色 token（primary / card / muted / destructive /
+ *    status.* 等）全部引用 var(--background)、var(--primary) 这类 CSS 变量，
+ *    而这些变量在整个仓库中从未定义过，且没有任何代码使用这些类——属于失效配置，
+ *    已删除。若后续要接入设计系统语义色，用 `@theme inline` 重新声明。
+ * 6. v4 不再有 <alpha-value> 占位符，透明度由编译期 color-mix() 处理，
+ *    `tw:bg-sggreen-500/50` 这类写法对任意色值都直接生效。
+ */
+
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme) prefix(tw);
+@import 'tailwindcss/utilities.css' layer(utilities) prefix(tw);
+
+/* v4 靠扫描源文件生成工具类。显式声明范围，等价于原 config 的 content 字段，
+   避免在 monorepo 下依赖自动探测的边界推断。 */
+@source '../../../index.html';
+@source '../../**/*.{vue,js,ts,jsx,tsx}';
+
+/* 等价于 v3 的 darkMode: 'class' */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* 品牌绿色板，自 v3 config 原样保留 */
+  --color-sggreen-50: #e6f4ea;
+  --color-sggreen-100: #c2e7cc;
+  --color-sggreen-200: #99d9aa;
+  --color-sggreen-500: #008b53;
+  --color-sggreen-600: #007b49;
+  --color-sggreen-700: #006a3f;
+  --color-sggreen-800: #005e37;
+}
+
+/* v4 没有 --scale-* 命名空间，scale 工具类不由 theme 驱动，
+   原 v3 的 scale.98 用自定义工具类还原。 */
+@utility scale-98 {
+  scale: 98%;
+}

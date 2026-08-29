@@ -1,11 +1,11 @@
 <template>
-  <div class="customer-service-trigger tw-flex tw-items-center tw-gap-[10px] tw-select-none" @click="openHelpModal" title="用户手册">
+  <div class="customer-service-trigger tw:flex tw:items-center tw:gap-[10px] tw:select-none" @click="openHelpModal" title="用户手册">
     <Info :size="16" class="customer-service-trigger__icon" />
-    <span class="customer-service-trigger__text tw-text-sm tw-font-medium">用户手册</span>
+    <span class="customer-service-trigger__text tw:text-sm tw:font-medium">用户手册</span>
   </div>
-  <div class="customer-service-trigger tw-flex tw-items-center tw-gap-[10px] tw-select-none" @click="openModal" title="联系客服">
+  <div class="customer-service-trigger tw:flex tw:items-center tw:gap-[10px] tw:select-none" @click="openModal" title="联系客服">
     <Phone :size="16" class="customer-service-trigger__icon" />
-    <span class="customer-service-trigger__text tw-text-sm tw-font-medium">联系客服</span>
+    <span class="customer-service-trigger__text tw:text-sm tw:font-medium">联系客服</span>
   </div>
 
   <vxe-modal
@@ -22,35 +22,35 @@
     :mask-closable="true"
     class-name="customer-service-modal"
   >
-    <div class="customer-service-body tw-p-[10px]">
-      <div class="tw-space-y-[10px]">
+    <div class="customer-service-body tw:p-[10px]">
+      <div class="tw:space-y-[10px]">
         <!-- 客服电话 -->
-        <div class="service-card service-card--phone tw-flex tw-items-center tw-p-[10px] tw-rounded-lg tw-border">
-          <div class="service-icon service-icon--phone tw-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-rounded-full tw-mr-[10px]">
+        <div class="service-card service-card--phone tw:flex tw:items-center tw:p-[10px] tw:rounded-lg tw:border">
+          <div class="service-icon service-icon--phone tw:flex tw:items-center tw:justify-center tw:w-10 tw:h-10 tw:rounded-full tw:mr-[10px]">
             <Phone :size="20" class="service-icon__glyph service-icon__glyph--phone" />
           </div>
-          <div class="tw-flex-1">
-            <div class="service-label tw-text-xs tw-mb-[10px]">客服电话</div>
-            <div class="service-value tw-text-base tw-font-semibold tw-select-text">{{ formattedMessage }}</div>
+          <div class="tw:flex-1">
+            <div class="service-label tw:text-xs tw:mb-[10px]">客服电话</div>
+            <div class="service-value tw:text-base tw:font-semibold tw:select-text">{{ formattedMessage }}</div>
           </div>
         </div>
 
         <!-- 客服邮箱 -->
-        <div class="service-card service-card--email tw-flex tw-items-center tw-p-[10px] tw-rounded-lg tw-border">
-          <div class="service-icon service-icon--email tw-flex tw-items-center tw-justify-center tw-w-10 tw-h-10 tw-rounded-full tw-mr-[10px]">
+        <div class="service-card service-card--email tw:flex tw:items-center tw:p-[10px] tw:rounded-lg tw:border">
+          <div class="service-icon service-icon--email tw:flex tw:items-center tw:justify-center tw:w-10 tw:h-10 tw:rounded-full tw:mr-[10px]">
             <Mail :size="20" class="service-icon__glyph service-icon__glyph--email" />
           </div>
-          <div class="tw-flex-1">
-            <div class="service-label tw-text-xs tw-mb-[10px]">客服邮箱</div>
-            <div class="service-value tw-text-base tw-font-semibold tw-select-text">{{ email || '-' }}</div>
+          <div class="tw:flex-1">
+            <div class="service-label tw:text-xs tw:mb-[10px]">客服邮箱</div>
+            <div class="service-value tw:text-base tw:font-semibold tw:select-text">{{ email || '-' }}</div>
           </div>
         </div>
       </div>
     </div>
 
     <template #footer>
-      <div class="tw-flex tw-justify-center tw-p-[10px]">
-        <el-button type="primary" class="tw-px-[10px] tw-py-[10px]" @click="closeModal">关闭</el-button>
+      <div class="tw:flex tw:justify-center tw:p-[10px]">
+        <el-button type="primary" class="tw:px-[10px] tw:py-[10px]" @click="closeModal">关闭</el-button>
       </div>
     </template>
   </vxe-modal>

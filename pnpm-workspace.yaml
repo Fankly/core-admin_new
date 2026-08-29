@@ -1,0 +1,33 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# 跨 workspace 共享的工具链版本集中在此，各 package.json 用 `catalog:` 引用，
+# 避免 root / apps/web / packages/* 之间出现 eslint、prettier 版本漂移。
+catalog:
+  eslint: ^10.9.1
+  prettier: ^3.9.6
+
+# 注意：pnpm 11 起配置项统一放在本文件（camelCase）。.npmrc 里的
+# shamefully-hoist / strict-peer-dependencies 这类 kebab-case 键已完全不被读取，
+# 改配置后用 `pnpm config list` 确认是否真的生效。
+
+# eslint 10 / typescript 7 尚有大量插件未更新 peer 范围，安装期不因此中断。
+strictPeerDependencies: false
+
+# 依赖有更新时自动去重，减小 node_modules 体积。
+dedupePeerDependents: true
+
+# 含构建脚本的包需显式放行，pnpm 默认全部拦截。
+onlyBuiltDependencies:
+  - esbuild
+
+allowBuilds:
+  # protobufjs 经 @univerjs/presets → collaboration → @grpc/grpc-js 间接引入。
+  # 其 postinstall 只生成 CommonJS 产物，浏览器打包用不到，明确拒绝。
+  protobufjs: false
+
+# pnpm 的新包冷却期（minimumReleaseAge）会挡住刚发布不久的版本，
+# 这一条是安装时自动写入的例外。
+minimumReleaseAgeExclude:
+  - vxe-pc-ui@4.17.20

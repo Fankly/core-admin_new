@@ -1,13 +1,26 @@
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import { resolve } from 'path'
+import { createRequire } from 'module'
+import { dirname, resolve } from 'path'
 import { defineConfig } from 'vite'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons-ng'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 // "type": "module" 下没有 __dirname，用 import.meta.dirname（Node >= 20.11）
 const root = import.meta.dirname
+
+const require = createRequire(import.meta.url)
+
+/**
+ * 解析依赖包内的具体文件。
+ *
+ * 不能写死 `<root>/node_modules/<pkg>/...`：pnpm workspace 下依赖可能被链接到
+ * apps/web/node_modules，也可能提升到 workspace 根 node_modules（见 .npmrc 的
+ * shamefully-hoist），路径不固定。这里改为从包自己的 package.json 反推包根目录，
+ * 无论哪种布局都能命中。
+ */
+const pkgFile = (pkg: string, file: string) => resolve(dirname(require.resolve(`${pkg}/package.json`)), file)
 
 export default defineConfig({
   base: './',
@@ -55,12 +68,15 @@ export default defineConfig({
       vue: 'vue/dist/vue.esm-bundler.js',
       // 覆盖 tsconfig paths 的类型桩：运行时必须解析到 node_modules 真包
       // （官方 d.ts 需 TS≥4.5，类型侧见 src/types/file-viewer/*）
-      '@file-viewer/core/browser': resolve(root, 'node_modules/@file-viewer/core/browser.js'),
-      '@file-viewer/renderer-word': resolve(root, 'node_modules/@file-viewer/renderer-word/dist/index.js'),
-      '@file-viewer/renderer-spreadsheet': resolve(root, 'node_modules/@file-viewer/renderer-spreadsheet/dist/index.js')
+      '@file-viewer/core/browser': pkgFile('@file-viewer/core', 'dist/browser.js'),
+      '@file-viewer/renderer-word': pkgFile('@file-viewer/renderer-word', 'dist/index.js'),
+      '@file-viewer/renderer-spreadsheet': pkgFile('@file-viewer/renderer-spreadsheet', 'dist/index.js')
     }
   },
   // 预构建 file-viewer，避免 dev 首次发现新依赖时反复 Optimized dependencies changed 整页刷新
+  // 注：@file-viewer/docx 与 /doc 是 renderer-word 的间接依赖，src 从未直接 import，
+  // 但这里要预构建，所以在 package.json 里显式声明成直接依赖——pnpm 严格隔离下
+  // 不声明就解析不到。升级 renderer-word 时记得同步这两个版本。
   optimizeDeps: {
     include: [
       '@file-viewer/core',

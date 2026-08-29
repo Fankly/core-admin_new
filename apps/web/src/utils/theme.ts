@@ -4,7 +4,9 @@ import { EMitt, EThemeSetting } from '@/constants/enum'
 import { IFunction, IObject } from '@/types/interface'
 import { getCache, setCache } from './cache'
 import emits from './emits'
-import chalkCss from '@/assets/chalk/index.css'
+// ?inline 取 CSS 文本而非副作用注入：下面 updateStyle 要对这段字符串做主题色替换。
+// Vite 6 起 CSS 默认导出已移除，不加 ?inline 会报 "default" is not exported。
+import chalkCss from '@/assets/chalk/index.css?inline'
 
 /**
  * 取主题设置缓存

@@ -30,7 +30,7 @@ import FullscreenLayout from '@/layout/fullscreen-layout.vue'
 import '@/assets/theme/mobile.less'
 import emits from './utils/emits'
 import { getThemeConfigCache, setThemeColor, updateTheme } from './utils/theme'
-import zhCn from 'element-plus/lib/locale/lang/zh-cn'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
 export default defineComponent({
   name: 'App',

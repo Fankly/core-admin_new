@@ -17,7 +17,7 @@ import { createPinia } from 'pinia'
 import router from './router'
 import baseService from '@/service/baseService'
 import '@/assets/css/element.less'
-import zhCn from 'element-plus/lib/locale/lang/zh-cn'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
 import plugin from '@/utils/plugin'
 import 'echarts'
@@ -27,7 +27,10 @@ import 'driver.js/dist/driver.css'
 import '@/assets/css/driver.less'
 import appConfig from '@/utils/appConfig'
 
-declare module '@vue/runtime-core' {
+// augment 'vue' 而不是 '@vue/runtime-core'：后者是 vue 的间接依赖，
+// npm 扁平提升时能解析到，pnpm 严格隔离下解析不到（TS2664）。
+// vue 自身 `export * from '@vue/runtime-dom'`，接口可从 'vue' 合并，是 3.3+ 官方推荐写法。
+declare module 'vue' {
   interface ComponentCustomProperties {
     /**
      * ref引用

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "@repo/tsconfig/vue-app",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    // vue 3.5 起不再默认注册全局 JSX 命名空间，tsx 组件（ProTable/TableColumn.vue）需要显式引入
+    "types": ["vite/client", "vue/jsx"],
+    "noEmit": true
+  }
+}

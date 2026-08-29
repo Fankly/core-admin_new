@@ -1,6 +1,8 @@
 <template>
-  <div class="singleContainer tw-flex tw-flex-column">
-    <div class="singleContainer__body tw-flex-1" :style="readOnly ? '' : 'margin-bottom:0'">
+  <!-- tw:flex-col：原 v3 写的是 `tw-flex-column`，Tailwind 没有这个类名（正确写法是 flex-col），
+       一直是空转，容器实际按 row 排列。此处随 v4 迁移改成有效类名，body 与 floor 恢复纵向堆叠。 -->
+  <div class="singleContainer tw:flex tw:flex-col">
+    <div class="singleContainer__body tw:flex-1" :style="readOnly ? '' : 'margin-bottom:0'">
       <BaseScrollbar v-if="scrollbar">
         <div style="margin: 16px 0">
           <slot />
