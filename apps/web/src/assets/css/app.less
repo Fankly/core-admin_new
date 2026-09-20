@@ -132,8 +132,8 @@ body {
 //menu
 .el-menu-item a,
 .el-menu-item span,
-.el-submenu > .el-submenu__title a,
-.el-submenu > .el-submenu__title span {
+.el-sub-menu > .el-sub-menu__title a,
+.el-sub-menu > .el-sub-menu__title span {
   color: @dark-text;
   text-decoration: none;
   margin-left: 5px;
@@ -153,7 +153,7 @@ body {
   border-width: 0 !important;
 }
 
-.el-submenu__icon-arrow {
+.el-sub-menu__icon-arrow {
   font-weight: bold;
 }
 
@@ -368,7 +368,7 @@ body {
       }
 
       &-item,
-      .el-submenu__title {
+      .el-sub-menu__title {
         background: transparent !important;
 
         &:focus {
@@ -377,13 +377,13 @@ body {
       }
 
       &-item,
-      .el-submenu__title,
+      .el-sub-menu__title,
       &-item-group__title {
         font-size: 14px;
       }
 
-      .el-submenu {
-        .el-submenu__title {
+      .el-sub-menu {
+        .el-sub-menu__title {
           i {
             color: inherit !important;
           }
@@ -391,13 +391,13 @@ body {
       }
 
       .el-menu-item,
-      .el-submenu .el-submenu__title {
+      .el-sub-menu .el-sub-menu__title {
         margin: 0;
         height: 48px;
         line-height: 48px;
       }
 
-      .el-submenu {
+      .el-sub-menu {
         .el-menu-item {
           height: 45px;
           line-height: 45px;
@@ -406,7 +406,7 @@ body {
       }
 
       .el-menu-item [class^='el-icon-'],
-      .el-submenu > .el-submenu__title [class^='el-icon-'] {
+      .el-sub-menu > .el-sub-menu__title [class^='el-icon-'] {
         font-size: 17px;
         margin-right: 0;
         width: auto;
@@ -414,8 +414,8 @@ body {
 
       .el-menu-item a,
       .el-menu-item span,
-      .el-submenu > .el-submenu__title a,
-      .el-submenu > .el-submenu__title span {
+      .el-sub-menu > .el-sub-menu__title a,
+      .el-sub-menu > .el-sub-menu__title span {
         margin-left: 10px;
 
         > a {
@@ -424,7 +424,7 @@ body {
       }
 
       .rr-sidebar-menu-entry {
-        > .el-submenu__title,
+        > .el-sub-menu__title,
         &.el-menu-item {
           display: flex;
           align-items: center;
@@ -458,7 +458,7 @@ body {
           }
         }
 
-        .el-submenu__icon-arrow {
+        .el-sub-menu__icon-arrow {
           flex: 0 0 auto;
           margin-right: 0;
         }

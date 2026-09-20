@@ -7,6 +7,8 @@ import 'element-plus/theme-chalk/index.css'
 import Sortable from 'sortablejs'
 import 'virtual:svg-icons/register'
 import { createApp } from 'vue'
+import VxeUI from 'vxe-pc-ui'
+import 'vxe-pc-ui/lib/style.css'
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/style.css'
 import VXETablePluginExportXLSX from 'vxe-table-plugin-export-xlsx'
@@ -91,6 +93,9 @@ async function bootstrap() {
     // .use(Base64)
     .use(router)
     .use(ElementPlus, { locale: zhCn, size: 'small' })
+    // vxe-pc-ui 提供 vxe-modal / vxe-button 等基础组件,vxe-table 只含表格四大件,
+    // 两者缺一都会让模板里的 <vxe-modal> 解析不到。样式也要分别引入。
+    .use(VxeUI)
     .use(VXETable)
     .component('v-chart', ECharts)
     .mount('#app')

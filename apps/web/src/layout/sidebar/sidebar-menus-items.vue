@@ -1,6 +1,6 @@
 <template>
   <template v-for="(x, index) in props.menus || []" :key="x.path">
-    <el-submenu
+    <el-sub-menu
       v-if="x.children && x.children.length > 0"
       :index="x.path"
       :popper-class="props.className"
@@ -20,7 +20,7 @@
         </span>
       </template>
       <sidebar-menus-items :menus="x.children" :className="props.className"></sidebar-menus-items>
-    </el-submenu>
+    </el-sub-menu>
 
     <el-menu-item
       v-else
