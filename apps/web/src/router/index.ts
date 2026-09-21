@@ -25,8 +25,11 @@ const router = createRouter({
 })
 
 // 路由加载前
-router.beforeEach((to, from, next) => {
-  // pinia 在 main.ts 里晚于 router 模块求值，所以只能在守卫内部取 store
+// vue-router 5 已弃用导航守卫的第三个参数 next(),改为「返回值即导航结果」:
+//   return true / undefined 放行,return false 取消,return '/path' 重定向,
+//   异步分支则返回 Promise<同类型值>。
+router.beforeEach((to) => {
+  // pinia 在 main.ts 里晚于 router 模块求值,所以只能在守卫内部取 store
   const store = useAppStore()
   if (to.meta.url || to.path) {
     const map = new Map(Object.entries(store.routeToMeta))
@@ -59,86 +62,69 @@ router.beforeEach((to, from, next) => {
     setDomian()
     if (store.routes.length) {
       if (to.name === 'error') {
-        /* const isMatched = autoRegisterDynamicToRouterAndNext(to);
-        if (!isMatched) {
-         store.updateState({ appIsRender: true, appIsLogin: true });
-          next();
-        } */
-        next()
-      } else {
-        if (!to.query.pop) {
-          try {
-            const routeMeta: IObject = store.routeToMeta[to.path]
-            emits.emit(EMitt.OnPushMenuToTabs, {
-              label: to.meta.title || routeMeta.title || to.path,
-              value: to.fullPath,
-              mete: routeMeta
-            })
-          } catch (error) {
-            next('/login')
-          }
-        }
-        if (!(to.path.includes('workflow') && to.path !== '/workflow/todoTasks')) {
-          store.updateState({ appIsRender: true, appIsLogin: true })
-        } else {
-          store.initApp().then(() => {
-            next()
-          })
-        }
-        next()
+        return true
       }
-    } else if (to.path.includes('workflow') && to.path !== '/workflow/todoTasks') {
+      if (!to.query.pop) {
+        try {
+          const routeMeta: IObject = store.routeToMeta[to.path]
+          emits.emit(EMitt.OnPushMenuToTabs, {
+            label: to.meta.title || routeMeta.title || to.path,
+            value: to.fullPath,
+            mete: routeMeta
+          })
+        } catch (error) {
+          return '/login'
+        }
+      }
+      if (!(to.path.includes('workflow') && to.path !== '/workflow/todoTasks')) {
+        store.updateState({ appIsRender: true, appIsLogin: true })
+        return true
+      }
       store.initApp().then(() => {
-        next()
+        store.updateState({ appIsRender: true, appIsLogin: true })
       })
-    } else {
-      if (token && permission) {
-        //初始化数据
-        store.initApp().then((res: Array<RouteRecordRaw>) => {
-          const mergeRoute = routers.concat(res).concat(errorRoute)
-          router.options.routes = mergeRoute
-          registerToRouter(router, mergeRoute)
-          if (!to.matched.length) {
-            registerDynamicToRouterAndNext({ path: to.path, query: to.query })
-          }
-
-          store.updateState({
-            appIsReady: true,
-            routes: mergeRoute,
-            routeToMeta: { ...store.routeToMeta, ...getBaseRouteToMeta(baseRoutes) }
-          })
-          setTimeout(() => {
-            store.updateState({ appIsRender: true, appIsLogin: true })
-          }, 600)
-          next({ ...to, replace: true })
-        })
-      } else {
-        if (isPop) {
-          if (!to.matched.length) {
-            registerDynamicToRouterAndNext({ path: to.path, query: to.query })
-            store.updateState({ appIsRender: true, appIsReady: true })
-            next(to.fullPath)
-          } else {
-            store.updateState({ appIsRender: true, appIsReady: true })
-            if (to.meta.requiresAuth) {
-              next('/login')
-            } else {
-              next()
-            }
-          }
-        } else if (to.path.includes('workflow') && to.path !== '/workflow/todoTasks') {
-          store.initApp().then(() => {
-            next()
-          })
-        } else {
-          next('/login')
-        }
-      }
+      return true
     }
-  } else {
-    store.updateState({ appIsReady: true, appIsRender: true })
-    next()
+    if (to.path.includes('workflow') && to.path !== '/workflow/todoTasks') {
+      return store.initApp().then(() => true)
+    }
+    if (token && permission) {
+      //初始化数据
+      return store.initApp().then((res: Array<RouteRecordRaw>) => {
+        const mergeRoute = routers.concat(res).concat(errorRoute)
+        router.options.routes = mergeRoute
+        registerToRouter(router, mergeRoute)
+        if (!to.matched.length) {
+          registerDynamicToRouterAndNext({ path: to.path, query: to.query })
+        }
+
+        store.updateState({
+          appIsReady: true,
+          routes: mergeRoute,
+          routeToMeta: { ...store.routeToMeta, ...getBaseRouteToMeta(baseRoutes) }
+        })
+        setTimeout(() => {
+          store.updateState({ appIsRender: true, appIsLogin: true })
+        }, 600)
+        return { ...to, replace: true }
+      })
+    }
+    if (isPop) {
+      if (!to.matched.length) {
+        registerDynamicToRouterAndNext({ path: to.path, query: to.query })
+        store.updateState({ appIsRender: true, appIsReady: true })
+        return to.fullPath
+      }
+      store.updateState({ appIsRender: true, appIsReady: true })
+      return to.meta.requiresAuth ? '/login' : true
+    }
+    if (to.path.includes('workflow') && to.path !== '/workflow/todoTasks') {
+      return store.initApp().then(() => true)
+    }
+    return '/login'
   }
+  store.updateState({ appIsReady: true, appIsRender: true })
+  return true
 })
 
 // 路由加载后

@@ -335,10 +335,6 @@ export function setToken(token?: string) {
   else sessionStorage.setItem('token', token)
 }
 
-export function getAppId() {
-  return sessionStorage.getItem('appId') || undefined
-}
-
 export function encrypt(value: any) {
   if (value == null || value === '') return null
   return encodeURIComponent(Base64.encode(String(value)))

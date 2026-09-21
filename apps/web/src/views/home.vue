@@ -4,7 +4,7 @@
 
 <script setup lang="ts" name="/home">
 import { useAppStore } from '@/store'
-import { defineAsyncComponent, onMounted, ref } from 'vue'
+import { defineAsyncComponent, onMounted, ref, shallowRef } from 'vue'
 import { getSysRouteMap } from '@/router'
 import { toSysViewComponentPath } from '@/router'
 import { getMenuMessage } from '@/api/process'
@@ -13,9 +13,11 @@ import emits from '@/utils/emits'
 const store = useAppStore()
 
 const path = ref<string>('/baseHome')
-const comp = ref<any>(null)
-// 映射表
-const componentMap = ref<Map<string, any>>(new Map())
+// 组件对象必须放 shallowRef:deep ref 会把组件包成 reactive 代理,
+// 触发 Vue "received a Component that was made a reactive object" 警告
+const comp = shallowRef<any>(null)
+// 映射表:存的是 import.meta.glob 的 loader,同样不能深层代理
+const componentMap = shallowRef<Map<string, any>>(new Map())
 
 const initComponentMap = () => {
   try {

@@ -85,7 +85,7 @@ export default defineComponent({
     ></setting-switch>
     <el-space class="rr-switch">
       <span>{{ '标签显示风格' }}</span>
-      <el-select v-model="state.tabStyle" placeholder="该功能可实时预览各种布局效果" size="mini" style="max-width: 80px" @change="onSetTabStyle">
+      <el-select v-model="state.tabStyle" placeholder="该功能可实时预览各种布局效果" size="small" style="max-width: 80px" @change="onSetTabStyle">
         <el-option v-for="x in state.tabStyles" :key="x.value" :label="x.label" :value="x.value"></el-option>
       </el-select>
     </el-space>

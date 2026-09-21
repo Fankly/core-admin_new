@@ -35,7 +35,11 @@ export const getThemeConfigCacheByKey = (key: EThemeSetting, config?: IObject): 
  */
 export const getThemeConfigToClass = (config: IObject = {}): IObject<string> => {
   const cl: IObject<string> = {}
+  // themeSetting 里混了 '//' 这类仅用于“拷贝设置”的注释键,只认 EThemeSetting 里的合法设置项,
+  // 否则会拼出 `ui-//-xxx` 这种无意义 class(还会渲染到 DOM 上)。
+  const validKeys = Object.values(EThemeSetting) as string[]
   Object.keys(config).forEach((x) => {
+    if (!validKeys.includes(x)) return
     cl[x] = `ui-${x}-${config[x]}`
   })
   return cl

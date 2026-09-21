@@ -18,9 +18,9 @@
         </GridItem>
         <GridItem suffix>
           <div class="operation" style="text-align: right; margin-bottom: 10px">
-            <el-button size="mini" plain type="primary" @click="search">查 询</el-button>
-            <el-button size="mini" plain @click="reset">重 置</el-button>
-            <el-button v-if="showCollapse" size="mini" plain @click="collapsed = !collapsed">{{ collapsed ? '展 开' : '收 起' }}</el-button>
+            <el-button size="small" plain type="primary" @click="search">查 询</el-button>
+            <el-button size="small" plain @click="reset">重 置</el-button>
+            <el-button v-if="showCollapse" size="small" plain @click="collapsed = !collapsed">{{ collapsed ? '展 开' : '收 起' }}</el-button>
           </div>
         </GridItem>
       </Grid>

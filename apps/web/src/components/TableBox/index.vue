@@ -222,6 +222,10 @@ export default {
     }
   },
   computed: {
+    // 原由全局 mixin 提供,core/mixins/global.js 删除后内联到组件
+    defaultFormItemSize() {
+      return window.innerWidth <= 1900 ? 'small' : 'default'
+    },
     rowHeightClass() {
       return 'row-height-' + this.rowHeightStatus + (this.hasImageColumn ? ' row-height-image' : '')
     },

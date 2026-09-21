@@ -68,8 +68,7 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 | `src/utils/` | 工具函数，含 http、cache、excel 导出、表格样式/格式化一组文件 |
 | `src/store/` | Pinia store，`index.ts` 导出 `useAppStore` |
 | `src/router/` | `base.ts` 静态路由 + `index.ts` 守卫与动态注册 |
-| `src/layout/` | 外壳布局：sidebar / header / tabs / setting / keepAlive 多页框架 |
-| `src/core/` | 遗留 JS：`config.js`、`http/`、`mixins/global.js` |
+| `src/layout/` | 外壳布局:sidebar / header / tabs / setting / keepAlive 多页框架 |
 | `src/constants/` `src/staticDict/` | 枚举常量与静态字典 |
 | `src/types/` | 全局类型，`IObject` 等公共接口在 `interface.ts` |
 
