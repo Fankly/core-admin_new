@@ -16,6 +16,7 @@
 | 腾讯 AlloyTeam CodeGuide | http://alloyteam.github.io/CodeGuide/ | HTML/模板书写参照 |
 | 网易 NEC 规范 | http://nec.netease.com/standard | CSS 命名参照 |
 | 凹凸实验室 | https://guide.aotu.io/index.html | 工程化、目录约定参照 |
+| Vue 官方文档 · 简介 | https://cn.vuejs.org/guide/introduction.html | API 风格选择、SFC 定位 |
 | Vue 官方风格指南 | https://cn.vuejs.org/style-guide/ | Vue 3 强约束(优先级 A/B) |
 | eslint-plugin-vue | `@repo/eslint-config/vue` | **实际强制执行的唯一标准** |
 
@@ -135,17 +136,46 @@ export const getListPageData = (params: Params): Promise<Result> => baseService.
 
 ## 4. Vue 组件
 
-### 4.1 SFC 结构
+### 4.1 API 风格:新代码用组合式 API + SFC
 
-统一顺序:`<template>` → `<script setup lang="ts">` → `<style scoped lang="...">`。`<script setup>` 上通过 `name` 指定组件名(便于 keep-alive):
+Vue 官方把选项式与组合式描述为"同一个底层系统所提供的两套不同的接口",并明确建议:**构建完整单页应用时用组合式 API + 单文件组件**。本仓库正是这个场景,所以:
+
+- **新组件一律 `<script setup lang="ts">`**,这是组合式 API 在 SFC 中的推荐写法。
+- 现存 49 个 `.vue` 里 22 个已是 `<script setup>`,33 个仍是 `defineComponent({ setup() })` 的过渡写法,`TreeSelect` / `TableBox` / `baseHome` 三处还残留 `data()` / `methods` 的选项式。**这些是历史代码,不要为了统一风格去批量改写**;只在实际动到某个文件、且改动范围本就覆盖整个 script 时顺手迁移。
+- 改造老组件时按官方的等价关系迁移:`data()` → `ref` / `reactive`,`methods` → 普通函数,`computed` 选项 → `computed()`,`created` / `mounted` → `onMounted`(`created` 里的同步逻辑直接放 setup 顶层)。迁移完必须把 `this.$message` 之类实例属性换成显式 import,`baseHome.vue` 就依赖 `this.$message`。
+
+响应式状态默认用 `ref`(仓库里 `ref` 56 处 : `reactive` 15 处);只在状态是一组固定字段的对象、且不需要整体替换时用 `reactive`。组件对象、`import.meta.glob` 的 loader 这类不该被深层代理的值必须用 `shallowRef`,原因见 `views/home.vue` 的注释。
+
+### 4.2 SFC 结构与组件名
+
+统一顺序:`<template>` → `<script setup lang="ts">` → `<style scoped lang="...">`。
+
+**组件名不要写成 `<script setup name="...">`。** 仓库没装 `vite-plugin-vue-setup-extend` 一类的名称注入插件,这个 attribute 会被静默忽略 —— 现有 14 个文件里的 `name` 实际都没生效。需要显式组件名时二选一:
+
+- Vue 3.3+ 的 `defineOptions`,写在 `<script setup>` 内(推荐,单块搞定):
 
 ```vue
-<script setup lang="ts" name="/user/list">
+<script setup lang="ts">
+defineOptions({ name: 'ProTable' })
+</script>
 ```
 
-### 4.2 Props / Emits
+- 或仓库里既有的双 script 块写法(`Pagination.vue`、`error/404.vue` 等 7 个文件):
 
-- 类型化声明优先,`withDefaults` 给默认值;复杂对象默认值用工厂函数:
+```vue
+<script lang="ts">
+export default { name: 'Pagination' }
+</script>
+<script setup lang="ts">
+// 逻辑
+</script>
+```
+
+多数情况下**不需要手写组件名**:`<script setup>` 默认以文件名推导名称,足够 devtools 与递归引用使用。keep-alive 也不依赖它 —— `layout/view/base-view.vue` 的 `:include="store.caches"` 匹配的是服务端菜单生成的**路由名**(见 `utils/index.ts` 的 `getKeepAliveRouterName`),与组件 `name` 无关。
+
+### 4.3 Props / Emits
+
+类型化声明优先,`withDefaults` 给默认值;复杂对象默认值用工厂函数:
 
 ```ts
 interface Props {
@@ -159,16 +189,30 @@ const emit = defineEmits<{
 }>()
 ```
 
-- 禁止解构 props 后直接使用(失去响应性);需要解构时用 `toRefs(props)` 或 `props.x`。
-- 事件名用 kebab-case(`@setting-click`),`defineEmits` 里同名声明。
+- **默认按 `props.x` 访问**,不要解构。Vue 3.5 起 `<script setup>` 里解构出的 props 由编译器保持响应性(仓库是 3.5.42,`vue/no-setup-props-destructure` 也已关闭),但全仓无一处这么写 —— 沿用 `props.x` 与邻居保持一致。传给组合式函数时用 `toRefs(props)` / `toRef(props, 'x')`。
+- 事件名声明用 camelCase、模板上用 kebab-case,Vue 会自动转换:`defineEmits<{ (e: 'settingClick'): void }>()` 对应 `@setting-click`。仓库既有代码两种拼法都有(`custom-event-name-casing` 已关),新代码按上面这条统一。
+- 双向绑定用 `defineModel()`(3.4+),不要手写 `modelValue` prop + `update:modelValue` 事件。多个绑定给参数:`defineModel('searchVisible')` 对应 `v-model:search-visible`,用法见 `ProTable` 与 `ToolbarButtons` 之间的传参。
+- 需要向父组件暴露方法时用 `defineExpose`(仓库 7 处),不要靠父组件直接摸子组件内部状态。
 
-### 4.3 组件复用与拆分
+### 4.4 组件复用与拆分
 
 - 一个文件一个组件(`vue/one-component-per-file` 当前关闭,但新代码遵守)。
 - 只有单页面用的组件放页面同级目录;两个及以上业务域复用的组件才提到 `src/components/`。
 - 公共组件导出 `index.ts` 或 `index.vue`,引用时用目录名,如 `import ProTable from '@/components/ProTable'`。
 
-### 4.4 图标
+### 4.5 逻辑复用:组合式函数
+
+组合式 API 的主要收益是**把有状态逻辑抽成函数复用**,而不只是换一种写法。判断标准:
+
+- 逻辑只在一个组件里用 → 留在该组件的 `<script setup>`,不要为"看起来整齐"提前抽。
+- 同一段带响应式状态的逻辑出现第二次 → 抽到 `src/hooks/`,文件名 `useXxx.ts`,返回 `ref` / `computed` 而不是裸值(否则调用方拿不到响应性)。
+- 纯计算、无状态、不碰生命周期 → 放 `src/utils/`,不要包成 hook。
+
+现有 `hooks/` 是范本:`useTable`、`usePermission`、`useSelection`、`useView`、`useDownload` 等 8 个。`usePermission` 同时演示了官方的**依赖注入**用法 —— 先 `inject<PermissionContext>(PermissionInjectionKey)` 消费上层上下文,没有才退回自己拉数据。跨层传参走 `provide` / `inject`,注入 key 用 `InjectionKey<T>` 显式标注类型(见 `components/UserRoleSelector/interface/index.ts`),不要用字符串 key,也不要靠逐层 props 透传。
+
+组合式函数必须在 `setup` 同步上下文里调用(含生命周期注册),不能放进 `await` 之后或回调里。
+
+### 4.6 图标
 
 - 用 `vite-plugin-svg-icons-ng`:svg 放 `src/assets/icons/svg/`,symbolId 规则 `icon-[dir]-[name]`。
 - 引用方式:
@@ -185,7 +229,7 @@ import SvgIcon from '@/components/base/svg-icon'
 组件**没有全局注册**,每个文件自己 import。不要手写内联 `<svg>`。
 注意 `button.svg` 当前 SVGO 优化失败会被跳过,不要用它。
 
-### 4.5 权限
+### 4.7 权限
 
 两套入口,按组件所处位置选择:
 
@@ -193,7 +237,7 @@ import SvgIcon from '@/components/base/svg-icon'
 - 按钮级权限:优先用全局指令 `v-permission="'EDIT'"`(busicode,如 `EDIT`、`DELETE`),它会跟随 `store.permissions` 变化重算并阻止无权限点击;也可在逻辑中调 `checkPermission(store.permissions, key)`。
 - 权限标识常量放 `src/constants/`,不要散落魔法字符串。
 
-### 4.6 表格
+### 4.8 表格
 
 - 一律 `useTable` + `ProTable`,不要手写裸 `el-table` + 自己管分页。
 - `useTable(api, initParam, isPageable, dataCallBack, requestError, clearSelection)`,默认分页 size 20。
