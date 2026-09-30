@@ -7,14 +7,10 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'RouteLoading'
-}
-</script>
-
-<script lang="ts" setup>
+<script setup lang="ts">
 import AppSpinner from './spinner.vue'
+
+defineOptions({ name: 'RouteLoading' })
 
 interface Props {
   visible?: boolean

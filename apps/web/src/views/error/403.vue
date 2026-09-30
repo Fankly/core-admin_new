@@ -10,12 +10,9 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: '403'
-}
+<script setup lang="ts">
+defineOptions({ name: 'ForbiddenPage' })
 </script>
-<script setup lang="ts"></script>
 
 <style scoped lang="less">
 @import './index.less';

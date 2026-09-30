@@ -1,16 +1,15 @@
-/* eslint-disable */
 import BigNumberConstructor from './bignumber.js'
-
-let BigNumber = null;
+import type { IObject } from '@/types/interface'
+import type { JsonBigintOptions, JsonReviver, JsonValue } from './types'
 
 // regexpxs extracted from
 // (c) BSD-3-Clause
 // https://github.com/fastify/secure-json-parse/graphs/contributors and https://github.com/hapijs/bourne/graphs/contributors
 
 const suspectProtoRx =
-  /(?:_|\\u005[Ff])(?:_|\\u005[Ff])(?:p|\\u0070)(?:r|\\u0072)(?:o|\\u006[Ff])(?:t|\\u0074)(?:o|\\u006[Ff])(?:_|\\u005[Ff])(?:_|\\u005[Ff])/;
+  /(?:_|\\u005[Ff])(?:_|\\u005[Ff])(?:p|\\u0070)(?:r|\\u0072)(?:o|\\u006[Ff])(?:t|\\u0074)(?:o|\\u006[Ff])(?:_|\\u005[Ff])(?:_|\\u005[Ff])/
 const suspectConstructorRx =
-  /(?:c|\\u0063)(?:o|\\u006[Ff])(?:n|\\u006[Ee])(?:s|\\u0073)(?:t|\\u0074)(?:r|\\u0072)(?:u|\\u0075)(?:c|\\u0063)(?:t|\\u0074)(?:o|\\u006[Ff])(?:r|\\u0072)/;
+  /(?:c|\\u0063)(?:o|\\u006[Ff])(?:n|\\u006[Ee])(?:s|\\u0073)(?:t|\\u0074)(?:r|\\u0072)(?:u|\\u0075)(?:c|\\u0063)(?:t|\\u0074)(?:o|\\u006[Ff])(?:r|\\u0072)/
 
 /*
     json_parse.js
@@ -74,8 +73,8 @@ const suspectConstructorRx =
     hasOwnProperty, message, n, name, prototype, push, r, t, text
 */
 
-let jsonParse = function (options) {
-  'use strict';
+const jsonParse = function (options?: JsonBigintOptions | null) {
+  'use strict'
 
   // This is a function that can parse a JSON text, producing a JavaScript
   // data structure. It is a simple, recursive descent parser. It does not use
@@ -86,59 +85,48 @@ let jsonParse = function (options) {
   // global variables.
 
   // Default options one can override by passing options to the parse()
-  let _options = {
+  const _options: Required<JsonBigintOptions> = {
     strict: false, // not being strict means do not generate syntax errors for "duplicate key"
     storeAsString: false, // toggles whether the values should be stored as BigNumber (default) or a string
     alwaysParseAsBig: false, // toggles whether all numbers should be Big
     useNativeBigInt: false, // toggles whether to use native BigInt instead of bignumber.js
     protoAction: 'error',
     constructorAction: 'error'
-  };
+  }
 
   // If there are options, then use them to override the default _options
   if (options !== undefined && options !== null) {
     if (options.strict === true) {
-      _options.strict = true;
+      _options.strict = true
     }
     if (options.storeAsString === true) {
-      _options.storeAsString = true;
+      _options.storeAsString = true
     }
-    _options.alwaysParseAsBig =
-      options.alwaysParseAsBig === true ? options.alwaysParseAsBig : false;
-    _options.useNativeBigInt = options.useNativeBigInt === true ? options.useNativeBigInt : false;
+    _options.alwaysParseAsBig = options.alwaysParseAsBig === true ? options.alwaysParseAsBig : false
+    _options.useNativeBigInt = options.useNativeBigInt === true ? options.useNativeBigInt : false
 
     if (typeof options.constructorAction !== 'undefined') {
-      if (
-        options.constructorAction === 'error' ||
-        options.constructorAction === 'ignore' ||
-        options.constructorAction === 'preserve'
-      ) {
-        _options.constructorAction = options.constructorAction;
+      if (options.constructorAction === 'error' || options.constructorAction === 'ignore' || options.constructorAction === 'preserve') {
+        _options.constructorAction = options.constructorAction
       } else {
         throw new Error(
           `Incorrect value for constructorAction option, must be "error", "ignore" or undefined but passed ${options.constructorAction}`
-        );
+        )
       }
     }
 
     if (typeof options.protoAction !== 'undefined') {
-      if (
-        options.protoAction === 'error' ||
-        options.protoAction === 'ignore' ||
-        options.protoAction === 'preserve'
-      ) {
-        _options.protoAction = options.protoAction;
+      if (options.protoAction === 'error' || options.protoAction === 'ignore' || options.protoAction === 'preserve') {
+        _options.protoAction = options.protoAction
       } else {
-        throw new Error(
-          `Incorrect value for protoAction option, must be "error", "ignore" or undefined but passed ${options.protoAction}`
-        );
+        throw new Error(`Incorrect value for protoAction option, must be "error", "ignore" or undefined but passed ${options.protoAction}`)
       }
     }
   }
 
-  let at; // The index of the current character
-  let ch; // The current character
-  let escapee = {
+  let at = 0 // The index of the current character
+  let ch = '' // The current character
+  const escapee: IObject<string> = {
     '"': '"',
     '\\': '\\',
     '/': '/',
@@ -147,272 +135,261 @@ let jsonParse = function (options) {
     n: '\n',
     r: '\r',
     t: '\t'
-  };
-  let text;
-  let error = function (m) {
+  }
+  let text = ''
+  const error = function (m: string): never {
     // Call error when something is wrong.
 
-    // eslint-disable-next-line no-throw-literal
     throw {
       name: 'SyntaxError',
       message: m,
       at: at,
       text: text
-    };
-  };
-  let next = function (c) {
+    }
+  }
+  const next = function (c?: string): string {
     // If a c parameter is provided, verify that it matches the current character.
 
     if (c && c !== ch) {
-      error("Expected '" + c + "' instead of '" + ch + "'");
+      error("Expected '" + c + "' instead of '" + ch + "'")
     }
 
     // Get the next character. When there are no more characters,
     // return the empty string.
 
-    ch = text.charAt(at);
-    at += 1;
-    return ch;
-  };
-  let number = function () {
+    ch = text.charAt(at)
+    at += 1
+    return ch
+  }
+  const current = () => ch
+  const number = function (): number | string | bigint | BigNumberConstructor {
     // Parse a number value.
 
-    let number;
-    let string = '';
+    let number
+    let string = ''
 
     if (ch === '-') {
-      string = '-';
-      next('-');
+      string = '-'
+      next('-')
     }
     while (ch >= '0' && ch <= '9') {
-      string += ch;
-      next();
+      string += ch
+      next()
     }
     if (ch === '.') {
-      string += '.';
+      string += '.'
       while (next() && ch >= '0' && ch <= '9') {
-        string += ch;
+        string += ch
       }
     }
     if (ch === 'e' || ch === 'E') {
-      string += ch;
-      next();
-      if (ch === '-' || ch === '+') {
-        string += ch;
-        next();
+      string += ch
+      const sign = next()
+      if (sign === '-' || sign === '+') {
+        string += sign
+        next()
       }
       while (ch >= '0' && ch <= '9') {
-        string += ch;
-        next();
+        string += ch
+        next()
       }
     }
-    number = +string;
+    number = +string
     if (!isFinite(number)) {
-      error('Bad number');
+      return error('Bad number')
     } else {
-      if (BigNumber == null) BigNumber = BigNumberConstructor;
       // if (number > 9007199254740992 || number < -9007199254740992)
       // Bignumber has stricter check: everything with length > 15 digits disallowed
-      if (string.length > 15)
-        return _options.storeAsString
-          ? string
-          : _options.useNativeBigInt
-          ? BigInt(string)
-          : new BigNumber(string);
-      else
-        return !_options.alwaysParseAsBig
-          ? number
-          : _options.useNativeBigInt
-          ? BigInt(number)
-          : new BigNumber(number);
+      if (string.length > 15) return _options.storeAsString ? string : _options.useNativeBigInt ? BigInt(string) : new BigNumberConstructor(string)
+      else return !_options.alwaysParseAsBig ? number : _options.useNativeBigInt ? BigInt(number) : new BigNumberConstructor(number)
     }
-  };
-  let string = function () {
+  }
+  const string = function (): string {
     // Parse a string value.
 
-    let hex;
-    let i;
-    let string = '';
-    let uffff;
+    let hex
+    let i
+    let string = ''
+    let uffff
 
     // When parsing for string values, we must look for " and \ characters.
 
     if (ch === '"') {
-      let startAt = at;
+      let startAt = at
       while (next()) {
         if (ch === '"') {
-          if (at - 1 > startAt) string += text.substring(startAt, at - 1);
-          next();
-          return string;
+          if (at - 1 > startAt) string += text.substring(startAt, at - 1)
+          next()
+          return string
         }
         if (ch === '\\') {
-          if (at - 1 > startAt) string += text.substring(startAt, at - 1);
-          next();
+          if (at - 1 > startAt) string += text.substring(startAt, at - 1)
+          next()
           if (ch === 'u') {
-            uffff = 0;
+            uffff = 0
             for (i = 0; i < 4; i += 1) {
-              hex = parseInt(next(), 16);
+              hex = parseInt(next(), 16)
               if (!isFinite(hex)) {
-                break;
+                break
               }
-              uffff = uffff * 16 + hex;
+              uffff = uffff * 16 + hex
             }
-            string += String.fromCharCode(uffff);
+            string += String.fromCharCode(uffff)
           } else if (typeof escapee[ch] === 'string') {
-            string += escapee[ch];
+            string += escapee[ch]
           } else {
-            break;
+            break
           }
-          startAt = at;
+          startAt = at
         }
       }
     }
-    error('Bad string');
-  };
-  let white = function () {
+    return error('Bad string')
+  }
+  const white = function () {
     // Skip whitespace.
 
     while (ch && ch <= ' ') {
-      next();
+      next()
     }
-  };
-  let word = function () {
+  }
+  const word = function (): boolean | null {
     // true, false, or null.
 
     switch (ch) {
       case 't':
-        next('t');
-        next('r');
-        next('u');
-        next('e');
-        return true;
+        next('t')
+        next('r')
+        next('u')
+        next('e')
+        return true
       case 'f':
-        next('f');
-        next('a');
-        next('l');
-        next('s');
-        next('e');
-        return false;
+        next('f')
+        next('a')
+        next('l')
+        next('s')
+        next('e')
+        return false
       case 'n':
-        next('n');
-        next('u');
-        next('l');
-        next('l');
-        return null;
+        next('n')
+        next('u')
+        next('l')
+        next('l')
+        return null
     }
-    error("Unexpected '" + ch + "'");
-  };
-  let value; // Place holder for the value function.
-  let array = function () {
+    return error("Unexpected '" + ch + "'")
+  }
+  let value: () => JsonValue // Place holder for the value function.
+  const array = function (): JsonValue[] {
     // Parse an array value.
 
-    let array = [];
+    const array: JsonValue[] = []
 
     if (ch === '[') {
-      next('[');
-      white();
-      if (ch === ']') {
-        next(']');
-        return array; // empty array
+      next('[')
+      white()
+      if (current() === ']') {
+        next(']')
+        return array // empty array
       }
       while (ch) {
-        array.push(value());
-        white();
-        if (ch === ']') {
-          next(']');
-          return array;
+        array.push(value())
+        white()
+        if (current() === ']') {
+          next(']')
+          return array
         }
-        next(',');
-        white();
+        next(',')
+        white()
       }
     }
-    error('Bad array');
-  };
-  let object = function () {
+    return error('Bad array')
+  }
+  const object = function (): IObject<JsonValue> {
     // Parse an object value.
 
-    let key;
-    let object = {};
+    let key
+    const object: IObject<JsonValue> = {}
 
     if (ch === '{') {
-      next('{');
-      white();
-      if (ch === '}') {
-        next('}');
-        return object; // empty object
+      next('{')
+      white()
+      if (current() === '}') {
+        next('}')
+        return object // empty object
       }
       while (ch) {
-        key = string();
-        white();
-        next(':');
+        key = string()
+        white()
+        next(':')
         if (_options.strict === true && Object.hasOwnProperty.call(object, key)) {
-          error('Duplicate key "' + key + '"');
+          error('Duplicate key "' + key + '"')
         }
 
         if (suspectProtoRx.test(key) === true) {
           if (_options.protoAction === 'error') {
-            error('Object contains forbidden prototype property');
+            error('Object contains forbidden prototype property')
           } else if (_options.protoAction === 'ignore') {
-            value();
+            value()
           } else {
-            object[key] = value();
+            object[key] = value()
           }
         } else if (suspectConstructorRx.test(key) === true) {
           if (_options.constructorAction === 'error') {
-            error('Object contains forbidden constructor property');
+            error('Object contains forbidden constructor property')
           } else if (_options.constructorAction === 'ignore') {
-            value();
+            value()
           } else {
-            object[key] = value();
+            object[key] = value()
           }
         } else {
-          object[key] = value();
+          object[key] = value()
         }
 
-        white();
-        if (ch === '}') {
-          next('}');
-          return object;
+        white()
+        if (current() === '}') {
+          next('}')
+          return object
         }
-        next(',');
-        white();
+        next(',')
+        white()
       }
     }
-    error('Bad object');
-  };
+    return error('Bad object')
+  }
 
   value = function () {
     // Parse a JSON value. It could be an object, an array, a string, a number,
     // or a word.
 
-    white();
+    white()
     switch (ch) {
       case '{':
-        return object();
+        return object()
       case '[':
-        return array();
+        return array()
       case '"':
-        return string();
+        return string()
       case '-':
-        return number();
+        return number()
       default:
-        return ch >= '0' && ch <= '9' ? number() : word();
+        return ch >= '0' && ch <= '9' ? number() : word()
     }
-  };
+  }
 
   // Return the json_parse function. It will have access to all of the above
   // functions and variables.
 
-  return function (source, reviver) {
-    let result;
+  return function (source: string, reviver?: JsonReviver): unknown {
+    let result
 
-    text = source + '';
-    at = 0;
-    ch = ' ';
-    result = value();
-    white();
+    text = source + ''
+    at = 0
+    ch = ' '
+    result = value()
+    white()
     if (ch) {
-      error('Syntax error');
+      error('Syntax error')
     }
 
     // If there is a reviver function, we recursively walk the new structure,
@@ -422,23 +399,23 @@ let jsonParse = function (options) {
     // result.
 
     return typeof reviver === 'function'
-      ? (function walk(holder, key) {
-          let v;
-          let value = holder[key];
+      ? (function walk(holder: object, key: string): unknown {
+          const value = (holder as IObject<unknown>)[key]
           if (value && typeof value === 'object') {
+            const object = value as IObject<unknown>
             Object.keys(value).forEach(function (k) {
-              v = walk(value, k);
+              const v = walk(value, k)
               if (v !== undefined) {
-                value[k] = v;
+                object[k] = v
               } else {
-                delete value[k];
+                delete object[k]
               }
-            });
+            })
           }
-          return reviver.call(holder, key, value);
+          return reviver.call(holder, key, value)
         })({ '': result }, '')
-      : result;
-  };
-};
+      : result
+  }
+}
 
-export default jsonParse;
+export default jsonParse

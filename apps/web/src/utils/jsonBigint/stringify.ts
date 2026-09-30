@@ -1,5 +1,6 @@
-/* eslint-disable */
 import BigNumber from './bignumber.js'
+import type { IObject } from '@/types/interface'
+import type { JsonReplacer } from './types'
 
 /*
     json2.js
@@ -161,33 +162,27 @@ import BigNumber from './bignumber.js'
 // Create a JSON object only if one does not already exist. We create the
 // methods in a closure to avoid creating global variables.
 
-var JSON = {}
-
-;(function () {
+const stringify = (function () {
   'use strict'
 
-  function f(n) {
-    // Format integers to have at least two digits.
-    return n < 10 ? '0' + n : n
+  // JSON escaping must include control characters and these Unicode ranges.
+  // eslint-disable-next-line no-control-regex, no-misleading-character-class
+  const escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g
+  let gap = ''
+  let indent = ''
+  const meta: IObject<string> = {
+    // table of character substitutions
+    '\b': '\\b',
+    '\t': '\\t',
+    '\n': '\\n',
+    '\f': '\\f',
+    '\r': '\\r',
+    '"': '\\"',
+    '\\': '\\\\'
   }
+  let rep: JsonReplacer | undefined
 
-  var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-    escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-    gap,
-    indent,
-    meta = {
-      // table of character substitutions
-      '\b': '\\b',
-      '\t': '\\t',
-      '\n': '\\n',
-      '\f': '\\f',
-      '\r': '\\r',
-      '"': '\\"',
-      '\\': '\\\\'
-    },
-    rep
-
-  function quote(string) {
+  function quote(string: string): string {
     // If the string contains no control characters, no quote characters, and no
     // backslash characters, then we can safely slap some quotes around it.
     // Otherwise we must also replace the offending characters with safe escape
@@ -197,28 +192,28 @@ var JSON = {}
     return escapable.test(string)
       ? '"' +
           string.replace(escapable, function (a) {
-            var c = meta[a]
+            const c = meta[a]
             return typeof c === 'string' ? c : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4)
           }) +
           '"'
       : '"' + string + '"'
   }
 
-  function str(key, holder) {
+  function str(key: string | number, holder: object): string | undefined {
     // Produce a string from holder[key].
 
-    var i, // The loop counter.
-      k, // The member key.
-      v, // The member value.
-      length,
+    let i: number, // The loop counter.
+      k: string, // The member key.
+      v: string | undefined, // The member value.
+      length: number,
       mind = gap,
-      partial,
-      value = holder[key],
+      partial: string[],
+      value = (holder as IObject<unknown>)[key],
       isBigNumber = value != null && (value instanceof BigNumber || BigNumber.isBigNumber(value))
 
     // If the value has a toJSON method, call it to obtain a replacement value.
 
-    if (value && typeof value === 'object' && typeof value.toJSON === 'function') {
+    if (value && typeof value === 'object' && 'toJSON' in value && typeof value.toJSON === 'function') {
       value = value.toJSON(key)
     }
 
@@ -226,7 +221,7 @@ var JSON = {}
     // obtain a replacement value.
 
     if (typeof rep === 'function') {
-      value = rep.call(holder, key, value)
+      value = rep.call(holder, String(key), value)
     }
 
     // What happens next depends on the value's type.
@@ -245,11 +240,8 @@ var JSON = {}
         return isFinite(value) ? String(value) : 'null'
 
       case 'boolean':
-      case 'null':
       case 'bigint':
-        // If the value is a boolean or null, convert it to a string. Note:
-        // typeof null does not produce 'null'. The case is included here in
-        // the remote chance that this gets fixed someday.
+        // Booleans and native big integers serialize as JSON literals.
 
         return String(value)
 
@@ -271,7 +263,7 @@ var JSON = {}
 
         // Is the value an array?
 
-        if (Object.prototype.toString.apply(value) === '[object Array]') {
+        if (Array.isArray(value)) {
           // The value is an array. Stringify every element. Use null as a placeholder
           // for non-JSON values.
 
@@ -293,8 +285,9 @@ var JSON = {}
         if (rep && typeof rep === 'object') {
           length = rep.length
           for (i = 0; i < length; i += 1) {
-            if (typeof rep[i] === 'string') {
-              k = rep[i]
+            const property = rep[i]
+            if (typeof property === 'string') {
+              k = property
               v = str(k, value)
               if (v) {
                 partial.push(quote(k) + (gap ? ': ' : ':') + v)
@@ -304,8 +297,9 @@ var JSON = {}
         } else {
           // Otherwise, iterate through all of the keys in the object.
 
-          Object.keys(value).forEach(function (k) {
-            var v = str(k, value)
+          const object = value
+          Object.keys(object).forEach(function (k) {
+            const v = str(k, object)
             if (v) {
               partial.push(quote(k) + (gap ? ': ' : ':') + v)
             }
@@ -321,48 +315,44 @@ var JSON = {}
     }
   }
 
-  // If the JSON object does not yet have a stringify method, give it one.
+  return function (value: unknown, replacer?: JsonReplacer, space?: string | number): string | undefined {
+    // The stringify method takes a value and an optional replacer, and an optional
+    // space parameter, and returns a JSON text. The replacer can be a function
+    // that can replace values, or an array of strings that will select the keys.
+    // A default replacer method can be provided. Use of the space parameter can
+    // produce text that is more easily readable.
 
-  if (typeof JSON.stringify !== 'function') {
-    JSON.stringify = function (value, replacer, space) {
-      // The stringify method takes a value and an optional replacer, and an optional
-      // space parameter, and returns a JSON text. The replacer can be a function
-      // that can replace values, or an array of strings that will select the keys.
-      // A default replacer method can be provided. Use of the space parameter can
-      // produce text that is more easily readable.
+    let i: number
+    gap = ''
+    indent = ''
 
-      var i
-      gap = ''
-      indent = ''
+    // If the space parameter is a number, make an indent string containing that
+    // many spaces.
 
-      // If the space parameter is a number, make an indent string containing that
-      // many spaces.
-
-      if (typeof space === 'number') {
-        for (i = 0; i < space; i += 1) {
-          indent += ' '
-        }
-
-        // If the space parameter is a string, it will be used as the indent string.
-      } else if (typeof space === 'string') {
-        indent = space
+    if (typeof space === 'number') {
+      for (i = 0; i < space; i += 1) {
+        indent += ' '
       }
 
-      // If there is a replacer, it must be a function or an array.
-      // Otherwise, throw an error.
-
-      rep = replacer
-      if (replacer && typeof replacer !== 'function' && (typeof replacer !== 'object' || typeof replacer.length !== 'number')) {
-        throw new Error('JSON.stringify')
-      }
-
-      // Make a fake root object containing our value under the key of ''.
-      // Return the result of stringifying the value.
-
-      return str('', { '': value })
+      // If the space parameter is a string, it will be used as the indent string.
+    } else if (typeof space === 'string') {
+      indent = space
     }
+
+    // If there is a replacer, it must be a function or an array.
+    // Otherwise, throw an error.
+
+    rep = replacer
+    if (replacer && typeof replacer !== 'function' && (typeof replacer !== 'object' || typeof replacer.length !== 'number')) {
+      throw new Error('JSON.stringify')
+    }
+
+    // Make a fake root object containing our value under the key of ''.
+    // Return the result of stringifying the value.
+
+    return str('', { '': value })
   }
 })()
 
-export const stringify = JSON.stringify
-export default JSON
+export { stringify }
+export default { stringify }

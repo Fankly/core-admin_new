@@ -1,13 +1,9 @@
-<script lang="ts">
-export default {
-  name: 'Iframe'
-}
-</script>
-
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { ref, unref, watch, onMounted, nextTick } from 'vue'
 import { getSysObjByBusicode } from '@/api/common'
+
+defineOptions({ name: 'Iframe' })
 
 const props = defineProps<{
   frameInfo?: {

@@ -126,6 +126,7 @@ export const getListPageData = (params: Params): Promise<Result> => baseService.
 
 ## 3. TypeScript
 
+- 项目自有业务代码、工具函数和测试优先使用 `.ts` / `.tsx`,Vue 脚本必须声明 `lang="ts"`（含 JSX 时用 `lang="tsx"`）。工具链配置和第三方生成/内嵌源码按其运行要求保留 JS,不要仅改扩展名或关闭类型检查。
 - `strict: true`(继承自 `@repo/tsconfig/base.json`),新代码不得依赖 `any` 蒙混过关。历史 `any` 可以不对其做无谓改动。
 - 接口/类型定义就近放置:页面级类型放组件内或同目录 `interface/`;跨域公共类型放 `src/types/`。
 - 公共索引类型统一用 `IObject`(`src/types/interface.ts`),不要临时 `Record<string, any>` 造轮子。
@@ -143,7 +144,7 @@ export const getListPageData = (params: Params): Promise<Result> => baseService.
 Vue 官方把选项式与组合式描述为"同一个底层系统所提供的两套不同的接口",并明确建议:**构建完整单页应用时用组合式 API + 单文件组件**。本仓库正是这个场景,所以:
 
 - **新组件一律 `<script setup lang="ts">`**,这是组合式 API 在 SFC 中的推荐写法。
-- 现存组件同时使用 `<script setup>` 与 `defineComponent({ setup() })`,`TreeSelect` / `TableBox` / `baseHome` 等仍有选项式写法。**这些是历史代码,不要为了统一风格去批量改写**;只在实际动到某个文件、且改动范围本就覆盖整个 script 时顺手迁移。
+- 现存组件同时使用 `<script setup>` 与 `defineComponent({ setup() })`,`TableBox` / `baseHome` 等仍有选项式写法。**这些是历史代码,不要为了统一风格去批量改写**;只在实际动到某个文件、且改动范围本就覆盖整个 script 时顺手迁移。
 - 改造老组件时按官方的等价关系迁移:`data()` → `ref` / `reactive`,`methods` → 普通函数,`computed` 选项 → `computed()`,`created` / `mounted` → `onMounted`(`created` 里的同步逻辑直接放 setup 顶层)。迁移完必须把 `this.$message` 之类实例属性换成显式 import,`baseHome.vue` 就依赖 `this.$message`。
 
 响应式状态默认用 `ref`(仓库里 `ref` 56 处 : `reactive` 15 处);只在状态是一组固定字段的对象、且不需要整体替换时用 `reactive`。组件对象、`import.meta.glob` 的 loader 这类不该被深层代理的值必须用 `shallowRef`,原因见 `views/home.vue` 的注释。
@@ -152,24 +153,13 @@ Vue 官方把选项式与组合式描述为"同一个底层系统所提供的两
 
 统一顺序:`<template>` → `<script setup lang="ts">` → `<style scoped lang="...">`。
 
-**组件名不要写成 `<script setup name="...">`。** 仓库没装名称注入插件,这个 attribute 会被静默忽略;原有无效声明已清理。需要显式组件名时二选一:
+**每个组件只允许一个 `<script>` 块,新增和迁移组件使用 `<script setup lang="ts">`（含 JSX 时用 `lang="tsx"`）。** 禁止双 script 写法,也不要使用会被编译器忽略的 `<script setup name="...">`。显式组件名统一使用 `defineOptions`:
 
-- Vue 3.3+ 的 `defineOptions`,写在 `<script setup>` 内(推荐,单块搞定):
+- Vue 3.3+ 的 `defineOptions`,写在唯一的 `<script setup>` 内:
 
 ```vue
 <script setup lang="ts">
 defineOptions({ name: 'ProTable' })
-</script>
-```
-
-- 或仓库里既有的双 script 块写法(`Pagination.vue`、`error/404.vue` 等 7 个文件):
-
-```vue
-<script lang="ts">
-export default { name: 'Pagination' }
-</script>
-<script setup lang="ts">
-// 逻辑
 </script>
 ```
 

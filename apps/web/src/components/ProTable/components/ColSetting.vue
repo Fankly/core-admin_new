@@ -18,14 +18,10 @@
   </el-drawer>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'ColSetting'
-}
-</script>
-
 <script setup lang="ts">
 import { ref } from 'vue'
+
+defineOptions({ name: 'ColSetting' })
 
 defineProps<{ colSetting: any[] }>()
 

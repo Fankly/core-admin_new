@@ -13,6 +13,8 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({ name: 'Pagination' })
+
 interface Pageable {
   current: number
   size: number
@@ -26,12 +28,6 @@ interface PaginationProps {
 }
 
 defineProps<PaginationProps>()
-</script>
-
-<script lang="ts">
-export default {
-  name: 'Pagination'
-}
 </script>
 
 <style lang="less" scoped>

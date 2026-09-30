@@ -2,16 +2,13 @@
   <RenderTableColumn v-bind="column" />
 </template>
 
-<script lang="tsx">
-export default {
-  name: 'TableColumn'
-}
-</script>
 <script setup lang="tsx">
 import { inject, ref, useSlots } from 'vue'
 import type { ColumnProps, RenderScope, HeaderRenderScope, EnumMap } from '@/components/ProTable/interface'
 import { EnumMapInjectionKey } from '@/components/ProTable/interface'
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from '@/utils'
+
+defineOptions({ name: 'TableColumn' })
 
 defineProps<{ column: ColumnProps }>()
 

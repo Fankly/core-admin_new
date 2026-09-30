@@ -1,10 +1,12 @@
-/* eslint-disable */
-import stringifyModule from './stringify.js'
-import jsonParse from './parse.js'
+import stringifyModule from './stringify'
+import jsonParse from './parse'
+import type { JsonBigintOptions } from './types'
+
+export type { JsonBigintOptions, JsonReviver, JsonReplacer, JsonValue } from './types'
 
 const jsonStringify = stringifyModule.stringify
 
-function jsonBigint(options) {
+function jsonBigint(options?: JsonBigintOptions) {
   return {
     parse: jsonParse(options),
     stringify: jsonStringify

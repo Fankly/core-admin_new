@@ -172,16 +172,12 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'FormModal'
-}
-</script>
-
 <script setup lang="ts">
 import baseService from '@/service/baseService'
 import { ref, reactive, computed, watch, onBeforeUnmount } from 'vue'
 import { handleError } from '@/utils/error'
+
+defineOptions({ name: 'FormModal' })
 
 export interface FormField {
   prop: string

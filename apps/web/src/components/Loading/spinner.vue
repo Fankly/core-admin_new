@@ -16,14 +16,10 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AppSpinner'
-}
-</script>
-
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onUnmounted, ref, watch } from 'vue'
+
+defineOptions({ name: 'AppSpinner' })
 
 interface Props {
   className?: string
@@ -41,6 +37,7 @@ const props = withDefaults(defineProps<Props>(), {
 const showSpinner = ref(false)
 const renderSpinner = ref(false)
 const timer = ref<ReturnType<typeof setTimeout>>()
+onUnmounted(() => clearTimeout(timer.value))
 
 watch(
   () => props.spinning,

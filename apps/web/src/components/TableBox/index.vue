@@ -15,12 +15,12 @@
           style="font-size: 20px; color: #333333; cursor: pointer"
           @click="onRowHeightToogle"
         /> -->
-        <vxe-toolbar ref="toolbarRef" custom :refresh="{ query: refresh }"></vxe-toolbar>
+        <vxe-toolbar ref="toolbarRef" custom :refresh="{ queryMethod: refresh }"></vxe-toolbar>
       </div>
     </el-row>
     <div class="vxe-table-box" :style="{ borderRadius: type == 'card' ? '16px' : '0' }">
       <vxe-table
-        :border="type == 'card' ? 'none' : null"
+        :border="type == 'card' ? 'none' : undefined"
         auto-resize
         ref="table"
         align="center"
@@ -30,11 +30,11 @@
         :min-height="minHeight"
         :max-height="maxHeight"
         :height="height"
-        :size="size || defaultFormItemSize"
+        :size="tableSize"
         :key="tableKey"
         header-cell-class-name="table-header-gray"
         v-bind="$attrs"
-        :row-config="{ ...$attrs.rowConfig, isHover: type !== 'card' }"
+        :row-config="tableRowConfig"
         :checkbox-config="{ checkMethod: checkedMethod }"
         :custom-config="{ storage: true, ...customConfig }"
         :expand-config="{ ...expandConfig }"
@@ -58,209 +58,196 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, nextTick, onMounted, ref, shallowRef, toRefs, useAttrs, watch } from 'vue'
+import type { VxeTableDefines, VxeTableInstance, VxeTablePropTypes, VxeToolbarInstance } from 'vxe-table'
+import type { IObject } from '@/types/interface'
 import { traverseTree } from '@/utils'
 
-export default {
-  name: 'table-box',
-  props: {
-    rowClassName: {
-      type: Function,
-      default: () => undefined
-    },
-    rowStyle: {
-      type: Function,
-      default: () => undefined
-    },
-    size: {
-      type: String,
-      default: null
-    },
-    value: {
-      type: [Object, Array]
-    },
-    hasExtend: {
-      type: Boolean,
-      default: true
-    },
-    height: {
-      type: [String, Number],
-      default: 'auto'
-    },
-    minHeight: {
-      type: [String, Number],
-      default: 0
-    },
-    maxHeight: {
-      type: [String, Number]
-    },
-    hasImageColumn: {
-      type: Boolean,
-      default: false
-    },
-    checkedMethod: {
-      type: Function,
-      default: () => {
-        return true
-      }
-    },
-    showOverflow: {
-      type: Boolean,
-      default: true
-    },
-    customConfig: {
-      type: Object,
-      default: () => ({})
-    },
-    expandConfig: {
-      type: Object,
-      default: () => undefined
-    },
-    type: {
-      type: String,
-      default: ''
-    }
-  },
-  data() {
-    return {
-      tableKey: new Date().getTime(),
-      rowHeightStatus: 'default',
-      expandRows: []
-    }
-  },
-  mounted() {
-    this.$nextTick(() => {
-      const $table = this.$refs.table
-      const $toolbar = this.$refs.toolbarRef
-      if ($table && $toolbar) {
-        $table.connect($toolbar)
-      }
-    })
-  },
-  methods: {
-    currentChangeEvent({ row }) {
-      this.$emit('currentChangeEvent', row)
-    },
-    clearCheckboxRow() {
-      this.$refs.table.clearCheckboxRow()
-    },
-    onSelectChange(rows, multi) {
-      this.$emit('input', rows)
-      this.$emit('change', rows, multi)
-    },
-    onCheckBoxChange(data) {
-      let selectRows = []
-      if (this.$refs.table) {
-        selectRows = this.$refs.table.getCheckboxRecords(true)
-        selectRows = selectRows.concat(this.$refs.table.getCheckboxIndeterminateRecords(true))
-      }
-      this.onSelectChange(selectRows, true)
-      this.$emit('checkbox-select-change', selectRows)
-    },
-    onCheckAllChange(data) {
-      let selectRows = []
-      if (this.$refs.table) {
-        selectRows = this.$refs.table.getCheckboxRecords(true)
-        selectRows = selectRows.concat(this.$refs.table.getCheckboxIndeterminateRecords(true))
-      }
-      this.onSelectChange(selectRows, true)
-      this.$emit('checkbox-select-change', selectRows)
-    },
-    onRadioSelectChange(data) {
-      let selectRow
-      if (this.$refs.table) {
-        selectRow = this.$refs.table.getRadioRecord()
-        this.onSelectChange(selectRow, false)
-      }
-      this.$emit('radio-select-change', selectRow)
-    },
-    setTableSelectRow() {
-      if (this.$refs.table) {
-        this.$nextTick(() => {
-          this.$refs.table.clearRadioRow()
-          this.$refs.table.clearCheckboxRow()
-          if (this.value == null) return
-          if (Array.isArray(this.value)) {
-            // 多选
-            this.$refs.table.setCheckboxRow(this.value)
-          } else {
-            // 单选
-            this.$refs.table.setRadioRow(this.valye)
-          }
-        })
-      }
-    },
-    refresh() {
-      this.$emit('refresh')
-    },
-    getTableImpl() {
-      return this.$refs.table
-    },
-    onRowHeightToogle() {
-      if (this.rowHeightStatus === 'default') {
-        this.rowHeightStatus = 'mini'
-      } else {
-        this.rowHeightStatus = 'default'
-      }
-    },
-    onTreeExpandChange({ expanded, row }) {
-      if (this.treeRowKey != null) {
-        let id = row[this.treeRowKey]
-        if (id == null) return
-        if (expanded) {
-          if (this.expandRows.indexOf(id) === -1) this.expandRows.push(id)
-        } else {
-          this.expandRows = this.expandRows.filter((item) => item !== id)
-        }
-      }
-    },
-    cardRowStyle({ row, rowIndex }) {
-      return {
-        borderBottom: '1px solid #f0f0f0',
-        transition: 'all 0.3s ease'
-      }
-    }
-  },
-  computed: {
-    // 原由全局 mixin 提供,core/mixins/global.js 删除后内联到组件
-    defaultFormItemSize() {
-      return window.innerWidth <= 1900 ? 'small' : 'default'
-    },
-    rowHeightClass() {
-      return 'row-height-' + this.rowHeightStatus + (this.hasImageColumn ? ' row-height-image' : '')
-    },
-    treeRowKey() {
-      return this.$attrs['tree-config'] ? this.$attrs['tree-config'].rowField : undefined
-    }
-  },
-  watch: {
-    value: {
-      handler() {
-        this.setTableSelectRow()
-      },
-      immediate: true
-    },
-    '$attrs.data': {
-      handler(newValue, oldValue) {
-        if (newValue === oldValue) return
-        if (this.treeRowKey != null) {
-          let nodeList = []
-          traverseTree(this.$attrs.data, (node) => nodeList.push(node), 'children')
-          let defaultExpandRows = nodeList.filter((row) => {
-            return this.expandRows.indexOf(row[this.treeRowKey]) !== -1
-          })
-          this.expandRows = defaultExpandRows.map((item) => item[this.treeRowKey])
-          if (this.$refs.table) {
-            this.$nextTick(() => {
-              this.$refs.table.setTreeExpand(defaultExpandRows, true)
-            })
-          }
-        }
-      },
-      immediate: true
-    }
+defineOptions({ name: 'table-box' })
+
+type TableRow = IObject<unknown>
+type Selection = TableRow | TableRow[] | null | undefined
+
+interface Props {
+  rowClassName?: VxeTablePropTypes.RowClassName<TableRow>
+  rowStyle?: VxeTablePropTypes.RowStyle<TableRow>
+  size?: VxeTablePropTypes.Size | 'default'
+  value?: Selection
+  hasExtend?: boolean
+  height?: string | number
+  minHeight?: string | number
+  maxHeight?: string | number
+  hasImageColumn?: boolean
+  checkedMethod?: VxeTablePropTypes.CheckboxConfig<TableRow>['checkMethod']
+  showOverflow?: boolean
+  customConfig?: VxeTablePropTypes.CustomConfig<TableRow>
+  expandConfig?: VxeTablePropTypes.ExpandConfig<TableRow>
+  type?: string
+}
+
+interface TableAttrs {
+  data?: TableRow[]
+  rowConfig?: VxeTablePropTypes.RowConfig<TableRow>
+  'row-config'?: VxeTablePropTypes.RowConfig<TableRow>
+  treeConfig?: VxeTablePropTypes.TreeConfig<TableRow>
+  'tree-config'?: VxeTablePropTypes.TreeConfig<TableRow>
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: null,
+  hasExtend: true,
+  height: 'auto',
+  minHeight: 0,
+  hasImageColumn: false,
+  checkedMethod: () => true,
+  showOverflow: true,
+  customConfig: () => ({}),
+  type: ''
+})
+
+const emit = defineEmits<{
+  (event: 'currentChangeEvent', row: TableRow): void
+  (event: 'input', rows: Selection): void
+  (event: 'change', rows: Selection, multi: boolean): void
+  (event: 'checkbox-select-change', rows: TableRow[]): void
+  (event: 'radio-select-change', row: TableRow | null | undefined): void
+  (event: 'refresh'): void
+}>()
+
+const attrs = useAttrs() as TableAttrs
+const table = shallowRef<VxeTableInstance<TableRow>>()
+const toolbarRef = shallowRef<VxeToolbarInstance>()
+const tableKey = ref(Date.now())
+const rowHeightStatus = ref<'default' | 'mini'>('default')
+const expandRows = ref<unknown[]>([])
+
+// 保留原公开尺寸值，传给 VXE 时以空值使用其默认配置。
+const defaultFormItemSize = computed(() => (window.innerWidth <= 1900 ? 'small' : 'default'))
+const tableSize = computed(() => {
+  const size = props.size || defaultFormItemSize.value
+  return size === 'default' ? undefined : size
+})
+const rowHeightClass = computed(() => `row-height-${rowHeightStatus.value}${props.hasImageColumn ? ' row-height-image' : ''}`)
+const treeRowKey = computed(() => (attrs['tree-config'] || attrs.treeConfig)?.rowField)
+const tableRowConfig = computed(() => ({ ...attrs['row-config'], ...attrs.rowConfig, isHover: props.type !== 'card' }))
+
+function currentChangeEvent({ row }: Pick<VxeTableDefines.CellClickEventParams<TableRow>, 'row'>) {
+  emit('currentChangeEvent', row)
+}
+
+function clearCheckboxRow() {
+  return table.value?.clearCheckboxRow()
+}
+
+function onSelectChange(rows: Selection, multi: boolean) {
+  emit('input', rows)
+  emit('change', rows, multi)
+}
+
+function onCheckBoxChange() {
+  const instance = table.value
+  const selectRows = instance ? [...instance.getCheckboxRecords(true), ...instance.getCheckboxIndeterminateRecords(true)] : []
+  onSelectChange(selectRows, true)
+  emit('checkbox-select-change', selectRows)
+}
+
+function onCheckAllChange() {
+  onCheckBoxChange()
+}
+
+function onRadioSelectChange() {
+  const instance = table.value
+  const selectRow = instance?.getRadioRecord()
+  if (instance) onSelectChange(selectRow, false)
+  emit('radio-select-change', selectRow)
+}
+
+async function setTableSelectRow() {
+  await nextTick()
+  const instance = table.value
+  if (!instance) return
+  await instance.clearRadioRow()
+  await instance.clearCheckboxRow()
+  if (props.value == null) return
+  if (Array.isArray(props.value)) {
+    await instance.setCheckboxRow(props.value, true)
+  } else {
+    await instance.setRadioRow(props.value)
   }
 }
+
+function refresh() {
+  emit('refresh')
+}
+
+function getTableImpl() {
+  return table.value
+}
+
+function onRowHeightToogle() {
+  rowHeightStatus.value = rowHeightStatus.value === 'default' ? 'mini' : 'default'
+}
+
+function onTreeExpandChange({ expanded, row }: Pick<VxeTableDefines.ToggleTreeExpandEventParams<TableRow>, 'expanded' | 'row'>) {
+  if (treeRowKey.value == null) return
+  const id = row[treeRowKey.value]
+  if (id == null) return
+  if (expanded) {
+    if (!expandRows.value.includes(id)) expandRows.value.push(id)
+  } else {
+    expandRows.value = expandRows.value.filter((item) => item !== id)
+  }
+}
+
+function cardRowStyle() {
+  return { borderBottom: '1px solid #f0f0f0', transition: 'all 0.3s ease' }
+}
+
+watch(() => props.value, setTableSelectRow)
+watch(
+  () => attrs.data,
+  async (newValue, oldValue) => {
+    const key = treeRowKey.value
+    if (newValue === oldValue || key == null) return
+    const nodeList: TableRow[] = []
+    traverseTree(newValue, (node: TableRow) => nodeList.push(node), 'children')
+    const defaultExpandRows = nodeList.filter((row) => expandRows.value.includes(row[key]))
+    expandRows.value = defaultExpandRows.map((row) => row[key])
+    await nextTick()
+    await table.value?.setTreeExpand(defaultExpandRows, true)
+  },
+  { immediate: true }
+)
+
+onMounted(async () => {
+  await nextTick()
+  if (table.value && toolbarRef.value) await table.value.connect(toolbarRef.value)
+  await setTableSelectRow()
+})
+
+// Options API 的实例方法原本对父组件可见，迁移后显式保留表格与选择操作入口。
+defineExpose({
+  ...toRefs(props),
+  tableKey,
+  rowHeightStatus,
+  expandRows,
+  defaultFormItemSize,
+  rowHeightClass,
+  treeRowKey,
+  currentChangeEvent,
+  clearCheckboxRow,
+  onSelectChange,
+  onCheckBoxChange,
+  onCheckAllChange,
+  onRadioSelectChange,
+  setTableSelectRow,
+  refresh,
+  getTableImpl,
+  onRowHeightToogle,
+  onTreeExpandChange,
+  cardRowStyle
+})
 </script>
 
 <style lang="less" scoped>
