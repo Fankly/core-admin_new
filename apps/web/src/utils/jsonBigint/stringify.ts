@@ -206,10 +206,10 @@ const stringify = (function () {
       k: string, // The member key.
       v: string | undefined, // The member value.
       length: number,
-      mind = gap,
       partial: string[],
-      value = (holder as IObject<unknown>)[key],
-      isBigNumber = value != null && (value instanceof BigNumber || BigNumber.isBigNumber(value))
+      value = (holder as IObject<unknown>)[key]
+    const mind = gap
+    const isBigNumber = value != null && (value instanceof BigNumber || BigNumber.isBigNumber(value))
 
     // If the value has a toJSON method, call it to obtain a replacement value.
 

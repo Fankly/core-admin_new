@@ -165,7 +165,6 @@ const jsonParse = function (options?: JsonBigintOptions | null) {
   const number = function (): number | string | bigint | BigNumberConstructor {
     // Parse a number value.
 
-    let number
     let string = ''
 
     if (ch === '-') {
@@ -194,7 +193,7 @@ const jsonParse = function (options?: JsonBigintOptions | null) {
         next()
       }
     }
-    number = +string
+    const number = +string
     if (!isFinite(number)) {
       return error('Bad number')
     } else {
@@ -279,7 +278,6 @@ const jsonParse = function (options?: JsonBigintOptions | null) {
     }
     return error("Unexpected '" + ch + "'")
   }
-  let value: () => JsonValue // Place holder for the value function.
   const array = function (): JsonValue[] {
     // Parse an array value.
 
@@ -358,7 +356,7 @@ const jsonParse = function (options?: JsonBigintOptions | null) {
     return error('Bad object')
   }
 
-  value = function () {
+  const value = function (): JsonValue {
     // Parse a JSON value. It could be an object, an array, a string, a number,
     // or a word.
 
@@ -381,12 +379,10 @@ const jsonParse = function (options?: JsonBigintOptions | null) {
   // functions and variables.
 
   return function (source: string, reviver?: JsonReviver): unknown {
-    let result
-
     text = source + ''
     at = 0
     ch = ' '
-    result = value()
+    const result = value()
     white()
     if (ch) {
       error('Syntax error')
