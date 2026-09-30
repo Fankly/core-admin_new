@@ -1,4 +1,5 @@
 import { ElNotification } from 'element-plus'
+import { handleError } from '@/utils/error'
 
 /**
  * @description 接收数据流生成 blob，创建链接，下载文件
@@ -39,6 +40,6 @@ export const useDownload = async (
     document.body.removeChild(exportFile)
     window.URL.revokeObjectURL(blobUrl)
   } catch (error) {
-    console.log(error)
+    handleError(error, '下载文件失败')
   }
 }

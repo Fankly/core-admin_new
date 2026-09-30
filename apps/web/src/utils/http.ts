@@ -1,7 +1,8 @@
 import app from '@/constants/app'
 import router from '@/router'
-import { IHttpResponse, IObject } from '@/types/interface'
-import axios, { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import type { IHttpResponse, IObject } from '@/types/interface'
+import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig, RawAxiosHeaders } from 'axios'
+import axios, { AxiosHeaders } from 'axios'
 import qs from 'qs'
 import { getToken } from './cache'
 import jsonBigint from './jsonBigint/index'
@@ -81,6 +82,11 @@ if (typeof window !== 'undefined') {
 
 // 参与签名的动态参数，需剔除后再比对请求是否相同
 const DYNAMIC_KEYS = ['_t', 'timestamp', 'Request-Start']
+const DYNAMIC_HEADERS = new Set(['request-start', 'random', 'timestamp', 'sign'])
+
+interface HttpRequestConfig extends AxiosRequestConfig {
+  service?: string
+}
 
 const omitDynamicKeys = (obj: unknown): unknown => {
   if (!obj || typeof obj !== 'object') return obj
@@ -106,20 +112,32 @@ const serializeData = (data: unknown): string => {
   }
 }
 
-const getRequestIdentify = (config: AxiosRequestConfig): string => {
+const getRequestIdentify = (config: HttpRequestConfig): string => {
   const method = config.method?.toUpperCase() || 'GET'
-  const url = config.url || ''
-  const params = qs.stringify(omitDynamicKeys(config.params), { addQueryPrefix: true })
-  const data = serializeData(config.data)
+  const headers = AxiosHeaders.concat(
+    http.defaults.headers.common as RawAxiosHeaders,
+    http.defaults.headers[method.toLowerCase()] as RawAxiosHeaders,
+    config.headers as RawAxiosHeaders
+  )
+  const stableHeaders = Object.entries(headers.toJSON())
+    .map(([name, value]) => [name.toLowerCase(), value] as const)
+    .filter(([name]) => !DYNAMIC_HEADERS.has(name))
+    .sort(([left], [right]) => left.localeCompare(right))
 
-  // 使用简单哈希避免过长的 key，附带长度降低碰撞概率
-  const content = `${method}:${url}${params}:${data}`
-  let hash = 0
-  for (let i = 0; i < content.length; i++) {
-    hash = (hash << 5) - hash + content.charCodeAt(i)
-    hash = hash & hash // 转换为32位整数
-  }
-  return `req_${Math.abs(hash)}_${content.length}`
+  // 返回形式、身份与服务同样决定请求结果；直接比较完整标识，避免短哈希碰撞误合并。
+  return JSON.stringify({
+    method,
+    url: config.url || '',
+    baseURL: config.baseURL ?? http.defaults.baseURL,
+    service: config.service,
+    params: qs.stringify(omitDynamicKeys(config.params), { addQueryPrefix: true }),
+    data: serializeData(config.data),
+    responseType: config.responseType ?? http.defaults.responseType,
+    headers: stableHeaders,
+    auth: config.auth ?? http.defaults.auth,
+    withCredentials: config.withCredentials ?? http.defaults.withCredentials,
+    timeout: config.timeout ?? http.defaults.timeout
+  })
 }
 
 const getHttpErrorMessage = (status: number, url = ''): string => {
@@ -149,10 +167,6 @@ http.interceptors.request.use(
     headers['X-Requested-With'] = 'XMLHttpRequest'
     headers['Request-Start'] = Date.now()
     headers['Accept-Language'] = 'zh-CN'
-    const token = getToken()
-    if (token) {
-      headers['token'] = token
-    }
     if (config.method?.toUpperCase() === 'GET') {
       config.params = { ...config.params, _t: Date.now() }
     }
@@ -199,11 +213,18 @@ http.interceptors.response.use(
   }
 )
 
-export default (config: AxiosRequestConfig): Promise<IHttpResponse> => {
-  const key = getRequestIdentify(config)
+export default (config: HttpRequestConfig): Promise<IHttpResponse> => {
+  // 在发起调用时固定身份，不能等异步拦截器执行时再读取可能已经切换的登录态。
+  const headers = new AxiosHeaders(config.headers as RawAxiosHeaders)
+  const token = getToken()
+  if (token) headers.set('token', token)
+  const requestConfig = { ...config, headers }
+  const key = getRequestIdentify(requestConfig)
+  // 每个取消信号都有独立的生命周期，复用 Promise 会使一个调用方取消其他调用方。
+  const canMerge = !config.signal && !config.cancelToken
 
   // 存在完全相同的进行中请求时，复用同一个 Promise
-  const pending = pendingRequests.get(key)
+  const pending = canMerge ? pendingRequests.get(key) : undefined
   if (pending) return pending.promise
 
   if (!allowRequest(key)) {
@@ -211,7 +232,7 @@ export default (config: AxiosRequestConfig): Promise<IHttpResponse> => {
     return Promise.reject(new Error('请求过于频繁,请稍后再试!'))
   }
 
-  const promise = http(config)
+  const promise = http(requestConfig)
     .then((res) => {
       // 把响应头挂到返回数据上，供业务层读取（字符串等非对象响应跳过）
       const data: IObject = res.data
@@ -221,10 +242,10 @@ export default (config: AxiosRequestConfig): Promise<IHttpResponse> => {
       return data as IHttpResponse
     })
     .finally(() => {
-      pendingRequests.delete(key)
+      if (pendingRequests.get(key)?.promise === promise) pendingRequests.delete(key)
     })
 
-  pendingRequests.set(key, { promise, timestamp: Date.now() })
+  if (canMerge) pendingRequests.set(key, { promise, timestamp: Date.now() })
 
   return promise
 }

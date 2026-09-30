@@ -51,10 +51,12 @@
   </vxe-modal>
 </template>
 
-<script setup lang="ts" name="ImportExcel">
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useDownload } from '@/hooks/useDownload'
 import { ElMessage } from 'element-plus'
+
+defineOptions({ name: 'ImportExcel' })
 
 export interface ExcelParameterProps {
   title: string // 标题

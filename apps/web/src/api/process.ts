@@ -82,7 +82,7 @@ export const exportDetail = (params?: Params): Promise<Result> => {
 
 // 获取menu信息
 export const getMenuMessage = (params: string): Promise<Result> => {
-  return baseService.get(`/sys/menu/getMenuByUrl?url=${params}`)
+  return baseService.get('/sys/menu/getMenuByUrl', { url: params })
 }
 
 // 获取项目包名称

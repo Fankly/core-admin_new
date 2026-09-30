@@ -38,10 +38,12 @@
 ```bash
 pnpm lint        # 递归 eslint --fix
 pnpm typecheck   # 递归 vue-tsc --noEmit
+pnpm test        # Vitest 回归测试（HTTP 用例需要本地端口）
+pnpm build       # 生产构建
 pnpm dev         # 手工走查
 ```
 
-仓库没有测试文件与 playwright 配置,`pnpm test` / `pnpm e2e` 目前跑不出东西。新增功能时**优先补 vitest 用例**;没有用例的改动必须提供 dev 环境下的手工验证路径(说明点了哪些页面、看了哪些结果)。
+Vitest 配置在 `apps/web/vitest.config.ts`,用例与源文件就近放置,使用 `*.test.ts`。HTTP 用例通过本地服务验证真实请求,组件用例使用真实 Vue 组件;不得通过 mock 掩盖实际失败。Playwright 尚无配置,`pnpm e2e` 暂不能作为验证手段。新增功能时**优先补 vitest 用例**;涉及交互的改动仍需提供 dev 环境下的验证路径。
 
 ### 1.3 目录职责(相对 `apps/web/`)
 
@@ -115,10 +117,10 @@ export const getListPageData = (params: Params): Promise<Result> => baseService.
 
 - 业务样式走 **SCSS/Less**,页面局部样式一律 `<style scoped>`。
 - 全局 Element Plus 变量覆盖集中在 `src/assets/css/element.less`;主题变量见 `src/assets/theme/`。
-- **不要重复 import** 全局注入的 `element-variables-green.scss` 与 `style/mixin.scss`(已在 Vite `additionalData` 自动注入)。
+- **不要重复 import** Vite `additionalData` 已全局注入的 `style/variables.less`。当前 SCSS 没有自动注入;遗留 SCSS 文件不代表已经配置预处理器。
 - Tailwind v4 **CSS-first**,类名前缀是 `tw:`(变体式),不是 `tw-`;没有 `tailwind.config.js`。用法规范见 `src/assets/styles/tailwind.css` 顶部注释。
 - Tailwind 不引入 preflight,`tw:border` 单独用不出边框(无 border-style 重置),需要自己写 border-style。
-- 全仓仅 2 个文件使用 Tailwind,新代码**默认用 scss/less**;要用 Tailwind 需在评审中说明理由。
+- 当前 Tailwind 用于 `layout/header/CustomerService.vue`,新代码默认沿用已配置的 Less;要用 Tailwind 或新增 SCSS 预处理配置需在评审中说明理由。
 
 ---
 
@@ -141,7 +143,7 @@ export const getListPageData = (params: Params): Promise<Result> => baseService.
 Vue 官方把选项式与组合式描述为"同一个底层系统所提供的两套不同的接口",并明确建议:**构建完整单页应用时用组合式 API + 单文件组件**。本仓库正是这个场景,所以:
 
 - **新组件一律 `<script setup lang="ts">`**,这是组合式 API 在 SFC 中的推荐写法。
-- 现存 49 个 `.vue` 里 22 个已是 `<script setup>`,33 个仍是 `defineComponent({ setup() })` 的过渡写法,`TreeSelect` / `TableBox` / `baseHome` 三处还残留 `data()` / `methods` 的选项式。**这些是历史代码,不要为了统一风格去批量改写**;只在实际动到某个文件、且改动范围本就覆盖整个 script 时顺手迁移。
+- 现存组件同时使用 `<script setup>` 与 `defineComponent({ setup() })`,`TreeSelect` / `TableBox` / `baseHome` 等仍有选项式写法。**这些是历史代码,不要为了统一风格去批量改写**;只在实际动到某个文件、且改动范围本就覆盖整个 script 时顺手迁移。
 - 改造老组件时按官方的等价关系迁移:`data()` → `ref` / `reactive`,`methods` → 普通函数,`computed` 选项 → `computed()`,`created` / `mounted` → `onMounted`(`created` 里的同步逻辑直接放 setup 顶层)。迁移完必须把 `this.$message` 之类实例属性换成显式 import,`baseHome.vue` 就依赖 `this.$message`。
 
 响应式状态默认用 `ref`(仓库里 `ref` 56 处 : `reactive` 15 处);只在状态是一组固定字段的对象、且不需要整体替换时用 `reactive`。组件对象、`import.meta.glob` 的 loader 这类不该被深层代理的值必须用 `shallowRef`,原因见 `views/home.vue` 的注释。
@@ -150,7 +152,7 @@ Vue 官方把选项式与组合式描述为"同一个底层系统所提供的两
 
 统一顺序:`<template>` → `<script setup lang="ts">` → `<style scoped lang="...">`。
 
-**组件名不要写成 `<script setup name="...">`。** 仓库没装 `vite-plugin-vue-setup-extend` 一类的名称注入插件,这个 attribute 会被静默忽略 —— 现有 14 个文件里的 `name` 实际都没生效。需要显式组件名时二选一:
+**组件名不要写成 `<script setup name="...">`。** 仓库没装名称注入插件,这个 attribute 会被静默忽略;原有无效声明已清理。需要显式组件名时二选一:
 
 - Vue 3.3+ 的 `defineOptions`,写在 `<script setup>` 内(推荐,单块搞定):
 
@@ -233,14 +235,16 @@ import SvgIcon from '@/components/base/svg-icon'
 
 两套入口,按组件所处位置选择:
 
-- 组件在 `UserRoleSelector` 内:用 `usePermission()`,优先消费 `PermissionInjectionKey` 提供的上下文。
+- `UserRoleSelector` 的父级通过 `CurrentUserRoleInjectionKey` 提供 `Ref<UserRole>`,页面放在组件默认插槽内;后代用 `usePermission()` 消费 `PermissionInjectionKey`。这两个 key 从 `components/UserRoleSelector/interface` 导入,不要使用字符串 key。
+- 角色、按钮权限请求统一放在 `api/permission`;无上层上下文时,`usePermission().fetchPermissions()` 自行加载。切换菜单/角色时立即清除旧权限,只接受最新请求结果;清除或销毁后在途响应不得恢复旧权限。
 - 按钮级权限:优先用全局指令 `v-permission="'EDIT'"`(busicode,如 `EDIT`、`DELETE`),它会跟随 `store.permissions` 变化重算并阻止无权限点击;也可在逻辑中调 `checkPermission(store.permissions, key)`。
 - 权限标识常量放 `src/constants/`,不要散落魔法字符串。
 
 ### 4.8 表格
 
 - 一律 `useTable` + `ProTable`,不要手写裸 `el-table` + 自己管分页。
-- `useTable(api, initParam, isPageable, dataCallBack, requestError, clearSelection)`,默认分页 size 20。
+- `useTable(api, initParam, isPageable, dataCallBack, requestError, clearSelection, initialPageSize)`,默认分页 size 20,最后一个参数可省略。`useTableSize` 为默认 size 100 的兼容包装,不复制查询逻辑。
+- `initParam`、`isPageable` 支持 ref/getter,从组件传入时用 `toRef(props, 'initParam')` 等保持整体替换的响应性。`totalParam` 仅保存已提交的搜索条件,查询时合并初始化参数与分页;只有最新请求可以更新结果与 loading。
 - 列定义、搜索项类型见 `src/components/ProTable/interface`。
 - 单元格样式/格式化统一走 `src/utils/tableCellStyle.ts`、`tableFormatter.ts`、`tableCellColorMapper.ts`、`tableSelectionHighlight.ts`,不要在模板里散写格式化逻辑。
 
@@ -260,10 +264,11 @@ import SvgIcon from '@/components/base/svg-icon'
 ## 6. 网络请求
 
 - 所有请求经 `src/service/baseService`。它自动附加签名头(random / timeStamp / sign),超时 `3600000ms`。
+- `FormData` 交给请求层处理 multipart boundary,不要设置 JSON 请求头。查询参数用 `baseService.get(path, params)`,避免直接插值拼接导致 `&`、`#` 等字符改变请求含义。
 - 业务代码**不直接** import axios;需要用 `BaseMethod` 或 `apiService`。
 - 请求参数、错误处理在 hook 或页面层完成,`api/` 层保持纯函数。
 - 导出/下载统一用 `baseService.export` / `exportGet` / `download`,不要自己拼 blob。
-- 统一的错误提示走 `src/utils/error.ts` 的 `handleError(error, message)`;历史代码里已有 13 处直接 `ElMessage`,新代码优先走封装。`src/utils/message.ts` 的 `showHelpMsg` 是帮助信息弹窗,与错误无关。
+- 统一的错误提示走 `src/utils/error.ts` 的 `handleError(error, message)`,接受 `unknown` 并处理 Error/字符串;新代码优先走封装。`src/utils/message.ts` 的 `showHelpMsg` 是帮助信息弹窗,与错误无关。
 
 ---
 
@@ -285,7 +290,7 @@ import SvgIcon from '@/components/base/svg-icon'
 - 文件结尾保留一个空行(`insert_final_newline = true`)。
 - 不留行尾空白(`trim_trailing_whitespace = true`,Markdown 除外)。
 - 注释写"为什么",不写"是什么"。仓库里既有的大量中文实现注释(如 `main.ts` 的 pnpm 隔离说明、`tailwind.css` 的 v4 差异说明)是标杆,新增复杂逻辑要给出背景与坑。
-- `console.log` 不允许进入生产代码;调试日志提交前清理。
+- `console.log` 不允许进入生产代码;共享 ESLint 配置通过 `no-console` 强制执行,保留 `console.warn` / `console.error` 诊断。
 
 ---
 
@@ -311,7 +316,7 @@ import SvgIcon from '@/components/base/svg-icon'
 
 ## 10. 评审清单(提交自检)
 
-- [ ] `pnpm lint` 与 `pnpm typecheck` 全绿。
+- [ ] `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build` 全绿。
 - [ ] 新增页面路径与菜单 url 一致,能通过 glob 匹配到组件。
 - [ ] 新接口放在 `api/<域>`,只经 `baseService` 调用。
 - [ ] 新全局状态字段已加入 `AppState` 并有注释。

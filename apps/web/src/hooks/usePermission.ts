@@ -1,18 +1,28 @@
 import { getMenuMessage } from '@/api/process'
-import baseService from '@/service/baseService'
+import { getButtonList } from '@/api/permission'
 import { checkPermission } from '@/utils/utils'
-import { computed, ref, inject } from 'vue'
-import { PermissionInjectionKey, PermissionContext } from '@/components/UserRoleSelector/interface'
+import { handleError } from '@/utils/error'
+import { computed, ref, inject, onScopeDispose } from 'vue'
+import { PermissionInjectionKey } from '@/components/UserRoleSelector/interface'
+
+interface PermissionUser {
+  spRoleId?: string
+  id?: string
+}
 
 export const usePermission = () => {
-  const injectedContext = inject<PermissionContext>(PermissionInjectionKey)
-
-  if (!injectedContext) {
-    console.warn('不存在injectedContext')
-  }
+  const injectedContext = inject(PermissionInjectionKey, undefined)
 
   const localPermissions = ref<string[]>([])
   const localIsLoading = ref(false)
+  let requestId = 0
+  let isDisposed = false
+
+  onScopeDispose(() => {
+    isDisposed = true
+    requestId++
+    localIsLoading.value = false
+  })
 
   const allPermissions = computed(() => {
     if (injectedContext) {
@@ -28,14 +38,17 @@ export const usePermission = () => {
     return localIsLoading.value
   })
 
-  const fetchPermissions = async (menuPath?: string, userInfo?: any): Promise<boolean> => {
-    if (localIsLoading.value) return false
+  const fetchPermissions = async (menuPath?: string, userInfo?: PermissionUser): Promise<boolean> => {
+    if (isDisposed) return false
+    const currentRequest = ++requestId
+    localPermissions.value = []
     localIsLoading.value = true
     try {
       const targetMenuPath = menuPath
       if (!targetMenuPath) return false
       const result = await getMenuMessage(targetMenuPath)
-      if (!result.success || !result.data) return false
+      if (currentRequest !== requestId) return false
+      if (!result.success || !result.data) throw new Error(result.msg || '获取菜单信息失败')
       const menuCode = result.data.outsideMenu
       if (!menuCode) return false
 
@@ -43,20 +56,21 @@ export const usePermission = () => {
       const spRoleId = userInfo?.spRoleId ?? userInfo?.id
       if (!spRoleId) return false
 
-      const res = await baseService.get(`/sysMenu/getButtonList?menuCode=${menuCode}&spRoleId=${spRoleId}`)
+      const res = await getButtonList(menuCode, spRoleId)
+      if (currentRequest !== requestId) return false
 
       if (res.success && Array.isArray(res.data)) {
         localPermissions.value = res.data
         return true
       } else {
-        localPermissions.value = []
-        return false
+        throw new Error(res.msg || '获取按钮权限失败')
       }
     } catch (error) {
-      localPermissions.value = []
+      if (currentRequest !== requestId) return false
+      handleError(error, '获取权限失败')
       return false
     } finally {
-      localIsLoading.value = false
+      if (currentRequest === requestId) localIsLoading.value = false
     }
   }
 
@@ -85,7 +99,10 @@ export const usePermission = () => {
   }
 
   const clearPermissions = () => {
+    // 清除权限也使在途响应失效，避免退出页面后恢复旧角色的权限。
+    requestId++
     localPermissions.value = []
+    localIsLoading.value = false
   }
 
   return {

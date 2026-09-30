@@ -15,7 +15,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="OfficePreview">
+<script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { getOfficeFileExtension } from './fileExtension'
 import { loadFileViewerModules } from './fileViewerLoader'
@@ -30,6 +30,8 @@ import type {
   OfficeRendererType,
   OfficeToolbarOptions
 } from './types'
+
+defineOptions({ name: 'OfficePreview' })
 
 interface LoadedSource {
   /** Word/Excel 优先保留 Blob，避免整文件再读成 ArrayBuffer 造成双份内存 */

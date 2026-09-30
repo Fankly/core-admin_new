@@ -1,3 +1,5 @@
+import type { IObject } from '@/types/interface'
+
 export interface TablePageable {
   current: number
   size: number
@@ -7,16 +9,8 @@ export interface TablePageable {
 export interface TableStateProps {
   tableData: any[]
   pageable: TablePageable
-  searchParam: {
-    [key: string]: any
-  }
-  searchInitParam: {
-    [key: string]: any
-  }
-  totalParam: {
-    [key: string]: any
-  }
-  icon?: {
-    [key: string]: any
-  }
+  searchParam: IObject
+  searchInitParam: IObject
+  totalParam: IObject
+  icon?: IObject
 }

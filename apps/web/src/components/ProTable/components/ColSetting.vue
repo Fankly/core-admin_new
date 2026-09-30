@@ -24,7 +24,7 @@ export default {
 }
 </script>
 
-<script setup lang="ts" name="ColSetting">
+<script setup lang="ts">
 import { ref } from 'vue'
 
 defineProps<{ colSetting: any[] }>()

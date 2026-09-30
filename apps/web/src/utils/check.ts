@@ -34,7 +34,6 @@ export const throwError = (
   isNotError: boolean,
   info: string | undefined
 ) => {
-  // console.log("throwError",isError)
   if (value == undefined || value == '') {
     callback(new Error(''))
   } else {

@@ -47,3 +47,4 @@ export interface PermissionContext {
 }
 
 export const PermissionInjectionKey: InjectionKey<PermissionContext> = Symbol('PermissionContext')
+export const CurrentUserRoleInjectionKey: InjectionKey<Ref<UserRole>> = Symbol('CurrentUserRole')

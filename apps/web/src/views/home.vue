@@ -2,9 +2,9 @@
   <component :is="comp" />
 </template>
 
-<script setup lang="ts" name="/home">
+<script setup lang="ts">
 import { useAppStore } from '@/store'
-import { defineAsyncComponent, onMounted, ref, shallowRef } from 'vue'
+import { defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import { getSysRouteMap } from '@/router'
 import { toSysViewComponentPath } from '@/router'
 import { getMenuMessage } from '@/api/process'
@@ -53,7 +53,8 @@ const setComponent = (isMainPageRole: boolean) => {
 }
 
 // 防止没有用户选择的权限
-emits.on('isMainPageRole', (isMainPageRole) => setComponent(isMainPageRole))
+emits.on('isMainPageRole', setComponent)
+onUnmounted(() => emits.off('isMainPageRole', setComponent))
 
 onMounted(() => {
   initComponentMap()
@@ -61,4 +62,3 @@ onMounted(() => {
 </script>
 
 <style scoped></style>
-` `

@@ -82,13 +82,16 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script setup lang="ts" name="ProTable">
-import { ref, watch, provide, onMounted, unref, computed, reactive, Ref } from 'vue'
+<script setup lang="ts">
+import { ref, watch, provide, onMounted, onUnmounted, unref, computed, reactive, toRef } from 'vue'
+import type { Ref } from 'vue'
 import type { TableInstance } from 'element-plus'
 import { useTable } from '@/hooks/useTable'
 import { useSelection } from '@/hooks/useSelection'
-import { BreakPoint } from '@/components/Grid/interface'
-import { ColumnProps, TypeProps } from '@/components/ProTable/interface'
+import type { BreakPoint } from '@/components/Grid/interface'
+import type { ColumnProps, TypeProps, EnumMap } from '@/components/ProTable/interface'
+import { EnumMapInjectionKey } from '@/components/ProTable/interface'
+import type { IObject } from '@/types/interface'
 import { handleProp } from '@/utils'
 import SearchForm from '@/components/SearchForm/index.vue'
 import Pagination from './components/Pagination.vue'
@@ -98,6 +101,9 @@ import Sortable from 'sortablejs'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { useGuide } from '@/hooks/useGuide'
+import { handleError } from '@/utils/error'
+
+defineOptions({ name: 'ProTable' })
 
 // element-plus 2.14 把 ElTable 声明成泛型函数组件，不能再用 InstanceType，改用官方导出的实例类型
 type ElTableInstance = TableInstance
@@ -111,7 +117,7 @@ export interface ProTableProps {
   dataCallback?: (data: any) => any // 返回数据的回调函数，可以对数据进行处理 ==> 非必传
   title?: string // 表格标题 ==> 非必传
   pagination?: boolean // 是否需要分页组件 ==> 非必传（默认为true）
-  initParam?: any // 初始化请求参数 ==> 非必传（默认为{}）
+  initParam?: IObject // 初始化请求参数 ==> 非必传（默认为{}）
   border?: boolean // 是否带有纵向边框 ==> 非必传（默认为true）
   toolButton?: ('help' | 'setting' | 'search' | 'other')[] | boolean // 是否显示表格功能按钮 ==> 非必传（默认为true）
   helpMessage?: string // 表格帮助信息 ==> 非必传
@@ -129,7 +135,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   columns: () => [],
   requestAuto: false,
   pagination: true,
-  initParam: {},
+  initParam: () => ({}),
   border: true,
   toolButton: true as any,
   rowKey: 'id',
@@ -176,17 +182,20 @@ const radio = ref('')
 const { selectionChange, selectedList, selectedListIds, isSelected } = useSelection(props.rowKey, tableRef)
 
 // 清空选中数据列表
-const clearSelection = () => tableRef.value!.clearSelection()
+const clearSelection = () => tableRef.value?.clearSelection()
 
 // 表格操作 Hooks
 const { tableData, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange } = useTable(
   props.requestApi,
-  props.initParam,
-  props.pagination,
+  toRef(props, 'initParam'),
+  toRef(props, 'pagination'),
   props.dataCallback,
   props.requestError,
   clearSelection
 )
+
+let guideTimer: ReturnType<typeof setTimeout> | undefined
+let sortable: Sortable | undefined
 
 // 初始化表格数据 && 拖拽排序
 onMounted(() => {
@@ -195,10 +204,15 @@ onMounted(() => {
   props.data && (pageable.value.total = props.data.length)
 
   if (props.guideModuleKey && hasToolButton('help')) {
-    setTimeout(() => {
+    guideTimer = setTimeout(() => {
       startGuide()
     }, 1000)
   }
+})
+
+onUnmounted(() => {
+  clearTimeout(guideTimer)
+  sortable?.destroy()
 })
 
 // 处理表格数据
@@ -220,7 +234,7 @@ const tableColumns = reactive(props.columns) as unknown as ColumnProps[]
 const flatColumns = computed(() => flatColumnsFunc(tableColumns))
 
 // 定义 enumMap 存储 enum 值（避免异步请求无法格式化单元格内容 || 无法填充搜索下拉选择）
-const enumMap = ref(new Map<string, { [key: string]: any }[]>())
+const enumMap = ref<EnumMap>(new Map())
 const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
   if (!enumValue) return
 
@@ -234,12 +248,17 @@ const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
   enumMap.value.set(prop!, [])
 
   // 当前 enum 为后台数据需要请求数据，则调用该请求接口，并存储到 enumMap
-  const { data } = await enumValue()
-  enumMap.value.set(prop!, data)
+  try {
+    const { data } = await enumValue()
+    enumMap.value.set(prop!, data)
+  } catch (error) {
+    enumMap.value.delete(prop!)
+    handleError(error, '加载表格选项失败')
+  }
 }
 
 // 注入 enumMap
-provide('enumMap', enumMap)
+provide(EnumMapInjectionKey, enumMap)
 
 // 扁平化 columns 的方法
 // 返回类型必须显式声明：函数内部递归调用自身，ColumnProps 又继承自很深的 TableColumnCtx，
@@ -310,15 +329,16 @@ const _reset = () => {
 
 // 拖拽排序
 const dragSort = () => {
-  const tbody = document.querySelector('.el-table__body-wrapper tbody') as HTMLElement
-  Sortable.create(tbody, {
+  const tbody = tableRef.value?.$el.querySelector('.el-table__body-wrapper tbody') as HTMLElement | null | undefined
+  if (!tbody) return
+  sortable = Sortable.create(tbody, {
     handle: '.move',
     animation: 300,
     onEnd({ newIndex, oldIndex }) {
+      if (newIndex === undefined || oldIndex === undefined || newIndex === oldIndex) return
       const [removedItem] = processTableData.value.splice(oldIndex!, 1)
       processTableData.value.splice(newIndex!, 0, removedItem)
 
-      // @ts-ignore
       emit('dargSort', { newIndex, oldIndex })
     }
   })

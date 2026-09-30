@@ -221,7 +221,6 @@ export default defineComponent({
         const url = (props.menuUrl || '').trim() || store.getMenuMsg.url || ''
         activeTab.value = props.showHelpInfo ? 'help' : 'attachments'
         const result = await getMenuMessage(url)
-        console.log(result)
 
         if (result.success) {
           const [helpMessage, downloadFile] = await Promise.allSettled([getConfigByMenuId(result.data.id), listFj(result.data.id)])

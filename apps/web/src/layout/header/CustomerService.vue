@@ -57,7 +57,7 @@
   <HelpModal title="用户手册" ref="helpModalRef" :show-help-info="false" :menu-url="helpMenuUrl" />
 </template>
 
-<script setup lang="ts" name="CustomerService">
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { Info, Phone, Mail } from 'lucide-vue-next'
 import HelpModal from '@/components/HelpModal/index.vue'

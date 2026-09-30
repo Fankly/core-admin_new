@@ -7,27 +7,28 @@ export default {
   name: 'TableColumn'
 }
 </script>
-<script setup lang="tsx" name="TableColumn">
+<script setup lang="tsx">
 import { inject, ref, useSlots } from 'vue'
-import { ColumnProps, RenderScope, HeaderRenderScope } from '@/components/ProTable/interface'
+import type { ColumnProps, RenderScope, HeaderRenderScope, EnumMap } from '@/components/ProTable/interface'
+import { EnumMapInjectionKey } from '@/components/ProTable/interface'
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from '@/utils'
 
 defineProps<{ column: ColumnProps }>()
 
 const slots = useSlots()
 
-const enumMap = inject('enumMap', ref(new Map()))
+const enumMap = inject(EnumMapInjectionKey, ref<EnumMap>(new Map()))
 
 // 渲染表格数据
 const renderCellData = (item: ColumnProps, scope: RenderScope<any>) => {
-  return enumMap.value.get(item.prop) && item.isFilterEnum
-    ? filterEnum(handleRowAccordingToProp(scope.row, item.prop!), enumMap.value.get(item.prop)!, item.fieldNames)
+  return enumMap.value.get(item.prop!) && item.isFilterEnum
+    ? filterEnum(handleRowAccordingToProp(scope.row, item.prop!), enumMap.value.get(item.prop!)!, item.fieldNames)
     : formatValue(handleRowAccordingToProp(scope.row, item.prop!))
 }
 
 // 获取 tag 类型
 const getTagType = (item: ColumnProps, scope: RenderScope<any>) => {
-  return filterEnum(handleRowAccordingToProp(scope.row, item.prop!), enumMap.value.get(item.prop), item.fieldNames, 'tag') || 'primary'
+  return filterEnum(handleRowAccordingToProp(scope.row, item.prop!), enumMap.value.get(item.prop!), item.fieldNames, 'tag') || 'primary'
 }
 
 const RenderTableColumn = (item: ColumnProps) => {

@@ -16,8 +16,8 @@ const require = createRequire(import.meta.url)
  * 解析依赖包内的具体文件。
  *
  * 不能写死 `<root>/node_modules/<pkg>/...`：pnpm workspace 下依赖可能被链接到
- * apps/web/node_modules，也可能提升到 workspace 根 node_modules（见 .npmrc 的
- * shamefully-hoist），路径不固定。这里改为从包自己的 package.json 反推包根目录，
+ * apps/web/node_modules，也可能提升到 workspace 根 node_modules，路径不固定。
+ * 这里从包自己的 package.json 反推包根目录，
  * 无论哪种布局都能命中。
  */
 const pkgFile = (pkg: string, file: string) => resolve(dirname(require.resolve(`${pkg}/package.json`)), file)
@@ -95,15 +95,6 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:10027/budget-process',
-        // target: 'http://192.168.9.37:10027/budget-process',
-        // target: 'http://192.168.9.253:10027/budget-process',
-        // target: 'http://192.168.9.13:10027/budget-process',
-        // target: 'http://192.168.9.203:10027/budget-process',
-        // target: 'http://192.168.9.33:10027/budget-process',
-        // target: 'http://192.168.9.36:10027/budget-process',
-        // target: 'http://192.168.9.34:10027/budget-process',
-        // target: 'http://192.168.9.41:8001/budget-process',
-        // target: 'http://192.168.10.193:10027/budget-process',
         ws: true,
         changeOrigin: false,
         rewrite: (path) => path.replace(/^\/api/, '')

@@ -181,6 +181,7 @@ export default {
 <script setup lang="ts">
 import baseService from '@/service/baseService'
 import { ref, reactive, computed, watch, onBeforeUnmount } from 'vue'
+import { handleError } from '@/utils/error'
 
 export interface FormField {
   prop: string
@@ -264,6 +265,7 @@ const formData = reactive<Record<string, any>>({})
 const dynamicOptions = reactive<Record<string, Array<{ label?: string; value: any; name?: string; code?: string }>>>({})
 
 const multiDependencyLoading = reactive<Record<string, boolean>>({})
+const dependencyRequests = new Map<string, number>()
 
 const debounceTimers = reactive<Record<string, ReturnType<typeof setTimeout>>>({})
 
@@ -290,7 +292,8 @@ const checkMultiDependencyCondition = (field: FormField): boolean => {
 
 const loadDataFromMultiDependency = async (field: FormField): Promise<void> => {
   if (!field.multiDependsOn) return
-  if (multiDependencyLoading[field.prop]) return
+  const requestId = (dependencyRequests.get(field.prop) ?? 0) + 1
+  dependencyRequests.set(field.prop, requestId)
   const { fields, apiConfig, loader } = field.multiDependsOn
   const dependentValues: Record<string, any> = {}
   fields.forEach((fieldName) => {
@@ -306,16 +309,21 @@ const loadDataFromMultiDependency = async (field: FormField): Promise<void> => {
     } else if (apiConfig) {
       const { url, method = 'get', params = {}, transfrom } = apiConfig
       const requestParams = { ...params, ...dependentValues }
-      const data = null
+      const response = await baseService[method](url, requestParams)
+      if (response.success === false) throw new Error(response.msg || '获取联动数据失败')
+      const data = response.data
       result = transfrom ? transfrom(data) : data
     }
+    if (dependencyRequests.get(field.prop) !== requestId) return
     if (result !== undefined && result !== null) {
       formData[field.prop] = result
     }
   } catch (error) {
+    if (dependencyRequests.get(field.prop) !== requestId) return
     formData[field.prop] = field.type === 'checkbox' ? [] : ''
+    handleError(error, `加载${field.label}失败`)
   } finally {
-    multiDependencyLoading[field.prop] = false
+    if (dependencyRequests.get(field.prop) === requestId) multiDependencyLoading[field.prop] = false
   }
 }
 
@@ -323,6 +331,9 @@ const handleMultiDependencyChange = async (changedFieldProp: string): Promise<vo
   const affectedFields = props.fields.filter((field) => field.multiDependsOn?.fields?.includes(changedFieldProp))
   if (affectedFields.length === 0) return
   const updatePromises = affectedFields.map(async (field) => {
+    // 依赖被清空时也要淘汰在途响应，不能让旧结果把字段重新填回去。
+    dependencyRequests.set(field.prop, (dependencyRequests.get(field.prop) ?? 0) + 1)
+    multiDependencyLoading[field.prop] = false
     try {
       if (field.multiDependsOn?.clearOnChange !== false) {
         formData[field.prop] = field.type === 'checkbox' ? [] : ''
@@ -553,6 +564,7 @@ const handleClose = () => {
 }
 
 const resetForm = () => {
+  clearAllTimers()
   if (formRef.value) {
     formRef.value.resetFields()
   }
@@ -566,10 +578,14 @@ const resetForm = () => {
 
 const clearAllTimers = () => {
   Object.values(debounceTimers).forEach((timer) => {
-    if (timer && typeof timer === 'number') clearTimeout(timer)
+    clearTimeout(timer)
   })
   Object.keys(debounceTimers).forEach((key) => {
     delete debounceTimers[key]
+  })
+  dependencyRequests.forEach((requestId, prop) => {
+    dependencyRequests.set(prop, requestId + 1)
+    multiDependencyLoading[prop] = false
   })
 }
 
@@ -595,6 +611,7 @@ const open = () => {
 }
 
 const close = () => {
+  clearAllTimers()
   visible.value = false
 }
 

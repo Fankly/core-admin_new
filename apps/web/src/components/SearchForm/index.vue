@@ -27,13 +27,15 @@
     </el-form>
   </div>
 </template>
-<script setup lang="ts" name="SearchForm">
+<script setup lang="ts">
 import { computed, ref } from 'vue'
-import { ColumnProps } from '@/components/ProTable/interface'
-import { BreakPoint } from '@/components/Grid/interface'
+import type { ColumnProps } from '@/components/ProTable/interface'
+import type { BreakPoint } from '@/components/Grid/interface'
 import SearchFormItem from './components/SearchFormItem.vue'
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
+
+defineOptions({ name: 'SearchForm' })
 
 interface ProTableProps {
   columns?: ColumnProps[] // 搜索配置列

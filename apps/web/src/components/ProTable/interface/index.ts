@@ -1,8 +1,8 @@
-import { VNode, ComponentPublicInstance, Ref } from 'vue'
-import { BreakPoint, Responsive } from '@/components/Grid/interface'
+import type { VNode, ComponentPublicInstance, Ref, InjectionKey } from 'vue'
+import type { BreakPoint, Responsive } from '@/components/Grid/interface'
 // @ts-ignore
-import { ProTableProps } from '@/components/ProTable/index.vue'
-import ProTable from '@/components/ProTable/index.vue'
+import type { ProTableProps } from '@/components/ProTable/index.vue'
+import type ProTable from '@/components/ProTable/index.vue'
 import type { TableColumnCtx } from 'element-plus'
 
 export interface EnumProps {
@@ -13,6 +13,9 @@ export interface EnumProps {
   children?: EnumProps[] // 为树形选择时，可以通过 children 属性指定子选项
   [key: string]: any
 }
+
+export type EnumMap = Map<string, EnumProps[]>
+export const EnumMapInjectionKey: InjectionKey<Ref<EnumMap>> = Symbol('TableEnumMap')
 
 export type TypeProps = 'index' | 'selection' | 'radio' | 'expand' | 'sort'
 

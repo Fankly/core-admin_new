@@ -1,5 +1,5 @@
-import { IHttpResponse, IObject } from '@/types/interface'
-import { Method } from 'axios'
+import type { IHttpResponse, IObject } from '@/types/interface'
+import type { Method } from 'axios'
 import http from '../utils/http'
 import { Base64 } from 'js-base64'
 
@@ -28,10 +28,12 @@ function generateSignature(): ISignature {
   return { random, timeStamp, sign }
 }
 
-function createHeaders(extraHeaders?: IObject): IObject {
+function createHeaders(extraHeaders?: IObject, body?: IObject): IObject {
   const signature = generateSignature()
+  // FormData 的 Content-Type 与 boundary 由浏览器生成，JSON 头会让 Axios 丢失文件内容。
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
   return {
-    'Content-Type': 'application/json;charset=UTF-8',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json;charset=UTF-8' }),
     ...signature,
     ...extraHeaders
   }
@@ -52,7 +54,7 @@ export default {
     return http({
       url: path,
       timeout: REQUEST_TIMEOUT,
-      headers: createHeaders(),
+      headers: createHeaders(undefined, params),
       data: params,
       method: 'DELETE',
       ...otherParams
@@ -73,7 +75,7 @@ export default {
       url: path,
       data: params,
       timeout: REQUEST_TIMEOUT,
-      headers: createHeaders(headers),
+      headers: createHeaders(headers, params),
       method: 'PUT',
       ...otherParams
     })
@@ -90,7 +92,7 @@ export default {
     return await http({
       url: path,
       timeout: REQUEST_TIMEOUT,
-      headers: createHeaders(headers),
+      headers: createHeaders(headers, body),
       data: body,
       method: 'POST',
       ...otherParams
@@ -110,7 +112,7 @@ export default {
       method: 'post',
       responseType: 'blob',
       timeout: REQUEST_TIMEOUT,
-      headers: createHeaders(headers),
+      headers: createHeaders(headers, body),
       data: body,
       ...otherParams
     })
@@ -145,6 +147,7 @@ export default {
       method,
       responseType: 'blob' as const,
       timeout: REQUEST_TIMEOUT,
+      headers: createHeaders(undefined, isPost ? params : undefined),
       ...(isPost ? { data: params } : { params }),
       ...otherParams
     }
@@ -164,21 +167,27 @@ export default {
    * @param otherParams
    */
   async blob(requestUrl: string, otherParams?: OtherParams): Promise<{ name: string; url: string }> {
-    const res = await http({ url: requestUrl, responseType: 'blob', ...otherParams })
-    const data = res.data
-    const fileName = res.headers['filename']
+    const data = (await http({
+      url: requestUrl,
+      responseType: 'blob',
+      timeout: REQUEST_TIMEOUT,
+      headers: createHeaders(),
+      ...otherParams
+    })) as unknown as Blob & { headers: IObject<string> }
+    const fileName = data.headers['filename'] || ''
 
     return new Promise((resolve, reject) => {
       const fr = new FileReader()
-      fr.readAsDataURL(data)
-      fr.onload = (e: any) => {
-        const result = {
-          name: fileName,
-          url: e.currentTarget.result
+      fr.onload = () => {
+        if (typeof fr.result !== 'string') {
+          reject(new Error('读取文件失败'))
+          return
         }
-        resolve(result)
+        resolve({ name: fileName, url: fr.result })
       }
-      fr.onerror = reject
+      fr.onerror = () => reject(fr.error || new Error('读取文件失败'))
+      fr.onabort = () => reject(new DOMException('文件读取已取消', 'AbortError'))
+      fr.readAsDataURL(data)
     })
   }
 }

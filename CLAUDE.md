@@ -1,6 +1,6 @@
 # core-admin (budget-process)
 
-项目过程管控平台前端。pnpm workspace monorepo，业务应用是 Vue 3 + Vite + Element Plus + Pinia 的管理后台，`apps/web/src` 下 218 文件 / 约 2.6 万行。
+项目过程管控平台前端。pnpm workspace monorepo，业务应用是 Vue 3 + Vite + Element Plus + Pinia 的管理后台，源码位于 `apps/web/src`。
 
 这是**骨架仓库**：登录、布局、路由、权限、表格封装、接口层范式都已就位，但业务页面只有 `login` / `home` / `baseHome` / `iframe` / `error` 五处，`views` 下没有业务域子目录。
 同名的 `/Users/fan/developer/core-admin` 是体量大得多的完整仓库（约 1700 文件、`views` 下按业务域分 1300+ 文件）；两者不要混淆，codegraph 索引默认指向那一个，查本仓库要显式传 `projectPath`。
@@ -30,14 +30,14 @@ pnpm typecheck     # 递归跑 vue-tsc --noEmit
 
 只作用于单个包时用 `pnpm --filter budget-process <script>`，或直接进 `apps/web` 执行。
 
-`package.json` 里有 `test`（vitest）与 `e2e`（playwright）脚本且依赖已装，但仓库中没有任何测试文件与 playwright 配置。改动后的实际验证手段是 `pnpm lint` + `pnpm typecheck` + dev 下手工走查。
+`pnpm test` 使用 `apps/web/vitest.config.ts`，包含表格、权限、组件与 HTTP 请求回归测试。HTTP 用例启动本地服务并发送真实请求，运行环境必须允许监听回环地址。Playwright 尚无配置，`pnpm e2e` 不能替代浏览器走查。改动后执行 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build`，并在 dev 下验证受影响页面。
 
 ## 构建约定
 
 - 别名：`@` → `apps/web/src`，`@mock` → `apps/web/mock`（仅开发环境按需 import）。
-- 所有 SCSS 自动注入 `@/assets/element-variables-green.scss` 和 `@/assets/style/mixin.scss`，写样式时不要重复 import。
+- 当前仅对 Less 自动注入 `@/assets/style/variables.less`，不要重复 import。遗留 SCSS 文件未自动注入；新增 SCSS 使用前需明确配置预处理器。
 - `vue` 指向 `vue/dist/vue.esm-bundler.js`（保留运行时模板编译）。
-- dev 代理 `/api` → `http://localhost:10027/budget-process`，`apps/web/vite.config.ts` 里有一串注释掉的后端 IP，切环境改这里。
+- dev 代理 `/api` → `http://localhost:10027/budget-process`，代理配置位于 `apps/web/vite.config.ts`。
 - 环境文件在 `apps/web/`：`.env.development` / `.env.production` / `.env.production.sit` / `.env.production.uat`。
 - SVG 图标目录 `apps/web/src/assets/icons/svg`，symbolId 规则 `icon-[dir]-[name]`。
 - `@file-viewer/*` 与 `@univerjs/*` 有手工 alias 与 `optimizeDeps.include`，动这两块前先读 `apps/web/vite.config.ts` 的注释。alias 用 `require.resolve(pkg + '/package.json')` 反推包根，不要改回写死 `node_modules/...` 路径——pnpm 下布局不固定。
@@ -51,7 +51,7 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 - 类名前缀是 `tw:`（变体式语法），不是 v3 的 `tw-`。写 `tw:flex`、`tw:hover:bg-red-600`。
 - 不引入 preflight（等价于原 `corePlugins.preflight: false`），所以没有 box-sizing 与 border-style 重置，`tw:border` 单独用不出边框。
 - 间距由 `--spacing` 乘数动态生成，`tw:p-4.5` 直接可用，不需要自定义 token。
-- 全仓实际只有 2 个文件用 Tailwind（`layout/header/CustomerService.vue`、`components/AutoImport/SingleContainer/index.vue`），绝大多数样式走 less/scss 与 Element Plus 变量覆盖。
+- 当前 Tailwind 用于 `layout/header/CustomerService.vue`，绝大多数样式走 Less 与 Element Plus 变量覆盖。
 
 ## 目录职责
 
@@ -60,7 +60,7 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 | 目录 | 职责 |
 | --- | --- |
 | `src/views/` | 业务页面，当前仅 `login` / `home` / `baseHome` / `iframe` / `error`，新业务页落在这里 |
-| `src/api/` | 接口定义，16 文件；新增业务域时目录结构与 `views` 对应 |
+| `src/api/` | 按业务域划分的接口定义；新增业务域时目录结构与 `views` 对应 |
 | `src/components/` | 跨业务域公共组件 |
 | `src/hooks/` | 通用组合式函数（useTable、usePermission、useView…） |
 | `src/service/` | `baseService.ts` CRUD 封装 + `apiService.ts` |
@@ -80,9 +80,9 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 
 **Pinia state 是扁平大对象。** `useAppStore` 一个 store 装下全部全局状态：用户信息、tabs、routes、各类 `xxGlobalInfo` 穿透参数，类型 `AppState extends IObject`（索引签名保留 `store[flag]` 动态取值）。新增字段跟随现有写法。批量覆盖用 `updateState()`（内部 `Object.assign`，而非 `$patch` 的递归合并）。
 
-**权限有两套入口。** `usePermission` 优先取 `UserRoleSelector` 通过 `PermissionInjectionKey` provide 的上下文，没有则自己拉。按钮级权限用 busicode（如 EDIT、DELETE），走 `utils/utils.ts` 的 `checkPermission`。
+**权限有两套入口。** `UserRoleSelector` 的父级通过 `CurrentUserRoleInjectionKey` 提供 `Ref<UserRole>`；组件通过默认插槽承载页面，并向后代提供 `PermissionInjectionKey`。`usePermission` 优先消费该上下文，没有则自己拉。角色和按钮接口统一放在 `api/permission`。缓存页失活后，迟到响应仅更新本页缓存，不覆盖当前页全局权限。按钮级权限用 `v-permission` 或 `utils/utils.ts` 的 `checkPermission`。
 
-**表格走 `useTable` + ProTable。** `useTable(api, initParam, isPageable, dataCallBack, requestError, clearSelection)` 管 `tableData` / `pageable` / `searchParam` / `totalParam`，默认分页 size 20。表格视觉相关的工具集中在 `utils/tableCellStyle.ts`、`tableFormatter.ts`、`tableCellColorMapper.ts`、`tableSelectionHighlight.ts`。
+**表格走 `useTable` + ProTable。** `useTable(api, initParam, isPageable, dataCallBack, requestError, clearSelection, initialPageSize)` 默认分页 size 20，最后一个参数可省略。`initParam` 与 `isPageable` 支持 ref/getter；`totalParam` 保存已提交的搜索条件，请求时再合并初始化参数和分页。仅最新请求可以提交数据与 loading，销毁作用域后忽略在途结果。`useTableSize` 为默认 size 100 的兼容包装。表格格式化仍使用现有工具。
 
 ## 局部约定
 

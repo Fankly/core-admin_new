@@ -8,7 +8,7 @@ import globals from 'globals'
 /**
  * Vue 3 应用的共享 flat config。
  *
- * 迁移说明（自原 eslint.config.js 整体搬移，规则集未做任何增删）：
+ * 迁移说明（自原 eslint.config.js 搬移，新增规则须与 frontend-guide 同步）：
  * - 原有的一整批 `0`（off）规则原样保留。ESLint 9+ 起，把不存在的规则设为 off 不再报错，
  *   所以 typescript-eslint v8 已移除的 `ban-types` / `no-var-requires` / `ban-ts-ignore`
  *   这类条目可以安全留着，避免丢失历史意图。
@@ -51,6 +51,7 @@ export default tseslint.config(
   {
     rules: {
       'prettier/prettier': 'error',
+      'no-console': ['error', { allow: ['warn', 'error'] }],
       'no-useless-escape': 0,
       'no-undef': 0,
       '@typescript-eslint/no-unused-expressions': 0,

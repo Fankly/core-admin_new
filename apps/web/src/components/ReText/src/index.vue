@@ -14,9 +14,11 @@
   </el-tooltip>
 </template>
 
-<script setup lang="ts" name="ReText">
+<script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useMutationObserver, useResizeObserver } from '@vueuse/core'
+
+defineOptions({ name: 'ReText' })
 
 const props = defineProps({
   tooltipContent: {

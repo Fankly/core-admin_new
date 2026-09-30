@@ -80,13 +80,11 @@ export default class FileView {
   public removeHandle(file: any) {
     this.isChangeResource = true
     const arr = this.fileList
-    console.log(arr)
 
     const newArr: any = []
     for (let i = 0; i < arr.length; i++) {
       const e = arr[i]
       // 如果文件名称为空，则是无效文件，大概率是无意间造成的问题
-      console.log(e.name)
 
       if (e.name == undefined) {
         continue

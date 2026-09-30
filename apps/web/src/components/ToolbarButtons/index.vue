@@ -37,19 +37,21 @@
   </div>
 </template>
 
-<script setup lang="ts" name="ToolbarButtons">
+<script setup lang="ts">
 import ReText from '@/components/ReText/src/index.vue'
+
+defineOptions({ name: 'ToolbarButtons' })
+
+const searchVisible = defineModel<boolean>('searchVisible', { default: true })
 
 type ToolButtonKey = 'help' | 'setting' | 'search' | 'other'
 
 const props = withDefaults(
   defineProps<{
     toolButton?: ToolButtonKey[] | boolean
-    searchVisible?: boolean
   }>(),
   {
-    toolButton: () => true as ToolButtonKey[] | boolean,
-    searchVisible: true
+    toolButton: () => true as ToolButtonKey[] | boolean
   }
 )
 
@@ -57,7 +59,6 @@ const emit = defineEmits<{
   (e: 'setting-click'): void
   (e: 'help-click'): void
   (e: 'search-click', visible: boolean): void
-  (e: 'update:searchVisible', visible: boolean): void
 }>()
 
 const showToolButton = (key: ToolButtonKey) => {
@@ -65,8 +66,8 @@ const showToolButton = (key: ToolButtonKey) => {
 }
 
 const toggleSearch = () => {
-  const visible = !props.searchVisible
-  emit('update:searchVisible', visible)
+  const visible = !searchVisible.value
+  searchVisible.value = visible
   emit('search-click', visible)
 }
 </script>

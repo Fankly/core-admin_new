@@ -13,8 +13,8 @@
     <template v-if="column.search?.el === 'select'">
       <component
         :is="`el-option`"
-        v-for="(col, index) in columnEnum"
-        :key="index"
+        v-for="col in columnEnum"
+        :key="col[fieldNames.value]"
         :label="col[fieldNames.label]"
         :value="col[fieldNames.value]"
       ></component>
@@ -23,10 +23,11 @@
   </component>
 </template>
 
-<script setup lang="ts" name="SearchFormItem">
+<script setup lang="ts">
 import { computed, inject, ref } from 'vue'
 import { handleProp } from '@/utils'
-import { ColumnProps } from '@/components/ProTable/interface'
+import type { ColumnProps, EnumMap } from '@/components/ProTable/interface'
+import { EnumMapInjectionKey } from '@/components/ProTable/interface'
 
 interface SearchFormItem {
   column: ColumnProps
@@ -47,9 +48,9 @@ const fieldNames = computed(() => {
 })
 
 // 接收 enumMap (el 为 select-v2 需单独处理 enumData)
-const enumMap = inject('enumMap', ref(new Map()))
+const enumMap = inject(EnumMapInjectionKey, ref<EnumMap>(new Map()))
 const columnEnum = computed(() => {
-  let enumData = enumMap.value.get(props.column.prop)
+  let enumData = enumMap.value.get(props.column.prop!)
   if (!enumData) return []
   if (props.column.search?.el === 'select-v2' && props.column.fieldNames) {
     enumData = enumData.map((item: { [key: string]: any }) => {
@@ -96,8 +97,8 @@ const clearable = computed(() => {
 })
 </script>
 
-<style>
-.el-range-separator {
+<style scoped>
+:deep(.el-range-separator) {
   width: 8% !important;
 }
 </style>

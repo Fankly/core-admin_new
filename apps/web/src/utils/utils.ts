@@ -338,18 +338,10 @@ export const stringToArray = (string: string) => {
  * @param setImg 处理完成
  */
 export const setImgs = (setImg: any, string: string) => {
-  console.log('图片上传处理', setImg, string)
   if (string != '') {
     const imgIds = stringToArray(string)
     const newimgs = JSON.stringify(imgIds)
-    // setImg = stringToArray(setImg)
-    // setImg = []
-    // console.log('asdasdwwwwww',setImg,typeof(setImg))
-
     setImg.push(...(JSON.parse(newimgs) || []))
-    console.log('dasdasdddddddddddd', setImg)
-
-    // return setImg
   }
 }
 /**

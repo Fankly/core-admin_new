@@ -1,5 +1,5 @@
 /* eslint-disable */
-const BigNumber = (function (globalObject) {
+const BigNumber = (function () {
   'use strict'
 
   /*
@@ -2835,27 +2835,9 @@ const BigNumber = (function (globalObject) {
   BigNumber = clone()
   BigNumber['default'] = BigNumber.BigNumber = BigNumber
 
-  // AMD.
-  if (typeof define == 'function' && define.amd) {
-    define(function () {
-      return BigNumber
-    })
-
-    // Node.js and other environments that support module.exports.
-  } else if (typeof module != 'undefined' && module.exports) {
-    module.exports = BigNumber
-
-    // Browser.
-  } else {
-    if (!globalObject) {
-      globalObject = typeof self != 'undefined' && self ? self : window
-    }
-
-    globalObject.BigNumber = BigNumber
-  }
-
+  // 仓库通过 ESM import 使用此模块，不能再写入 CommonJS 的 module.exports 或全局对象。
   return BigNumber
-})(typeof globalThis !== 'undefined' ? globalThis : this)
+})()
 
 export { BigNumber }
 export default BigNumber

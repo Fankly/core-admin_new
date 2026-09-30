@@ -27,6 +27,7 @@ import userLogo from '@/assets/images/user.png'
 import '@/assets/css/header.less'
 import { ElMessageBox } from 'element-plus'
 import { getParamValueMulti } from '@/api/common'
+import { handleError } from '@/utils/error'
 
 interface IExpand {
   userName?: string
@@ -55,23 +56,22 @@ export default defineComponent({
         let str = window.location.href
         let index = str.indexOf('?')
         let url = str.substring(0, index)
-        ElMessageBox.confirm('确定进行[删除]操作?', '提示', {
+        ElMessageBox.confirm('确定退出登录？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         })
           .then(() => {
-            baseService.get(`/sys/logout?redirUrl=${url}`).then((res) => {
+            return baseService.get('/sys/logout', { redirUrl: url }).then((res) => {
               if (res.success) {
-                console.log('已清空cookie')
                 location.href = res.data
               } else {
-                console.log(res.success)
+                throw new Error(res.msg || '退出登录失败')
               }
             })
           })
-          .catch(() => {
-            //
+          .catch((error: unknown) => {
+            if (error !== 'cancel' && error !== 'close') handleError(error, '退出登录失败')
           })
       } else {
         location.href = '/budget-process'
