@@ -1,40 +1,29 @@
 <template>
   <el-space direction="vertical" alignment="flex-start" class="rr-theme">
     <el-space>
-      <el-tooltip
-        v-for="x in sidebar"
-        :class="`card side ${x.value} ${state.active.sidebar === x.value ? 'active' : ''}`"
-        effect="dark"
-        :content="x.label"
-        placement="top"
-        :key="x.value"
-      >
-        <span @click="onSetTheme(EThemeSetting.Sidebar, 'sidebar', x.value)"></span>
+      <el-tooltip v-for="x in sidebar" effect="dark" :content="x.label" placement="top" :key="x.value">
+        <!-- el-tooltip 是多节点组件，class/style 不会透传到触发元素，预览样式必须挂在 span 上 -->
+        <span
+          :class="`card side ${x.value} ${state.active.sidebar === x.value ? 'active' : ''}`"
+          @click="onSetTheme(EThemeSetting.Sidebar, 'sidebar', x.value)"
+        ></span>
       </el-tooltip>
     </el-space>
     <el-space>
-      <el-tooltip
-        v-for="x in header"
-        :key="x.value"
-        :class="`card header ${x.value} ${state.active.header === x.value ? 'active' : ''}`"
-        effect="dark"
-        :content="x.label"
-        placement="top"
-      >
-        <span @click="onSetTheme(EThemeSetting.TopHeader, 'header', x.value)"></span>
+      <el-tooltip v-for="x in header" :key="x.value" effect="dark" :content="x.label" placement="top">
+        <span
+          :class="`card header ${x.value} ${state.active.header === x.value ? 'active' : ''}`"
+          @click="onSetTheme(EThemeSetting.TopHeader, 'header', x.value)"
+        ></span>
       </el-tooltip>
     </el-space>
     <el-space :size="2" style="flex-wrap: wrap">
-      <el-tooltip
-        v-for="x in colors"
-        :key="x.value"
-        :class="`color ${state.active.color === x.value ? 'active' : ''}`"
-        effect="dark"
-        :content="x.label"
-        placement="top"
-        :style="`background-color: ${x.value}`"
-      >
-        <span @click="onSetTheme(EThemeSetting.ThemeColor, 'color', x.value)"></span>
+      <el-tooltip v-for="x in colors" :key="x.value" effect="dark" :content="x.label" placement="top">
+        <span
+          :class="`color ${state.active.color === x.value ? 'active' : ''}`"
+          :style="`background-color: ${x.value}`"
+          @click="onSetTheme(EThemeSetting.ThemeColor, 'color', x.value)"
+        ></span>
       </el-tooltip>
     </el-space>
   </el-space>
@@ -62,8 +51,8 @@ const sidebar = [
   { label: '亮色侧边栏', value: 'light' }
 ]
 const header = [
-  { label: '暗色顶栏', value: 'light' },
-  { label: '亮色顶栏', value: 'dark' },
+  { label: '亮色顶栏', value: 'light' },
+  { label: '暗色顶栏', value: 'dark' },
   { label: '主题色顶栏', value: 'primary' }
 ]
 const colors = [

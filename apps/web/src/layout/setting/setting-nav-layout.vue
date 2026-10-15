@@ -2,15 +2,11 @@
   <el-space direction="vertical" :size="15" alignment="flex-start" class="rr-theme">
     <span class="rr-setting-title text-2">{{ '布局模式' }}</span>
     <el-space>
-      <el-tooltip
-        v-for="x in layout"
-        :key="x.value"
-        :class="`card navlayout ${layoutToTheme[x.value]} ${state.active.layout === x.value ? 'active' : ''}`"
-        effect="dark"
-        :content="x.label"
-        placement="top"
-      >
-        <span @click="onSetTheme('layout', EThemeSetting.NavLayout, x.value)"></span>
+      <el-tooltip v-for="x in layout" :key="x.value" effect="dark" :content="x.label" placement="top">
+        <span
+          :class="`card navlayout ${layoutToTheme[x.value]} ${state.active.layout === x.value ? 'active' : ''}`"
+          @click="onSetTheme('layout', EThemeSetting.NavLayout, x.value)"
+        ></span>
       </el-tooltip>
     </el-space>
     <setting-switch title="内容区域铺满" :value="state.active.full" :onChange="onSetContentFull"></setting-switch>
