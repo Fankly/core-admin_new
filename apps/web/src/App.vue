@@ -26,7 +26,7 @@ import type { IObject } from '@/types/interface'
 import Layout from '@/layout/index.vue'
 import FullscreenLayout from '@/layout/fullscreen-layout.vue'
 import emits from '@/utils/emits'
-import { getThemeConfigCache, setThemeColor, updateTheme } from '@/utils/theme'
+import { getThemeConfigCache, setThemeColor } from '@/utils/theme'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import '@/assets/css/app.less'
 import '@/assets/theme/index.less'
@@ -47,7 +47,6 @@ onMounted(() => {
   const themeCache = getThemeConfigCache()
   const themeColor = themeCache[EThemeSetting.ThemeColor]
   setThemeColor(EThemeColor.ThemeColor, themeColor)
-  updateTheme(themeColor)
 })
 
 watch(

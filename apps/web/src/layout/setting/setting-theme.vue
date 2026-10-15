@@ -44,7 +44,7 @@ import { reactive } from 'vue'
 import { EMitt, EThemeColor, EThemeSetting } from '@/constants/enum'
 import type { IObject } from '@/types/interface'
 import emits from '@/utils/emits'
-import { getThemeConfigCacheByKey, setThemeColor, updateTheme } from '@/utils/theme'
+import { getThemeConfigCacheByKey, setThemeColor } from '@/utils/theme'
 
 /**
  * 主题设置
@@ -98,7 +98,6 @@ const state = reactive({
 const onSetTheme = (key: EThemeSetting, type: string, value: string) => {
   if (key === EThemeSetting.ThemeColor) {
     setThemeColor(EThemeColor.ThemeColor, value)
-    updateTheme(value)
   }
   state.active[type] = value
   state.themeClass[key] = value

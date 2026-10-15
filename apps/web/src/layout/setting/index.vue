@@ -3,7 +3,7 @@
     <span class="rr-header-right-items-icon">
       <svg-icon name="morevertical"></svg-icon>
     </span>
-    <el-drawer title="主题设置" v-model="openDrawer" :append-to-body="true" :size="300" custom-class="rr-setting-wrap">
+    <el-drawer title="主题设置" v-model="openDrawer" :append-to-body="true" :size="300" class="rr-setting-wrap">
       <div class="rr-setting">
         <setting-theme :value="config" :onChange="onChange"></setting-theme>
         <el-divider></el-divider>
@@ -13,7 +13,7 @@
         <el-divider></el-divider>
         <el-alert title="该功能可实时预览各种布局效果" type="warning" class="ele-alert-border" :closable="false"></el-alert>
         <div class="copybtn" :onClick="onCopySetting">
-          <el-button size="small" :round="false" icon="el-icon-document-copy" style="width: 100%; margin: 15px 0 30px 0; font-weight: 400">
+          <el-button size="small" :round="false" :icon="CopyDocument" style="width: 100%; margin: 15px 0 30px 0; font-weight: 400">
             {{ '拷贝设置' }}
           </el-button>
         </div>
@@ -24,6 +24,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { CopyDocument } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import SvgIcon from '@/components/base/svg-icon'
 import { EThemeSetting } from '@/constants/enum'

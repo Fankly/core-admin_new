@@ -1,6 +1,6 @@
 <template>
   <div class="table-box" :class="{ card: type == 'card' }" :style="{ backgroundColor: type == 'card' ? 'rgb(255 255 255 / 60%)' : ' ' }">
-    <el-row type="flex" justify="space-between" align="middle" class="operator-box" v-if="hasExtend || $slots.operator">
+    <el-row justify="space-between" align="middle" class="operator-box" v-if="hasExtend || $slots.operator">
       <div>
         <slot name="operator" />
       </div>

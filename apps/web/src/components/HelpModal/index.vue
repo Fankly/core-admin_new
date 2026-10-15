@@ -19,11 +19,11 @@
       <!-- 导航标签 -->
       <div class="help-tabs">
         <div v-if="props.showHelpInfo" class="help-tab" :class="{ active: activeTab === 'help' }" @click="activeTab = 'help'">
-          <i class="el-icon-question"></i>
+          <el-icon><QuestionFilled /></el-icon>
           <span>帮助信息</span>
         </div>
         <div class="help-tab" :class="{ active: activeTab === 'attachments' }" @click="activeTab = 'attachments'">
-          <i class="el-icon-paperclip"></i>
+          <el-icon><Paperclip /></el-icon>
           <span>附件下载</span>
           <span v-if="attachments.length > 0" class="tab-badge">{{ attachments.length }}</span>
         </div>
@@ -35,7 +35,7 @@
         <div v-if="props.showHelpInfo && activeTab === 'help'" class="help-info">
           <div v-if="helpText.trim()" v-html="formatHelpText(helpText)"></div>
           <div v-else class="empty-content">
-            <i class="el-icon-info"></i>
+            <el-icon><InfoFilled /></el-icon>
             <p>暂无帮助信息</p>
           </div>
         </div>
@@ -43,19 +43,19 @@
         <!-- 附件列表 -->
         <div v-else class="attachment-section">
           <div v-if="attachments.length === 0" class="empty-content">
-            <i class="el-icon-folder-opened"></i>
+            <el-icon><FolderOpened /></el-icon>
             <p>暂无附件</p>
           </div>
           <div v-else>
             <!-- 工具栏 -->
             <div class="attachment-toolbar">
               <div class="toolbar-info">
-                <i class="el-icon-files"></i>
+                <el-icon><Files /></el-icon>
                 <span>共 {{ attachments.length }} 个文件</span>
               </div>
               <div class="toolbar-actions">
                 <button class="download-all-btn" @click="downloadAllFiles" :disabled="loading" title="批量下载">
-                  <i class="el-icon-download"></i>
+                  <el-icon><Download /></el-icon>
                   批量下载
                 </button>
               </div>
@@ -65,7 +65,7 @@
             <div class="file-list">
               <div v-for="(file, idx) in attachments" :key="file.uuid" class="file-item" @click="downloadFile(file.fjmc, file.uuid)">
                 <div class="file-icon">
-                  <i :class="getFileIcon(file.fjmc)"></i>
+                  <el-icon><component :is="getFileIcon(file.fjmc)" /></el-icon>
                 </div>
                 <div class="file-info">
                   <div class="file-name" :title="file.fjmc">{{ file.fjmc }}</div>
@@ -75,7 +75,7 @@
                   </div>
                 </div>
                 <div class="file-actions">
-                  <i class="el-icon-download"></i>
+                  <el-icon><Download /></el-icon>
                 </div>
               </div>
             </div>
@@ -87,7 +87,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, type Component } from 'vue'
+import {
+  Box,
+  Document,
+  Download,
+  Files,
+  FolderOpened,
+  Grid,
+  Headset,
+  InfoFilled,
+  Paperclip,
+  Picture,
+  Present,
+  QuestionFilled,
+  VideoCamera
+} from '@element-plus/icons-vue'
 import { useAppStore } from '@/store'
 import { downloadFj, getConfigByMenuId, listFj } from '@/api/metrics'
 import { getMenuMessage } from '@/api/process'
@@ -184,31 +199,31 @@ const getFileExtension = (filename: string): string => {
 }
 
 // 获取文件图标
-const getFileIcon = (filename: string): string => {
+const getFileIcon = (filename: string): Component => {
   const ext = filename.split('.').pop()?.toLowerCase() || ''
-  const iconMap: Record<string, string> = {
-    pdf: 'el-icon-document',
-    doc: 'el-icon-document',
-    docx: 'el-icon-document',
-    xls: 'el-icon-s-grid',
-    xlsx: 'el-icon-s-grid',
-    ppt: 'el-icon-present',
-    pptx: 'el-icon-present',
-    txt: 'el-icon-document',
-    zip: 'el-icon-box',
-    rar: 'el-icon-box',
-    '7z': 'el-icon-box',
-    jpg: 'el-icon-picture',
-    jpeg: 'el-icon-picture',
-    png: 'el-icon-picture',
-    gif: 'el-icon-picture',
-    mp4: 'el-icon-video-camera',
-    avi: 'el-icon-video-camera',
-    mov: 'el-icon-video-camera',
-    mp3: 'el-icon-headset',
-    wav: 'el-icon-headset'
+  const iconMap: Record<string, Component> = {
+    pdf: Document,
+    doc: Document,
+    docx: Document,
+    xls: Grid,
+    xlsx: Grid,
+    ppt: Present,
+    pptx: Present,
+    txt: Document,
+    zip: Box,
+    rar: Box,
+    '7z': Box,
+    jpg: Picture,
+    jpeg: Picture,
+    png: Picture,
+    gif: Picture,
+    mp4: VideoCamera,
+    avi: VideoCamera,
+    mov: VideoCamera,
+    mp3: Headset,
+    wav: Headset
   }
-  return iconMap[ext] || 'el-icon-document'
+  return iconMap[ext] || Document
 }
 
 const showModalHandle = async (): Promise<void> => {

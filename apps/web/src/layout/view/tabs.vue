@@ -36,7 +36,7 @@
         </el-dropdown-menu>
       </template>
       <span class="el-dropdown-link">
-        <i class="el-icon-arrow-down el-icon--right"></i>
+        <el-icon class="el-icon--right"><ArrowDown /></el-icon>
       </span>
     </el-dropdown>
   </div>
@@ -44,6 +44,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { ArrowDown, CircleClose, Close } from '@element-plus/icons-vue'
 import { findIndex } from 'lodash'
 import { ElMessage } from 'element-plus'
 import type { TabsPaneContext, TabPaneName } from 'element-plus'
@@ -63,9 +64,9 @@ interface Props {
 const props = defineProps<Props>()
 
 const ops = [
-  { label: '关闭当前标签页', value: 5, icon: 'el-icon-close' },
-  { label: '关闭其他标签页', value: 1, icon: 'el-icon-close' },
-  { label: '关闭全部标签页', value: 4, icon: 'el-icon-circle-close' }
+  { label: '关闭当前标签页', value: 5, icon: Close },
+  { label: '关闭其他标签页', value: 1, icon: Close },
+  { label: '关闭全部标签页', value: 4, icon: CircleClose }
 ]
 const router = useRouter()
 const store = useAppStore()

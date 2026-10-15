@@ -8,9 +8,9 @@
       :style="getStyle(index)"
     >
       <template #title>
-        <i v-if="x.meta?.icon" class="el-icon-dot rr-sidebar-menu-entry__icon">
+        <el-icon v-if="x.meta?.icon" class="rr-sidebar-menu-entry__icon">
           <svg-icon :name="`${x.meta.icon}`"></svg-icon>
-        </i>
+        </el-icon>
         <span class="rr-sidebar-menu-entry__label">
           <a tabindex="-1">
             <ReText :preserve-whitespace="true">
@@ -28,9 +28,9 @@
       :class="classNames('rr-sidebar-menu-entry', { isLink: !!x.meta?.isNewPage, isMore: x.meta?.isMore })"
       :style="getStyle(index)"
     >
-      <i v-if="x.meta?.icon" class="el-icon-dot rr-sidebar-menu-entry__icon">
+      <el-icon v-if="x.meta?.icon" class="rr-sidebar-menu-entry__icon">
         <svg-icon :name="`${x.meta.icon}`"></svg-icon>
-      </i>
+      </el-icon>
       <template #title>
         <span class="rr-sidebar-menu-entry__label">
           <a v-if="x.meta?.isNewPage" :href="`${x.meta.url}`" target="_blank">

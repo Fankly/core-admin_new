@@ -1,12 +1,8 @@
 import { CacheTheme } from '@/constants/cacheKey'
 import { themeSetting } from '@/constants/config'
-import { EMitt, EThemeSetting } from '@/constants/enum'
-import { IFunction, IObject } from '@/types/interface'
+import { EThemeSetting } from '@/constants/enum'
+import { IObject } from '@/types/interface'
 import { getCache, setCache } from './cache'
-import emits from './emits'
-// ?inline 取 CSS 文本而非副作用注入：下面 updateStyle 要对这段字符串做主题色替换。
-// Vite 6 起 CSS 默认导出已移除，不加 ?inline 会报 "default" is not exported。
-import chalkCss from '@/assets/chalk/index.css?inline'
 
 /**
  * 取主题设置缓存
@@ -56,119 +52,45 @@ export const setThemeConfigToCache = (key: EThemeSetting, value: string | boolea
 }
 
 /**
- * 设置主题色
- * @param key
- * @param value
+ * 设置主题色。
+ *
+ * element-plus 2.x 的标准换肤做法是运行时覆盖 --el-color-primary 及其 light-N、dark-N
+ * 派生 CSS 变量（组件样式全部通过变量取色），不再需要旧 element-ui 时代
+ * “整包样式文本做字符串替换”的方案。这里同步维护项目自定义的 --color-primary(-light)。
+ * @param key 主色变量名（EThemeColor.ThemeColor = '--color-primary'）
+ * @param value 主题色，如 '#409eff'
  */
 export const setThemeColor = (key: string, value: string): void => {
   const elm = window.document.querySelector('body')
-  if (elm) {
-    elm.style.setProperty(key, value)
-    elm.style.setProperty(key + '-light', value + '14')
+  if (!elm) return
+
+  const hexToRgb = (hex: string): number[] => {
+    let c = hex.replace('#', '')
+    if (c.length === 3)
+      c = c
+        .split('')
+        .map((x) => x + x)
+        .join('')
+    return [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16))
   }
-}
+  const rgbToHex = (rgb: number[]): string => '#' + rgb.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('')
+  // 与 element-plus 主题派生算法一致：light-N 掺入 N0% 白，dark-N 掺入 N0% 黑
+  const mixWhite = (rgb: number[], ratio: number): number[] => rgb.map((v) => v + (255 - v) * ratio)
+  const mixBlack = (rgb: number[], ratio: number): number[] => rgb.map((v) => v * (1 - ratio))
 
-/**
- * 生成主题色
- * @param theme
- * @returns
- */
-export const getThemeCluster = (theme: string): string[] => {
-  const tintColor = (color: string, tint: number) => {
-    let red: any = parseInt(color.slice(0, 2), 16)
-    let green: any = parseInt(color.slice(2, 4), 16)
-    let blue: any = parseInt(color.slice(4, 6), 16)
-
-    if (tint === 0) {
-      // when primary color is in its rgb space
-      return [red, green, blue].join(',')
-    } else {
-      red += Math.round(tint * (255 - red))
-      green += Math.round(tint * (255 - green))
-      blue += Math.round(tint * (255 - blue))
-
-      red = red.toString(16)
-      green = green.toString(16)
-      blue = blue.toString(16)
-
-      return `#${red}${green}${blue}`
+  const setPrimaryFamily = (name: string, hex: string): void => {
+    const rgb = hexToRgb(hex)
+    elm.style.setProperty(name, hex)
+    for (let i = 1; i <= 9; i++) {
+      elm.style.setProperty(`${name}-light-${i}`, rgbToHex(mixWhite(rgb, i / 10)))
     }
+    elm.style.setProperty(`${name}-dark-2`, rgbToHex(mixBlack(rgb, 0.2)))
   }
 
-  const shadeColor = (color: string, shade: number): string => {
-    let red: any = parseInt(color.slice(0, 2), 16)
-    let green: any = parseInt(color.slice(2, 4), 16)
-    let blue: any = parseInt(color.slice(4, 6), 16)
-
-    red = Math.round((1 - shade) * red)
-    green = Math.round((1 - shade) * green)
-    blue = Math.round((1 - shade) * blue)
-
-    red = red.toString(16)
-    green = green.toString(16)
-    blue = blue.toString(16)
-
-    return `#${red}${green}${blue}`
-  }
-
-  const clusters = [theme]
-  for (let i = 0; i <= 9; i++) {
-    clusters.push(tintColor(theme, Number((i / 10).toFixed(2))))
-  }
-  clusters.push(shadeColor(theme, 0.1))
-  return clusters
-}
-
-/**
- * 获取主题css
- * @param url
- * @param callback
- * @param variable
- */
-export const getCSSString = (callback: IFunction, variable?: string): void => {
-  if (variable) {
-    ;(window as any)[variable] = chalkCss
-  }
-  callback(chalkCss)
-}
-
-export const updateStyle = (style: string, oldCluster: string[], newCluster: string[]): string => {
-  let newStyle = style
-  oldCluster.forEach((color, index) => {
-    newStyle = newStyle.replace(new RegExp(color, 'ig'), newCluster[index])
-  })
-  return newStyle
-}
-
-/**
- * 更新主题色
- * @param themeColor
- * @param val
- * @returns
- */
-export const updateTheme = (val: string): void => {
-  if (typeof val !== 'string') return
-  emits.emit(EMitt.OnLoading, true)
-  const head = document.getElementsByTagName('head')[0]
-  const themeCluster = getThemeCluster(val.replace('#', ''))
-  const getHandler = (variable: string, id: string) => {
-    return () => {
-      const originalCluster = getThemeCluster('#409eff'.replace('#', ''))
-      const newStyle = updateStyle((window as any)[variable], originalCluster, themeCluster)
-      let styleTag = document.getElementById(id)
-      if (!styleTag) {
-        styleTag = document.createElement('style')
-        styleTag.setAttribute('id', id)
-        head.appendChild(styleTag)
-      }
-      styleTag.innerText = newStyle
-      emits.emit(EMitt.OnLoading, false)
-    }
-  }
-  const chalkHandler = getHandler('__chalk', 'chalk-style')
-  if (!(window as any)['__chalk']) {
-    getCSSString(chalkHandler, '__chalk')
-  } else {
-    chalkHandler()
-  }
+  // element-plus 组件的主色族
+  setPrimaryFamily('--el-color-primary', value)
+  // 项目自有变量（base.less 定义、业务样式引用）
+  setPrimaryFamily(key, value)
+  // 项目自有的半透明底色变量，保持原有 #RRGGBBAA 拼接格式
+  elm.style.setProperty(`${key}-light`, `${value}14`)
 }

@@ -2,8 +2,10 @@
   <div class="msg" v-show="!permissions">
     <!--    居中-->
     <el-result>
-      <template v-slot:icon>
-        <i class="el-icon-warning" style="font-size: 64px; color: #f5222d"></i>
+      <template #icon>
+        <el-icon :size="64" color="#f5222d">
+          <WarningFilled />
+        </el-icon>
       </template>
       <template v-slot:title>
         <span style="font-size: 48px; font-weight: 800"> 抱歉，权限不足,无法访问该系统</span>
@@ -14,6 +16,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { WarningFilled } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { Base64 } from 'js-base64'
 import { useAppStore } from '@/store'

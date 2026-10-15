@@ -9,7 +9,7 @@
         <div class="rr-header-right-items rr-header-action" :style="`display:${sidebarLayout === ESidebarLayoutEnum.Top ? 'none' : ''}`">
           <collapse-sidebar-btn></collapse-sidebar-btn>
           <div @click="onRefresh" style="cursor: pointer">
-            <i class="el-icon-refresh-right"></i>
+            <el-icon class="rr-header-refresh-icon"><RefreshRight /></el-icon>
           </div>
         </div>
         <div class="rr-header-right-left-br ele-scrollbar-hide hidden-xs-only">
@@ -26,6 +26,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
+import { RefreshRight } from '@element-plus/icons-vue'
 import { useAppStore } from '@/store'
 import logo from '@/assets/images/logo.png'
 import { EMitt, ESidebarLayoutEnum, EThemeSetting } from '@/constants/enum'

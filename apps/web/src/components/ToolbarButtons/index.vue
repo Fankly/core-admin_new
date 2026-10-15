@@ -2,14 +2,16 @@
   <div class="tool-button">
     <ReText
       v-if="showToolButton('setting')"
-      class="tool-button__icon el-icon-s-operation"
+      class="tool-button__icon"
       tooltip-content="列设置"
       role="button"
       aria-label="列设置"
       @click="emit('setting-click')"
       @keydown.enter="emit('setting-click')"
       @keydown.space.prevent="emit('setting-click')"
-    />
+    >
+      <el-icon><Operation /></el-icon>
+    </ReText>
     <ReText
       v-if="showToolButton('search')"
       class="tool-button__icon"
@@ -20,7 +22,10 @@
       @keydown.enter="toggleSearch"
       @keydown.space.prevent="toggleSearch"
     >
-      <i :class="searchVisible ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
+      <el-icon>
+        <ArrowUp v-if="searchVisible" />
+        <ArrowDown v-else />
+      </el-icon>
     </ReText>
     <ReText
       v-if="showToolButton('help')"
@@ -32,12 +37,13 @@
       @keydown.enter="emit('help-click')"
       @keydown.space.prevent="emit('help-click')"
     >
-      <i class="el-icon-question"></i>
+      <el-icon><QuestionFilled /></el-icon>
     </ReText>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ArrowDown, ArrowUp, Operation, QuestionFilled } from '@element-plus/icons-vue'
 import ReText from '@/components/ReText/src/index.vue'
 
 defineOptions({ name: 'ToolbarButtons' })

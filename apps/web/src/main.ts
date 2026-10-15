@@ -65,13 +65,6 @@ VXETable.setConfig({
     transfer: true
   }
 })
-VXETable.setIcon({
-  TABLE_TREE_LOADED: 'el-icon-loading',
-  TABLE_TREE_OPEN: 'el-icon-arrow-down',
-  TABLE_TREE_CLOSE: 'el-icon-arrow-right',
-  SELECT_OPEN: 'el-icon-arrow-up',
-  SELECT_CLOSE: 'el-icon-arrow-down'
-})
 VXETable.use(VXETablePluginExportXLSX, {
   ExcelJS
 })

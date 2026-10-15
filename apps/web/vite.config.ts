@@ -5,7 +5,6 @@ import { createRequire } from 'module'
 import { dirname, resolve } from 'path'
 import { defineConfig } from 'vite'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons-ng'
-import tsconfigPaths from 'vite-tsconfig-paths'
 
 // "type": "module" 下没有 __dirname，用 import.meta.dirname（Node >= 20.11）
 const root = import.meta.dirname
@@ -28,7 +27,6 @@ export default defineConfig({
     vue(),
     vueJsx(),
     tailwindcss(),
-    tsconfigPaths(),
     // 原 vite-plugin-svg-icons 已停止维护，换成 -ng 分支，虚拟模块名变成 virtual:svg-icons/register
     createSvgIconsPlugin({
       iconDirs: [resolve(root, 'src/assets/icons/svg')],
@@ -60,6 +58,9 @@ export default defineConfig({
     }
   },
   resolve: {
+    // vite 8 内置 tsconfig paths 解析，替代原 vite-tsconfig-paths 插件。
+    // 下方 alias 优先级更高：@file-viewer/* 的类型桩必须被覆盖到 node_modules 真包。
+    tsconfigPaths: true,
     alias: {
       // 配置别名
       '@': resolve(root, './src'),
