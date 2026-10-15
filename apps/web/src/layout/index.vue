@@ -44,20 +44,25 @@
     </el-container>
   </el-container>
 </template>
-<script lang="ts">
+<script setup lang="ts">
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import { useRouter, type RouteRecordRaw } from 'vue-router'
+import { useMediaQuery } from '@vueuse/core'
+import { useAppStore } from '@/store'
+import BaseHeader from './header/base-header.vue'
+import BaseSidebar from './sidebar/base-sidebar.vue'
+import BaseView from './view/base-view.vue'
 import { CacheSidebarWidth } from '@/constants/cacheKey'
 import { EMitt, ESidebarLayoutEnum, EThemeSetting } from '@/constants/enum'
 import { getCache, setCache } from '@/utils/cache'
 import emits from '@/utils/emits'
 import { getThemeConfigCache, getThemeConfigCacheByKey, getThemeConfigToClass } from '@/utils/theme'
 import { getValueByKeys } from '@/utils/utils'
-import { useMediaQuery } from '@vueuse/core'
-import { computed, defineComponent, onBeforeUnmount, reactive, ref, watch } from 'vue'
-import { RouteRecordRaw, useRouter } from 'vue-router'
-import { useAppStore } from '@/store'
-import BaseHeader from './header/base-header.vue'
-import BaseSidebar from './sidebar/base-sidebar.vue'
-import BaseView from './view/base-view.vue'
+
+/**
+ * 多标签页布局
+ */
+defineOptions({ name: 'Layout' })
 
 const SIDEBAR_DEFAULT_WIDTH = 230
 const SIDEBAR_MIN_WIDTH = 180
@@ -76,165 +81,142 @@ const readSidebarWidth = (userId: string): number => {
   return clampSidebarWidth(getCache(getSidebarWidthCacheKey(userId), {}, SIDEBAR_DEFAULT_WIDTH))
 }
 
-/**
- * 多标签页布局
- */
-export default defineComponent({
-  name: 'Layout',
-  components: { BaseView, BaseHeader, BaseSidebar },
-  setup() {
-    const isMobile = useMediaQuery('(max-width: 768px)')
-    const store = useAppStore()
-    const themeCache = getThemeConfigCache()
-    const sidebarLayoutCache = getThemeConfigCacheByKey(EThemeSetting.NavLayout, themeCache)
-    const router = useRouter()
-    const state = reactive({
-      isShowNav: sidebarLayoutCache !== ESidebarLayoutEnum.Top,
-      sidebarLayout: sidebarLayoutCache,
-      themeClass: getThemeConfigToClass(themeCache),
-      loading: false,
-      collapseSidebar: getThemeConfigCacheByKey(EThemeSetting.SidebarCollapse) as boolean,
-      isSidebarResizing: false,
-      sidebarWidth: readSidebarWidth(String(store.user.id || '')),
-      mixLayoutRoutes: router.options.routes.find((x) => x.path === '/')?.children ?? ([] as RouteRecordRaw[])
-    })
-    const sidebarResizer = ref<HTMLElement>()
-    const activePointerId = ref<number | null>(null)
-    let dragStartX = 0
-    let dragStartWidth = state.sidebarWidth
-    let pendingSidebarWidth = state.sidebarWidth
-    let resizeFrame = 0
+const isMobile = useMediaQuery('(max-width: 768px)')
+const store = useAppStore()
+const themeCache = getThemeConfigCache()
+const sidebarLayoutCache = getThemeConfigCacheByKey(EThemeSetting.NavLayout, themeCache)
+const router = useRouter()
+const state = reactive({
+  isShowNav: sidebarLayoutCache !== ESidebarLayoutEnum.Top,
+  sidebarLayout: sidebarLayoutCache,
+  themeClass: getThemeConfigToClass(themeCache),
+  loading: false,
+  collapseSidebar: getThemeConfigCacheByKey(EThemeSetting.SidebarCollapse) as boolean,
+  isSidebarResizing: false,
+  sidebarWidth: readSidebarWidth(String(store.user.id || '')),
+  mixLayoutRoutes: router.options.routes.find((x) => x.path === '/')?.children ?? ([] as RouteRecordRaw[])
+})
+const sidebarResizer = ref<HTMLElement>()
+const activePointerId = ref<number | null>(null)
+let dragStartX = 0
+let dragStartWidth = state.sidebarWidth
+let pendingSidebarWidth = state.sidebarWidth
+let resizeFrame = 0
 
-    const containerClassNames = computed(() =>
-      Object.values(state.themeClass)
-        .concat(isMobile.value ? ['ui-mobile'] : [])
-        .concat(state.isSidebarResizing ? ['is-sidebar-resizing'] : [])
-        .join(' ')
-    )
-    const layoutStyle = computed(() => ({ '--rr-sidebar-width': `${state.sidebarWidth}px` }))
+const containerClassNames = computed(() =>
+  Object.values(state.themeClass)
+    .concat(isMobile.value ? ['ui-mobile'] : [])
+    .concat(state.isSidebarResizing ? ['is-sidebar-resizing'] : [])
+    .join(' ')
+)
+const layoutStyle = computed(() => ({ '--rr-sidebar-width': `${state.sidebarWidth}px` }))
 
-    const persistSidebarWidth = () => {
-      const userId = String(store.user.id || '')
-      if (userId) setCache(getSidebarWidthCacheKey(userId), String(state.sidebarWidth))
-    }
+const persistSidebarWidth = () => {
+  const userId = String(store.user.id || '')
+  if (userId) setCache(getSidebarWidthCacheKey(userId), String(state.sidebarWidth))
+}
 
-    const applyPendingSidebarWidth = () => {
-      resizeFrame = 0
-      state.sidebarWidth = clampSidebarWidth(pendingSidebarWidth)
-    }
+const applyPendingSidebarWidth = () => {
+  resizeFrame = 0
+  state.sidebarWidth = clampSidebarWidth(pendingSidebarWidth)
+}
 
-    const cancelResizeFrame = () => {
-      if (!resizeFrame) return
-      cancelAnimationFrame(resizeFrame)
-      resizeFrame = 0
-    }
+const cancelResizeFrame = () => {
+  if (!resizeFrame) return
+  cancelAnimationFrame(resizeFrame)
+  resizeFrame = 0
+}
 
-    const finishSidebarResize = (persist = true) => {
-      if (activePointerId.value === null && !state.isSidebarResizing) return
-      cancelResizeFrame()
-      state.sidebarWidth = clampSidebarWidth(pendingSidebarWidth)
-      const pointerId = activePointerId.value
-      if (pointerId !== null && sidebarResizer.value?.hasPointerCapture(pointerId)) {
-        sidebarResizer.value.releasePointerCapture(pointerId)
-      }
-      activePointerId.value = null
-      state.isSidebarResizing = false
-      document.body.classList.remove('rr-sidebar-resizing')
-      if (persist) persistSidebarWidth()
-    }
-
-    const onSidebarResizeStart = (event: PointerEvent) => {
-      if (event.button !== 0 || state.collapseSidebar) return
-      event.preventDefault()
-      activePointerId.value = event.pointerId
-      dragStartX = event.clientX
-      dragStartWidth = state.sidebarWidth
-      pendingSidebarWidth = state.sidebarWidth
-      state.isSidebarResizing = true
-      sidebarResizer.value?.setPointerCapture(event.pointerId)
-      document.body.classList.add('rr-sidebar-resizing')
-    }
-
-    const onSidebarResizeMove = (event: PointerEvent) => {
-      if (activePointerId.value !== event.pointerId) return
-      pendingSidebarWidth = clampSidebarWidth(dragStartWidth + event.clientX - dragStartX)
-      if (!resizeFrame) resizeFrame = requestAnimationFrame(applyPendingSidebarWidth)
-    }
-
-    const onSidebarResizeEnd = (event: PointerEvent) => {
-      if (activePointerId.value !== event.pointerId) return
-      finishSidebarResize()
-    }
-
-    const resetSidebarWidth = (event?: Event) => {
-      event?.preventDefault()
-      pendingSidebarWidth = SIDEBAR_DEFAULT_WIDTH
-      state.sidebarWidth = SIDEBAR_DEFAULT_WIDTH
-      persistSidebarWidth()
-    }
-
-    const onSidebarResizeKeydown = (event: KeyboardEvent) => {
-      const keyboardWidths: Record<string, number> = {
-        ArrowLeft: state.sidebarWidth - 10,
-        ArrowRight: state.sidebarWidth + 10,
-        Home: SIDEBAR_MIN_WIDTH,
-        End: SIDEBAR_MAX_WIDTH
-      }
-      if (!(event.key in keyboardWidths)) return
-      event.preventDefault()
-      state.sidebarWidth = clampSidebarWidth(keyboardWidths[event.key])
-      pendingSidebarWidth = state.sidebarWidth
-      persistSidebarWidth()
-    }
-
-    emits.on(EMitt.OnSelectHeaderNavMenusByMixNav, (path) => {
-      state.mixLayoutRoutes = router.options.routes.find((x) => x.path === path)?.children ?? []
-    })
-    emits.on(EMitt.OnSetTheme, ([type, value]) => {
-      state.themeClass[type] = 'ui-' + value
-    })
-    emits.on(EMitt.OnSetNavLayout, (vl) => {
-      if (vl === ESidebarLayoutEnum.Top) finishSidebarResize(false)
-      state.sidebarLayout = vl
-      state.isShowNav = vl !== ESidebarLayoutEnum.Top
-      if (vl === ESidebarLayoutEnum.Mix) {
-        const currRoute = getValueByKeys(router.currentRoute.value.matched[0], 'path', '')
-        state.mixLayoutRoutes = router.options.routes.find((x) => x.path === currRoute)?.children ?? []
-      }
-    })
-    emits.on(EMitt.OnLoading, (vl) => {
-      state.loading = vl
-    })
-    emits.on(EMitt.OnSwitchLeftSidebar, () => {
-      state.collapseSidebar = !state.collapseSidebar
-      if (state.collapseSidebar) finishSidebarResize(false)
-    })
-    watch(
-      () => String(store.user.id || ''),
-      (userId) => {
-        finishSidebarResize(false)
-        state.sidebarWidth = readSidebarWidth(userId)
-        pendingSidebarWidth = state.sidebarWidth
-      }
-    )
-    onBeforeUnmount(() => {
-      finishSidebarResize(false)
-      cancelResizeFrame()
-    })
-    return {
-      state,
-      sidebarResizer,
-      layoutStyle,
-      ESidebarLayoutEnum,
-      SIDEBAR_MIN_WIDTH,
-      SIDEBAR_MAX_WIDTH,
-      containerClassNames,
-      onSidebarResizeStart,
-      onSidebarResizeMove,
-      onSidebarResizeEnd,
-      onSidebarResizeKeydown,
-      resetSidebarWidth
-    }
+const finishSidebarResize = (persist = true) => {
+  if (activePointerId.value === null && !state.isSidebarResizing) return
+  cancelResizeFrame()
+  state.sidebarWidth = clampSidebarWidth(pendingSidebarWidth)
+  const pointerId = activePointerId.value
+  if (pointerId !== null && sidebarResizer.value?.hasPointerCapture(pointerId)) {
+    sidebarResizer.value.releasePointerCapture(pointerId)
   }
+  activePointerId.value = null
+  state.isSidebarResizing = false
+  document.body.classList.remove('rr-sidebar-resizing')
+  if (persist) persistSidebarWidth()
+}
+
+const onSidebarResizeStart = (event: PointerEvent) => {
+  if (event.button !== 0 || state.collapseSidebar) return
+  event.preventDefault()
+  activePointerId.value = event.pointerId
+  dragStartX = event.clientX
+  dragStartWidth = state.sidebarWidth
+  pendingSidebarWidth = state.sidebarWidth
+  state.isSidebarResizing = true
+  sidebarResizer.value?.setPointerCapture(event.pointerId)
+  document.body.classList.add('rr-sidebar-resizing')
+}
+
+const onSidebarResizeMove = (event: PointerEvent) => {
+  if (activePointerId.value !== event.pointerId) return
+  pendingSidebarWidth = clampSidebarWidth(dragStartWidth + event.clientX - dragStartX)
+  if (!resizeFrame) resizeFrame = requestAnimationFrame(applyPendingSidebarWidth)
+}
+
+const onSidebarResizeEnd = (event: PointerEvent) => {
+  if (activePointerId.value !== event.pointerId) return
+  finishSidebarResize()
+}
+
+const resetSidebarWidth = (event?: Event) => {
+  event?.preventDefault()
+  pendingSidebarWidth = SIDEBAR_DEFAULT_WIDTH
+  state.sidebarWidth = SIDEBAR_DEFAULT_WIDTH
+  persistSidebarWidth()
+}
+
+const onSidebarResizeKeydown = (event: KeyboardEvent) => {
+  const keyboardWidths: Record<string, number> = {
+    ArrowLeft: state.sidebarWidth - 10,
+    ArrowRight: state.sidebarWidth + 10,
+    Home: SIDEBAR_MIN_WIDTH,
+    End: SIDEBAR_MAX_WIDTH
+  }
+  if (!(event.key in keyboardWidths)) return
+  event.preventDefault()
+  state.sidebarWidth = clampSidebarWidth(keyboardWidths[event.key])
+  pendingSidebarWidth = state.sidebarWidth
+  persistSidebarWidth()
+}
+
+emits.on(EMitt.OnSelectHeaderNavMenusByMixNav, (path) => {
+  state.mixLayoutRoutes = router.options.routes.find((x) => x.path === path)?.children ?? []
+})
+emits.on(EMitt.OnSetTheme, ([type, value]) => {
+  state.themeClass[type] = 'ui-' + value
+})
+emits.on(EMitt.OnSetNavLayout, (vl) => {
+  if (vl === ESidebarLayoutEnum.Top) finishSidebarResize(false)
+  state.sidebarLayout = vl
+  state.isShowNav = vl !== ESidebarLayoutEnum.Top
+  if (vl === ESidebarLayoutEnum.Mix) {
+    const currRoute = getValueByKeys(router.currentRoute.value.matched[0], 'path', '')
+    state.mixLayoutRoutes = router.options.routes.find((x) => x.path === currRoute)?.children ?? []
+  }
+})
+emits.on(EMitt.OnLoading, (vl) => {
+  state.loading = vl
+})
+emits.on(EMitt.OnSwitchLeftSidebar, () => {
+  state.collapseSidebar = !state.collapseSidebar
+  if (state.collapseSidebar) finishSidebarResize(false)
+})
+watch(
+  () => String(store.user.id || ''),
+  (userId) => {
+    finishSidebarResize(false)
+    state.sidebarWidth = readSidebarWidth(userId)
+    pendingSidebarWidth = state.sidebarWidth
+  }
+)
+onBeforeUnmount(() => {
+  finishSidebarResize(false)
+  cancelResizeFrame()
 })
 </script>

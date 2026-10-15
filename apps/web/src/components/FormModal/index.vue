@@ -251,7 +251,7 @@ const props = withDefaults(defineProps<Props>(), {
   height: '600px'
 })
 
-const emit = defineEmits(['save', 'close'])
+const emit = defineEmits<{ (e: 'save', value: Record<string, any>): void; (e: 'close'): void }>()
 
 const modalRef = ref()
 const formRef = ref()

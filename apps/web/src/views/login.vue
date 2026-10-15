@@ -1,50 +1,3 @@
-<script lang="ts">
-import { CacheToken, Permissions } from '@/constants/cacheKey'
-import baseService from '@/service/baseService'
-import { setCache } from '@/utils/cache'
-import { getUuid } from '@/utils/utils'
-import { Base64 } from 'js-base64'
-import { defineComponent, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAppStore } from '@/store'
-
-export default defineComponent({
-  setup() {
-    const store = useAppStore()
-    const router = useRouter()
-    const permissions = ref(true)
-
-    // 自动登录
-    // 万能验证码: HE_YUE_11_22_33
-    const autoLogin = async () => {
-      let params = {
-        a: Base64.encode('admin'),
-        b: Base64.encode('admin'),
-        captcha: Base64.encode('HE_YUE_11_22_33'),
-        u: Base64.encode(getUuid())
-      }
-      let res = await baseService.post('/login', params)
-      const permission = await baseService.get('/sysMenu/hasPermission')
-      permissions.value = permission.data
-      store.setHasPermission(permissions.value)
-      if (permissions.value) {
-        // token放到缓存里面
-        sessionStorage.setItem('permissions', permission.data)
-        setCache(CacheToken, res.data, true)
-        setCache(Permissions, permission.data, true)
-        router.push('/home')
-      }
-    }
-
-    onMounted(() => {
-      autoLogin()
-    })
-
-    return { permissions }
-  }
-})
-</script>
-
 <template>
   <div class="msg" v-show="!permissions">
     <!--    居中-->
@@ -58,6 +11,47 @@ export default defineComponent({
     </el-result>
   </div>
 </template>
+
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { Base64 } from 'js-base64'
+import { useAppStore } from '@/store'
+import baseService from '@/service/baseService'
+import { CacheToken, Permissions } from '@/constants/cacheKey'
+import { setCache } from '@/utils/cache'
+import { getUuid } from '@/utils/utils'
+
+const store = useAppStore()
+const router = useRouter()
+const permissions = ref(true)
+
+// 自动登录
+// 万能验证码: HE_YUE_11_22_33
+const autoLogin = async () => {
+  const params = {
+    a: Base64.encode('admin'),
+    b: Base64.encode('admin'),
+    captcha: Base64.encode('HE_YUE_11_22_33'),
+    u: Base64.encode(getUuid())
+  }
+  const res = await baseService.post('/login', params)
+  const permission = await baseService.get('/sysMenu/hasPermission')
+  permissions.value = permission.data
+  store.setHasPermission(permissions.value)
+  if (permissions.value) {
+    // token放到缓存里面
+    sessionStorage.setItem('permissions', permission.data)
+    setCache(CacheToken, res.data, true)
+    setCache(Permissions, permission.data, true)
+    router.push('/home')
+  }
+}
+
+onMounted(() => {
+  autoLogin()
+})
+</script>
 
 <style scoped lang="less">
 .msg {

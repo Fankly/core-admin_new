@@ -40,7 +40,7 @@ defineOptions({ name: 'UserRoleSelector' })
 const store = useAppStore()
 const route = useRoute()
 const router = useRouter()
-const emit = defineEmits(['loadCompany'])
+const emit = defineEmits<{ (e: 'loadCompany'): void }>()
 
 const dialogVisible = ref(false)
 const canRender = ref(false)

@@ -5,16 +5,6 @@
         <slot name="operator" />
       </div>
       <div class="extend-box" v-if="hasExtend">
-        <!-- <i
-          class="online-icon icon-custom-retfresh"
-          style="font-size: 20px; color: #333333; cursor: pointer; margin-right: 4px"
-          @click="refresh"
-        /> -->
-        <!-- <i
-          class="online-icon icon-table-row-height"
-          style="font-size: 20px; color: #333333; cursor: pointer"
-          @click="onRowHeightToogle"
-        /> -->
         <vxe-toolbar ref="toolbarRef" custom :refresh="{ queryMethod: refresh }"></vxe-toolbar>
       </div>
     </el-row>

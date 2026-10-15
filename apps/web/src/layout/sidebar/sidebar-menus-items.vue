@@ -48,27 +48,23 @@
     </el-menu-item>
   </template>
 </template>
-<script lang="ts">
+<script setup lang="ts">
+import classNames from 'classnames'
+import type { RouteRecordRaw } from 'vue-router'
 import ReText from '@/components/ReText/src/index.vue'
 import SvgIcon from '@/components/base/svg-icon'
-import classNames from 'classnames'
-import { defineComponent, PropType } from 'vue'
-import { RouteRecordRaw } from 'vue-router'
 
-export default defineComponent({
-  name: 'SidebarMenusItems',
-  components: { ReText, SvgIcon },
-  props: {
-    menus: Array as PropType<RouteRecordRaw[]>,
-    hiddenIndex: Number,
-    className: String
-  },
-  setup(props) {
-    const getStyle = (index: number): string => {
-      const isHidden = typeof props.hiddenIndex === 'number' && props.hiddenIndex > -1 && index > props.hiddenIndex
-      return isHidden ? 'display:none' : ''
-    }
-    return { props, classNames, getStyle }
-  }
-})
+defineOptions({ name: 'SidebarMenusItems' })
+
+interface Props {
+  menus?: RouteRecordRaw[]
+  hiddenIndex?: number
+  className?: string
+}
+const props = defineProps<Props>()
+
+const getStyle = (index: number): string => {
+  const isHidden = typeof props.hiddenIndex === 'number' && props.hiddenIndex > -1 && index > props.hiddenIndex
+  return isHidden ? 'display:none' : ''
+}
 </script>
