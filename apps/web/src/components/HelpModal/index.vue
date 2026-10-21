@@ -103,7 +103,7 @@ import {
   QuestionFilled,
   VideoCamera
 } from '@element-plus/icons-vue'
-import { useAppStore } from '@/store'
+import { useMenuStore } from '@/store'
 import { downloadFj, getConfigByMenuId, listFj } from '@/api/metrics'
 import { getMenuMessage } from '@/api/process'
 import { handleError } from '@/utils/error'
@@ -130,7 +130,7 @@ const showModal = ref(false)
 const activeTab = ref(props.showHelpInfo ? 'help' : 'attachments')
 const loading = ref(false)
 const helpText = ref('')
-const store = useAppStore()
+const menu = useMenuStore()
 
 const attachments = ref<AttachmentItem[]>([])
 // 判断是否隐藏
@@ -229,7 +229,7 @@ const getFileIcon = (filename: string): Component => {
 const showModalHandle = async (): Promise<void> => {
   try {
     loading.value = true
-    const url = (props.menuUrl || '').trim() || store.getMenuMsg.url || ''
+    const url = (props.menuUrl || '').trim() || menu.menuMsg.url || ''
     activeTab.value = props.showHelpInfo ? 'help' : 'attachments'
     const result = await getMenuMessage(url)
 

@@ -2,20 +2,18 @@
   <el-container
     :class="`rr ${containerClassNames}`"
     :style="layoutStyle"
-    v-loading="state.loading"
+    v-loading="shell.isLoading"
     element-loading-background="#0000"
     element-loading-lock="true"
     element-loading-custom-class="rr-loading"
   >
-    <!-- 头部 -->
     <el-header class="rr-header" height="50px">
-      <base-header></base-header>
+      <base-header />
     </el-header>
     <el-container class="rr-body">
-      <!-- 菜单 -->
       <el-aside v-if="state.isShowNav" class="rr-sidebar hidden-xs-only" width="auto">
-        <base-sidebar v-if="state.sidebarLayout === ESidebarLayoutEnum.Left" :router="true" mode="vertical" :is-mobile="false"></base-sidebar>
-        <base-sidebar v-else :menus="state.mixLayoutRoutes" :router="true" mode="vertical" :is-mobile="false"></base-sidebar>
+        <base-sidebar v-if="state.sidebarLayout === ESidebarLayoutEnum.Left" :router="true" mode="vertical" :is-mobile="false" />
+        <base-sidebar v-else :menus="state.mixLayoutRoutes" :router="true" mode="vertical" :is-mobile="false" />
       </el-aside>
       <div
         v-if="state.isShowNav && !state.collapseSidebar"
@@ -35,33 +33,34 @@
         @pointercancel="onSidebarResizeEnd"
         @dblclick="resetSidebarWidth"
         @keydown="onSidebarResizeKeydown"
-      ></div>
+      />
       <el-container class="rr-view-container">
         <el-main class="rr-view">
-          <base-view></base-view>
+          <base-view />
         </el-main>
       </el-container>
     </el-container>
+
+    <!-- 移动端导航抽屉：原实现只发事件、没有接收方，这里补齐。 -->
+    <el-drawer v-model="mobileSidebarOpen" direction="ltr" size="260px" :with-header="false" class="rr-mobile-sidebar">
+      <base-sidebar mode="vertical" :router="true" :is-mobile="true" />
+    </el-drawer>
   </el-container>
 </template>
+
 <script setup lang="ts">
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import { useRouter, type RouteRecordRaw } from 'vue-router'
 import { useMediaQuery } from '@vueuse/core'
-import { useAppStore } from '@/store'
+import { usePreferencesStore, useSessionStore, useShellStore } from '@/store'
+import { CacheSidebarWidth } from '@/constants/cacheKey'
+import { ESidebarLayoutEnum } from '@/constants/enum'
+import { getCache, setCache } from '@/utils/cache'
 import BaseHeader from './header/base-header.vue'
 import BaseSidebar from './sidebar/base-sidebar.vue'
 import BaseView from './view/base-view.vue'
-import { CacheSidebarWidth } from '@/constants/cacheKey'
-import { EMitt, ESidebarLayoutEnum, EThemeSetting } from '@/constants/enum'
-import { getCache, setCache } from '@/utils/cache'
-import emits from '@/utils/emits'
-import { getThemeConfigCache, getThemeConfigCacheByKey, getThemeConfigToClass } from '@/utils/theme'
-import { getValueByKeys } from '@/utils/utils'
 
-/**
- * 多标签页布局
- */
+/** 多标签页布局 */
 defineOptions({ name: 'Layout' })
 
 const SIDEBAR_DEFAULT_WIDTH = 230
@@ -82,37 +81,47 @@ const readSidebarWidth = (userId: string): number => {
 }
 
 const isMobile = useMediaQuery('(max-width: 768px)')
-const store = useAppStore()
-const themeCache = getThemeConfigCache()
-const sidebarLayoutCache = getThemeConfigCacheByKey(EThemeSetting.NavLayout, themeCache)
+const shell = useShellStore()
+const session = useSessionStore()
+const preferences = usePreferencesStore()
 const router = useRouter()
+
 const state = reactive({
-  isShowNav: sidebarLayoutCache !== ESidebarLayoutEnum.Top,
-  sidebarLayout: sidebarLayoutCache,
-  themeClass: getThemeConfigToClass(themeCache),
-  loading: false,
-  collapseSidebar: getThemeConfigCacheByKey(EThemeSetting.SidebarCollapse) as boolean,
+  isShowNav: preferences.navLayout !== ESidebarLayoutEnum.Top,
+  sidebarLayout: preferences.navLayout,
+  collapseSidebar: preferences.sidebarCollapse,
   isSidebarResizing: false,
-  sidebarWidth: readSidebarWidth(String(store.user.id || '')),
-  mixLayoutRoutes: router.options.routes.find((x) => x.path === '/')?.children ?? ([] as RouteRecordRaw[])
+  sidebarWidth: readSidebarWidth(String(session.userId ?? '')),
+  mixLayoutRoutes: (router.options.routes.find((route) => route.path === '/')?.children ?? []) as RouteRecordRaw[]
 })
+
 const sidebarResizer = ref<HTMLElement>()
 const activePointerId = ref<number | null>(null)
+const mobileSidebarOpen = computed({
+  get: () => shell.mobileSidebarOpen,
+  set: (value: boolean) => shell.toggleMobileSidebar(value)
+})
 let dragStartX = 0
 let dragStartWidth = state.sidebarWidth
 let pendingSidebarWidth = state.sidebarWidth
 let resizeFrame = 0
 
 const containerClassNames = computed(() =>
-  Object.values(state.themeClass)
-    .concat(isMobile.value ? ['ui-mobile'] : [])
-    .concat(state.isSidebarResizing ? ['is-sidebar-resizing'] : [])
-    .join(' ')
+  [
+    ...Object.values(preferences.themeClasses),
+    ...(isMobile.value ? ['ui-mobile'] : []),
+    ...(state.isSidebarResizing ? ['is-sidebar-resizing'] : [])
+  ].join(' ')
 )
 const layoutStyle = computed(() => ({ '--rr-sidebar-width': `${state.sidebarWidth}px` }))
 
+const updateMixLayoutRoutes = (path?: string) => {
+  const target = path ?? String(router.currentRoute.value.matched[0]?.path ?? '')
+  state.mixLayoutRoutes = router.options.routes.find((route) => route.path === target)?.children ?? []
+}
+
 const persistSidebarWidth = () => {
-  const userId = String(store.user.id || '')
+  const userId = String(session.userId ?? '')
   if (userId) setCache(getSidebarWidthCacheKey(userId), String(state.sidebarWidth))
 }
 
@@ -185,36 +194,40 @@ const onSidebarResizeKeydown = (event: KeyboardEvent) => {
   persistSidebarWidth()
 }
 
-emits.on(EMitt.OnSelectHeaderNavMenusByMixNav, (path) => {
-  state.mixLayoutRoutes = router.options.routes.find((x) => x.path === path)?.children ?? []
-})
-emits.on(EMitt.OnSetTheme, ([type, value]) => {
-  state.themeClass[type] = 'ui-' + value
-})
-emits.on(EMitt.OnSetNavLayout, (vl) => {
-  if (vl === ESidebarLayoutEnum.Top) finishSidebarResize(false)
-  state.sidebarLayout = vl
-  state.isShowNav = vl !== ESidebarLayoutEnum.Top
-  if (vl === ESidebarLayoutEnum.Mix) {
-    const currRoute = getValueByKeys(router.currentRoute.value.matched[0], 'path', '')
-    state.mixLayoutRoutes = router.options.routes.find((x) => x.path === currRoute)?.children ?? []
-  }
-})
-emits.on(EMitt.OnLoading, (vl) => {
-  state.loading = vl
-})
-emits.on(EMitt.OnSwitchLeftSidebar, () => {
-  state.collapseSidebar = !state.collapseSidebar
-  if (state.collapseSidebar) finishSidebarResize(false)
-})
 watch(
-  () => String(store.user.id || ''),
+  () => preferences.navLayout,
+  (layout) => {
+    if (layout === ESidebarLayoutEnum.Top) finishSidebarResize(false)
+    state.sidebarLayout = layout
+    state.isShowNav = layout !== ESidebarLayoutEnum.Top
+    if (layout === ESidebarLayoutEnum.Mix) updateMixLayoutRoutes()
+  }
+)
+
+watch(
+  () => preferences.sidebarCollapse,
+  (collapsed) => {
+    state.collapseSidebar = collapsed
+    if (collapsed) finishSidebarResize(false)
+  }
+)
+
+watch(
+  () => shell.activeTopMenu,
+  (path) => {
+    if (preferences.navLayout === ESidebarLayoutEnum.Mix) updateMixLayoutRoutes(path)
+  }
+)
+
+watch(
+  () => String(session.userId ?? ''),
   (userId) => {
     finishSidebarResize(false)
     state.sidebarWidth = readSidebarWidth(userId)
     pendingSidebarWidth = state.sidebarWidth
   }
 )
+
 onBeforeUnmount(() => {
   finishSidebarResize(false)
   cancelResizeFrame()

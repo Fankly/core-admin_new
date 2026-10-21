@@ -1,66 +1,59 @@
 <template>
-  <component :is="comp" />
+  <component :is="comp" v-if="comp" />
+  <div v-else class="home-skeleton" v-loading="true" element-loading-text="正在加载工作台…"></div>
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from '@/store'
-import { defineAsyncComponent, onMounted, onUnmounted, ref, shallowRef } from 'vue'
-import { getSysRouteMap } from '@/router'
-import { toSysViewComponentPath } from '@/router'
+import { defineAsyncComponent, onMounted, shallowRef, watch } from 'vue'
+import type { Component } from 'vue'
+import { useShellStore } from '@/store'
 import { getMenuMessage } from '@/api/process'
-import emits from '@/utils/emits'
+import { resolveViewComponent } from '@/router/view-registry'
 
-const store = useAppStore()
+defineOptions({ name: 'HomePage' })
 
-const path = ref<string>('/baseHome')
-// 组件对象必须放 shallowRef:deep ref 会把组件包成 reactive 代理,
-// 触发 Vue "received a Component that was made a reactive object" 警告
-const comp = shallowRef<any>(null)
-// 映射表:存的是 import.meta.glob 的 loader,同样不能深层代理
-const componentMap = shallowRef<Map<string, any>>(new Map())
+const shell = useShellStore()
 
-const initComponentMap = () => {
+/** 组件对象与 loader 都不能被深层代理。 */
+const comp = shallowRef<Component | null>(null)
+const cache = new Map<string, Component>()
+
+const resolveComponent = (path: string): Component | undefined => {
+  const cached = cache.get(path)
+  if (cached) return cached
+  const loader = resolveViewComponent(path)
+  if (!loader) return undefined
+  const asyncComponent = defineAsyncComponent(loader as () => Promise<Component>)
+  cache.set(path, asyncComponent)
+  return asyncComponent
+}
+
+const setFallback = () => {
+  comp.value = resolveComponent('/baseHome') ?? null
+}
+
+const loadHomePage = async () => {
+  if (!shell.mainPageRole) {
+    setFallback()
+    return
+  }
   try {
-    const sysRouteMap = getSysRouteMap()
-    const route = store.routeToMeta
-    for (const key in route) {
-      const component = sysRouteMap[toSysViewComponentPath(key)]
-      if (component) {
-        componentMap.value.set(key, component)
-      }
-    }
-  } finally {
-    setPath()
+    const res = await getMenuMessage('/home')
+    if (!res.success || !res.data?.url) throw new Error(res.msg || '未设置主页')
+    comp.value = resolveComponent(String(res.data.url)) ?? resolveComponent('/baseHome') ?? null
+  } catch {
+    setFallback()
   }
 }
 
-const setPath = async () => {
-  const res = await getMenuMessage('/home')
-  try {
-    if (!res.success) throw new Error(res.msg)
-    if (!res.data) throw new Error('未设置主页')
-    path.value = res.data.url
-    if (componentMap.value.has(path.value)) comp.value = defineAsyncComponent(componentMap.value.get(path.value))
-    else comp.value = defineAsyncComponent(componentMap.value.get('/baseHome'))
-  } catch (error) {
-    comp.value = defineAsyncComponent(componentMap.value.get('/baseHome'))
-  }
-}
-
-const setComponent = (isMainPageRole: boolean) => {
-  if (!isMainPageRole) comp.value = defineAsyncComponent(componentMap.value.get('/baseHome'))
-  else setPath()
-}
-
-// 防止没有用户选择的权限
-emits.on('isMainPageRole', setComponent)
-onUnmounted(() => {
-  emits.off('isMainPageRole', setComponent)
-})
-
-onMounted(() => {
-  initComponentMap()
-})
+onMounted(loadHomePage)
+watch(() => shell.mainPageRole, loadHomePage)
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+.home-skeleton {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+}
+</style>

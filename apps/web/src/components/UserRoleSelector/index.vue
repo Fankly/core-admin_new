@@ -24,20 +24,22 @@
 </template>
 
 <script setup lang="ts">
-import { useAppStore } from '@/store'
+import { useMenuStore, useSessionStore, useShellStore, useTabsStore } from '@/store'
 import { useRoute, useRouter } from 'vue-router'
 import { inject, onActivated, onDeactivated, onUnmounted, provide, reactive, ref } from 'vue'
 import type { UserInfo } from '@/components/UserRoleSelector/interface'
 import { CurrentUserRoleInjectionKey, PermissionInjectionKey } from '@/components/UserRoleSelector/interface'
 import { getButtonList, getRoleByBusicode } from '@/api/permission'
 import { ElMessage } from 'element-plus'
-import emits from '@/utils/emits'
 import { getMenuMessage } from '@/api/process'
 import { handleError } from '@/utils/error'
 
 defineOptions({ name: 'UserRoleSelector' })
 
-const store = useAppStore()
+const menu = useMenuStore()
+const session = useSessionStore()
+const shell = useShellStore()
+const tabs = useTabsStore()
 const route = useRoute()
 const router = useRouter()
 const emit = defineEmits<{ (e: 'loadCompany'): void }>()
@@ -69,7 +71,7 @@ onUnmounted(() => {
 const resetPermissions = () => {
   permissions.value = []
   canRender.value = false
-  if (isActive) store.setPermissions([])
+  if (isActive) session.setPermissions([])
 }
 
 const handleNoPermission = () => {
@@ -79,10 +81,10 @@ const handleNoPermission = () => {
     message: '无权限访问页面',
     customClass: 'tipsBox'
   })
-  if (store.getMenuMsg.url === '/home') {
-    emits.emit('isMainPageRole', false)
+  if (menu.menuMsg.url === '/home') {
+    shell.setMainPageRole(false)
   }
-  store.tabs.pop()
+  tabs.closeTab(tabs.activePath)
   router.replace('/home')
 }
 
@@ -93,8 +95,8 @@ const handleNoMenuId = () => {
     type: 'error',
     message: '当前菜单未绑定ID'
   })
-  const tabIndex = store.tabs.findIndex((tab) => tab.path === route.path || tab.name === route.name)
-  if (tabIndex !== -1) store.tabs.splice(tabIndex, 1)
+  const target = tabs.tabs.find((tab) => tab.path === route.path)
+  if (target) tabs.closeTab(target.path)
   router.back()
 }
 
@@ -110,19 +112,19 @@ const setCurrentUserRole = (roleData: UserInfo) => {
 }
 
 const resolveCurrentMenuId = async () => {
-  const menuUrl = String(route.meta.url || route.path || store.getMenuMsg.url || '')
+  const menuUrl = String(route.meta.url || route.path || menu.menuMsg.url || '')
   if (!menuUrl) return ''
 
   // 菜单信息在路由守卫里已经从 routeToMeta 提交进 menuMsg，命中缓存就不必再问一次后端
-  const routeMenu = store.routeToMeta?.[route.path] || route.meta
-  const currentMenu = store.getMenuMsg
+  const routeMenu = menu.routeToMeta[route.path] || route.meta
+  const currentMenu = menu.menuMsg
   const cachedMenuId = routeMenu?.outsideMenu || (currentMenu?.url === menuUrl ? currentMenu.outsideMenu : '')
   if (cachedMenuId) return String(cachedMenuId)
 
   // 缓存里没有（如直接进外链页、菜单树尚未合并）才回退到接口
   const result = await getMenuMessage(menuUrl)
   if (result.success && result.data?.outsideMenu) {
-    if (isActive && !isDisposed) store.setMenuMsg({ ...result.data, url: menuUrl })
+    if (isActive && !isDisposed) menu.setMenuMessage({ ...result.data, url: menuUrl })
     return String(result.data.outsideMenu)
   }
 
@@ -135,7 +137,7 @@ const getUser = async () => {
   loading.value = true
   resetPermissions()
   try {
-    const userId = store.getUserMsg.id
+    const userId = session.user.id
     currentMenuId.value = await resolveCurrentMenuId()
     if (isDisposed) return
     if (!currentMenuId.value) {
@@ -187,8 +189,8 @@ const confirmRole = async () => {
     if (isDisposed) return
     if (res.success && Array.isArray(res.data)) {
       permissions.value = res.data
-      // v-permission 指令读 store.permissions，必须同步提交，否则页面读到上一个菜单残留的权限
-      if (isActive) store.setPermissions(permissions.value)
+      // v-permission 指令读 session.permissions，必须同步提交，否则页面读到上一个菜单残留的权限
+      if (isActive) session.setPermissions(permissions.value)
       canRender.value = true
       emit('loadCompany')
       dialogVisible.value = false
@@ -206,18 +208,18 @@ const confirmRole = async () => {
   }
 }
 
-// keep-alive 缓存页返回时组件不会重新 mounted，但 store.permissions 可能已被别的页面覆盖，
+// keep-alive 缓存页返回时组件不会重新 mounted，但 session.permissions 可能已被别的页面覆盖，
 // 这里把本页已取到的权限重新提交回去，无需再发请求
 // 判断依据只能是 canRender（权限已取到），不能用 permissions.length —— 零权限角色也是合法结果
 onActivated(() => {
   isActive = true
   if (canRender.value) {
-    store.setPermissions([...permissions.value])
+    session.setPermissions([...permissions.value])
   }
 })
 
 const cancel = () => {
-  store.tabs.pop()
+  tabs.closeTab(tabs.activePath)
   router.back()
 }
 

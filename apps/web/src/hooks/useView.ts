@@ -1,13 +1,11 @@
 import app from '@/constants/app'
-import { EMitt, EThemeSetting } from '@/constants/enum'
 import { IObject, IViewHooks, IViewHooksOptions } from '@/types/interface'
 import { registerDynamicToRouterAndNext } from '@/router'
 import baseService from '@/service/baseService'
 import { getToken } from '@/utils/cache'
-import emits from '@/utils/emits'
-import { getThemeConfigCacheByKey } from '@/utils/theme'
 import qs from 'qs'
 import { nextTick, onActivated, onMounted } from 'vue'
+import { usePreferencesStore, useTabsStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -18,6 +16,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
  */
 const useView = (props: IViewHooksOptions | IObject): IViewHooks => {
   const router = useRouter()
+  const tabs = useTabsStore()
+  const preferences = usePreferencesStore()
   const defaultOptions: IViewHooksOptions = {
     createdIsNeed: true,
     activatedIsNeed: false,
@@ -192,15 +192,16 @@ const useView = (props: IViewHooksOptions | IObject): IViewHooks => {
     },
     //关闭当前窗口
     closeCurrentTab() {
-      if (getThemeConfigCacheByKey(EThemeSetting.OpenTabsPage)) {
-        emits.emit(EMitt.OnCloseCurrTab)
+      if (preferences.openTabsPage) {
+        const next = tabs.closeCurrent()
+        if (next) void router.push(next)
       } else {
-        router.replace('/home')
+        void router.replace('/home')
       }
     },
     // 处理流程路由
     handleFlowRoute(data: IObject) {
-      const self = this as any
+      const current = router.currentRoute.value
       const routeParams = {
         path: `/flow-form/${data.processDefinitionKey}/form`,
         query: {
@@ -208,14 +209,14 @@ const useView = (props: IViewHooksOptions | IObject): IViewHooks => {
           processInstanceId: data.processInstanceId,
           businessKey: data.businessKey,
           showType: 'taskHandle',
-          _mt: `${self.$route.meta.title} - ${data.processDefinitionName}`
+          _mt: `${current.meta.title} - ${data.processDefinitionName}`
         }
       }
       registerDynamicToRouterAndNext(routeParams)
     },
     // 查看流程详情
     flowDetailRoute(data: IObject) {
-      const self = this as any
+      const current = router.currentRoute.value
       const routeParams = {
         path: `/flow-form/${data.processDefinitionKey}/form`,
         query: {
@@ -223,7 +224,7 @@ const useView = (props: IViewHooksOptions | IObject): IViewHooks => {
           processInstanceId: data.processInstanceId,
           businessKey: data.businessKey,
           showType: 'detail',
-          _mt: `${self.$route.meta.title} - ${data.processDefinitionName}`
+          _mt: `${current.meta.title} - ${data.processDefinitionName}`
         }
       }
       registerDynamicToRouterAndNext(routeParams)

@@ -3,33 +3,30 @@
     ref="elm"
     :default-active="props.currRoute ?? state.currRoute"
     :mode="props.mode"
-    :collapse="props.isMobile ? false : props.mode === 'vertical' && state.collapseSidebar"
+    :collapse="props.isMobile ? false : props.mode === 'vertical' && preferences.sidebarCollapse"
     :router="props.router"
-    :onSelect="props.onSelect"
+    :on-select="props.onSelect"
     :collapse-transition="false"
+    :unique-opened="uniqueOpened"
     class="rr-sidebar-menu"
   >
-    <!-- :unique-opened="state.uniqueOpened" 菜单自动收起 -->
-    <sidebar-menus-items :className="state.popClassName" :menus="state.menus" :hiddenIndex="state.hiddenIndex"></sidebar-menus-items>
+    <sidebar-menus-items :class-name="popClassName" :menus="state.menus" :hidden-index="state.hiddenIndex" />
   </el-menu>
 </template>
+
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter, type RouteRecordRaw } from 'vue-router'
 import { useWindowSize } from '@vueuse/core'
-import { useAppStore } from '@/store'
 import { themeSetting } from '@/constants/config'
-import { EMitt, EThemeSetting } from '@/constants/enum'
+import { EThemeSetting } from '@/constants/enum'
 import type { IObject } from '@/types/interface'
 import baseView from '@/layout/view/base-view.vue'
-import emits from '@/utils/emits'
+import { useMenuStore, usePreferencesStore } from '@/store'
 import { toValidRoutes } from '@/utils/router'
-import { getThemeConfigCacheByKey } from '@/utils/theme'
 import SidebarMenusItems from './sidebar-menus-items.vue'
 
-/**
- * 侧边栏导航菜单
- */
+/** 侧边栏导航菜单 */
 defineOptions({ name: 'BaseSidebar' })
 
 interface Props {
@@ -37,7 +34,7 @@ interface Props {
   menus?: RouteRecordRaw[]
   currRoute?: string
   router?: boolean
-  onSelect?: (...args: any[]) => void
+  onSelect?: (...args: never[]) => void
   isMobile?: boolean
 }
 const props = withDefaults(defineProps<Props>(), { mode: 'vertical' })
@@ -45,112 +42,104 @@ const props = withDefaults(defineProps<Props>(), { mode: 'vertical' })
 const vueRouter = useRouter()
 const route = useRoute()
 const win = useWindowSize()
-const store = useAppStore()
+const menu = useMenuStore()
+const preferences = usePreferencesStore()
 
-const defaultMenus = toValidRoutes(props.menus ?? store.routes)
-const getPopClassName = () => {
-  const sidebarCache = getThemeConfigCacheByKey(EThemeSetting.Sidebar)
-  return `rr-sidebar-menu-pop-${props.mode === 'vertical' && sidebarCache === 'dark' ? 'dark' : 'light'}`
-}
+const resolveMenus = (source?: RouteRecordRaw[]) => toValidRoutes(source ?? menu.routes)
+
 const state = reactive({
-  collapseSidebar: getThemeConfigCacheByKey(EThemeSetting.SidebarCollapse),
-  uniqueOpened: themeSetting.sidebarUniOpened,
-  windowWidth: win.width || 800,
+  windowWidth: win.width.value || 800,
   hiddenIndex: -1,
-  rawMenus: defaultMenus,
-  menus: defaultMenus,
-  popClassName: getPopClassName(),
+  rawMenus: resolveMenus(props.menus) as RouteRecordRaw[],
+  menus: resolveMenus(props.menus) as RouteRecordRaw[],
   currRoute: props.currRoute ?? route.path
 })
-const elm = ref({} as IObject)
-const li = ref({
-  widths: [] as number[]
+
+const uniqueOpened = computed(() => Boolean(preferences.config[EThemeSetting.SidebarUniOpened] ?? themeSetting.sidebarUniOpened))
+const popClassName = computed(() => {
+  const sidebarCache = preferences.config[EThemeSetting.Sidebar]
+  return `rr-sidebar-menu-pop-${props.mode === 'vertical' && sidebarCache === 'dark' ? 'dark' : 'light'}`
 })
-const initComputeSidebarLayout = (width: number) => {
-  if (props.mode === 'horizontal') {
-    //存储水平布局元素信息
-    const el = elm.value.$el
-    const lis = el.querySelectorAll('li')
-    li.value.widths = []
-    lis.forEach((x: Element) => {
-      li.value.widths.push(x.getBoundingClientRect().width)
-    })
-    computeSidebarLayout(width)
+
+const elm = ref<IObject | null>(null)
+const widths = ref<number[]>([])
+
+const computeSidebarLayout = (windowWidth: number) => {
+  if (props.mode !== 'horizontal' || windowWidth <= 768 || !elm.value?.$el) return
+  const root = elm.value.$el as HTMLElement
+  const width = (root.parentNode as HTMLElement | null)?.getBoundingClientRect().width ?? 0
+  let liWidth = 0
+  let index = -1
+  for (let i = 0; i < widths.value.length; i++) {
+    liWidth += widths.value[i]
+    if (liWidth > width) {
+      index = i - 1
+      break
+    }
   }
+
+  state.hiddenIndex = index
+  state.menus =
+    index > -1
+      ? state.rawMenus.slice(0, index).concat({
+          path: '/__more',
+          component: baseView,
+          meta: { title: '更多菜单', icon: false, isMore: true },
+          children: state.rawMenus.slice(index)
+        } as RouteRecordRaw)
+      : state.rawMenus
+}
+
+const initComputeSidebarLayout = (windowWidth: number) => {
+  if (props.mode !== 'horizontal' || !elm.value?.$el) return
+  const lis = (elm.value.$el as HTMLElement).querySelectorAll('li')
+  widths.value = Array.from(lis, (item) => item.getBoundingClientRect().width)
+  computeSidebarLayout(windowWidth)
 }
 
 onMounted(() => {
   initComputeSidebarLayout(state.windowWidth)
 })
 
-const computeSidebarLayout = (windowWidth: number) => {
-  if (props.mode === 'horizontal' && windowWidth > 768 && elm.value.$el) {
-    //菜单水平方向菜单过长，采用折叠效果
-    const width = elm.value.$el.parentNode.getBoundingClientRect().width
-    let liWidth = 0
-    let index = -1
-    for (let i = 0; i < li.value.widths.length; i++) {
-      liWidth += li.value.widths[i]
-      if (liWidth > width) {
-        index = i - 1
-        break
-      }
-    }
-
-    state.hiddenIndex = index
-    state.menus =
-      index > -1
-        ? state.rawMenus.slice(0, index).concat({
-            path: '/__more',
-            component: baseView,
-            meta: { title: '更多菜单', icon: false, isMore: true },
-            children: state.rawMenus.slice(index)
-          })
-        : state.rawMenus
-  }
-}
-
 watch(
   () => props.menus,
-  (vl) => {
-    const ms = toValidRoutes((vl ? vl : vueRouter.options.routes) as RouteRecordRaw[])
-    state.menus = ms
-    state.rawMenus = ms
+  (value) => {
+    const next = resolveMenus(value ?? [...vueRouter.options.routes])
+    state.menus = next
+    state.rawMenus = next
   }
 )
+
 watch(
-  () => store.routes,
-  (vl) => {
-    const ms = toValidRoutes(vl)
-    state.rawMenus = ms
-    state.menus = ms
+  () => menu.routes,
+  (value) => {
+    const next = toValidRoutes(value)
+    state.rawMenus = next
+    state.menus = next
   }
 )
-emits.on(EMitt.OnSwitchLeftSidebar, () => {
-  state.collapseSidebar = !state.collapseSidebar
-})
-emits.on(EMitt.OnSetThemeNotUniqueOpened, (vl) => {
-  state.uniqueOpened = vl
-})
-emits.on(EMitt.OnSetTheme, ([vl]) => {
-  if (vl === EThemeSetting.Sidebar) {
-    state.popClassName = getPopClassName()
-  }
-})
+
 watch(
   () => route.path,
-  (vl) => {
+  (path) => {
     if (!route.query.pop) {
-      setTimeout(() => {
-        state.currRoute = vl
+      window.setTimeout(() => {
+        state.currRoute = path
       }, 10)
     }
   }
 )
+
+watch(
+  () => win.width.value,
+  (width) => {
+    state.windowWidth = width || 800
+    computeSidebarLayout(state.windowWidth)
+  }
+)
+
 watch(
   () => state.windowWidth,
-  (vl) => {
-    computeSidebarLayout(vl)
-  }
+  (width) => computeSidebarLayout(width)
 )
 </script>

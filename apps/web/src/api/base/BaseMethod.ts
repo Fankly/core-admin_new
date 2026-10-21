@@ -1,7 +1,7 @@
 import baseService from '@/service/baseService'
 import { IHttpResponse, IObject } from '@/types/interface'
-import { Method } from 'axios'
-import { useAppStore } from '@/store'
+import type { Method } from 'axios'
+import { useShellStore } from '@/store'
 
 export type RequestParams = Record<string, any>
 export type RequestData = Record<string, any>
@@ -10,7 +10,7 @@ export type ServiceKey = 'budget' | 'otherOperatingCose' | 'fullProcess' | 'proj
 export class BaseMethod {
   // 惰性取 store：本文件在模块顶层被实例化，而 pinia 要到 main.ts 里 app.use(pinia) 之后才可用
   private get store() {
-    return useAppStore()
+    return useShellStore()
   }
   protected service?: ServiceKey
 

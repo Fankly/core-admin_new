@@ -1,41 +1,21 @@
 <template>
   <div class="rr-view-tab-wrap">
-    <el-tabs class="rr-view-tab" v-model="activeTabName" @tab-click="onTabClick" @tab-remove="onTabRemove">
-      <el-tab-pane :name="'/home'" :closable="false">
+    <el-tabs class="rr-view-tab" v-model="activePath" @tab-click="onTabClick" @tab-remove="onTabRemove">
+      <el-tab-pane v-for="tab in tabs.tabs" :key="tab.path" :name="tab.path" :closable="!tab.affix">
         <template #label>
-          {{ '主页' }}
+          <span class="rr-view-tab-label">{{ tab.title }}</span>
         </template>
       </el-tab-pane>
-      <el-tab-pane :name="'/workflow/todoTasks'" :closable="false">
-        <template #label>
-          {{ '待办事宜' }}
-        </template>
-      </el-tab-pane>
-
-      <template v-for="x in tabs.slice(1)" :key="x.value">
-        <el-tab-pane
-          :label="x.label"
-          :name="x.value"
-          :closable="true"
-          v-if="activeTabName == x.value && x.label != '登录' && x.label != '待办事宜'"
-        ></el-tab-pane>
-        <el-tab-pane
-          :label="x.label"
-          :name="x.value"
-          :closable="false"
-          v-if="activeTabName != x.value && x.label != '登录' && x.label != '待办事宜'"
-        ></el-tab-pane>
-      </template>
     </el-tabs>
-    <el-dropdown trigger="click" placement="bottom-end" class="rr-view-tab-ops" @command="onClose">
+    <el-dropdown trigger="click" placement="bottom-end" class="rr-view-tab-ops" @command="onCommand">
       <template #dropdown>
         <el-dropdown-menu>
-          <el-dropdown-item v-for="x in ops" :key="x.value" :icon="x.icon" :command="x.value">
-            {{ x.label }}
+          <el-dropdown-item v-for="item in operations" :key="item.command" :icon="item.icon" :command="item.command">
+            {{ item.label }}
           </el-dropdown-item>
         </el-dropdown-menu>
       </template>
-      <span class="el-dropdown-link">
+      <span class="el-dropdown-link" role="button" aria-label="标签页操作" tabindex="0">
         <el-icon class="el-icon--right"><ArrowDown /></el-icon>
       </span>
     </el-dropdown>
@@ -43,141 +23,72 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { ArrowDown, CircleClose, Close } from '@element-plus/icons-vue'
-import { findIndex } from 'lodash'
-import { ElMessage } from 'element-plus'
-import type { TabsPaneContext, TabPaneName } from 'element-plus'
-import { useRouter, type RouteLocationMatched } from 'vue-router'
-import { useAppStore } from '@/store'
-import { EMitt } from '@/constants/enum'
-import type { IObject } from '@/types/interface'
-import emits from '@/utils/emits'
-import { arrayToObject } from '@/utils/utils'
+import { computed } from 'vue'
+import { ArrowDown, Back, Close, CircleClose, Right } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+import type { TabPaneName, TabsPaneContext } from 'element-plus'
+import { useTabsStore } from '@/store'
 
 defineOptions({ name: 'Tabs' })
 
-interface Props {
-  tabs?: IObject[]
-  activeTabName?: string
-}
-const props = defineProps<Props>()
-
-const ops = [
-  { label: '关闭当前标签页', value: 5, icon: Close },
-  { label: '关闭其他标签页', value: 1, icon: Close },
-  { label: '关闭全部标签页', value: 4, icon: CircleClose }
-]
 const router = useRouter()
-const store = useAppStore()
+const tabs = useTabsStore()
 
-const firstRoute = (router.options.routes[0] || {}) as RouteLocationMatched
-const home: RouteLocationMatched =
-  firstRoute.children && firstRoute.children.length > 0 ? (firstRoute.children[0] as RouteLocationMatched) : firstRoute
-const defaultTab = { label: '', value: home.path }
-
-// tabs/activeTabName 只在初始化时读取 props，之后由内部事件驱动（保持原行为）
-const activeTabName = ref<string>(props.activeTabName || defaultTab.value)
-const tabs = ref<IObject[]>(props.tabs && props.tabs.length ? props.tabs : [defaultTab])
-
-watch(
-  () => tabs.value,
-  (res) => {
-    store.updateState({ tabs: res })
-  },
-  { deep: true }
-)
-
-const onTabClick = (tab: TabsPaneContext) => {
-  tab.props.name && router.push(tab.props.name as string)
-}
-const onTabRemove = (targetName: TabPaneName) => {
-  const index = findIndex(tabs.value, (x: any) => x.value === targetName)
-  if (tabs.value.length > 1) {
-    updateClosedTabs([...store.closedTabs, targetName], false)
-    if (activeTabName.value === targetName) {
-      const toIndex = index === 0 ? index + 1 : index - 1
-      activeTabName.value = tabs.value[toIndex].value
-      router.push(activeTabName.value)
-    }
-    tabs.value.splice(index, 1)
-    store.remove(targetName as string)
-  } else {
-    ElMessage({ type: 'error', message: '只剩下一个标签页，不支持关闭', offset: 0 })
-  }
-}
-const updateClosedTabs = (closedTabs: any[], isTransform = true) => {
-  if (isTransform) {
-    closedTabs = closedTabs.map((x) => x.value)
-  }
-  store.updateState({ closedTabs })
-}
-const onClose = (value: number) => {
-  let index: number
-  const rawTabs = tabs.value
-  switch (value) {
-    case 1:
-      //其他
-      tabs.value = tabs.value.filter((x: any) => [home.path, activeTabName.value].includes(x.value))
-      store.setTabs(tabs.value)
-      store.clear()
-      store.add(activeTabName.value)
-      updateClosedTabs(rawTabs.filter((x: any) => ![home.path, activeTabName.value].includes(x.value)))
-      break
-    case 2:
-      //右侧
-      index = findIndex(tabs.value, (x: any) => x.value === activeTabName.value)
-      tabs.value.splice(index + 1, tabs.value.length - (index + 1))
-      store.setTabs(tabs.value)
-      updateClosedTabs(rawTabs.slice(index + 1))
-      break
-    case 3:
-      //左侧
-      index = findIndex(tabs.value, (x: any) => x.value === activeTabName.value)
-      tabs.value.splice(1, index - 1)
-      store.setTabs(tabs.value)
-      updateClosedTabs(rawTabs.slice(1, index - 1))
-      break
-    case 4:
-      //全部
-      tabs.value = [defaultTab]
-      activeTabName.value = defaultTab.value
-      store.clear()
-      store.setTabs([defaultTab])
-      updateClosedTabs(rawTabs)
-      router.push(activeTabName.value)
-      break
-    case 5:
-      //当前
-      if (activeTabName.value !== defaultTab.value) {
-        updateClosedTabs([...store.closedTabs, activeTabName.value], false)
-        index = findIndex(tabs.value, (x: any) => x.value === activeTabName.value)
-        tabs.value.splice(index, 1)
-        activeTabName.value = tabs.value[tabs.value.length - 1].value
-        store.setTabs(tabs.value)
-        router.push(activeTabName.value)
-      }
-      break
-    default:
-      break
-  }
-}
-
-emits.on(EMitt.OnPushMenuToTabs, (route) => {
-  const path: string = route.value
-  if (path.includes('/error')) {
-    return
-  }
-  const tabKeys: IObject<number> = arrayToObject(tabs.value, 'value', () => 1)
-  if (!tabKeys[path]) {
-    tabs.value.push(route)
-  }
-  if (activeTabName.value !== path) {
-    activeTabName.value = path
-  }
-  store.add(path)
+const activePath = computed({
+  get: () => tabs.activePath,
+  set: (path: string) => tabs.activate(path)
 })
-emits.on(EMitt.OnCloseCurrTab, () => {
-  onClose(5)
-})
+
+const operations = [
+  { label: '关闭当前标签页', command: 'closeCurrent', icon: Close },
+  { label: '关闭其他标签页', command: 'closeOthers', icon: Close },
+  { label: '关闭左侧标签页', command: 'closeLeft', icon: Back },
+  { label: '关闭右侧标签页', command: 'closeRight', icon: Right },
+  { label: '关闭全部标签页', command: 'closeAll', icon: CircleClose }
+]
+
+const navigate = (path?: string) => {
+  if (path && path !== router.currentRoute.value.fullPath) void router.push(path)
+}
+
+const onTabClick = (pane: TabsPaneContext) => {
+  const path = pane.paneName
+  if (typeof path === 'string') navigate(path)
+}
+
+const onTabRemove = (name: TabPaneName) => {
+  if (typeof name !== 'string') return
+  navigate(tabs.closeTab(name))
+}
+
+const onCommand = (command: string) => {
+  switch (command) {
+    case 'closeCurrent':
+      navigate(tabs.closeCurrent())
+      break
+    case 'closeOthers':
+      tabs.closeOthers()
+      break
+    case 'closeLeft':
+      tabs.closeLeft()
+      break
+    case 'closeRight':
+      tabs.closeRight()
+      break
+    case 'closeAll':
+      navigate(tabs.closeAll())
+      break
+  }
+}
 </script>
+
+<style scoped lang="less">
+.rr-view-tab-label {
+  display: inline-block;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  white-space: nowrap;
+}
+</style>

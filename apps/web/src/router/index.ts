@@ -1,223 +1,24 @@
-import { EMitt } from '@/constants/enum'
-import { useAppStore } from '@/store'
-import { IObject } from '@/types/interface'
-import { getPermissions, getToken } from '@/utils/cache'
-import emits from '@/utils/emits'
-import { getBaseRouteToMeta, registerToRouter } from '@/utils/router'
-import { ElMessage } from 'element-plus'
-import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
-import { createRouter, createWebHashHistory, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
-import baseRoutes, { errorRoute } from './base'
+import { createRouter, createWebHashHistory } from 'vue-router'
+import baseRoutes from './base'
+import { registerDynamicToRouterAndNext as registerDynamicToRouterAndNextOn, type DynamicRouteParams } from './dynamic'
+import { setupRouterGuards } from './guards'
 
-interface dynamicRouteParams {
-  path: string
-  query?: IObject
-  mete?: IObject
-}
-
-NProgress.configure({ showSpinner: false })
-
-const routers = baseRoutes
+/**
+ * 路由入口只做三件事：创建实例、挂守卫、暴露动态注册能力。
+ * 具体规则拆到 guards / dynamic / view-registry，避免 index 成为 200 行的大杂烩。
+ */
 const router = createRouter({
-  history: createWebHashHistory(), //createWebHashHistory() hash模式
-  routes: routers
+  history: createWebHashHistory(),
+  routes: baseRoutes
 })
 
-// 路由加载前
-// vue-router 5 已弃用导航守卫的第三个参数 next(),改为「返回值即导航结果」:
-//   return true / undefined 放行,return false 取消,return '/path' 重定向,
-//   异步分支则返回 Promise<同类型值>。
-router.beforeEach((to) => {
-  // pinia 在 main.ts 里晚于 router 模块求值,所以只能在守卫内部取 store
-  const store = useAppStore()
-  if (to.meta.url || to.path) {
-    const map = new Map(Object.entries(store.routeToMeta))
-    const menuMsg = map.get((to.meta.url || to.path) as string)
-    store.setMenuMsg({
-      ...(menuMsg as object),
-      url: to.meta.url || to.path
-    })
-    //外链
-    if (to.meta.isNewPage) {
-      if (to.query.pop !== 'true') {
-        return false
-      }
-    }
-  }
-  //token
-  const token = getToken()
-  // permission
-  const permission = getPermissions()
+setupRouterGuards(router)
 
-  const isPop = to.query.pop === 'true' //新窗口打开内页
-  // const isPop = "true"; //新窗口打开内页
-  // 获取tabs
-  const index = store.tabs.findIndex((item: any) => item.value === to.path)
-
-  // 设置路由loading状态
-  if (index === -1) store.setRouteLoading(true)
-  NProgress.start()
-  if (to.path !== '/login') {
-    setDomian()
-    if (store.routes.length) {
-      if (to.name === 'error') {
-        return true
-      }
-      if (!to.query.pop) {
-        try {
-          const routeMeta: IObject = store.routeToMeta[to.path]
-          emits.emit(EMitt.OnPushMenuToTabs, {
-            label: to.meta.title || routeMeta.title || to.path,
-            value: to.fullPath,
-            mete: routeMeta
-          })
-        } catch (error) {
-          return '/login'
-        }
-      }
-      if (!(to.path.includes('workflow') && to.path !== '/workflow/todoTasks')) {
-        store.updateState({ appIsRender: true, appIsLogin: true })
-        return true
-      }
-      store.initApp().then(() => {
-        store.updateState({ appIsRender: true, appIsLogin: true })
-      })
-      return true
-    }
-    if (to.path.includes('workflow') && to.path !== '/workflow/todoTasks') {
-      return store.initApp().then(() => true)
-    }
-    if (token && permission) {
-      //初始化数据
-      return store.initApp().then((res: Array<RouteRecordRaw>) => {
-        const mergeRoute = routers.concat(res).concat(errorRoute)
-        router.options.routes = mergeRoute
-        registerToRouter(router, mergeRoute)
-        if (!to.matched.length) {
-          registerDynamicToRouterAndNext({ path: to.path, query: to.query })
-        }
-
-        store.updateState({
-          appIsReady: true,
-          routes: mergeRoute,
-          routeToMeta: { ...store.routeToMeta, ...getBaseRouteToMeta(baseRoutes) }
-        })
-        setTimeout(() => {
-          store.updateState({ appIsRender: true, appIsLogin: true })
-        }, 600)
-        return { ...to, replace: true }
-      })
-    }
-    if (isPop) {
-      if (!to.matched.length) {
-        registerDynamicToRouterAndNext({ path: to.path, query: to.query })
-        store.updateState({ appIsRender: true, appIsReady: true })
-        return to.fullPath
-      }
-      store.updateState({ appIsRender: true, appIsReady: true })
-      return to.meta.requiresAuth ? '/login' : true
-    }
-    if (to.path.includes('workflow') && to.path !== '/workflow/todoTasks') {
-      return store.initApp().then(() => true)
-    }
-    return '/login'
-  }
-  store.updateState({ appIsReady: true, appIsRender: true })
-  return true
-})
-
-// 路由加载后
-router.afterEach(() => {
-  setTimeout(() => {
-    useAppStore().setRouteLoading(false)
-  }, 300)
-  NProgress.done()
-})
-
-const setDomian = () => {
-  const domain = useAppStore().getUserMsg.domainName || 'sgcc.com.cn'
-  try {
-    document.domain = domain
-  } catch (e) {
-    ElMessage({
-      type: 'warning',
-      dangerouslyUseHTMLString: true,
-      message: `修改域名出错,请用使用域名访问,否则有些功能无法正常使用!<br>设置域名:${domain}`
-    })
-  }
+/** 按约定路径注册视图并跳转（穿透页/详情页用）。 */
+export const registerDynamicToRouterAndNext = (route: DynamicRouteParams): void => {
+  registerDynamicToRouterAndNextOn(router, route)
 }
 
-/**
- * 获取系统视图路径映射
- * @returns
- */
-export const getSysRouteMap = (): IObject => {
-  return import.meta.glob('/src/views/**/*.vue')
-}
-
-/**
- * 根据路由path转换为系统视图组件路径
- * @param path
- * @returns
- */
-export const toSysViewComponentPath = (path: string): string => {
-  path = path.replace('_', '-')
-  return `/src/views${path}.vue`
-}
-/**
- *
- * 自动注册路由
- * @param to
- * @returns
- */
-const autoRegisterDynamicToRouterAndNext = (to: RouteLocationNormalized): boolean => {
-  if (to.redirectedFrom) {
-    const path = to.redirectedFrom.path
-    const component = matchedSysRouteComponent(path)
-    if (component) {
-      registerToRouter(router, [
-        {
-          path: path,
-          name: path,
-          component,
-          redirect: ''
-        }
-      ])
-      router.push(to.redirectedFrom)
-      return true
-    }
-  }
-  return false
-}
-
-/**
- * 寻找视图组件
- * @param path
- * @returns
- */
-const matchedSysRouteComponent = (path: string): any => {
-  const sysRouteMap = getSysRouteMap()
-  const component = sysRouteMap[toSysViewComponentPath(path)]
-  if (!component) {
-    console.error('实时注册动态路由失败，未找到组件路径', path)
-  }
-  return component
-}
-
-/**
- * 实时注册动态路由并直接跳转过去
- * @param route
- */
-export const registerDynamicToRouterAndNext = (route: dynamicRouteParams): void => {
-  const component = matchedSysRouteComponent(route.path)
-  const newRoute: RouteRecordRaw = {
-    path: route.path,
-    name: route.path,
-    component,
-    redirect: !component ? { path: '/error', query: { to: 404 }, replace: true } : ''
-  }
-  registerToRouter(router, [newRoute])
-  router.push(route)
-}
+export { getSysRouteMap, toSysViewComponentPath, resolveViewComponent } from './view-registry'
+export { default as baseRoutes, errorRoute } from './base'
 export default router

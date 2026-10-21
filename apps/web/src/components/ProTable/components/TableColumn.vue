@@ -6,7 +6,7 @@
 import { Fragment, h, inject, ref, useSlots } from 'vue'
 import type { VNode } from 'vue'
 import { ElTableColumn, ElTag } from 'element-plus'
-import type { ColumnProps, RenderScope, HeaderRenderScope, EnumMap } from '@/components/ProTable/interface'
+import type { ColumnProps, RenderScope, HeaderRenderScope, EnumMap, TableRow } from '@/components/ProTable/interface'
 import { EnumMapInjectionKey } from '@/components/ProTable/interface'
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from '@/utils'
 
@@ -18,7 +18,7 @@ const slots = useSlots()
 
 const enumMap = inject(EnumMapInjectionKey, ref<EnumMap>(new Map()))
 
-type CellScope = RenderScope<unknown>
+type CellScope = RenderScope<TableRow>
 
 // 渲染表格数据。prop 缺省时按空串兜底，避免对可空字段做非空断言。
 function renderCellData(item: ColumnProps, scope: CellScope) {
@@ -51,7 +51,7 @@ const RenderTableColumn = (item: ColumnProps): VNode => {
         if (item.tag) return h(ElTag, { type: getTagType(item, scope) }, { default: () => renderCellData(item, scope) })
         return renderCellData(item, scope)
       },
-      header: (scope: HeaderRenderScope<unknown>) => {
+      header: (scope: HeaderRenderScope<TableRow>) => {
         if (item.headerRender) return item.headerRender(scope)
         const headerSlot = slots[`${handleProp(item.prop ?? '')}Header`]
         if (headerSlot) return headerSlot(scope)

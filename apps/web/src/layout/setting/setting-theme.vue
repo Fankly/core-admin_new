@@ -1,50 +1,33 @@
 <template>
   <el-space direction="vertical" alignment="flex-start" class="rr-theme">
     <el-space>
-      <el-tooltip v-for="x in sidebar" effect="dark" :content="x.label" placement="top" :key="x.value">
+      <el-tooltip v-for="item in sidebar" :key="item.value" effect="dark" :content="item.label" placement="top">
         <!-- el-tooltip 是多节点组件，class/style 不会透传到触发元素，预览样式必须挂在 span 上 -->
-        <span
-          :class="`card side ${x.value} ${state.active.sidebar === x.value ? 'active' : ''}`"
-          @click="onSetTheme(EThemeSetting.Sidebar, 'sidebar', x.value)"
-        ></span>
+        <span :class="`card side ${item.value} ${active.sidebar === item.value ? 'active' : ''}`" @click="onSetTheme(EThemeSetting.Sidebar, 'sidebar', item.value)" />
       </el-tooltip>
     </el-space>
     <el-space>
-      <el-tooltip v-for="x in header" :key="x.value" effect="dark" :content="x.label" placement="top">
-        <span
-          :class="`card header ${x.value} ${state.active.header === x.value ? 'active' : ''}`"
-          @click="onSetTheme(EThemeSetting.TopHeader, 'header', x.value)"
-        ></span>
+      <el-tooltip v-for="item in header" :key="item.value" effect="dark" :content="item.label" placement="top">
+        <span :class="`card header ${item.value} ${active.header === item.value ? 'active' : ''}`" @click="onSetTheme(EThemeSetting.TopHeader, 'header', item.value)" />
       </el-tooltip>
     </el-space>
     <el-space :size="2" style="flex-wrap: wrap">
-      <el-tooltip v-for="x in colors" :key="x.value" effect="dark" :content="x.label" placement="top">
-        <span
-          :class="`color ${state.active.color === x.value ? 'active' : ''}`"
-          :style="`background-color: ${x.value}`"
-          @click="onSetTheme(EThemeSetting.ThemeColor, 'color', x.value)"
-        ></span>
+      <el-tooltip v-for="item in colors" :key="item.value" effect="dark" :content="item.label" placement="top">
+        <span :class="`color ${active.color === item.value ? 'active' : ''}`" :style="`background-color: ${item.value}`" @click="onSetTheme(EThemeSetting.ThemeColor, 'color', item.value)" />
       </el-tooltip>
     </el-space>
   </el-space>
 </template>
+
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { EMitt, EThemeColor, EThemeSetting } from '@/constants/enum'
-import type { IObject } from '@/types/interface'
-import emits from '@/utils/emits'
-import { getThemeConfigCacheByKey, setThemeColor } from '@/utils/theme'
+import { EThemeSetting } from '@/constants/enum'
+import { usePreferencesStore } from '@/store'
 
-/**
- * 主题设置
- */
+/** 主题设置 */
 defineOptions({ name: 'SettingTheme' })
 
-interface Props {
-  value?: IObject
-  onChange?: (key: EThemeSetting, value: string | boolean | number) => void
-}
-const props = defineProps<Props>()
+const preferences = usePreferencesStore()
 
 const sidebar = [
   { label: '暗色侧边栏', value: 'dark' },
@@ -69,28 +52,19 @@ const colors = [
   { label: '混红色', value: '#F74584' },
   { label: '黄色', value: '#FCB900' },
   { label: '红色', value: '#FF4C52' },
-  {
-    label: '暗黑',
-    value: '#141414'
-  },
+  { label: '暗黑', value: '#141414' },
   { label: '深绿色', value: '#00706b' },
   { label: '深蓝色', value: '#007cba' }
 ]
-const state = reactive({
-  themeClass: {},
-  active: {
-    sidebar: getThemeConfigCacheByKey(EThemeSetting.Sidebar, props.value),
-    header: getThemeConfigCacheByKey(EThemeSetting.TopHeader, props.value),
-    color: getThemeConfigCacheByKey(EThemeSetting.ThemeColor, props.value)
-  } as IObject<string>
+
+const active = reactive({
+  sidebar: String(preferences.config[EThemeSetting.Sidebar]),
+  header: String(preferences.config[EThemeSetting.TopHeader]),
+  color: String(preferences.config[EThemeSetting.ThemeColor])
 })
-const onSetTheme = (key: EThemeSetting, type: string, value: string) => {
-  if (key === EThemeSetting.ThemeColor) {
-    setThemeColor(EThemeColor.ThemeColor, value)
-  }
-  state.active[type] = value
-  state.themeClass[key] = value
-  props.onChange && props.onChange(key, value)
-  emits.emit(EMitt.OnSetTheme, [key, `${key}-${value}`])
+
+const onSetTheme = (key: EThemeSetting, type: keyof typeof active, value: string) => {
+  active[type] = value
+  preferences.set(key, value)
 }
 </script>

@@ -1,70 +1,90 @@
 <template>
-  <!-- element 分页显示中文 -->
   <el-config-provider :locale="locale">
-    <div
-      v-if="!store.appIsRender && !(route.path.includes('workflow') && route.path !== '/workflow/todoTasks')"
-      v-loading="true"
-      :element-loading-fullscreen="true"
-      :element-loading-lock="true"
-      style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 99999; background: #fff"
-    ></div>
-    <template v-if="store.appIsReady && !(route.path.includes('workflow') && route.path !== '/workflow/todoTasks')">
-      <layout v-if="layout === pageTag"></layout>
-      <fullscreen-layout v-else></fullscreen-layout>
-    </template>
-    <fullscreen-layout v-else-if="route.path.includes('workflow') && route.path !== '/workflow/todoTasks'"></fullscreen-layout>
+    <div v-if="showLoading" class="app-bootstrap" v-loading="true" element-loading-background="#fff">
+      <div class="app-bootstrap__brand">
+        <span class="app-bootstrap__mark">项</span>
+        <div>
+          <p class="app-bootstrap__title">项目过程管控平台</p>
+          <p class="app-bootstrap__hint">正在加载工作台…</p>
+        </div>
+      </div>
+    </div>
+    <layout v-if="showPageLayout" />
+    <fullscreen-layout v-else-if="showFullscreenLayout" />
   </el-config-provider>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useAppStore } from '@/store'
-import app from '@/constants/app'
-import { EMitt, EPageLayoutEnum, EThemeColor, EThemeSetting } from '@/constants/enum'
-import type { IObject } from '@/types/interface'
+import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import Layout from '@/layout/index.vue'
 import FullscreenLayout from '@/layout/fullscreen-layout.vue'
-import emits from '@/utils/emits'
-import { getThemeConfigCache, setThemeColor } from '@/utils/theme'
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import { usePreferencesStore, useShellStore } from '@/store'
+import { resolveLayoutMode } from '@/router/layout'
 import '@/assets/css/app.less'
 import '@/assets/theme/index.less'
 import '@/assets/theme/mobile.less'
 
 defineOptions({ name: 'App' })
 
-const store = useAppStore()
 const route = useRoute()
-const router = useRouter()
+const shell = useShellStore()
+const preferences = usePreferencesStore()
+const locale = zhCn
 
-const layout = ref(location.href.includes('pop=true') ? EPageLayoutEnum.fullscreen : EPageLayoutEnum.page)
-const pageTag = EPageLayoutEnum.page
-const locale = zhCn //element 分页显示中文
+const layoutMode = computed(() => resolveLayoutMode(route))
+const isStandalone = computed(() => layoutMode.value === 'standalone')
+/** 首屏遮罩：流程页直出，其余页面等应用完成一次渲染。 */
+const showLoading = computed(() => !isStandalone.value && !shell.isRendered)
+const showPageLayout = computed(() => shell.isReady && !isStandalone.value && layoutMode.value === 'page')
+const showFullscreenLayout = computed(() => isStandalone.value || (shell.isReady && layoutMode.value === 'fullscreen'))
 
 onMounted(() => {
-  //读取主题色缓存
-  const themeCache = getThemeConfigCache()
-  const themeColor = themeCache[EThemeSetting.ThemeColor]
-  setThemeColor(EThemeColor.ThemeColor, themeColor)
+  preferences.applyTheme()
 })
-
-watch(
-  () => [route.path, route.query],
-  ([path, query]) => {
-    layout.value = app.fullscreenPages.includes(path as string) || (query as IObject)['pop'] ? EPageLayoutEnum.fullscreen : EPageLayoutEnum.page
-  }
-)
-watch(
-  () => route.fullPath,
-  (vl) => {
-    if (!route.query.pop) {
-      emits.emit(EMitt.OnPushMenuToTabs, {
-        label: route.query._mt || router.currentRoute.value.meta.title || route.path,
-        value: vl,
-        mete: router.currentRoute.value.meta
-      })
-    }
-  }
-)
 </script>
+
+<style scoped>
+.app-bootstrap {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: grid;
+  place-items: center;
+  background: #fff;
+}
+
+.app-bootstrap__brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.app-bootstrap__mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0f766e, #0ea5a4);
+  box-shadow: 0 10px 24px rgb(15 118 110 / 24%);
+}
+
+.app-bootstrap__title {
+  margin: 0;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.app-bootstrap__hint {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+</style>
