@@ -37,7 +37,12 @@ beforeAll(async () => {
 
 afterAll(async () => {
   server?.closeAllConnections()
-  if (server?.listening) await new Promise<void>((resolve) => server.close(() => resolve()))
+  if (server?.listening)
+    await new Promise<void>((resolve) =>
+      server.close(() => {
+        resolve()
+      })
+    )
 })
 
 const api = async (params: IObject) => {

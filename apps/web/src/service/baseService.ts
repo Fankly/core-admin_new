@@ -185,8 +185,12 @@ export default {
         }
         resolve({ name: fileName, url: fr.result })
       }
-      fr.onerror = () => reject(fr.error || new Error('读取文件失败'))
-      fr.onabort = () => reject(new DOMException('文件读取已取消', 'AbortError'))
+      fr.onerror = () => {
+        reject(fr.error || new Error('读取文件失败'))
+      }
+      fr.onabort = () => {
+        reject(new DOMException('文件读取已取消', 'AbortError'))
+      }
       fr.readAsDataURL(data)
     })
   }

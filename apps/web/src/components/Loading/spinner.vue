@@ -37,7 +37,9 @@ const props = withDefaults(defineProps<Props>(), {
 const showSpinner = ref(false)
 const renderSpinner = ref(false)
 const timer = ref<ReturnType<typeof setTimeout>>()
-onUnmounted(() => clearTimeout(timer.value))
+onUnmounted(() => {
+  clearTimeout(timer.value)
+})
 
 watch(
   () => props.spinning,

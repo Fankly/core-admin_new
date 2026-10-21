@@ -423,7 +423,7 @@ export function decodeParams(encodedString: string) {
 export const treeDataTranslate = translateTreeData
 
 export function textToCopy(text: string) {
-  return copyToClipboard(text)
+  copyToClipboard(text)
 }
 
 export function getObjectFromSessionStorage(key: string) {

@@ -6,7 +6,7 @@ import vueConfig from '@repo/eslint-config/vue'
  */
 export default [
   {
-    ignores: ['dist/**', 'node_modules/**', 'public/**', 'mock/**', 'src/views/service/xmcs/css/univer.css', '**/*.d.ts']
+    ignores: ['dist/**', 'node_modules/**', 'public/**', 'mock/**', '**/*.d.ts']
   },
   ...vueConfig
 ]

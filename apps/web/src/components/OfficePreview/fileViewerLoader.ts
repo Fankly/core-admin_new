@@ -17,8 +17,8 @@ export const loadFileViewerModules = (): Promise<FileViewerModules> => {
     ])
       .then(([core, word, spreadsheet]) => {
         const mountViewer = (core as { mountViewer: FileViewerMountViewer }).mountViewer
-        const wordRenderer = (word as { default: unknown }).default
-        const spreadsheetRenderer = (spreadsheet as { default: unknown }).default
+        const wordRenderer = word.default
+        const spreadsheetRenderer = spreadsheet.default
         if (typeof mountViewer !== 'function' || !wordRenderer || !spreadsheetRenderer) {
           throw new Error('file-viewer 模块加载失败')
         }

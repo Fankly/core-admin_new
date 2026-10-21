@@ -320,11 +320,11 @@ const jsonParse = function (options?: JsonBigintOptions | null) {
         key = string()
         white()
         next(':')
-        if (_options.strict === true && Object.hasOwnProperty.call(object, key)) {
+        if (_options.strict && Object.hasOwnProperty.call(object, key)) {
           error('Duplicate key "' + key + '"')
         }
 
-        if (suspectProtoRx.test(key) === true) {
+        if (suspectProtoRx.test(key)) {
           if (_options.protoAction === 'error') {
             error('Object contains forbidden prototype property')
           } else if (_options.protoAction === 'ignore') {
@@ -332,7 +332,7 @@ const jsonParse = function (options?: JsonBigintOptions | null) {
           } else {
             object[key] = value()
           }
-        } else if (suspectConstructorRx.test(key) === true) {
+        } else if (suspectConstructorRx.test(key)) {
           if (_options.constructorAction === 'error') {
             error('Object contains forbidden constructor property')
           } else if (_options.constructorAction === 'ignore') {

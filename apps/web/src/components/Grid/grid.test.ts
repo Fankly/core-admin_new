@@ -6,7 +6,11 @@ import Grid from './index.vue'
 import GridItem from './components/GridItem.vue'
 
 const wrappers: ReturnType<typeof mount>[] = []
-afterEach(() => wrappers.splice(0).forEach((wrapper) => wrapper.unmount()))
+afterEach(() => {
+  wrappers.splice(0).forEach((wrapper) => {
+    wrapper.unmount()
+  })
+})
 
 describe('Grid', () => {
   it('reserves the suffix column and can hide the item at index zero', async () => {

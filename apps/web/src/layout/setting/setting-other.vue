@@ -1,13 +1,10 @@
 <template>
   <el-space direction="vertical" alignment="flex-start" :size="30" class="rr-other">
     <span class="rr-setting-title text-2">{{ '其他配置' }}</span>
-    <setting-switch
-      v-for="(x, index) in state.items"
-      :key="x.label"
-      :title="x.label"
-      :value="x.value"
-      :onChange="() => onSetSwitch(index, x)"
-    ></setting-switch>
+    <el-space v-for="(x, index) in state.items" :key="x.label" class="rr-switch">
+      <span>{{ x.label }}</span>
+      <el-switch :model-value="x.value" @change="() => onSetSwitch(index, x)"></el-switch>
+    </el-space>
     <el-space class="rr-switch">
       <span>{{ '标签显示风格' }}</span>
       <el-select v-model="state.tabStyle" placeholder="该功能可实时预览各种布局效果" size="small" style="max-width: 80px" @change="onSetTabStyle">
@@ -22,7 +19,6 @@ import { themeSetting } from '@/constants/config'
 import { EMitt, EThemeSetting } from '@/constants/enum'
 import type { IObject } from '@/types/interface'
 import emits from '@/utils/emits'
-import SettingSwitch from '@/components/base/setting-switch.vue'
 
 /**
  * 其他设置

@@ -77,7 +77,7 @@ const colors = [
   { label: '深蓝色', value: '#007cba' }
 ]
 const state = reactive({
-  themeClass: {} as IObject<string>,
+  themeClass: {},
   active: {
     sidebar: getThemeConfigCacheByKey(EThemeSetting.Sidebar, props.value),
     header: getThemeConfigCacheByKey(EThemeSetting.TopHeader, props.value),

@@ -288,7 +288,9 @@ export const exportVxeGrid = async (grid: VxeTableInstance, options: ExportOptio
       if (link.parentNode) {
         document.body.removeChild(link)
       }
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 100)
+      setTimeout(() => {
+        URL.revokeObjectURL(objectUrl)
+      }, 100)
     }
   } catch (error) {
     console.error('Export failed:', error)

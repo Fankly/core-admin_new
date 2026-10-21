@@ -47,7 +47,7 @@ const route = useRoute()
 const win = useWindowSize()
 const store = useAppStore()
 
-const defaultMenus = toValidRoutes((props.menus ?? store.routes) as RouteRecordRaw[])
+const defaultMenus = toValidRoutes(props.menus ?? store.routes)
 const getPopClassName = () => {
   const sidebarCache = getThemeConfigCacheByKey(EThemeSetting.Sidebar)
   return `rr-sidebar-menu-pop-${props.mode === 'vertical' && sidebarCache === 'dark' ? 'dark' : 'light'}`
@@ -121,7 +121,7 @@ watch(
 watch(
   () => store.routes,
   (vl) => {
-    const ms = toValidRoutes(vl as RouteRecordRaw[])
+    const ms = toValidRoutes(vl)
     state.rawMenus = ms
     state.menus = ms
   }

@@ -40,7 +40,7 @@ pnpm typecheck     # 递归跑 vue-tsc --noEmit
 - dev 代理 `/api` → `http://localhost:10027/budget-process`，代理配置位于 `apps/web/vite.config.ts`。
 - 环境文件在 `apps/web/`：`.env.development` / `.env.production` / `.env.production.sit` / `.env.production.uat`。
 - SVG 图标目录 `apps/web/src/assets/icons/svg`，symbolId 规则 `icon-[dir]-[name]`。
-- `@file-viewer/*` 与 `@univerjs/*` 有手工 alias 与 `optimizeDeps.include`，动这两块前先读 `apps/web/vite.config.ts` 的注释。alias 用 `require.resolve(pkg + '/package.json')` 反推包根，不要改回写死 `node_modules/...` 路径——pnpm 下布局不固定。
+- `@file-viewer/*` 有手工 alias 与 `optimizeDeps.include`，动它前先读 `apps/web/vite.config.ts` 的注释。alias 用 `require.resolve(pkg + '/package.json')` 反推包根，不要改回写死 `node_modules/...` 路径——pnpm 下布局不固定。
 - `@file-viewer/docx`、`@file-viewer/doc` 是 `renderer-word` 的间接依赖，`src` 从未 import，但 `optimizeDeps.include` 要预构建，所以在 `apps/web/package.json` 里显式声明为直接依赖。升级 `renderer-word` 时同步这两个版本。
 - pnpm 配置全部写在 `pnpm-workspace.yaml`（camelCase）。**`.npmrc` 在 pnpm 11 下完全不被读取**，`shamefully-hoist` 之类 kebab-case 键写进去毫无作用，改完用 `pnpm config list` 验证。
 

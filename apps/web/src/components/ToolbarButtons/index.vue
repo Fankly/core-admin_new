@@ -57,7 +57,7 @@ const props = withDefaults(
     toolButton?: ToolButtonKey[] | boolean
   }>(),
   {
-    toolButton: () => true as ToolButtonKey[] | boolean
+    toolButton: () => true
   }
 )
 

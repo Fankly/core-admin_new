@@ -54,7 +54,9 @@ const setComponent = (isMainPageRole: boolean) => {
 
 // 防止没有用户选择的权限
 emits.on('isMainPageRole', setComponent)
-onUnmounted(() => emits.off('isMainPageRole', setComponent))
+onUnmounted(() => {
+  emits.off('isMainPageRole', setComponent)
+})
 
 onMounted(() => {
   initComponentMap()

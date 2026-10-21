@@ -223,8 +223,12 @@ const readBlob = (blob: Blob) =>
       if (reader.result instanceof ArrayBuffer) resolve(reader.result)
       else reject(new Error('文件读取失败'))
     }
-    reader.onerror = () => reject(reader.error || new Error('文件读取失败'))
-    reader.onabort = () => reject(new Error('文件读取已取消'))
+    reader.onerror = () => {
+      reject(reader.error || new Error('文件读取失败'))
+    }
+    reader.onabort = () => {
+      reject(new Error('文件读取已取消'))
+    }
     reader.readAsArrayBuffer(blob)
   })
 

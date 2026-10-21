@@ -34,7 +34,7 @@ export class TableCellStyle {
     if (!row || !field) return undefined
     const baseField = this.extractBaseField(field)
     const colorFieldKey = `${baseField}${this.colorFieldSuffix}`
-    const colorValue = row[`${colorFieldKey}`]
+    const colorValue = row[colorFieldKey]
     return this.createStyle(colorValue)
   }
 

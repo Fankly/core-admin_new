@@ -61,7 +61,9 @@ export default (app: any) => {
   // （Pinia 没有 store.watch，直接 watch store 上的字段）
   watch(
     () => store.permissions,
-    () => permissionElements.forEach(applyPermission)
+    () => {
+      permissionElements.forEach(applyPermission)
+    }
   )
 
   app.directive('permission', {

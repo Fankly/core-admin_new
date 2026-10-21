@@ -9,7 +9,10 @@
         ></span>
       </el-tooltip>
     </el-space>
-    <setting-switch title="内容区域铺满" :value="state.active.full" :onChange="onSetContentFull"></setting-switch>
+    <el-space class="rr-switch">
+      <span>{{ '内容区域铺满' }}</span>
+      <el-switch :model-value="state.active.full" @change="onSetContentFull"></el-switch>
+    </el-space>
   </el-space>
 </template>
 <script setup lang="ts">
@@ -18,7 +21,6 @@ import { EMitt, ESidebarLayoutEnum, EThemeSetting } from '@/constants/enum'
 import type { IObject } from '@/types/interface'
 import emits from '@/utils/emits'
 import { getThemeConfigCacheByKey } from '@/utils/theme'
-import SettingSwitch from '@/components/base/setting-switch.vue'
 
 /**
  * 导航模式设置

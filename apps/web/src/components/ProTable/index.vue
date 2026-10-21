@@ -150,7 +150,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
 
 // table 实例
 const tableRef = ref<ElTableInstance>()
-const helpModalRef = ref<InstanceType<typeof HelpModal>>()
+const helpModalRef = ref()
 
 const { startGuide, showGuidemanual, hideGuide, destroyGuide } = useGuide({
   moduleKey: props.guideModuleKey || '',
@@ -242,7 +242,7 @@ const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
   if (enumMap.value.has(prop!) && (typeof enumValue === 'function' || enumMap.value.get(prop!) === enumValue)) return
 
   // 当前 enum 为静态数据，则直接存储到 enumMap
-  if (typeof enumValue !== 'function') return enumMap.value.set(prop!, unref(enumValue!))
+  if (typeof enumValue !== 'function') return enumMap.value.set(prop!, unref(enumValue))
 
   // 为了防止接口执行慢，而存储慢，导致重复请求，所以预先存储为[]，接口返回后再二次存储
   enumMap.value.set(prop!, [])
@@ -298,12 +298,12 @@ searchColumns.value?.forEach((column, index) => {
 
 // 列设置 ==> 需要过滤掉不需要设置的列
 const colRef = ref()
-const colSetting = tableColumns!.filter((item: any) => {
+const colSetting = tableColumns.filter((item: any) => {
   const { type, prop, isShow, isHide } = item
   if (isHide) {
-    return !columnTypes.includes(type!) && prop !== 'operation'
+    return !columnTypes.includes(type) && prop !== 'operation'
   } else {
-    return !columnTypes.includes(type!) && prop !== 'operation' && isShow
+    return !columnTypes.includes(type) && prop !== 'operation' && isShow
   }
 })
 const openColSetting = () => colRef.value.openColSetting()
@@ -336,8 +336,8 @@ const dragSort = () => {
     animation: 300,
     onEnd({ newIndex, oldIndex }) {
       if (newIndex === undefined || oldIndex === undefined || newIndex === oldIndex) return
-      const [removedItem] = processTableData.value.splice(oldIndex!, 1)
-      processTableData.value.splice(newIndex!, 0, removedItem)
+      const [removedItem] = processTableData.value.splice(oldIndex, 1)
+      processTableData.value.splice(newIndex, 0, removedItem)
 
       emit('dargSort', { newIndex, oldIndex })
     }

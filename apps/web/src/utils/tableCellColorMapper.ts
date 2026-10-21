@@ -33,7 +33,7 @@ export class TableCellColorMapper {
     if (!row || !field) return undefined
     const baseField = this.extractBaseField(field)
     const colorFieldKey = `${baseField}${this.colorFieldSuffix}`
-    const colorValue = row[`${colorFieldKey}`] ?? row[`${field}${this.colorFieldSuffix}`]
+    const colorValue = row[colorFieldKey] ?? row[`${field}${this.colorFieldSuffix}`]
     return this.createStyle(colorValue)
   }
 

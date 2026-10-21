@@ -33,11 +33,15 @@ const props = defineProps<PaginationProps>()
 // 状态仍由父组件通过回调维护，这里用计算属性做桥接
 const currentPage = computed({
   get: () => props.pageable.current,
-  set: (value) => props.handleCurrentChange(value)
+  set: (value) => {
+    props.handleCurrentChange(value)
+  }
 })
 const pageSize = computed({
   get: () => props.pageable.size,
-  set: (value) => props.handleSizeChange(value)
+  set: (value) => {
+    props.handleSizeChange(value)
+  }
 })
 </script>
 

@@ -34,7 +34,9 @@ describe('TypeScript form validators', () => {
 
   it.each([checkFloatTwo, CheckMoneyres, checkMoney, checkPercentage, checkHypjf, checkProgress, checkProgressDecimal, isValidPositiveInteger])(
     'accepts numeric form values in %s',
-    (validator) => expect(validate(validator, 25)).toBeUndefined()
+    (validator) => {
+      expect(validate(validator, 25)).toBeUndefined()
+    }
   )
 
   it.each(['', null, undefined])('accepts empty optional percentages without throwing: %s', (value) => {

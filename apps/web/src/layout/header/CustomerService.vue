@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Info, Phone, Mail } from 'lucide-vue-next'
+import { Info, Phone, Mail } from '@lucide/vue'
 import HelpModal from '@/components/HelpModal/index.vue'
 
 interface Props {
@@ -73,7 +73,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const visible = ref(false)
-const helpModalRef = ref<InstanceType<typeof HelpModal>>()
+const helpModalRef = ref()
 const helpMenuUrl = ref('/mainPage')
 
 const openModal = () => {

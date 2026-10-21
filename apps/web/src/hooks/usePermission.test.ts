@@ -45,7 +45,9 @@ beforeAll(async () => {
 })
 
 afterEach(() => {
-  wrappers.splice(0).forEach((wrapper) => wrapper.unmount())
+  wrappers.splice(0).forEach((wrapper) => {
+    wrapper.unmount()
+  })
   waitingMenus.forEach((response) => {
     if (!response.writableEnded) respond(response, { outsideMenu: 'released' })
   })
@@ -54,7 +56,11 @@ afterEach(() => {
 
 afterAll(async () => {
   window.dispatchEvent(new Event('beforeunload'))
-  await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
+  await new Promise<void>((resolve, reject) =>
+    server.close((error) => {
+      error ? reject(error) : resolve()
+    })
+  )
 })
 
 const setupPermission = (context?: PermissionContext) => {

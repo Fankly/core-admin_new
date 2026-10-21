@@ -59,7 +59,12 @@ afterEach(() => {
 afterAll(async () => {
   window.dispatchEvent(new Event('beforeunload'))
   server?.closeAllConnections()
-  if (server?.listening) await new Promise<void>((resolve) => server.close(() => resolve()))
+  if (server?.listening)
+    await new Promise<void>((resolve) =>
+      server.close(() => {
+        resolve()
+      })
+    )
 })
 
 const nextRequest = (): Promise<ReceivedRequest> => {
@@ -75,8 +80,12 @@ const respond = (request: ReceivedRequest, content = '{"success":true,"data":"ok
 const readBlob = (blob: Blob) =>
   new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result))
-    reader.onerror = () => reject(reader.error)
+    reader.onload = () => {
+      resolve(String(reader.result))
+    }
+    reader.onerror = () => {
+      reject(reader.error)
+    }
     reader.readAsText(blob)
   })
 

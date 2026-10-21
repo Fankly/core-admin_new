@@ -33,7 +33,7 @@ export const exportXlsx = (headerList: any, dataList: any[], fileName: any) => {
       const dom = document.createElement('a')
       const url = window.URL.createObjectURL(file)
       dom.href = url
-      dom.download = `${decodeURI(decodeURI(fileName))}`
+      dom.download = decodeURI(decodeURI(fileName))
       document.body.appendChild(dom)
       dom.click()
       document.body.removeChild(dom)
@@ -71,7 +71,7 @@ export const apiExportHandle = async (params: any, fileName: string, api: (param
   if (options.useResponseFileName !== false && res.headers && res.headers['content-disposition']) {
     filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
   }
-  dom.download = `${decodeURI(decodeURI(filename))}`
+  dom.download = decodeURI(decodeURI(filename))
   document.body.appendChild(dom)
   dom.click()
   document.body.removeChild(dom)
@@ -273,11 +273,11 @@ export const apiExporFile = async (params: any, fileName: string, api: (params: 
   const dom = document.createElement('a')
   const url = window.URL.createObjectURL(blob)
   dom.href = url
-  let filename = `${fileName}`
+  let filename = fileName
   if (res.headers && res.headers['content-disposition']) {
     filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
   }
-  dom.download = `${decodeURI(decodeURI(filename))}`
+  dom.download = decodeURI(decodeURI(filename))
   document.body.appendChild(dom)
   dom.click()
   document.body.removeChild(dom)
