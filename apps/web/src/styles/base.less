@@ -1,0 +1,163 @@
+/* Base layer: reset, typography, browser surfaces. */
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--ds-ink);
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-text-base);
+  font-synthesis: none;
+  line-height: var(--ds-leading-body);
+  text-rendering: optimizelegibility;
+  background: var(--ds-paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--ds-ink);
+  font-weight: 600;
+  line-height: var(--ds-leading-title);
+  text-wrap: balance;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: var(--ds-jade-700);
+  text-decoration: none;
+  text-underline-offset: 3px;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--ds-jade-600);
+  }
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  color: var(--ds-jade-900);
+  background: var(--ds-jade-200);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ds-jade-500);
+  outline-offset: 3px;
+}
+
+/* Browser scrollbars belong to the system too. */
+* {
+  scrollbar-color: var(--ds-line-strong) transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ds-line-strong);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+  border-radius: var(--ds-radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b7c6be;
+  background-clip: padding-box;
+  border: 3px solid transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@supports (caret-color: var(--ds-jade-600)) {
+  input,
+  textarea {
+    caret-color: var(--ds-jade-600);
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.num,
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+.text-2 {
+  color: var(--ds-ink-secondary);
+}

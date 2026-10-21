@@ -2,7 +2,9 @@
 
 项目过程管控平台前端。pnpm workspace monorepo，业务应用是 Vue 3 + Vite + Element Plus + Pinia 的管理后台，源码位于 `apps/web/src`。
 
-这是**骨架仓库**：登录、布局、路由、权限、表格封装、接口层范式都已就位，但业务页面只有 `login` / `home` / `baseHome` / `iframe` / `error` 五处，`views` 下没有业务域子目录。
+这是**骨架仓库**：登录、外壳、路由、权限、表格封装、设计系统与接口层范式都已就位。`views/` 现在只做路由适配，实际页面放在 `features/`（auth / workbench / errors / embed）；业务域页面仍待补充。
+
+视觉与设计规则见 `apps/web/DESIGN.md`，产品事实见 `apps/web/PRODUCT.md`。
 同名的 `/Users/fan/developer/core-admin` 是体量大得多的完整仓库（约 1700 文件、`views` 下按业务域分 1300+ 文件）；两者不要混淆，codegraph 索引默认指向那一个，查本仓库要显式传 `projectPath`。
 
 ## 仓库结构
@@ -46,7 +48,7 @@ pnpm test          # Vitest，真实 HTTP / 组件 / store 回归
 ## 构建约定
 
 - 别名：`@` → `apps/web/src`，`@mock` → `apps/web/mock`（仅开发环境按需 import）。
-- 当前仅对 Less 自动注入 `@/assets/style/variables.less`，不要重复 import。遗留 SCSS 文件未自动注入；新增 SCSS 使用前需明确配置预处理器。
+- 当前仅对 Less 自动注入 `@/styles/variables.less`，不要重复 import。遗留 SCSS 文件未自动注入；新增 SCSS 使用前需明确配置预处理器。
 - `vue` 指向 `vue/dist/vue.esm-bundler.js`（保留运行时模板编译）。
 - dev 代理 `/api` → `http://localhost:10027/budget-process`，代理配置位于 `apps/web/vite.config.ts`。
 - 环境文件在 `apps/web/`：`.env.development` / `.env.production` / `.env.production.sit` / `.env.production.uat`。
@@ -58,12 +60,12 @@ pnpm test          # Vitest，真实 HTTP / 组件 / store 回归
 
 ## Tailwind
 
-Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在 `apps/web/src/assets/styles/tailwind.css`：
+Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在 `apps/web/src/styles/tailwind.css`：
 
 - 类名前缀是 `tw:`（变体式语法），不是 v3 的 `tw-`。写 `tw:flex`、`tw:hover:bg-red-600`。
 - 不引入 preflight（等价于原 `corePlugins.preflight: false`），所以没有 box-sizing 与 border-style 重置，`tw:border` 单独用不出边框。
 - 间距由 `--spacing` 乘数动态生成，`tw:p-4.5` 直接可用，不需要自定义 token。
-- 当前 Tailwind 用于 `layout/header/CustomerService.vue`，绝大多数样式走 Less 与 Element Plus 变量覆盖。
+- 当前没有页面使用 Tailwind 类；新 UI 优先消费 `src/styles/tokens.css` 的语义 token 与 Less。确需 Tailwind 时按上述规则使用，不要新增第二套颜色常量。
 
 ## 目录职责
 
@@ -72,22 +74,25 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 | 目录 | 职责 |
 | --- | --- |
 | `src/app/` | 应用启动：`bootstrap.ts` 组装 pinia / 指令 / UI 插件；`plugins.ts` 只放第三方库注册 |
-| `src/views/` | 业务页面，当前仅 `login` / `home` / `baseHome` / `iframe` / `error` |
-| `src/api/` | 按业务域划分的接口定义；新增业务域时目录结构与 `views` 对应 |
-| `src/components/` | 跨业务域公共组件 |
+| `src/layouts/` | 外壳：`admin/`（masthead / route rail / tabs / settings / keep-alive）、`fullscreen/`、`RouteHost` |
+| `src/views/` | **路由适配层**：保持菜单路径约定，薄封装到 `features/`；静态页与 error 也在此 |
+| `src/features/` | 业务实现：auth / workbench / errors / embed；新增业务域在此建目录 |
+| `src/design-system/` | 跨业务基础组件（BrandMark、PageHeader），只消费 token |
+| `src/styles/` | 全局样式唯一入口：tokens、base、element、workspace、shell、theme、motion |
+| `src/api/` | 按业务域划分的接口定义 |
+| `src/components/` | 既有跨业务公共组件（ProTable / SearchForm / base…） |
 | `src/directives/` | 全局指令，一个指令一个文件，副作用成对清理 |
 | `src/hooks/` | 通用组合式函数（useTable、usePermission、useView…） |
 | `src/service/` | `baseService.ts` CRUD 封装；`http/` 是 axios 客户端、错误归一与请求身份计算 |
 | `src/utils/` | 纯函数工具；`utils/http.ts` 只是请求层的兼容 re-export |
 | `src/store/` | 按领域拆分的 Pinia store，统一从 `store/index.ts` 导出 |
 | `src/router/` | `base.ts` 静态路由；`guards/` 守卫管线；`view-registry.ts` 视图映射；`dynamic.ts` 实时注册 |
-| `src/layout/` | 外壳布局：header / sidebar / tabs / setting / keepAlive |
 | `src/constants/` | 枚举、缓存 key、默认配置 |
 | `src/types/` | 全局类型：`domain.ts` 领域模型、`router.d.ts` 路由 meta 增强、`vue.d.ts` 全局属性 |
 
 ## 关键机制
 
-**路由是服务端菜单驱动的。** `useMenuStore().init()` 拉菜单 + 用户信息，与 `router/base.ts` 合并后注册。视图组件按路径约定匹配：`router/view-registry.ts` 的 `toSysViewComponentPath` 把 `path` 转成 `/src/views{path}.vue`，通过 `import.meta.glob('/src/views/**/*.vue')` 查表。glob 是 Vite root 相对路径，root 即 `apps/web`，monorepo 下无需改写。新增页面通常不用手写路由，但**文件路径必须和菜单 url 对应**（`_` 会替换成 `-`）。hash 模式。
+**路由是服务端菜单驱动的。** `useMenuStore().init()` 拉菜单 + 用户信息，与 `router/base.ts` 合并后注册。视图组件按路径约定匹配：`router/view-registry.ts` 的 `toSysViewComponentPath` 把 `path` 转成 `/src/views{path}.vue`，通过 `import.meta.glob('/src/views/**/*.vue')` 查表。glob 是 Vite root 相对路径，root 即 `apps/web`，monorepo 下无需改写。新增页面通常不用手写路由，但**文件路径必须和菜单 url 对应**（`_` 会替换成 `-`）。`views/` 文件只做路由适配，业务实现落在 `features/`；需要被服务端菜单命中的路径必须保留适配文件。hash 模式。
 
 **路由守卫是管线，不是巨型 if。** `router/guards/index.ts` 按「菜单信息同步 → 新窗口拦截 → 登录/初始化 → 放行」组织；`router/layout.ts` 的 `resolveLayoutMode` 把外壳选择（page / fullscreen / standalone）抽成纯函数并有单测。全屏页优先用路由 `meta.layout = 'fullscreen'`，不要再往 `App.vue` 里加路径判断。
 

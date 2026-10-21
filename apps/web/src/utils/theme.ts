@@ -89,8 +89,29 @@ export const setThemeColor = (key: string, value: string): void => {
 
   // element-plus 组件的主色族
   setPrimaryFamily('--el-color-primary', value)
-  // 项目自有变量（base.less 定义、业务样式引用）
+  // 项目自有变量（tokens.css 定义、业务样式引用）
   setPrimaryFamily(key, value)
   // 项目自有的半透明底色变量，保持原有 #RRGGBBAA 拼接格式
   elm.style.setProperty(`${key}-light`, `${value}14`)
+
+  // 设计系统品牌族：外壳、导航、页头都消费 --ds-jade-*。
+  // 运行时换色必须同步这一族，否则设置面板只能改 Element 按钮。
+  const brandRgb = hexToRgb(value)
+  const jadeRamp: Array<[string, 'light' | 'dark', number]> = [
+    ['50', 'light', 0.94],
+    ['100', 'light', 0.86],
+    ['200', 'light', 0.68],
+    ['300', 'light', 0.48],
+    ['400', 'light', 0.24],
+    ['500', 'light', 0.08],
+    ['600', 'light', 0],
+    ['700', 'dark', 0.16],
+    ['800', 'dark', 0.34],
+    ['900', 'dark', 0.52],
+    ['950', 'dark', 0.64]
+  ]
+  for (const [step, direction, ratio] of jadeRamp) {
+    const rgb = direction === 'light' ? mixWhite(brandRgb, ratio) : mixBlack(brandRgb, ratio)
+    elm.style.setProperty(`--ds-jade-${step}`, rgbToHex(rgb))
+  }
 }

@@ -1,0 +1,40 @@
+// Global Less variables injected by Vite (see vite.config.ts).
+// Prefer CSS custom properties from tokens.css in new code; these aliases keep
+// legacy business styles compiling while the remaining Less files are migrated.
+
+@color-primary: #0b6b62;
+@color-primary-light-1: #238378;
+@color-primary-light-4: #6ea9a2;
+@color-primary-light-7: #b9d6d2;
+
+@color-success: #1f7a54;
+@color-warning: #a86a1f;
+@color-danger: #b3453d;
+
+@color-text-secondary: #5d6d66;
+
+.clearfix() {
+  &::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
+}
+
+.textoverflow(@clamp: 1) {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: @clamp;
+  text-overflow: ellipsis;
+  /*! autoprefixer: ignore next */
+}
+
+.flexbox(@jc: space-between, @ai: center, @fd: row, @fw: nowrap) {
+  display: flex;
+  flex: 1;
+  flex-direction: @fd;
+  flex-wrap: @fw;
+  align-items: @ai;
+  justify-content: @jc;
+}

@@ -1,0 +1,146 @@
+/* Shared shell details: breadcrumbs, fullscreen surface, route loading. */
+
+.ds-breadcrumb {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.ds-breadcrumb__list {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--ds-text-sm);
+  white-space: nowrap;
+}
+
+.ds-breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.ds-breadcrumb__item + .ds-breadcrumb__item::before {
+  width: 14px;
+  height: 1px;
+  margin: 0 8px;
+  content: '';
+  background: var(--ds-line-strong);
+}
+
+.ds-breadcrumb__link,
+.ds-breadcrumb__current {
+  max-width: 180px;
+  overflow: hidden;
+  color: var(--ds-ink-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-breadcrumb__link:hover {
+  color: var(--ds-jade-700);
+}
+
+.ds-breadcrumb__current {
+  color: var(--ds-ink);
+  font-weight: 500;
+}
+
+.ds-breadcrumb__root {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--ds-ink-tertiary);
+}
+
+.ds-breadcrumb__root:hover {
+  color: var(--ds-jade-700);
+}
+
+.ds-fullscreen {
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--ds-paper);
+
+  &.new-pop-window {
+    box-sizing: border-box;
+    padding: 14px;
+
+    > div {
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-line);
+      border-radius: var(--ds-radius-lg);
+      box-shadow: var(--ds-shadow-panel);
+    }
+  }
+}
+
+.ds-fullscreen__router {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ds-route-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+  background: rgb(255 255 255 / 80%);
+  opacity: 0;
+  backdrop-filter: blur(4px);
+  transition:
+    opacity var(--ds-duration-base) ease,
+    visibility var(--ds-duration-base) ease;
+}
+
+.ds-route-loading.is-visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Keep the old class name working for pages imported from the legacy bundle. */
+.route-loading-container {
+  position: absolute;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden;
+  background: rgb(255 255 255 / 80%);
+  opacity: 0;
+  transition:
+    opacity var(--ds-duration-base) ease,
+    visibility var(--ds-duration-base) ease;
+
+  &.show {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+.route-loading-text {
+  margin-top: 16px;
+  color: var(--ds-jade-600);
+  font-size: var(--ds-text-md);
+  font-weight: 500;
+  text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .route-loading-container.is-visible {
+    background-color: rgb(0 0 0 / 80%);
+  }
+}

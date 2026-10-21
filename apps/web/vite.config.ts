@@ -52,7 +52,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       less: {
-        additionalData: '@import "@/assets/style/variables.less";\n',
+        additionalData: '@import "@/styles/variables.less";\n',
         javascriptEnabled: true
       }
     }

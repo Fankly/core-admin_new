@@ -1,16 +1,29 @@
 <template>
+  <!--
+    DIRECTION CONTRACT / 546242df
+    THESIS: A project-governance control surface built as an institutional
+    wayfinding system, refusing the stacked-card admin template.
+    OWN-WORLD: deep jade rail, paper signage, hairline rules, station dots,
+    one amber attention signal, compact Chinese UI sans.
+    STORY: The manager sees where they are, what is reachable, and what to do
+    next without decoding a legacy portal.
+    FIRST VIEWPORT: 64px masthead, 248px route rail, one framed workspace with
+    inline tabs; the greeting and the real menu-derived entries lead.
+    FORM: transit wayfinding system (grounded candidate 6), seed 546242df.
+    FINISH: unreviewed and undocumented is unfinished; this build ends with the
+    finish review, the verdict, and DESIGN.md.
+  -->
   <el-config-provider :locale="locale">
-    <div v-if="showLoading" class="app-bootstrap" v-loading="true" element-loading-background="#fff">
-      <div class="app-bootstrap__brand">
-        <span class="app-bootstrap__mark">项</span>
-        <div>
-          <p class="app-bootstrap__title">项目过程管控平台</p>
-          <p class="app-bootstrap__hint">正在加载工作台…</p>
-        </div>
+    <div v-if="showLoading" class="app-boot" role="status" aria-live="polite">
+      <div class="app-boot__lockup">
+        <BrandMark />
+        <p class="app-boot__title">正在载入工作区</p>
+        <div class="app-boot__track ds-route-line" aria-hidden="true"></div>
+        <p class="app-boot__hint">正在同步身份、权限与导航</p>
       </div>
     </div>
-    <layout v-if="showPageLayout" />
-    <fullscreen-layout v-else-if="showFullscreenLayout" />
+    <AdminLayout v-if="showPageLayout" />
+    <FullscreenLayout v-else-if="showFullscreenLayout" />
   </el-config-provider>
 </template>
 
@@ -18,13 +31,11 @@
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
-import Layout from '@/layout/index.vue'
-import FullscreenLayout from '@/layout/fullscreen-layout.vue'
+import AdminLayout from '@/layouts/admin/index.vue'
+import FullscreenLayout from '@/layouts/fullscreen/index.vue'
 import { usePreferencesStore, useShellStore } from '@/store'
 import { resolveLayoutMode } from '@/router/layout'
-import '@/assets/css/app.less'
-import '@/assets/theme/index.less'
-import '@/assets/theme/mobile.less'
+import { BrandMark } from '@/design-system'
 
 defineOptions({ name: 'App' })
 
@@ -46,45 +57,45 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.app-bootstrap {
+.app-boot {
+  --ds-brand-text: #f3fbf8;
   position: fixed;
   inset: 0;
   z-index: 99999;
   display: grid;
   place-items: center;
-  background: #fff;
+  color: #f3fbf8;
+  background:
+    radial-gradient(circle at 76% 22%, rgb(44 168 152 / 10%), transparent 34%),
+    radial-gradient(circle at 12% 84%, rgb(27 159 143 / 8%), transparent 30%), #07241f;
 }
 
-.app-bootstrap__brand {
+.app-boot__lockup {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
+  width: min(320px, calc(100vw - 64px));
 }
 
-.app-bootstrap__mark {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  color: #fff;
-  font-size: 20px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #0f766e, #0ea5a4);
-  box-shadow: 0 10px 24px rgb(15 118 110 / 24%);
-}
-
-.app-bootstrap__title {
-  margin: 0;
-  color: #0f172a;
-  font-size: 16px;
-  font-weight: 600;
+.app-boot__title {
+  margin-top: 28px;
+  color: #f3fbf8;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: 0.02em;
 }
 
-.app-bootstrap__hint {
-  margin: 4px 0 0;
-  color: #64748b;
-  font-size: 12px;
+.app-boot__track {
+  width: 180px;
+  height: 1px;
+  margin-top: 16px;
+  background: rgb(255 255 255 / 10%);
+}
+
+.app-boot__hint {
+  margin-top: 14px;
+  color: rgb(243 251 248 / 44%);
+  font-size: 11px;
+  letter-spacing: 0.05em;
 }
 </style>

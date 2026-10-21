@@ -1,0 +1,203 @@
+/* Element Plus overrides. Keep this file about the library, not page layout. */
+
+.el-message,
+.el-notification {
+  z-index: 9999 !important;
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius-md);
+  box-shadow: var(--ds-shadow-popover);
+}
+
+.el-form-item__label {
+  color: var(--ds-ink) !important;
+  font-weight: 500;
+}
+
+.el-input.is-disabled .el-input__inner {
+  color: #aebbb5 !important;
+  background-color: var(--ds-surface-sunken) !important;
+}
+
+.el-textarea.is-disabled .el-textarea__inner {
+  color: #aebbb5 !important;
+  background-color: var(--ds-surface-sunken) !important;
+}
+
+.el-loading-mask {
+  z-index: 1000 !important;
+}
+
+.el-loading-spinner .circular {
+  width: 32px;
+  height: 32px;
+}
+
+.el-alert {
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius-md);
+}
+
+.ele-alert-border.is-light.el-alert--warning {
+  border: 1px solid #ead8ba !important;
+}
+
+.el-alert--warning.is-light {
+  color: var(--ds-warning) !important;
+  background-color: var(--ds-warning-soft) !important;
+}
+
+.ele-alert-border.is-light .el-alert__title {
+  color: var(--ds-ink) !important;
+  font-size: var(--ds-text-md) !important;
+}
+
+.el-alert__content {
+  padding: 0;
+}
+
+.el-popper.el-popover {
+  max-height: 320px;
+  overflow: auto;
+}
+
+.el-popper.is-dark a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.el-drawer {
+  .el-drawer__header {
+    padding: 18px 22px;
+    margin-bottom: 0;
+    color: var(--ds-ink);
+    border-bottom: 1px solid var(--ds-line);
+  }
+
+  .el-drawer__footer {
+    border-top: 1px solid var(--ds-line);
+  }
+
+  .el-select {
+    width: 100%;
+  }
+
+  .drawer-multiColumn-form {
+    display: flex;
+    flex-wrap: wrap;
+
+    .el-form-item {
+      width: 47%;
+
+      &:nth-child(2n-1) {
+        margin-right: 5%;
+      }
+    }
+  }
+}
+
+.el-dropdown__popper,
+.el-select__popper {
+  border-radius: var(--ds-radius-md) !important;
+  box-shadow: var(--ds-shadow-popover) !important;
+}
+
+/* Table shell: business styles live in workspace.less. */
+.el-table {
+  --el-table-border-color: var(--ds-line);
+  --el-table-header-bg-color: var(--ds-surface-subtle);
+  --el-table-row-hover-bg-color: #f4f9f6;
+  --el-table-current-row-bg-color: var(--ds-jade-50);
+  --el-table-text-color: var(--ds-ink);
+  --el-table-header-text-color: var(--ds-ink-secondary);
+}
+
+.el-table thead {
+  color: var(--ds-ink) !important;
+
+  th {
+    font-weight: 600;
+    background-color: var(--ds-surface-subtle) !important;
+  }
+}
+
+.el-table__fixed-right::before {
+  background: transparent !important;
+}
+
+.el-pagination {
+  justify-content: flex-end;
+  margin-top: 12px !important;
+  text-align: right !important;
+}
+
+.el-button {
+  font-weight: 500;
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--ds-jade-600);
+  --el-button-border-color: var(--ds-jade-600);
+  --el-button-hover-bg-color: var(--ds-jade-500);
+  --el-button-hover-border-color: var(--ds-jade-500);
+  --el-button-active-bg-color: var(--ds-jade-700);
+  --el-button-active-border-color: var(--ds-jade-700);
+}
+
+.el-card {
+  --el-card-border-color: var(--ds-line);
+  border-radius: var(--ds-radius-lg);
+}
+
+.el-tabs__item {
+  font-weight: 500;
+}
+
+.el-switch {
+  --el-switch-on-color: var(--ds-jade-600);
+}
+
+.el-checkbox {
+  --el-checkbox-checked-bg-color: var(--ds-jade-600);
+  --el-checkbox-checked-input-border-color: var(--ds-jade-600);
+  --el-checkbox-checked-icon-color: #fff;
+}
+
+/* VXE */
+.vxe-table--render-default .vxe-cell--checkbox .vxe-checkbox--icon {
+  font-size: 15px;
+  font-weight: normal;
+  color: var(--ds-jade-600) !important;
+}
+
+.vxe-table--render-default .vxe-cell--checkbox.is--checked,
+.vxe-table--render-default .vxe-cell--checkbox.is--indeterminate {
+  color: var(--ds-jade-600);
+}
+
+.vxe-icon-checkbox-unchecked::before {
+  color: #dcdfe6;
+}
+
+.vxe-input:not(.is--disabled).is--active .vxe-input--inner,
+.vxe-select.is--active:not(.is--filter) > .vxe-input .vxe-input--inner {
+  border: 1px solid var(--ds-jade-600);
+}
+
+.vxe-modal--header-title {
+  color: var(--ds-jade-600);
+}
+
+.vxe-select-option.is--selected {
+  color: var(--ds-jade-600);
+}
+
+.vxe-loading > .vxe-loading--chunk,
+.vxe-loading > .vxe-loading--wrapper,
+.vxe-button.type--text.theme--primary {
+  color: var(--ds-jade-600);
+}
+
+.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
+  color: #fff;
+  background-color: var(--ds-jade-600) !important;
+}

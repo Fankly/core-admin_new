@@ -1,23 +1,13 @@
 <template>
-  <div class="rr-error">
-    <div class="not-container">
-      <img src="@/assets/images/404.png" class="not-img" alt="404" />
-      <div class="not-detail">
-        <h2>404</h2>
-        <h4>抱歉，您访问的页面不存在~️</h4>
-        <el-button type="primary" @click="router.back"> 返回上一页 </el-button>
-      </div>
-    </div>
-  </div>
+  <ErrorPage
+    code="404"
+    title="这条路径没有对应页面"
+    description="页面可能已迁移、被移除，或当前链接不完整。你可以回到工作台，或使用浏览器返回上一页。"
+  />
 </template>
+
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import ErrorPage from '@/features/errors/ErrorPage.vue'
 
 defineOptions({ name: 'NotFoundPage' })
-
-const router = useRouter()
 </script>
-
-<style scoped lang="less">
-@import './index.less';
-</style>

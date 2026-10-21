@@ -24,6 +24,8 @@ declare module 'vue-router' {
     requiresAuth?: boolean
     keepAlive?: boolean
     affix?: boolean
+    /** Let the page own the full workspace viewport (iframes, canvases). */
+    fullBleed?: boolean
     matched?: Array<{ path: string; title?: string }>
     [key: string]: unknown
   }

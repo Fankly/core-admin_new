@@ -80,14 +80,16 @@ export function setupRouterGuards(router: Router) {
     const isPop = to.query.pop === 'true'
     const isWorkflow = isWorkflowStandalone(to.path)
 
-    if (!tabs.tabs.some((tab) => tab.path === to.path)) shell.setRouteLoading(true)
-    NProgress.start()
-
     if (to.path === '/login') {
+      shell.setRouteLoading(false)
       shell.markReady()
       shell.markRendered()
+      NProgress.done()
       return true
     }
+
+    if (!tabs.tabs.some((tab) => tab.path === to.path)) shell.setRouteLoading(true)
+    NProgress.start()
 
     applyDocumentDomain(session.user.domainName)
 

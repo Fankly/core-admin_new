@@ -1,0 +1,69 @@
+/* Motion belongs to state: loading, route transition, focus. */
+
+@keyframes ds-route-scan {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  55%,
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+@keyframes ds-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.86);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ds-skeleton {
+  0% {
+    background-position: 120% 0;
+  }
+
+  100% {
+    background-position: -120% 0;
+  }
+}
+
+.ds-skeleton {
+  background: linear-gradient(90deg, var(--ds-surface-sunken) 20%, #f7faf8 50%, var(--ds-surface-sunken) 80%);
+  background-size: 220% 100%;
+  border-radius: var(--ds-radius-sm);
+  animation: ds-skeleton 1.8s linear infinite;
+}
+
+.ds-route-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.ds-route-line::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 30%;
+  content: '';
+  background: linear-gradient(90deg, transparent, var(--ds-jade-400), transparent);
+  animation: ds-route-scan 1.8s var(--ds-ease-in-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

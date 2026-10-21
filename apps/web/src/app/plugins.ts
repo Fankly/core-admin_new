@@ -6,10 +6,6 @@ import VXETable from 'vxe-table'
 import VXETablePluginExportXLSX from 'vxe-table-plugin-export-xlsx'
 import ExcelJS from 'exceljs'
 import ECharts from 'vue-echarts'
-import 'element-plus/theme-chalk/display.css'
-import 'element-plus/theme-chalk/index.css'
-import 'vxe-pc-ui/lib/style.css'
-import 'vxe-table/lib/style.css'
 
 /** 第三方 UI 库只在这里注册，main.ts 不再堆叠插件细节。 */
 export function installUiPlugins(app: App) {

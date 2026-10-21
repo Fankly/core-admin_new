@@ -51,9 +51,13 @@ Vitest 配置在 `apps/web/vitest.config.ts`,用例与源文件就近放置,使�
 | 目录 | 放什么 | 不放什么 |
 | --- | --- | --- |
 | `src/app/` | 应用组装、第三方插件注册 | 业务逻辑、页面状态 |
-| `src/views/` | 业务页面,路径必须与菜单 url 对应 | 公共逻辑、通用组件 |
+| `src/layouts/` | 外壳布局:admin / fullscreen / RouteHost | 业务页面 |
+| `src/views/` | 路由适配层,路径必须与菜单 url 对应;薄封装到 `features/` | 业务实现、页面状态 |
 | `src/api/` | 按业务域拆分的接口定义 | 业务判断、UI 状态 |
-| `src/components/` | 跨业务域公共组件 | 只在单页面用的一次性组件 |
+| `src/features/` | 按业务域组织的页面与局部逻辑 | 框架级状态、全局样式 |
+| `src/design-system/` | 跨业务基础组件与设计系统入口 | 业务数据、接口调用 |
+| `src/styles/` | 全局样式唯一入口:tokens/base/element/workspace/shell | 页面局部样式 |
+| `src/components/` | 既有跨业务公共组件 | 只在单页面用的一次性组件 |
 | `src/directives/` | 全局指令(一个指令一个文件) | 业务组件 |
 | `src/hooks/` | 通用组合式函数 | 组件 |
 | `src/service/` | `baseService` + `http/` 请求客户端 | 业务接口 |
@@ -131,9 +135,9 @@ export const getListPageData = (params: Params): Promise<Result> => baseService.
 ### 2.4 CSS / class
 
 - 业务样式走 **SCSS/Less**,页面局部样式一律 `<style scoped>`。
-- 全局 Element Plus 变量覆盖集中在 `src/assets/css/element.less`;主题变量见 `src/assets/theme/`。
+- 全局样式集中在 `src/styles/`;设计 token 在 `src/styles/tokens.css`,Element Plus 覆盖在 `src/styles/element.less`,外壳样式在 `src/styles/shell.less`。
 - **不要重复 import** Vite `additionalData` 已全局注入的 `style/variables.less`。当前 SCSS 没有自动注入;遗留 SCSS 文件不代表已经配置预处理器。
-- Tailwind v4 **CSS-first**,类名前缀是 `tw:`(变体式),不是 `tw-`;没有 `tailwind.config.js`。用法规范见 `src/assets/styles/tailwind.css` 顶部注释。
+- Tailwind v4 **CSS-first**,类名前缀是 `tw:`(变体式),不是 `tw-`;没有 `tailwind.config.js`。用法规范见 `src/styles/tailwind.css` 顶部注释。
 - Tailwind 不引入 preflight,`tw:border` 单独用不出边框(无 border-style 重置),需要自己写 border-style。
 - 当前 Tailwind 用于 `layout/header/CustomerService.vue`,新代码默认沿用已配置的 Less;要用 Tailwind 或新增 SCSS 预处理配置需在评审中说明理由。
 
@@ -258,7 +262,7 @@ import SvgIcon from '@/components/base/svg-icon'
 ## 5. 路由与页面
 
 - 路由是**服务端菜单驱动**的,不要手写业务路由注册。
-- 视图组件按路径约定匹配:路由 `path` 经 `router/view-registry.ts` 的 `toSysViewComponentPath` 转成 `/src/views{path}.vue`,由 `import.meta.glob('/src/views/**/*.vue')` 查表。
+- 视图组件按路径约定匹配:路由 `path` 经 `router/view-registry.ts` 的 `toSysViewComponentPath` 转成 `/src/views{path}.vue`,由 `import.meta.glob('/src/views/**/*.vue')` 查表。`views/` 文件只做路由适配,业务实现放在 `features/<domain>/`。
 - 因此**新增页面的文件路径必须与菜单 url 对应**,注意 `_` 会被替换为 `-`。
 - hash 模式(`createWebHashHistory`)。
 - 守卫拆在 `router/guards/index.ts`,写成"返回值即导航结果"的新式写法(vue-router 5 已弃用 `next()`):`return true` 放行、`return false` 取消、`return '/path'` 重定向。

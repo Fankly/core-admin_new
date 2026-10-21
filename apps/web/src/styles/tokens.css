@@ -1,0 +1,151 @@
+/* ==========================================================================
+   Design tokens — one source of truth for the shell and business surfaces.
+   Product identity: Jianji / 项目过程管控平台.
+   Visual world: institutional wayfinding — jade route line, precise signage,
+   quiet paper surfaces, and one amber signal reserved for attention.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  --ds-font-sans:
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ds-font-numeric: 'SF Pro Display', 'DIN Alternate', 'Bahnschrift', 'PingFang SC', sans-serif;
+  --ds-font-mono: 'SFMono-Regular', 'Cascadia Mono', 'Roboto Mono', ui-monospace, monospace;
+
+  /* Brand — teal/jade, continued from the incumbent identity. */
+  --ds-jade-950: #082a25;
+  --ds-jade-900: #082a25;
+  --ds-jade-800: #0a413a;
+  --ds-jade-700: #0b5a51;
+  --ds-jade-600: #00706b;
+  --ds-jade-500: #138f82;
+  --ds-jade-400: #2ca898;
+  --ds-jade-300: #71c7ba;
+  --ds-jade-200: #b7e2db;
+  --ds-jade-100: #dcefea;
+  --ds-jade-50: #eef7f4;
+
+  /* Neutrals — paper with a faint green undertone. */
+  --ds-paper: #f2f5f2;
+  --ds-paper-deep: #e8eeea;
+  --ds-surface: #ffffff;
+  --ds-surface-subtle: #f8faf8;
+  --ds-surface-sunken: #f1f5f2;
+  --ds-line: #e1e8e3;
+  --ds-line-strong: #cfdad3;
+  --ds-ink: #17231f;
+  --ds-ink-secondary: #5d6d66;
+  --ds-ink-tertiary: #61716a;
+  --ds-ink-inverse: #f5faf8;
+
+  /* Functional colors. Amber is deliberately rare: attention, not decoration. */
+  --ds-success: #1f7a54;
+  --ds-success-soft: #e9f4ee;
+  --ds-warning: #975d16;
+  --ds-warning-soft: #fbf1e3;
+  --ds-danger: #b3453d;
+  --ds-danger-soft: #f9eae8;
+  --ds-info: #356b8a;
+  --ds-info-soft: #eaf1f5;
+
+  /* Type scale — fixed, editorial in the header and compact in the workspace. */
+  --ds-text-2xs: 10px;
+  --ds-text-xs: 11px;
+  --ds-text-sm: 12px;
+  --ds-text-md: 13px;
+  --ds-text-base: 14px;
+  --ds-text-lg: 16px;
+  --ds-text-xl: 20px;
+  --ds-text-2xl: 26px;
+  --ds-text-3xl: 34px;
+  --ds-text-4xl: 46px;
+
+  --ds-leading-tight: 1.18;
+  --ds-leading-title: 1.35;
+  --ds-leading-body: 1.65;
+
+  --ds-tracking-tight: -0.025em;
+  --ds-tracking-normal: 0;
+  --ds-tracking-wide: 0.12em;
+  --ds-tracking-wider: 0.2em;
+
+  --ds-space-1: 4px;
+  --ds-space-2: 8px;
+  --ds-space-3: 12px;
+  --ds-space-4: 16px;
+  --ds-space-5: 20px;
+  --ds-space-6: 24px;
+  --ds-space-7: 32px;
+  --ds-space-8: 40px;
+  --ds-space-9: 48px;
+
+  --ds-radius-xs: 4px;
+  --ds-radius-sm: 6px;
+  --ds-radius-md: 9px;
+  --ds-radius-lg: 14px;
+  --ds-radius-xl: 20px;
+  --ds-radius-pill: 999px;
+
+  --ds-shadow-panel: 0 1px 1px rgb(18 42 34 / 3%), 0 18px 38px -28px rgb(18 42 34 / 26%);
+  --ds-shadow-raised: 0 1px 2px rgb(18 42 34 / 5%), 0 14px 30px -18px rgb(18 42 34 / 22%);
+  --ds-shadow-popover: 0 16px 40px -14px rgb(7 28 23 / 28%), 0 2px 6px rgb(7 28 23 / 6%);
+
+  --ds-header-height: 64px;
+  --ds-sidebar-width: 248px;
+  --ds-sidebar-collapsed-width: 76px;
+  --ds-tabs-height: 48px;
+
+  --ds-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ds-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ds-duration-fast: 140ms;
+  --ds-duration-base: 200ms;
+  --ds-duration-slow: 320ms;
+
+  /* Element Plus mapping — components inherit the same world. */
+  --el-font-family: var(--ds-font-sans);
+  --el-font-size-base: var(--ds-text-base);
+  --el-font-size-small: var(--ds-text-md);
+  --el-text-color-primary: var(--ds-ink);
+  --el-text-color-regular: #3e4e47;
+  --el-text-color-secondary: var(--ds-ink-secondary);
+  --el-text-color-placeholder: var(--ds-ink-tertiary);
+  --el-text-color-disabled: #aebbb5;
+  --el-border-color: var(--ds-line-strong);
+  --el-border-color-light: var(--ds-line);
+  --el-border-color-lighter: #edf2ee;
+  --el-border-color-extra-light: #f4f7f4;
+  --el-fill-color: #f2f6f3;
+  --el-fill-color-light: #f6f9f7;
+  --el-fill-color-lighter: #fafcfa;
+  --el-fill-color-blank: var(--ds-surface);
+  --el-bg-color: var(--ds-surface);
+  --el-bg-color-page: var(--ds-paper);
+  --el-bg-color-overlay: var(--ds-surface);
+  --el-border-radius-base: var(--ds-radius-sm);
+  --el-border-radius-small: var(--ds-radius-xs);
+  --el-border-radius-round: var(--ds-radius-pill);
+  --el-box-shadow-light: var(--ds-shadow-raised);
+  --el-box-shadow: var(--ds-shadow-popover);
+  --el-color-primary: var(--ds-jade-600);
+  --el-color-primary-light-3: #4b948b;
+  --el-color-primary-light-5: #84b7b0;
+  --el-color-primary-light-7: #bdd8d4;
+  --el-color-primary-light-8: #d7e8e5;
+  --el-color-primary-light-9: #eef6f4;
+  --el-color-primary-dark-2: #08554e;
+  --el-color-success: var(--ds-success);
+  --el-color-warning: var(--ds-warning);
+  --el-color-danger: var(--ds-danger);
+  --el-color-error: var(--ds-danger);
+  --el-color-info: var(--ds-info);
+  --el-color-success-light-9: var(--ds-success-soft);
+  --el-color-warning-light-9: var(--ds-warning-soft);
+  --el-color-danger-light-9: var(--ds-danger-soft);
+  --el-color-info-light-9: var(--ds-info-soft);
+
+  /* Project aliases still consumed by legacy business styles. */
+  --color-primary: var(--ds-jade-600);
+  --color-primary-light: rgb(11 107 98 / 8%);
+  --vxe-primary-color: var(--ds-jade-600);
+}

@@ -1,4 +1,4 @@
-import Layout from '@/layout/layout.vue'
+import Layout from '@/layouts/RouteHost.vue'
 import Error404 from '@/views/error/404.vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { whiteList } from './modules/whiteList'
@@ -37,8 +37,8 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/iframe/:id?',
-    component: () => import('@/views/iframe.vue'),
-    meta: { isNavigationMenu: false, isIframe: true }
+    component: () => import('@/features/embed/IframePage.vue'),
+    meta: { isNavigationMenu: false, isIframe: true, fullBleed: true }
   },
   {
     path: '/error',

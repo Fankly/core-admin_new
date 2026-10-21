@@ -27,8 +27,8 @@
 
 /* v4 靠扫描源文件生成工具类。显式声明范围，等价于原 config 的 content 字段，
    避免在 monorepo 下依赖自动探测的边界推断。 */
-@source '../../../index.html';
-@source '../../**/*.{vue,js,ts,jsx,tsx}';
+@source '../../index.html';
+@source '../**/*.{vue,js,ts,jsx,tsx}';
 
 /* 等价于 v3 的 darkMode: 'class' */
 @custom-variant dark (&:where(.dark, .dark *));

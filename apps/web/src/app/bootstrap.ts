@@ -7,12 +7,18 @@ import { installDirectives } from '@/directives'
 import { installUiPlugins } from './plugins'
 
 // 全局副作用样式与图标注册集中在这里，业务组件不再各自 import 全局资源。
+// Vendor CSS loads first so the design tokens can own the final cascade.
 import 'virtual:svg-icons/register'
 import '@/assets/icons/iconfont/iconfont.js'
-import '@/assets/styles/tailwind.css'
-import '@/assets/css/element.less'
+import 'element-plus/theme-chalk/index.css'
+import 'element-plus/theme-chalk/display.css'
+import 'vxe-pc-ui/lib/style.css'
+import 'vxe-table/lib/style.css'
 import 'driver.js/dist/driver.css'
-import '@/assets/css/driver.less'
+import '@/styles/tokens.css'
+import '@/styles/tailwind.css'
+import '@/styles/index.less'
+import '@/styles/driver.less'
 
 /**
  * 应用启动顺序：
