@@ -53,11 +53,11 @@ watch(
 <template>
   <template v-for="[fullPath, Comp] in compList" :key="fullPath">
     <div v-show="fullPath === props.currRoute.fullPath" class="w-full h-full">
-      <slot :full-path="fullPath" :Comp="Comp" :frame-info="{ frameSrc: currRoute.meta?.frameSrc, fullPath }" />
+      <slot :fullPath="fullPath" :Comp="Comp" :frameInfo="{ frameSrc: currRoute.meta?.frameSrc, fullPath }" />
     </div>
   </template>
   <div v-show="!keep" class="comp-layout">
-    <slot :Comp="normalComp" :full-path="props.currRoute.fullPath" :frame-info="{ fullPath: props.currRoute.fullPath }" />
+    <slot :Comp="normalComp" :fullPath="props.currRoute.fullPath" :frameInfo="{ fullPath: props.currRoute.fullPath }" />
   </div>
 </template>
 

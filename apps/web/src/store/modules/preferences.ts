@@ -7,6 +7,12 @@ import { getThemeConfigCache, getThemeConfigToClass, setThemeColor, setThemeConf
 export type ThemeValue = string | boolean | number
 export type ThemeConfig = Record<string, ThemeValue>
 
+const NAV_LAYOUT_MAP: Record<string, ESidebarLayoutEnum> = {
+  [ESidebarLayoutEnum.Left]: ESidebarLayoutEnum.Left,
+  [ESidebarLayoutEnum.Top]: ESidebarLayoutEnum.Top,
+  [ESidebarLayoutEnum.Mix]: ESidebarLayoutEnum.Mix
+}
+
 /**
  * 偏好设置域：主题、导航布局、标签页开关等。
  *
@@ -15,7 +21,10 @@ export type ThemeConfig = Record<string, ThemeValue>
 export const usePreferencesStore = defineStore('preferences', () => {
   const config = ref<ThemeConfig>({ ...themeSetting, ...getThemeConfigCache() })
 
-  const navLayout = computed(() => (config.value[EThemeSetting.NavLayout] as ESidebarLayoutEnum) ?? ESidebarLayoutEnum.Left)
+  const navLayout = computed<ESidebarLayoutEnum>(() => {
+    const value = String(config.value[EThemeSetting.NavLayout])
+    return NAV_LAYOUT_MAP[value] ?? ESidebarLayoutEnum.Left
+  })
   const sidebarCollapse = computed(() => Boolean(config.value[EThemeSetting.SidebarCollapse]))
   const openTabsPage = computed(() => Boolean(config.value[EThemeSetting.OpenTabsPage]))
   const tabStyle = computed(() => String(config.value[EThemeSetting.TabStyle] ?? 'default'))
@@ -29,8 +38,9 @@ export const usePreferencesStore = defineStore('preferences', () => {
   }
 
   function setMany(payload: Partial<Record<EThemeSetting, ThemeValue>>) {
-    for (const [key, value] of Object.entries(payload)) {
-      if (value !== undefined) set(key as EThemeSetting, value)
+    for (const key of Object.values(EThemeSetting)) {
+      const value = payload[key]
+      if (value !== undefined) set(key, value)
     }
   }
 

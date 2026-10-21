@@ -37,7 +37,7 @@ export const getServerUrl = (): string => {
 
 export const loginTempUser = async (username: string): Promise<boolean> => {
   try {
-    const res = await baseService.post('/loginTest', { username })
+    const res = await baseService.post<Record<string, unknown>>('/loginTest', { username })
     if (res.code !== 0) return false
     setCache(CacheToken, res.data, true)
     return true

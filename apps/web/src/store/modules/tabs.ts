@@ -3,10 +3,7 @@ import { defineStore } from 'pinia'
 import type { TabItem } from '@/types/domain'
 
 /** 固定标签页：不可关闭，且始终位于最前。 */
-const AFFIX_TABS: readonly TabItem[] = [
-  { path: '/home', title: '主页', affix: true, keepAlive: true },
-  { path: '/workflow/todoTasks', title: '待办事宜', affix: true, keepAlive: true }
-]
+const AFFIX_TABS: readonly TabItem[] = [{ path: '/home', title: '主页', affix: true, keepAlive: true }]
 
 const cloneAffixTabs = (): TabItem[] => AFFIX_TABS.map((tab) => ({ ...tab }))
 
@@ -70,7 +67,7 @@ export const useTabsStore = defineStore('tabs', () => {
     uncacheView(path)
     if (!closedPaths.value.includes(path)) closedPaths.value.push(path)
     if (!wasActive) return undefined
-    const fallback = tabs.value[Math.min(index, tabs.value.length - 1)]
+    const fallback = tabs.value.at(Math.min(index, tabs.value.length - 1))
     activePath.value = fallback?.path ?? ''
     return activePath.value || undefined
   }

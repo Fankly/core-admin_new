@@ -19,9 +19,16 @@ export type ServiceResult<T = unknown> = ApiResponse<T>
 
 const REQUEST_TIMEOUT = 3600000
 
+// 历史 api 大量未声明泛型；默认 any 保持兼容，新接口请显式传 T。
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DefaultResult = any
+
 function generateSignature(): Signature {
   const timeStamp = Date.now()
-  const random = typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function' ? crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000 : Math.random()
+  const random =
+    typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function'
+      ? crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000
+      : Math.random()
   return { random, timeStamp, sign: Base64.encode(`${random}-${timeStamp}`) }
 }
 
@@ -38,28 +45,63 @@ function createHeaders(extraHeaders?: IObject, body?: unknown): IObject {
 
 /** 常用 CRUD。只负责拼装签名/超时/内容类型，业务语义留在 api 层。 */
 export default {
-  delete<T = unknown>(path: string, params?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
-    return request<T>({ url: path, timeout: REQUEST_TIMEOUT, headers: createHeaders(undefined, params), data: params, method: 'DELETE', ...otherParams })
+  delete<T = DefaultResult>(path: string, params?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
+    return request<T>({
+      url: path,
+      timeout: REQUEST_TIMEOUT,
+      headers: createHeaders(undefined, params),
+      data: params,
+      method: 'DELETE',
+      ...otherParams
+    })
   },
 
-  get<T = unknown>(path: string, params?: IObject, headers?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
+  get<T = DefaultResult>(path: string, params?: IObject, headers?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
     return request<T>({ url: path, params, timeout: REQUEST_TIMEOUT, headers: createHeaders(headers), method: 'GET', ...otherParams })
   },
 
-  put<T = unknown>(path: string, params?: IObject, headers?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
+  /** 少数接口直接返回数组/标量而不是 { code, data } 信封，用这个入口保留原始形状。 */
+  async raw<T>(path: string, params?: IObject, headers?: IObject, otherParams?: OtherParams): Promise<T> {
+    return (await request({
+      url: path,
+      params,
+      timeout: REQUEST_TIMEOUT,
+      headers: createHeaders(headers),
+      method: 'GET',
+      ...otherParams
+    })) as unknown as T
+  },
+
+  put<T = DefaultResult>(path: string, params?: IObject, headers?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
     return request<T>({ url: path, data: params, timeout: REQUEST_TIMEOUT, headers: createHeaders(headers, params), method: 'PUT', ...otherParams })
   },
 
-  post<T = unknown>(path: string, body?: IObject | FormData, headers?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
+  post<T = DefaultResult>(path: string, body?: IObject | FormData, headers?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
     return request<T>({ url: path, timeout: REQUEST_TIMEOUT, headers: createHeaders(headers, body), data: body, method: 'POST', ...otherParams })
   },
 
-  export<T = unknown>(path: string, body?: IObject, headers?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
-    return request<T>({ url: path, method: 'post', responseType: 'blob', timeout: REQUEST_TIMEOUT, headers: createHeaders(headers, body), data: body, ...otherParams })
+  export<T = DefaultResult>(path: string, body?: IObject, headers?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
+    return request<T>({
+      url: path,
+      method: 'post',
+      responseType: 'blob',
+      timeout: REQUEST_TIMEOUT,
+      headers: createHeaders(headers, body),
+      data: body,
+      ...otherParams
+    })
   },
 
-  exportGet<T = unknown>(path: string, params?: IObject, headers?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
-    return request<T>({ url: path, method: 'get', responseType: 'blob', timeout: REQUEST_TIMEOUT, headers: createHeaders(headers), params, ...otherParams })
+  exportGet<T = DefaultResult>(path: string, params?: IObject, headers?: IObject, otherParams?: OtherParams): Promise<ServiceResult<T>> {
+    return request<T>({
+      url: path,
+      method: 'get',
+      responseType: 'blob',
+      timeout: REQUEST_TIMEOUT,
+      headers: createHeaders(headers),
+      params,
+      ...otherParams
+    })
   },
 
   /** 下载文件：签名、Blob 获取与浏览器保存动作保持一致。 */
@@ -103,8 +145,12 @@ export default {
         }
         resolve({ name: fileName, url: reader.result })
       }
-      reader.onerror = () => reject(reader.error ?? new Error('读取文件失败'))
-      reader.onabort = () => reject(new DOMException('文件读取已取消', 'AbortError'))
+      reader.onerror = () => {
+        reject(reader.error ?? new Error('读取文件失败'))
+      }
+      reader.onabort = () => {
+        reject(new DOMException('文件读取已取消', 'AbortError'))
+      }
       reader.readAsDataURL(data)
     })
   }

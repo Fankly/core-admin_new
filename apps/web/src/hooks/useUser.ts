@@ -20,13 +20,14 @@ export const useUser = async (flag = 'getXqGlobalInfo'): Promise<boolean> => {
     const context = useContextStore()
     const userId = session.user.id
     const url = menu.menuMsg.url
-    const current = context.globalInfo[normalizeContextKey(flag)] ?? {}
+    const current = context.globalInfo[normalizeContextKey(flag)]
     const roleId = current.roleId
     const deptId = current.deptId
     const result = await getMenuMessage(url ?? '')
-    if (!result.success || !result.data) throw new Error('请求当前页面信息数据失败')
-    const code = result.data.outsideMenu
-    if (!code || !userId) throw new Error('获取当前页面信息数据失败')
+    const data = result.data as { outsideMenu?: string } | null
+    if (!result.success || !data?.outsideMenu) throw new Error('请求当前页面信息数据失败')
+    const code = data.outsideMenu
+    if (!userId) throw new Error('获取当前页面信息数据失败')
     const roles = await getRoleByBusicode(userId, code)
     if (!Array.isArray(roles)) throw new Error('获取角色失败')
     return roles.some((item) => item.role_id === roleId && item.specialorgid === deptId)
@@ -45,9 +46,10 @@ export const usePage = async (roleId: string, deptId: string, spRoleId: string):
     const userId = session.user.id
     const url = menu.menuMsg.url
     const result = await getMenuMessage(url ?? '')
-    if (!result.success || !result.data) throw new Error('请求当前页面信息数据失败')
-    const code = result.data.outsideMenu
-    if (!code || !userId) throw new Error('获取当前页面信息数据失败')
+    const data = result.data as { outsideMenu?: string } | null
+    if (!result.success || !data?.outsideMenu) throw new Error('请求当前页面信息数据失败')
+    const code = data.outsideMenu
+    if (!userId) throw new Error('获取当前页面信息数据失败')
     const roles = await getRoleByBusicode(userId, code)
     if (!Array.isArray(roles)) throw new Error('获取角色失败')
     const isRole = roles.some((item) => item.role_id === roleId && item.specialorgid === deptId && item.id === spRoleId)

@@ -1,12 +1,5 @@
 <template>
-  <base-sidebar
-    mode="horizontal"
-    :menus="topHeaderMenus"
-    :router="false"
-    :curr-route="currRoute"
-    :is-mobile="false"
-    :on-select="onSelect"
-  />
+  <base-sidebar mode="horizontal" :menus="topHeaderMenus" :router="false" :curr-route="currRoute" :is-mobile="false" :on-select="onSelect" />
 </template>
 
 <script setup lang="ts">
@@ -24,13 +17,13 @@ const shell = useShellStore()
 const preferences = usePreferencesStore()
 const router = useRouter()
 const route = useRoute()
-const currRoute = ref(String(router.currentRoute.value.matched[0]?.path ?? ''))
+const currRoute = ref(router.currentRoute.value.matched[0]?.path ?? '')
 
 watch(
   () => route.path,
   () => {
     if (preferences.navLayout !== ESidebarLayoutEnum.Mix) return
-    const routePath = String(router.currentRoute.value.matched[0]?.path ?? '')
+    const routePath = router.currentRoute.value.matched[0]?.path ?? ''
     currRoute.value = routePath
     shell.setActiveTopMenu(routePath)
   }

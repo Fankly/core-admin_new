@@ -9,7 +9,7 @@ interface Result {
 }
 
 export const getRoleByBusicode = (userId: string, busicode: string): Promise<UserInfo[]> => {
-  return baseService.get('/getRoleByBusicode', { userId, busicode })
+  return baseService.raw<UserInfo[]>('/getRoleByBusicode', { userId, busicode })
 }
 
 export const getButtonList = (menuCode: string, spRoleId: string): Promise<Result> => {

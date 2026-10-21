@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { RouteRecordRaw } from 'vue-router'
 import type { IServerMenus } from '@/types/interface'
-import type { MenuMeta } from '@/types/domain'
+import type { MenuMeta, UserProfile } from '@/types/domain'
 import baseService from '@/service/baseService'
 import { getSysRouteMap } from '@/router/view-registry'
 import { mergeServerRoute } from '@/utils/router'
@@ -29,14 +29,18 @@ export const useMenuStore = defineStore('menu', () => {
     if (pending) return pending
     pending = (async () => {
       const session = useSessionStore()
-      const [menuResponse, userResponse] = await Promise.all([baseService.get('/sys/menu/nav'), baseService.get('/sys/getUserInfo')])
+      const [menuResponse, userResponse] = await Promise.all([
+        baseService.get<IServerMenus[]>('/sys/menu/nav'),
+        baseService.get<Partial<UserProfile>>('/sys/getUserInfo')
+      ])
 
       if (userResponse.code !== 0) console.error('初始化用户数据错误', userResponse.msg)
-      session.setUser(userResponse.data ?? {})
+      session.setUser(userResponse.data)
       session.markLogin(true)
 
-      const [serverRoutes, routeMeta] = mergeServerRoute((menuResponse.data ?? []) as IServerMenus[], getSysRouteMap())
-      menus.value = (menuResponse.data ?? []) as IServerMenus[]
+      const serverMenus = menuResponse.data
+      const [serverRoutes, routeMeta] = mergeServerRoute(serverMenus, getSysRouteMap())
+      menus.value = serverMenus
       routes.value = serverRoutes
       routeToMeta.value = routeMeta
       return serverRoutes
@@ -63,10 +67,9 @@ export const useMenuStore = defineStore('menu', () => {
   }
 
   /** 路由切换时同步当前菜单信息，供权限/帮助等模块读取。 */
-  function syncMenuMessage(to: { path: string; meta: Record<string, unknown> }) {
-    const source = String(to.meta.url || to.path)
-    const fromTable = routeToMeta.value[source]
-    menuMsg.value = { ...(fromTable ?? {}), ...(to.meta as MenuMeta), url: source }
+  function syncMenuMessage(to: { path: string; meta: MenuMeta }) {
+    const source = typeof to.meta.url === 'string' && to.meta.url ? to.meta.url : to.path
+    menuMsg.value = { ...routeToMeta.value[source], ...to.meta, url: source }
   }
 
   function reset() {

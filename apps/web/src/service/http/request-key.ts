@@ -11,23 +11,19 @@ let unserializableSeed = 0
 
 const omitDynamicKeys = (value: unknown): unknown => {
   if (!value || typeof value !== 'object') return value
-  const filtered: Record<string, unknown> = { ...(value as Record<string, unknown>) }
-  DYNAMIC_KEYS.forEach((key) => {
-    delete filtered[key]
-  })
-  return filtered
+  return Object.fromEntries(Object.entries(value as Record<string, unknown>).filter(([key]) => !DYNAMIC_KEYS.includes(key)))
 }
 
 const serializeData = (data: unknown): string => {
   if (data === undefined || data === null) return ''
   if (typeof data === 'string') return data
-  if (typeof FormData !== 'undefined' && data instanceof FormData) return `formdata:${++unserializableSeed}`
-  if (typeof Blob !== 'undefined' && data instanceof Blob) return `blob:${++unserializableSeed}`
-  if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) return `binary:${++unserializableSeed}`
+  if (typeof FormData !== 'undefined' && data instanceof FormData) return `formdata:${String(++unserializableSeed)}`
+  if (typeof Blob !== 'undefined' && data instanceof Blob) return `blob:${String(++unserializableSeed)}`
+  if (data instanceof ArrayBuffer || ArrayBuffer.isView(data)) return `binary:${String(++unserializableSeed)}`
   try {
-    return JSON.stringify(omitDynamicKeys(data)) ?? ''
+    return JSON.stringify(omitDynamicKeys(data))
   } catch {
-    return `unserializable:${++unserializableSeed}`
+    return `unserializable:${String(++unserializableSeed)}`
   }
 }
 

@@ -5,6 +5,7 @@
 >
 > 一句话原则:**与既有代码保持一致,优先服从仓库里已经跑通的范式,而不是个人偏好。**
 > 规范与 ESLint / Prettier 冲突时,以工具链配置为准,并同步修改本文档。
+> 2026-10 重构后的分层、store、路由、请求层设计见 [`architecture.md`](./architecture.md)。
 
 ## 参考基准
 
@@ -49,13 +50,15 @@ Vitest 配置在 `apps/web/vitest.config.ts`,用例与源文件就近放置,使�
 
 | 目录 | 放什么 | 不放什么 |
 | --- | --- | --- |
+| `src/app/` | 应用组装、第三方插件注册 | 业务逻辑、页面状态 |
 | `src/views/` | 业务页面,路径必须与菜单 url 对应 | 公共逻辑、通用组件 |
 | `src/api/` | 按业务域拆分的接口定义 | 业务判断、UI 状态 |
 | `src/components/` | 跨业务域公共组件 | 只在单页面用的一次性组件 |
+| `src/directives/` | 全局指令(一个指令一个文件) | 业务组件 |
 | `src/hooks/` | 通用组合式函数 | 组件 |
-| `src/service/` | `baseService` / `apiService` 请求封装 | 业务接口 |
-| `src/store/` | Pinia 全局状态 | 组件局部状态 |
-| `src/router/` | 静态路由 + 守卫 | 页面组件 |
+| `src/service/` | `baseService` + `http/` 请求客户端 | 业务接口 |
+| `src/store/modules/` | 按领域拆分的 Pinia store | 组件局部状态 |
+| `src/router/` | 静态路由 + `guards/` + 视图注册表 | 页面组件 |
 | `src/utils/` | 纯函数工具 | 有副作用的全局单例 |
 
 新增业务域时,`views/<域>` 与 `api/<域>` 目录结构保持对应。
@@ -108,10 +111,22 @@ export const getListPageData = (params: Params): Promise<Result> => baseService.
 
 ### 2.3 Store
 
-- 只有 `useAppStore` 一个 store,state 是**扁平大对象**,类型 `AppState extends IObject`(索引签名保留 `store[flag]` 动态取值)。
-- 批量覆盖用 `updateState()`(`Object.assign`),不要用 `$patch` 的递归合并。
-- getter 命名以 `get` 开头(`getUserMsg`),mutation 命名以 `set` 开头(`setMenuMsg`)。
-- 新增字段跟随现有注释风格,在 state 里写明用途。
+按领域拆成六个 store,统一从 `@/store` 导入,禁止再新建“什么都装”的全局 store:
+
+| Store | 职责 |
+| --- | --- |
+| `useSessionStore` | 用户、按钮权限、登录态、logout |
+| `useMenuStore` | 服务端菜单、动态路由、`path → meta`、当前菜单信息、`init()` |
+| `useTabsStore` | 标签页、激活项、关闭记录、keep-alive 缓存集合 |
+| `useShellStore` | 首屏生命周期、全局 loading、刷新信号、移动端抽屉 |
+| `usePreferencesStore` | 主题、导航布局、标签页开关 |
+| `useContextStore` | 遗留业务穿透参数(`xxGlobalInfo` 等) |
+
+- store 用 setup 语法(`defineStore('x', () => {...})`),返回需要的 state / computed / action。
+- action 命名用动词(`openTab` / `closeTab` / `setPermissions`),不要用 `updateState` 这种批量覆盖入口。
+- 跨 store 协作在 action 内部显式调用另一个 store(如 `menu.init()` 写 `session.setUser()`)。
+- 组件里**必须**在 setup/函数体内调用 `useXxxStore()`,不能在模块顶层调用。
+- 新增状态先判断归属;业务穿透参数进 `context`,不要污染框架 store。
 
 ### 2.4 CSS / class
 
@@ -243,19 +258,23 @@ import SvgIcon from '@/components/base/svg-icon'
 ## 5. 路由与页面
 
 - 路由是**服务端菜单驱动**的,不要手写业务路由注册。
-- 视图组件按路径约定匹配:路由 `path` 经 `toSysViewComponentPath` 转成 `/src/views{path}.vue`,由 `import.meta.glob('/src/views/**/*.vue')` 查表。
+- 视图组件按路径约定匹配:路由 `path` 经 `router/view-registry.ts` 的 `toSysViewComponentPath` 转成 `/src/views{path}.vue`,由 `import.meta.glob('/src/views/**/*.vue')` 查表。
 - 因此**新增页面的文件路径必须与菜单 url 对应**,注意 `_` 会被替换为 `-`。
 - hash 模式(`createWebHashHistory`)。
-- 守卫写成"返回值即导航结果"的新式写法(vue-router 5 已弃用 `next()`):`return true` 放行、`return false` 取消、`return '/path'` 重定向。
-- 页面里取 store 必须在函数/守卫内部调用 `useAppStore()`,模块顶层取会因 pinia 未安装而报错。
+- 守卫拆在 `router/guards/index.ts`,写成"返回值即导航结果"的新式写法(vue-router 5 已弃用 `next()`):`return true` 放行、`return false` 取消、`return '/path'` 重定向。
+- 全屏页优先在路由 meta 声明 `layout: 'fullscreen'`,不要往 `App.vue` 加路径判断;外壳解析用 `router/layout.ts` 的 `resolveLayoutMode`。
+- 页面里取 store 必须在函数/守卫内部调用 `useXxxStore()`,模块顶层取会因 pinia 未安装而报错。
 
 ---
 
 ## 6. 网络请求
 
-- 所有请求经 `src/service/baseService`。它自动附加签名头(random / timeStamp / sign),超时 `3600000ms`。
+- 所有请求经 `src/service/baseService`,底层是 `src/service/http/client.ts`。自动附加签名头(random / timeStamp / sign),默认超时 `3600000ms`。
+- **只有 GET/HEAD/OPTIONS 会合并并发请求**;写请求永不合并,避免两次提交被吞掉。
+- 所有失败统一为 `ApiError`(`status` / `code` / `url` / `cause`),业务层不再兼容裸字符串。
 - `FormData` 交给请求层处理 multipart boundary,不要设置 JSON 请求头。查询参数用 `baseService.get(path, params)`,避免直接插值拼接导致 `&`、`#` 等字符改变请求含义。
 - 业务代码**不直接** import axios;需要用 `BaseMethod` 或 `apiService`。
+- 新接口写泛型:`baseService.get<MyData>(path)`;直接返回数组/标量的历史接口用 `baseService.raw<T>(path)`。
 - 请求参数、错误处理在 hook 或页面层完成,`api/` 层保持纯函数。
 - 导出/下载统一用 `baseService.export` / `exportGet` / `download`,不要自己拼 blob。
 - 统一的错误提示走 `src/utils/error.ts` 的 `handleError(error, message)`,接受 `unknown` 并处理 Error/字符串;新代码优先走封装。`src/utils/message.ts` 的 `showHelpMsg` 是帮助信息弹窗,与错误无关。
@@ -308,8 +327,10 @@ import SvgIcon from '@/components/base/svg-icon'
 
 - [ ] `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build` 全绿。
 - [ ] 新增页面路径与菜单 url 一致,能通过 glob 匹配到组件。
-- [ ] 新接口放在 `api/<域>`,只经 `baseService` 调用。
-- [ ] 新全局状态字段已加入 `AppState` 并有注释。
+- [ ] 新接口放在 `api/<域>`,只经 `baseService` 调用,并声明返回泛型。
+- [ ] 新全局状态已归入对应领域 store,没有恢复扁平 `useAppStore`。
+- [ ] 没有新增事件总线 / 字符串事件订阅。
+- [ ] 没有让 `eslint-suppressions.json` 中出现新增条目。
 - [ ] 表格用 `useTable` + `ProTable`,`v-for` 有稳定 key。
 - [ ] 样式 scoped,未重复 import 全局 scss,未散写魔法色值。
 - [ ] 按钮级权限给了 `v-permission` 或逻辑校验。

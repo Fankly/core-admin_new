@@ -28,7 +28,7 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   function setHasPermission(payload: boolean) {
-    hasPermission.value = Boolean(payload)
+    hasPermission.value = payload
   }
 
   function markLogin(payload = true) {

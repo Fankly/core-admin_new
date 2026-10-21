@@ -13,7 +13,7 @@ const viewModules = import.meta.glob('/src/views/**/*.vue')
 
 export type ViewModuleMap = Record<string, () => Promise<unknown>>
 
-export const getSysRouteMap = (): ViewModuleMap => viewModules as ViewModuleMap
+export const getSysRouteMap = (): ViewModuleMap => viewModules
 
 /**
  * 菜单 url → 视图文件路径。

@@ -22,7 +22,9 @@ const bindCheckboxClick = (root: HTMLElement, selector: string, update: (root: H
   root.querySelectorAll(selector).forEach((checkbox) => {
     checkbox.addEventListener('click', () => {
       // 等组件完成选中态渲染后再同步行样式
-      setTimeout(() => update(root), 0)
+      setTimeout(() => {
+        update(root)
+      }, 0)
     })
   })
   update(root)

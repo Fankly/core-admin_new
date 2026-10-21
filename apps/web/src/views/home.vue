@@ -39,8 +39,9 @@ const loadHomePage = async () => {
   }
   try {
     const res = await getMenuMessage('/home')
-    if (!res.success || !res.data?.url) throw new Error(res.msg || '未设置主页')
-    comp.value = resolveComponent(String(res.data.url)) ?? resolveComponent('/baseHome') ?? null
+    const data = res.data as { url?: string } | null
+    if (!res.success || !data?.url) throw new Error(res.msg || '未设置主页')
+    comp.value = resolveComponent(data.url) ?? resolveComponent('/baseHome') ?? null
   } catch {
     setFallback()
   }

@@ -3,7 +3,6 @@ import app from '@/constants/app'
 import type { MenuMeta } from '@/types/domain'
 import type { IServerMenus } from '@/types/interface'
 import baseView from '@/layout/view/base-view.vue'
-import Iframe from '@/views/iframe.vue'
 import { toSysViewComponentPath, type ViewModuleMap } from '@/router/view-registry'
 import { isExternalLink } from './utils'
 
@@ -48,7 +47,7 @@ export const mergeServerRoute = (
     routes.push({
       path,
       name: path,
-      component: openStyleMeta.isIframe ? Iframe : hasChildren && !viewComponent ? baseView : viewComponent,
+      component: openStyleMeta.isIframe ? () => import('@/views/iframe.vue') : hasChildren && !viewComponent ? baseView : viewComponent,
       meta: routeMeta,
       redirect: item.redirect || (isNotMatchComponent ? { path: '/error', query: { to: 404 }, replace: true } : undefined),
       children

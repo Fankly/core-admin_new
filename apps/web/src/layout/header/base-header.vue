@@ -40,7 +40,7 @@ import Logo from './logo.vue'
 import '@/assets/css/header.less'
 
 /** 顶部主区域 */
-defineOptions({ name: 'Header' })
+defineOptions({ name: 'AppHeader' })
 
 const shell = useShellStore()
 const session = useSessionStore()

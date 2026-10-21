@@ -9,11 +9,11 @@ describe('tabs store', () => {
 
   it('starts with the affix tabs and does not duplicate them', () => {
     const tabs = useTabsStore()
-    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/workflow/todoTasks'])
+    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home'])
     expect(tabs.activePath).toBe('/home')
 
     tabs.openTab({ path: '/home', title: '主页' })
-    expect(tabs.tabs).toHaveLength(2)
+    expect(tabs.tabs).toHaveLength(1)
   })
 
   it('opens, activates and deduplicates by full path', () => {
@@ -21,9 +21,9 @@ describe('tabs store', () => {
     tabs.openTab({ path: '/order/list?page=2', title: '订单列表', meta: { id: 'order' } })
     tabs.openTab({ path: '/order/list?page=2', title: '订单列表（新）' })
 
-    expect(tabs.tabs).toHaveLength(3)
+    expect(tabs.tabs).toHaveLength(2)
     expect(tabs.activePath).toBe('/order/list?page=2')
-    expect(tabs.tabs[2].title).toBe('订单列表（新）')
+    expect(tabs.tabs[1].title).toBe('订单列表（新）')
     expect(tabs.cachedViews).toContain('/order/list?page=2')
   })
 
@@ -34,14 +34,14 @@ describe('tabs store', () => {
     tabs.openTab({ path: '/c', title: 'C' })
 
     expect(tabs.closeTab('/home')).toBeUndefined()
-    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/workflow/todoTasks', '/a', '/b', '/c'])
+    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/a', '/b', '/c'])
 
     tabs.closeOthers()
-    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/workflow/todoTasks', '/c'])
+    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/c'])
     expect(tabs.cachedViews).not.toContain('/a')
 
     tabs.closeAll()
-    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/workflow/todoTasks'])
+    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home'])
     expect(tabs.activePath).toBe('/home')
   })
 
@@ -54,19 +54,21 @@ describe('tabs store', () => {
     tabs.activate('/b')
     expect(tabs.closeTab('/b')).toBe('/c')
     expect(tabs.activePath).toBe('/c')
-    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/workflow/todoTasks', '/a', '/c'])
+    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/a', '/c'])
   })
 
   it('closes tabs to the left and right of the active one while preserving affix tabs', () => {
     const tabs = useTabsStore()
-    ;['/a', '/b', '/c', '/d'].forEach((path) => tabs.openTab({ path, title: path }))
+    ;['/a', '/b', '/c', '/d'].forEach((path) => {
+      tabs.openTab({ path, title: path })
+    })
     tabs.activate('/c')
 
     tabs.closeLeft()
-    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/workflow/todoTasks', '/c', '/d'])
+    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/c', '/d'])
 
     tabs.closeRight()
-    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/workflow/todoTasks', '/c'])
+    expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/c'])
   })
 
   it('honours keepAlive=false and ignores error routes', () => {

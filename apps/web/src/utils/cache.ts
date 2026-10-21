@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unnecessary-type-parameters */
 import { CacheToken, Permissions } from '@/constants/cacheKey'
 import { ICacheOptions } from '@/types/interface'
 import { isNullOrUndefined } from './utils'
@@ -22,7 +23,7 @@ const cacheAdapter = (isSessionStorage?: boolean) => {
  * 例 ： import { getCache } from 'cache';
  *       const username = getCache('username')
  */
-export const getCache = (key: string, options?: ICacheOptions, defaultValue?: unknown): any => {
+export const getCache = <T = any>(key: string, options?: ICacheOptions, defaultValue?: unknown): T => {
   key = fix + key
   options = { isParse: true, isDelete: false, ...options }
   try {
@@ -30,10 +31,11 @@ export const getCache = (key: string, options?: ICacheOptions, defaultValue?: un
     if (options.isDelete) {
       cacheAdapter(options.isSessionStorage).removeItem(key)
     }
-    return isNullOrUndefined(value) ? defaultValue : options.isParse ? (value ? JSON.parse(value) : defaultValue) : value
+    const parsed = isNullOrUndefined(value) ? defaultValue : options.isParse ? (value ? JSON.parse(value) : defaultValue) : value
+    return parsed as T
   } catch (error) {
     console.error('getCache', error)
-    return defaultValue
+    return defaultValue as T
   }
 }
 
@@ -46,9 +48,10 @@ export const getCache = (key: string, options?: ICacheOptions, defaultValue?: un
  * 例 ：import { setCache } from 'cache'
  *      setCache('username', { username: '张三' }, false)
  */
-export const setCache = (key: string, value: string | Record<string, unknown> | Array<any>[], isSessionStorage?: boolean): void => {
+export const setCache = (key: string, value: string | number | boolean | Record<string, unknown> | unknown[], isSessionStorage?: boolean): void => {
   key = fix + key
-  cacheAdapter(isSessionStorage).setItem(key, typeof value === 'object' ? JSON.stringify(value) : value)
+  const serialized = typeof value === 'object' ? JSON.stringify(value) : String(value)
+  cacheAdapter(isSessionStorage).setItem(key, serialized)
 }
 
 /**
@@ -65,9 +68,9 @@ export const removeCache = (key: string, isSessionStorage?: boolean): void => {
 }
 
 export const getPermissions = (): string => {
-  return getCache(Permissions, { isSessionStorage: true }, {})
+  return getCache<string>(Permissions, { isSessionStorage: true }, '')
 }
 
 export const getToken = (): string => {
-  return getCache(CacheToken, { isSessionStorage: true }, {})['token']
+  return getCache<{ token?: string }>(CacheToken, { isSessionStorage: true }, {}).token ?? ''
 }

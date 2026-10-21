@@ -50,7 +50,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue'
-import { useRouter, type RouteRecordRaw } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useMediaQuery } from '@vueuse/core'
 import { usePreferencesStore, useSessionStore, useShellStore } from '@/store'
 import { CacheSidebarWidth } from '@/constants/cacheKey'
@@ -61,7 +61,7 @@ import BaseSidebar from './sidebar/base-sidebar.vue'
 import BaseView from './view/base-view.vue'
 
 /** 多标签页布局 */
-defineOptions({ name: 'Layout' })
+defineOptions({ name: 'AdminLayout' })
 
 const SIDEBAR_DEFAULT_WIDTH = 230
 const SIDEBAR_MIN_WIDTH = 180
@@ -91,15 +91,17 @@ const state = reactive({
   sidebarLayout: preferences.navLayout,
   collapseSidebar: preferences.sidebarCollapse,
   isSidebarResizing: false,
-  sidebarWidth: readSidebarWidth(String(session.userId ?? '')),
-  mixLayoutRoutes: (router.options.routes.find((route) => route.path === '/')?.children ?? []) as RouteRecordRaw[]
+  sidebarWidth: readSidebarWidth(session.userId),
+  mixLayoutRoutes: router.options.routes.find((route) => route.path === '/')?.children ?? []
 })
 
 const sidebarResizer = ref<HTMLElement>()
 const activePointerId = ref<number | null>(null)
 const mobileSidebarOpen = computed({
   get: () => shell.mobileSidebarOpen,
-  set: (value: boolean) => shell.toggleMobileSidebar(value)
+  set: (value: boolean) => {
+    shell.toggleMobileSidebar(value)
+  }
 })
 let dragStartX = 0
 let dragStartWidth = state.sidebarWidth
@@ -113,16 +115,16 @@ const containerClassNames = computed(() =>
     ...(state.isSidebarResizing ? ['is-sidebar-resizing'] : [])
   ].join(' ')
 )
-const layoutStyle = computed(() => ({ '--rr-sidebar-width': `${state.sidebarWidth}px` }))
+const layoutStyle = computed(() => ({ '--rr-sidebar-width': `${String(state.sidebarWidth)}px` }))
 
 const updateMixLayoutRoutes = (path?: string) => {
-  const target = path ?? String(router.currentRoute.value.matched[0]?.path ?? '')
+  const target = path ?? router.currentRoute.value.matched[0]?.path
   state.mixLayoutRoutes = router.options.routes.find((route) => route.path === target)?.children ?? []
 }
 
 const persistSidebarWidth = () => {
-  const userId = String(session.userId ?? '')
-  if (userId) setCache(getSidebarWidthCacheKey(userId), String(state.sidebarWidth))
+  const userId = session.userId
+  if (userId) setCache(getSidebarWidthCacheKey(userId), state.sidebarWidth.toString())
 }
 
 const applyPendingSidebarWidth = () => {
@@ -220,7 +222,7 @@ watch(
 )
 
 watch(
-  () => String(session.userId ?? ''),
+  () => session.userId,
   (userId) => {
     finishSidebarResize(false)
     state.sidebarWidth = readSidebarWidth(userId)

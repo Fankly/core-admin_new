@@ -29,14 +29,16 @@ import { useRouter } from 'vue-router'
 import type { TabPaneName, TabsPaneContext } from 'element-plus'
 import { useTabsStore } from '@/store'
 
-defineOptions({ name: 'Tabs' })
+defineOptions({ name: 'ViewTabs' })
 
 const router = useRouter()
 const tabs = useTabsStore()
 
 const activePath = computed({
   get: () => tabs.activePath,
-  set: (path: string) => tabs.activate(path)
+  set: (path: string) => {
+    tabs.activate(path)
+  }
 })
 
 const operations = [
@@ -48,7 +50,9 @@ const operations = [
 ]
 
 const navigate = (path?: string) => {
-  if (path && path !== router.currentRoute.value.fullPath) void router.push(path)
+  if (path && path !== router.currentRoute.value.fullPath) {
+    void router.push(path)
+  }
 }
 
 const onTabClick = (pane: TabsPaneContext) => {

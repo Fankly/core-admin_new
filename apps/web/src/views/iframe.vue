@@ -1,97 +1,77 @@
+<template>
+  <div v-loading="loading" class="frame" element-loading-text="加载中...">
+    <iframe ref="frameRef" :src="frameSrc" class="frame-iframe" title="业务系统" @load="hideLoading" />
+  </div>
+</template>
+
 <script setup lang="ts">
+import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { ref, unref, watch, onMounted, nextTick } from 'vue'
 import { getSysObjByBusicode } from '@/api/common'
 
-defineOptions({ name: 'Iframe' })
+defineOptions({ name: 'IframePage' })
 
-const props = defineProps<{
-  frameInfo?: {
-    frameSrc?: string
-    fullPath?: string
-  }
-}>()
-
-const loading = ref(true)
-const currentRoute = useRoute()
-const frameSrc = ref<any>('')
-const frameRef = ref<HTMLElement | null>(null)
-
-async function getFrameSrc() {
-  try {
-    const menuCode = unref(currentRoute.meta as any).outsideMenu
-    const res = await getSysObjByBusicode(menuCode)
-    if (res.success) {
-      const apiUrl = res.data.url
-      const routeFrameSrc = unref(currentRoute.meta as any)?.frameSrc as string
-      if (routeFrameSrc && routeFrameSrc.includes('http')) {
-        frameSrc.value = routeFrameSrc
-      } else if (routeFrameSrc) {
-        const deployUrl = res.data.deployUrl
-        const address = routeFrameSrc
-        const funcId = res.data.funcId
-        const funcBusicode = res.data.funcBusicode
-        const appframeSystemId = res.data.appframeSystemId
-        const appframeSystemCode = res.data.AppframeSystemCode
-        frameSrc.value = `${deployUrl}${address}?funcId=${funcId}&funcBusicode=${funcBusicode}&AppframeSystemId=${appframeSystemId}&AppframeSystemCode=${appframeSystemCode}`
-      } else {
-        frameSrc.value = apiUrl
-      }
-    }
-  } catch (error) {
-    console.error('获取frameSrc失败:', error)
-  }
+interface FrameInfo {
+  frameSrc?: string
+  fullPath?: string
 }
 
-getFrameSrc()
+interface SysObject {
+  url?: string
+  deployUrl?: string
+  funcId?: string
+  funcBusicode?: string
+  appframeSystemId?: string
+  AppframeSystemCode?: string
+}
 
-unref(currentRoute.meta as any)?.frameLoading === false && hideLoading()
+const props = defineProps<{ frameInfo?: FrameInfo }>()
+const route = useRoute()
+const loading = ref(route.meta.frameLoading !== false)
+const frameSrc = ref('')
+const frameRef = ref<HTMLIFrameElement | null>(null)
+
+const buildFrameSrc = (framePath: string, source: SysObject): string => {
+  if (framePath.includes('http')) return framePath
+  if (!framePath) return source.url ?? ''
+  const query = new URLSearchParams({
+    funcId: source.funcId ?? '',
+    funcBusicode: source.funcBusicode ?? '',
+    AppframeSystemId: source.appframeSystemId ?? '',
+    AppframeSystemCode: source.AppframeSystemCode ?? ''
+  })
+  return `${source.deployUrl ?? ''}${framePath}?${query.toString()}`
+}
+
+async function loadFrame() {
+  const menuCode = typeof route.meta.outsideMenu === 'string' ? route.meta.outsideMenu : ''
+  if (!menuCode) return
+  loading.value = true
+  try {
+    const res = await getSysObjByBusicode(menuCode)
+    if (!res.success) return
+    const source = res.data as SysObject
+    const framePath = typeof route.meta.frameSrc === 'string' ? route.meta.frameSrc : ''
+    frameSrc.value = buildFrameSrc(framePath, source)
+  } catch (error) {
+    console.error('获取 frameSrc 失败:', error)
+  }
+}
 
 function hideLoading() {
   loading.value = false
 }
 
-function init() {
-  nextTick(() => {
-    const iframe = unref(frameRef)
-    if (!iframe) return
-    const _frame = iframe as any
-    if (_frame.attachEvent) {
-      _frame.attachEvent('onload', () => {
-        hideLoading()
-      })
-    } else {
-      iframe.onload = () => {
-        hideLoading()
-      }
-    }
-  })
-}
+onMounted(loadFrame)
 
+// 同一个 iframe 组件可能被多个标签页复用，fullPath 变化时重新解析地址。
 watch(
-  () => currentRoute.fullPath,
+  () => route.fullPath,
   (path) => {
-    if (currentRoute.name === 'Redirect' && path.includes(props.frameInfo?.fullPath as string)) {
-      frameSrc.value = path // redirect时，置换成任意值，待重定向后 重新赋值
-      loading.value = true
-    }
-    // 重新赋值
-    if (props.frameInfo?.fullPath === path) {
-      getFrameSrc()
-    }
+    if (props.frameInfo?.fullPath === path) void loadFrame()
   }
 )
-
-onMounted(() => {
-  init()
-})
 </script>
-
-<template>
-  <div v-loading="loading" class="frame" element-loading-text="加载中...">
-    <iframe ref="frameRef" :src="frameSrc" class="frame-iframe" />
-  </div>
-</template>
 
 <style lang="less" scoped>
 .frame {
@@ -105,9 +85,5 @@ onMounted(() => {
     overflow: hidden;
     border: 0;
   }
-}
-
-.main-content {
-  margin: 2px 0 0 !important;
 }
 </style>

@@ -24,6 +24,7 @@ function applyDocumentDomain(domainName?: string) {
   if (!window.location.hostname.endsWith(domain) || window.location.hostname === domain) return
   documentDomainApplied = true
   try {
+    // eslint-disable-next-line @typescript-eslint/no-deprecated -- 旧系统跨子域 iframe 依赖该 API
     document.domain = domain
   } catch {
     ElMessage({
@@ -52,7 +53,9 @@ async function bootstrapApplication(router: Router, to: RouteLocationNormalized)
   session.markLogin(true)
   shell.markReady()
   // 保留原有的 600ms 过渡，避免首屏骨架与页面内容同时闪现。
-  window.setTimeout(() => shell.markRendered(), 600)
+  window.setTimeout(() => {
+    shell.markRendered()
+  }, 600)
 }
 
 /**
@@ -134,14 +137,16 @@ export function setupRouterGuards(router: Router) {
     const tabs = useTabsStore()
     const menu = useMenuStore()
 
-    window.setTimeout(() => shell.setRouteLoading(false), 300)
+    window.setTimeout(() => {
+      shell.setRouteLoading(false)
+    }, 300)
     NProgress.done()
 
     if (failure || to.query.pop || to.path === '/login') return
-    const meta = (menu.routeToMeta[to.path] ?? to.meta) as MenuMeta
+    const meta: MenuMeta = menu.routeToMeta[to.path] ?? to.meta
     tabs.openTab({
       path: to.fullPath,
-      title: String(to.meta.title || meta.title || to.path),
+      title: to.meta.title || meta.title || to.path,
       meta,
       keepAlive: to.meta.keepAlive !== false
     })

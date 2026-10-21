@@ -1,7 +1,6 @@
 import Layout from '@/layout/layout.vue'
 import Error404 from '@/views/error/404.vue'
-import Iframe from '@/views/iframe.vue'
-import { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 import { whiteList } from './modules/whiteList'
 import { workflow } from './modules/workflow'
 
@@ -34,11 +33,11 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     component: () => import('@/views/login.vue'),
-    meta: { title: '登录', isNavigationMenu: false }
+    meta: { title: '登录', isNavigationMenu: false, layout: 'fullscreen' }
   },
   {
     path: '/iframe/:id?',
-    component: Iframe,
+    component: () => import('@/views/iframe.vue'),
     meta: { isNavigationMenu: false, isIframe: true }
   },
   {

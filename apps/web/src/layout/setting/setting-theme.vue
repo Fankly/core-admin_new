@@ -3,17 +3,27 @@
     <el-space>
       <el-tooltip v-for="item in sidebar" :key="item.value" effect="dark" :content="item.label" placement="top">
         <!-- el-tooltip 是多节点组件，class/style 不会透传到触发元素，预览样式必须挂在 span 上 -->
-        <span :class="`card side ${item.value} ${active.sidebar === item.value ? 'active' : ''}`" @click="onSetTheme(EThemeSetting.Sidebar, 'sidebar', item.value)" />
+        <span
+          :class="`card side ${item.value} ${active.sidebar === item.value ? 'active' : ''}`"
+          @click="onSetTheme(EThemeSetting.Sidebar, 'sidebar', item.value)"
+        />
       </el-tooltip>
     </el-space>
     <el-space>
       <el-tooltip v-for="item in header" :key="item.value" effect="dark" :content="item.label" placement="top">
-        <span :class="`card header ${item.value} ${active.header === item.value ? 'active' : ''}`" @click="onSetTheme(EThemeSetting.TopHeader, 'header', item.value)" />
+        <span
+          :class="`card header ${item.value} ${active.header === item.value ? 'active' : ''}`"
+          @click="onSetTheme(EThemeSetting.TopHeader, 'header', item.value)"
+        />
       </el-tooltip>
     </el-space>
     <el-space :size="2" style="flex-wrap: wrap">
       <el-tooltip v-for="item in colors" :key="item.value" effect="dark" :content="item.label" placement="top">
-        <span :class="`color ${active.color === item.value ? 'active' : ''}`" :style="`background-color: ${item.value}`" @click="onSetTheme(EThemeSetting.ThemeColor, 'color', item.value)" />
+        <span
+          :class="`color ${active.color === item.value ? 'active' : ''}`"
+          :style="`background-color: ${item.value}`"
+          @click="onSetTheme(EThemeSetting.ThemeColor, 'color', item.value)"
+        />
       </el-tooltip>
     </el-space>
   </el-space>

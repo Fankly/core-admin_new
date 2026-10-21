@@ -50,8 +50,8 @@ const resolveMenus = (source?: RouteRecordRaw[]) => toValidRoutes(source ?? menu
 const state = reactive({
   windowWidth: win.width.value || 800,
   hiddenIndex: -1,
-  rawMenus: resolveMenus(props.menus) as RouteRecordRaw[],
-  menus: resolveMenus(props.menus) as RouteRecordRaw[],
+  rawMenus: resolveMenus(props.menus),
+  menus: resolveMenus(props.menus),
   currRoute: props.currRoute ?? route.path
 })
 
@@ -140,6 +140,8 @@ watch(
 
 watch(
   () => state.windowWidth,
-  (width) => computeSidebarLayout(width)
+  (width) => {
+    computeSidebarLayout(width)
+  }
 )
 </script>

@@ -38,15 +38,15 @@ export const useContextStore = defineStore('context', () => {
   const getSZWLlobalInfo = computed(() => globalInfo.value.SZWLlobalInfo)
 
   function setGlobalInfo(key: GlobalContextKey, payload: Record<string, unknown>) {
-    globalInfo.value[key] = payload ?? {}
+    globalInfo.value[key] = payload
   }
 
   function setPenetrateParams(payload: Record<string, unknown>) {
-    penetrateParams.value = payload ?? {}
+    penetrateParams.value = payload
   }
 
   function setProParams(payload: Record<string, unknown>) {
-    proParams.value = payload ?? {}
+    proParams.value = payload
   }
 
   function setYssxbm(payload: string) {
@@ -58,7 +58,7 @@ export const useContextStore = defineStore('context', () => {
   }
 
   function setProcessData(payload: unknown[]) {
-    processData.value = payload ?? []
+    processData.value = payload
   }
 
   function reset() {

@@ -201,6 +201,15 @@ describe('HTTP in-flight request identity', () => {
     await Promise.all([first, second])
   })
 
+  it('never merges write requests with identical payloads', async () => {
+    const first = http({ url: '/write', method: 'post', data: { id: 1 } })
+    const second = http({ url: '/write', method: 'post', data: { id: 1 } })
+    expect(first).not.toBe(second)
+    respond(await nextRequest())
+    respond(await nextRequest())
+    await Promise.all([first, second])
+  })
+
   it('keeps different service configurations separate', async () => {
     const first = http({ url: '/services', service: 'budget' })
     const second = http({ url: '/services', service: 'project' })

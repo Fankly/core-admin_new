@@ -55,16 +55,17 @@ const status = ref<LoginStatus>('loading')
 const errorMessage = ref('请稍后重试，或联系系统管理员。')
 
 // 旧版统一认证入口：凭据由构建环境注入，避免把测试账号写死在源码里。
+const env = import.meta.env as Record<string, string | undefined>
 const credentials = {
-  account: import.meta.env.VITE_APP_LOGIN_USER || 'admin',
-  password: import.meta.env.VITE_APP_LOGIN_PASSWORD || 'admin',
-  captcha: import.meta.env.VITE_APP_LOGIN_CAPTCHA || 'HE_YUE_11_22_33'
+  account: env.VITE_APP_LOGIN_USER ?? 'admin',
+  password: env.VITE_APP_LOGIN_PASSWORD ?? 'admin',
+  captcha: env.VITE_APP_LOGIN_CAPTCHA ?? 'HE_YUE_11_22_33'
 }
 
 const autoLogin = async () => {
   status.value = 'loading'
   try {
-    const res = await baseService.post('/login', {
+    const res = await baseService.post<Record<string, unknown> | null>('/login', {
       a: Base64.encode(credentials.account),
       b: Base64.encode(credentials.password),
       captcha: Base64.encode(credentials.captcha),
@@ -73,8 +74,8 @@ const autoLogin = async () => {
 
     if (res.code !== 0 || !res.data) throw new Error(res.msg || '登录接口返回异常')
 
-    const permission = await baseService.get('/sysMenu/hasPermission')
-    const allowed = Boolean(permission.data)
+    const permission = await baseService.get<boolean>('/sysMenu/hasPermission')
+    const allowed = permission.data
     session.setHasPermission(allowed)
 
     if (!allowed) {
@@ -108,8 +109,7 @@ onMounted(autoLogin)
   padding: 0 8vw;
   background:
     radial-gradient(circle at 15% 20%, rgb(14 165 164 / 18%), transparent 42%),
-    radial-gradient(circle at 80% 75%, rgb(59 130 246 / 12%), transparent 40%),
-    #f6f8fb;
+    radial-gradient(circle at 80% 75%, rgb(59 130 246 / 12%), transparent 40%), #f6f8fb;
 }
 
 .login-page__brand {

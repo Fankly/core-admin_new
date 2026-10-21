@@ -1,5 +1,5 @@
 <template>
-  <tabs v-if="preferences.openTabsPage" />
+  <ViewTabs v-if="preferences.openTabsPage" />
   <div class="rr-view-ctx">
     <el-card shadow="never" class="rr-view-ctx-card">
       <div class="router-view-wrapper" v-loading="shell.isLoading" element-loading-text="加载中...">
@@ -27,10 +27,10 @@ import { usePreferencesStore, useShellStore, useTabsStore } from '@/store'
 import app from '@/constants/app'
 import KeepAliveFrame from '@/layout/component/keepAliveFrame/index.vue'
 import RouteLoading from '@/components/Loading/index.vue'
-import Tabs from './tabs.vue'
+import ViewTabs from './tabs.vue'
 
 /** 业务内容视图框架 */
-defineOptions({ name: 'View' })
+defineOptions({ name: 'ContentView' })
 
 const shell = useShellStore()
 const tabs = useTabsStore()

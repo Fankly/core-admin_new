@@ -49,9 +49,10 @@ client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   headers['Accept-Language'] = 'zh-CN'
 
   if (config.method?.toUpperCase() === 'GET') {
-    config.params = { ...config.params, _t: Date.now() }
+    config.params = { ...(config.params as Record<string, unknown> | undefined), _t: Date.now() }
   }
-  const contentType = String(headers['Content-Type'] ?? headers['content-type'] ?? '')
+  const rawContentType = headers['Content-Type'] ?? headers['content-type']
+  const contentType = typeof rawContentType === 'string' ? rawContentType : ''
   if (contentType.includes('application/x-www-form-urlencoded')) {
     config.data = qs.stringify(config.data)
   }
@@ -106,7 +107,7 @@ export default function request<T = unknown>(config: HttpRequestConfig): Promise
 
   const requestConfig: HttpRequestConfig = { ...config, headers }
   const canMerge = !config.signal && !config.cancelToken && isMergeableMethod(config.method)
-  const key = canMerge ? getRequestKey(requestConfig, client.defaults) : ''
+  const key = canMerge ? getRequestKey(requestConfig, client.defaults as HttpRequestConfig) : ''
   const existing = canMerge ? pending.get(key) : undefined
   if (existing) return existing as Promise<ApiResponse<T>>
 
@@ -118,7 +119,7 @@ export default function request<T = unknown>(config: HttpRequestConfig): Promise
       if (canMerge) pending.delete(key)
     })
 
-  if (canMerge) pending.set(key, promise as Promise<ApiResponse>)
+  if (canMerge) pending.set(key, promise)
   return promise
 }
 
