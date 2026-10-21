@@ -136,10 +136,10 @@ export const getListPageData = (params: Params): Promise<Result> => baseService.
 
 - 业务样式走 **SCSS/Less**,页面局部样式一律 `<style scoped>`。
 - 全局样式集中在 `src/styles/`;设计 token 在 `src/styles/tokens.css`,Element Plus 覆盖在 `src/styles/element.less`,外壳样式在 `src/styles/shell.less`。
-- **不要重复 import** Vite `additionalData` 已全局注入的 `style/variables.less`。当前 SCSS 没有自动注入;遗留 SCSS 文件不代表已经配置预处理器。
+- **不要重复 import** Vite `additionalData` 已全局注入的 `styles/variables.less`。当前 SCSS 没有自动注入;遗留 SCSS 文件不代表已经配置预处理器。
 - Tailwind v4 **CSS-first**,类名前缀是 `tw:`(变体式),不是 `tw-`;没有 `tailwind.config.js`。用法规范见 `src/styles/tailwind.css` 顶部注释。
 - Tailwind 不引入 preflight,`tw:border` 单独用不出边框(无 border-style 重置),需要自己写 border-style。
-- 当前 Tailwind 用于 `layout/header/CustomerService.vue`,新代码默认沿用已配置的 Less;要用 Tailwind 或新增 SCSS 预处理配置需在评审中说明理由。
+- 当前没有页面使用 Tailwind 类;新 UI 优先消费 `src/styles/tokens.css` 的语义 token 与 Less。确需 Tailwind 或新增 SCSS 预处理配置时需在评审中说明理由。
 
 ---
 
@@ -182,7 +182,7 @@ defineOptions({ name: 'ProTable' })
 </script>
 ```
 
-多数情况下**不需要手写组件名**:`<script setup>` 默认以文件名推导名称,足够 devtools 与递归引用使用。keep-alive 也不依赖它 —— `layout/view/base-view.vue` 的 `:include="store.caches"` 匹配的是服务端菜单生成的**路由名**(见 `utils/index.ts` 的 `getKeepAliveRouterName`),与组件 `name` 无关。
+多数情况下**不需要手写组件名**:`<script setup>` 默认以文件名推导名称,足够 devtools 与递归引用使用。keep-alive 的 include 只认组件 name,而 tabs store 保存的是 fullPath;`layouts/admin/components/view/ViewOutlet.vue` 会为每个缓存路径生成具名包装组件,因此页面无需为了缓存额外声明组件名。
 
 ### 4.3 Props / Emits
 

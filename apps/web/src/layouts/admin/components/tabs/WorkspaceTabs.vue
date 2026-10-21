@@ -75,8 +75,15 @@ const navigate = (path?: string) => {
   if (path && path !== router.currentRoute.value.fullPath) void router.push(path)
 }
 
+const focusActiveTab = () => {
+  void nextTick(() => {
+    scrollRef.value?.querySelector<HTMLElement>('.ds-tabs__item.is-active .ds-tabs__link')?.focus()
+  })
+}
+
 const closeTab = (path: string) => {
   navigate(tabs.closeTab(path))
+  focusActiveTab()
 }
 
 const onAuxClick = (event: MouseEvent, tab: TabItem) => {
@@ -113,6 +120,7 @@ const onCommand = (command: string) => {
       navigate(tabs.closeAll())
       break
   }
+  focusActiveTab()
 }
 
 watch(

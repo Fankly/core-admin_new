@@ -145,6 +145,7 @@ import WorkbenchPage from '@/features/workbench/WorkbenchPage.vue'
 - left / top / mix 三种导航模式；
 - 移动端（≤960px）切换为左侧 drawer；
 - 侧栏宽度按用户缓存，支持 pointer 拖动、键盘方向键、双击复位；
+- keep-alive 的 `include` 使用 `fullPath` 生成的具名包装组件，避免“store 存路径、include 却匹配组件名”的失效；
 - 主题 class 由 `preferences` store 提供，映射到新的 CSS 变量。
 
 ### 5.2 设计系统
