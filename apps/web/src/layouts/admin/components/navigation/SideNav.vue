@@ -169,7 +169,12 @@ watch(
   () => win.width.value,
   (width) => {
     state.windowWidth = width || 1280
-    void nextTick(measureMenuWidths)
+    // 先恢复完整菜单再测量；否则窗口变大后会一直沿用上一次折叠出的“更多”。
+    state.menus = state.rawMenus
+    void nextTick(() => {
+      state.menus = state.rawMenus
+      void nextTick(measureMenuWidths)
+    })
   }
 )
 

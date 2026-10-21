@@ -76,14 +76,24 @@ export const useTabsStore = defineStore('tabs', () => {
     return closeTab(activePath.value)
   }
 
+  function markClosed(removed: TabItem[]) {
+    removed.forEach((tab) => {
+      uncacheView(tab.path)
+      if (!closedPaths.value.includes(tab.path)) closedPaths.value.push(tab.path)
+    })
+  }
+
   function closeOthers(): void {
+    const removed = tabs.value.filter((tab) => !tab.affix && tab.path !== activePath.value)
     tabs.value = tabs.value.filter((tab) => tab.affix || tab.path === activePath.value)
-    cachedViews.value = cachedViews.value.filter((path) => tabs.value.some((tab) => tab.path === path))
+    markClosed(removed)
   }
 
   function closeAll(): string {
+    const removed = tabs.value.filter((tab) => !tab.affix)
     tabs.value = cloneAffixTabs()
     cachedViews.value = tabs.value.map((tab) => tab.path)
+    markClosed(removed)
     activePath.value = tabs.value[0]?.path ?? ''
     return activePath.value
   }
@@ -91,13 +101,17 @@ export const useTabsStore = defineStore('tabs', () => {
   function closeLeft(): void {
     const index = tabs.value.findIndex((tab) => tab.path === activePath.value)
     if (index <= 0) return
+    const removed = tabs.value.filter((tab, i) => !tab.affix && i < index)
     tabs.value = tabs.value.filter((tab, i) => tab.affix || i >= index)
+    markClosed(removed)
   }
 
   function closeRight(): void {
     const index = tabs.value.findIndex((tab) => tab.path === activePath.value)
     if (index === -1) return
+    const removed = tabs.value.filter((tab, i) => !tab.affix && i > index)
     tabs.value = tabs.value.filter((tab, i) => tab.affix || i <= index)
+    markClosed(removed)
   }
 
   function syncActive(path: string) {

@@ -213,6 +213,7 @@ onMounted(autoLogin)
   display: grid;
   grid-template-columns: minmax(0, 1.12fr) minmax(380px, 0.88fr);
   width: 100%;
+  min-height: 100vh;
   min-height: 100dvh;
   overflow: hidden auto;
   background: var(--ds-paper);
@@ -223,6 +224,7 @@ onMounted(autoLogin)
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-height: 100vh;
   min-height: 100dvh;
   padding: 38px clamp(36px, 5vw, 76px) 34px;
   overflow: hidden;
@@ -376,6 +378,7 @@ onMounted(autoLogin)
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
   min-height: 100dvh;
   padding: 44px clamp(26px, 4vw, 64px);
   background: radial-gradient(circle at 100% 0, rgb(11 107 98 / 5%), transparent 28%), var(--ds-paper);

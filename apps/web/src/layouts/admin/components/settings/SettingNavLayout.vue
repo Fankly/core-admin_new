@@ -20,18 +20,10 @@
       </button>
     </div>
   </div>
-
-  <div class="ds-settings__group">
-    <div class="ds-settings__row">
-      <span>内容区域铺满</span>
-      <el-switch :model-value="contentFull" @change="onToggleContentFull" />
-    </div>
-  </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { ESidebarLayoutEnum, EThemeSetting } from '@/constants/enum'
+import { ESidebarLayoutEnum } from '@/constants/enum'
 import { usePreferencesStore } from '@/store'
 
 defineOptions({ name: 'SettingNavLayout' })
@@ -43,12 +35,6 @@ const layouts = [
   { label: '顶部导航', value: ESidebarLayoutEnum.Top },
   { label: '混合导航', value: ESidebarLayoutEnum.Mix }
 ]
-
-const contentFull = computed(() => Boolean(preferences.config[EThemeSetting.ContentFull]))
-
-const onToggleContentFull = () => {
-  preferences.set(EThemeSetting.ContentFull, !contentFull.value)
-}
 </script>
 
 <style scoped lang="less">

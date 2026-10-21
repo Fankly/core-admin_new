@@ -7,9 +7,9 @@
             <KeepAliveFrame :curr-comp="Component" :curr-route="currentRoute">
               <template #default="{ Comp, fullPath, frameInfo }">
                 <keep-alive v-if="enabledKeepAlive" :include="cachedNames">
-                  <component :is="resolveCachedView(fullPath)" :key="fullPath" :view="Comp" :frame-info="frameInfo" />
+                  <component v-if="Comp" :is="resolveCachedView(fullPath)" :key="fullPath" :view="Comp" :frame-info="frameInfo" />
                 </keep-alive>
-                <component v-else :is="Comp" :key="fullPath" :frame-info="frameInfo" />
+                <component v-else-if="Comp" :is="Comp" :key="fullPath" :frame-info="frameInfo" />
               </template>
             </KeepAliveFrame>
           </template>

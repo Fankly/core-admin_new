@@ -45,19 +45,7 @@ export enum EThemeSetting {
    * 布局模式
    */
   NavLayout = 'navLayout',
-  /**
-   * 内容是否铺满
-   */
-  ContentFull = 'contentFull',
   //---
-  /**
-   * logo宽度自动
-   */
-  LogoAuto = 'logoAuto',
-  /**
-   * 多彩图标
-   */
-  ColorIcon = 'colorIcon',
   /**
    * 侧边栏排他展开
    */

@@ -10,6 +10,7 @@ describe('layout resolution', () => {
   it('keeps workflow form pages standalone', () => {
     expect(isWorkflowStandalone('/workflow/start/123')).toBe(true)
     expect(isWorkflowStandalone('/workflow/todoTasks')).toBe(false)
+    expect(isWorkflowStandalone('/budget/workflowList')).toBe(false)
     expect(resolveLayoutMode(createRoute('/workflow/start/123'))).toBe('standalone')
   })
 

@@ -14,7 +14,8 @@
       <h1 class="error-page__title">{{ title }}</h1>
       <p class="error-page__copy">{{ description }}</p>
       <div class="error-page__actions">
-        <button class="ds-button ds-button--primary" type="button" @click="goHome">返回工作台</button>
+        <button v-if="reload" class="ds-button ds-button--primary" type="button" @click="reloadPage">重新加载</button>
+        <button v-else class="ds-button ds-button--primary" type="button" @click="goHome">返回工作台</button>
         <button class="ds-button" type="button" @click="goBack">返回上一页</button>
       </div>
       <p class="error-page__hint">如果问题持续出现，请联系系统管理员，并提供当前页面地址。</p>
@@ -31,10 +32,12 @@ interface Props {
   code: string
   title: string
   description: string
+  reload?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
-  description: '这条路径暂时无法抵达。'
+  description: '这条路径暂时无法抵达。',
+  reload: false
 })
 
 const router = useRouter()
@@ -45,6 +48,10 @@ const goHome = () => {
 
 const goBack = () => {
   router.back()
+}
+
+const reloadPage = () => {
+  window.location.reload()
 }
 </script>
 

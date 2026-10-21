@@ -47,7 +47,7 @@ export const mergeServerRoute = (
     routes.push({
       path,
       name: path,
-      component: openStyleMeta.isIframe ? () => import('@/features/embed/IframePage.vue') : hasChildren && !viewComponent ? RouteHost : viewComponent,
+      component: openStyleMeta.isIframe ? () => import('@/views/iframe.vue') : hasChildren && !viewComponent ? RouteHost : viewComponent,
       meta: routeMeta,
       redirect: item.redirect || (isNotMatchComponent ? { path: '/error', query: { to: 404 }, replace: true } : undefined),
       children
@@ -84,9 +84,13 @@ export const toValidRoutes = (routes: RouteRecordRaw[]): RouteRecordRaw[] => {
     .map((route) => (route.children?.length ? { ...route, children: toValidRoutes(route.children) } : route))
 }
 
-/** 展平路由树后注册，动态路由按 name 覆盖。 */
+/**
+ * 只注册顶层路由，子路由由 Vue Router 随父路由递归挂载。
+ * 若把 flatRoutes 的结果逐条 addRoute，会把子路由再次挂到根上，
+ * 同名覆盖后 `route.matched` 丢失父级，面包屑和 mix 导航都会失准。
+ */
 export const registerToRouter = (router: Router, routes: RouteRecordRaw[]): void => {
-  flatRoutes(routes).forEach((route) => router.addRoute(route))
+  routes.forEach((route) => router.addRoute(route))
 }
 
 export const flatRoutes = (routes: RouteRecordRaw[]): RouteRecordRaw[] => {

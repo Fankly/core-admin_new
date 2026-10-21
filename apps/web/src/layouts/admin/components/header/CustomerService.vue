@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { BookOpen, Headphones, Mail, Phone } from '@lucide/vue'
-import type HelpModal from '@/components/HelpModal/index.vue'
+import HelpModal from '@/components/HelpModal/index.vue'
 
 interface Props {
   phone: string
@@ -72,7 +72,7 @@ const visible = ref(false)
 const helpModalRef = ref<HelpModalInstance | null>(null)
 const helpMenuUrl = '/mainPage'
 
-const formattedPhone = computed(() => props.phone.split('n').join('\n') || '暂未配置')
+const formattedPhone = computed(() => props.phone || '暂未配置')
 
 const openModal = () => {
   visible.value = true

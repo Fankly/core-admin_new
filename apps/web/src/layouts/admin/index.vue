@@ -4,7 +4,7 @@
 
     <div class="ds-admin__body">
       <aside v-if="showRail" class="ds-admin__rail" aria-label="侧边导航">
-        <SideNav :menus="railMenus" :router="preferences.navLayout === ESidebarLayoutEnum.Left" mode="vertical" :is-mobile="false" />
+        <SideNav :menus="railMenus" :router="true" mode="vertical" :is-mobile="false" />
       </aside>
 
       <button
@@ -43,8 +43,10 @@
       size="280px"
       :with-header="false"
       :append-to-body="true"
+      aria-label="导航菜单"
       :class="['ds-mobile-drawer', ...Object.values(preferences.themeClasses)]"
     >
+      <h2 class="sr-only">导航菜单</h2>
       <div class="ds-mobile-brand">
         <BrandMark />
       </div>
@@ -107,7 +109,10 @@ const showRail = computed(() => !isMobile.value && preferences.navLayout !== ESi
 
 const railMenus = computed(() => {
   if (preferences.navLayout !== ESidebarLayoutEnum.Mix) return undefined
-  const topPath = shell.activeTopMenu || route.matched[0]?.path
+  const topPath =
+    shell.activeTopMenu ||
+    menu.routes.find((item) => route.path === item.path || route.path.startsWith(`${item.path}/`))?.path ||
+    menu.routes[0]?.path
   return menu.routes.find((item) => item.path === topPath)?.children ?? []
 })
 
@@ -116,7 +121,7 @@ const shellClasses = computed(() => [
   {
     'ds-admin--top': preferences.navLayout === ESidebarLayoutEnum.Top,
     'ds-admin--mobile': isMobile.value,
-    'is-sidebar-collapsed': preferences.sidebarCollapse,
+    'is-sidebar-collapsed': preferences.sidebarCollapse && !isMobile.value && preferences.navLayout !== ESidebarLayoutEnum.Top,
     'is-sidebar-resizing': state.isSidebarResizing
   }
 ])

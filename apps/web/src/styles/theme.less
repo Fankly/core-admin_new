@@ -144,3 +144,21 @@
     background-color: rgb(0 0 0 / 80%);
   }
 }
+
+/* The top header can be dark or brand-colored while the breadcrumb lives inside it. */
+.ui-topHeader-dark .ds-breadcrumb__link,
+.ui-topHeader-dark .ds-breadcrumb__root,
+.ui-topHeader-primary .ds-breadcrumb__link,
+.ui-topHeader-primary .ds-breadcrumb__root {
+  color: var(--ds-header-muted);
+}
+
+.ui-topHeader-dark .ds-breadcrumb__current,
+.ui-topHeader-primary .ds-breadcrumb__current {
+  color: var(--ds-header-text);
+}
+
+.ui-topHeader-dark .ds-breadcrumb__item + .ds-breadcrumb__item::before,
+.ui-topHeader-primary .ds-breadcrumb__item + .ds-breadcrumb__item::before {
+  background: rgb(255 255 255 / 20%);
+}

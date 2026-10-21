@@ -1,7 +1,6 @@
 import type { RouteLocationNormalized, RouteRecordRaw, Router } from 'vue-router'
 import NProgress from 'nprogress'
 import { ElMessage } from 'element-plus'
-import 'nprogress/nprogress.css'
 import baseRoutes, { errorRoute } from '../base'
 import { registerDynamicRoute, registerDynamicToRouterAndNext } from '../dynamic'
 import { isWorkflowStandalone } from '../layout'
@@ -44,7 +43,7 @@ async function bootstrapApplication(router: Router, to: RouteLocationNormalized)
   const serverRoutes = await menu.init()
   const mergedRoutes: RouteRecordRaw[] = [...baseRoutes, ...serverRoutes, ...errorRoute]
   router.options.routes = mergedRoutes
-  registerToRouter(router, mergedRoutes)
+  registerToRouter(router, [...serverRoutes, ...errorRoute])
   menu.mergeMeta(getBaseRouteToMeta(baseRoutes))
 
   // 首次直接命中的深链可能不在菜单里，但视图文件存在：实时补注册。
@@ -88,7 +87,16 @@ export function setupRouterGuards(router: Router) {
       return true
     }
 
-    if (!tabs.tabs.some((tab) => tab.path === to.path)) shell.setRouteLoading(true)
+    // 初始化失败时需要一个不依赖菜单的外壳出口，避免永久停在首屏。
+    if (to.path === '/error') {
+      shell.setRouteLoading(false)
+      shell.markReady()
+      shell.markRendered()
+      NProgress.done()
+      return true
+    }
+
+    if (!tabs.tabs.some((tab) => tab.path === to.fullPath)) shell.setRouteLoading(true)
     NProgress.start()
 
     applyDocumentDomain(session.user.domainName)
@@ -114,8 +122,19 @@ export function setupRouterGuards(router: Router) {
     }
 
     if (token && permission) {
-      await bootstrapApplication(router, to)
-      return { ...to, replace: true }
+      try {
+        await bootstrapApplication(router, to)
+        return { ...to, replace: true }
+      } catch (error) {
+        console.error('[router] workspace bootstrap failed', error)
+        menu.reset()
+        shell.markReady()
+        shell.markRendered()
+        shell.setRouteLoading(false)
+        NProgress.done()
+        ElMessage.error('工作区加载失败，请稍后重试')
+        return { path: '/error', query: { to: '503' }, replace: true }
+      }
     }
 
     // 新窗口打开的内页：登录态由主窗口共享，这里只负责注册路由。

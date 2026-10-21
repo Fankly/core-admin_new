@@ -37,7 +37,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/iframe/:id?',
-    component: () => import('@/features/embed/IframePage.vue'),
+    component: () => import('@/views/iframe.vue'),
     meta: { isNavigationMenu: false, isIframe: true, fullBleed: true }
   },
   {

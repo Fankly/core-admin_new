@@ -23,8 +23,6 @@ defineOptions({ name: 'SettingOther' })
 const preferences = usePreferencesStore()
 
 const items = [
-  { label: '固定 Logo 栏', key: EThemeSetting.LogoAuto },
-  { label: '彩色导航图标', key: EThemeSetting.ColorIcon },
   { label: '导航排他展开', key: EThemeSetting.SidebarUniOpened },
   { label: '启用标签页', key: EThemeSetting.OpenTabsPage }
 ]

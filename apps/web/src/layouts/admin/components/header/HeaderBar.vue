@@ -1,7 +1,7 @@
 <template>
   <header class="ds-header">
     <router-link class="ds-header__brand" to="/home" aria-label="返回工作台">
-      <BrandMark :compact="preferences.sidebarCollapse" />
+      <BrandMark />
     </router-link>
 
     <div class="ds-header__bar">

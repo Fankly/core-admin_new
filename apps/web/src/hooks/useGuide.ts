@@ -1,7 +1,5 @@
 import { nextTick, ref } from 'vue'
 import { driver, Driver, DriveStep } from 'driver.js'
-import 'driver.js/dist/driver.css'
-import '@/styles/driver.less'
 import { checkGuideStatus, recordGuideCompletion, updateGuideStatus } from '@/api/guide'
 import { IObject } from '@/types/interface'
 

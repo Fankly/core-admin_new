@@ -39,6 +39,7 @@ describe('tabs store', () => {
     tabs.closeOthers()
     expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/c'])
     expect(tabs.cachedViews).not.toContain('/a')
+    expect(tabs.cachedViews).not.toContain('/b')
 
     tabs.closeAll()
     expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home'])
@@ -66,9 +67,14 @@ describe('tabs store', () => {
 
     tabs.closeLeft()
     expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/c', '/d'])
+    expect(tabs.cachedViews).not.toContain('/a')
+    expect(tabs.cachedViews).not.toContain('/b')
+    expect(tabs.closedPaths).toEqual(expect.arrayContaining(['/a', '/b']))
 
     tabs.closeRight()
     expect(tabs.tabs.map((tab) => tab.path)).toEqual(['/home', '/c'])
+    expect(tabs.cachedViews).not.toContain('/d')
+    expect(tabs.closedPaths).toContain('/d')
   })
 
   it('honours keepAlive=false and ignores error routes', () => {

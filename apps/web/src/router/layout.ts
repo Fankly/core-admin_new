@@ -7,7 +7,8 @@ export type LayoutMode = 'page' | 'fullscreen' | 'standalone'
  * 历史遗留：流程表单页不经过主框架，也不等待应用初始化完成。
  * 新增全屏页应优先在路由 meta 上声明 `layout: 'fullscreen'`，而不是继续加路径判断。
  */
-export const isWorkflowStandalone = (path: string): boolean => path.includes('workflow') && path !== '/workflow/todoTasks'
+export const isWorkflowStandalone = (path: string): boolean =>
+  (path === '/workflow' || path.startsWith('/workflow/')) && path !== '/workflow/todoTasks'
 
 /**
  * 决定一个路由使用哪种外壳：

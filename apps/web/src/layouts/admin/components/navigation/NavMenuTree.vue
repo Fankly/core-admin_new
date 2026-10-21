@@ -4,6 +4,7 @@
       v-if="item.children && item.children.length > 0"
       :index="item.path"
       :popper-class="props.className"
+      :aria-label="typeof item.meta?.title === 'string' ? item.meta.title : undefined"
       :class="classNames('rr-sidebar-menu-entry', { isMore: item.meta?.isMore })"
       :style="getStyle(index)"
     >
@@ -21,6 +22,7 @@
     <el-menu-item
       v-else
       :index="item.path"
+      :aria-label="typeof item.meta?.title === 'string' ? item.meta.title : undefined"
       :class="classNames('rr-sidebar-menu-entry', { isLink: !!item.meta?.isNewPage, isMore: item.meta?.isMore })"
       :style="getStyle(index)"
     >

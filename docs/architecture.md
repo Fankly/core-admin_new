@@ -131,8 +131,12 @@ import WorkbenchPage from '@/features/workbench/WorkbenchPage.vue'
 ```
 
 这样服务端协议、动态路由和既有菜单 url 完全不变，同时业务实现有了独立归属。
-静态路由可继续直接 import feature（例如登录、iframe），但需要被服务端菜单命中的
-路径必须保留 `views/` 适配文件。
+静态路由也通过 `views/` 适配器进入 feature（登录、iframe 均如此），保证“路由入口”
+只有一个层级。
+
+动态路由只注册顶层路由，子路由由 Vue Router 随父级递归挂载；不能把扁平化后的
+子路由再 `addRoute` 到根上，否则同名覆盖会丢失 `route.matched` 的父级链。菜单接口
+失败时，守卫会释放首屏并进入 `/error?to=503`，提供可重试出口。
 
 ## 5. 外壳与视觉系统
 
@@ -215,10 +219,10 @@ pnpm build
 - lint：通过，`eslint-suppressions.json` 从 66 个文件降至 58 个；
   核心层（app / layouts / router / store / service / features / styles）无新增债务。
 - typecheck：0 error。
-- tests：67 个用例通过。
+- tests：68 个用例通过（新增路由树注册、tab 缓存清理断言）。
 - build：通过。
 - 浏览器走查：使用 Playwright 拦截本地 API，验证登录三态、工作台、left/top/mix、
-  折叠导航、移动抽屉、标签页与主题抽屉；1440/390 宽度无横向滚动。
+  折叠导航、混合导航点击、移动抽屉、标签页、主题抽屉与菜单加载失败出口；1440/390 宽度无横向滚动。
 
 ## 9. 后续路线
 

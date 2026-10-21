@@ -23,18 +23,20 @@ const normalComp = computed(() => (!keep.value ? props.currComp : null))
 
 const iframeTabs = () => tabs.tabs.filter((tab) => Boolean(tab.meta?.frameSrc))
 
-// 标签页关闭后同步释放 iframe 缓存。
+// 标签页关闭后同步释放 iframe 缓存。清理不能依赖当前页是否仍是 iframe：
+// 用户可能停在普通页面时关闭了一个后台 iframe 标签。
 watch(
   () => tabs.tabs,
   () => {
-    if (!keep.value) return
-    if (iframeTabs().length >= MAP.size) return
+    const openPaths = new Set(tabs.tabs.map((tab) => tab.path))
+    let changed = false
     for (const path of MAP.keys()) {
-      if (!tabs.tabs.some((tab) => tab.path === path)) {
+      if (!openPaths.has(path)) {
         delMap(path)
-        compList.value = getMap()
+        changed = true
       }
     }
+    if (changed) compList.value = getMap()
   },
   { deep: true }
 )

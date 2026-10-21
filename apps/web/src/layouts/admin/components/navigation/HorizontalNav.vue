@@ -27,7 +27,7 @@ const router = useRouter()
 const route = useRoute()
 
 const isTopLayout = computed(() => preferences.navLayout === ESidebarLayoutEnum.Top)
-const currRoute = ref(router.currentRoute.value.matched[0]?.path ?? '')
+const currRoute = ref(route.path)
 
 const menus = computed<RouteRecordRaw[]>(() => {
   if (isTopLayout.value) return menu.routes
@@ -37,9 +37,14 @@ const menus = computed<RouteRecordRaw[]>(() => {
   }))
 })
 
+const resolveActiveTopPath = (): string => {
+  const matchedPaths = route.matched.map((record) => record.path)
+  return matchedPaths.find((path) => menu.routes.some((item) => item.path === path)) ?? (menu.routes.length ? menu.routes[0].path : '')
+}
+
 const syncActiveTopMenu = () => {
   if (preferences.navLayout !== ESidebarLayoutEnum.Mix) return
-  const topPath = route.matched[0]?.path ?? ''
+  const topPath = resolveActiveTopPath()
   currRoute.value = topPath
   shell.setActiveTopMenu(topPath)
 }
@@ -56,8 +61,12 @@ const onSelect = (path: string) => {
 
 watch(
   () => route.path,
-  () => {
-    syncActiveTopMenu()
+  (path) => {
+    if (preferences.navLayout === ESidebarLayoutEnum.Mix) {
+      syncActiveTopMenu()
+    } else {
+      currRoute.value = path
+    }
   },
   { immediate: true }
 )
@@ -67,6 +76,14 @@ watch(
   (layout) => {
     if (layout === ESidebarLayoutEnum.Mix) syncActiveTopMenu()
     else shell.setActiveTopMenu('')
+  }
+)
+
+// 菜单在首屏是异步加载的；加载完成后重新对齐混合导航的一级选中项。
+watch(
+  () => menu.routes.length,
+  () => {
+    if (menu.routes.length) syncActiveTopMenu()
   }
 )
 </script>

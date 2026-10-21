@@ -23,7 +23,7 @@
               <h2 class="ds-panel__title">可用入口</h2>
               <p class="workbench__sub">按当前账号的菜单权限加载</p>
             </div>
-            <span class="ds-panel__meta">{{ quickEntries.length }} 个模块</span>
+            <span class="ds-panel__meta">{{ allEntries.length }} 个模块</span>
           </header>
 
           <div v-if="quickEntries.length" class="workbench__entry-grid">
@@ -284,7 +284,8 @@ const collectEntries = (routes: RouteRecordRaw[], parentTitle = ''): QuickEntry[
   })
 }
 
-const quickEntries = computed(() => collectEntries(menu.routes).slice(0, 8))
+const allEntries = computed(() => collectEntries(menu.routes))
+const quickEntries = computed(() => allEntries.value.slice(0, 8))
 
 const recentTabs = computed(() =>
   tabs.tabs

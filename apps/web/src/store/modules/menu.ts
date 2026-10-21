@@ -34,6 +34,9 @@ export const useMenuStore = defineStore('menu', () => {
         baseService.get<Partial<UserProfile>>('/sys/getUserInfo')
       ])
 
+      if (menuResponse.code !== 0) throw new Error(menuResponse.msg || '菜单加载失败')
+      if (!Array.isArray(menuResponse.data)) throw new Error('菜单数据格式异常')
+
       if (userResponse.code !== 0) console.error('初始化用户数据错误', userResponse.msg)
       session.setUser(userResponse.data)
       session.markLogin(true)
