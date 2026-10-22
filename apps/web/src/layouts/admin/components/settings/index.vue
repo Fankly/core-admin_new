@@ -3,22 +3,24 @@
     <Settings2 :size="16" :stroke-width="1.8" aria-hidden="true" />
   </button>
 
-  <el-drawer v-model="openDrawer" title="界面设置" :append-to-body="true" :size="320" class="ds-settings-drawer">
+  <el-drawer v-model="openDrawer" title="界面设置" :append-to-body="true" :size="400" class="ds-settings-drawer">
     <div class="ds-settings">
-      <SettingTheme />
-      <div class="ds-settings__divider"></div>
+      <p class="ds-settings__intro">选择适合工作习惯的导航布局和外观。</p>
       <SettingNavLayout />
       <div class="ds-settings__divider"></div>
-      <SettingOther />
+      <SettingTheme />
       <div class="ds-settings__divider"></div>
+      <SettingOther />
+    </div>
+    <template #footer>
       <div class="ds-settings__footer">
-        <p class="ds-settings__hint">设置会立即生效，并保存在当前浏览器中。</p>
+        <p class="ds-settings__hint">即时生效 · 自动保存在当前浏览器</p>
         <div class="ds-settings__footer-actions">
-          <button class="ds-button" type="button" @click="onCopySetting">复制配置</button>
           <button class="ds-button" type="button" @click="onReset">恢复默认</button>
+          <button class="ds-button" type="button" @click="onCopySetting">复制配置</button>
         </div>
       </div>
-    </div>
+    </template>
   </el-drawer>
 </template>
 
@@ -47,31 +49,3 @@ const onReset = () => {
   ElMessage.success('已恢复默认设置')
 }
 </script>
-
-<style scoped lang="less">
-.ds-settings-drawer {
-  :deep(.el-drawer__header) {
-    padding: 18px 22px;
-    margin-bottom: 0;
-    color: var(--ds-ink);
-    font-size: var(--ds-text-base);
-    font-weight: 600;
-    border-bottom: 1px solid var(--ds-line);
-  }
-
-  :deep(.el-drawer__body) {
-    padding: 22px;
-  }
-}
-
-.ds-settings__hint {
-  color: var(--ds-ink-tertiary);
-  font-size: var(--ds-text-xs);
-  line-height: 1.6;
-}
-
-.ds-settings__footer-actions {
-  display: flex;
-  gap: 8px;
-}
-</style>

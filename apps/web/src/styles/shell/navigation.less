@@ -25,10 +25,13 @@
 }
 
 .ds-nav__label {
+  overflow: hidden;
   color: var(--ds-nav-text-active);
   font-size: var(--ds-text-sm);
   font-weight: 600;
   letter-spacing: 0.03em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ds-nav__code {
@@ -207,12 +210,12 @@
 
 /* Collapsed rail */
 .ds-admin.is-sidebar-collapsed {
-  .ds-nav__heading,
-  .ds-nav__footer {
+  .ds-nav.is-collapsed .ds-nav__heading,
+  .ds-nav.is-collapsed .ds-nav__footer {
     display: none;
   }
 
-  .ds-nav__menu.el-menu {
+  .ds-nav.is-collapsed .ds-nav__menu.el-menu {
     padding: 12px 8px;
   }
 
@@ -222,12 +225,12 @@
     padding: 0 !important;
   }
 
-  .ds-nav__menu .rr-sidebar-menu-entry__label,
-  .ds-nav__menu .el-sub-menu__icon-arrow {
+  .ds-nav.is-collapsed .ds-nav__menu .rr-sidebar-menu-entry__label,
+  .ds-nav.is-collapsed .ds-nav__menu .el-sub-menu__icon-arrow {
     display: none;
   }
 
-  .ds-nav__menu .rr-sidebar-menu-entry__icon {
+  .ds-nav.is-collapsed .ds-nav__menu .rr-sidebar-menu-entry__icon {
     margin: 0 !important;
   }
 }

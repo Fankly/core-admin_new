@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { RouteRecordRaw } from 'vue-router'
-import { collectNavigationEntries, searchNavigationEntries } from './navigation'
+import { collectNavigationEntries, findNavigationRoot, searchNavigationEntries } from './navigation'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -16,6 +16,11 @@ const routes: RouteRecordRaw[] = [
 ]
 
 describe('navigation directory', () => {
+  it('resolves the owning module from the tree for absolute child paths', () => {
+    expect(findNavigationRoot(routes, '/webview/1')).toBe(routes[0])
+    expect(findNavigationRoot(routes, '/budget')).toBe(routes[0])
+    expect(findNavigationRoot(routes, '/home')).toBeUndefined()
+  })
   it('respects hidden and unavailable menus and preserves external targets', () => {
     const entries = collectNavigationEntries(routes)
     expect(entries.map((entry) => entry.path)).toEqual(['/budget/list', '/webview/1'])

@@ -9,6 +9,11 @@ export interface NavigationEntry {
   href: string
 }
 
+/** 服务端子菜单可以使用绝对路径，所属模块由菜单树确定。 */
+export function findNavigationRoot(routes: RouteRecordRaw[], path: string): RouteRecordRaw | undefined {
+  return routes.find((route) => route.path === path || (route.children && findNavigationRoot(route.children, path)))
+}
+
 /** Menu search and the workbench share the same permission and availability rules. */
 export function collectNavigationEntries(routes: RouteRecordRaw[], parentTitles: string[] = []): NavigationEntry[] {
   return routes.flatMap((route) => {

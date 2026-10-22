@@ -1,6 +1,6 @@
 <template>
-  <div class="ds-settings__group">
-    <span class="ds-settings__label">导航风格</span>
+  <div v-if="preferences.navLayout !== ESidebarLayoutEnum.Top" class="ds-settings__group">
+    <h3 class="ds-settings__label">侧栏风格</h3>
     <div class="ds-settings__theme-pair">
       <button
         v-for="item in sidebarOptions"
@@ -18,7 +18,7 @@
   </div>
 
   <div class="ds-settings__group">
-    <span class="ds-settings__label">顶栏风格</span>
+    <h3 class="ds-settings__label">顶栏风格</h3>
     <div class="ds-settings__themes">
       <button
         v-for="item in headerOptions"
@@ -36,7 +36,7 @@
   </div>
 
   <div class="ds-settings__group">
-    <span class="ds-settings__label">品牌色</span>
+    <h3 class="ds-settings__label">品牌色</h3>
     <div class="ds-settings__swatches">
       <button
         v-for="item in colorOptions"
@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { EThemeSetting } from '@/constants/enum'
+import { ESidebarLayoutEnum, EThemeSetting } from '@/constants/enum'
 import { usePreferencesStore } from '@/store'
 
 defineOptions({ name: 'SettingTheme' })

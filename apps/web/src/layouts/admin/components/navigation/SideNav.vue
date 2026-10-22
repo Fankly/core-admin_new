@@ -1,7 +1,7 @@
 <template>
   <div class="ds-nav" :class="[`ds-nav--${props.mode}`, { 'is-collapsed': isCollapsed }]">
     <div v-if="!isHorizontal && !isCollapsed" class="ds-nav__heading">
-      <span class="ds-nav__label">工作区导航</span>
+      <span class="ds-nav__label" :title="props.heading">{{ props.heading }}</span>
     </div>
 
     <el-menu
@@ -10,7 +10,7 @@
       :mode="props.mode"
       :collapse="isCollapsed"
       :router="props.router"
-      :on-select="props.onSelect"
+      @select="props.onSelect"
       :collapse-transition="false"
       :unique-opened="true"
       :ellipsis="false"
@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, type RouteRecordRaw } from 'vue-router'
-import { useWindowSize } from '@vueuse/core'
+import { useResizeObserver } from '@vueuse/core'
 import { EThemeSetting } from '@/constants/enum'
 import { useMenuStore, usePreferencesStore } from '@/store'
 import { toValidRoutes } from '@/utils/router'
@@ -41,6 +41,7 @@ defineOptions({ name: 'SideNav' })
 
 interface Props {
   mode?: 'vertical' | 'horizontal'
+  heading?: string
   menus?: RouteRecordRaw[]
   currRoute?: string
   router?: boolean
@@ -49,6 +50,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   mode: 'vertical',
+  heading: '工作区导航',
   menus: undefined,
   currRoute: undefined,
   router: false,
@@ -61,7 +63,6 @@ const MenuMore = defineComponent({
 })
 
 const route = useRoute()
-const win = useWindowSize()
 const menu = useMenuStore()
 const preferences = usePreferencesStore()
 
@@ -95,6 +96,11 @@ const buildOverflowMenus = () => {
   const root = menuRef.value.$el
   const available = (root.parentElement?.getBoundingClientRect().width ?? 0) - 24
   if (!available || widths.value.length === 0) {
+    state.menus = state.rawMenus
+    return
+  }
+
+  if (widths.value.reduce((total, width) => total + width, 0) <= available) {
     state.menus = state.rawMenus
     return
   }
@@ -160,15 +166,13 @@ watch(
   }
 )
 
-watch(
-  () => win.width.value,
+useResizeObserver(
+  () => menuRef.value?.$el?.parentElement,
   () => {
-    // 先恢复完整菜单再测量；否则窗口变大后会一直沿用上一次折叠出的“更多”。
+    if (!isHorizontal.value) return
+    // 窗口或侧栏宽度变化后，恢复完整菜单再计算“更多”。
     state.menus = state.rawMenus
-    void nextTick(() => {
-      state.menus = state.rawMenus
-      void nextTick(measureMenuWidths)
-    })
+    void nextTick(measureMenuWidths)
   }
 )
 
