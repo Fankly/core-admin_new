@@ -199,7 +199,7 @@ const colorValue = computed(() => String(preferences.config[EThemeSetting.ThemeC
     left: 0;
     height: 12px;
     content: '';
-    background: var(--ds-jade-700);
+    background: var(--ds-jade-600);
   }
 }
 </style>

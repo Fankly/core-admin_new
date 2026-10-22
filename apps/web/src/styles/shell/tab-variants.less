@@ -1,4 +1,12 @@
-/* Tab style preference: the default is the route-line tab. */
+/* Compact rounded tabs, with dot and card alternatives. */
+.ds-tabs--default .ds-tabs__dot {
+  display: none;
+}
+
+.ds-tabs--default .ds-tabs__item.is-active {
+  box-shadow: 0 1px 2px rgb(18 42 34 / 4%);
+}
+
 .ds-tabs--dot .ds-tabs__item {
   background: transparent;
   border-color: transparent;
@@ -6,29 +14,19 @@
 
 .ds-tabs--dot .ds-tabs__item.is-active {
   background: var(--ds-jade-50);
-  border-color: var(--ds-jade-100);
-}
-
-.ds-tabs--dot .ds-tabs__item.is-active::before {
-  display: none;
+  border-color: transparent;
 }
 
 .ds-tabs--dot .ds-tabs__item.is-active .ds-tabs__dot {
-  box-shadow: 0 0 0 3px rgb(19 143 130 / 12%);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-jade-500) 12%, transparent);
 }
 
 .ds-tabs--card .ds-tabs__item {
-  margin-bottom: 5px;
-  border-bottom: 1px solid var(--ds-line);
-  border-radius: var(--ds-radius-sm);
+  background: var(--ds-surface);
+  border-color: var(--ds-line);
 }
 
 .ds-tabs--card .ds-tabs__item.is-active {
-  margin-bottom: 4px;
-  border-bottom-color: var(--ds-line);
+  border-color: var(--ds-jade-200);
   box-shadow: var(--ds-shadow-raised);
-}
-
-.ds-tabs--card .ds-tabs__item.is-active::before {
-  display: none;
 }

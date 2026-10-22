@@ -27,6 +27,15 @@
   transition:
     width var(--ds-duration-base) var(--ds-ease-out),
     padding var(--ds-duration-base) var(--ds-ease-out);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--ds-brand-text);
+  }
+}
+
+.ui-topHeader-primary .ds-header__brand {
+  border-right-color: rgb(255 255 255 / 14%);
 }
 
 .ds-admin--top .ds-header__brand {
@@ -35,6 +44,11 @@
   color: var(--ds-header-text);
   background: transparent;
   border-right: 0;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--ds-header-text);
+  }
 }
 
 .ds-admin.is-sidebar-collapsed .ds-header__brand {

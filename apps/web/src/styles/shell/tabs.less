@@ -5,9 +5,9 @@
 .ds-tabs {
   display: flex;
   flex: 0 0 auto;
-  align-items: flex-end;
+  align-items: center;
   height: var(--ds-tabs-height);
-  padding: 8px 12px 0;
+  padding: 4px 8px;
   background: var(--ds-surface-subtle);
   border-bottom: 1px solid var(--ds-line);
 }
@@ -15,8 +15,8 @@
 .ds-tabs__scroll {
   display: flex;
   flex: 1;
-  gap: 3px;
-  align-items: flex-end;
+  gap: 4px;
+  align-items: center;
   min-width: 0;
   overflow-x: auto;
   scrollbar-width: none;
@@ -32,37 +32,26 @@
   flex: 0 0 auto;
   gap: 2px;
   align-items: center;
-  height: 33px;
+  height: 30px;
   max-width: 220px;
   color: var(--ds-ink-secondary);
   background: transparent;
   border: 1px solid transparent;
-  border-bottom: 0;
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--ds-radius-sm);
   transition:
     color var(--ds-duration-fast) ease,
-    background-color var(--ds-duration-fast) ease;
+    background-color var(--ds-duration-fast) ease,
+    border-color var(--ds-duration-fast) ease;
 
   &:hover {
     color: var(--ds-ink);
-    background: rgb(255 255 255 / 58%);
+    background: var(--ds-surface-sunken);
   }
 
   &.is-active {
-    color: var(--ds-jade-800);
-    background: var(--ds-surface);
-    border-color: var(--ds-line);
-  }
-
-  &.is-active::before {
-    position: absolute;
-    top: -1px;
-    right: 8px;
-    left: 8px;
-    height: 2px;
-    content: '';
-    background: var(--ds-jade-500);
-    border-radius: 0 0 2px 2px;
+    color: var(--ds-jade-700);
+    background: var(--ds-jade-50);
+    border-color: var(--ds-jade-200);
   }
 }
 
@@ -74,10 +63,23 @@
   height: 100%;
   padding: 0 6px 0 11px;
   color: inherit;
-  font-size: var(--ds-text-sm);
+  font-size: var(--ds-text-md);
   font-weight: 500;
   background: transparent;
   border: 0;
+}
+
+.ds-tabs__item.is-affix .ds-tabs__link {
+  padding-right: 11px;
+}
+
+.ds-tabs__item.is-active .ds-tabs__link {
+  font-weight: 600;
+}
+
+.ds-tabs__link:focus-visible {
+  outline-offset: -3px;
+  border-radius: inherit;
 }
 
 .ds-tabs__dot {
@@ -102,15 +104,15 @@
 .ds-tabs__close {
   display: grid;
   flex: 0 0 auto;
-  width: 21px;
-  height: 21px;
+  width: 20px;
+  height: 20px;
   padding: 0;
-  margin-right: 5px;
+  margin-right: 4px;
   place-items: center;
   color: var(--ds-ink-tertiary);
   background: transparent;
   border: 0;
-  border-radius: 50%;
+  border-radius: var(--ds-radius-xs);
   opacity: 0;
   transition:
     color var(--ds-duration-fast) ease,
@@ -128,6 +130,7 @@
 }
 
 .ds-tabs__item:hover .ds-tabs__close,
+.ds-tabs__item:focus-within .ds-tabs__close,
 .ds-tabs__item.is-active .ds-tabs__close {
   opacity: 1;
 }
@@ -141,7 +144,7 @@
   flex: 0 0 auto;
   width: 30px;
   height: 30px;
-  margin: 0 0 2px 6px;
+  margin: 0 0 0 6px;
   padding: 0;
   place-items: center;
   color: var(--ds-ink-secondary);
