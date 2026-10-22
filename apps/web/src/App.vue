@@ -14,6 +14,7 @@
     finish review, the verdict, and DESIGN.md.
   -->
   <el-config-provider :locale="locale">
+    <a v-if="showPageLayout" class="ds-skip-link" href="#workspace-main">跳转到工作区</a>
     <div v-if="showLoading" class="app-boot" role="status" aria-live="polite">
       <div class="app-boot__lockup">
         <BrandMark />

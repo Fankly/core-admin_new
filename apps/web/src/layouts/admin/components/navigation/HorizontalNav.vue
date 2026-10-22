@@ -17,6 +17,7 @@ import { useRoute, useRouter, type RouteRecordRaw } from 'vue-router'
 import { ESidebarLayoutEnum } from '@/constants/enum'
 import { useMenuStore, usePreferencesStore, useShellStore } from '@/store'
 import SideNav from './SideNav.vue'
+import { toValidRoutes } from '@/utils/router'
 
 defineOptions({ name: 'HorizontalNav' })
 
@@ -28,10 +29,11 @@ const route = useRoute()
 
 const isTopLayout = computed(() => preferences.navLayout === ESidebarLayoutEnum.Top)
 const currRoute = ref(route.path)
+const validRoutes = computed(() => toValidRoutes(menu.routes))
 
 const menus = computed<RouteRecordRaw[]>(() => {
-  if (isTopLayout.value) return menu.routes
-  return menu.routes.map((item) => ({
+  if (isTopLayout.value) return validRoutes.value
+  return validRoutes.value.map((item) => ({
     ...item,
     children: []
   }))
@@ -39,7 +41,7 @@ const menus = computed<RouteRecordRaw[]>(() => {
 
 const resolveActiveTopPath = (): string => {
   const matchedPaths = route.matched.map((record) => record.path)
-  return matchedPaths.find((path) => menu.routes.some((item) => item.path === path)) ?? (menu.routes.length ? menu.routes[0].path : '')
+  return matchedPaths.find((path) => validRoutes.value.some((item) => item.path === path)) ?? validRoutes.value[0]?.path ?? ''
 }
 
 const syncActiveTopMenu = () => {

@@ -161,3 +161,16 @@ svg {
 .text-2 {
   color: var(--ds-ink-secondary);
 }
+
+.ds-skip-link {
+  position: fixed;
+  top: 10px;
+  left: 16px;
+  z-index: 100000;
+  padding: 8px 14px;
+  color: var(--ds-jade-700);
+  background: var(--ds-surface);
+  border-radius: var(--ds-radius-sm);
+  transform: translateY(-160%);
+}
+.ds-skip-link:focus { transform: translateY(0); }

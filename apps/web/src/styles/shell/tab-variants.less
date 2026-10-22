@@ -1,0 +1,34 @@
+/* Tab style preference: the default is the route-line tab. */
+.ds-tabs--dot .ds-tabs__item {
+  background: transparent;
+  border-color: transparent;
+}
+
+.ds-tabs--dot .ds-tabs__item.is-active {
+  background: var(--ds-jade-50);
+  border-color: var(--ds-jade-100);
+}
+
+.ds-tabs--dot .ds-tabs__item.is-active::before {
+  display: none;
+}
+
+.ds-tabs--dot .ds-tabs__item.is-active .ds-tabs__dot {
+  box-shadow: 0 0 0 3px rgb(19 143 130 / 12%);
+}
+
+.ds-tabs--card .ds-tabs__item {
+  margin-bottom: 5px;
+  border-bottom: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius-sm);
+}
+
+.ds-tabs--card .ds-tabs__item.is-active {
+  margin-bottom: 4px;
+  border-bottom-color: var(--ds-line);
+  box-shadow: var(--ds-shadow-raised);
+}
+
+.ds-tabs--card .ds-tabs__item.is-active::before {
+  display: none;
+}

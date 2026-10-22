@@ -21,6 +21,7 @@ declare module 'vue-router' {
     isIframe?: boolean
     frameSrc?: string
     isNavigationMenu?: boolean
+    isUnavailable?: boolean
     requiresAuth?: boolean
     keepAlive?: boolean
     affix?: boolean

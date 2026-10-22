@@ -2,7 +2,6 @@
   <div class="ds-nav" :class="[`ds-nav--${props.mode}`, { 'is-collapsed': isCollapsed }]">
     <div v-if="!isHorizontal && !isCollapsed" class="ds-nav__heading">
       <span class="ds-nav__label">工作区导航</span>
-      <span class="ds-nav__code">NAV / 01</span>
     </div>
 
     <el-menu
@@ -19,6 +18,7 @@
     >
       <NavMenuTree :class-name="popClassName" :menus="state.menus" />
     </el-menu>
+    <p v-if="!state.menus.length && !isCollapsed" class="ds-nav__empty">当前账号暂无可用模块</p>
 
     <div v-if="!isHorizontal && !isCollapsed && !props.isMobile" class="ds-nav__footer">
       <span class="ds-nav__version">v{{ app.version }}</span>

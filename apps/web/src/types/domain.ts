@@ -32,6 +32,7 @@ export interface MenuMeta {
   outsideMenu?: string
   isIframe?: boolean
   isNewPage?: boolean
+  isUnavailable?: boolean
   frameSrc?: string
   requiresAuth?: boolean
   matched?: Array<{ path: string; title?: string }>

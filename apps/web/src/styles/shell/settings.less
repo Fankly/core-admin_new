@@ -1,0 +1,99 @@
+/* --------------------------------------------------------------------------
+   Settings drawer
+   -------------------------------------------------------------------------- */
+
+.ds-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 4px 0 24px;
+}
+
+.ds-settings__group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ds-settings__label {
+  color: var(--ds-ink-tertiary);
+  font-size: var(--ds-text-sm);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.ds-settings__row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--ds-ink);
+  font-size: var(--ds-text-md);
+}
+
+.ds-settings__themes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ds-settings__theme-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 10px;
+  color: var(--ds-ink-secondary);
+  font-size: var(--ds-text-xs);
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius-sm);
+  transition:
+    border-color var(--ds-duration-fast) ease,
+    background-color var(--ds-duration-fast) ease;
+
+  &:hover {
+    border-color: var(--ds-jade-300);
+  }
+
+  &.is-active {
+    color: var(--ds-jade-700);
+    background: var(--ds-jade-50);
+    border-color: var(--ds-jade-500);
+  }
+}
+
+.ds-settings__swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.ds-settings__swatch {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+
+  &.is-active {
+    border-color: var(--ds-surface);
+    box-shadow: 0 0 0 2px var(--ds-jade-600);
+  }
+}
+
+.ds-settings__divider {
+  width: 100%;
+  height: 1px;
+  margin: 2px 0;
+  background: var(--ds-line);
+}
+
+.ds-settings__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}

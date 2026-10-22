@@ -6,6 +6,7 @@ import type { MenuMeta, UserProfile } from '@/types/domain'
 import baseService from '@/service/baseService'
 import { getSysRouteMap } from '@/router/view-registry'
 import { mergeServerRoute } from '@/utils/router'
+import { collectNavigationEntries } from '@/router/navigation'
 import { useSessionStore } from './session'
 
 /**
@@ -21,18 +22,23 @@ export const useMenuStore = defineStore('menu', () => {
   const menuMsg = ref<MenuMeta>({})
 
   const isLoaded = computed(() => routes.value.length > 0)
+  const navigationEntries = computed(() => collectNavigationEntries(routes.value))
 
   let pending: Promise<RouteRecordRaw[]> | null = null
+  let generation = 0
 
   async function init(): Promise<RouteRecordRaw[]> {
     if (isLoaded.value) return routes.value
     if (pending) return pending
-    pending = (async () => {
+    const currentGeneration = generation
+    const operation = (async () => {
       const session = useSessionStore()
       const [menuResponse, userResponse] = await Promise.all([
         baseService.get<IServerMenus[]>('/sys/menu/nav'),
         baseService.get<Partial<UserProfile>>('/sys/getUserInfo')
       ])
+
+      if (currentGeneration !== generation) throw new Error('工作区已重置，请重新载入')
 
       if (menuResponse.code !== 0) throw new Error(menuResponse.msg || '菜单加载失败')
       if (!Array.isArray(menuResponse.data)) throw new Error('菜单数据格式异常')
@@ -48,11 +54,12 @@ export const useMenuStore = defineStore('menu', () => {
       routeToMeta.value = routeMeta
       return serverRoutes
     })()
+    pending = operation
 
     try {
-      return await pending
+      return await operation
     } finally {
-      pending = null
+      if (pending === operation) pending = null
     }
   }
 
@@ -76,6 +83,7 @@ export const useMenuStore = defineStore('menu', () => {
   }
 
   function reset() {
+    generation += 1
     menus.value = []
     routes.value = []
     routeToMeta.value = {}
@@ -89,6 +97,7 @@ export const useMenuStore = defineStore('menu', () => {
     routeToMeta,
     menuMsg,
     isLoaded,
+    navigationEntries,
     init,
     mergeMeta,
     setRoutes,

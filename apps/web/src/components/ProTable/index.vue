@@ -26,8 +26,8 @@
       :search-col="searchCol"
     />
     <!-- 提示信息 -->
-    <div class="tips" v-if="props.helpMessage" style="margin-bottom: 10px">
-      <span style="color: red">{{ props.helpMessage }}</span>
+    <div class="tips table-help" v-if="props.helpMessage" role="note">
+      <span>{{ props.helpMessage }}</span>
     </div>
     <!-- 表格标题信息 -->
     <div class="titleMsg" v-if="props.titleMsg" style="margin-bottom: 10px">
@@ -39,7 +39,16 @@
     <!-- 表格主体 -->
     <div class="table-main" v-show="props.isShowTable">
       <!-- 表格主体 -->
-      <el-table ref="tableRef" v-bind="$attrs" :data="processTableData" :border="border" :row-key="rowKey" @selection-change="selectionChange">
+      <el-table
+        ref="tableRef"
+        v-loading="loading"
+        :aria-busy="loading"
+        v-bind="$attrs"
+        :data="processTableData"
+        :border="border"
+        :row-key="rowKey"
+        @selection-change="selectionChange"
+      >
         <!-- 默认插槽 -->
         <slot />
         <template v-for="(item, index) in tableColumns" :key="item.prop ?? item.type ?? index">
@@ -65,8 +74,7 @@
         <template #empty>
           <div class="table-empty">
             <slot name="empty">
-              <img src="@/assets/images/notData.png" alt="notData" />
-              <div>暂无数据</div>
+              <EmptyState title="暂无匹配的数据" description="调整查询条件后重试，或通过上方操作添加记录。" />
             </slot>
           </div>
         </template>
@@ -102,6 +110,7 @@ import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { useGuide } from '@/hooks/useGuide'
 import { handleError } from '@/utils/error'
+import { EmptyState } from '@/design-system'
 
 defineOptions({ name: 'ProTable' })
 
@@ -185,7 +194,7 @@ const { selectionChange, selectedList, selectedListIds, isSelected } = useSelect
 const clearSelection = () => tableRef.value?.clearSelection()
 
 // 表格操作 Hooks
-const { tableData, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange } = useTable(
+const { tableData, loading, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange } = useTable(
   props.requestApi,
   toRef(props, 'initParam'),
   toRef(props, 'pagination'),
@@ -402,5 +411,14 @@ defineExpose({
       text-align: right;
     }
   }
+}
+
+.table-help {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  color: var(--ds-ink-secondary);
+  font-size: var(--ds-text-md);
+  background: var(--ds-surface-subtle);
+  border-radius: var(--ds-radius-sm);
 }
 </style>

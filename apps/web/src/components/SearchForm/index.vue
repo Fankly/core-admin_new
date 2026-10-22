@@ -1,6 +1,6 @@
 <template>
   <div v-if="columns.length" class="table-search">
-    <el-form label-width="auto" label-position="right" ref="formRef" :model="searchParam">
+    <el-form label-width="auto" label-position="right" ref="formRef" :model="searchParam" @submit.prevent="search">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
         <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
           <el-form-item>
@@ -18,9 +18,11 @@
         </GridItem>
         <GridItem suffix>
           <div class="operation" style="text-align: right; margin-bottom: 10px">
-            <el-button size="small" plain type="primary" @click="search">查 询</el-button>
-            <el-button size="small" plain @click="reset">重 置</el-button>
-            <el-button v-if="showCollapse" size="small" plain @click="collapsed = !collapsed">{{ collapsed ? '展 开' : '收 起' }}</el-button>
+            <el-button size="small" type="primary" native-type="submit">查询</el-button>
+            <el-button size="small" @click="reset">重置</el-button>
+            <el-button v-if="showCollapse" size="small" text :aria-expanded="!collapsed" @click="collapsed = !collapsed">{{
+              collapsed ? '展开筛选' : '收起筛选'
+            }}</el-button>
           </div>
         </GridItem>
       </Grid>

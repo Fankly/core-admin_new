@@ -1,0 +1,125 @@
+/* --------------------------------------------------------------------------
+   Body and route rail
+   -------------------------------------------------------------------------- */
+
+.ds-admin__body {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.ds-admin__rail {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  width: var(--ds-sidebar-current-width);
+  min-height: 0;
+  overflow: hidden;
+  color: var(--ds-nav-text);
+  background: var(--ds-nav-bg);
+  border-right: 1px solid var(--ds-nav-line);
+  transition: width var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.ds-admin.is-sidebar-resizing .ds-admin__rail,
+.ds-admin.is-sidebar-resizing .ds-header__brand {
+  transition: none;
+}
+
+.ds-admin__resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--ds-sidebar-current-width);
+  z-index: 20;
+  width: 10px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  transform: translateX(-50%);
+  cursor: col-resize;
+  touch-action: none;
+
+  &::before {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    content: '';
+    background: var(--ds-nav-line);
+    transform: translateX(-50%);
+    transition:
+      background-color var(--ds-duration-fast) ease,
+      box-shadow var(--ds-duration-fast) ease;
+  }
+
+  &:hover::before,
+  &:focus-visible::before,
+  &.is-resizing::before {
+    background: var(--ds-jade-400);
+    box-shadow: 0 0 0 2px rgb(44 168 152 / 14%);
+  }
+}
+
+body.ds-sidebar-resizing,
+body.ds-sidebar-resizing * {
+  user-select: none !important;
+  cursor: col-resize !important;
+}
+
+.ds-admin__main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: 14px 16px 16px;
+}
+
+.ds-workspace {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-panel);
+}
+
+.ds-workspace__viewport {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.ds-view {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.ds-view__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 22px 26px 26px;
+}
+
+.ds-view--flush .ds-view__content {
+  padding: 0;
+}
+
+.ds-view__content > * {
+  min-width: 0;
+}

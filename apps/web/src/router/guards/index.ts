@@ -8,6 +8,7 @@ import { getBaseRouteToMeta, registerToRouter } from '@/utils/router'
 import { getPermissions, getToken } from '@/utils/cache'
 import { useMenuStore, useSessionStore, useShellStore, useTabsStore } from '@/store'
 import type { MenuMeta } from '@/types/domain'
+import { loadWorkspacePlugins } from '@/app/plugins'
 
 NProgress.configure({ showSpinner: false })
 
@@ -40,7 +41,7 @@ async function bootstrapApplication(router: Router, to: RouteLocationNormalized)
   const shell = useShellStore()
   const session = useSessionStore()
 
-  const serverRoutes = await menu.init()
+  const [serverRoutes] = await Promise.all([menu.init(), loadWorkspacePlugins()])
   const mergedRoutes: RouteRecordRaw[] = [...baseRoutes, ...serverRoutes, ...errorRoute]
   router.options.routes = mergedRoutes
   registerToRouter(router, [...serverRoutes, ...errorRoute])
@@ -51,10 +52,7 @@ async function bootstrapApplication(router: Router, to: RouteLocationNormalized)
 
   session.markLogin(true)
   shell.markReady()
-  // 保留原有的 600ms 过渡，避免首屏骨架与页面内容同时闪现。
-  window.setTimeout(() => {
-    shell.markRendered()
-  }, 600)
+  shell.markRendered()
 }
 
 /**
@@ -117,7 +115,7 @@ export function setupRouterGuards(router: Router) {
 
     // 流程页不依赖主框架初始化，可直接放行。
     if (isWorkflow) {
-      await menu.init()
+      await Promise.all([menu.init(), loadWorkspacePlugins()])
       return true
     }
 
@@ -139,6 +137,7 @@ export function setupRouterGuards(router: Router) {
 
     // 新窗口打开的内页：登录态由主窗口共享，这里只负责注册路由。
     if (isPop) {
+      await loadWorkspacePlugins()
       if (!to.matched.length) {
         registerDynamicToRouterAndNext(router, { path: to.path, query: to.query })
         shell.markReady()

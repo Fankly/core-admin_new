@@ -1,5 +1,6 @@
 <template>
   <div class="ds-header__actions">
+    <MenuSearch />
     <div class="ds-header__support">
       <CustomerService :phone="customer.phone" :email="customer.email" />
     </div>
@@ -35,6 +36,7 @@ import { getParamValueMulti } from '@/api/common'
 import { useSessionStore } from '@/store'
 import CustomerService from './CustomerService.vue'
 import SettingSidebar from '../settings/index.vue'
+import MenuSearch from '../navigation/MenuSearch.vue'
 
 defineOptions({ name: 'HeaderActions' })
 

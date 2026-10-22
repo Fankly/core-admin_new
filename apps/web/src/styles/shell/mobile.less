@@ -1,0 +1,33 @@
+/* --------------------------------------------------------------------------
+   Mobile drawer
+   -------------------------------------------------------------------------- */
+
+.ds-mobile-drawer.el-drawer,
+.ds-mobile-drawer .el-drawer {
+  background: var(--ds-nav-bg);
+}
+
+.ds-mobile-drawer {
+  .el-drawer__body {
+    padding: 0;
+    overflow: hidden;
+    background: var(--ds-nav-bg);
+  }
+
+  .ds-mobile-brand {
+    display: flex;
+    align-items: center;
+    height: 64px;
+    padding: 0 18px;
+    background: var(--ds-nav-bg);
+    border-bottom: 1px solid var(--ds-nav-line);
+  }
+
+  .ds-mobile-nav {
+    height: calc(100% - 64px);
+  }
+
+  .ds-nav__menu.el-menu {
+    overflow-y: auto;
+  }
+}

@@ -31,6 +31,8 @@ export const mergeServerRoute = (
       id: item.id,
       url: item.url,
       outsideMenu: item.outsideMenu,
+      isNavigationMenu: item.isNavigationMenu,
+      isUnavailable: isNotMatchComponent,
       matched: [...matched, { path, title: item.name }],
       ...openStyleMeta
     }
@@ -80,8 +82,12 @@ export const routesToObject = (routes: RouteRecordRaw[]): Record<string, RouteRe
 /** 过滤掉 isNavigationMenu === false 的路由，返回新数组，不修改入参。 */
 export const toValidRoutes = (routes: RouteRecordRaw[]): RouteRecordRaw[] => {
   return routes
-    .filter((route) => route.meta?.isNavigationMenu !== false)
-    .map((route) => (route.children?.length ? { ...route, children: toValidRoutes(route.children) } : route))
+    .filter((route) => route.meta?.isNavigationMenu !== false && !route.meta?.isUnavailable)
+    .flatMap((route) => {
+      if (!route.children?.length) return [route]
+      const children = toValidRoutes(route.children)
+      return children.length ? [{ ...route, children }] : []
+    })
 }
 
 /**

@@ -95,7 +95,7 @@ const onAuxClick = (event: MouseEvent, tab: TabItem) => {
 const onTabKeydown = (event: KeyboardEvent, index: number) => {
   const keys: Record<string, number> = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: tabs.tabs.length - 1 }
   if (!(event.key in keys)) return
-  const targetIndex = keys[event.key]
+  const targetIndex = (keys[event.key] + tabs.tabs.length) % tabs.tabs.length
   event.preventDefault()
   const container = (event.currentTarget as HTMLElement).closest('.ds-tabs__scroll')
   const buttons = container?.querySelectorAll<HTMLButtonElement>('.ds-tabs__link')
@@ -127,7 +127,13 @@ watch(
   () => tabs.activePath,
   () => {
     void nextTick(() => {
-      scrollRef.value?.querySelector<HTMLElement>('.ds-tabs__item.is-active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+      const container = scrollRef.value
+      const active = container?.querySelector<HTMLElement>('.ds-tabs__item.is-active')
+      if (!container || !active) return
+      const viewport = container.getBoundingClientRect()
+      const item = active.getBoundingClientRect()
+      if (item.left < viewport.left) container.scrollLeft -= viewport.left - item.left
+      else if (item.right > viewport.right) container.scrollLeft += item.right - viewport.right
     })
   },
   { immediate: true }

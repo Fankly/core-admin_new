@@ -1,0 +1,100 @@
+/* --------------------------------------------------------------------------
+   Brand lockup
+   -------------------------------------------------------------------------- */
+
+.ds-brand {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    color: inherit;
+  }
+}
+
+.ds-brand__mark {
+  display: grid;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  color: var(--ds-brand-text, currentColor);
+  background: transparent;
+  border: 1px solid currentcolor;
+  border-radius: 9px;
+  opacity: 0.96;
+}
+
+.ui-sidebar-light .ds-brand__mark {
+  color: var(--ds-jade-600);
+  border-color: var(--ds-jade-200);
+}
+
+.ds-admin--top .ds-brand__mark {
+  color: var(--ds-jade-600);
+  border-color: var(--ds-jade-200);
+  background: var(--ds-jade-50);
+}
+
+.ds-admin--top.ui-topHeader-dark .ds-brand__mark,
+.ds-admin--top.ui-topHeader-primary .ds-brand__mark {
+  color: var(--ds-header-text);
+  border-color: rgb(255 255 255 / 24%);
+  background: rgb(255 255 255 / 6%);
+}
+
+.ds-brand__type {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.1;
+}
+
+.ds-brand__name {
+  overflow: hidden;
+  color: currentcolor;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-brand__descriptor {
+  margin-top: 4px;
+  color: currentcolor;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.17em;
+  opacity: 0.54;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ds-admin.is-sidebar-collapsed .ds-brand__type {
+  display: none;
+}
+
+.ds-brand--hero .ds-brand__mark {
+  width: 48px;
+  height: 48px;
+  color: #fff;
+  border-color: rgb(255 255 255 / 24%);
+  border-radius: 13px;
+  background: rgb(255 255 255 / 5%);
+}
+
+.ds-brand--hero .ds-brand__name {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ds-brand--hero .ds-brand__descriptor {
+  font-size: 9px;
+  opacity: 0.5;
+}
