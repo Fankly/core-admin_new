@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus'
 import baseRoutes, { errorRoute } from '../base'
 import { registerDynamicRoute, registerDynamicToRouterAndNext } from '../dynamic'
 import { isWorkflowStandalone } from '../layout'
-import { getBaseRouteToMeta, registerToRouter } from '@/utils/router'
+import { getBaseRouteToMeta, registerToRouter, resetRoute } from '@/utils/router'
 import { getPermissions, getToken } from '@/utils/cache'
 import { useMenuStore, useSessionStore, useShellStore, useTabsStore } from '@/store'
 import type { MenuMeta } from '@/types/domain'
@@ -78,6 +78,10 @@ export function setupRouterGuards(router: Router) {
     const isWorkflow = isWorkflowStandalone(to.path)
 
     if (to.path === '/login') {
+      resetRoute(router, menu.routes)
+      menu.reset()
+      tabs.reset()
+      session.logout()
       shell.setRouteLoading(false)
       shell.markReady()
       shell.markRendered()
@@ -101,6 +105,7 @@ export function setupRouterGuards(router: Router) {
 
     // 已完成初始化：后续导航只做权限/标签页处理。
     if (menu.routes.length) {
+      if (!token || !permission) return '/login'
       if (to.name === 'error') return true
       if (!isWorkflow) {
         session.markLogin(true)
@@ -157,9 +162,7 @@ export function setupRouterGuards(router: Router) {
     const tabs = useTabsStore()
     const menu = useMenuStore()
 
-    window.setTimeout(() => {
-      shell.setRouteLoading(false)
-    }, 300)
+    shell.setRouteLoading(false)
     NProgress.done()
 
     if (failure || to.query.pop || to.path === '/login') return

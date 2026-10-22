@@ -1,8 +1,10 @@
-import type { Component } from 'vue'
-
-const MAP = new Map<string, Component>()
+import { onScopeDispose, type Component } from 'vue'
 
 export const useMultiFrame = () => {
+  const MAP = new Map<string, Component>()
+  onScopeDispose(() => {
+    MAP.clear()
+  })
   function setMap(path: string, component: Component) {
     MAP.set(path, component)
   }

@@ -52,9 +52,11 @@ const isDisposed = () => disposed.value
 onScopeDispose(() => {
   disposed.value = true
 })
-function toPercent(value: number | undefined) {
-  if (value === undefined || !Number.isFinite(value) || value < 0) return null
-  return Math.min(100, Math.round(value <= 1 ? value * 100 : value))
+function toPercent(value: number | string | undefined) {
+  if (value === undefined || value === '') return null
+  const number = Number(value)
+  if (!Number.isFinite(number) || number < 0) return null
+  return Math.min(100, Math.round(number <= 1 ? number * 100 : number))
 }
 const meters = computed(() => [
   { label: 'CPU 负载', value: toPercent(info.value?.systemCpuLoad) },

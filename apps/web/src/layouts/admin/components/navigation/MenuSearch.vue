@@ -9,12 +9,9 @@
     <p class="ds-menu-search__hint" role="status">{{ query.trim() ? `找到 ${matches.length} 个入口` : '当前账号可访问的模块' }}</p>
     <ul v-if="results.length" class="ds-menu-search__results" aria-label="菜单搜索结果">
       <li v-for="(entry, index) in results" :key="entry.path">
-        <component
-          :is="entry.external ? 'a' : RouterLink"
-          :to="entry.external ? undefined : entry.path"
-          :href="entry.external ? entry.href : undefined"
-          :target="entry.external ? '_blank' : undefined"
-          :rel="entry.external ? 'noopener noreferrer' : undefined"
+        <NavigationLink
+          :to="entry.external ? entry.href : entry.path"
+          :external="entry.external"
           class="ds-menu-search__result"
           :class="{ 'is-active': index === activeIndex }"
           @click="open = false"
@@ -25,7 +22,7 @@
             ><small>{{ entry.group }}</small></span
           >
           <ArrowUpRight v-if="entry.external" :size="16" aria-hidden="true" /><ChevronRight v-else :size="16" aria-hidden="true" />
-        </component>
+        </NavigationLink>
       </li>
     </ul>
     <EmptyState v-else title="没有找到匹配的菜单" description="试试其他模块名称或分组关键词。" />
@@ -35,13 +32,12 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { RouterLink } from 'vue-router'
 import { useEventListener } from '@vueuse/core'
 import type { InputInstance } from 'element-plus'
 import { ArrowUpRight, ChevronRight, Search } from '@lucide/vue'
 import { useMenuStore } from '@/store'
 import { searchNavigationEntries } from '@/router/navigation'
-import { EmptyState } from '@/design-system'
+import { EmptyState, NavigationLink } from '@/design-system'
 
 const menu = useMenuStore()
 const open = ref(false)

@@ -105,6 +105,7 @@ const router = useRouter()
 const session = useSessionStore()
 
 const status = ref<LoginStatus>('loading')
+const loginPending = ref(false)
 const phase = ref<LoginPhase>('identity')
 const failedPhase = ref<LoginPhase | null>(null)
 const errorMessage = ref('请稍后重试，或联系系统管理员。')
@@ -163,6 +164,8 @@ const credentials = {
 }
 
 const autoLogin = async () => {
+  if (loginPending.value) return
+  loginPending.value = true
   status.value = 'loading'
   phase.value = 'identity'
   failedPhase.value = null
@@ -179,6 +182,7 @@ const autoLogin = async () => {
 
     phase.value = 'permission'
     const permission = await baseService.get<boolean>('/sysMenu/hasPermission')
+    if (permission.code !== 0) throw new Error(permission.msg || '访问权限校验失败')
     const allowed = permission.data
     session.setHasPermission(allowed)
 
@@ -201,6 +205,8 @@ const autoLogin = async () => {
     status.value = 'error'
     errorMessage.value = error instanceof Error ? error.message : '登录失败，请稍后重试。'
     console.error('[auth] auto login failed', error)
+  } finally {
+    loginPending.value = false
   }
 }
 

@@ -14,7 +14,7 @@
     finish review, the verdict, and DESIGN.md.
   -->
   <el-config-provider :locale="locale">
-    <a v-if="showPageLayout" class="ds-skip-link" href="#workspace-main">跳转到工作区</a>
+    <a v-if="showPageLayout" class="ds-skip-link" href="#workspace-main" @click.prevent="focusWorkspace">跳转到工作区</a>
     <div v-if="showLoading" class="app-boot" role="status" aria-live="polite">
       <div class="app-boot__lockup">
         <BrandMark />
@@ -29,10 +29,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, defineAsyncComponent, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
-import AdminLayout from '@/layouts/admin/index.vue'
+import { loadWorkspacePlugins } from '@/app/plugins'
 import FullscreenLayout from '@/layouts/fullscreen/index.vue'
 import { usePreferencesStore, useShellStore } from '@/store'
 import { resolveLayoutMode } from '@/router/layout'
@@ -44,6 +44,13 @@ const route = useRoute()
 const shell = useShellStore()
 const preferences = usePreferencesStore()
 const locale = zhCn
+const focusWorkspace = () => {
+  document.getElementById('workspace-main')?.focus()
+}
+const AdminLayout = defineAsyncComponent(async () => {
+  await loadWorkspacePlugins()
+  return import('@/layouts/admin/index.vue')
+})
 
 const layoutMode = computed(() => resolveLayoutMode(route))
 const isStandalone = computed(() => layoutMode.value === 'standalone')

@@ -41,7 +41,7 @@ const menus = computed<RouteRecordRaw[]>(() => {
 
 const resolveActiveTopPath = (): string => {
   const matchedPaths = route.matched.map((record) => record.path)
-  return matchedPaths.find((path) => validRoutes.value.some((item) => item.path === path)) ?? validRoutes.value[0]?.path ?? ''
+  return matchedPaths.find((path) => validRoutes.value.some((item) => item.path === path)) ?? validRoutes.value.at(0)?.path ?? ''
 }
 
 const syncActiveTopMenu = () => {

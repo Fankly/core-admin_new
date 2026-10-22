@@ -1,13 +1,24 @@
 <template>
   <div v-loading="loading" class="frame" element-loading-text="加载中...">
-    <iframe ref="frameRef" :src="frameSrc" class="frame-iframe" title="业务系统" @load="hideLoading" />
+    <EmptyState v-if="error" title="页面暂时无法打开" :description="error"
+      ><template #actions><button class="ds-button" type="button" @click="loadFrame">重新加载</button></template></EmptyState
+    >
+    <iframe
+      v-else-if="frameSrc"
+      :src="frameSrc"
+      class="frame-iframe"
+      :title="typeof route.meta.title === 'string' ? route.meta.title : '业务系统'"
+      @load="hideLoading"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onScopeDispose, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { getSysObjByBusicode } from '@/api/common'
+import { EmptyState } from '@/design-system'
+import { buildFrameUrl, type EmbeddedSystem } from './frame-url'
 
 defineOptions({ name: 'IframePage' })
 
@@ -16,45 +27,42 @@ interface FrameInfo {
   fullPath?: string
 }
 
-interface SysObject {
-  url?: string
-  deployUrl?: string
-  funcId?: string
-  funcBusicode?: string
-  appframeSystemId?: string
-  AppframeSystemCode?: string
-}
-
 const props = defineProps<{ frameInfo?: FrameInfo }>()
 const route = useRoute()
 const loading = ref(route.meta.frameLoading !== false)
 const frameSrc = ref('')
-const frameRef = ref<HTMLIFrameElement | null>(null)
-
-const buildFrameSrc = (framePath: string, source: SysObject): string => {
-  if (framePath.includes('http')) return framePath
-  if (!framePath) return source.url ?? ''
-  const query = new URLSearchParams({
-    funcId: source.funcId ?? '',
-    funcBusicode: source.funcBusicode ?? '',
-    AppframeSystemId: source.appframeSystemId ?? '',
-    AppframeSystemCode: source.AppframeSystemCode ?? ''
-  })
-  return `${source.deployUrl ?? ''}${framePath}?${query.toString()}`
-}
+const error = ref('')
+let requestId = 0
+onScopeDispose(() => {
+  requestId += 1
+})
 
 async function loadFrame() {
+  const currentRequest = ++requestId
+  error.value = ''
   const menuCode = typeof route.meta.outsideMenu === 'string' ? route.meta.outsideMenu : ''
-  if (!menuCode) return
+  const directSource =
+    props.frameInfo?.frameSrc ||
+    (typeof route.meta.frameSrc === 'string' ? route.meta.frameSrc : '') ||
+    (route.meta.isIframe && typeof route.meta.url === 'string' ? route.meta.url : '')
+  if (!menuCode) {
+    frameSrc.value = directSource
+    loading.value = Boolean(directSource)
+    if (!directSource) error.value = '尚未配置页面地址，请联系系统管理员。'
+    return
+  }
   loading.value = true
   try {
     const res = await getSysObjByBusicode(menuCode)
-    if (!res.success) return
-    const source = res.data as SysObject
-    const framePath = typeof route.meta.frameSrc === 'string' ? route.meta.frameSrc : ''
-    frameSrc.value = buildFrameSrc(framePath, source)
-  } catch (error) {
-    console.error('获取 frameSrc 失败:', error)
+    if (currentRequest !== requestId) return
+    if (!res.success) throw new Error('无法读取业务系统配置')
+    const source = res.data as EmbeddedSystem
+    frameSrc.value = buildFrameUrl(directSource, source)
+    if (!frameSrc.value) throw new Error('尚未配置页面地址')
+  } catch {
+    if (currentRequest !== requestId) return
+    error.value = '无法读取业务系统地址，请稍后重试。'
+    loading.value = false
   }
 }
 

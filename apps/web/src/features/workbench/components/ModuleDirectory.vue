@@ -14,14 +14,11 @@
       </el-select>
     </div>
     <div v-if="visibleEntries.length" class="module-directory__list">
-      <component
-        :is="entry.external ? 'a' : RouterLink"
+      <NavigationLink
         v-for="entry in visibleEntries"
         :key="entry.path"
-        :to="entry.external ? undefined : entry.path"
-        :href="entry.external ? entry.href : undefined"
-        :target="entry.external ? '_blank' : undefined"
-        :rel="entry.external ? 'noopener noreferrer' : undefined"
+        :to="entry.external ? entry.href : entry.path"
+        :external="entry.external"
         class="module-entry"
       >
         <span class="module-entry__icon" aria-hidden="true"
@@ -37,7 +34,7 @@
           class="module-entry__arrow"
           aria-hidden="true"
         />
-      </component>
+      </NavigationLink>
     </div>
     <EmptyState
       v-else
@@ -58,9 +55,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { RouterLink } from 'vue-router'
 import { ArrowUpRight, ChevronDown, ChevronRight, LayoutGrid, Search } from '@lucide/vue'
-import { EmptyState } from '@/design-system'
+import { EmptyState, NavigationLink } from '@/design-system'
 import SvgIcon from '@/components/base/svg-icon'
 import { searchNavigationEntries, type NavigationEntry } from '@/router/navigation'
 

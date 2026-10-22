@@ -5,8 +5,8 @@ export interface SystemInfo {
   javaVersion?: string
   userTimezone?: string
   processors?: number
-  systemCpuLoad?: number
-  memoryRate?: number
+  systemCpuLoad?: number | string
+  memoryRate?: number | string
 }
 
 export const getSystemInfo = () => baseService.get<SystemInfo | null>('/sys/info')

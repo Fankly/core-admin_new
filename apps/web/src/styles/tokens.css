@@ -149,3 +149,14 @@
   --color-primary-light: rgb(11 107 98 / 8%);
   --vxe-primary-color: var(--ds-jade-600);
 }
+
+/* VXE styles are lazy-loaded; body-level aliases keep theme tokens authoritative. */
+body {
+  --vxe-ui-font-family: var(--ds-font-sans);
+  --vxe-ui-font-color: var(--ds-ink);
+  --vxe-ui-font-primary-color: var(--ds-jade-600);
+  --vxe-ui-font-primary-lighten-color: var(--ds-jade-500);
+  --vxe-ui-font-primary-darken-color: var(--ds-jade-700);
+  --vxe-ui-font-secondary-color: var(--ds-ink-secondary);
+  --vxe-ui-base-border-color: var(--ds-line);
+}
