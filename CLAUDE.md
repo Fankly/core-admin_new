@@ -24,17 +24,18 @@ Node 必须 ≥ 24（pnpm 11 的硬要求）。如果本机默认 Node 是 18，
 根目录执行（会转发到 `apps/web`）：
 
 ```bash
-pnpm dev           # Vite dev server，端口 8001，自动开浏览器
+pnpm dev           # Vite dev server，端口 8001；浏览器手动访问
 pnpm build         # = build:prod，production 模式
 pnpm build:sit     # / pnpm build:uat
 pnpm lint          # 递归跑所有包的 lint（eslint --fix）
 pnpm typecheck     # 递归跑 vue-tsc --noEmit
 pnpm test          # Vitest，真实 HTTP / 组件 / store 回归
+pnpm e2e           # Playwright，桌面 / 移动端交互回归
 ```
 
 只作用于单个包时用 `pnpm --filter budget-process <script>`，或直接进 `apps/web` 执行。
 
-`pnpm test` 使用 `apps/web/vitest.config.ts`。HTTP 用例启动本地服务并发送真实请求，运行环境必须允许监听回环地址。Playwright 尚无配置，`pnpm e2e` 不能替代浏览器走查。改动后执行 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build`，并在 dev 下验证受影响页面。
+`pnpm test` 使用 `apps/web/vitest.config.ts`。HTTP 用例启动本地服务并发送真实请求，运行环境必须允许监听回环地址。`pnpm e2e` 使用 `apps/web/playwright.config.ts` 和本机 Chrome，可启动或复用 8001 端口的 dev server。用例在 `apps/web/e2e/`，只拦截 `/api/` HTTP 和测试 iframe，不拦截 Vite 源码模块。浏览器用例覆盖外壳交互与故障恢复，不能替代真实业务接口联调。改动后执行 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build`；涉及外壳交互时补跑 `pnpm e2e` 并走查受影响页面。
 
 ## 质量门禁与 lint 债务
 
@@ -73,12 +74,12 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 
 | 目录 | 职责 |
 | --- | --- |
-| `src/app/` | 应用启动：`bootstrap.ts` 组装 pinia / 指令 / UI 插件；`plugins.ts` 只放第三方库注册 |
+| `src/app/` | 应用启动：`bootstrap.ts` 组装 pinia / 指令 / 初始 UI；`plugins.ts` 注册 Element Plus / 异步图表；`workspace-plugins.ts` 延迟注册 VXE / Excel 导出 |
 | `src/layouts/` | 外壳：`admin/`（masthead / route rail / tabs / settings / keep-alive）、`fullscreen/`、`RouteHost` |
 | `src/views/` | **路由适配层**：保持菜单路径约定，薄封装到 `features/`；静态页与 error 也在此 |
 | `src/features/` | 业务实现：auth / workbench / errors / embed；新增业务域在此建目录 |
-| `src/design-system/` | 跨业务基础组件（BrandMark、PageHeader），只消费 token |
-| `src/styles/` | 全局样式唯一入口：tokens、base、element、workspace、shell、theme、motion |
+| `src/design-system/` | 跨业务基础组件（BrandMark、PageHeader、EmptyState、NavigationLink） |
+| `src/styles/` | 全局样式唯一入口；`shell.less` 汇总 `shell/` 中按职责拆分的外壳样式 |
 | `src/api/` | 按业务域划分的接口定义 |
 | `src/components/` | 既有跨业务公共组件（ProTable / SearchForm / base…） |
 | `src/directives/` | 全局指令，一个指令一个文件，副作用成对清理 |
@@ -86,7 +87,7 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 | `src/service/` | `baseService.ts` CRUD 封装；`http/` 是 axios 客户端、错误归一与请求身份计算 |
 | `src/utils/` | 纯函数工具；`utils/http.ts` 只是请求层的兼容 re-export |
 | `src/store/` | 按领域拆分的 Pinia store，统一从 `store/index.ts` 导出 |
-| `src/router/` | `base.ts` 静态路由；`guards/` 守卫管线；`view-registry.ts` 视图映射；`dynamic.ts` 实时注册 |
+| `src/router/` | 静态路由 / 守卫 / 视图映射 / 实时注册；`navigation.ts` 统一可用入口与搜索规则 |
 | `src/constants/` | 枚举、缓存 key、默认配置 |
 | `src/types/` | 全局类型：`domain.ts` 领域模型、`router.d.ts` 路由 meta 增强、`vue.d.ts` 全局属性 |
 
@@ -95,6 +96,10 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 **路由是服务端菜单驱动的。** `useMenuStore().init()` 拉菜单 + 用户信息，与 `router/base.ts` 合并后注册。视图组件按路径约定匹配：`router/view-registry.ts` 的 `toSysViewComponentPath` 把 `path` 转成 `/src/views{path}.vue`，通过 `import.meta.glob('/src/views/**/*.vue')` 查表。glob 是 Vite root 相对路径，root 即 `apps/web`，monorepo 下无需改写。新增页面通常不用手写路由，但**文件路径必须和菜单 url 对应**（`_` 会替换成 `-`）。`views/` 文件只做路由适配，业务实现落在 `features/`；需要被服务端菜单命中的路径必须保留适配文件。hash 模式。
 
 **路由守卫是管线，不是巨型 if。** `router/guards/index.ts` 按「菜单信息同步 → 新窗口拦截 → 登录/初始化 → 放行」组织；`router/layout.ts` 的 `resolveLayoutMode` 把外壳选择（page / fullscreen / standalone）抽成纯函数并有单测。全屏页优先用路由 `meta.layout = 'fullscreen'`，不要再往 `App.vue` 里加路径判断。
+
+**导航只展示可用入口。** 服务器菜单中没有对应视图、也不是 iframe / 新窗口的叶子标记为 `isUnavailable`；侧栏、顶部导航、工作台、全局菜单搜索统一过滤，空分组也不展示。工作台和菜单搜索消费 `menu.navigationEntries`，不要各自遍历菜单实现另一套规则。普通链接用 RouterLink，需兼容外链的通用入口用 `NavigationLink`。
+
+**工作区依赖按进入时机加载。** 登录阶段不加载 VXE / Excel 导出栈；守卫与异步 AdminLayout 共用 `loadWorkspacePlugins()`，确保注册完成后再渲染外壳。平台状态只在抽屉打开时请求。进入 `/login` 清动态菜单路由、标签页和会话；初始化失败页的重试回到 `/home`，重新请求菜单，而不是刷新 `/error`。
 
 **Pinia 按领域拆分。** 不再存在扁平大对象：
 

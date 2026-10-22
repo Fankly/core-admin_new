@@ -40,11 +40,12 @@
 pnpm lint        # 递归 eslint --fix
 pnpm typecheck   # 递归 vue-tsc --noEmit
 pnpm test        # Vitest 回归测试（HTTP 用例需要本地端口）
+pnpm e2e         # 外壳交互回归（需要本机 Chrome）
 pnpm build       # 生产构建
 pnpm dev         # 手工走查
 ```
 
-Vitest 配置在 `apps/web/vitest.config.ts`,用例与源文件就近放置,使用 `*.test.ts`。HTTP 用例通过本地服务验证真实请求,组件用例使用真实 Vue 组件;不得通过 mock 掩盖实际失败。Playwright 尚无配置,`pnpm e2e` 暂不能作为验证手段。新增功能时**优先补 vitest 用例**;涉及交互的改动仍需提供 dev 环境下的验证路径。
+Vitest 配置在 `apps/web/vitest.config.ts`,用例与源文件就近放置,使用 `*.test.ts`。HTTP 用例通过本地服务验证真实请求,组件用例使用真实 Vue 组件。Playwright 配置在 `apps/web/playwright.config.ts`,用例在 `apps/web/e2e/`,覆盖 1440×900 桌面和 390×844 移动视口,使用本机 Chrome,自动启动或复用 8001 端口的 dev server。浏览器用例以受控 API 响应验证交互和失败恢复,不代表生产业务接口已联调。拦截接口时检查 pathname 以 `/api/` 开头,避免误拦截 Vite 的 `src/api/` 模块。根据行为选择有意义的单测或浏览器回归,涉及视觉变化时仍需走查实际页面。
 
 ### 1.3 目录职责(相对 `apps/web/`)
 
@@ -91,24 +92,28 @@ Vitest 配置在 `apps/web/vitest.config.ts`,用例与源文件就近放置,使�
 
 ```ts
 // src/api/<域>/index.ts
-import baseService from '@/service/baseService'
+import baseService, { type ServiceResult } from '@/service/baseService'
 
-interface Result {
-  code: number
-  data: any
-  msg: string
-  success: boolean
-  header?: any
+interface ProjectRow {
+  id: string
+  name: string
 }
 
 interface Params {
-  [key: string]: any
+  page: number
+  size: number
 }
 
-export const getListPageData = (params: Params): Promise<Result> => baseService.post('xmExpert/getListPageData', params)
+interface PageData {
+  list: ProjectRow[]
+  total: number
+}
+
+export const getListPageData = (params: Params): Promise<ServiceResult<PageData>> =>
+  baseService.post<PageData>('xmExpert/getListPageData', params)
 ```
 
-- **既有风格**:`Result` / `Params` 在各 api 文件内重复声明。新增文件沿用此风格,不要为统一而做一次性大重构。
+- 参数与业务响应类型就近定义,新增接口通过 `ServiceResult<T>` 与 `baseService` 泛型表达契约。历史 API 保留兼容,不要在新文件中复制 `any` 响应声明。上例字段仅示意,实际定义以接口为准。
 - 路径**不加**前导 `?`,保持后端给的相对路径;baseURL 由环境变量 `VITE_APP_API` 注入。
 - 导出 `exportData` 用 `baseService.export` / `exportGet`,`download` 用 `baseService.download`。
 - 复杂或需要 service 路由的场景派生 `BaseMethod`(`src/api/base/BaseMethod.ts`),通过构造参数指定 `ServiceKey`。
@@ -135,7 +140,7 @@ export const getListPageData = (params: Params): Promise<Result> => baseService.
 ### 2.4 CSS / class
 
 - 业务样式走 **SCSS/Less**,页面局部样式一律 `<style scoped>`。
-- 全局样式集中在 `src/styles/`;设计 token 在 `src/styles/tokens.css`,Element Plus 覆盖在 `src/styles/element.less`,外壳样式在 `src/styles/shell.less`。
+- 全局样式集中在 `src/styles/`;设计 token 在 `src/styles/tokens.css`,Element Plus 覆盖在 `src/styles/element.less`,外壳入口 `src/styles/shell.less` 汇总 `shell/` 中的品牌、头部、导航、标签页、工作区、设置与响应式样式。VXE 延迟加载的样式通过 body 上的语义变量保持主题一致。
 - **不要重复 import** Vite `additionalData` 已全局注入的 `styles/variables.less`。当前 SCSS 没有自动注入;遗留 SCSS 文件不代表已经配置预处理器。
 - Tailwind v4 **CSS-first**,类名前缀是 `tw:`(变体式),不是 `tw-`;没有 `tailwind.config.js`。用法规范见 `src/styles/tailwind.css` 顶部注释。
 - Tailwind 不引入 preflight,`tw:border` 单独用不出边框(无 border-style 重置),需要自己写 border-style。
@@ -268,6 +273,9 @@ import SvgIcon from '@/components/base/svg-icon'
 - 守卫拆在 `router/guards/index.ts`,写成"返回值即导航结果"的新式写法(vue-router 5 已弃用 `next()`):`return true` 放行、`return false` 取消、`return '/path'` 重定向。
 - 全屏页优先在路由 meta 声明 `layout: 'fullscreen'`,不要往 `App.vue` 加路径判断;外壳解析用 `router/layout.ts` 的 `resolveLayoutMode`。
 - 页面里取 store 必须在函数/守卫内部调用 `useXxxStore()`,模块顶层取会因 pinia 未安装而报错。
+- 工作台与菜单搜索共用 `menu.navigationEntries`。缺少视图的入口由 `isUnavailable` 统一标记,隐藏菜单与空分组不展示;不要复制菜单遍历与搜索逻辑。
+- 需要兼容内部路由和外部网址的组件消费 `NavigationLink`,内部链接保留 RouterLink 的 href 与键盘语义。
+- 初始化失败后的恢复必须进入 `/home` 重试菜单,直接刷新 `/error` 会再次留在错误页。进入 `/login` 时清理旧动态路由、标签页和会话。
 
 ---
 
