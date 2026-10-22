@@ -1,25 +1,22 @@
 # core-admin 前端开发规范
 
-> 本规范基于 [ocxers/frontend-guide](https://github.com/ocxers/frontend-guide) 整理的前端编码规范参考体系,结合本仓库
-> (pnpm workspace monorepo,Vue 3 + Vite + Element Plus + Pinia)的既有约定裁剪而成。
+> 本规范基于 [ocxers/frontend-guide](https://github.com/ocxers/frontend-guide) 整理的前端编码规范参考体系,结合本仓库 (pnpm workspace monorepo,Vue 3 + Vite + Element Plus + Pinia)的既有约定裁剪而成。
 >
-> 一句话原则:**与既有代码保持一致,优先服从仓库里已经跑通的范式,而不是个人偏好。**
-> 规范与 ESLint / Prettier 冲突时,以工具链配置为准,并同步修改本文档。
-> 2026-10 重构后的分层、store、路由、请求层设计见 [`architecture.md`](./architecture.md)。
+> 一句话原则:**与既有代码保持一致,优先服从仓库里已经跑通的范式,而不是个人偏好。** 规范与 ESLint / Prettier 冲突时,以工具链配置为准,并同步修改本文档。2026-10 重构后的分层、store、路由、请求层设计见 [`architecture.md`](./architecture.md)。
 
 ## 参考基准
 
-| 来源 | 链接 | 本项目取舍 |
-| --- | --- | --- |
-| Airbnb JS Style | https://github.com/airbnb/javascript | 命名、变量、函数部分参照 |
-| Google JS Style | https://google.github.io/styleguide/jsguide.html | 注释与文档约定参照 |
-| 百度 ecomfe/spec | https://github.com/ecomfe/spec | CSS 组织方式参照 |
-| 腾讯 AlloyTeam CodeGuide | http://alloyteam.github.io/CodeGuide/ | HTML/模板书写参照 |
-| 网易 NEC 规范 | http://nec.netease.com/standard | CSS 命名参照 |
-| 凹凸实验室 | https://guide.aotu.io/index.html | 工程化、目录约定参照 |
-| Vue 官方文档 · 简介 | https://cn.vuejs.org/guide/introduction.html | API 风格选择、SFC 定位 |
-| Vue 官方风格指南 | https://cn.vuejs.org/style-guide/ | Vue 3 强约束(优先级 A/B) |
-| eslint-plugin-vue | `@repo/eslint-config/vue` | **实际强制执行的唯一标准** |
+| 来源                     | 链接                                             | 本项目取舍                 |
+| ------------------------ | ------------------------------------------------ | -------------------------- |
+| Airbnb JS Style          | https://github.com/airbnb/javascript             | 命名、变量、函数部分参照   |
+| Google JS Style          | https://google.github.io/styleguide/jsguide.html | 注释与文档约定参照         |
+| 百度 ecomfe/spec         | https://github.com/ecomfe/spec                   | CSS 组织方式参照           |
+| 腾讯 AlloyTeam CodeGuide | http://alloyteam.github.io/CodeGuide/            | HTML/模板书写参照          |
+| 网易 NEC 规范            | http://nec.netease.com/standard                  | CSS 命名参照               |
+| 凹凸实验室               | https://guide.aotu.io/index.html                 | 工程化、目录约定参照       |
+| Vue 官方文档 · 简介      | https://cn.vuejs.org/guide/introduction.html     | API 风格选择、SFC 定位     |
+| Vue 官方风格指南         | https://cn.vuejs.org/style-guide/                | Vue 3 强约束(优先级 A/B)   |
+| eslint-plugin-vue        | `@repo/eslint-config/vue`                        | **实际强制执行的唯一标准** |
 
 > 说明:上表是"思想来源"。本仓库真正的硬约束由 ESLint / Prettier / vue-tsc 三者执行,其余条目是被评审约束的软约定。
 
@@ -49,22 +46,22 @@ Vitest 配置在 `apps/web/vitest.config.ts`,用例与源文件就近放置,使�
 
 ### 1.3 目录职责(相对 `apps/web/`)
 
-| 目录 | 放什么 | 不放什么 |
-| --- | --- | --- |
-| `src/app/` | 应用组装、第三方插件注册 | 业务逻辑、页面状态 |
-| `src/layouts/` | 外壳布局:admin / fullscreen / RouteHost | 业务页面 |
-| `src/views/` | 路由适配层,路径必须与菜单 url 对应;薄封装到 `features/` | 业务实现、页面状态 |
-| `src/api/` | 按业务域拆分的接口定义 | 业务判断、UI 状态 |
-| `src/features/` | 按业务域组织的页面与局部逻辑 | 框架级状态、全局样式 |
-| `src/design-system/` | 跨业务基础组件与设计系统入口 | 业务数据、接口调用 |
-| `src/styles/` | 全局样式唯一入口:tokens/base/element/workspace/shell | 页面局部样式 |
-| `src/components/` | 既有跨业务公共组件 | 只在单页面用的一次性组件 |
-| `src/directives/` | 全局指令(一个指令一个文件) | 业务组件 |
-| `src/hooks/` | 通用组合式函数 | 组件 |
-| `src/service/` | `baseService` + `http/` 请求客户端 | 业务接口 |
-| `src/store/modules/` | 按领域拆分的 Pinia store | 组件局部状态 |
-| `src/router/` | 静态路由 + `guards/` + 视图注册表 | 页面组件 |
-| `src/utils/` | 纯函数工具 | 有副作用的全局单例 |
+| 目录                 | 放什么                                                  | 不放什么                 |
+| -------------------- | ------------------------------------------------------- | ------------------------ |
+| `src/app/`           | 应用组装、第三方插件注册                                | 业务逻辑、页面状态       |
+| `src/layouts/`       | 外壳布局:admin / fullscreen / RouteHost                 | 业务页面                 |
+| `src/views/`         | 路由适配层,路径必须与菜单 url 对应;薄封装到 `features/` | 业务实现、页面状态       |
+| `src/api/`           | 按业务域拆分的接口定义                                  | 业务判断、UI 状态        |
+| `src/features/`      | 按业务域组织的页面与局部逻辑                            | 框架级状态、全局样式     |
+| `src/design-system/` | 跨业务基础组件与设计系统入口                            | 业务数据、接口调用       |
+| `src/styles/`        | 全局样式唯一入口:tokens/base/element/workspace/shell    | 页面局部样式             |
+| `src/components/`    | 既有跨业务公共组件                                      | 只在单页面用的一次性组件 |
+| `src/directives/`    | 全局指令(一个指令一个文件)                              | 业务组件                 |
+| `src/hooks/`         | 通用组合式函数                                          | 组件                     |
+| `src/service/`       | `baseService` + `http/` 请求客户端                      | 业务接口                 |
+| `src/store/modules/` | 按领域拆分的 Pinia store                                | 组件局部状态             |
+| `src/router/`        | 静态路由 + `guards/` + 视图注册表                       | 页面组件                 |
+| `src/utils/`         | 纯函数工具                                              | 有副作用的全局单例       |
 
 新增业务域时,`views/<域>` 与 `api/<域>` 目录结构保持对应。
 
@@ -74,17 +71,17 @@ Vitest 配置在 `apps/web/vitest.config.ts`,用例与源文件就近放置,使�
 
 ### 2.1 通用
 
-| 类型 | 约定 | 示例 |
-| --- | --- | --- |
-| 目录 | kebab-case | `user-role-selector`(历史遗留的 PascalCase 组件目录保持不动) |
-| 组件文件 | PascalCase 或 kebab-case,与目录约定一致 | `ProTable/index.vue`、`svg-icon/index.vue` |
-| 普通 ts 文件 | camelCase | `useTable.ts`、`baseService.ts` |
-| 类型/接口/类 | PascalCase,接口不加 `I` 前缀(全局公共接口除外) | `TableStateProps`、`AppState` |
-| 变量/函数 | camelCase | `getTableList`、`searchParam` |
-| 常量 | UPPER_SNAKE_CASE | `REQUEST_TIMEOUT`、`PermissionInjectionKey` |
-| 布尔值 | `is` / `has` / `show` / `can` 前缀 | `isPageable`、`hasPermission`、`showSearch` |
-| 事件处理 | `handleXxx` / `onXxx` | `handleSizeChange`、`initComponentMap` |
-| 异步数据获取 | `getXxx` / `fetchXxx` | `getTableList`、`fetchPermissions` |
+| 类型         | 约定                                           | 示例                                                         |
+| ------------ | ---------------------------------------------- | ------------------------------------------------------------ |
+| 目录         | kebab-case                                     | `user-role-selector`(历史遗留的 PascalCase 组件目录保持不动) |
+| 组件文件     | PascalCase 或 kebab-case,与目录约定一致        | `ProTable/index.vue`、`svg-icon/index.vue`                   |
+| 普通 ts 文件 | camelCase                                      | `useTable.ts`、`baseService.ts`                              |
+| 类型/接口/类 | PascalCase,接口不加 `I` 前缀(全局公共接口除外) | `TableStateProps`、`AppState`                                |
+| 变量/函数    | camelCase                                      | `getTableList`、`searchParam`                                |
+| 常量         | UPPER_SNAKE_CASE                               | `REQUEST_TIMEOUT`、`PermissionInjectionKey`                  |
+| 布尔值       | `is` / `has` / `show` / `can` 前缀             | `isPageable`、`hasPermission`、`showSearch`                  |
+| 事件处理     | `handleXxx` / `onXxx`                          | `handleSizeChange`、`initComponentMap`                       |
+| 异步数据获取 | `getXxx` / `fetchXxx`                          | `getTableList`、`fetchPermissions`                           |
 
 ### 2.2 API 层
 
@@ -109,8 +106,7 @@ interface PageData {
   total: number
 }
 
-export const getListPageData = (params: Params): Promise<ServiceResult<PageData>> =>
-  baseService.post<PageData>('xmExpert/getListPageData', params)
+export const getListPageData = (params: Params): Promise<ServiceResult<PageData>> => baseService.post<PageData>('xmExpert/getListPageData', params)
 ```
 
 - 参数与业务响应类型就近定义,新增接口通过 `ServiceResult<T>` 与 `baseService` 泛型表达契约。历史 API 保留兼容,不要在新文件中复制 `any` 响应声明。上例字段仅示意,实际定义以接口为准。
@@ -122,14 +118,14 @@ export const getListPageData = (params: Params): Promise<ServiceResult<PageData>
 
 按领域拆成六个 store,统一从 `@/store` 导入,禁止再新建“什么都装”的全局 store:
 
-| Store | 职责 |
-| --- | --- |
-| `useSessionStore` | 用户、按钮权限、登录态、logout |
-| `useMenuStore` | 服务端菜单、动态路由、`path → meta`、当前菜单信息、`init()` |
-| `useTabsStore` | 标签页、激活项、关闭记录、keep-alive 缓存集合 |
-| `useShellStore` | 首屏生命周期、全局 loading、刷新信号、移动端抽屉 |
-| `usePreferencesStore` | 主题、导航布局、标签页开关 |
-| `useContextStore` | 遗留业务穿透参数(`xxGlobalInfo` 等) |
+| Store                 | 职责                                                        |
+| --------------------- | ----------------------------------------------------------- |
+| `useSessionStore`     | 用户、按钮权限、登录态、logout                              |
+| `useMenuStore`        | 服务端菜单、动态路由、`path → meta`、当前菜单信息、`init()` |
+| `useTabsStore`        | 标签页、激活项、关闭记录、keep-alive 缓存集合               |
+| `useShellStore`       | 首屏生命周期、全局 loading、刷新信号、移动端抽屉            |
+| `usePreferencesStore` | 主题、导航布局、标签页开关                                  |
+| `useContextStore`     | 遗留业务穿透参数(`xxGlobalInfo` 等)                         |
 
 - store 用 setup 语法(`defineStore('x', () => {...})`),返回需要的 state / computed / action。
 - action 命名用动词(`openTab` / `closeTab` / `setPermissions`),不要用 `updateState` 这种批量覆盖入口。
@@ -242,8 +238,7 @@ import SvgIcon from '@/components/base/svg-icon'
 </template>
 ```
 
-组件**没有全局注册**,每个文件自己 import。不要手写内联 `<svg>`。
-注意 `button.svg` 当前 SVGO 优化失败会被跳过,不要用它。
+组件**没有全局注册**,每个文件自己 import。不要手写内联 `<svg>`。注意 `button.svg` 当前 SVGO 优化失败会被跳过,不要用它。
 
 ### 4.7 权限
 
@@ -297,14 +292,14 @@ import SvgIcon from '@/components/base/svg-icon'
 
 由 `@repo/prettier-config` 统一,提交即校验,**不要手动对抗**:
 
-| 项 | 值 |
-| --- | --- |
-| 行宽 | 150 |
-| 缩进 | 2 空格,空格非 Tab |
-| 分号 | 不要 |
-| 引号 | 单引号 |
-| 尾逗号 | 无 |
-| 换行 | `endOfLine: auto`(仓库 `.editorconfig` 为 lf) |
+| 项     | 值                                            |
+| ------ | --------------------------------------------- |
+| 行宽   | 150                                           |
+| 缩进   | 2 空格,空格非 Tab                             |
+| 分号   | 不要                                          |
+| 引号   | 单引号                                        |
+| 尾逗号 | 无                                            |
+| 换行   | `endOfLine: auto`(仓库 `.editorconfig` 为 lf) |
 
 其他:
 

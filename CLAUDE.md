@@ -4,8 +4,7 @@
 
 这是**骨架仓库**：登录、外壳、路由、权限、表格封装、设计系统与接口层范式都已就位。`views/` 现在只做路由适配，实际页面放在 `features/`（auth / workbench / errors / embed）；业务域页面仍待补充。
 
-视觉与设计规则见 `apps/web/DESIGN.md`，产品事实见 `apps/web/PRODUCT.md`。
-同名的 `/Users/fan/developer/core-admin` 是体量大得多的完整仓库（约 1700 文件、`views` 下按业务域分 1300+ 文件）；两者不要混淆，codegraph 索引默认指向那一个，查本仓库要显式传 `projectPath`。
+视觉与设计规则见 `apps/web/DESIGN.md`，产品事实见 `apps/web/PRODUCT.md`。同名的 `/Users/fan/developer/core-admin` 是体量大得多的完整仓库（约 1700 文件、`views` 下按业务域分 1300+ 文件）；两者不要混淆，codegraph 索引默认指向那一个，查本仓库要显式传 `projectPath`。
 
 ## 仓库结构
 
@@ -16,8 +15,7 @@ packages/eslint-config/    @repo/eslint-config   index.js（纯 TS）/ vue.js（
 packages/prettier-config/  @repo/prettier-config
 ```
 
-包管理器是 pnpm，锁文件 `pnpm-lock.yaml`，**不要用 npm / yarn 装依赖**。共享工具链版本在 `pnpm-workspace.yaml` 的 `catalog:` 里，各包用 `"eslint": "catalog:"` 引用。
-Node 必须 ≥ 24（pnpm 11 的硬要求）。如果本机默认 Node 是 18，先切到 24 再执行命令。
+包管理器是 pnpm，锁文件 `pnpm-lock.yaml`，**不要用 npm / yarn 装依赖**。共享工具链版本在 `pnpm-workspace.yaml` 的 `catalog:` 里，各包用 `"eslint": "catalog:"` 引用。Node 必须 ≥ 24（pnpm 11 的硬要求）。如果本机默认 Node 是 18，先切到 24 再执行命令。
 
 ## 命令
 
@@ -42,8 +40,7 @@ pnpm e2e           # Playwright，桌面 / 移动端交互回归
 `apps/web/eslint-suppressions.json` 是**历史 lint 债务基线**（strictTypeChecked 迁移中尚未清零的 `any`/unsafe 规则）。ESLint 会自动读取它：
 
 - 新增代码**不得**再产生被抑制的错误；余额用完后必须修代码，而不是改基线。
-- 修完某文件的债务后，用 `pnpm --filter budget-process lint`（带 `--fix`）验证；需要清理失效条目时执行
-  `cd apps/web && npx eslint "src/**/*.{vue,ts}" --prune-suppressions`。
+- 修完某文件的债务后，用 `pnpm --filter budget-process lint`（带 `--fix`）验证；需要清理失效条目时执行 `cd apps/web && npx eslint "src/**/*.{vue,ts}" --prune-suppressions`。
 - 核心层（`src/app`、`src/store/modules`、`src/service/http`、`src/router`、`src/directives`）已清零，新增代码按同样标准要求。
 
 ## 构建约定
@@ -112,8 +109,7 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 
 **全局事件总线已移除。** 原 `mitt` 的 tab / 主题 / loading 通知全部改为 store action。页面组件不要再引入事件总线；跨层通信用 props / provide-inject / store。
 
-**接口层。** `src/api/**` 从 `@/service/baseService` 导入。`baseService` 自动加 Base64 签名头（random / timeStamp / sign），默认超时 3600000ms。返回包默认 `any` 以兼容历史 api；新接口应写 `baseService.get<MyData>(...)` 并用 `ServiceResult<T>`。极少数直接返回数组的接口用 `baseService.raw<T>(...)`。
-`service/http/client.ts` 只对 GET/HEAD/OPTIONS 合并并发请求（写请求永不合并），所有失败归一为 `ApiError`（`status` / `code` / `url`），401 统一清 token 并跳登录。
+**接口层。** `src/api/**` 从 `@/service/baseService` 导入。`baseService` 自动加 Base64 签名头（random / timeStamp / sign），默认超时 3600000ms。返回包默认 `any` 以兼容历史 api；新接口应写 `baseService.get<MyData>(...)` 并用 `ServiceResult<T>`。极少数直接返回数组的接口用 `baseService.raw<T>(...)`。 `service/http/client.ts` 只对 GET/HEAD/OPTIONS 合并并发请求（写请求永不合并），所有失败归一为 `ApiError`（`status` / `code` / `url`），401 统一清 token 并跳登录。
 
 **权限有两套入口。** `UserRoleSelector` 的父级通过 `CurrentUserRoleInjectionKey` 提供 `Ref<UserRole>`；组件通过默认插槽承载页面，并向后代提供 `PermissionInjectionKey`。`usePermission` 优先消费该上下文，没有则自己拉。角色和按钮接口统一放在 `api/permission`。缓存页失活后，迟到响应仅更新本页缓存，不覆盖当前页全局权限。按钮级权限用 `v-permission`（实现见 `src/directives/permission.ts`）或 `utils/utils.ts` 的 `checkPermission`。
 

@@ -29,7 +29,7 @@ The product is not a generic project-management suite. Its mechanism is a **serv
 - The application is commonly opened at `/home`; the actual home module can be configured by the server, with a local workbench fallback.
 - Legacy systems are sometimes embedded through iframes or opened in popup windows.
 - Session entry is automatic through the enterprise identity flow; there is no public sign-up or marketing funnel.
-- Real backend access is unavailable in the current development environment; local mocks are used for verification.
+- Server menus and runtime information can be read through the local proxy when the backend is running. Repeatable browser regression uses controlled API responses; production business workflows are not validated by those fixtures.
 
 ## Capabilities and Constraints
 
@@ -51,12 +51,13 @@ The product is not a generic project-management suite. Its mechanism is a **serv
 ## Evidence on Hand
 
 - A runnable skeleton with login, shell, tabs, permission, table, and request layers.
+- A menu-derived fallback directory with search, group filters and open-page restoration; no business task feed is available here.
 - Real system information can be read from `/sys/info`; menus come from `/sys/menu/nav`; user identity from `/sys/getUserInfo`.
 - No real project portfolio data, business metrics, testimonials, or production screenshots are available in this repository. Any illustrative numbers or project names must be clearly labelled as synthetic and easy to replace.
 
 ## Product Principles
 
-1. **Attention before inventory.** The workspace starts with what needs action, not a wall of navigation and metrics.
+1. **Start with an actionable entry.** The current fallback workbench helps users locate a reachable module and return to open work. A future attention feed requires real task data and a defined business contract.
 2. **Institutional calm.** Dense information is organized with clear rules, stable placement, and sparing emphasis; urgency is reserved for real exceptions.
 3. **One continuous workspace.** Navigation, tabs, and content should feel like one tool, not a stack of embedded legacy pages.
 4. **Permission is visible.** Never show a door the user cannot open; explain absence instead of failing later.

@@ -4,7 +4,7 @@
 
 ## Visual world
 
-**Governance Line / 治理航线.** The shell borrows its logic from an institutional transit system: a dark jade route rail, station markers, platform-grade signage, and a single continuous workspace instead of a stack of floating cards. The reference is wayfinding — not decoration. Every line, marker, and label exists to answer one of three questions: *where am I, what is reachable, what needs attention?*
+**Governance Line / 治理航线.** The shell borrows its logic from an institutional transit system: a dark jade route rail, station markers, platform-grade signage, and a single continuous workspace instead of a stack of floating cards. The reference is wayfinding — not decoration. Every line, marker, and label exists to answer one of three questions: _where am I, what is reachable, what needs attention?_
 
 The world is deliberately restrained because the product is used for long, dense, repeated work. Brand presence comes from material, typography, and spatial discipline rather than illustration, gradients, or motion.
 
@@ -18,22 +18,22 @@ The world is deliberately restrained because the product is used for long, dense
 
 ## Palette
 
-| Token | Value | Role |
-| --- | --- | --- |
-| `--ds-jade-900` | `#082a25` | route rail, brand field |
-| `--ds-jade-700` | `#0b5a51` | deep brand surfaces |
-| `--ds-jade-600` | `#00706b` | primary action, current nav, links |
-| `--ds-jade-500` | `#138f82` | focus, meter fill, secondary accent |
-| `--ds-jade-100` | `#dcefea` | soft selection, icon wells |
-| `--ds-paper` | `#f2f5f2` | application ground |
-| `--ds-surface` | `#ffffff` | workspace sheet |
-| `--ds-surface-subtle` | `#f8faf8` | tabs strip, panel heads |
-| `--ds-line` | `#e1e8e3` | hairlines |
-| `--ds-ink` | `#17231f` | primary text |
-| `--ds-ink-secondary` | `#5d6d66` | supporting text |
-| `--ds-ink-tertiary` | `#61716a` | metadata |
-| `--ds-warning` | `#975d16` | attention / permission gap |
-| `--ds-danger` | `#b3453d` | failure / destructive action |
+| Token                 | Value     | Role                                |
+| --------------------- | --------- | ----------------------------------- |
+| `--ds-jade-900`       | `#082a25` | route rail, brand field             |
+| `--ds-jade-700`       | `#0b5a51` | deep brand surfaces                 |
+| `--ds-jade-600`       | `#00706b` | primary action, current nav, links  |
+| `--ds-jade-500`       | `#138f82` | focus, meter fill, secondary accent |
+| `--ds-jade-100`       | `#dcefea` | soft selection, icon wells          |
+| `--ds-paper`          | `#f2f5f2` | application ground                  |
+| `--ds-surface`        | `#ffffff` | workspace sheet                     |
+| `--ds-surface-subtle` | `#f8faf8` | tabs strip, panel heads             |
+| `--ds-line`           | `#e1e8e3` | hairlines                           |
+| `--ds-ink`            | `#17231f` | primary text                        |
+| `--ds-ink-secondary`  | `#5d6d66` | supporting text                     |
+| `--ds-ink-tertiary`   | `#61716a` | metadata                            |
+| `--ds-warning`        | `#975d16` | attention / permission gap          |
+| `--ds-danger`         | `#b3453d` | failure / destructive action        |
 
 Color strategy: **Restrained.** Neutral paper and ink carry most of the surface; jade owns navigation, primary action, and current location. Semantic colors appear only as state. Body text and placeholders meet 4.5:1 against their surfaces; large display text meets 3:1.
 
@@ -84,6 +84,8 @@ A drawn SVG route mark: two station nodes connected by a bent line, with a secon
 
 Element Plus `el-menu` is retained for keyboard and router integration, but its surface is fully re-skinned. Active state uses a soft jade field plus a station dot. No colored left border is used. Horizontal active state uses a 2px underline.
 
+The rail, workbench and menu search share availability rules. Hidden routes, unavailable leaves and empty groups are omitted. The global search opens with Ctrl / ⌘ K, focuses its input, supports arrow-key selection and Enter on a result, and closes with Escape. Internal and external entry links share `NavigationLink` so both keep a real href and keyboard behavior.
+
 ### Tabs
 
 A custom semantic tablist with roving tabindex and arrow-key navigation. Each tab supports click, middle-click close, visible close on hover/focus, and a dropdown for close-current/others/left/right/all. The tab style preference is honoured through `ds-tabs--default|dot|card`.
@@ -100,9 +102,21 @@ Icon buttons are 34px, Lucide line icons at 16–18px, 1.8 stroke. A user avatar
 
 Panels use one border and no shadow. Empty states teach the next move and are never just "暂无数据". Loading uses quiet skeletons; route loading is a translucent sheet with a small spinner, and it never appears for the login route.
 
+`EmptyState` provides a reusable title, explanation, icon and recovery action. Tables expose their loading state and keep search, refresh and help controls identifiable. Search forms use native submit behavior, including Enter.
+
+### Workbench
+
+The local fallback workbench starts with the reachable business directory. Its entries come from server menus; there are no invented portfolio metrics or task counts. Search and group filters narrow the directory, twelve entries appear initially, and "显示更多" reveals the next batch. "继续工作" restores open tabs; account information stays beside the directory when space permits.
+
+The workbench responds to its content container width, allowing the same page to adapt when the navigation rail expands, collapses or changes mode. At smaller widths, the directory takes the full row and supporting information moves below it. The page header retains its height inside the scrollable workspace.
+
+"平台状态" opens a drawer and requests runtime information on demand. Loading, unavailable data, retry and stale data after refresh failure have explicit states. Runtime data is an operational aid rather than the page's main content.
+
 ### Sign-in
 
 A two-field composition: a dark jade story panel with the lifecycle rail, and a paper entry sheet with live phase progress (identity → permission → workspace). The page never presents credentials and never fabricates an SSO form.
+
+Permission refusal offers "重新验证权限". Workspace initialization failure offers "重新加载", which re-enters the workspace and requests its menu again. State changes follow actual requests without artificial waits.
 
 ## Motion
 
@@ -118,6 +132,7 @@ A two-field composition: a dark jade story panel with the lifecycle rail, and a 
 - Icon-only buttons carry `aria-label` and `title`.
 - Focus rings are visible at 2px jade with 3px offset.
 - Custom tabs implement `role="tablist"`, `role="tab"`, `aria-selected`, and keyboard arrow/Home/End handling.
+- The skip link focuses the main workspace without modifying the hash route; tab navigation only scrolls its own strip.
 - Status regions use `role="status"` / `aria-live="polite"` for login and boot.
 - Body text contrast ≥ 4.5:1; metadata is never used for essential instructions alone.
 - View remains usable at 200% zoom and 390px width; no horizontal document scroll.
@@ -128,15 +143,16 @@ Direct, calm, and specific. Controls name the action ("刷新当前页面", "关
 
 ## Implementation map
 
-| Concern | Source |
-| --- | --- |
-| Tokens | `src/styles/tokens.css` |
-| Base, library and shell CSS | `src/styles/` |
-| Brand, page header | `src/design-system/components/` |
-| Shell and navigation | `src/layouts/admin/` |
-| Sign-in | `src/features/auth/LoginPage.vue` |
-| Workbench | `src/features/workbench/WorkbenchPage.vue` |
-| Error surfaces | `src/features/errors/ErrorPage.vue` |
+| Concern                                   | Source                                        |
+| ----------------------------------------- | --------------------------------------------- |
+| Tokens                                    | `src/styles/tokens.css`                       |
+| Base and library CSS                      | `src/styles/`                                 |
+| Shell CSS by responsibility               | `src/styles/shell/`, imported by `shell.less` |
+| Brand, header, empty state, links         | `src/design-system/components/`               |
+| Shell and navigation                      | `src/layouts/admin/`                          |
+| Sign-in                                   | `src/features/auth/LoginPage.vue`             |
+| Workbench and directory/status components | `src/features/workbench/`                     |
+| Error surfaces                            | `src/features/errors/ErrorPage.vue`           |
 
 ## Do not
 
