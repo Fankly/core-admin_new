@@ -68,7 +68,8 @@ describe('useTable with HTTP responses', () => {
   it('keeps the latest page when responses arrive in reverse order', async () => {
     const transformed: string[][] = []
     const table = useTable(api, {}, true, (data) => {
-      transformed.push(data.records)
+      if (Array.isArray(data)) throw new Error('Expected a paginated response')
+      transformed.push(data.records as string[])
       return data
     })
     const first = table.getTableList()

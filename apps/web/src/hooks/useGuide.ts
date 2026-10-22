@@ -1,7 +1,7 @@
-import { nextTick, ref } from 'vue'
-import { driver, Driver, DriveStep } from 'driver.js'
+import { nextTick, ref, onScopeDispose, getCurrentScope } from 'vue'
+import { driver } from 'driver.js'
+import type { Driver } from 'driver.js'
 import { checkGuideStatus, recordGuideCompletion, updateGuideStatus } from '@/api/guide'
-import { IObject } from '@/types/interface'
 
 interface UseGuideOptions {
   moduleKey: string
@@ -14,7 +14,7 @@ interface UseGuideOptions {
   enableAnimation?: boolean
 }
 
-export function useGuide(options: UseGuideOptions): IObject {
+export function useGuide(options: UseGuideOptions) {
   const {
     moduleKey,
     title = '功能帮助',
@@ -28,6 +28,20 @@ export function useGuide(options: UseGuideOptions): IObject {
 
   const driverInstance = ref<Driver | null>(null)
   const isGuideActive = ref(false)
+  let disposed = false
+  const timers = new Map<ReturnType<typeof setTimeout>, () => void>()
+  if (getCurrentScope())
+    onScopeDispose(() => {
+      disposed = true
+      for (const [timer, resolve] of timers) {
+        clearTimeout(timer)
+        resolve()
+      }
+      timers.clear()
+      driverInstance.value?.destroy()
+      driverInstance.value = null
+      isGuideActive.value = false
+    })
 
   const handleKnowClick = async () => {
     try {
@@ -79,8 +93,8 @@ export function useGuide(options: UseGuideOptions): IObject {
             showButtons: []
           }
         }
-      ] as DriveStep[],
-      onPopoverRender: (popover, { config, state }) => {
+      ],
+      onPopoverRender: (popover) => {
         const descriptionElement = popover.description
 
         const buttonContainer = document.createElement('div')
@@ -92,7 +106,7 @@ export function useGuide(options: UseGuideOptions): IObject {
         knowButton.onclick = (e) => {
           e.preventDefault()
           e.stopPropagation()
-          handleKnowClick()
+          void handleKnowClick()
         }
 
         const noRemindButton = document.createElement('button')
@@ -101,18 +115,18 @@ export function useGuide(options: UseGuideOptions): IObject {
         noRemindButton.onclick = (e) => {
           e.preventDefault()
           e.stopPropagation()
-          handleNoMoreRemindClick()
+          void handleNoMoreRemindClick()
         }
 
         buttonContainer.appendChild(knowButton)
         buttonContainer.appendChild(noRemindButton)
 
-        if (descriptionElement && descriptionElement.parentElement) {
+        if (descriptionElement.parentElement) {
           descriptionElement.parentNode?.appendChild(buttonContainer)
         }
 
         if (enableAnimation) {
-          setTimeout(() => {
+          void delayedExecute(() => {
             buttonContainer.classList.add('fade-in')
           }, 100)
         }
@@ -127,7 +141,7 @@ export function useGuide(options: UseGuideOptions): IObject {
     try {
       const response = await checkGuideStatus({ moduleKey })
       if (response.success && response.data) {
-        return response.data
+        return response.data === true
       }
       return false
     } catch (error) {
@@ -136,18 +150,26 @@ export function useGuide(options: UseGuideOptions): IObject {
     }
   }
 
-  const delayedExecute = (fn: () => void | Promise<void>, delayTime = delay) => {
-    return new Promise<void>((resolve) => {
-      setTimeout(async () => {
-        await fn()
+  const delayedExecute = (fn: () => void | Promise<void>, delayTime = delay) =>
+    new Promise<void>((resolve, reject) => {
+      if (disposed) {
         resolve()
+        return
+      }
+      const timer = setTimeout(() => {
+        timers.delete(timer)
+        if (disposed) {
+          resolve()
+          return
+        }
+        void Promise.resolve().then(fn).then(resolve, reject)
       }, delayTime)
+      timers.set(timer, resolve)
     })
-  }
 
   const startGuide = async () => {
     const needShow = await checkNeedGuide()
-    if (needShow) {
+    if (needShow && !disposed) {
       await delayedExecute(async () => {
         await showGuideManual()
       })
@@ -157,10 +179,11 @@ export function useGuide(options: UseGuideOptions): IObject {
   }
 
   const showGuideManual = async () => {
-    if (isGuideActive.value) return
+    if (isGuideActive.value || disposed) return
 
     await delayedExecute(async () => {
       await nextTick()
+      if (disposed) return
       const targetElement = document.querySelector(tragetSelector)
       if (!targetElement) {
         console.warn('引导目标元素未找到:', tragetSelector)
@@ -187,7 +210,7 @@ export function useGuide(options: UseGuideOptions): IObject {
       const popover = document.querySelector('.driverjs-theme.guide-popover')
       if (popover) {
         popover.classList.add('fade-out-animation')
-        setTimeout(() => {
+        void delayedExecute(() => {
           if (driverInstance.value) {
             driverInstance.value.destroy()
           }
@@ -204,8 +227,9 @@ export function useGuide(options: UseGuideOptions): IObject {
   }
 
   const destroyGuide = () => {
-    hideGuide()
+    driverInstance.value?.destroy()
     driverInstance.value = null
+    isGuideActive.value = false
   }
 
   return {

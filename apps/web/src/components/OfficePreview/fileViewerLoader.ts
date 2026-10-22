@@ -1,10 +1,10 @@
 /**
  * 动态加载 file-viewer，避免路由首屏同步拉整包。
  *
- * 类型经 tsconfig paths 映射到 src/types/file-viewer/*（TS 4.3 兼容）。
+ * 类型经 tsconfig paths 映射到 src/types/file-viewer/*（与运行时适配层保持一致）。
  * 运行时经 vite resolve.alias 解析到 node_modules 真包。
  */
-import type { FileViewerModules, FileViewerMountViewer } from './fileViewerTypes'
+import type { FileViewerModules } from './fileViewerTypes'
 
 let fileViewerModulesPromise: Promise<FileViewerModules> | null = null
 
@@ -16,7 +16,7 @@ export const loadFileViewerModules = (): Promise<FileViewerModules> => {
       import('@file-viewer/renderer-spreadsheet')
     ])
       .then(([core, word, spreadsheet]) => {
-        const mountViewer = (core as { mountViewer: FileViewerMountViewer }).mountViewer
+        const mountViewer = core.mountViewer
         const wordRenderer = word.default
         const spreadsheetRenderer = spreadsheet.default
         if (typeof mountViewer !== 'function' || !wordRenderer || !spreadsheetRenderer) {

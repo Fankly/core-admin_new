@@ -59,7 +59,7 @@ const getRowKey = (row: any): string => {
   }
 }
 
-export const useElTableSelectionHighlight = (tableRef: Ref<ElTableInstance | null>) => {
+export const useElTableSelectionHighlight = (tableRef: Ref<ElTableInstance | null | undefined>) => {
   ensureStyleElement()
 
   const selectedRows = ref<TableRowData[]>([])

@@ -1,65 +1,54 @@
-<template>
-  <RenderTableColumn v-bind="column" />
-</template>
+<template><RenderTableColumn :column="column" /></template>
 
 <script setup lang="ts">
-import { Fragment, h, inject, ref, useSlots } from 'vue'
+import { h, inject, ref, unref, useSlots } from 'vue'
 import type { VNode } from 'vue'
 import { ElTableColumn, ElTag } from 'element-plus'
-import type { ColumnProps, RenderScope, HeaderRenderScope, EnumMap, TableRow } from '@/components/ProTable/interface'
-import { EnumMapInjectionKey } from '@/components/ProTable/interface'
-import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from '@/utils'
+import type { ColumnProps, RenderScope, HeaderRenderScope, EnumMap } from '../interface'
+import { EnumMapInjectionKey } from '../interface'
+import { findEnumItem, formatCellValue, getCellValue, getTagType } from '../cell'
 
 defineOptions({ name: 'TableColumn' })
-
 defineProps<{ column: ColumnProps }>()
-
 const slots = useSlots()
-
 const enumMap = inject(EnumMapInjectionKey, ref<EnumMap>(new Map()))
-
-type CellScope = RenderScope<TableRow>
-
-// 渲染表格数据。prop 缺省时按空串兜底，避免对可空字段做非空断言。
-function renderCellData(item: ColumnProps, scope: CellScope) {
-  const value = handleRowAccordingToProp(scope.row, item.prop ?? '')
-  const enumItem = item.prop == null ? undefined : enumMap.value.get(item.prop)
-  if (enumItem && item.isFilterEnum) return filterEnum(value, enumItem, item.fieldNames)
-  return formatValue(value)
-}
-
-// 获取 tag 类型
-function getTagType(item: ColumnProps, scope: CellScope) {
-  const enumItem = item.prop == null ? undefined : enumMap.value.get(item.prop)
-  return filterEnum(handleRowAccordingToProp(scope.row, item.prop ?? ''), enumItem, item.fieldNames, 'tag') || 'primary'
-}
-
-const RenderTableColumn = (item: ColumnProps): VNode => {
-  const column = h(
+const slotKey = (column: ColumnProps) => column.prop?.split('.').pop() ?? ''
+const renderColumn = (item: ColumnProps): VNode | null => {
+  if (unref(item.isShow) === false) return null
+  const { _children, render, headerRender, tag, isFilterEnum, fieldNames } = item
+  const columnProps = { ...item }
+  delete columnProps._children
+  delete columnProps.render
+  delete columnProps.headerRender
+  delete columnProps.enum
+  delete columnProps.search
+  delete columnProps.tag
+  delete columnProps.isShow
+  delete columnProps.isHide
+  delete columnProps.isFilterEnum
+  delete columnProps.fieldNames
+  return h(
     ElTableColumn,
     {
-      ...item,
+      ...columnProps,
       align: item.align ?? 'center',
       showOverflowTooltip: item.showOverflowTooltip ?? item.prop !== 'operation'
     },
     {
-      default: (scope: CellScope) => {
-        if (item._children) return item._children.map((child) => RenderTableColumn(child))
-        if (item.render) return item.render(scope)
-        const slot = slots[handleProp(item.prop ?? '')]
+      default: (scope: RenderScope) => {
+        if (_children?.length) return _children.map(renderColumn)
+        if (render) return render(scope)
+        const slot = slots[slotKey(item)]
         if (slot) return slot(scope)
-        if (item.tag) return h(ElTag, { type: getTagType(item, scope) }, { default: () => renderCellData(item, scope) })
-        return renderCellData(item, scope)
+        const value = getCellValue(scope.row, item.prop ?? '')
+        const option = findEnumItem(enumMap.value.get(item.prop ?? '') ?? [], value, fieldNames)
+        const label = unref(isFilterEnum) !== false && option ? option[fieldNames?.label ?? 'label'] : value
+        const text = formatCellValue(label)
+        return unref(tag) ? h(ElTag, { type: getTagType(option) }, () => text) : text
       },
-      header: (scope: HeaderRenderScope<TableRow>) => {
-        if (item.headerRender) return item.headerRender(scope)
-        const headerSlot = slots[`${handleProp(item.prop ?? '')}Header`]
-        if (headerSlot) return headerSlot(scope)
-        return item.label
-      }
+      header: (scope: HeaderRenderScope) => headerRender?.(scope) ?? slots[`${slotKey(item)}Header`]?.(scope) ?? item.label
     }
   )
-  // 与原 JSX fragment 等价：isShow 为假时渲染空节点
-  return h(Fragment, item.isShow ? [column] : [])
 }
+const RenderTableColumn = ({ column }: { column: ColumnProps }) => renderColumn(column)
 </script>

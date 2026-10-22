@@ -69,6 +69,9 @@
 }
 
 .help-tab {
+  border: 0;
+  background: transparent;
+  font-family: inherit;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -402,6 +405,10 @@
 }
 
 .file-item {
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
   display: flex;
   align-items: center;
   padding: 12px;

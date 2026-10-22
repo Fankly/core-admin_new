@@ -1,41 +1,18 @@
 import { useElTableSelectionHighlight } from '@/utils/tableSelectionHighlight'
-import { ref, computed } from 'vue'
+import { computed, shallowRef, toValue } from 'vue'
+import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { TableInstance } from 'element-plus'
+import type { TableRow } from '@/components/ProTable/interface'
 
-interface returnValue {
-  [key: string]: any
-}
-/**
- * @description 表格多选数据操作
- * @param {String} rowKey 当表格可以多选时，所指定的 id
- * */
-export const useSelection = (rowKey = 'id', tableRef: any): returnValue => {
-  const isSelected = ref<boolean>(false)
-  const selectedList = ref<{ [key: string]: any }[]>([])
-
-  const { handleSelectionChange: eltableSelectionChange, resetSelction } = useElTableSelectionHighlight(tableRef)
-
-  // 当前选中的所有 ids 数组
-  const selectedListIds = computed((): string[] => {
-    const ids: string[] = []
-    selectedList.value.forEach((item) => ids.push(item[rowKey]))
-    return ids
-  })
-
-  /**
-   * @description 多选操作
-   * @param {Array} rowArr 当前选择的所有数据
-   * @return void
-   */
-  const selectionChange = (rowArr: { [key: string]: any }[]) => {
-    rowArr.length ? (isSelected.value = true) : (isSelected.value = false)
-    rowArr.length ? eltableSelectionChange(rowArr) : resetSelction()
-    selectedList.value = rowArr
+export const useSelection = (rowKey: MaybeRefOrGetter<string> = 'id', tableRef: Ref<TableInstance | null | undefined>) => {
+  const selectedList = shallowRef<TableRow[]>([])
+  const isSelected = computed(() => selectedList.value.length > 0)
+  const selectedListIds = computed(() => selectedList.value.map((row) => row[toValue(rowKey)]))
+  const { handleSelectionChange, resetSelction } = useElTableSelectionHighlight(tableRef)
+  const selectionChange = (rows: TableRow[]) => {
+    selectedList.value = rows
+    if (rows.length) handleSelectionChange(rows)
+    else resetSelction()
   }
-
-  return {
-    isSelected,
-    selectedList,
-    selectedListIds,
-    selectionChange
-  }
+  return { isSelected, selectedList, selectedListIds, selectionChange }
 }

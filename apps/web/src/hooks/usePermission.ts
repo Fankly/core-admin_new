@@ -28,7 +28,7 @@ export const usePermission = () => {
     if (injectedContext) {
       return injectedContext.permissions
     }
-    return localPermissions.value || []
+    return localPermissions.value
   })
 
   const isLoading = computed(() => {
@@ -75,7 +75,7 @@ export const usePermission = () => {
   }
 
   const hasPermission = (permissionKey: string): boolean => {
-    return checkPermission(allPermissions.value || [], permissionKey)
+    return checkPermission(allPermissions.value, permissionKey)
   }
 
   const hasAnyPermission = (permissionKey: string[]): boolean => {

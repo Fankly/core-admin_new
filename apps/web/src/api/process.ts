@@ -1,4 +1,6 @@
 import baseService from '@/service/baseService'
+import type { ApiResponse } from '@/service/http/types'
+import type { MenuMeta } from '@/types/domain'
 
 interface Result {
   code: number
@@ -81,8 +83,8 @@ export const exportDetail = (params?: Params): Promise<Result> => {
 }
 
 // 获取menu信息
-export const getMenuMessage = (params: string): Promise<Result> => {
-  return baseService.get('/sys/menu/getMenuByUrl', { url: params })
+export const getMenuMessage = (params: string): Promise<ApiResponse<MenuMeta | null>> => {
+  return baseService.get<MenuMeta | null>('/sys/menu/getMenuByUrl', { url: params })
 }
 
 // 获取项目包名称

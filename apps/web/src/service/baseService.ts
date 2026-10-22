@@ -1,4 +1,4 @@
-import type { Method } from 'axios'
+import type { Method, ResponseType } from 'axios'
 import { Base64 } from 'js-base64'
 import type { IObject } from '@/types/interface'
 import request from '@/service/http/client'
@@ -29,7 +29,7 @@ function generateSignature(): Signature {
     typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function'
       ? crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000
       : Math.random()
-  return { random, timeStamp, sign: Base64.encode(`${random}-${timeStamp}`) }
+  return { random, timeStamp, sign: Base64.encode(`${String(random)}-${String(timeStamp)}`) }
 }
 
 function createHeaders(extraHeaders?: IObject, body?: unknown): IObject {
@@ -61,13 +61,14 @@ export default {
   },
 
   /** 少数接口直接返回数组/标量而不是 { code, data } 信封，用这个入口保留原始形状。 */
-  async raw<T>(path: string, params?: IObject, headers?: IObject, otherParams?: OtherParams): Promise<T> {
+  async raw<T>(path: string, params?: IObject, headers?: IObject, otherParams?: OtherParams, responseType?: ResponseType): Promise<T> {
     return (await request({
       url: path,
       params,
       timeout: REQUEST_TIMEOUT,
       headers: createHeaders(headers),
       method: 'GET',
+      responseType,
       ...otherParams
     })) as unknown as T
   },

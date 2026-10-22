@@ -1,4 +1,14 @@
 import baseService from '@/service/baseService'
+import type { ApiResponse } from '@/service/http/types'
+
+export interface HelpAttachment {
+  fjmc: string
+  uuid: string
+}
+export interface MenuHelpConfig {
+  status: string
+  helpInfo?: string
+}
 
 interface Result {
   code: number
@@ -46,12 +56,12 @@ export const menuList = (): Promise<Result> => {
 }
 
 //菜单帮助配置-根据菜单ID获取菜单配置
-export const getConfigByMenuId = (menuId: any): Promise<Result> => {
-  return baseService.get(`sys/menuConfig/getConfigByMenuId?menuId=${menuId}`)
+export const getConfigByMenuId = (menuId: string | number): Promise<ApiResponse<MenuHelpConfig | null>> => {
+  return baseService.get<MenuHelpConfig | null>('sys/menuConfig/getConfigByMenuId', { menuId })
 }
 //菜单帮助配置-根据菜单ID获取附件列表
-export const listFj = (menuId: any): Promise<Result> => {
-  return baseService.get(`sys/menuConfig/listFj?menuId=${menuId}`)
+export const listFj = (menuId: string | number): Promise<ApiResponse<HelpAttachment[]>> => {
+  return baseService.get<HelpAttachment[]>('sys/menuConfig/listFj', { menuId })
 }
 
 //菜单帮助配置-保存菜单配置
@@ -64,8 +74,8 @@ export const deleteFj = (fjId: any): Promise<Result> => {
 }
 
 //菜单帮助配置-下载附件
-export const downloadFj = (parma: any): Promise<Result> => {
-  return baseService.exportGet(`sys/menuConfig/downloadFj?fileName=${parma.fileName}&uuid=${parma.uuid}`)
+export const downloadFj = (params: { fileName: string; uuid: string }): Promise<Blob> => {
+  return baseService.raw<Blob>('sys/menuConfig/downloadFj', params, undefined, undefined, 'blob')
 }
 
 //菜单帮助配置-发布/取消发布

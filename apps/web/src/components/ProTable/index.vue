@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="operate" v-if="toolButton">
+    <div class="operate" v-if="toolButton || $slots.tableHeader">
       <div class="operate-button">
         <slot name="tableHeader" :selected-list="selectedList" :selected-list-ids="selectedListIds" :is-selected="isSelected" />
       </div>
@@ -54,13 +54,19 @@
         <template v-for="(item, index) in tableColumns" :key="item.prop ?? item.type ?? index">
           <!-- selection || radio || index || expand || sort -->
           <el-table-column
-            v-if="item.type && columnTypes.includes(item.type)"
+            v-if="item.type && item.isShow"
             v-bind="item"
+            :type="item.type === 'sort' || item.type === 'radio' ? undefined : item.type"
             :align="item.align ?? 'center'"
-            :reserve-selection="item.type == 'selection'"
-          ></el-table-column>
+            :reserve-selection="item.type === 'selection'"
+          >
+            <template v-if="item.type === 'sort'" #default><span class="move" aria-label="拖动排序">⋮⋮</span></template>
+            <template v-else-if="item.type === 'radio'" #default="scope">
+              <el-radio v-model="radio" :value="String(scope.row[rowKey])" :aria-label="`选择第 ${scope.$index + 1} 行`" />
+            </template>
+          </el-table-column>
           <!-- other -->
-          <TableColumn v-if="!item.type && item.prop && item.isShow" :column="item">
+          <TableColumn v-if="!item.type && (item.prop || item._children?.length) && item.isShow" :column="item">
             <template v-for="slot in Object.keys($slots)" #[slot]="scope">
               <slot :name="slot" v-bind="scope" />
             </template>
@@ -86,67 +92,39 @@
     </div>
   </div>
   <!-- 列设置 -->
-  <ColSetting v-if="toolButton" ref="colRef" v-model:col-setting="colSetting" />
+  <ColSetting v-if="toolButton" ref="colRef" :col-setting="colSetting" />
   <HelpModal ref="helpModalRef" />
 </template>
 
 <script setup lang="ts">
-import { ref, watch, provide, onMounted, onUnmounted, unref, computed, reactive, toRef } from 'vue'
-import type { Ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, nextTick, provide, ref, toRef, watch } from 'vue'
 import type { TableInstance } from 'element-plus'
+import Sortable from 'sortablejs'
 import { useTable } from '@/hooks/useTable'
 import { useSelection } from '@/hooks/useSelection'
-import type { BreakPoint } from '@/components/Grid/interface'
-import type { ColumnProps, TypeProps, EnumMap } from '@/components/ProTable/interface'
-import { EnumMapInjectionKey } from '@/components/ProTable/interface'
-import type { IObject } from '@/types/interface'
-import { handleProp } from '@/utils'
+import { useGuide } from '@/hooks/useGuide'
+import type { HelpModalInstance } from '@/components/HelpModal/useHelp'
+import type { ColSettingInstance, ProTableProps } from './interface'
+import { EnumMapInjectionKey } from './interface'
+import { useColumns } from './useColumns'
 import SearchForm from '@/components/SearchForm/index.vue'
 import Pagination from './components/Pagination.vue'
 import ColSetting from './components/ColSetting.vue'
 import TableColumn from './components/TableColumn.vue'
-import Sortable from 'sortablejs'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
-import { useGuide } from '@/hooks/useGuide'
-import { handleError } from '@/utils/error'
 import { EmptyState } from '@/design-system'
+import { handleError } from '@/utils/error'
 
-defineOptions({ name: 'ProTable' })
-
-// element-plus 2.14 把 ElTable 声明成泛型函数组件，不能再用 InstanceType，改用官方导出的实例类型
-type ElTableInstance = TableInstance
-
-export interface ProTableProps {
-  columns: ColumnProps[] // 列配置项  ==> 必传
-  data?: any[] // 静态 table data 数据，若存在则不会使用 requestApi 返回的 data ==> 非必传
-  requestApi?: (params: any) => Promise<any> // 请求表格数据的 api ==> 非必传
-  requestAuto?: boolean // 是否自动执行请求 api ==> 非必传（默认为true）
-  requestError?: (params: any) => void // 表格 api 请求错误监听 ==> 非必传
-  dataCallback?: (data: any) => any // 返回数据的回调函数，可以对数据进行处理 ==> 非必传
-  title?: string // 表格标题 ==> 非必传
-  pagination?: boolean // 是否需要分页组件 ==> 非必传（默认为true）
-  initParam?: IObject // 初始化请求参数 ==> 非必传（默认为{}）
-  border?: boolean // 是否带有纵向边框 ==> 非必传（默认为true）
-  toolButton?: ('help' | 'setting' | 'search' | 'other')[] | boolean // 是否显示表格功能按钮 ==> 非必传（默认为true）
-  helpMessage?: string // 表格帮助信息 ==> 非必传
-  titleMsg?: string // 表格帮助信息 ==> 非必传
-  rowKey?: string // 行数据的 Key，用来优化 Table 的渲染，当表格数据多选时，所指定的 id ==> 非必传（默认为 id）
-  searchCol?: number | Record<BreakPoint, number> // 表格搜索项 每列占比配置 ==> 非必传 { md: 2, lg: 3, xl: 4 }
-  isShowTable?: boolean // 是否显示表格 ==> 非必传（默认为true）
-  guideModuleKey?: string
-  guideTitle?: string
-  guideMessage?: string
-}
-
-// 接受父组件参数，配置默认值
+export type { ProTableProps } from './interface'
+defineOptions({ name: 'ProTable', inheritAttrs: false })
 const props = withDefaults(defineProps<ProTableProps>(), {
   columns: () => [],
   requestAuto: false,
   pagination: true,
   initParam: () => ({}),
   border: true,
-  toolButton: true as any,
+  toolButton: () => true,
   rowKey: 'id',
   helpMessage: '',
   titleMsg: '',
@@ -156,204 +134,130 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   guideTitle: '功能帮助',
   guideMessage: '点击此图标可以获取当前页面的帮助信息和使用说明'
 })
-
-// table 实例
-const tableRef = ref<ElTableInstance>()
-const helpModalRef = ref()
-
-const { startGuide, showGuidemanual, hideGuide, destroyGuide } = useGuide({
-  moduleKey: props.guideModuleKey || '',
-  title: props.guideTitle,
-  message: props.guideMessage,
-  tragetSelector: '.toolbar-guide-icon',
-  onKnow: () => {},
-  onNoMoreRemind: () => {}
-})
-
-// column 列类型
-const columnTypes: TypeProps[] = ['selection', 'radio', 'index', 'expand', 'sort']
-// 是否显示搜索模块
+const emit = defineEmits<{ search: []; reset: []; dargSort: [{ newIndex?: number; oldIndex?: number }] }>()
+const tableRef = ref<TableInstance>()
+const colRef = ref<ColSettingInstance | null>(null)
+const helpModalRef = ref<HelpModalInstance | null>(null)
 const isShowSearch = ref(true)
-
-const hasToolButton = (key: 'help' | 'setting' | 'search') => {
-  return Array.isArray(props.toolButton) ? props.toolButton.includes(key) : props.toolButton
-}
-
-// 获取帮助信息
-const getHelpMessageHandle = () => {
-  if (helpModalRef.value) helpModalRef.value.showModal = true
-}
-
-// 单选值
 const radio = ref('')
-
-// 表格多选 Hooks
-const { selectionChange, selectedList, selectedListIds, isSelected } = useSelection(props.rowKey, tableRef)
-
-// 清空选中数据列表
-const clearSelection = () => tableRef.value?.clearSelection()
-
-// 表格操作 Hooks
-const { tableData, loading, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange } = useTable(
-  props.requestApi,
+const { selectionChange, selectedList, selectedListIds, isSelected } = useSelection(toRef(props, 'rowKey'), tableRef)
+const clearSelection = () => {
+  tableRef.value?.clearSelection()
+  selectionChange([])
+}
+const {
+  tableData,
+  loading,
+  pageable,
+  searchParam,
+  searchInitParam,
+  getTableList: requestTableList,
+  search,
+  reset,
+  handleSizeChange,
+  handleCurrentChange
+} = useTable(
+  computed(() => (props.data === undefined ? props.requestApi : undefined)),
   toRef(props, 'initParam'),
   toRef(props, 'pagination'),
-  props.dataCallback,
-  props.requestError,
+  (data) => (props.dataCallback ? props.dataCallback(data) : data),
+  (error) => {
+    if (props.requestError) props.requestError(error)
+    else handleError(error, '获取表格数据失败')
+  },
   clearSelection
 )
-
-let guideTimer: ReturnType<typeof setTimeout> | undefined
-let sortable: Sortable | undefined
-
-// 初始化表格数据 && 拖拽排序
-onMounted(() => {
-  dragSort()
-  props.requestAuto && getTableList()
-  props.data && (pageable.value.total = props.data.length)
-
-  if (props.guideModuleKey && hasToolButton('help')) {
-    guideTimer = setTimeout(() => {
-      startGuide()
-    }, 1000)
-  }
-})
-
-onUnmounted(() => {
-  clearTimeout(guideTimer)
-  sortable?.destroy()
-})
-
-// 处理表格数据
+const { tableColumns, searchColumns, colSetting, enumMap } = useColumns(() => props.columns, searchParam, searchInitParam)
+provide(
+  EnumMapInjectionKey,
+  computed(() => enumMap)
+)
 const processTableData = computed(() => {
-  if (!props.data) return tableData.value
-  if (!props.pagination) return props.data
-  return props.data.slice((pageable.value.current - 1) * pageable.value.size, pageable.value.size * pageable.value.current)
+  const rows = props.data ?? tableData.value
+  if (props.data === undefined || !props.pagination) return rows
+  const start = (pageable.value.current - 1) * pageable.value.size
+  return rows.slice(start, start + pageable.value.size)
 })
+const getTableList = () => (props.data === undefined ? requestTableList() : Promise.resolve())
+watch(
+  () => props.initParam,
+  () => {
+    void getTableList()
+  },
+  { deep: true }
+)
+watch(
+  () => props.data?.length,
+  (total) => {
+    if (total === undefined) return
+    pageable.value.total = total
+    pageable.value.current = Math.min(pageable.value.current, Math.max(1, Math.ceil(total / pageable.value.size)))
+  },
+  { immediate: true }
+)
 
-// 监听页面 initParam 改化，重新获取表格数据
-watch(() => props.initParam, getTableList, { deep: true })
-
-// 接收 columns 并设置为响应式
-// ColumnProps 继承 TableColumnCtx，reactive 的 UnwrapNestedRefs 会沿着 TableColumnCtx 递归展开，
-// 撑爆类型实例化深度（TS2589）。这里断言回原类型，运行时仍是完整的深层响应式对象。
-const tableColumns = reactive(props.columns) as unknown as ColumnProps[]
-
-// 扁平化 columns
-const flatColumns = computed(() => flatColumnsFunc(tableColumns))
-
-// 定义 enumMap 存储 enum 值（避免异步请求无法格式化单元格内容 || 无法填充搜索下拉选择）
-const enumMap = ref<EnumMap>(new Map())
-const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
-  if (!enumValue) return
-
-  // 如果当前 enumMap 存在相同的值 return
-  if (enumMap.value.has(prop!) && (typeof enumValue === 'function' || enumMap.value.get(prop!) === enumValue)) return
-
-  // 当前 enum 为静态数据，则直接存储到 enumMap
-  if (typeof enumValue !== 'function') return enumMap.value.set(prop!, unref(enumValue))
-
-  // 为了防止接口执行慢，而存储慢，导致重复请求，所以预先存储为[]，接口返回后再二次存储
-  enumMap.value.set(prop!, [])
-
-  // 当前 enum 为后台数据需要请求数据，则调用该请求接口，并存储到 enumMap
-  try {
-    const { data } = await enumValue()
-    enumMap.value.set(prop!, data)
-  } catch (error) {
-    enumMap.value.delete(prop!)
-    handleError(error, '加载表格选项失败')
-  }
-}
-
-// 注入 enumMap
-provide(EnumMapInjectionKey, enumMap)
-
-// 扁平化 columns 的方法
-// 返回类型必须显式声明：函数内部递归调用自身，ColumnProps 又继承自很深的 TableColumnCtx，
-// 交给 TS 自行推断会触发 TS2589（类型实例化过深）
-const flatColumnsFunc = (columns: ColumnProps[], flatArr: ColumnProps[] = []): ColumnProps[] => {
-  columns.forEach(async (col) => {
-    if (col._children?.length) flatArr.push(...flatColumnsFunc(col._children))
-    flatArr.push(col)
-
-    col.isHide = col.isHide ?? false
-
-    // column 添加默认 isShow && isFilterEnum 属性值
-    col.isShow = col.isShow ?? true
-    col.isFilterEnum = col.isFilterEnum ?? true
-
-    // 设置 enumMap
-    await setEnumMap(col)
-  })
-  return flatArr.filter((item) => !item._children?.length)
-}
-
-// 过滤需要搜索的配置项 && 排序
-const searchColumns = computed(() => {
-  return flatColumns.value?.filter((item) => item.search?.el || item.search?.render).sort((a, b) => a.search!.order! - b.search!.order!)
+const {
+  startGuide,
+  showGuideManual: showGuidemanual,
+  hideGuide,
+  destroyGuide
+} = useGuide({
+  moduleKey: props.guideModuleKey,
+  title: props.guideTitle,
+  message: props.guideMessage,
+  tragetSelector: '.toolbar-guide-icon'
 })
-
-// 设置 搜索表单默认排序 && 搜索表单项的默认值
-searchColumns.value?.forEach((column, index) => {
-  column.search!.order = column.search?.order ?? index + 2
-  const key = column.search?.key ?? handleProp(column.prop!)
-  const defaultValue = column.search?.defaultValue
-  if (defaultValue !== undefined && defaultValue !== null) {
-    searchInitParam.value[key] = defaultValue
-    searchParam.value[key] = defaultValue
-  }
-})
-
-// 列设置 ==> 需要过滤掉不需要设置的列
-const colRef = ref()
-const colSetting = tableColumns.filter((item: any) => {
-  const { type, prop, isShow, isHide } = item
-  if (isHide) {
-    return !columnTypes.includes(type) && prop !== 'operation'
-  } else {
-    return !columnTypes.includes(type) && prop !== 'operation' && isShow
-  }
-})
-const openColSetting = () => colRef.value.openColSetting()
-
-// 定义 emit 事件
-const emit = defineEmits<{
-  search: []
-  reset: []
-  dargSort: [{ newIndex?: number; oldIndex?: number }]
-}>()
-
+const hasToolButton = (key: 'help' | 'setting' | 'search') => (Array.isArray(props.toolButton) ? props.toolButton.includes(key) : props.toolButton)
+const openColSetting = () => colRef.value?.openColSetting()
+const getHelpMessageHandle = () => helpModalRef.value?.open()
 const _search = () => {
-  search()
-  // @ts-ignore
+  void search()
   emit('search')
 }
-
 const _reset = () => {
-  reset()
-  // @ts-ignore
+  void reset()
   emit('reset')
 }
-
-// 拖拽排序
+let guideTimer: ReturnType<typeof setTimeout> | undefined
+let sortable: Sortable | undefined
 const dragSort = () => {
-  const tbody = tableRef.value?.$el.querySelector('.el-table__body-wrapper tbody') as HTMLElement | null | undefined
+  sortable?.destroy()
+  sortable = undefined
+  if (!tableColumns.value.some((column) => column.type === 'sort')) return
+  const root = tableRef.value?.$el as HTMLElement | undefined
+  const tbody = root?.querySelector<HTMLElement>('.el-table__body-wrapper tbody')
   if (!tbody) return
   sortable = Sortable.create(tbody, {
     handle: '.move',
     animation: 300,
     onEnd({ newIndex, oldIndex }) {
       if (newIndex === undefined || oldIndex === undefined || newIndex === oldIndex) return
-      const [removedItem] = processTableData.value.splice(oldIndex, 1)
-      processTableData.value.splice(newIndex, 0, removedItem)
-
+      if (oldIndex < 0 || newIndex < 0 || oldIndex >= processTableData.value.length || newIndex >= processTableData.value.length) return
+      // 静态分页展示的是 slice，排序必须写回源数组的实际页偏移。
+      const rows = props.data ?? tableData.value
+      const offset = props.data !== undefined && props.pagination ? (pageable.value.current - 1) * pageable.value.size : 0
+      const [row] = rows.splice(offset + oldIndex, 1)
+      rows.splice(offset + newIndex, 0, row)
       emit('dargSort', { newIndex, oldIndex })
     }
   })
 }
-
-// 暴露给父组件的参数和方法 (外部需要什么，都可以从这里暴露出去)
+watch(tableColumns, () => {
+  void nextTick(dragSort)
+})
+onMounted(() => {
+  dragSort()
+  if (props.requestAuto) void getTableList()
+  if (props.guideModuleKey && hasToolButton('help'))
+    guideTimer = setTimeout(() => {
+      void startGuide()
+    }, 1000)
+})
+onBeforeUnmount(() => {
+  clearTimeout(guideTimer)
+  sortable?.destroy()
+  destroyGuide()
+})
 defineExpose({
   element: tableRef,
   tableData: processTableData,

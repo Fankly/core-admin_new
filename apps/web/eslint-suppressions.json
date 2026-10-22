@@ -25,16 +25,16 @@
   },
   "src/api/metrics/index.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 38
+      "count": 35
     },
     "@typescript-eslint/no-unsafe-argument": {
       "count": 12
     },
     "@typescript-eslint/no-unsafe-member-access": {
-      "count": 45
+      "count": 43
     },
     "@typescript-eslint/restrict-template-expressions": {
-      "count": 49
+      "count": 45
     }
   },
   "src/api/process.ts": {
@@ -43,242 +43,6 @@
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
-    }
-  },
-  "src/components/Grid/components/GridItem.vue": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 9
-    }
-  },
-  "src/components/Grid/grid.test.ts": {
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 2
-    }
-  },
-  "src/components/Grid/index.vue": {
-    "@typescript-eslint/no-confusing-void-expression": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-return": {
-      "count": 2
-    },
-    "@typescript-eslint/restrict-plus-operands": {
-      "count": 3
-    },
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 4
-    },
-    "vue/multi-word-component-names": {
-      "count": 1
-    }
-  },
-  "src/components/HelpModal/index.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 4
-    },
-    "@typescript-eslint/no-unsafe-call": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 7
-    },
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/components/Loading/spinner.vue": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    }
-  },
-  "src/components/OfficePreview/fileExtension.ts": {
-    "@typescript-eslint/no-base-to-string": {
-      "count": 1
-    },
-    "no-useless-escape": {
-      "count": 2
-    }
-  },
-  "src/components/OfficePreview/fileViewerTypes.ts": {
-    "@typescript-eslint/no-redundant-type-constituents": {
-      "count": 1
-    }
-  },
-  "src/components/OfficePreview/index.vue": {
-    "@typescript-eslint/no-base-to-string": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 2
-    },
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 3
-    }
-  },
-  "src/components/ProTable/components/ColSetting.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    }
-  },
-  "src/components/ProTable/components/Pagination.vue": {
-    "vue/multi-word-component-names": {
-      "count": 1
-    }
-  },
-  "src/components/ProTable/components/TableColumn.vue": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-return": {
-      "count": 5
-    }
-  },
-  "src/components/ProTable/index.vue": {
-    "@typescript-eslint/ban-ts-comment": {
-      "count": 2
-    },
-    "@typescript-eslint/no-explicit-any": {
-      "count": 8
-    },
-    "@typescript-eslint/no-floating-promises": {
-      "count": 3
-    },
-    "@typescript-eslint/no-misused-promises": {
-      "count": 1
-    },
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 12
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 11
-    },
-    "@typescript-eslint/no-unsafe-call": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-return": {
-      "count": 4
-    },
-    "@typescript-eslint/no-unused-expressions": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    }
-  },
-  "src/components/ProTable/interface/index.ts": {
-    "@typescript-eslint/ban-ts-comment": {
-      "count": 2
-    },
-    "@typescript-eslint/no-explicit-any": {
-      "count": 11
-    },
-    "@typescript-eslint/no-generated-empty-object-type": {
-      "count": 1
-    },
-    "@typescript-eslint/no-redundant-type-constituents": {
-      "count": 1
-    }
-  },
-  "src/components/ReText/src/index.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    },
-    "@typescript-eslint/no-floating-promises": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-return": {
-      "count": 1
-    }
-  },
-  "src/components/SearchForm/components/SearchFormItem.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    },
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 12
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 9
-    },
-    "@typescript-eslint/no-unsafe-return": {
-      "count": 2
-    }
-  },
-  "src/components/SearchForm/index.vue": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-return": {
-      "count": 1
-    }
-  },
-  "src/components/ToolbarButtons/index.vue": {
-    "@typescript-eslint/unified-signatures": {
-      "count": 1
-    }
-  },
-  "src/components/UserRoleSelector/index.vue": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 9
-    },
-    "@typescript-eslint/no-unnecessary-type-conversion": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 2
-    }
-  },
-  "src/hooks/interface/index.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
     }
   },
   "src/hooks/useDownload.ts": {
@@ -295,23 +59,6 @@
       "count": 2
     }
   },
-  "src/hooks/useGuide.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 2
-    },
-    "@typescript-eslint/no-misused-promises": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-return": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unused-vars": {
-      "count": 2
-    }
-  },
   "src/hooks/usePermission.test.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 4
@@ -323,31 +70,6 @@
       "count": 1
     }
   },
-  "src/hooks/usePermission.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 1
-    }
-  },
-  "src/hooks/useSelection.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 4
-    },
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unused-expressions": {
-      "count": 2
-    }
-  },
   "src/hooks/useTable.test.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 2
@@ -355,28 +77,11 @@
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 2
     },
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 1
-    },
     "@typescript-eslint/no-unsafe-return": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 1
-    }
-  },
-  "src/hooks/useTable.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 5
-    },
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 5
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 4
     }
   },
   "src/hooks/useView.ts": {
@@ -420,11 +125,6 @@
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 3
-    }
-  },
-  "src/service/baseService.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 2
     }
   },
   "src/types/interface.ts": {

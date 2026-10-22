@@ -16,25 +16,18 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import type { CSSProperties } from 'vue'
 import { useMutationObserver, useResizeObserver } from '@vueuse/core'
 
-defineOptions({ name: 'ReText' })
+defineOptions({ name: 'ReText', inheritAttrs: false })
 
-const props = defineProps({
-  tooltipContent: {
-    type: String,
-    default: ''
-  },
-  lineClamp: {
-    type: Number,
-    default: 1,
-    validator: (val: number) => val >= 1
-  },
-  preserveWhitespace: {
-    type: Boolean,
-    default: false
-  }
-})
+interface ReTextProps {
+  tooltipContent?: string
+  lineClamp?: number
+  preserveWhitespace?: boolean
+}
+const props = withDefaults(defineProps<ReTextProps>(), { tooltipContent: '', lineClamp: 1, preserveWhitespace: false })
+const lineClamp = computed(() => Math.max(1, Math.floor(props.lineClamp) || 1))
 
 const textRef = ref<HTMLElement>()
 const isEllipsis = ref<boolean>(false)
@@ -49,10 +42,12 @@ const tooltipDisabled = computed(() => !isMounted.value || !isEllipsis.value || 
 onMounted(() => {
   isMounted.value = true
   scheduleCheckEllipsis()
-  document.fonts?.ready.then(scheduleCheckEllipsis)
+  const fonts = Reflect.get(document, 'fonts') as FontFaceSet | undefined
+  if (fonts) void fonts.ready.then(scheduleCheckEllipsis)
 })
 
 onBeforeUnmount(() => {
+  isMounted.value = false
   cancelAnimationFrame(firstAnimationFrame)
   cancelAnimationFrame(secondAnimationFrame)
 })
@@ -74,15 +69,14 @@ useMutationObserver(
 )
 
 watch(
-  () => props.lineClamp,
+  () => [props.lineClamp, props.preserveWhitespace],
   () => {
     scheduleCheckEllipsis()
   }
 )
 
 const isTextEllipsis = (el: HTMLElement) => {
-  if (!el) return false
-  if (props.lineClamp === 1) {
+  if (lineClamp.value === 1) {
     return el.scrollWidth - el.clientWidth > 1
   } else {
     return el.scrollHeight - el.clientHeight > 1
@@ -99,7 +93,9 @@ const checkEllipsis = () => {
 const scheduleCheckEllipsis = () => {
   cancelAnimationFrame(firstAnimationFrame)
   cancelAnimationFrame(secondAnimationFrame)
-  nextTick(() => {
+  if (!isMounted.value) return
+  void nextTick(() => {
+    if (!isMounted.value) return
     firstAnimationFrame = requestAnimationFrame(() => {
       checkEllipsis()
       secondAnimationFrame = requestAnimationFrame(checkEllipsis)
@@ -107,14 +103,16 @@ const scheduleCheckEllipsis = () => {
   })
 }
 
-const textStyle = computed(() => {
-  const style: any = {
-    whiteSpace: props.preserveWhitespace ? 'pre' : props.lineClamp > 1 ? 'normal' : 'nowrap'
+const textStyle = computed<CSSProperties>(() => {
+  const style: CSSProperties = {
+    whiteSpace: props.preserveWhitespace ? 'pre' : lineClamp.value > 1 ? 'normal' : 'nowrap'
   }
-  if (props.lineClamp > 1) {
+  if (lineClamp.value > 1) {
     style.display = '-webkit-box'
+    // 多行省略在当前浏览器仍需该属性，标准 line-clamp 尚未全面支持。
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     style.WebkitBoxOrient = 'vertical'
-    style.WebkitLineClamp = String(props.lineClamp)
+    style.WebkitLineClamp = String(lineClamp.value)
   }
   return style
 })

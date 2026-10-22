@@ -1,4 +1,8 @@
-import { withInstall } from '@/utils/utils'
+import type { App, Plugin } from 'vue'
 import SvgIcon from './index.vue'
 
-export default withInstall(SvgIcon)
+export default Object.assign(SvgIcon, {
+  install(app: App) {
+    app.component('SvgIcon', SvgIcon)
+  }
+}) satisfies typeof SvgIcon & Plugin

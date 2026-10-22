@@ -1,13 +1,9 @@
-/**
- * OfficePreview 用到的 file-viewer 类型面。
- * 不直接 import 官方 .d.ts：@file-viewer 使用 `import { type X }`（需 TS ≥4.5），
- * 本项目 TypeScript 4.3 会在解析阶段报 TS1005。
- */
+/** OfficePreview 与动态加载的 file-viewer 引擎之间的最小类型契约。 */
 
 export interface FileViewerState {
   loading: boolean
   ready: boolean
-  error: unknown | null
+  error: unknown
 }
 
 export type FileViewerStateListener = (state: FileViewerState) => void

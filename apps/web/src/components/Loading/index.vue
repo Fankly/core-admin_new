@@ -1,8 +1,8 @@
 <template>
-  <div class="route-loading-container" :class="{ show: visible }">
+  <div class="route-loading-container" :class="{ show: visible }" role="status" aria-live="polite" :aria-hidden="!visible" :aria-busy="visible">
     <div class="loading-content">
       <AppSpinner :spinning="visible" />
-      <div v-if="text && visible" class="route-loading-text">{{ text }}</div>
+      <div v-if="visible" :class="text ? 'route-loading-text' : 'route-loading-sr-text'">{{ text || '加载中' }}</div>
     </div>
   </div>
 </template>
@@ -38,7 +38,9 @@ withDefaults(defineProps<Props>(), {
   backdrop-filter: blur(4px);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 .route-loading-container.show {
@@ -59,6 +61,19 @@ withDefaults(defineProps<Props>(), {
   color: var(--color-primary, #409eff);
   font-weight: 500;
   text-align: center;
+}
+
+.route-loading-sr-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-loading-container {
+    transition: none;
+  }
 }
 
 /* 暗色主题支持 */

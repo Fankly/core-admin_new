@@ -7,64 +7,61 @@
       },
       className
     ]"
+    aria-hidden="true"
     @transitionend="onTransitionEnd"
   >
     <div v-if="renderSpinner" class="spinner-wrapper">
-      <div :class="{ 'spinner-paused': !renderSpinner }" class="spinner-loader"></div>
-      <div :class="{ 'spinner-paused': !renderSpinner }" class="spinner-shadow"></div>
+      <div :class="{ 'spinner-paused': !showSpinner }" class="spinner-loader"></div>
+      <div :class="{ 'spinner-paused': !showSpinner }" class="spinner-shadow"></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, ref, watch } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 
 defineOptions({ name: 'AppSpinner' })
-
 interface Props {
   className?: string
-  /** 最小加载时间 */
   minLoadingTime?: number
-  /** 加载状态 */
   spinning?: boolean
 }
-
-const props = withDefaults(defineProps<Props>(), {
-  minLoadingTime: 50,
-  spinning: false
-})
-
+const props = withDefaults(defineProps<Props>(), { minLoadingTime: 50, spinning: false })
 const showSpinner = ref(false)
 const renderSpinner = ref(false)
-const timer = ref<ReturnType<typeof setTimeout>>()
-onUnmounted(() => {
-  clearTimeout(timer.value)
-})
-
+let showTimer: ReturnType<typeof setTimeout> | undefined
+let hideTimer: ReturnType<typeof setTimeout> | undefined
+const clearTimers = () => {
+  clearTimeout(showTimer)
+  clearTimeout(hideTimer)
+}
 watch(
   () => props.spinning,
   (show) => {
+    clearTimers()
     if (!show) {
       showSpinner.value = false
-      clearTimeout(timer.value)
+      // reduced-motion、隐藏祖先等情况下不会发出 transitionend，兜底销毁动画。
+      hideTimer = setTimeout(() => {
+        renderSpinner.value = false
+      }, 500)
       return
     }
-
-    timer.value = setTimeout(() => {
-      showSpinner.value = true
-      if (showSpinner.value) {
+    showTimer = setTimeout(
+      () => {
+        showSpinner.value = true
         renderSpinner.value = true
-      }
-    }, props.minLoadingTime)
+      },
+      Math.max(0, props.minLoadingTime)
+    )
   },
-  {
-    immediate: true
-  }
+  { immediate: true }
 )
-
-function onTransitionEnd() {
-  if (!showSpinner.value) {
+onBeforeUnmount(clearTimers)
+const onTransitionEnd = (event: TransitionEvent) => {
+  if (event.target === event.currentTarget && !showSpinner.value) {
     renderSpinner.value = false
+    clearTimeout(hideTimer)
   }
 }
 </script>
@@ -156,6 +153,18 @@ function onTransitionEnd() {
 @media (prefers-color-scheme: dark) {
   .spinner-container {
     background-color: rgba(0, 0, 0, 0.8);
+  }
+}
+</style>
+
+<style scoped>
+@media (prefers-reduced-motion: reduce) {
+  .spinner-container {
+    transition: none;
+  }
+  .spinner-loader,
+  .spinner-shadow {
+    animation: none;
   }
 }
 </style>

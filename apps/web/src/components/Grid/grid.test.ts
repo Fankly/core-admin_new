@@ -3,9 +3,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { Fragment, h, nextTick } from 'vue'
 import Grid from './index.vue'
+import { getHiddenIndex } from './layout'
 import GridItem from './components/GridItem.vue'
 
-const wrappers: ReturnType<typeof mount>[] = []
+const wrappers: { unmount: () => void }[] = []
 afterEach(() => {
   wrappers.splice(0).forEach((wrapper) => {
     wrapper.unmount()
@@ -13,6 +14,9 @@ afterEach(() => {
 })
 
 describe('Grid', () => {
+  it('counts row wrapping before reserving space for actions', () => {
+    expect(getHiddenIndex([{ span: 2 }, { span: 2 }, { span: 2 }, { suffix: true }], 'lg', 3, 2)).toBe(2)
+  })
   it('reserves the suffix column and can hide the item at index zero', async () => {
     const wrapper = mount(Grid, {
       props: { collapsed: true, cols: 1 },

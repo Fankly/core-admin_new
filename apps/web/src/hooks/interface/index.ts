@@ -1,4 +1,4 @@
-import type { IObject } from '@/types/interface'
+import type { SearchParams } from '@/components/ProTable/interface'
 
 export interface TablePageable {
   current: number
@@ -6,11 +6,11 @@ export interface TablePageable {
   total: number
 }
 
-export interface TableStateProps {
-  tableData: any[]
+export interface TableStateProps<T = unknown> {
+  tableData: T[]
   pageable: TablePageable
-  searchParam: IObject
-  searchInitParam: IObject
-  totalParam: IObject
-  icon?: IObject
+  searchParam: SearchParams
+  searchInitParam: SearchParams
+  totalParam: SearchParams
+  icon?: SearchParams
 }

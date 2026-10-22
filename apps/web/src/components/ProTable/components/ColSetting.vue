@@ -1,8 +1,8 @@
 <template>
   <!-- 列设置 -->
-  <el-drawer v-model="drawerVisible" title="列设置" size="450px">
+  <el-drawer v-model="drawerVisible" title="列设置" size="min(450px, 100vw)">
     <div class="col-table">
-      <el-table height="100%" :data="colSetting" :border="true" row-key="prop" default-expand-all :tree-props="{ children: '_children' }">
+      <el-table height="100%" :data="colSetting" :border="true" :row-key="getColumnKey" default-expand-all :tree-props="{ children: '_children' }">
         <el-table-column prop="label" align="center" label="列名" />
         <el-table-column v-slot="scope" prop="isShow" align="center" label="显示">
           <el-switch v-model="scope.row.isShow"></el-switch>
@@ -20,10 +20,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { ColumnProps } from '../interface'
 
 defineOptions({ name: 'ColSetting' })
 
-defineProps<{ colSetting: any[] }>()
+defineProps<{ colSetting: ColumnProps[] }>()
+const getColumnKey = (column: ColumnProps) => column.prop ?? column.label ?? ''
 
 const drawerVisible = ref<boolean>(false)
 
@@ -37,10 +39,7 @@ defineExpose({
 </script>
 
 <style scoped lang="less">
-.cursor-move {
-  cursor: move;
-}
 .col-table {
-  height: calc(100vh - 70px);
+  height: 100%;
 }
 </style>

@@ -1,82 +1,123 @@
-import type { VNode, ComponentPublicInstance, Ref, InjectionKey } from 'vue'
-import type { BreakPoint, Responsive } from '@/components/Grid/interface'
-// @ts-ignore
-import type { ProTableProps } from '@/components/ProTable/index.vue'
-import type ProTable from '@/components/ProTable/index.vue'
-import type { TableColumnCtx } from 'element-plus'
+import type { InjectionKey, MaybeRef, Ref, VNode } from 'vue'
+import type { TableColumnCtx, TableInstance, TagProps } from 'element-plus'
+import type { TableColumnProps } from 'element-plus/es/components/table/src/table-column/defaults'
+import type { GridColumns, Responsive, BreakPoint } from '@/components/Grid/interface'
+import type { TablePageable } from '@/hooks/interface'
+import type { useGuide } from '@/hooks/useGuide'
 
+export type TableRow = Record<string, unknown>
+export type SearchParams = Record<string, unknown>
 export interface EnumProps {
-  label?: string // 选项框显示的文字
-  value?: string | number | boolean | any[] // 选项框值
-  disabled?: boolean // 是否禁用此选项
-  tagType?: string // 当 tag 为 true 时，此选择会指定 tag 显示类型
-  children?: EnumProps[] // 为树形选择时，可以通过 children 属性指定子选项
-  [key: string]: any
+  label?: string
+  value?: string | number | boolean | unknown[]
+  disabled?: boolean
+  tagType?: TagProps['type']
+  children?: EnumProps[]
+  [key: string]: unknown
 }
-
 export type EnumMap = Map<string, EnumProps[]>
-export const EnumMapInjectionKey: InjectionKey<Ref<EnumMap>> = Symbol('TableEnumMap')
-
+export const EnumMapInjectionKey: InjectionKey<Readonly<Ref<EnumMap>>> = Symbol('TableEnumMap')
 export type TypeProps = 'index' | 'selection' | 'radio' | 'expand' | 'sort'
-
+export type ToolButtonKey = 'help' | 'setting' | 'search' | 'other'
 export type SearchType =
   'input' | 'input-number' | 'select' | 'select-v2' | 'tree-select' | 'cascader' | 'date-picker' | 'time-picker' | 'time-select' | 'switch' | 'slider'
-
-export type SearchRenderScope = {
-  searchParam: { [key: string]: any }
-  placeholder: string
+export interface SearchRenderScope {
+  searchParam: SearchParams
+  placeholder?: string
   clearable: boolean
   options: EnumProps[]
   data: EnumProps[]
 }
-
 export type SearchProps = {
-  el?: SearchType // 当前项搜索框的类型
-  label?: string // 当前项搜索框的 label
-  props?: any // 搜索项参数，根据 element plus 官方文档来传递，该属性所有值会透传到组件
-  key?: string // 当搜索项 key 不为 prop 属性时，可通过 key 指定
-  tooltip?: string // 搜索提示
-  order?: number // 搜索项排序（从大到小）
-  span?: number // 搜索项所占用的列数，默认为 1 列
-  offset?: number // 搜索字段左侧偏移列数
-  defaultValue?: string | number | boolean | any[] | Ref // 搜索项默认值
-  render?: (scope: SearchRenderScope) => VNode // 自定义搜索内容渲染（tsx语法）
+  el?: SearchType
+  label?: string
+  props?: Record<string, unknown>
+  key?: string
+  tooltip?: string
+  order?: number
+  span?: number
+  offset?: number
+  defaultValue?: MaybeRef<unknown>
+  render?: (scope: SearchRenderScope) => VNode
 } & Partial<Record<BreakPoint, Responsive>>
-
-export type FieldNamesProps = {
+export interface FieldNamesProps {
   label: string
   value: string
   children?: string
 }
-
-// element-plus 的 TableColumnCtx<T> 约束 T extends DefaultRow（Record<PropertyKey, any>），行类型跟着加约束
-export type TableRow = Record<PropertyKey, any>
-
-export type RenderScope<T extends TableRow> = {
+export interface RenderScope<T extends object = TableRow> {
   row: T
   $index: number
   column: TableColumnCtx<T>
-  [key: string]: any
 }
-
-export type HeaderRenderScope<T extends TableRow> = {
+export interface HeaderRenderScope<T extends object = TableRow> {
   $index: number
   column: TableColumnCtx<T>
-  [key: string]: any
 }
 
-export interface ColumnProps<T extends TableRow = any> extends Partial<Omit<TableColumnCtx<T>, 'type' | 'children' | 'renderCell' | 'renderHeader'>> {
-  type?: TypeProps // 列类型
-  tag?: boolean | Ref<boolean> // 是否是标签展示
-  isShow?: boolean | Ref<boolean> // 是否显示在表格当中
-  isHide?: boolean | Ref<boolean> // 是否隐藏
-  search?: SearchProps // 搜索项配置
-  enum?: EnumProps[] | Ref<EnumProps[]> | ((params?: any) => Promise<any>) // 枚举字典
-  isFilterEnum?: boolean | Ref<boolean> // 当前单元格值是否根据 enum 格式化（示例：enum 只作为搜索项数据）
-  fieldNames?: FieldNamesProps // 指定 label && value && children 的 key 值
-  headerRender?: (scope: HeaderRenderScope<T>) => VNode // 自定义表头内容渲染（tsx语法）
-  render?: (scope: RenderScope<T>) => VNode | string // 自定义单元格内容渲染（tsx语法）
-  _children?: ColumnProps<T>[] // 多级表头
+/** 仅继承 Element Plus 公开属性，避免 Store/实例内部类型递归展开。 */
+export interface ColumnProps<T extends object = TableRow> extends Omit<TableColumnProps<T>, 'type' | 'renderHeader'> {
+  type?: TypeProps
+  tag?: MaybeRef<boolean>
+  isShow?: MaybeRef<boolean>
+  isHide?: MaybeRef<boolean>
+  search?: SearchProps
+  enum?: MaybeRef<EnumProps[]> | ((params?: SearchParams) => Promise<{ data: EnumProps[] }>)
+  isFilterEnum?: MaybeRef<boolean>
+  fieldNames?: FieldNamesProps
+  headerRender?: (scope: HeaderRenderScope<T>) => VNode
+  render?: (scope: RenderScope<T>) => VNode | string
+  _children?: ColumnProps<T>[]
 }
-// @ts-ignore
-export type ProTableInstance = Omit<InstanceType<typeof ProTable>, keyof ComponentPublicInstance | keyof ProTableProps>
+export interface TablePageData<T = TableRow> extends TablePageable {
+  records: T[]
+}
+export type TableResponseData<T = TableRow> = TablePageData<T> | T[]
+export type TableRequest<T = TableRow> = (params: SearchParams) => Promise<{ data: TableResponseData<T> }>
+export interface ProTableProps {
+  columns: ColumnProps[]
+  data?: TableRow[]
+  requestApi?: TableRequest
+  /** 保留历史行为：默认不自动请求。 */
+  requestAuto?: boolean
+  requestError?: (error: unknown) => void
+  dataCallback?: (data: TableResponseData) => TableResponseData
+  title?: string
+  pagination?: boolean
+  initParam?: SearchParams
+  border?: boolean
+  toolButton?: ToolButtonKey[] | boolean
+  helpMessage?: string
+  titleMsg?: string
+  rowKey?: string
+  searchCol?: GridColumns
+  isShowTable?: boolean
+  guideModuleKey?: string
+  guideTitle?: string
+  guideMessage?: string
+}
+export interface ColSettingInstance {
+  openColSetting: () => void
+}
+export interface ProTableInstance {
+  element?: TableInstance
+  tableData: TableRow[]
+  radio: string
+  pageable: TablePageable
+  searchParam: SearchParams
+  searchInitParam: SearchParams
+  getTableList: () => Promise<void>
+  search: () => Promise<void>
+  reset: () => Promise<void>
+  handleSizeChange: (size: number) => Promise<void>
+  handleCurrentChange: (page: number) => Promise<void>
+  clearSelection: () => void
+  enumMap: EnumMap
+  isSelected: boolean
+  selectedList: TableRow[]
+  selectedListIds: unknown[]
+  startGuide: ReturnType<typeof useGuide>['startGuide']
+  showGuidemanual: ReturnType<typeof useGuide>['showGuideManual']
+  hideGuide: () => void
+  destroyGuide: () => void
+}
