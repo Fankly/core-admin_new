@@ -85,6 +85,7 @@ const tabGroup = (meta?: MenuMeta) =>
 <style scoped lang="less">
 .workbench {
   gap: var(--ds-space-7);
+  container-type: inline-size;
 }
 .workbench__body {
   display: grid;
@@ -194,7 +195,7 @@ const tabGroup = (meta?: MenuMeta) =>
   flex-shrink: 0;
   margin-top: 2px;
 }
-@media (max-width: 1180px) {
+@container (max-width: 1050px) {
   .workbench__body {
     grid-template-columns: 1fr;
     gap: 28px;
