@@ -6,7 +6,6 @@ export const themeSetting = {
   topHeader: 'light',
   themeColor: '#00706b',
   navLayout: 'left',
-  sidebarUniOpened: true,
   openTabsPage: true,
   tabStyle: 'default',
   sidebarCollapse: false,

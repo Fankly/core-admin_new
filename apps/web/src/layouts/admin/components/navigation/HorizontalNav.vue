@@ -1,13 +1,6 @@
 <template>
   <nav class="ds-header__nav" aria-label="主导航">
-    <SideNav
-      mode="horizontal"
-      :menus="menus"
-      :router="isTopLayout"
-      :curr-route="currRoute"
-      :is-mobile="false"
-      :on-select="isTopLayout ? undefined : onSelect"
-    />
+    <SideNav mode="horizontal" :menus="menus" :router="isTopLayout" :curr-route="currRoute" :on-select="isTopLayout ? undefined : onSelect" />
   </nav>
 </template>
 

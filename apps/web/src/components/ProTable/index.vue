@@ -132,7 +132,7 @@ export interface ProTableProps {
   helpMessage?: string // 表格帮助信息 ==> 非必传
   titleMsg?: string // 表格帮助信息 ==> 非必传
   rowKey?: string // 行数据的 Key，用来优化 Table 的渲染，当表格数据多选时，所指定的 id ==> 非必传（默认为 id）
-  searchCol?: number | Record<BreakPoint, number> // 表格搜索项 每列占比配置 ==> 非必传 { xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }
+  searchCol?: number | Record<BreakPoint, number> // 表格搜索项 每列占比配置 ==> 非必传 { md: 2, lg: 3, xl: 4 }
   isShowTable?: boolean // 是否显示表格 ==> 非必传（默认为true）
   guideModuleKey?: string
   guideTitle?: string
@@ -150,7 +150,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   rowKey: 'id',
   helpMessage: '',
   titleMsg: '',
-  searchCol: () => ({ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }),
+  searchCol: () => ({ md: 2, lg: 3, xl: 4 }),
   isShowTable: true,
   guideModuleKey: '',
   guideTitle: '功能帮助',

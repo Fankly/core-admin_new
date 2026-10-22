@@ -12,7 +12,7 @@
       :router="props.router"
       :on-select="props.onSelect"
       :collapse-transition="false"
-      :unique-opened="uniqueOpened"
+      :unique-opened="true"
       :ellipsis="false"
       class="ds-nav__menu"
     >
@@ -20,7 +20,7 @@
     </el-menu>
     <p v-if="!state.menus.length && !isCollapsed" class="ds-nav__empty">当前账号暂无可用模块</p>
 
-    <div v-if="!isHorizontal && !isCollapsed && !props.isMobile" class="ds-nav__footer">
+    <div v-if="!isHorizontal && !isCollapsed" class="ds-nav__footer">
       <span class="ds-nav__version">v{{ app.version }}</span>
       <span class="ds-nav__footer-mark">过程管控</span>
     </div>
@@ -31,7 +31,6 @@
 import { computed, defineComponent, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, type RouteRecordRaw } from 'vue-router'
 import { useWindowSize } from '@vueuse/core'
-import { themeSetting } from '@/constants/config'
 import { EThemeSetting } from '@/constants/enum'
 import { useMenuStore, usePreferencesStore } from '@/store'
 import { toValidRoutes } from '@/utils/router'
@@ -45,7 +44,6 @@ interface Props {
   menus?: RouteRecordRaw[]
   currRoute?: string
   router?: boolean
-  isMobile?: boolean
   onSelect?: (index: string) => void
 }
 
@@ -54,7 +52,6 @@ const props = withDefaults(defineProps<Props>(), {
   menus: undefined,
   currRoute: undefined,
   router: false,
-  isMobile: false,
   onSelect: undefined
 })
 
@@ -69,15 +66,13 @@ const menu = useMenuStore()
 const preferences = usePreferencesStore()
 
 const isHorizontal = computed(() => props.mode === 'horizontal')
-const isCollapsed = computed(() => !props.isMobile && !isHorizontal.value && preferences.sidebarCollapse)
-const uniqueOpened = computed(() => Boolean(preferences.config[EThemeSetting.SidebarUniOpened] ?? themeSetting.sidebarUniOpened))
+const isCollapsed = computed(() => !isHorizontal.value && preferences.sidebarCollapse)
 const popClassName = computed(() => {
   const sidebarTheme = preferences.config[EThemeSetting.Sidebar]
   return `ds-nav-pop-${sidebarTheme === 'dark' ? 'dark' : 'light'}`
 })
 
 const state = reactive({
-  windowWidth: win.width.value || 1280,
   rawMenus: [] as RouteRecordRaw[],
   menus: [] as RouteRecordRaw[],
   currRoute: route.path
@@ -91,8 +86,8 @@ const sourceMenus = computed(() => {
   return toValidRoutes(source)
 })
 
-const buildOverflowMenus = (windowWidth: number) => {
-  if (!isHorizontal.value || windowWidth <= 960 || !menuRef.value?.$el) {
+const buildOverflowMenus = () => {
+  if (!isHorizontal.value || !menuRef.value?.$el) {
     state.menus = state.rawMenus
     return
   }
@@ -134,7 +129,7 @@ const measureMenuWidths = () => {
   if (!isHorizontal.value || !menuRef.value?.$el) return
   const list = menuRef.value.$el.querySelectorAll<HTMLElement>(':scope > .el-menu-item, :scope > .el-sub-menu')
   widths.value = Array.from(list, (item) => item.getBoundingClientRect().width)
-  buildOverflowMenus(state.windowWidth)
+  buildOverflowMenus()
 }
 
 const refreshMenus = (next: RouteRecordRaw[]) => {
@@ -167,8 +162,7 @@ watch(
 
 watch(
   () => win.width.value,
-  (width) => {
-    state.windowWidth = width || 1280
+  () => {
     // 先恢复完整菜单再测量；否则窗口变大后会一直沿用上一次折叠出的“更多”。
     state.menus = state.rawMenus
     void nextTick(() => {

@@ -2,17 +2,15 @@
   :deep(.vxe-modal--box) {
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.08),
+      0 8px 16px rgba(0, 0, 0, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
   }
 
   :deep(.vxe-modal--header) {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.95) 0%,
-      rgba(248, 250, 252, 0.95) 100%
-    );
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
     border-bottom: 1px solid rgba(226, 232, 240, 0.8);
     padding: 20px 24px;
     backdrop-filter: blur(10px);
@@ -46,12 +44,7 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--color-primary, var(--color-primary)),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, var(--color-primary, var(--color-primary)), transparent);
     opacity: 0.3;
   }
 }
@@ -97,13 +90,10 @@
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(
-      135deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.2) 50%,
-      transparent 100%
-    );
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
     mask-composite: xor;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -125,12 +115,10 @@
 
   &.active {
     color: var(--color-primary, var(--color-primary));
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.95) 0%,
-      rgba(255, 255, 255, 0.8) 100%
-    );
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 100%);
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.06),
+      0 4px 12px rgba(0, 0, 0, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-bottom: 1px solid rgba(255, 255, 255, 0.95);
     margin-bottom: -1px;
@@ -153,8 +141,7 @@
         color-mix(in srgb, var(--color-primary, var(--color-primary)) 80%, #000)
       );
       border-radius: 2px;
-      box-shadow: 0 2px 8px
-        color-mix(in srgb, var(--color-primary, var(--color-primary)) 30%, transparent);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary, var(--color-primary)) 30%, transparent);
     }
   }
 
@@ -185,8 +172,8 @@
   min-width: 22px;
   text-align: center;
   line-height: 1;
-  box-shadow: 0 2px 8px
-      color-mix(in srgb, var(--color-primary, var(--color-primary)) 25%, transparent),
+  box-shadow:
+    0 2px 8px color-mix(in srgb, var(--color-primary, var(--color-primary)) 25%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
   animation: badge-pulse 3s infinite;
@@ -197,14 +184,14 @@
 @keyframes badge-pulse {
   0%,
   100% {
-    box-shadow: 0 2px 8px
-        color-mix(in srgb, var(--color-primary, var(--color-primary)) 25%, transparent),
+    box-shadow:
+      0 2px 8px color-mix(in srgb, var(--color-primary, var(--color-primary)) 25%, transparent),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transform: scale(0.95);
   }
   50% {
-    box-shadow: 0 4px 16px
-        color-mix(in srgb, var(--color-primary, var(--color-primary)) 40%, transparent),
+    box-shadow:
+      0 4px 16px color-mix(in srgb, var(--color-primary, var(--color-primary)) 40%, transparent),
       inset 0 1px 0 rgba(255, 255, 255, 0.3);
     transform: scale(1);
   }
@@ -346,8 +333,8 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px
-      color-mix(in srgb, var(--color-primary, var(--color-primary)) 25%, transparent),
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--color-primary, var(--color-primary)) 25%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
@@ -366,8 +353,8 @@
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px
-        color-mix(in srgb, var(--color-primary, var(--color-primary)) 30%, transparent),
+    box-shadow:
+      0 8px 24px color-mix(in srgb, var(--color-primary, var(--color-primary)) 30%, transparent),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
     &::before {
@@ -550,11 +537,7 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-primary, var(--color-primary)) 5%, transparent) 0%,
-      transparent 70%
-    );
+    background: radial-gradient(circle, color-mix(in srgb, var(--color-primary, var(--color-primary)) 5%, transparent) 0%, transparent 70%);
     z-index: 0;
   }
 
@@ -612,87 +595,6 @@
 }
 
 // ͔��
-@media (max-width: 768px) {
-  .help-modal {
-    :deep(.vxe-modal--box) {
-      width: 95% !important;
-      height: 80% !important;
-    }
-  }
-
-  .help-tabs {
-    padding: 0 10px;
-  }
-
-  .help-tab {
-    padding: 12px 15px;
-    font-size: 13px;
-  }
-
-  .help-info {
-    padding: 15px;
-  }
-
-  .attachment-toolbar {
-    padding: 12px 15px;
-    flex-direction: column;
-    gap: 10px;
-    align-items: stretch;
-  }
-
-  .toolbar-actions {
-    justify-content: center;
-  }
-
-  .file-list {
-    grid-template-columns: 1fr;
-    padding: 10px 15px 15px;
-    gap: 10px;
-  }
-
-  .file-item {
-    padding: 10px;
-  }
-
-  .file-icon {
-    width: 36px;
-    height: 36px;
-    margin-right: 10px;
-
-    i {
-      font-size: 18px;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .help-modal {
-    :deep(.vxe-modal--box) {
-      width: 100% !important;
-      height: 100% !important;
-      border-radius: 0;
-    }
-  }
-
-  .help-tabs {
-    flex-direction: column;
-    padding: 0;
-  }
-
-  .help-tab {
-    justify-content: center;
-    border-bottom: 1px solid #ebeef5;
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    &.active::after {
-      display: none;
-    }
-  }
-}
-
 // �!�;
 .fade-slide-enter-active,
 .fade-slide-leave-active {

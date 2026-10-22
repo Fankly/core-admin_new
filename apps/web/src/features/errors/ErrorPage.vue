@@ -111,25 +111,4 @@ const goBack = () => {
   font-size: var(--ds-text-xs);
   line-height: 1.6;
 }
-
-@media (max-width: 760px) {
-  .error-page {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    align-content: start;
-    padding: 24px;
-  }
-
-  .error-page__route {
-    max-width: 240px;
-  }
-
-  .error-page__code {
-    font-size: 48px;
-  }
-
-  .error-page__title {
-    font-size: 23px;
-  }
-}
 </style>

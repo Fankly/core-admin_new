@@ -47,10 +47,6 @@ export enum EThemeSetting {
   NavLayout = 'navLayout',
   //---
   /**
-   * 侧边栏排他展开
-   */
-  SidebarUniOpened = 'sidebarUniOpened',
-  /**
    * 开启tab标签页
    */
   OpenTabsPage = 'openTabsPage',

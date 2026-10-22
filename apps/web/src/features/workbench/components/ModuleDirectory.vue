@@ -179,22 +179,4 @@ function resetFilters() {
   color: var(--ds-ink-tertiary);
   font-size: var(--ds-text-sm);
 }
-@media (max-width: 640px) {
-  .module-directory__head {
-    flex-direction: column;
-    gap: 8px;
-  }
-  .module-directory__filters {
-    flex-direction: column;
-  }
-  .module-directory__group {
-    width: 100%;
-  }
-  .module-directory__list {
-    grid-template-columns: 1fr;
-  }
-  .module-entry:nth-child(odd) {
-    margin-right: 0;
-  }
-}
 </style>

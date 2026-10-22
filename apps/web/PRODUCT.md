@@ -24,7 +24,7 @@ The product is not a generic project-management suite. Its mechanism is a **serv
 
 ## Operating Context
 
-- Desktop-first daily use on corporate networks; the shell must remain usable on tablet and mobile for lookup and approval.
+- Desktop daily use on corporate networks; the application provides desktop layouts and accordion navigation.
 - Chinese-language interface, enterprise terminology, dense tabular data, and frequent cross-module navigation.
 - The application is commonly opened at `/home`; the actual home module can be configured by the server, with a local workbench fallback.
 - Legacy systems are sometimes embedded through iframes or opened in popup windows.

@@ -16,7 +16,7 @@
           <ReText :preserve-whitespace="true">{{ item.meta?.title }}</ReText>
         </span>
       </template>
-      <NavMenuTree :menus="item.children" :class-name="props.className" />
+      <NavMenuTree :menus="item.children" :class-name="props.className" :indent="getChildIndent(item)" />
     </el-sub-menu>
 
     <el-menu-item
@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import classNames from 'classnames'
+import type { CSSProperties } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 import ReText from '@/components/ReText/src/index.vue'
 import SvgIcon from '@/components/base/svg-icon'
@@ -53,16 +54,24 @@ interface Props {
   menus?: RouteRecordRaw[]
   hiddenIndex?: number
   className?: string
+  indent?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   menus: () => [],
   hiddenIndex: -1,
-  className: ''
+  className: '',
+  indent: 0
 })
 
-const getStyle = (index: number): string => {
+// 子级从父级文字起点再缩进；父级图标宽 18px，图标与文字间距 10px。
+const getChildIndent = (item: RouteRecordRaw): number => {
+  const iconWidth = typeof item.meta?.icon === 'string' && item.meta.icon ? 28 : 0
+  return props.indent + iconWidth + 18
+}
+
+const getStyle = (index: number): CSSProperties => {
   const isHidden = props.hiddenIndex > -1 && index > props.hiddenIndex
-  return isHidden ? 'display: none' : ''
+  return { '--ds-nav-indent': `${String(props.indent)}px`, display: isHidden ? 'none' : undefined }
 }
 </script>

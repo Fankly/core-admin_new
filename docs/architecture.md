@@ -143,7 +143,8 @@ import WorkbenchPage from '@/features/workbench/WorkbenchPage.vue'
 - 64px masthead + 可调整宽度（196–380px）的 route rail + 工作区 sheet；
 - 折叠态 76px，菜单仅图标；
 - left / top / mix 三种导航模式；
-- 移动端（≤960px）切换为左侧 drawer；
+- 固定桌面布局，不按窄屏切换抽屉或隐藏导航；
+- 垂直导航采用手风琴，同级目录互斥展开，保留当前分支的父级；
 - 侧栏宽度按用户缓存，支持 pointer 拖动、键盘方向键、双击复位；
 - keep-alive 的 `include` 使用 `fullPath` 生成的具名包装组件，避免“store 存路径、include 却匹配组件名”的失效；
 - 主题 class 由 `preferences` store 提供，映射到新的 CSS 变量。
@@ -169,7 +170,7 @@ import WorkbenchPage from '@/features/workbench/WorkbenchPage.vue'
 vendor CSS → tokens.css → tailwind.css → styles/index.less → driver.less
 ```
 
-`styles/index.less` 内部顺序为 `base → element → workspace → theme → shell → motion`。Vite 的 Less `additionalData` 指向 `src/styles/variables.less`，业务 Less 不再重复 import。VXE 的 vendor CSS 随工作区插件延迟加载，body 上的语义变量确保后到的默认样式不能覆盖既有主题。`shell.less` 仅汇总 `shell/` 中的 foundation、brand、header、navigation、workspace、tabs、tab-variants、settings、responsive、mobile 文件。
+`styles/index.less` 内部顺序为 `base → element → workspace → theme → shell → motion`。Vite 的 Less `additionalData` 指向 `src/styles/variables.less`，业务 Less 不再重复 import。VXE 的 vendor CSS 随工作区插件延迟加载，body 上的语义变量确保后到的默认样式不能覆盖既有主题。`shell.less` 仅汇总 `shell/` 中的 foundation、brand、header、navigation、workspace、tabs、tab-variants、settings 文件。
 
 ### 5.4 工作台与常用交互
 

@@ -214,13 +214,4 @@ const tabGroup = (meta?: MenuMeta) =>
     border: 0;
   }
 }
-@media (max-width: 640px) {
-  .workbench__aside {
-    grid-template-columns: 1fr;
-  }
-  .workbench__account {
-    padding-top: 24px;
-    border-top: 1px solid var(--ds-line);
-  }
-}
 </style>

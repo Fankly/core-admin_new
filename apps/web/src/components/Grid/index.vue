@@ -35,7 +35,7 @@ type Props = {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  cols: () => ({ xs: 1, sm: 2, md: 2, lg: 3, xl: 4 }),
+  cols: () => ({ md: 2, lg: 3, xl: 4 }),
   collapsed: false,
   collapsedRows: 1,
   gap: 0
@@ -62,13 +62,7 @@ onDeactivated(() => {
 const resize = (e: UIEvent) => {
   let width = (e.target as Window).innerWidth
   switch (!!width) {
-    case width < 768:
-      breakPoint.value = 'xs'
-      break
-    case width >= 768 && width < 992:
-      breakPoint.value = 'sm'
-      break
-    case width >= 992 && width < 1200:
+    case width < 1200:
       breakPoint.value = 'md'
       break
     case width >= 1200 && width < 1920:

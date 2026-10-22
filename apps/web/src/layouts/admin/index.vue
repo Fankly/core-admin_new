@@ -4,7 +4,7 @@
 
     <div class="ds-admin__body">
       <aside v-if="showRail" class="ds-admin__rail" aria-label="侧边导航">
-        <SideNav :menus="railMenus" :router="true" mode="vertical" :is-mobile="false" />
+        <SideNav :menus="railMenus" :router="true" mode="vertical" />
       </aside>
 
       <button
@@ -36,34 +36,14 @@
         </div>
       </main>
     </div>
-
-    <el-drawer
-      v-model="mobileSidebarOpen"
-      direction="ltr"
-      size="280px"
-      :with-header="false"
-      :append-to-body="true"
-      aria-label="导航菜单"
-      :class="['ds-mobile-drawer', ...Object.values(preferences.themeClasses)]"
-    >
-      <h2 class="sr-only">导航菜单</h2>
-      <div class="ds-mobile-brand">
-        <BrandMark />
-      </div>
-      <div class="ds-mobile-nav">
-        <SideNav mode="vertical" :router="true" :is-mobile="true" />
-      </div>
-    </el-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useMediaQuery } from '@vueuse/core'
 import { useMenuStore, usePreferencesStore, useShellStore } from '@/store'
 import { ESidebarLayoutEnum } from '@/constants/enum'
-import { BrandMark } from '@/design-system'
 import HeaderBar from './components/header/HeaderBar.vue'
 import SideNav from './components/navigation/SideNav.vue'
 import WorkspaceTabs from './components/tabs/WorkspaceTabs.vue'
@@ -76,7 +56,6 @@ const route = useRoute()
 const shell = useShellStore()
 const preferences = usePreferencesStore()
 const menu = useMenuStore()
-const isMobile = useMediaQuery('(max-width: 960px)')
 const {
   state,
   sidebarResizer,
@@ -89,7 +68,7 @@ const {
   onSidebarResizeKeydown
 } = useSidebarResize()
 
-const showRail = computed(() => !isMobile.value && preferences.navLayout !== ESidebarLayoutEnum.Top)
+const showRail = computed(() => preferences.navLayout !== ESidebarLayoutEnum.Top)
 
 const railMenus = computed(() => {
   if (preferences.navLayout !== ESidebarLayoutEnum.Mix) return undefined
@@ -104,29 +83,10 @@ const shellClasses = computed(() => [
   ...Object.values(preferences.themeClasses),
   {
     'ds-admin--top': preferences.navLayout === ESidebarLayoutEnum.Top,
-    'ds-admin--mobile': isMobile.value,
-    'is-sidebar-collapsed': preferences.sidebarCollapse && !isMobile.value && preferences.navLayout !== ESidebarLayoutEnum.Top,
+    'is-sidebar-collapsed': preferences.sidebarCollapse && preferences.navLayout !== ESidebarLayoutEnum.Top,
     'is-sidebar-resizing': state.isSidebarResizing
   }
 ])
 
 const layoutStyle = computed(() => ({ '--ds-sidebar-width': `${String(state.sidebarWidth)}px` }))
-
-const mobileSidebarOpen = computed({
-  get: () => shell.mobileSidebarOpen,
-  set: (value: boolean) => {
-    shell.toggleMobileSidebar(value)
-  }
-})
-
-watch(
-  () => route.path,
-  () => {
-    if (mobileSidebarOpen.value) mobileSidebarOpen.value = false
-  }
-)
-
-watch(isMobile, (mobile) => {
-  if (!mobile) mobileSidebarOpen.value = false
-})
 </script>

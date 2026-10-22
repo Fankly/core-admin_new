@@ -123,7 +123,7 @@ export const getListPageData = (params: Params): Promise<ServiceResult<PageData>
 | `useSessionStore`     | 用户、按钮权限、登录态、logout                              |
 | `useMenuStore`        | 服务端菜单、动态路由、`path → meta`、当前菜单信息、`init()` |
 | `useTabsStore`        | 标签页、激活项、关闭记录、keep-alive 缓存集合               |
-| `useShellStore`       | 首屏生命周期、全局 loading、刷新信号、移动端抽屉            |
+| `useShellStore`       | 首屏生命周期、全局 loading、刷新信号、混合导航选中项        |
 | `usePreferencesStore` | 主题、导航布局、标签页开关                                  |
 | `useContextStore`     | 遗留业务穿透参数(`xxGlobalInfo` 等)                         |
 
@@ -136,7 +136,7 @@ export const getListPageData = (params: Params): Promise<ServiceResult<PageData>
 ### 2.4 CSS / class
 
 - 业务样式走 **SCSS/Less**,页面局部样式一律 `<style scoped>`。
-- 全局样式集中在 `src/styles/`;设计 token 在 `src/styles/tokens.css`,Element Plus 覆盖在 `src/styles/element.less`,外壳入口 `src/styles/shell.less` 汇总 `shell/` 中的品牌、头部、导航、标签页、工作区、设置与响应式样式。VXE 延迟加载的样式通过 body 上的语义变量保持主题一致。
+- 全局样式集中在 `src/styles/`;设计 token 在 `src/styles/tokens.css`,Element Plus 覆盖在 `src/styles/element.less`,外壳入口 `src/styles/shell.less` 汇总 `shell/` 中的品牌、头部、导航、标签页、工作区与设置样式。VXE 延迟加载的样式通过 body 上的语义变量保持主题一致。
 - **不要重复 import** Vite `additionalData` 已全局注入的 `styles/variables.less`。当前 SCSS 没有自动注入;遗留 SCSS 文件不代表已经配置预处理器。
 - Tailwind v4 **CSS-first**,类名前缀是 `tw:`(变体式),不是 `tw-`;没有 `tailwind.config.js`。用法规范见 `src/styles/tailwind.css` 顶部注释。
 - Tailwind 不引入 preflight,`tw:border` 单独用不出边框(无 border-style 重置),需要自己写 border-style。

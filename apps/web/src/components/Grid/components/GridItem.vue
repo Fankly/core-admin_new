@@ -15,8 +15,6 @@ type Props = {
   offset?: number
   span?: number
   suffix?: boolean
-  xs?: Responsive
-  sm?: Responsive
   md?: Responsive
   lg?: Responsive
   xl?: Responsive
@@ -26,8 +24,6 @@ const props = withDefaults(defineProps<Props>(), {
   offset: 0,
   span: 1,
   suffix: false,
-  xs: undefined,
-  sm: undefined,
   md: undefined,
   lg: undefined,
   xl: undefined

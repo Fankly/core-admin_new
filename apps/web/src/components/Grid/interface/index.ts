@@ -1,6 +1,6 @@
 import type { InjectionKey, Ref } from 'vue'
 
-export type BreakPoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+export type BreakPoint = 'md' | 'lg' | 'xl'
 
 export type Responsive = {
   span?: number

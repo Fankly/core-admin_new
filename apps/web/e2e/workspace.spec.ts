@@ -93,29 +93,127 @@ test('platform status loads on demand and can be closed', async ({ page }) => {
   await expect(page.getByRole('heading', { name: '平台运行状态' })).toBeHidden()
 })
 
-test('navigation layouts and sidebar resizing remain usable', async ({ page }, testInfo) => {
+test('navigation layouts and sidebar resizing remain usable', async ({ page }) => {
   await page.goto('/#/home')
   await expect(page.getByRole('heading', { name: '工作台', exact: true })).toBeVisible()
-  if (testInfo.project.name === 'desktop') {
-    const resizer = page.getByRole('separator', { name: '调整导航栏宽度' })
-    await resizer.focus()
-    await resizer.press('ArrowRight')
-    await expect(resizer).toHaveAttribute('aria-valuenow', '258')
-    await resizer.dblclick()
-    await expect(resizer).toHaveAttribute('aria-valuenow', '248')
-    await page.getByRole('button', { name: '打开界面设置' }).click()
-    await page.getByRole('button', { name: '顶部导航', exact: true }).click()
-    await page.keyboard.press('Escape')
-    await expect(page.getByRole('complementary', { name: '侧边导航' })).toHaveCount(0)
-    await page.getByRole('button', { name: '打开界面设置' }).click()
-    await page.getByRole('button', { name: '混合导航', exact: true }).click()
-    await page.keyboard.press('Escape')
-    await expect(page.getByRole('complementary', { name: '侧边导航' })).toBeVisible()
-  } else {
-    await page.getByRole('button', { name: '打开导航菜单' }).click()
-    await expect(page.getByRole('heading', { name: '导航菜单' })).toBeVisible()
-    await page.keyboard.press('Escape')
+  const resizer = page.getByRole('separator', { name: '调整导航栏宽度' })
+  await resizer.focus()
+  await resizer.press('ArrowRight')
+  await expect(resizer).toHaveAttribute('aria-valuenow', '258')
+  await resizer.dblclick()
+  await expect(resizer).toHaveAttribute('aria-valuenow', '248')
+  await page.setViewportSize({ width: 900, height: 900 })
+  await expect(page.getByRole('complementary', { name: '侧边导航' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '收起侧边导航' })).toBeVisible()
+  await expect(resizer).toBeVisible()
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.getByRole('button', { name: '打开界面设置' }).click()
+  await page.getByRole('button', { name: '顶部导航', exact: true }).click()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('complementary', { name: '侧边导航' })).toHaveCount(0)
+  await page.getByRole('button', { name: '打开界面设置' }).click()
+  await page.getByRole('button', { name: '混合导航', exact: true }).click()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('complementary', { name: '侧边导航' })).toBeVisible()
+})
+
+test('nested navigation indents children past their parent with and without icons', async ({ page }) => {
+  const leaf = (level: number, icon = '') => ({
+    id: `leaf-${level}-${icon || 'plain'}`,
+    name: `${icon ? '图标页面' : '页面'} ${level}`,
+    url: 'https://example.com/project',
+    icon
+  })
+  let menus: unknown[] = [leaf(7), leaf(7, 'appstore')]
+  for (let level = 6; level >= 1; level--) {
+    menus = [
+      leaf(level),
+      leaf(level, 'appstore'),
+      { id: `group-${level}`, name: `目录 ${level}`, url: `/group-${level}`, icon: level % 2 ? 'appstore' : '', children: menus }
+    ]
   }
+  await page.route('**/api/sys/menu/nav**', (route) => route.fulfill({ json: { code: 0, success: true, data: menus } }))
+  await page.goto('/#/home')
+  await expect(page.getByRole('heading', { name: '工作台', exact: true })).toBeVisible()
+
+  const nav = page.locator('.ds-nav--vertical:visible')
+  const label = (name: string) => nav.locator('.rr-sidebar-menu-entry__label').filter({ hasText: new RegExp(`^${name}$`) })
+  let parentLeft: number | undefined
+  for (let level = 1; level <= 7; level++) {
+    await expect(label(`页面 ${level}`)).toBeVisible()
+    const plainBox = await label(`页面 ${level}`).boundingBox()
+    const iconBox = await label(`图标页面 ${level}`).boundingBox()
+    expect(plainBox).not.toBeNull()
+    expect(iconBox).not.toBeNull()
+    expect(iconBox!.x - plainBox!.x).toBeCloseTo(28, 1)
+    await expect(label(`页面 ${level}`).locator('..').locator('.rr-sidebar-menu-entry__icon')).toHaveCount(0)
+    if (parentLeft !== undefined) expect(plainBox!.x - parentLeft).toBeCloseTo(18, 1)
+    if (level <= 6) {
+      const groupBox = await label(`目录 ${level}`).boundingBox()
+      expect(groupBox).not.toBeNull()
+      expect(groupBox!.x - plainBox!.x).toBeCloseTo(level % 2 ? 28 : 0, 1)
+      parentLeft = groupBox!.x
+      await nav.getByRole('menuitem', { name: `目录 ${level}`, exact: true }).click()
+    }
+  }
+
+  await page.getByRole('button', { name: '收起侧边导航' }).click()
+  const rootTitle = nav.locator('.ds-nav__menu > .el-sub-menu > .el-sub-menu__title')
+  await expect(rootTitle).toHaveCSS('padding-left', '0px')
+  const titleBox = await rootTitle.boundingBox()
+  const iconBox = await rootTitle.locator('.rr-sidebar-menu-entry__icon').boundingBox()
+  expect(titleBox).not.toBeNull()
+  expect(iconBox).not.toBeNull()
+  expect(iconBox!.x + iconBox!.width / 2).toBeCloseTo(titleBox!.x + titleBox!.width / 2, 1)
+})
+
+test('navigation accordion closes sibling branches and preserves expanded ancestors', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('v1@CacheTheme', JSON.stringify({ sidebarUniOpened: false }))
+  })
+  const leaf = (id: string, name: string) => ({ id, name, url: 'https://example.com/project' })
+  const menus = [
+    {
+      id: 'a',
+      name: '目录甲',
+      url: '/accordion-a',
+      children: [
+        {
+          id: 'a1',
+          name: '甲子目录一',
+          url: '/accordion-a1',
+          children: [{ id: 'a11', name: '甲孙目录', url: '/accordion-a11', children: [leaf('a-leaf', '甲页面一')] }]
+        },
+        { id: 'a2', name: '甲子目录二', url: '/accordion-a2', children: [leaf('a2-leaf', '甲页面二')] }
+      ]
+    },
+    { id: 'b', name: '目录乙', url: '/accordion-b', children: [leaf('b-leaf', '乙页面')] }
+  ]
+  await page.route('**/api/sys/menu/nav**', (route) => route.fulfill({ json: { code: 0, success: true, data: menus } }))
+  await page.goto('/#/home')
+  await expect(page.getByRole('heading', { name: '工作台', exact: true })).toBeVisible()
+  const nav = page.getByRole('complementary', { name: '侧边导航' })
+  const group = (name: string) => nav.getByRole('menuitem', { name, exact: true })
+  await group('目录甲').click()
+  await group('甲子目录一').click()
+  await group('甲孙目录').click()
+  await expect(group('目录甲')).toHaveAttribute('aria-expanded', 'true')
+  await expect(group('甲子目录一')).toHaveAttribute('aria-expanded', 'true')
+  await expect(group('甲页面一')).toBeVisible()
+  await group('甲子目录二').click()
+  await expect(group('甲子目录一')).toHaveAttribute('aria-expanded', 'false')
+  await expect(group('甲页面一')).toBeHidden()
+  await expect(group('甲页面二')).toBeVisible()
+  await expect(group('目录甲')).toHaveAttribute('aria-expanded', 'true')
+  await group('目录乙').click()
+  await expect(group('目录甲')).toHaveAttribute('aria-expanded', 'false')
+  await expect(group('甲页面二')).toBeHidden()
+  await expect(group('乙页面')).toBeVisible()
+  await group('目录乙').click()
+  await expect(group('目录乙')).toHaveAttribute('aria-expanded', 'false')
+  await expect(group('乙页面')).toBeHidden()
+  await page.getByRole('button', { name: '打开界面设置' }).click()
+  await expect(page.getByText('导航排他展开', { exact: true })).toHaveCount(0)
 })
 
 test('login permission and workspace failures offer recovery', async ({ page }) => {

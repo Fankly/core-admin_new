@@ -44,7 +44,7 @@ const open = ref(false)
 const query = ref('')
 const input = ref<InputInstance>()
 const activeIndex = ref(0)
-const shortcut = /Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘ K' : 'Ctrl K'
+const shortcut = /Mac/.test(navigator.userAgent) ? '⌘ K' : 'Ctrl K'
 const matches = computed(() => searchNavigationEntries(menu.navigationEntries, query.value))
 const results = computed(() => matches.value.slice(0, 30))
 watch(query, () => {

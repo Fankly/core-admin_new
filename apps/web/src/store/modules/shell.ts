@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
 /**
- * 应用外壳域：启动生命周期、全局 loading、刷新信号、移动端抽屉。
+ * 应用外壳域：启动生命周期、全局 loading、刷新信号、混合导航选中项。
  *
  * 这里不保存业务数据，只保存“界面外壳”状态，方便 layout 与页面解耦。
  */
@@ -19,8 +19,6 @@ export const useShellStore = defineStore('shell', () => {
   const reloadToken = ref(0)
   /** 首页是否有当前角色权限，由 UserRoleSelector 写入 */
   const mainPageRole = ref(true)
-  /** 移动端侧边栏抽屉 */
-  const mobileSidebarOpen = ref(false)
   /** 混合导航当前选中的一级菜单 */
   const activeTopMenu = ref('')
 
@@ -40,7 +38,6 @@ export const useShellStore = defineStore('shell', () => {
     isRouteLoading.value = false
     isLoading.value = false
     mainPageRole.value = true
-    mobileSidebarOpen.value = false
     activeTopMenu.value = ''
   }
 
@@ -68,10 +65,6 @@ export const useShellStore = defineStore('shell', () => {
     mainPageRole.value = payload
   }
 
-  function toggleMobileSidebar(payload?: boolean) {
-    mobileSidebarOpen.value = payload ?? !mobileSidebarOpen.value
-  }
-
   function setActiveTopMenu(path: string) {
     activeTopMenu.value = path
   }
@@ -83,7 +76,6 @@ export const useShellStore = defineStore('shell', () => {
     isLoading,
     reloadToken,
     mainPageRole,
-    mobileSidebarOpen,
     activeTopMenu,
     canRender,
     markReady,
@@ -95,7 +87,6 @@ export const useShellStore = defineStore('shell', () => {
     hideLoading,
     reloadCurrentPage,
     setMainPageRole,
-    toggleMobileSidebar,
     setActiveTopMenu
   }
 })

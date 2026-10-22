@@ -22,10 +22,7 @@ defineOptions({ name: 'SettingOther' })
 
 const preferences = usePreferencesStore()
 
-const items = [
-  { label: '导航排他展开', key: EThemeSetting.SidebarUniOpened },
-  { label: '启用标签页', key: EThemeSetting.OpenTabsPage }
-]
+const items = [{ label: '启用标签页', key: EThemeSetting.OpenTabsPage }]
 
 const tabStyles = [
   { label: '默认', value: 'default' },

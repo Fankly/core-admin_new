@@ -28,7 +28,7 @@ pnpm build:sit     # / pnpm build:uat
 pnpm lint          # 递归跑所有包的 lint（eslint --fix）
 pnpm typecheck     # 递归跑 vue-tsc --noEmit
 pnpm test          # Vitest，真实 HTTP / 组件 / store 回归
-pnpm e2e           # Playwright，桌面 / 移动端交互回归
+pnpm e2e           # Playwright，桌面交互回归
 ```
 
 只作用于单个包时用 `pnpm --filter budget-process <script>`，或直接进 `apps/web` 执行。
@@ -96,6 +96,8 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 
 **导航只展示可用入口。** 服务器菜单中没有对应视图、也不是 iframe / 新窗口的叶子标记为 `isUnavailable`；侧栏、顶部导航、工作台、全局菜单搜索统一过滤，空分组也不展示。工作台和菜单搜索消费 `menu.navigationEntries`，不要各自遍历菜单实现另一套规则。普通链接用 RouterLink，需兼容外链的通用入口用 `NavigationLink`。
 
+**仅提供桌面布局。** 不按窄屏切换移动抽屉或隐藏侧栏。垂直导航固定使用手风琴：同级目录互斥展开，当前分支的父级保持展开。图标仍按服务端配置显示，父子缩进从父级文字起点继续递进。
+
 **工作区依赖按进入时机加载。** 登录阶段不加载 VXE / Excel 导出栈；守卫与异步 AdminLayout 共用 `loadWorkspacePlugins()`，确保注册完成后再渲染外壳。平台状态只在抽屉打开时请求。进入 `/login` 清动态菜单路由、标签页和会话；初始化失败页的重试回到 `/home`，重新请求菜单，而不是刷新 `/error`。
 
 **Pinia 按领域拆分。** 不再存在扁平大对象：
@@ -103,7 +105,7 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 - `useSessionStore`：用户、按钮权限、登录态、logout。
 - `useMenuStore`：服务端菜单、动态路由、`path → meta`、当前菜单信息、`init()`。
 - `useTabsStore`：标签页、激活项、关闭记录、keep-alive 缓存集合；打开/关闭逻辑是纯状态机。
-- `useShellStore`：首屏生命周期、全局 loading、刷新信号、移动端抽屉、混合导航选中项。
+- `useShellStore`：首屏生命周期、全局 loading、刷新信号、混合导航选中项。
 - `usePreferencesStore`：主题、导航布局、标签页开关；写入即持久化并应用主题色。
 - `useContextStore`：遗留业务穿透参数（`xxGlobalInfo` 等），与框架状态隔离。
 
