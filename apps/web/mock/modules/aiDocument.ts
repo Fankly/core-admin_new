@@ -319,9 +319,9 @@ Mock.mock(/ai-audit-task-manage\/getXmPage(\?.*)?$/, 'post', (options: MockOptio
 
 // ==================== 页面依赖的公共接口 ====================
 
-// 年度树
+// 年度树（计划实施年度显示为「xxxx年度」）
 Mock.mock(/comPz\/getNdTreeNode(\?.*)?$/, 'post', () => {
-  return success(YEAR_LIST.map((year) => ({ yearCode: year, yearName: `${year}年`, code: year, name: `${year}年` })))
+  return success(YEAR_LIST.map((year) => ({ yearCode: year, yearName: `${year}年度`, code: year, name: `${year}年度` })))
 })
 
 // 一级单位

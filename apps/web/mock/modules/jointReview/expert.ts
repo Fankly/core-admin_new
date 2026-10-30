@@ -12,7 +12,10 @@ const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 
 const includesText = (value: unknown, keyword: unknown) => !keyword || String(value ?? '').includes(String(keyword))
 
+// 项目佐证材料（附件信息 step 的评审佐证材料分组，zzfile.vue 抽屉按 prop 取数）
+// initialReviewReportFiles：初审报告，线上预审自动生成，配合 getXmInfoByYsbgfj 的 sfzdsc='1' 展示“自动生成”标识
 const JOINT_REVIEW_ATTACHMENTS = {
+  initialReviewReportFiles: [{ name: '初审报告.pdf', uuid: 'zz-attach-003', status: 'success' }],
   feasibilityReportFiles: [{ name: '可行性研究报告（佐证）.pdf', uuid: 'zz-attach-001', status: 'success' }],
   estimateFiles: [{ name: '概算书（佐证）.xlsx', uuid: 'zz-attach-002', status: 'success' }]
 }
@@ -48,6 +51,7 @@ const JOINT_REVIEW_PROJECT_COLUMNS = [
         prop: 'zzcl',
         type: 'uploadGroup',
         children: [
+          { label: '初审报告', prop: 'initialReviewReportFiles' },
           { label: '可行性研究报告', prop: 'feasibilityReportFiles' },
           { label: '概算书', prop: 'estimateFiles' }
         ]
@@ -179,14 +183,41 @@ Mock.mock(/expertReview\/getLastXmInfoForCmp(\?.*)?$/, 'post', () => success(nul
 // ==================== 佐证材料（zzfile.vue） ====================
 
 // 项目佐证附件（expertReview/getXmInfoByYsbgfj?xmId=xx）—— 按 tab 步骤 stepId 聚合附件
+// sfzdsc：初审报告是否由线上预审自动生成，'1' 为自动生成（前端展示“自动生成”标识），改 '0' 可看无标识态
 Mock.mock(/expertReview\/getXmInfoByYsbgfj(\?.*)?$/, 'get', () =>
   success({
+    sfzdsc: '1',
     attachmentInfo: clone(JOINT_REVIEW_ATTACHMENTS)
   })
 )
 
 // AI 审核详情弹窗使用的项目基本信息（省级 meeting- / 市级 city-meeting- 前缀）。
 Mock.mock(/xmAttributeConfig\/getXmInfo\?[^#]*xmId=(?:meeting-|city-meeting-)/, 'get', (options: MockOptions) => {
+  const xmId = getQueryValue(options.url, 'xmId')
+  const project = findProject(xmId)
+  return success({
+    baseInfo: {
+      xmbm: project?.xmbm || '',
+      xmmc: project?.xmmc || '',
+      yssxmc: project?.yssxmc || '',
+      jhssnd: project?.jhssnd || '',
+      yjdw: project?.yjdw || ''
+    },
+    budgetInfo: {
+      all_invest_tax: project?.all_invest_tax || '',
+      amount: project?.amount || '',
+      ssnr: project?.ssnr || '',
+      byx: project?.byx || ''
+    },
+    attachmentInfo: clone(JOINT_REVIEW_ATTACHMENTS)
+  })
+})
+
+// 项目基本信息（expertReview/getXmInfo?xmId=xx）—— pageGetXmInfo（reviewDeatil/projectDetail、
+// smartTaskAuditAdmin、CentralizedModification 等共用），data 按 getTabColumns 的 stepId 分组，
+// 供 projectDetail 的 globalParams 与 DynamicForm 取数。
+// 收窄到本模块 mock 项目 xmid（meeting- / city-meeting- 前缀），其余调用方透传真实后端。
+Mock.mock(/expertReview\/getXmInfo\?[^#]*xmId=(?:meeting-|city-meeting-)/, 'get', (options: MockOptions) => {
   const xmId = getQueryValue(options.url, 'xmId')
   const project = findProject(xmId)
   return success({

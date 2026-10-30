@@ -29,7 +29,7 @@ const jsonResponse = (payload: unknown, status = 200) =>
     headers: { 'Content-Type': 'application/json;charset=UTF-8' }
   })
 
-const parseRequestBody = async (input: RequestInfo, init?: RequestInit): Promise<Record<string, any>> => {
+const parseRequestBody = async (input: RequestInfo | URL, init?: RequestInit): Promise<Record<string, any>> => {
   const rawBody = init?.body
   if (input instanceof Request && rawBody === undefined) return input.clone().json()
   if (typeof rawBody !== 'string') return {}
@@ -60,7 +60,7 @@ const prepareFixturePayloads = (message: string, sessionId: string) => {
   return fixturePayloads
     .filter((payload) => !withoutTrace || 'sessionId' in payload || 'token' in payload || 'exitReason' in payload)
     .map((payload) => {
-      const current = payload.sessionId ? { ...payload, sessionId } : { ...payload }
+      const current: Record<string, unknown> = payload.sessionId ? { ...payload, sessionId } : { ...payload }
       if (toolFailed && !failedToolInjected && current.name && ('output' in current || 'error' in current)) {
         failedToolInjected = true
         return { ...current, output: '', error: '模拟工具连接失败，请稍后重试。' }
@@ -135,7 +135,7 @@ const createStreamResponse = (request: Required<AiChatMockRequest>, signal?: Abo
   })
 }
 
-const handleStream = async (input: RequestInfo, init?: RequestInit) => {
+const handleStream = async (input: RequestInfo | URL, init?: RequestInit) => {
   let request: AiChatMockRequest
   try {
     request = (await parseRequestBody(input, init)) as AiChatMockRequest
@@ -149,7 +149,7 @@ const handleStream = async (input: RequestInfo, init?: RequestInit) => {
   return createStreamResponse(request as Required<AiChatMockRequest>, init?.signal || undefined)
 }
 
-const handleStop = async (input: RequestInfo, init?: RequestInit) => {
+const handleStop = async (input: RequestInfo | URL, init?: RequestInit) => {
   let request: Record<string, any>
   try {
     request = await parseRequestBody(input, init)
@@ -163,24 +163,22 @@ const handleStop = async (input: RequestInfo, init?: RequestInit) => {
   return jsonResponse({ code: 0, success: true, message: '会话已停止', data: { sessionId } })
 }
 
+// 返回空数据使 chatConfigured 为 false，隐藏右侧悬浮 AI 机器人；需要恢复时把 data 改回非空即可，例如：
+// data: [{ code: 'MOCK_SU_DIAN_ZHI_BAN', name: '预算助手' }]
 Mock.mock(new RegExp(`commonCode/getData\\?[^#]*code=${AGENT_CODE_COMMON_CODE}(?:&|$)`), 'get', () => ({
   code: 0,
   success: true,
   msg: 'success',
-  data: [
-    { code: 'MOCK_SU_DIAN_ZHI_BAN', name: '预算助手' },
-    { code: 'MOCK_BUDGET_ASSISTANT', name: '预算助手' },
-    { code: 'MOCK_AUDIT_ASSISTANT', name: '审核助手' }
-  ]
+  data: []
 }))
 Mock.mock(new RegExp(`commonCode/getData\\?[^#]*code=${USER_CODE_COMMON_CODE}(?:&|$)`), 'get', () => ({
   code: 0,
   success: true,
   msg: 'success',
-  data: [{ code: 'MOCK_AI_CHAT_USER', name: '智伴公共用户' }]
+  data: []
 }))
 
-window.fetch = async (input: RequestInfo, init?: RequestInit) => {
+window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
   const requestUrl = input instanceof Request ? input.url : String(input)
   const { pathname } = new URL(requestUrl, window.location.href)
   const method = String(init?.method || (input instanceof Request ? input.method : 'GET')).toUpperCase()

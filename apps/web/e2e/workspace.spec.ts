@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 const dashboardHeading = (page: Page) => page.getByRole('heading', { name: /项目过程管控平台/ })
 
@@ -134,7 +134,14 @@ test('system management lives in the avatar dropdown instead of the main navigat
           id: 'sys-org',
           name: '组织架构',
           url: '/system/org',
-          children: [{ id: 'sys-dept', name: '部门管理', url: 'https://example.com/project' }]
+          children: [
+            {
+              id: 'sys-dept',
+              name: '部门管理',
+              url: '/system/org/dept',
+              children: [{ id: 'sys-dept-detail', name: '部门详情', url: 'https://example.com/project' }]
+            }
+          ]
         }
       ]
     }
@@ -159,15 +166,32 @@ test('system management lives in the avatar dropdown instead of the main navigat
   const panel = page.getByRole('navigation', { name: '系统管理' })
   await expect(panel).toBeVisible()
   await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+
+  // 图标与侧栏同一套层级规则：L2 文件夹 · L3 文件 · L4 及更深圆点，同层同框。
+  const orgRow = panel.locator('.ds-user-menu__node[data-nav-level="2"]').filter({ hasText: '组织架构' })
+  await expect(orgRow.locator('.ds-user-menu__icon')).toHaveCSS('width', '24px')
+  await expect(orgRow.locator('.ds-user-menu__icon svg')).toHaveCount(1)
+  await expect(orgRow.locator('.ds-user-menu__dot')).toHaveCount(0)
+
   await panel.getByRole('button', { name: '组织架构', exact: true }).click()
-  await panel.getByRole('link', { name: '部门管理', exact: true }).click()
+  const deptRow = panel.locator('.ds-user-menu__node[data-nav-level="3"]').filter({ hasText: '部门管理' })
+  await expect(deptRow.locator('.ds-user-menu__icon')).toHaveCSS('width', '22px')
+  await expect(deptRow.locator('.ds-user-menu__icon svg')).toHaveCount(1)
+
+  await panel.getByRole('button', { name: '部门管理', exact: true }).click()
+  const detailRow = panel.locator('.ds-user-menu__node[data-nav-level="4"]').filter({ hasText: '部门详情' })
+  await expect(detailRow.locator('.ds-user-menu__icon')).toHaveCSS('width', '18px')
+  await expect(detailRow.locator('.ds-user-menu__dot')).toHaveCount(1)
+  await expect(detailRow.locator('.ds-user-menu__icon svg')).toHaveCount(0)
+
+  await panel.getByRole('link', { name: '部门详情', exact: true }).click()
   await expect(panel).toBeHidden()
   await expect(page.frameLocator('iframe').getByRole('heading', { name: '项目页面' })).toBeVisible()
 
   // 当前页所在分组自动展开，叶子带选中态。
   await trigger.click()
   await expect(panel).toBeVisible()
-  await expect(panel.getByRole('link', { name: '部门管理', exact: true })).toHaveClass(/is-active/)
+  await expect(panel.getByRole('link', { name: '部门详情', exact: true })).toHaveClass(/is-active/)
   await expect(panel.getByRole('button', { name: '组织架构', exact: true })).toHaveAttribute('aria-expanded', 'true')
 
   // Esc 收起并把焦点还给触发按钮。
@@ -341,24 +365,95 @@ test('nested navigation uses level icons, fixed 14px steps and a compact collaps
   await page.getByRole('button', { name: '收起侧边导航' }).click()
   const rootTitle = nav.locator('.ds-nav__menu > .el-sub-menu > .el-sub-menu__title')
   await expect(rootTitle).toHaveCSS('padding-left', '0px')
-  // 收起态：顶层行改为「图标 + 名称前两字」的纵向排列，高 54px。
-  await expect(rootTitle).toHaveCSS('height', '54px')
+  // 收起态：顶层行改为「图标 + 名称前两字」的纵向排列，方形入口高 61px（63 × 63 卡片）。
+  await expect(rootTitle).toHaveCSS('height', '61px')
+  // 图标必须保持 30px 的层级图标底框，不能被 Element Plus collapse 的 24px 固定宽度压扁。
+  await expect(rootTitle.locator('.rr-sidebar-menu-entry__icon')).toHaveCSS('width', '30px')
+  await expect(rootTitle.locator('.rr-sidebar-menu-entry__icon')).toHaveCSS('height', '30px')
   const collapsed = await rootTitle.evaluate((el) => {
     const title = el.getBoundingClientRect()
     const icon = el.querySelector('.rr-sidebar-menu-entry__icon')!.getBoundingClientRect()
     const short = el.querySelector<HTMLElement>('.rr-sidebar-menu-entry__short')!
+    const shortRect = short.getBoundingClientRect()
     return {
       titleCenter: title.x + title.width / 2,
       iconCenter: icon.x + icon.width / 2,
+      shortCenter: shortRect.x + shortRect.width / 2,
       shortText: short.textContent?.trim() ?? '',
       shortVisible: getComputedStyle(short).display !== 'none',
       labelHidden: getComputedStyle(el.querySelector<HTMLElement>('.rr-sidebar-menu-entry__label')!).display === 'none'
     }
   })
   expect(collapsed.iconCenter).toBeCloseTo(collapsed.titleCenter, 1)
+  expect(collapsed.shortCenter).toBeCloseTo(collapsed.titleCenter, 1)
   expect(collapsed.shortVisible).toBe(true)
   expect(collapsed.labelHidden).toBe(true)
   expect(collapsed.shortText).toBe('目录')
+})
+
+test('collapsed rail hover menu reuses the expanded rows pixel for pixel', async ({ page }) => {
+  const leaf = (id: string, name: string) => ({ id, name, url: 'https://example.com/project' })
+  const menus = [
+    {
+      id: 'group',
+      name: '目录组',
+      url: '/hover-group',
+      children: [
+        {
+          id: 'sub',
+          name: '子目录',
+          url: '/hover-sub',
+          children: [leaf('deep', '深层页面'), { id: 'sub2', name: '子目录二', url: '/hover-sub-2', children: [leaf('deeper', '更深的页面')] }]
+        }
+      ]
+    }
+  ]
+  await page.route('**/api/sys/menu/nav**', (route) => route.fulfill({ json: { code: 0, success: true, data: menus } }))
+  await openDashboard(page)
+
+  /** 一行菜单的图标框尺寸 / 字形尺寸 / 行高 / 缩进，用来判断两个入口是否同一套几何。 */
+  const rowMetrics = (row: Locator) =>
+    row.evaluate((el) => {
+      const well = el.querySelector('.rr-sidebar-menu-entry__icon')!
+      const rect = el.getBoundingClientRect()
+      const box = well.getBoundingClientRect()
+      const glyph = well.querySelector('svg') ?? well.querySelector('.rr-sidebar-menu-entry__dot')
+      return {
+        box: `${String(Math.round(box.width))}x${String(Math.round(box.height))}`,
+        glyph: glyph ? Math.round(glyph.getBoundingClientRect().width) : 0,
+        rowHeight: Math.round(rect.height),
+        paddingLeft: getComputedStyle(el).paddingLeft,
+        iconBackground: getComputedStyle(well).backgroundColor,
+        iconRadius: getComputedStyle(well).borderRadius
+      }
+    })
+
+  const nav = page.locator('.ds-nav--vertical:visible')
+  await nav.getByRole('menuitem', { name: '目录组', exact: true }).click()
+  await nav.getByRole('menuitem', { name: '子目录', exact: true }).locator('> .el-sub-menu__title').click()
+  const declaredRow = nav.getByRole('menuitem', { name: '深层页面', exact: true })
+  await expect(declaredRow).toBeVisible()
+  const declared = await rowMetrics(declaredRow)
+
+  await page.getByRole('button', { name: '收起侧边导航' }).click()
+  await nav.locator('.ds-nav__menu > .el-sub-menu > .el-sub-menu__title').first().hover()
+  const popup = page.locator('.el-popper.ds-nav-pop-rail:visible').first()
+  await expect(popup).toBeVisible()
+  const subRow = popup.getByRole('menuitem', { name: '子目录', exact: true })
+  await subRow.locator('> .el-sub-menu__title').click()
+  const hoveredRow = popup.getByRole('menuitem', { name: '深层页面', exact: true })
+  // 弹出层带 zoom 入场动画，几何在动画期间是缩放过的；等它稳定到声明值再量。
+  await expect.poll(async () => (await rowMetrics(hoveredRow)).rowHeight).toBe(declared.rowHeight)
+  expect(await rowMetrics(hoveredRow)).toEqual(declared)
+
+  // 更深的层级同样沿用层级规则，而不是在弹出层里退回服务端图标。
+  await popup.getByRole('menuitem', { name: '子目录二', exact: true }).locator('> .el-sub-menu__title').click()
+  const deeperRow = popup.getByRole('menuitem', { name: '更深的页面', exact: true })
+  await expect.poll(async () => (await rowMetrics(deeperRow)).rowHeight).toBe(38)
+  const deeper = await rowMetrics(deeperRow)
+  expect(deeper.box).toBe('18x18')
+  expect(deeper.paddingLeft).toBe('52px')
+  expect(deeper.glyph).toBe(5)
 })
 
 test('navigation accordion closes sibling branches and preserves expanded ancestors', async ({ page }) => {
@@ -440,7 +535,11 @@ test('rail tools filter by keyword and favourites, then restore the expanded tra
   // 收藏以服务端列表为准：菜单下发的 isFavorite 只在列表未加载时兜底
   await page.route('**/api/sys/menu/favorite/**', (route) =>
     route.fulfill({
-      json: { code: 0, success: true, data: [{ favoriteId: 'fav-1', menuId: 'budget-plan', name: '预算编制', sort: 1, url: '/baseHome', createTime: '' }] }
+      json: {
+        code: 0,
+        success: true,
+        data: [{ favoriteId: 'fav-1', menuId: 'budget-plan', name: '预算编制', sort: 1, url: '/baseHome', createTime: '' }]
+      }
     })
   )
   await openDashboard(page)

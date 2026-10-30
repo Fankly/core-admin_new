@@ -185,7 +185,7 @@ vendor CSS → tokens.css → tailwind.css → styles/index.less → driver.less
 
 侧栏叶子菜单的收藏星标写入 `useFavoritesStore`（按账号隔离），成功后重新拉取 `/sys/menu/favorite/list`；主页快捷入口订阅同一份数据，因此收藏与取消收藏会立即反映到首页。
 
-`HeaderActions` 的头像下拉只承载「系统管理」：菜单名称与 `SYSTEM_MENU_TITLE` 完全一致时由 `utils/menu.ts` 抽取该分组（保留服务端层级），`UserMenuPanel` / `UserMenuNode` 渲染树形入口并复用 `NavigationLink` 兼容外链；当前页所在分组自动展开、叶子高亮，点击面板外区域、Esc 或路由变化时收起，没有该分组时退化为静态用户信息。标签页的方向键导航仅滚动自身横向容器，跳转工作区链接聚焦 main 而不改变 hash 路由。ProTable 消费 `useTable` 的加载状态并提供空结果与帮助入口；SearchForm 使用原生表单提交语义。
+`HeaderActions` 的头像下拉只承载「系统管理」：菜单名称与 `SYSTEM_MENU_TITLE` 完全一致时由 `utils/menu.ts` 抽取该分组（保留服务端层级），`UserMenuPanel` / `UserMenuNode` 渲染树形入口并复用 `NavigationLink` 兼容外链；图标按层级取自共用的 `navigation/nav-level-icon.ts` 与 `--nav-icon-*` token（L1 层叠 · L2 文件夹 · L3 文件 · L4 圆点），与侧栏逐层一致；当前页所在分组自动展开、叶子高亮，点击面板外区域、Esc 或路由变化时收起，没有该分组时退化为静态用户信息。标签页的方向键导航仅滚动自身横向容器，跳转工作区链接聚焦 main 而不改变 hash 路由。ProTable 消费 `useTable` 的加载状态并提供空结果与帮助入口；SearchForm 使用原生表单提交语义。
 
 ### 5.5 启动与加载边界
 

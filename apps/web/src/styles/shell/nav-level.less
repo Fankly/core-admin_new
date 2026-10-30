@@ -1,0 +1,185 @@
+/* --------------------------------------------------------------------------
+   层级图标 token（L1 层叠 · L2 文件夹 · L3 文件 · L4 及更深圆点）
+
+   侧栏、悬停弹出菜单、头像下拉共用同一份定义：同层同框、同图形、同色，
+   状态只改颜色，不改尺寸。深色主题只覆盖颜色变量，几何与浅色完全一致。
+   -------------------------------------------------------------------------- */
+
+/* 浅色主题 */
+.nav-level-tokens() {
+  --nav-primary: var(--color-primary, #00706b);
+  --nav-accent: #2a9a92;
+
+  --nav-text: #475569;
+  --nav-text-dim: #94a3b8;
+  --nav-text-strong: var(--nav-primary);
+  --nav-text-open: #1e293b;
+  --nav-hover: rgb(0 112 107 / 5%);
+
+  --nav-icon-box-1: 30px;
+  --nav-icon-glyph-1: 17px;
+  --nav-icon-bg-1: var(--nav-primary);
+  --nav-icon-fg-1: #fff;
+  --nav-icon-radius-1: 9px;
+  --nav-icon-ring-1: 0 4px 10px -5px rgb(0 112 107 / 60%);
+
+  --nav-icon-box-2: 24px;
+  --nav-icon-glyph-2: 14px;
+  --nav-icon-bg-2: #e6f4f3;
+  --nav-icon-fg-2: var(--nav-primary);
+  --nav-icon-radius-2: 7px;
+
+  --nav-icon-box-3: 22px;
+  --nav-icon-glyph-3: 13px;
+  --nav-icon-bg-3: #fff;
+  --nav-icon-fg-3: var(--nav-accent);
+  --nav-icon-radius-3: 6px;
+  --nav-icon-ring-3: inset 0 0 0 1px #cfe7e4;
+
+  --nav-icon-box-4: 18px;
+  --nav-icon-glyph-4: 11px;
+  --nav-icon-bg-4: transparent;
+  --nav-icon-fg-4: #9fb8b5;
+  --nav-icon-radius-4: 4px;
+
+  --nav-icon-bg-path-1: var(--nav-primary);
+  --nav-icon-fg-path-1: #fff;
+  --nav-icon-ring-path-1: 0 6px 14px -5px rgb(0 112 107 / 70%);
+  --nav-icon-fg-path: var(--nav-primary);
+
+  --nav-list-bg-3: rgb(242 249 248 / 90%);
+  --nav-list-bg-4: rgb(230 244 243 / 75%);
+  --nav-list-radius: 10px;
+
+  --nav-active-bg: linear-gradient(100deg, var(--nav-primary), var(--nav-accent));
+  --nav-active-text: #fff;
+  --nav-active-icon: #fff;
+  --nav-active-shadow: 0 6px 16px -6px rgb(0 112 107 / 60%);
+}
+
+/* 深色主题：只覆盖颜色，几何沿用浅色 */
+.nav-level-tokens-dark() {
+  --nav-text: rgb(255 255 255 / 72%);
+  --nav-text-dim: rgb(255 255 255 / 45%);
+  --nav-text-strong: #fff;
+  --nav-text-open: #fff;
+  --nav-hover: rgb(255 255 255 / 6%);
+
+  --nav-icon-bg-1: #0f827b;
+  --nav-icon-fg-1: #fff;
+  --nav-icon-ring-1: none;
+  --nav-icon-bg-2: rgb(95 208 195 / 14%);
+  --nav-icon-fg-2: #5fd0c3;
+  --nav-icon-bg-3: rgb(255 255 255 / 4%);
+  --nav-icon-fg-3: rgb(255 255 255 / 70%);
+  --nav-icon-ring-3: inset 0 0 0 1px rgb(255 255 255 / 10%);
+  --nav-icon-fg-4: rgb(255 255 255 / 38%);
+  --nav-icon-bg-path-1: #0f827b;
+  --nav-icon-fg-path-1: #fff;
+  --nav-icon-fg-path: #5fd0c3;
+
+  --nav-list-bg-3: rgb(255 255 255 / 3%);
+  --nav-list-bg-4: rgb(255 255 255 / 5%);
+
+  --nav-active-bg: linear-gradient(100deg, #00706b, #2a9a92);
+  --nav-active-text: #fff;
+  --nav-active-icon: #fff;
+  --nav-active-shadow: 0 6px 16px -6px rgb(0 0 0 / 50%);
+}
+
+/**
+ * 层级 → 图标框 token + 行几何。
+ * @scope 行所在作用域选择器（含结尾空格），如 ~'.ds-nav--vertical .ds-nav__menu '
+ */
+.nav-level-rows(@scope) {
+  @{scope}[data-nav-level='1'] > .el-sub-menu__title,
+  @{scope}[data-nav-level='1'].el-menu-item {
+    --nav-icon-box: var(--nav-icon-box-1);
+    --nav-icon-glyph: var(--nav-icon-glyph-1);
+    --nav-icon-bg: var(--nav-icon-bg-1);
+    --nav-icon-fg: var(--nav-icon-fg-1);
+    --nav-icon-radius: var(--nav-icon-radius-1);
+    --nav-icon-ring: var(--nav-icon-ring-1);
+
+    min-height: 48px;
+    font-size: var(--ds-text-base);
+    font-weight: 600;
+    border-radius: 12px;
+  }
+
+  @{scope}[data-nav-level='2'] > .el-sub-menu__title,
+  @{scope}[data-nav-level='2'].el-menu-item {
+    --nav-icon-box: var(--nav-icon-box-2);
+    --nav-icon-glyph: var(--nav-icon-glyph-2);
+    --nav-icon-bg: var(--nav-icon-bg-2);
+    --nav-icon-fg: var(--nav-icon-fg-2);
+    --nav-icon-radius: var(--nav-icon-radius-2);
+    --nav-icon-ring: var(--nav-icon-ring-2);
+
+    min-height: 42px;
+    font-size: 13.5px;
+    font-weight: 500;
+  }
+
+  @{scope}[data-nav-level='3'] > .el-sub-menu__title,
+  @{scope}[data-nav-level='3'].el-menu-item {
+    --nav-icon-box: var(--nav-icon-box-3);
+    --nav-icon-glyph: var(--nav-icon-glyph-3);
+    --nav-icon-bg: var(--nav-icon-bg-3);
+    --nav-icon-fg: var(--nav-icon-fg-3);
+    --nav-icon-radius: var(--nav-icon-radius-3);
+    --nav-icon-ring: var(--nav-icon-ring-3);
+
+    min-height: 40px;
+    font-size: var(--ds-text-md);
+    font-weight: 400;
+  }
+
+  @{scope}[data-nav-level='4'] > .el-sub-menu__title,
+  @{scope}[data-nav-level='4'].el-menu-item {
+    --nav-icon-box: var(--nav-icon-box-4);
+    --nav-icon-glyph: var(--nav-icon-glyph-4);
+    --nav-icon-bg: var(--nav-icon-bg-4);
+    --nav-icon-fg: var(--nav-icon-fg-4);
+    --nav-icon-radius: var(--nav-icon-radius-4);
+    --nav-icon-ring: var(--nav-icon-ring-4);
+
+    min-height: 38px;
+    font-size: 12.5px;
+    font-weight: 400;
+  }
+}
+
+/** 行内图标框：同层同框；状态只改颜色，不改图形与尺寸。 */
+.nav-level-well(@scope) {
+  @{scope}i.rr-sidebar-menu-entry__icon {
+    display: grid;
+    flex: 0 0 var(--nav-icon-box, var(--nav-icon-box-2));
+    place-items: center;
+    width: var(--nav-icon-box, var(--nav-icon-box-2));
+    height: var(--nav-icon-box, var(--nav-icon-box-2));
+    margin: 0;
+    color: var(--nav-icon-fg, inherit) !important;
+    background: var(--nav-icon-bg, transparent);
+    border-radius: var(--nav-icon-radius, 6px);
+    box-shadow: var(--nav-icon-ring, none);
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  @{scope}i.rr-sidebar-menu-entry__icon .iconfont,
+  @{scope}i.rr-sidebar-menu-entry__icon svg {
+    width: var(--nav-icon-glyph, var(--nav-icon-glyph-2));
+    height: var(--nav-icon-glyph, var(--nav-icon-glyph-2));
+    stroke-width: 1.75;
+  }
+
+  @{scope}.rr-sidebar-menu-entry__dot {
+    width: 5px;
+    height: 5px;
+    background: currentColor;
+    border-radius: 50%;
+  }
+}

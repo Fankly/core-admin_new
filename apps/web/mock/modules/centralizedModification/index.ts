@@ -60,7 +60,6 @@ Mock.mock(new RegExp(`sysMenu/getButtonList\\?[^#]*menuCode=${XQ_BUSICODE}(?:&|$
 registerAppMenu(XQ_APP_NO, (label) => {
   const base = clone(XQ_ROWS[0])
   const menu = (name: string, sort: number, permissions: string) => ({
-    id: `menu-xq-${sort}`,
     name,
     url: '/service/xq/CentralizedModification',
     outsideMenu: XQ_BUSICODE,
@@ -210,9 +209,6 @@ Mock.mock(/xmAttributeConfig\/confimXmlx(\?.*)?$/, 'post', (options: MockOptions
 })
 
 // ==================== 修改弹窗：保存 / 取码 / 部门 / 附件 ====================
-
-Mock.mock(/xmAttributeConfig\/saveXmInfo(\?.*)?$/, 'post', () => success(true, '保存成功'))
-Mock.mock(/xmAttributeConfig\/saveXmInfoTmp(\?.*)?$/, 'post', () => success(true, '暂存成功'))
 
 Mock.mock(/xmAttributeConfig\/getXmbm(\?.*)?$/, 'post', (options: MockOptions) => {
   const body = parseBody(options)

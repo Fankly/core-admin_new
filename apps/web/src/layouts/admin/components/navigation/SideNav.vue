@@ -101,7 +101,10 @@ const isHorizontal = computed(() => props.mode === 'horizontal')
 const isCollapsed = computed(() => !isHorizontal.value && preferences.sidebarCollapse)
 const popClassName = computed(() => {
   const sidebarTheme = preferences.config[EThemeSetting.Sidebar]
-  return `ds-nav-pop-${sidebarTheme === 'dark' ? 'dark' : 'light'}`
+  // 纵向侧栏收起时的悬停菜单：额外打一个 rail 标记，让它复用展开态的行几何与层级图标；
+  // 顶部 / 混合布局的横排下拉保持既有的紧凑版式。
+  const mode = isHorizontal.value ? '' : ' ds-nav-pop-rail'
+  return `ds-nav-pop-${sidebarTheme === 'dark' ? 'dark' : 'light'}${mode}`
 })
 
 const state = reactive({

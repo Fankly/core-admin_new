@@ -1,5 +1,5 @@
 <template>
-  <li class="ds-user-menu__node">
+  <li class="ds-user-menu__node" :data-nav-level="levelAttr">
     <button
       v-if="hasChildren"
       class="ds-user-menu__toggle"
@@ -9,7 +9,10 @@
       :aria-expanded="open"
       @click="open = !open"
     >
-      <Folder class="ds-user-menu__icon" :size="14" :stroke-width="1.8" aria-hidden="true" />
+      <i class="ds-user-menu__icon" aria-hidden="true">
+        <component :is="levelIcon" v-if="levelIcon" />
+        <span v-else class="ds-user-menu__dot"></span>
+      </i>
       <span class="ds-user-menu__label">{{ item.title }}</span>
       <ChevronDown class="ds-user-menu__chevron" :class="{ 'is-open': open }" :size="13" :stroke-width="2" aria-hidden="true" />
     </button>
@@ -22,7 +25,10 @@
       :style="indentStyle"
       :title="item.title"
     >
-      <FileText class="ds-user-menu__icon" :size="14" :stroke-width="1.8" aria-hidden="true" />
+      <i class="ds-user-menu__icon" aria-hidden="true">
+        <component :is="levelIcon" v-if="levelIcon" />
+        <span v-else class="ds-user-menu__dot"></span>
+      </i>
       <span class="ds-user-menu__label">{{ item.title }}</span>
       <ArrowUpRight v-if="item.isNewPage" class="ds-user-menu__external" :size="13" :stroke-width="1.8" aria-hidden="true" />
     </NavigationLink>
@@ -35,9 +41,10 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { ArrowUpRight, ChevronDown, FileText, Folder } from '@lucide/vue'
+import { ArrowUpRight, ChevronDown } from '@lucide/vue'
 import { NavigationLink } from '@/design-system'
 import type { UserMenuItem } from '@/utils/menu'
+import { NAV_DOT_LEVEL, navLevelIcon } from '../navigation/nav-level-icon'
 
 defineOptions({ name: 'UserMenuNode' })
 
@@ -49,6 +56,10 @@ const props = defineProps<{
 
 const hasChildren = computed(() => props.item.children.length > 0)
 const target = computed(() => (props.item.isNewPage ? props.item.url : props.item.path))
+
+/** 与侧栏同一套层级图标：L2 文件夹 · L3 文件 · L4 及更深圆点 */
+const levelAttr = computed(() => Math.min(props.item.level, NAV_DOT_LEVEL))
+const levelIcon = computed(() => navLevelIcon(props.item.level))
 
 /** 当前页是否落在这一支里，展开分组标题并高亮祖先。 */
 const containsActive = computed<boolean>(() => {
@@ -67,6 +78,8 @@ watch(
   }
 )
 
-// 与面板内边距对齐，再按层级递进 14px（与侧栏每级缩进一致）
-const indentStyle = computed(() => ({ paddingLeft: `${String(12 + props.depth * 14)}px` }))
+// 与侧栏同一套缩进：起点 10px，每级固定 14px（图标宽度不参与计算）
+const ROW_INSET = 10
+const STEP = 14
+const indentStyle = computed(() => ({ paddingLeft: `${String(ROW_INSET + props.depth * STEP)}px` }))
 </script>

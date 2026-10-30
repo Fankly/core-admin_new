@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { createRequire } from 'module'
 import { dirname, resolve } from 'path'
-import { defineConfig } from 'vite'
+import { defineConfig, normalizePath } from 'vite'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons-ng'
 
 // "type": "module" 下没有 __dirname，用 import.meta.dirname（Node >= 20.11）
@@ -24,6 +24,17 @@ const pkgFile = (pkg: string, file: string) => resolve(dirname(require.resolve(`
 export default defineConfig({
   base: './',
   plugins: [
+    {
+      name: 'dev-mock',
+      apply: (_config, { command, mode }) => command === 'serve' && mode === 'mock',
+      enforce: 'pre',
+      transform(code, id) {
+        if (id.split('?')[0] !== normalizePath(resolve(root, 'src/main.ts'))) return
+        // 仅 pnpm mock 在转换入口时注入，先注册拦截器再执行应用模块。
+        // main.ts 源文件保持不变，pnpm dev、生产构建和 preview 不加载 mock。
+        return { code: `import '@mock/index'\n${code}`, map: null }
+      }
+    },
     vue(),
     vueJsx(),
     tailwindcss(),
@@ -64,7 +75,7 @@ export default defineConfig({
     alias: {
       // 配置别名
       '@': resolve(root, './src'),
-      // 接口 mock 目录（与 src 同级，仅开发环境按需 import）
+      // 接口 mock 目录（与 src 同级，仅 pnpm mock 加载）
       '@mock': resolve(root, './mock'),
       vue: 'vue/dist/vue.esm-bundler.js',
       // 覆盖 tsconfig paths 的类型桩：运行时必须解析到 node_modules 真包

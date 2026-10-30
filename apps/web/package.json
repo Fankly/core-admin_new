@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "mock": "vite --mode mock",
     "preview": "vite preview",
     "build": "pnpm run build:prod",
     "build:prod": "vite build --mode production --logLevel warn",
@@ -18,6 +19,7 @@
     "typecheck": "vue-tsc --noEmit",
     "typecheck:fast": "tsc --noEmit",
     "lint": "eslint \"src/**/*.{vue,ts}\" --fix",
+    "lint:check": "eslint \"src/**/*.{vue,ts,tsx}\"",
     "format": "prettier --write \"src/**/*.{vue,ts,scss,less}\"",
     "test": "vitest run",
     "test:watch": "vitest",

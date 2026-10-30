@@ -22,7 +22,8 @@ packages/prettier-config/  @repo/prettier-config
 根目录执行（会转发到 `apps/web`）：
 
 ```bash
-pnpm dev           # Vite dev server，端口 8001；浏览器手动访问
+pnpm dev           # Vite dev server，端口 8001；连接开发后端
+pnpm mock          # Vite mock 模式，端口 8001；启用本地 mock，未匹配接口仍请求后端
 pnpm build         # = build:prod，production 模式
 pnpm build:sit     # / pnpm build:uat
 pnpm lint          # 递归跑所有包的 lint（eslint --fix）
@@ -45,12 +46,12 @@ pnpm e2e           # Playwright，桌面交互回归
 
 ## 构建约定
 
-- 别名：`@` → `apps/web/src`，`@mock` → `apps/web/mock`（仅开发环境按需 import）。
+- 别名：`@` → `apps/web/src`，`@mock` → `apps/web/mock`（仅 `pnpm mock` 由 Vite 注入，`main.ts` 无需加载 mock）。
 - 当前仅对 Less 自动注入 `@/styles/variables.less`，不要重复 import。遗留 SCSS 文件未自动注入；新增 SCSS 使用前需明确配置预处理器。
 - `vue` 指向 `vue/dist/vue.esm-bundler.js`（保留运行时模板编译）。
 - dev 代理 `/api` → `http://localhost:10027/budget-process`，代理配置位于 `apps/web/vite.config.ts`。
-- 环境文件在 `apps/web/`：`.env.development` / `.env.production` / `.env.production.sit` / `.env.production.uat`。
-- 登录凭据可通过 `VITE_APP_LOGIN_USER` / `VITE_APP_LOGIN_PASSWORD` / `VITE_APP_LOGIN_CAPTCHA` 覆盖，源码里的默认值仅用于本地联调。
+- 环境文件在 `apps/web/`：`.env.development` / `.env.mock` / `.env.production` / `.env.production.sit` / `.env.production.uat`。`pnpm dev` 与 `pnpm mock` 都使用 `/api` 代理；打包和 preview 不加载 mock。
+- `VITE_APP_LOGIN_USER` / `VITE_APP_LOGIN_PASSWORD` / `VITE_APP_LOGIN_CAPTCHA` 仅供开发联调，禁止配置真实生产口令。联调登录模块只在 `import.meta.env.DEV` 下动态加载，生产构建会移除；生产登录页提示从企业统一入口访问。外部认证入口及身份交接协议尚未对接，不能将该提示页视为已完成 SSO 接入。
 - SVG 图标目录 `apps/web/src/assets/icons/svg`，symbolId 规则 `icon-[dir]-[name]`。
 - `@file-viewer/*` 有手工 alias 与 `optimizeDeps.include`，动它前先读 `apps/web/vite.config.ts` 的注释。alias 用 `require.resolve(pkg + '/package.json')` 反推包根，不要改回写死 `node_modules/...` 路径——pnpm 下布局不固定。
 - `@file-viewer/docx`、`@file-viewer/doc` 是 `renderer-word` 的间接依赖，`src` 从未 import，但 `optimizeDeps.include` 要预构建，所以在 `apps/web/package.json` 里显式声明为直接依赖。升级 `renderer-word` 时同步这两个版本。
@@ -96,7 +97,7 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 
 **导航只展示可用入口。** 服务器菜单中没有对应视图、也不是 iframe / 新窗口的叶子标记为 `isUnavailable`；侧栏、顶部导航、工作台统一过滤，空分组也不展示。工作台消费 `menu.navigationEntries`，不要各自遍历菜单实现另一套规则。普通链接用 RouterLink，需兼容外链的通用入口用 `NavigationLink`。
 
-**「系统管理」在头像下拉里。** 菜单名称匹配「系统管理」的分组不参与主导航渲染（`toValidRoutes` 统一过滤），统一由顶栏头像下拉承载（`utils/menu.ts` + `header/UserMenuPanel.vue`）；路由本身仍正常注册，深链可直达。
+**「系统管理」在头像下拉里。** 菜单名称匹配「系统管理」的分组不参与主导航渲染（`toValidRoutes` 统一过滤），统一由顶栏头像下拉承载（`utils/menu.ts` + `header/UserMenuPanel.vue`）；路由本身仍正常注册，深链可直达。下拉图标与侧栏共用 `navigation/nav-level-icon.ts` 和 `shell/navigation.less` 的 `--nav-icon-*`，同一层级图形、图标框、配色完全一致。
 
 **仅提供桌面布局。** 不按窄屏切换移动抽屉或隐藏侧栏。垂直导航固定使用手风琴：同级目录互斥展开，当前分支的父级保持展开。纵向侧栏的图标由层级决定（L1 层叠 / L2 文件夹 / L3 文件 / L4 及更深圆点），每级缩进固定 14px；横向导航（顶部 / 混合）仍显示服务端配置的图标。侧栏顶部工具行（`SideNav.vue`）提供菜单过滤、只看收藏、收起全部：过滤只裁剪渲染树并在结束时还原展开快照，收藏态统一读 `useFavoritesStore`。
 

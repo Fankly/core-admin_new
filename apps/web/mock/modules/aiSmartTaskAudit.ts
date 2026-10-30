@@ -1,12 +1,19 @@
 import Mock from 'mockjs'
 import { binaryResponse, fail, getQueryValue, pageResult, parseBody, success } from '../helpers'
 import type { MockOptions } from '../helpers'
+import attachmentIntegrityReviewResponse from '../fixtures/aiSmartTaskAudit/attachmentIntegrityReview.json'
+import expectedBenefitReview from '../fixtures/aiSmartTaskAudit/expectedBenefitReview.json'
 import getTabColumnsResponse from '../fixtures/aiSmartTaskAudit/getTabColumns.json'
 import getXmInfoResponse from '../fixtures/aiSmartTaskAudit/getXmInfo.json'
+import gwPriceReview from '../fixtures/aiSmartTaskAudit/gwPriceReview.json'
+import materialNewestPriceReview from '../fixtures/aiSmartTaskAudit/materialNewestPriceReview.json'
 import similarProjectsAnalysis from '../fixtures/aiSmartTaskAudit/similarProjectsTop10.json'
 import similarProjectsAnalysis30005 from '../fixtures/aiSmartTaskAudit/similarProjects30005.json'
+import { MARKDOWN_FORMULA_SAMPLE } from '../fixtures/aiSmartTaskAudit/markdownFormulaSamples'
 import { MARKDOWN_TABLE_SAMPLE } from '../fixtures/aiSmartTaskAudit/markdownTableSamples'
 import { PROJECT_ORIGINAL_TEXT, RULE_DETAIL_FIXTURES } from '../fixtures/aiSmartTaskAudit/ruleReviewPoints'
+import { MANUAL_REVIEW_VERDICTS } from '../fixtures/aiSmartTaskAudit/manualReviewVerdicts'
+import { AUDIT_OPINION_EXPORT_CONTENT_TYPE, decodeAuditOpinionExportXlsx } from '../fixtures/aiSmartTaskAudit/auditOpinionExportSample'
 
 /**
  * 本地预览样例：源文件来自 C:\Users\13934\Downloads\file，
@@ -86,16 +93,20 @@ const loadOfficeSampleBlob = async (sample: typeof MOCK_OFFICE_SAMPLES[MockOffic
 
 interface MockRuleReview {
   detailId: string
+  categoryRuleId: string
+  auditPointName?: string
+  judgementRuleDesc?: string
+  dataSource?: string
   reviewConclude: string
   reviewOpinion: string
   reviewOpinionName: string
-  reviewMessage: string
+  reviewMessage: string | null
   reviewProcess: string
   /** 与线上一致：规则命中的引用原文（markdown） */
-  originalText: string
+  originalText: string | null
   /** 与线上一致：字符串形式的 ReviewTable[] JSON */
-  reviewTable: string
-  ruleClassify: string
+  reviewTable: string | null
+  ruleClassify: string | null
   ruleCode: string
   ruleDesc: string
   ruleId: string
@@ -122,6 +133,13 @@ interface MockRuleReview {
 const MOCK_TASK_ID = 'mock-task-001'
 const MOCK_PROJECT_ID = 'mock-project-001'
 const MOCK_PROJECT_TYPE = '4871843'
+const ATTACHMENT_INTEGRITY_REVIEW = attachmentIntegrityReviewResponse.data
+type SuppliedRuleReview = typeof expectedBenefitReview | typeof materialNewestPriceReview | typeof gwPriceReview
+const SUPPLIED_RULE_REVIEWS: Partial<Record<string, SuppliedRuleReview>> = {
+  [expectedBenefitReview.detailId]: expectedBenefitReview,
+  [materialNewestPriceReview.detailId]: materialNewestPriceReview,
+  [gwPriceReview.detailId]: gwPriceReview
+}
 /** 规则审核起止时间：线上以毫秒时间戳下发 */
 const RULE_START_TIME = new Date('2026-07-12T09:36:02+08:00').getTime()
 const RULE_FINISH_TIME = new Date('2026-07-12T09:36:48+08:00').getTime()
@@ -254,10 +272,15 @@ const COMMON_CODE_MAP: Record<string, Array<Record<string, string | number>>> = 
     { id: 'ECONOMY', code: 'ECONOMY', name: '经济性', sort: 2 },
     { id: 'COMPLIANCE', code: 'COMPLIANCE', name: '合规性', sort: 3 }
   ],
+  // AI 初评结论：码值/type 与静态兜底 AIRiskLevelDict（staticDict/index.js）保持一致，
+  // 远程字典命中后会覆盖兜底项，六态缺一会导致对应状态胶囊显示不出来
   AI_AUDIT_RESULT_COM: [
-    { id: '0', code: '0', name: '不通过', type: 'danger' },
-    { id: '1', code: '1', name: '通过', type: 'success' },
-    { id: '2', code: '2', name: '待复核', type: 'warning' }
+    { id: '0', code: '0', name: '未分析', type: 'info' },
+    { id: '1', code: '1', name: '分析中', type: 'primary-blue' },
+    { id: '10', code: '10', name: 'AI预审通过', type: 'success' },
+    { id: '20', code: '20', name: '问题项目', type: 'danger' },
+    { id: '30', code: '30', name: '隐患项目', type: 'warning-orange' },
+    { id: '40', code: '40', name: '异常项目', type: 'yellow' }
   ]
 }
 
@@ -267,7 +290,7 @@ const REVIEW_TABLE_COLUMNS = [
   { key: 'referenceValue', label: '参考值', align: 'right', width: '120', fixed: '', hide: false },
   { key: 'difference', label: '差异', align: 'right', width: '100', fixed: '', hide: false },
   { key: 'result', label: '判断结果', align: 'center', width: '110', fixed: '', hide: false }
-]
+] as const
 
 /**
  * 价格查看节点：后端下发在「原文出处」（point.originalEvidence）的 HTML 中，
@@ -413,6 +436,7 @@ const createRule = (params: {
 
   return {
     ...params,
+    categoryRuleId: params.ruleId,
     ruleCode: params.ruleCode || params.ruleId,
     ruleDesc: params.ruleDesc || ruleDescFromPoints,
     taskId: MOCK_TASK_ID,
@@ -456,8 +480,31 @@ const createRule = (params: {
   }
 }
 
+// Group the supplied point responses without changing their original detail/rule IDs.
+const createSuppliedRule = (details: [SuppliedRuleReview, ...SuppliedRuleReview[]]): MockRuleReview => {
+  const first = details[0]
+  const detailId = `mock-category-${first.categoryRuleId}`
+  return {
+    ...first,
+    detailId,
+    ruleDesc: details.map((detail) => detail.judgementRuleDesc).join('\n'),
+    points: details.map((detail) => ({
+      id: detail.detailId,
+      proId: MOCK_PROJECT_ID,
+      detailId,
+      pointId: detail.auditPointCode,
+      pointName: detail.auditPointName,
+      ruleDescription: detail.judgementRuleDesc,
+      originalEvidence: detail.reviewProcess,
+      reviewConclusion: detail.reviewOpinionName,
+      conclusionDescription: detail.reviewConclude
+    }))
+  }
+}
+
 const RULES_BY_CLASSIFY: Record<string, MockRuleReview[]> = {
   ECONOMY: [
+    createSuppliedRule([materialNewestPriceReview, gwPriceReview]),
     createRule({
       detailId: 'mock-detail-price-001',
       ruleId: 'PRICE-001',
@@ -466,7 +513,7 @@ const RULES_BY_CLASSIFY: Record<string, MockRuleReview[]> = {
       ruleLevel: '1',
       ruleName: '协议库存、国网商城单价对比',
       reviewOpinion: '0',
-      reviewConclude: `申报单价较协议库存最近一期成交价高 11.72%，同时高于国网商城同规格物料近期均价 10.07%，超过系统设置的 8% 价格偏差阈值，建议补充询价依据并重新核定申报单价。\n\n**主要偏差物料**\n\n${MARKDOWN_TABLE_SAMPLE}`
+      reviewConclude: `申报单价较协议库存最近一期成交价高 11.72%，同时高于国网商城同规格物料近期均价 10.07%，超过系统设置的 8% 价格偏差阈值，建议补充询价依据并重新核定申报单价。\n\n**主要偏差物料**\n\n${MARKDOWN_TABLE_SAMPLE}\n\n${MARKDOWN_FORMULA_SAMPLE}`
     }),
     createRule({
       detailId: 'mock-detail-price-002',
@@ -533,6 +580,7 @@ const RULES_BY_CLASSIFY: Record<string, MockRuleReview[]> = {
     })
   ],
   NECESSITY: [
+    createSuppliedRule([expectedBenefitReview]),
     createRule({
       detailId: 'mock-detail-info-001',
       ruleId: 'INFO-001',
@@ -600,15 +648,24 @@ const RULES_BY_CLASSIFY: Record<string, MockRuleReview[]> = {
       reviewOpinion: '1',
       reviewConclude: '未发现申报单位、经办人与候选供应商之间存在已知关联关系。'
     }),
-    createRule({
+    {
+      ...ATTACHMENT_INTEGRITY_REVIEW,
       detailId: 'mock-detail-document-001',
-      ruleId: 'DOCUMENT-001',
-      ruleClassify: 'COMPLIANCE',
-      ruleLevel: '1',
-      ruleName: '项目申报附件完整性检查',
-      reviewOpinion: '0',
-      reviewConclude: '缺少初步设计批复文件，请补充上传后再提交审核。'
-    }),
+      ruleDesc: ATTACHMENT_INTEGRITY_REVIEW.judgementRuleDesc,
+      points: [
+        {
+          id: ATTACHMENT_INTEGRITY_REVIEW.detailId,
+          proId: MOCK_PROJECT_ID,
+          detailId: 'mock-detail-document-001',
+          pointId: ATTACHMENT_INTEGRITY_REVIEW.auditPointCode,
+          pointName: ATTACHMENT_INTEGRITY_REVIEW.auditPointName,
+          ruleDescription: ATTACHMENT_INTEGRITY_REVIEW.judgementRuleDesc,
+          originalEvidence: ATTACHMENT_INTEGRITY_REVIEW.reviewProcess,
+          reviewConclusion: ATTACHMENT_INTEGRITY_REVIEW.reviewOpinionName,
+          conclusionDescription: ATTACHMENT_INTEGRITY_REVIEW.reviewConclude
+        }
+      ]
+    },
     createRule({
       detailId: 'mock-detail-document-002',
       ruleId: 'DOCUMENT-002',
@@ -636,27 +693,83 @@ const RULES_BY_CLASSIFY: Record<string, MockRuleReview[]> = {
 
 const getAllRules = () => Object.values(RULES_BY_CLASSIFY).flat()
 
-const findRule = (detailId: string) => getAllRules().find((item) => item.detailId === detailId)
+// 新接口将规则与审核要点分开返回，要点的独立 detailId 同时用于详情和重跑。
+const getRulePoints = (rule: MockRuleReview): MockRuleReview[] =>
+  rule.points.map((point) => ({
+    ...rule,
+    detailId: point.id,
+    auditPointName: point.pointName,
+    judgementRuleDesc: point.ruleDescription,
+    dataSource: rule.dataSource ?? point.originalEvidence,
+    reviewOpinion: ({ 通过: '1', 不通过: '0', 待复核: '2' } as Record<string, string>)[point.reviewConclusion],
+    reviewOpinionName: point.reviewConclusion,
+    reviewConclude: point.conclusionDescription,
+    originalText: rule.originalText === null ? null : point.originalEvidence,
+    reviewProcess: point.originalEvidence,
+    ...SUPPLIED_RULE_REVIEWS[point.id],
+    points: [point]
+  }))
 
-const buildAuditSummary = () => {
+const findRule = (detailId: string) => {
+  const rules = getAllRules()
+  return rules.find((item) => item.detailId === detailId) || rules.flatMap(getRulePoints).find((item) => item.detailId === detailId)
+}
+
+/**
+ * 结论徽标全状态轮转：除明细样例任务外，其余任务按序号循环下发六种审核结果，
+ * 覆盖「总体评审情况」状态胶囊的全部样式（问题红/预审通过绿/隐患橙/异常黄/未分析灰/分析中蓝）。
+ * counts 依次为 问题 / 预警(隐患) / 异常 的发现数；未分析/分析中尚无结论，计数与时间留空。
+ */
+const AUDIT_RESULT_STATE_CYCLE: Array<{ auditResult: string; conclude: string; counts: [number, number, number] }> = [
+  { auditResult: '20', conclude: '发现资金支付与合同约定不一致等问题，需完成整改后重新提交审核。', counts: [3, 1, 0] },
+  { auditResult: '10', conclude: '所有模拟审核规则均已通过。', counts: [0, 0, 0] },
+  { auditResult: '30', conclude: '存在待复核规则，复核完成后自动更新审核结论。', counts: [0, 2, 0] },
+  { auditResult: '40', conclude: '存在计量单位换算异常，请核对申报数据后重新发起审核。', counts: [0, 0, 2] },
+  { auditResult: '0', conclude: '该项目尚未进行智能审核。', counts: [0, 0, 0] },
+  { auditResult: '1', conclude: '智能审核进行中，审核完成后展示结论。', counts: [0, 0, 0] }
+]
+
+const buildAuditSummary = (taskId = MOCK_TASK_ID) => {
+  // 明细样例任务按规则真实推导，保证详情页规则列表与汇总结论一致
+  const isSampleTask = String(taskId) === MOCK_TASK_ID
+  const sequence = Number((String(taskId).match(/mock-task-(\d+)/) || [])[1] || 0)
+
+  const buildRuleLevelFindNumList = (counts: [number, number, number]) =>
+    ['1', '2', '3'].map((ruleLevel, index) => ({
+      findNum: counts[index],
+      ruleLevel,
+      ruleLevelName: ruleLevel === '1' ? '发现问题数' : ruleLevel === '2' ? '发现隐患数' : '发现异常数'
+    }))
+
+  if (!isSampleTask && sequence > 0) {
+    const state = AUDIT_RESULT_STATE_CYCLE[(sequence - 1) % AUDIT_RESULT_STATE_CYCLE.length]
+    return {
+      auditConclude: state.conclude,
+      auditResult: state.auditResult,
+      reviewTime: state.auditResult === '0' || state.auditResult === '1' ? '' : '2026-07-12 10:30:00',
+      ruleLevelFindNumList: buildRuleLevelFindNumList(state.counts)
+    }
+  }
+
   const rules = getAllRules()
   const unresolvedRules = rules.filter((item) => item.reviewOpinion !== '1')
   const hasFailed = rules.some((item) => item.reviewOpinion === '0')
   const hasPending = rules.some((item) => item.reviewOpinion === '2')
-  const auditResult = hasFailed ? '0' : hasPending ? '2' : '1'
+  // 有不通过 → 问题项目(20)；仅待复核 → 隐患项目(30)；全部通过 → AI预审通过(10)
+  const auditResult = hasFailed ? '20' : hasPending ? '30' : '10'
 
   return {
     auditConclude:
-      auditResult === '1'
+      auditResult === '10'
         ? '所有模拟审核规则均已通过。'
         : `模拟审核共发现 ${unresolvedRules.length} 项需要处理的内容，其中包含价格偏差、资料完整性及单位换算等问题，建议完成复核后再提交。`,
     auditResult,
     reviewTime: '2026-07-12 10:30:00',
-    ruleLevelFindNumList: ['1', '2', '3'].map((ruleLevel) => ({
-      findNum: unresolvedRules.filter((item) => item.ruleLevel === ruleLevel).length,
-      ruleLevel,
-      ruleLevelName: ruleLevel === '1' ? '发现问题数' : ruleLevel === '2' ? '发现隐患数' : '发现异常数'
-    }))
+    ruleLevelFindNumList: buildRuleLevelFindNumList([
+      unresolvedRules.filter((item) => item.ruleLevel === '1').length,
+      unresolvedRules.filter((item) => item.ruleLevel === '2').length,
+      unresolvedRules.filter((item) => item.ruleLevel === '3').length
+    ])
   }
 }
 
@@ -697,15 +810,36 @@ Mock.mock(/xmAttributeConfig\/getXmInfo\?[^#]*xmId=mock-project-/, 'get', () => 
 
 Mock.mock(/xmAttributeConfig\/getTabColumns\?[^#]*xmid=mock-project-/, 'get', () => clone(getTabColumnsResponse))
 
-Mock.mock(/ai-audit-task-manage\/getXmAuditConclude(\?.*)?$/, 'get', () => success(buildAuditSummary()))
+Mock.mock(/ai-audit-task-manage\/getXmAuditConclude(\?.*)?$/, 'get', (options: MockOptions) =>
+  success(buildAuditSummary(getQueryValue(options.url, 'taskId')))
+)
 
 Mock.mock(/ai-audit-task-manage\/getAuditTaskIdByProId(\?.*)?$/, 'get', (options: MockOptions) => {
   const proId = getQueryValue(options.url, 'proId')
   return proId ? success({ taskId: MOCK_TASK_ID }) : fail('缺少项目ID')
 })
 
+/**
+ * 与线上一致：分类级接口只保证 categoryRuleId 有值，detailId / ruleId 可能为空串。
+ * 单规则详情入口（AiAuditOpinion 的「详情」）必须靠 categoryRuleId 跨接口匹配，
+ * 这里刻意置空另两个字段，避免 mock 比线上宽松而掩盖匹配问题。
+ */
+Mock.mock(/ai-audit-task-manage\/listCategoryRuleReview(\?.*)?$/, 'post', (options: MockOptions) => {
+  const body = parseBody(options)
+  const taskId = String(body.taskId || MOCK_TASK_ID)
+  return success(
+    getAllRules().map((rule) => ({
+      ...clone(rule),
+      detailId: '',
+      ruleId: '',
+      taskId
+    }))
+  )
+})
+
 Mock.mock(/ai-audit-task-manage\/listRuleReview(\?.*)?$/, 'post', (options: MockOptions) => {
   const body = parseBody(options)
+  const categoryRuleId = String(body.categoryRuleId || '')
   const ruleClassify = String(body.ruleClassify || '')
   const taskId = String(body.taskId || MOCK_TASK_ID)
   const reviewOpinions = new Set(
@@ -714,12 +848,17 @@ Mock.mock(/ai-audit-task-manage\/listRuleReview(\?.*)?$/, 'post', (options: Mock
       .map((item) => item.trim())
       .filter(Boolean)
   )
-  const source = ruleClassify ? RULES_BY_CLASSIFY[ruleClassify] || [] : getAllRules()
+  const rules = ruleClassify ? RULES_BY_CLASSIFY[ruleClassify] || [] : getAllRules()
+  const source = categoryRuleId ? rules.filter((rule) => rule.categoryRuleId === categoryRuleId).flatMap(getRulePoints) : rules
   const list = reviewOpinions.size ? source.filter((item) => reviewOpinions.has(item.reviewOpinion)) : source
 
   return success(
     list.map((item) => ({
+      ...MANUAL_REVIEW_VERDICTS[item.detailId],
       detailId: item.detailId,
+      categoryRuleId: item.categoryRuleId,
+      ruleClassify: item.ruleClassify,
+      auditPointName: item.auditPointName,
       reviewConclude: item.reviewConclude,
       // 与线上一致：列表接口即下发 reviewMessage（相似项目 top10 的 JSON 文本），
       // smartTaskAudit / workbenchView 直接从列表项解析 top10，不必等详情接口。
@@ -739,6 +878,12 @@ Mock.mock(/ai-audit-task-manage\/listRuleReview(\?.*)?$/, 'post', (options: Mock
 
 Mock.mock(/ai-audit-task-manage\/getRuleReview(\?.*)?$/, 'get', (options: MockOptions) => {
   const detailId = getQueryValue(options.url, 'detailId')
+  // Preserve the supplied getRuleReview response without generated rule/point fields.
+  if (detailId === ATTACHMENT_INTEGRITY_REVIEW.detailId) {
+    return clone(attachmentIntegrityReviewResponse)
+  }
+  const suppliedReview = SUPPLIED_RULE_REVIEWS[detailId]
+  if (suppliedReview) return success(clone(suppliedReview))
   const rule = findRule(detailId)
   return rule ? success(clone(rule)) : fail(`未找到模拟评审详情：${detailId}`)
 })
@@ -797,6 +942,18 @@ Mock.mock(/ai-audit-task-manage\/redoAuditRule(\?.*)?$/, 'post', (options: MockO
   const rule = findRule(detailId)
   if (!rule) return fail(`未找到需要重新分析的模拟规则：${detailId}`)
 
+  // Re-running fixed response samples must not diverge their list and detail results.
+  if (rule.points.some((point) => SUPPLIED_RULE_REVIEWS[point.id])) {
+    return success({ detailId }, '重新分析任务已提交')
+  }
+
+  // 要点详情是从 fixture 派生的，回写原要点，保证再次查询时保留重跑结果。
+  const point = rule.points.find((item) => item.id === detailId)
+  if (point) {
+    point.reviewConclusion = '通过'
+    point.conclusionDescription = `补充材料已覆盖“${point.pointName}”原有疑点，重新核验后该要点通过。`
+  }
+
   rule.status = '1'
   rule.reviewOpinion = '1'
   rule.reviewOpinionName = '通过'
@@ -809,7 +966,7 @@ Mock.mock(/ai-audit-task-manage\/redoAuditRule(\?.*)?$/, 'post', (options: MockO
     conclusionDescription: `补充材料已覆盖“${point.pointName}”原有疑点，重新核验后该要点通过。`
   }))
   try {
-    const message = JSON.parse(rule.reviewMessage)
+    const message = rule.reviewMessage === null ? null : JSON.parse(rule.reviewMessage)
     if (message?.detailedReasoning?.reviewPoints) {
       rule.reviewMessage = JSON.stringify(
         {
@@ -830,7 +987,7 @@ Mock.mock(/ai-audit-task-manage\/redoAuditRule(\?.*)?$/, 'post', (options: MockO
   }
 
   try {
-    const tables = JSON.parse(rule.reviewTable)
+    const tables = rule.reviewTable === null ? null : JSON.parse(rule.reviewTable)
     if (Array.isArray(tables)) {
       rule.reviewTable = JSON.stringify(
         tables.map((table: any) => ({
@@ -1088,3 +1245,18 @@ const previewAttachHandler = async (options: MockOptions) => {
 
 Mock.mock(/ai-audit-task-manage\/previewAttach(\?.*)?$/, 'get', previewAttachHandler)
 Mock.mock(/ai-audit-task-manage\/previewAttach(\?.*)?$/, 'post', previewAttachHandler)
+
+/**
+ * 导出审核任务明细（联合会审「下载 → 导出审核意见」用的就是它）。
+ *
+ * 线上是 GET + responseType: 'blob' 的 Excel 流，无分页。这里返回内嵌的最小合法 xlsx，
+ * 让下载链路（apiExportHandle → Content-Disposition 取名 → 触发保存）能完整跑通，
+ * 且不依赖 public 下的预览样例（那份文件仓库里没有，会 404）。
+ * 判别参数收窄到 taskId，避免误拦其它模块的同名导出。
+ */
+Mock.mock(/ai-audit-task-manage\/exportTaskDetail\?[^#]*taskId=\w+/, 'get', () => {
+  return binaryResponse(decodeAuditOpinionExportXlsx(), {
+    contentType: AUDIT_OPINION_EXPORT_CONTENT_TYPE,
+    fileName: '审核任务明细.xlsx'
+  })
+})

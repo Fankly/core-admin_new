@@ -12,21 +12,27 @@
  *   其他调用方拿到的是「含 LHHS 的应用子集」，不会因 undefined 崩溃
  * - 省级会议 meetingId 对齐 jointReview EXPERT_MEETINGS，进入 expertReview 有项目数据
  * - 市级会议 meetingId 对齐 CITY_WORKBENCH_MEETINGS，进入 reviewDeatil 有项目数据
+ *
+ * 由 mock/index.ts 在开发环境统一注册，页面继续使用原有 API：
+ * - 本模块：菜单、角色、按钮、应用列表/菜单、会议分页、类型/状态数量、评审统计
+ * - jointReview/entry：xmExpert/getListPageDataByAccount（单个专家）
+ * - jointReview/common：各评审入口的按钮权限
+ * - budgetChanges：workflow/cbxqsh/getFqzz（bm-001 为 PROVINCE）、
+ *   sysParam/getParamValueMulti/（AI 意见可见范围与重新分析开关）
  */
 import Mock from 'mockjs'
 import { getQueryValue, pageResult, parseBody, success } from '../helpers'
 import type { MockOptions } from '../helpers'
-import {
-  CITY_WORKBENCH_MEETINGS,
-  EXPERT_BUSICODE,
-  EXPERT_MEETINGS,
-  OFFLINE_BUSICODE
-} from './jointReview/data'
+// 业务工作台（businessWorkbench）复用本模块的 getAppMenuData 首命中拦截，合并返回其 CITY_* 菜单
+import { BUSINESS_WORKBENCH_APP_MENU } from './businessWorkbench'
+import { CITY_WORKBENCH_MEETINGS, EXPERT_BUSICODE, EXPERT_MEETINGS, OFFLINE_BUSICODE } from './jointReview/data'
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 
-const includesText = (value: unknown, keyword: unknown) =>
-  !keyword || String(value ?? '').includes(String(keyword))
+const includesText = (value: unknown, keyword: unknown) => {
+  const search = String(keyword ?? '').trim().toLowerCase()
+  return String(value ?? '').toLowerCase().includes(search)
+}
 
 // ==================== 登录 / 按钮权限链路 ====================
 // userDialog：getMenuByUrl → getRoleByBusicode → getButtonList → setPermissions
@@ -58,17 +64,11 @@ Mock.mock(/sys\/menu\/getMenuByUrl\?[^#]*reviewWorkBench/, 'get', (options: Mock
 })
 
 // 角色：按 busicode 收窄；返回单角色，userDialog 自动确定并继续拉会议数据
-Mock.mock(
-  new RegExp(`getRoleByBusicode\\?[^#]*busicode=${REVIEW_WORKBENCH_BUSICODE}(?:&|$)`),
-  'get',
-  () => [buildReviewWorkbenchRole()]
-)
+Mock.mock(new RegExp(`getRoleByBusicode\\?[^#]*busicode=${REVIEW_WORKBENCH_BUSICODE}(?:&|$)`), 'get', () => [buildReviewWorkbenchRole()])
 
 // 按钮权限
-Mock.mock(
-  new RegExp(`sysMenu/getButtonList\\?[^#]*menuCode=${REVIEW_WORKBENCH_BUSICODE}(?:&|$)`),
-  'get',
-  () => success(clone(REVIEW_WORKBENCH_BUTTONS))
+Mock.mock(new RegExp(`sysMenu/getButtonList\\?[^#]*menuCode=${REVIEW_WORKBENCH_BUSICODE}(?:&|$)`), 'get', () =>
+  success(clone(REVIEW_WORKBENCH_BUTTONS))
 )
 
 /** 与 hooks/index menuList.code 对齐的应用列表 */
@@ -260,8 +260,7 @@ const filterMeetings = (body: Record<string, any>): ReviewWorkbenchMeeting[] => 
   const status = body.status == null ? '' : String(body.status)
 
   return REVIEW_WORKBENCH_MEETINGS.filter((m) => {
-    const matchSearch =
-      includesText(m.meetingName, search) || includesText(m.meetingCode, search)
+    const matchSearch = includesText(m.meetingName, search) || includesText(m.meetingCode, search)
     const matchType = !type || m.type === type
     const matchStatus = !status || m.status === status
     return matchSearch && matchType && matchStatus
@@ -282,9 +281,7 @@ const buildReviewStat = () => {
 
 /** 按类型统计数量（含全部 ''） */
 const buildCountByType = (search?: string) => {
-  const list = REVIEW_WORKBENCH_MEETINGS.filter(
-    (m) => includesText(m.meetingName, search) || includesText(m.meetingCode, search)
-  )
+  const list = filterMeetings({ search })
   return [
     { code: '', count: list.length },
     { code: '2', count: list.filter((m) => m.type === '2').length },
@@ -294,13 +291,7 @@ const buildCountByType = (search?: string) => {
 
 /** 按状态统计数量（可叠加 type / search 过滤，含全部 ''） */
 const buildCountByStatus = (search?: string, type?: string) => {
-  const typeFilter = type == null ? '' : String(type)
-  const list = REVIEW_WORKBENCH_MEETINGS.filter((m) => {
-    const matchSearch =
-      includesText(m.meetingName, search) || includesText(m.meetingCode, search)
-    const matchType = !typeFilter || m.type === typeFilter
-    return matchSearch && matchType
-  })
+  const list = filterMeetings({ search, type })
   return [
     { code: '', count: list.length },
     { code: '00', count: list.filter((m) => m.status === '00').length },
@@ -318,8 +309,8 @@ Mock.mock(/sys\/app\/getListPageData(\?.*)?$/, 'post', (options: MockOptions) =>
   return success(pageResult(clone(REVIEW_WORKBENCH_APPS), body.page || 1, body.limit || 100))
 })
 
-// 应用菜单（sys/appMenu/getAppMenuData）—— 共用接口；仅补 LHHS_* 节点，其他 appNo 访问为 undefined（调用方需自带兜底）
-Mock.mock(/sys\/appMenu\/getAppMenuData(\?.*)?$/, 'get', () => success(clone(REVIEW_WORKBENCH_APP_MENU)))
+// 应用菜单（sys/appMenu/getAppMenuData）—— 共用接口；补 LHHS_* 与业务工作台 CITY_* 节点，其他 appNo 访问为 undefined（调用方需自带兜底）
+Mock.mock(/sys\/appMenu\/getAppMenuData(\?.*)?$/, 'get', () => success(clone({ ...REVIEW_WORKBENCH_APP_MENU, ...BUSINESS_WORKBENCH_APP_MENU })))
 
 // 获取会议数量（按会议类型统计）
 Mock.mock(/expert-review-workbench\/getMeetingCountByType(\?.*)?$/, 'post', (options: MockOptions) => {

@@ -14,6 +14,7 @@
  *   便于开发态核对表格自适应宽度与宽表横向滚动的表现。
  */
 
+import { MARKDOWN_FORMULA_SAMPLE } from './markdownFormulaSamples'
 import { MARKDOWN_TABLE_SAMPLE, WIDE_MARKDOWN_TABLE_SAMPLE } from './markdownTableSamples'
 
 export interface MockRulePointFixture {
@@ -95,13 +96,13 @@ export const RULE_DETAIL_FIXTURES: Record<string, MockRuleDetailFixture> = {
     reviewProcess:
       'DTU 申报单价 12680 元较协议库存最近一期成交价 11350 元高 11.72%，较国网商城同规格近三个月均价 11520 元高 10.07%，两个口径均超过 8% 阈值且申报材料未附询价单，故判定为不通过。FTU 申报单价 8600 元在阈值内，不影响本规则的整体结论。',
     // 12 列宽表：审核过程为双栏窄容器，用于核对包裹层横向滚动兜底
-    reviewProcessMarkdown: `**逐条物料比价明细**\n\n${WIDE_MARKDOWN_TABLE_SAMPLE}`,
+    reviewProcessMarkdown: `**逐条物料比价明细**\n\n${WIDE_MARKDOWN_TABLE_SAMPLE}\n\n${MARKDOWN_FORMULA_SAMPLE}`,
     points: [
       {
         pointName: '协议库存成交价偏差核验',
         ruleDescription:
           '取物料在省公司协议库存的最近一期成交价作为参考价，计算申报单价偏差率 =（申报单价 − 参考价）÷ 参考价。偏差率超过 8% 且申报材料未附询价依据的，判定为"不通过"；偏差率在 5%—8% 之间的，判定为"待复核"。',
-        originalEvidence: `**申报清单（甲供）**：配电自动化终端（DTU），ZDW-12/T,三遥，48 台，单价 12680 元\n**协议库存最近一期成交价**：11350 元/台（2025-11 苏州公司同规格采购）\n**偏差率**：+11.72%，超过 8% 阈值\n**询价依据**：申报附件中未见本次采购的询价单或价格论证材料\n\n${MARKDOWN_TABLE_SAMPLE}`,
+        originalEvidence: `**申报清单（甲供）**：配电自动化终端（DTU），ZDW-12/T,三遥，48 台，单价 12680 元\n**协议库存最近一期成交价**：11350 元/台（2025-11 苏州公司同规格采购）\n**偏差率**：+11.72%，超过 8% 阈值\n**询价依据**：申报附件中未见本次采购的询价单或价格论证材料\n\n${MARKDOWN_TABLE_SAMPLE}\n\n${MARKDOWN_FORMULA_SAMPLE}`,
         reviewConclusion: '不通过',
         conclusionDescription: 'DTU 申报单价高于协议库存最近一期成交价 11.72%，超过 8% 偏差阈值，且未附询价单或价格论证材料，无法解释该差价。'
       },
@@ -436,28 +437,6 @@ export const RULE_DETAIL_FIXTURES: Record<string, MockRuleDetailFixture> = {
           '**公司不良行为处理记录**：5 家候选供应商近三年均无记录\n**失信被执行人核查**：无命中\n**禁入名单**：无命中\n**核查时间**：2026-02-20',
         reviewConclusion: '通过',
         conclusionDescription: '5 家候选供应商近三年均无不良行为处理、失信被执行及禁入记录，供应商资格合规。'
-      }
-    ]
-  },
-  'mock-detail-document-001': {
-    reviewProcess: '必备附件 6 项中已上传 5 项，缺少初步设计批复文件；已上传附件均可正常解析且签章完整，但必备附件缺项属硬性要求，判定为不通过。',
-    points: [
-      {
-        pointName: '必备附件清单核验',
-        ruleDescription:
-          '申报须齐备项目建议书、可研报告、可研批复、初步设计批复、投资估算书、设备材料清单 6 项附件。任一必备附件缺失的判定为"不通过"。',
-        originalEvidence:
-          '**已上传**：项目建议书、可行性研究报告、可研批复（苏电发展〔2026〕112 号）、投资估算书、项目主要设备材料清单\n**缺失**：初步设计批复文件\n**齐备率**：5/6',
-        reviewConclusion: '不通过',
-        conclusionDescription: '6 项必备附件中缺少初步设计批复文件，齐备率 5/6，请补充上传后再提交审核。'
-      },
-      {
-        pointName: '附件可读性与签章核验',
-        ruleDescription: '附件须可正常解析（非加密、非纯图片扫描件），关键文件须有编制、审核、批准签章。解析失败或缺签章的判定为"待复核"。',
-        originalEvidence:
-          '**解析结果**：5 个附件全部解析成功，其中 docx 2 个、xlsx 2 个、pdf 1 个\n**签章情况**：项目建议书编制（王涛涛 2026-02-08）、审核（李明 2026-02-11）、批准（张伟 2026-02-14）均已签署\n**加密文件**：无',
-        reviewConclusion: '通过',
-        conclusionDescription: '已上传的 5 个附件均解析成功，项目建议书三级签章齐全，不存在加密或纯图片件导致的取数失败。'
       }
     ]
   },

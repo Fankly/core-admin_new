@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "code": 0,
+  "msg": "success",
+  "data": {
+    "detailId": "2102948418046570510",
+    "taskId": "2102948418033987585",
+    "categoryRuleId": "2098473010902663169",
+    "ruleCode": "FIN-TY-T-0001",
+    "ruleName": "申报内容完整性检查",
+    "ruleClassify": null,
+    "ruleClassifyName": null,
+    "ruleLevel": "1",
+    "ruleLevelName": null,
+    "ruleId": "2098473823481954305",
+    "auditPointCode": "FIN-TY-T-0001-002",
+    "auditPointName": "附件信息完整性检查",
+    "dataSource": "项目建议书/可研报告、估算书。",
+    "judgementRuleDesc": "1）项目建议书/可研报告、估算书等附件均已上传；\n2）附件内容中的项目名称（非附件文件名称）与系统中项目名称一致；\n上述任一条件不满足则判定为“不通过”；两者均满足则判定为“通过”。",
+    "reviewOpinion": "0",
+    "reviewOpinionName": "不通过",
+    "reviewConclude": "项目建议书、估算书附件已上传但项目名称不一致，请复核！",
+    "originalText": null,
+    "reviewProcess": "<table style=\"border-collapse:collapse;width:100%\">\n  <thead>\n    <tr>\n      <th style=\"border:1px solid #999;text-align: center;background-color: #f4faf9;white-space: normal;word-break: break-word; width: 10%;\">附件类型</th>\n      <th style=\"border:1px solid #999;text-align: center;background-color: #f4faf9;white-space: normal;word-break: break-word; width: 50%;\">附件名称</th>\n      <th style=\"border:1px solid #999;text-align: center;background-color: #f4faf9;white-space: normal;word-break: break-word; width: 30%;\">项目名称</th>\n      <th style=\"border:1px solid #999;text-align: center;background-color: #f4faf9;white-space: normal;word-break: break-word; width: 10%;\">完整性结论</th>\n      <th style=\"border:1px solid #999;text-align: center;background-color: #f4faf9;white-space: normal;word-break: break-word; display: none;\">authenticityCode</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td style=\"border:1px solid #999;text-align: center; width: 10%;\">项目建议书</td>\n      <td style=\"border:1px solid #999;text-align: left; width: 50%;\">国网江苏扬州高邮35kV秦换381线220kV秦邮变站内电缆终端应急修理项目建议书.pdf</td>\n      <td style=\"border:1px solid #999;text-align: center; width: 30%;\">国网江苏扬州高邮35kV秦换381线220kV秦邮变站内电缆终端应急修理</td>\n      <td style=\"border:1px solid #999;text-align: center; width: 10%;\">已上传但项目名称不一致</td>\n      <td style=\"border:1px solid #999;text-align: left; display: none;\">2</td>\n    </tr>\n    <tr>\n      <td style=\"border:1px solid #999;text-align: center; width: 10%;\">估算书</td>\n      <td style=\"border:1px solid #999;text-align: left; width: 50%;\">国网江苏扬州高邮35kV秦换381线220kV秦邮变站内电缆终端应急修理.xlsx</td>\n      <td style=\"border:1px solid #999;text-align: center; width: 30%;\">国网江苏扬州高邮35kV秦换381线220kV秦邮变站内电缆终端应急修理</td>\n      <td style=\"border:1px solid #999;text-align: center; width: 10%;\">已上传但项目名称不一致</td>\n      <td style=\"border:1px solid #999;text-align: left; display: none;\">2</td>\n    </tr>\n  </tbody>\n</table>\n\n**推理过程与结论：**项目建议书、估算书附件已上传但项目名称不一致，请复核！",
+    "reviewTable": null,
+    "reviewMessage": null,
+    "startTime": 1790245785138,
+    "finishTime": 1790245785309,
+    "status": "3",
+    "message": null
+  }
+}

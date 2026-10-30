@@ -42,7 +42,9 @@ pnpm build       # 生产构建
 pnpm dev         # 手工走查
 ```
 
-Vitest 配置在 `apps/web/vitest.config.ts`,用例与源文件就近放置,使用 `*.test.ts`。HTTP 用例通过本地服务验证真实请求,组件用例使用真实 Vue 组件。Playwright 配置在 `apps/web/playwright.config.ts`,用例在 `apps/web/e2e/`,覆盖 1440×900 桌面和 390×844 移动视口,使用本机 Chrome,自动启动或复用 8001 端口的 dev server。浏览器用例以受控 API 响应验证交互和失败恢复,不代表生产业务接口已联调。拦截接口时检查 pathname 以 `/api/` 开头,避免误拦截 Vite 的 `src/api/` 模块。根据行为选择有意义的单测或浏览器回归,涉及视觉变化时仍需走查实际页面。
+Vitest 配置在 `apps/web/vitest.config.ts`,用例与源文件就近放置,使用 `*.test.ts`。HTTP 用例通过本地服务验证真实请求,组件用例使用真实 Vue 组件。Playwright 配置在 `apps/web/playwright.config.ts`,用例在 `apps/web/e2e/`,使用 1440×900 桌面视口,导航布局场景额外检查 900px 窄窗口,使用本机 Chrome,默认自动启动或复用 8001 端口的 dev server（CI 中始终启动独立服务）。浏览器用例以受控 API 响应验证交互和失败恢复,不代表生产业务接口已联调。拦截接口时检查 pathname 以 `/api/` 开头,避免误拦截 Vite 的 `src/api/` 模块。根据行为选择有意义的单测或浏览器回归,涉及视觉变化时仍需走查实际页面。
+
+E2E 应复用 `pnpm dev` 服务。若 8001 正在运行 `pnpm mock`,页面内的 Mock.js 会抢先处理请求,导致 Playwright 的受控响应失效；此时执行 `E2E_PORT=8002 pnpm e2e`,在空闲端口自动启动普通开发服务。测试端口使用 `--strictPort`,占用时直接报错,避免 Vite 自动换端口后与测试地址不一致。
 
 ### 1.3 目录职责(相对 `apps/web/`)
 

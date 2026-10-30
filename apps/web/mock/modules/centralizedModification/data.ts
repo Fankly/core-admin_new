@@ -110,7 +110,21 @@ export const COMMON_CODE_MAP: Record<string, Array<{ code: string; name: string 
   XQLR_ZT: ZT_LIST,
   XMXZ: XMXZ_LIST,
   ZLYS_XMJHLX: XMJHLX_LIST,
-  GWXMFL: YJFL_LIST
+  GWXMFL: YJFL_LIST,
+  // 总览页（service/overview）一次批量取回的三组公共代码：组织类型、占比曲线默认项、排序选项。
+  XMZL_SEARCH_TYPE_COM: [
+    { code: '', name: '全省' },
+    { code: '1', name: '地市公司' },
+    { code: '2', name: '直属单位及本部' }
+  ],
+  XMZL_RATIO_COM: [{ code: '01', name: '需求储备库' }],
+  // 排序选项：code 为阶段编码、name 为阶段名称，与总览演示数据的阶段保持一致。
+  XMZL_STAGE_SORT_COM: [
+    { code: '01', name: '需求储备库' },
+    { code: '02', name: '联合会审' },
+    { code: '03', name: '项目储备库' },
+    { code: '04', name: '立项执行' }
+  ]
 }
 
 // ==================== 项目类型树（xmlx 树选择） ====================
@@ -422,6 +436,10 @@ const buildXqRow = (sequence: number): XqRow => {
     cjr: CREATORS[index % CREATORS.length],
     createTime: `${CURRENT_YEAR}-0${(index % 6) + 1}-${pad((index % 27) + 1, 2)} 09:${pad((index % 59) + 1, 2)}:00`,
     read_only: readOnly ? '1' : '0',
+    // 是否需求录入：RequireDetailSearch(/service/xq/RequireDetailSearch) 的「查看」按钮
+    // 以 sfxqlr 为开关（!sfxqlr 直接 return，不弹查看弹窗）。集中修改本页不读该字段。
+    // 每 6 条留 1 条为 0，用于验证「不可查看」拦截
+    sfxqlr: sequence % 6 === 0 ? '0' : '1',
     create_dep_id: XQ_SP_ORG_ID,
     createDeptName: '财务预算专职',
     // 提交前置校验字段：市管部门 / 事项归口部门必须一致才允许批量提交

@@ -3,7 +3,8 @@ import type { IncomingHttpHeaders, Server, ServerResponse } from 'node:http'
 import { createServer } from 'node:http'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { CacheToken } from '@/constants/cacheKey'
+import { CacheToken, Permissions } from '@/constants/cacheKey'
+import { getToken, setCache } from '@/utils/cache'
 
 interface ReceivedRequest {
   url: string
@@ -155,6 +156,43 @@ describe('baseService with real browser request and file APIs', () => {
 })
 
 describe('HTTP in-flight request identity', () => {
+  it.each(['http', 'business'])('does not clear a newer session when an old request returns %s 401', async (mode) => {
+    const router = (await import('@/router')).default
+    const redirect = vi.spyOn(router, 'replace').mockResolvedValue(undefined)
+    setCache(CacheToken, { token: 'session-a' }, true)
+    const pending = http({ url: `/late-unauthorized-${mode}` })
+    const rejected = expect(pending).rejects.toMatchObject({ status: 401 })
+    const request = await nextRequest()
+    expect(request.headers.token).toBe('session-a')
+
+    setCache(CacheToken, { token: 'session-b' }, true)
+    setCache(Permissions, true, true)
+    request.response.statusCode = mode === 'http' ? 401 : 200
+    respond(request, '{"code":401,"success":false}')
+    await rejected
+
+    expect(getToken()).toBe('session-b')
+    expect(sessionStorage.getItem(`v1@${Permissions}`)).toBe('true')
+    expect(redirect).not.toHaveBeenCalled()
+  })
+
+  it.each(['http', 'business'])('still clears the current session and redirects on %s 401', async (mode) => {
+    const router = (await import('@/router')).default
+    const redirect = vi.spyOn(router, 'replace').mockResolvedValue(undefined)
+    setCache(CacheToken, { token: 'current-session' }, true)
+    setCache(Permissions, true, true)
+    const pending = http({ url: `/current-unauthorized-${mode}` })
+    const rejected = expect(pending).rejects.toMatchObject({ status: 401 })
+    const request = await nextRequest()
+    request.response.statusCode = mode === 'http' ? 401 : 200
+    respond(request, '{"code":401,"success":false}')
+    await rejected
+
+    expect(getToken()).toBe('')
+    expect(sessionStorage.getItem(`v1@${Permissions}`)).toBeNull()
+    expect(redirect).toHaveBeenCalledExactlyOnceWith('/login')
+  })
+
   it('merges matching requests despite fresh signatures and header casing', async () => {
     const first = http({ url: '/same', headers: { 'X-Role': 'viewer', random: '1', timeStamp: '1', sign: 'first' } })
     const second = http({ url: '/same', headers: { 'x-role': 'viewer', random: '2', timeStamp: '2', sign: 'second' } })

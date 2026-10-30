@@ -52,7 +52,7 @@ export const pageResult = <T>(list: T[], current: number | string, size: number 
 }
 
 /**
- * 返回二进制流（配合 mock/index.ts 对 MockXHR 的二进制补丁）。
+ * 返回二进制流（配合 mock/xhr.ts 对 MockXHR 的二进制补丁）。
  * 用于 previewAttach / 下载等 exportFile(responseType: 'blob') 接口。
  */
 export const binaryResponse = (

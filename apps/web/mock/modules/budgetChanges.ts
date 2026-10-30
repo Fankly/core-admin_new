@@ -1,10 +1,12 @@
+import ExcelJS from 'exceljs'
 import Mock from 'mockjs'
-import { getQueryValue, pageResult, parseBody, success } from '../helpers'
+import { binaryResponse, fail, getQueryValue, pageResult, parseBody, success } from '../helpers'
 import type { MockOptions } from '../helpers'
 
 interface PublicCode {
   code: string
   name: string
+  note?: string
 }
 
 interface Unit extends PublicCode {
@@ -132,6 +134,52 @@ const PROJECT_NAMES = [
 ]
 
 const PUBLIC_CODE_MAP: Record<string, PublicCode[]> = {
+  ZKCJ: [
+    { code: 'LEVEL_1', name: '展开一级' },
+    { code: 'LEVEL_2', name: '展开二级' },
+    { code: 'LEVEL_3', name: '展开三级' },
+    { code: 'LEVEL_ALL', name: '全部展开' }
+  ],
+  // 预算执行分析（yszxylb / customYapProjectExecutionByType）复用本模块的 getComCodeByCode 首命中拦截
+  XSWS: [
+    { code: 'XSWS_0', name: '0位' },
+    { code: 'XSWS_1', name: '1位' },
+    { code: 'XSWS_2', name: '2位' },
+    { code: 'XSWS_3', name: '3位' },
+    { code: 'XSWS_4', name: '4位' }
+  ],
+  BUDUGET_EXECUTION_ANALYSIS: [
+    { code: 'YSZXYL', name: '预算执行一览' },
+    { code: 'YSZXYL_YAP', name: '自定义预安排项目执行分析' },
+    { code: 'YSZXYL_ZX', name: '承诺项目执行分析' }
+  ],
+  // 预算统计配置页（budgetStatisticsConfig）用公共代码，复用本模块 getComCodeByCode 首命中拦截
+  YSTJPZ_TJFS: [
+    { code: '1', name: '数据明细' },
+    { code: '2', name: '明细汇总' }
+  ],
+  YSTJPZ_TJLX: [
+    { code: '1', name: '项目类型' },
+    { code: '2', name: '承诺项' }
+  ],
+  // 预算统计配置 - 分析报告节点类型 / 普通分析节点（示例值，实际以公共代码配置为准）
+  YSZXFXBG_JDTYPE: [
+    { code: '1', name: '分析报告节点' },
+    { code: '2', name: '普通节点' }
+  ],
+  YSZXFX_PTJDTYPE: [
+    { code: '1', name: '总体分析' },
+    { code: '2', name: '分项分析' },
+    { code: '3', name: '同比分析' },
+    { code: '4', name: '环比分析' }
+  ],
+  ALL_INDICATOR_CODE: [
+    { code: 'MBZ', name: '目标值' },
+    { code: 'DFJ', name: '到位资金' },
+    { code: 'LXZ', name: '累计完成值' },
+    { code: 'WCZ', name: '完成值' },
+    { code: 'WCL', name: '完成率' }
+  ],
   ZLYS_XMJHLX: PROJECT_TYPES.map((item) => ({ code: item.xmjhlx, name: item.xmjhlxName })),
   ZLYS_YSBG_STATUS: Object.keys(BUDGET_CHANGE_STATUS_NAMES).map((code) => ({ code, name: BUDGET_CHANGE_STATUS_NAMES[code] })),
   XMXZ: [
@@ -150,6 +198,53 @@ const PUBLIC_CODE_MAP: Record<string, PublicCode[]> = {
     { code: '01', name: '投资规模调整' },
     { code: '02', name: '建设内容调整' },
     { code: '03', name: '实施计划调整' }
+  ],
+  YSBG_TZSY: [
+    { code: '01', name: '投资规模变化', note: '1' },
+    { code: '02', name: '实施计划变化', note: '0' },
+    { code: '03', name: '建设内容变化', note: '1' }
+  ],
+  // 业务工作台（businessWorkbench）用公共代码，复用本模块 getComCodeByCode 首命中拦截。
+  // 状态为两级结构：一级 code 作为筛选项，二级 code 由列表请求的 status 逗号串携带；
+  // 一级状态名需能被 matchStatusByKeyword 关键字匹配（待提交/流转/在库/出库/编制/立项）
+  LYGXQKSTATUS_COM: [
+    { code: 'LYGXQKSTATUS_01', name: '待提交' },
+    { code: 'LYGXQKSTATUS_02', name: '流转中' },
+    { code: 'LYGXQKSTATUS_03', name: '在库' },
+    { code: 'LYGXQKSTATUS_04', name: '已出库' }
+  ],
+  LYGXQKSTATUS_01: [{ code: 'LYGXQKSTATUS_0101', name: '草稿' }],
+  LYGXQKSTATUS_02: [
+    { code: 'LYGXQKSTATUS_0201', name: '部门审核中' },
+    { code: 'LYGXQKSTATUS_0202', name: '归口审核中' }
+  ],
+  LYGXQKSTATUS_03: [{ code: 'LYGXQKSTATUS_0301', name: '已入库' }],
+  LYGXQKSTATUS_04: [{ code: 'LYGXQKSTATUS_0401', name: '已出库' }],
+  CBKSTATUS_COM: [
+    { code: 'CBKSTATUS_01', name: '待出库' },
+    { code: 'CBKSTATUS_02', name: '编制中' },
+    { code: 'CBKSTATUS_03', name: '立项' }
+  ],
+  CBKSTATUS_01: [
+    { code: 'CBKSTATUS_0101', name: '待出库' },
+    { code: 'CBKSTATUS_0102', name: '待出库确认' }
+  ],
+  CBKSTATUS_02: [
+    { code: 'CBKSTATUS_0201', name: '待预算编制' },
+    { code: 'CBKSTATUS_0202', name: '预算编制审核中' }
+  ],
+  CBKSTATUS_03: [
+    { code: 'CBKSTATUS_0301', name: '待立项' },
+    { code: 'CBKSTATUS_0302', name: '已立项' }
+  ],
+  // 统筹级别：code 需为 province/city，前端 setLevelFilter 后按该值映射 ysly 请求参数
+  PROJECT_LEVEL_COM: [
+    { code: 'province', name: '省级统筹' },
+    { code: 'city', name: '市级统筹' }
+  ],
+  REVIEW_LEVEL_COM: [
+    { code: 'province', name: '省级联合会审' },
+    { code: 'city', name: '市级联合会审' }
   ]
 }
 
@@ -266,7 +361,15 @@ const buildBudgetChangeRow = (sequence: number, kind: 'project' | 'budget', sfgm
     const statuses = ['', 'Q00', 'Q01', 'A01', 'Q02', 'A03', 'A10', '300', '310', '301', 'B99']
     const status = statuses[index % statuses.length]
     const hasActiveOrder = Boolean(status && status !== 'B99')
+    const changeType = PUBLIC_CODE_MAP.XMYSBG_BGLX[index % PUBLIC_CODE_MAP.XMYSBG_BGLX.length]
+    const adjustmentReason = PUBLIC_CODE_MAP.YSBG_TZSY[index % PUBLIC_CODE_MAP.YSBG_TZSY.length]
     Object.assign(row, {
+      yssxId: `YSSX-TZ-${String(sequence).padStart(4, '0')}`,
+      bglx: changeType.code,
+      bglxName: changeType.name,
+      tzsy: adjustmentReason.code,
+      tzsyName: adjustmentReason.name,
+      sfcjpsyj: adjustmentReason.note,
       subFlowStatus: status,
       subFlowStatusName: PROJECT_CHANGE_STATUS_NAMES[status],
       bgid: hasActiveOrder ? `BG-TZ-${String(sequence).padStart(4, '0')}` : undefined,
@@ -357,6 +460,52 @@ const toEditableRow = (row: BudgetChangeRow): BudgetChangeRow => ({
   attachName: row.attachName || ''
 })
 
+const buildProjectChangeInfo = (row: BudgetChangeRow) => ({
+  xmid: row.xmid,
+  bgid: row.bgid || '',
+  bglx: row.bglx,
+  bglxName: row.bglxName,
+  tzsy: row.tzsy,
+  tzsyName: row.tzsyName,
+  sfcjpsyj: row.sfcjpsyj,
+  sfcjpsyjName: row.sfcjpsyj === '1' ? '是' : '否',
+  bgyy: row.bgyy || '',
+  byx: row.byx || '项目预算',
+  ssnr: row.ssnr || '',
+  bgAllInvestTax: row.bgAllInvestTax == null ? row.allInvestTax : row.bgAllInvestTax,
+  bgAmount: row.bgAmount == null ? row.amount : row.bgAmount,
+  attaches: row.attachName
+    ? {
+        YSBG_SM: [
+          {
+            id: 1,
+            ysbgId: row.bgid || '',
+            fjId: 'YSBG_SM',
+            attachName: row.attachName,
+            uuid: row.uuid,
+            instime: `${CURRENT_YEAR}-07-10 09:00:00`,
+            uploadUserId: 10001,
+            uploadUserName: '模拟用户'
+          }
+        ]
+      }
+    : {}
+})
+
+const buildProjectChangeHistory = (row: BudgetChangeRow) => {
+  if (!row.subFlowStatus && !row.bgid) return []
+  const latest = buildProjectChangeInfo(row)
+  const count = Math.max(1, Number(row.ljtzcs) || 0)
+  return Array.from({ length: count }, (_, index) => ({
+    ...clone(latest),
+    bgid: index === 0 && latest.bgid ? latest.bgid : `BG-HIS-${row.xmid}-${count - index}`,
+    bgAllInvestTax: round(Number(latest.bgAllInvestTax) * (1 - index * 0.01)),
+    bgAmount: round(Number(latest.bgAmount) * (1 - index * 0.01)),
+    bgyy: index === 0 ? latest.bgyy : `第 ${count - index} 次变更：根据项目实施进度调整预算安排`,
+    attaches: index === 0 ? latest.attaches : {}
+  }))
+}
+
 const buildHistory = (xmid: string) => {
   const row = BUDGET_ADJUSTMENT_ROWS.find((item) => item.xmid === xmid) || BUDGET_ADJUSTMENT_ROWS[0]
   return Array.from({ length: 3 }, (_, index) => ({
@@ -379,6 +528,94 @@ const buildHistory = (xmid: string) => {
     uuid: `${row.uuid}-history-${index + 1}`
   }))
 }
+
+// ==================== 登录 / 按钮权限链路 ====================
+// userDialog：getMenuByUrl → getRoleByBusicode → getButtonList → commit('setPermissions')
+// 本页走的是旧通道：模板上 15 处 v-permission 读 store.state.permissions（非 PermissionInjectionKey）。
+// 三个接口被全项目共用，必须把判别值（页面路径 / busicode / menuCode）写进正则收窄，
+// 否则 mockjs 命中即拦截、无法透传真实后端，会连带打挂其他页面的登录链路。
+
+/** 本页 outsideMenu / menuCode（开发态 mock 专用） */
+const BUSICODE = 'ZLYS-XMYSBG'
+
+/** 帮助中心 / getMenuByUrl 返回的菜单 id */
+const MENU_ID = 'menu-zlys-xmysbg'
+
+/**
+ * 按钮权限：与 index.vue 模板里的 v-permission 一一对应。
+ * CREATE_CART / EDIT_CART / VIEW_CART / DELETE_CART 是项目调整页签的变更申请单下拉，
+ * 缺其中任意一个，PROJECT_CHANGE_PERMISSION_CODES 的 some 判断会让整个下拉隐藏。
+ */
+const BUTTONS = [
+  'CREATE_CART',
+  'EDIT_CART',
+  'VIEW_CART',
+  'DELETE_CART',
+  'SUBMIT',
+  'RETURN',
+  'PROCESS',
+  'CREATE',
+  'DELETE_NDYS',
+  'DELETE_GMB',
+  'RESENDJHXT',
+  'RESENDSAP',
+  'HISTORY',
+  'IMPORT',
+  'EXPORT'
+]
+
+/** 本页角色（getRoleByBusicode 返回裸数组，字段对齐 userDialog changeId 的取值） */
+const buildRole = () => ({
+  id: 'sprole-xmysbg-01',
+  name: '预算变更专职（市公司）',
+  code: 'SCWYSZZ',
+  role_id: 'role-xmysbg-01',
+  specialorgid: 'bm-xmysbg-01',
+  specialorgname: '财务预算专职',
+  specialorgcode: 'BM_CWZC',
+  // org_id 取 UNITS[1]，与列表数据里的单位编码对齐，保证一/二级单位联动能出选项
+  org_id: UNITS[1].code,
+  org_name: UNITS[1].name,
+  namecode: 'mock_xmysbg_user',
+  busicode: BUSICODE
+})
+
+// 菜单：只拦 url 含本页路径（/service/budget/changes/index）的请求。
+// url 可能被编码，故用 [^#]* 跨过中间的 / 或 %2F，不写死分隔符。
+Mock.mock(/sys\/menu\/getMenuByUrl\?[^#]*budget[^#]*changes/i, 'get', (options: MockOptions) => {
+  const url = getQueryValue(options.url, 'url')
+  // id 供 HelpModal 取帮助配置；outsideMenu 供 userDialog 取按钮权限
+  return success({ id: MENU_ID, outsideMenu: BUSICODE, url })
+})
+
+// 角色：按 busicode 收窄；返回单角色，userDialog 自动确认，不弹选择框
+Mock.mock(new RegExp(`getRoleByBusicode\\?[^#]*busicode=${BUSICODE}(?:&|$)`), 'get', () => [buildRole()])
+
+// 按钮权限：按 menuCode 收窄
+Mock.mock(new RegExp(`sysMenu/getButtonList(?:New)?\\?[^#]*menuCode=${BUSICODE}(?:&|$)`), 'get', () => success(clone(BUTTONS)))
+
+// ==================== 引导 / 帮助中心（按判别值收窄） ====================
+
+// useGuide({ moduleKey: 'changes' })：返回 false，进入页面不强制拉起 driver 蒙层
+Mock.mock(/sysRemind\/getRemindFlagByUserId\?[^#]*moduleKey=changes(?:&|$)/, 'get', () => success(false))
+// sysRemind/close、sysRemind/iknow 已由 centralizedModification 宽泛注册，复用
+
+// 帮助中心（工具栏 help 按钮 → HelpModal）：按本页 menuId 收窄
+Mock.mock(new RegExp(`sys/menuConfig/getConfigByMenuId\\?[^#]*menuId=${MENU_ID}(?:&|$)`), 'get', () =>
+  success({
+    helpInfo:
+      '项目预算变更帮助：三个页签分别为年度预算调整、规模包调整、项目调整。项目调整需先创建变更申请单再提交审批，命中「无需重新出具评审意见」的项目可直接纳会；待联合会审状态可撤回。年度预算调整 / 规模包调整支持导入导出与补推计划系统、补推 SAP。',
+    status: '1'
+  })
+)
+Mock.mock(new RegExp(`sys/menuConfig/listFj\\?[^#]*menuId=${MENU_ID}(?:&|$)`), 'get', () =>
+  success([{ fjmc: '项目预算变更操作手册.pdf', uuid: 'help-xmysbg-pdf' }])
+)
+Mock.mock(/sys\/menuConfig\/downloadFj\?[^#]*uuid=help-xmysbg-pdf/, 'get', () =>
+  binaryResponse(new Blob(['项目预算变更操作手册（mock）'], { type: 'application/pdf' }), {
+    fileName: '项目预算变更操作手册.pdf'
+  })
+)
 
 // ==================== 页面初始化依赖 ====================
 
@@ -407,7 +644,10 @@ Mock.mock(/protypeTree\/getProtypeYearTreeB(\?.*)?$/, 'post', (options: MockOpti
   return success([])
 })
 
-Mock.mock(/workflow\/cbxqsh\/getFqzz(\?.*)?$/, 'post', () => success('CITY'))
+// 该规则先于 jointReview 注册；评审工作台的省级角色也会命中这里。
+Mock.mock(/workflow\/cbxqsh\/getFqzz(\?.*)?$/, 'post', (options: MockOptions) =>
+  success(getQueryValue(options.url, 'spOrgId') === 'bm-001' ? 'PROVINCE' : 'CITY')
+)
 Mock.mock(/bizOrgTree\/getYjdw(\?.*)?$/, 'post', () => success(UNITS.map(({ code, name }) => ({ code, name }))))
 
 Mock.mock(/bizOrgTree\/getEjdw(\?.*)?$/, 'post', (options: MockOptions) => {
@@ -458,6 +698,8 @@ Mock.mock(/workflow\/declare\/getParamValue\?[^#]*paramKey=(?:XMYSBG_SUBMIT_NUM|
 
 // 注意：getParamValueMulti 是共用接口，mockjs 按注册顺序首次命中即拦截（budgetChanges 先于 jointReview）。
 // 联合会审 / 评审工作台 AI 审议意见相关参数也写在这里。
+// 预算执行分析（customYapProjectExecutionByType）的展示维度默认值参数亦在此注册。
+// 总览页默认排序参数 XMZL_DEFAULT_SORT 也在此返回：排序键格式 ratio-01 / value-02。
 Mock.mock(/sysParam\/getParamValueMulti\/(\?.*)?$/, 'post', (options: MockOptions) => {
   const body = parseBody(options) as unknown as string[]
   const values: Record<string, string> = {
@@ -474,7 +716,13 @@ Mock.mock(/sysParam\/getParamValueMulti\/(\?.*)?$/, 'post', (options: MockOption
     LHHS_AI_OPINION_VISIBLE_ORG: 'BM_CWZC',
     // 评审工作台 / 联合会审重新分析开关：默认 '1' 开启，配置为 '0' 时关闭
     REVIEW_WORKBENCH_AI_RERUN: '1',
-    LHHS_AI_RERUN: '1'
+    LHHS_AI_RERUN: '1',
+    // 自定义预安排项目执行分析：默认展示维度
+    YSZXYL_YAP_DEFAULT_BUSI_TYPE: 'YSZXYL_YAP',
+    // 总览图表/表格默认排序：ratio-01 = 阶段 01 占比降序；留空时沿用前端默认 ratio-01
+    XMZL_DEFAULT_SORT: 'ratio-01',
+    // 总览金额展示单位：万元 / 亿元；留空或非法时沿用前端默认万元
+    XMZL_AMOUNT_UNIT: '万元'
   }
   const keys = Array.isArray(body) ? body : []
   return success(keys.reduce((result, key) => ({ ...result, [key]: values[key] || '' }), {} as Record<string, string>))
@@ -489,6 +737,11 @@ Mock.mock(/xmAttributeConfig\/getXmInfo\?[^#]*xmId=XM-TZ-[^&#]*/, 'get', (option
   return success({ xmbgxx: clone(row) })
 })
 
+Mock.mock(/xmAttributeConfig\/getYssxByXmid\?(?:[^#]*&)?xmid=XM-TZ-[^&#]+(?:&[^#]*)?$/, 'get', (options: MockOptions) => {
+  const row = PROJECT_ADJUSTMENT_ROWS.find((item) => item.xmid === getQueryValue(options.url, 'xmid'))
+  return row ? success(row.yssxId || '') : fail('项目不存在', 404)
+})
+
 Mock.mock(/xmAttributeConfig\/getTabColumns\?[^#]*pageType=1(?:&|$)/, 'get', () => success(clone(PROJECT_CHANGE_TAB_COLUMNS)))
 
 Mock.mock(/xmAttributeConfig\/getDydj(\?.*)?$/, 'post', () =>
@@ -500,6 +753,7 @@ Mock.mock(/xmAttributeConfig\/getDydj(\?.*)?$/, 'post', () =>
 )
 
 Mock.mock(/commonCode\/getData\?[^#]*code=XMYSBG_BGLX(?:&|$)/, 'get', () => success(clone(PUBLIC_CODE_MAP.XMYSBG_BGLX)))
+Mock.mock(/commonCode\/getData\?[^#]*code=YSBG_TZSY(?:&|$)/, 'get', () => success(clone(PUBLIC_CODE_MAP.YSBG_TZSY)))
 
 // ==================== 主列表与弹窗接口 ====================
 
@@ -530,34 +784,13 @@ Mock.mock(/sjtc\/xmysbg\/getYsbgByXmId(\?.*)?$/, 'post', (options: MockOptions) 
 
 Mock.mock(/sjtc\/xmysbg\/getBgInfo(\?.*)?$/, 'get', (options: MockOptions) => {
   const xmid = getQueryValue(options.url, 'xmid')
-  const row = PROJECT_ADJUSTMENT_ROWS.find((item) => item.xmid === xmid) || PROJECT_ADJUSTMENT_ROWS[0]
-  return success({
-    xmid: row.xmid,
-    bgid: row.bgid || '',
-    bglx: row.bglx || '01',
-    bglxName: row.bglxName || '投资规模调整',
-    bgyy: row.bgyy || '',
-    byx: row.byx || '项目预算',
-    ssnr: row.ssnr || '',
-    bgAllInvestTax: row.bgAllInvestTax == null ? row.allInvestTax : row.bgAllInvestTax,
-    bgAmount: row.bgAmount == null ? row.amount : row.bgAmount,
-    attaches: row.attachName
-      ? {
-          YSBG_SM: [
-            {
-              id: 1,
-              ysbgId: row.bgid || '',
-              fjId: 'YSBG_SM',
-              attachName: row.attachName,
-              uuid: row.uuid,
-              instime: `${CURRENT_YEAR}-07-10 09:00:00`,
-              uploadUserId: 10001,
-              uploadUserName: '模拟用户'
-            }
-          ]
-        }
-      : {}
-  })
+  const row = PROJECT_ADJUSTMENT_ROWS.find((item) => item.xmid === xmid)
+  return row ? success(clone(buildProjectChangeInfo(row))) : fail('项目不存在', 404)
+})
+
+Mock.mock(/sjtc\/xmysbg\/getHisBgInfo\?(?:[^#]*&)?xmid=XM-TZ-[^&#]+(?:&[^#]*)?$/, 'get', (options: MockOptions) => {
+  const row = PROJECT_ADJUSTMENT_ROWS.find((item) => item.xmid === getQueryValue(options.url, 'xmid'))
+  return row ? success(buildProjectChangeHistory(row)) : fail('项目不存在', 404)
 })
 
 Mock.mock(/sjtc\/xmysbg\/getFjGroupByXmlx(\?.*)?$/, 'get', () => success(clone(PROJECT_CHANGE_ATTACHMENT_GROUPS)))
@@ -569,6 +802,9 @@ Mock.mock(/sjtc\/xmysbg\/saveYsbg(\?.*)?$/, 'post', (options: MockOptions) => {
     row.bgid = String(body.bgid || row.bgid || `BG-TZ-${row.xmid}`)
     row.bglx = String(body.bglx || '01')
     row.bglxName = PUBLIC_CODE_MAP.XMYSBG_BGLX?.find((item) => item.code === row.bglx)?.name || '投资规模调整'
+    row.tzsy = String(body.tzsy || '')
+    row.tzsyName = PUBLIC_CODE_MAP.YSBG_TZSY.find((item) => item.code === row.tzsy)?.name || ''
+    row.sfcjpsyj = String(body.sfcjpsyj || '')
     row.bgyy = String(body.bgyy || '')
     row.byx = String(body.byx || '')
     row.ssnr = String(body.ssnr || '')
@@ -674,3 +910,89 @@ Mock.mock(/workflow\/ysbgsh\/submitWf(\?.*)?$/, 'post', (options: MockOptions) =
 Mock.mock(/xmysbg\/resend(\?.*)?$/, 'post', () => success(true, '补推计划系统成功'))
 Mock.mock(/xmysbg\/resendSap(\?.*)?$/, 'post', () => success(true, '补推 SAP 成功'))
 Mock.mock(/xmysbg\/importYsbg(\?.*)?$/, 'post', () => success(true, '导入成功'))
+
+// ==================== 直接纳会 / 待会审撤回 / 导出 ====================
+
+// 判断所选项目能否直接纳会。
+// 依据 sfcjpsyj（来源 YSBG_TZSY.note）：'0' 表示本次调整无需重新出具评审意见，可直接纳会；
+// '1' 需要评审意见，页面会退回去走原有提交审批流程。
+// 返回结构与 CanBeNrhyData 一致：'1' 为可纳会 id 集合，'2' 为不可纳会 id 集合。
+Mock.mock(/sjtc\/xmysbg\/canBeNrhy(\?.*)?$/, 'post', (options: MockOptions) => {
+  const ids = getIds(parseBody(options))
+  const canNrhy: string[] = []
+  const cannotNrhy: string[] = []
+  ids.forEach((id) => {
+    const row = PROJECT_ADJUSTMENT_ROWS.find((item) => item.xmid === id)
+    if (row && String(row.sfcjpsyj) === '0') canNrhy.push(id)
+    else cannotNrhy.push(id)
+  })
+  return success({ '1': canNrhy, '2': cannotNrhy })
+})
+
+// 直接纳会：跳过审批流，项目直接进入待联合会审(A01)。
+Mock.mock(/sjtc\/xmysbg\/nrhy(\?.*)?$/, 'post', (options: MockOptions) => {
+  const ids = getIds(parseBody(options))
+  let handled = 0
+  PROJECT_ADJUSTMENT_ROWS.forEach((row) => {
+    if (!ids.includes(row.xmid)) return
+    row.subFlowStatus = 'A01'
+    row.subFlowStatusName = PROJECT_CHANGE_STATUS_NAMES.A01
+    row.bgid = row.bgid || `BG-TZ-${row.xmid}`
+    handled += 1
+  })
+  return handled ? success(true, '纳会成功') : fail('未找到可纳会的项目')
+})
+
+// 待会审撤回：A01 退回需求草稿(Q00)，保留 bg* 变更数据以便修改后重新提交。
+Mock.mock(/sjtc\/xmysbg\/updateSubFlowStatus(\?.*)?$/, 'post', (options: MockOptions) => {
+  const ids = getIds(parseBody(options))
+  let handled = 0
+  PROJECT_ADJUSTMENT_ROWS.forEach((row) => {
+    if (!ids.includes(row.xmid) || row.subFlowStatus !== 'A01') return
+    row.subFlowStatus = 'Q00'
+    row.subFlowStatusName = PROJECT_CHANGE_STATUS_NAMES.Q00
+    handled += 1
+  })
+  return handled ? success(true, '撤回成功') : fail('所选项目不在待联合会审状态')
+})
+
+// 导出当前查询条件下的列表，复用列表页的 filterRows，保证导出内容与页面一致。
+// 数据源区分：项目调整页签发送 sfgmb: 0(number)，年度预算/规模包页签发送 '0' / '1'(string)。
+Mock.mock(/xmysbg\/exportYsbg(\?.*)?$/, 'post', async (options: MockOptions) => {
+  const body = parseBody(options)
+  const isProjectAdjustment = typeof body.sfgmb === 'number'
+  const rows = isProjectAdjustment ? filterRows(PROJECT_ADJUSTMENT_ROWS, body, false) : filterRows(BUDGET_ADJUSTMENT_ROWS, body, true)
+  const sheetName = isProjectAdjustment ? '项目调整' : '预算调整'
+
+  const workbook = new ExcelJS.Workbook()
+  const worksheet = workbook.addWorksheet(sheetName)
+  worksheet.columns = [
+    { header: '项目编码', key: 'xmbm', width: 18 },
+    { header: '国网项目编码', key: 'gwxmbm', width: 20 },
+    { header: '项目名称', key: 'xmmc', width: 32 },
+    { header: '年度', key: 'nd', width: 10 },
+    { header: '一级单位', key: 'yjdw', width: 22 },
+    { header: '二级单位', key: 'ejdw', width: 22 },
+    { header: '项目类型', key: 'xmjhlxName', width: 16 },
+    { header: '变更类型', key: 'bglxName', width: 16 },
+    { header: '变更原因', key: 'bgyy', width: 36 },
+    { header: '总投资计划(万元)', key: 'allInvestTax', width: 18 },
+    { header: '变更后总投资(万元)', key: 'bgAllInvestTax', width: 20 },
+    { header: '当年预算(万元)', key: 'dnys', width: 16 },
+    { header: '变更后当年预算(万元)', key: 'bgDnys', width: 22 },
+    { header: '状态', key: 'statusName', width: 14 }
+  ]
+  worksheet.addRows(
+    rows.map((row) => ({
+      ...clone(row),
+      statusName: (isProjectAdjustment ? row.subFlowStatusName : row.auditStatusMc) || '空状态'
+    }))
+  )
+  worksheet.getRow(1).font = { bold: true }
+  worksheet.views = [{ state: 'frozen', ySplit: 1 }]
+
+  return binaryResponse(await workbook.xlsx.writeBuffer(), {
+    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    fileName: `${sheetName}导出.xlsx`
+  })
+})

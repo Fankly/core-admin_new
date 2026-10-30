@@ -177,6 +177,13 @@ export interface ExpertMeeting {
   meetingCode: string
   meetingName: string
   meetingStatus: string
+  /**
+   * 进入评审/查看的路由判别（zym.ts 的 enterReview / viewReview 读取）：
+   * '1' → 省级专家线上预审 expertReview/projectManifest；'2' → 市级 AI 评审详情 reviewDeatil/index；
+   * 缺省会 fallback 到 /service/ywpt/projectManifest（另一个页面，拿不到本模块 mock 数据）。
+   * 本驾驶舱（psgzt/getMeetingPage）返回的都是省级会议，故固定 '1'。
+   */
+  meetingType: string
   ysly: string
   yslyName: string
   totalCount: number
@@ -199,6 +206,7 @@ export const EXPERT_MEETINGS: ExpertMeeting[] = [
     meetingCode: 'LHHS-2026-001',
     meetingName: '2026年第一批技改大修项目联合会审',
     meetingStatus: '01',
+    meetingType: '1',
     ysly: '1',
     yslyName: '省级统筹',
     totalCount: 12,
@@ -219,6 +227,7 @@ export const EXPERT_MEETINGS: ExpertMeeting[] = [
     meetingCode: 'LHHS-2026-002',
     meetingName: '2026年第二批基建项目联合会审',
     meetingStatus: '00',
+    meetingType: '1',
     ysly: '2',
     yslyName: '单位自筹',
     totalCount: 8,
@@ -239,6 +248,7 @@ export const EXPERT_MEETINGS: ExpertMeeting[] = [
     meetingCode: 'LHHS-2025-020',
     meetingName: '2025年第四季度收尾项目联合会审',
     meetingStatus: '02',
+    meetingType: '1',
     ysly: '1',
     yslyName: '省级统筹',
     totalCount: 15,

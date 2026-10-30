@@ -1,6 +1,7 @@
 /* --------------------------------------------------------------------------
    Route rail navigation
    -------------------------------------------------------------------------- */
+@import './nav-level.less';
 
 .ds-nav {
   display: flex;
@@ -244,48 +245,16 @@
    层级图标（L1 层叠 · L2 文件夹 · L3 文件 · L4 圆点）、每级 14px 缩进、
    一级业务域卡片、青绿渐变选中态。状态只改颜色，不改图形与尺寸。
    -------------------------------------------------------------------------- */
+/* 层级图标：侧栏、悬停弹出菜单、头像下拉共用同一套图形 / 尺寸 / 配色 */
+.ds-nav--vertical,
+.ds-user-menu,
+.ds-nav-pop-light {
+  .nav-level-tokens();
+}
+
 .ds-nav--vertical {
-  --nav-primary: var(--color-primary, #00706b);
-  --nav-accent: #2a9a92;
-  --nav-text: #475569;
-  --nav-text-dim: #94a3b8;
-  --nav-text-strong: var(--nav-primary);
-  --nav-text-open: #1e293b;
-  --nav-hover: rgb(0 112 107 / 5%);
   --nav-row-radius: 10px;
   --nav-row-inset: 10px;
-
-  /* 层级图标：同层同框、同图形、同色 */
-  --nav-icon-box-1: 30px;
-  --nav-icon-glyph-1: 17px;
-  --nav-icon-bg-1: var(--nav-primary);
-  --nav-icon-fg-1: #fff;
-  --nav-icon-radius-1: 9px;
-  --nav-icon-ring-1: 0 4px 10px -5px rgb(0 112 107 / 60%);
-
-  --nav-icon-box-2: 24px;
-  --nav-icon-glyph-2: 14px;
-  --nav-icon-bg-2: #e6f4f3;
-  --nav-icon-fg-2: var(--nav-primary);
-  --nav-icon-radius-2: 7px;
-
-  --nav-icon-box-3: 22px;
-  --nav-icon-glyph-3: 13px;
-  --nav-icon-bg-3: #fff;
-  --nav-icon-fg-3: var(--nav-accent);
-  --nav-icon-radius-3: 6px;
-  --nav-icon-ring-3: inset 0 0 0 1px #cfe7e4;
-
-  --nav-icon-box-4: 18px;
-  --nav-icon-glyph-4: 11px;
-  --nav-icon-bg-4: transparent;
-  --nav-icon-fg-4: #9fb8b5;
-  --nav-icon-radius-4: 4px;
-
-  --nav-icon-bg-path-1: var(--nav-primary);
-  --nav-icon-fg-path-1: #fff;
-  --nav-icon-ring-path-1: 0 6px 14px -5px rgb(0 112 107 / 70%);
-  --nav-icon-fg-path: var(--nav-primary);
 
   /* 一级业务域卡片 */
   --nav-card-bg: #fff;
@@ -293,15 +262,7 @@
   --nav-card-shadow: 0 1px 2px rgb(15 60 55 / 3%);
   --nav-card-open-border: #d8efec;
   --nav-card-open-shadow: 0 10px 24px -14px rgb(0 112 107 / 35%);
-
-  --nav-list-bg-3: rgb(242 249 248 / 90%);
-  --nav-list-bg-4: rgb(230 244 243 / 75%);
-  --nav-list-radius: 10px;
-
-  --nav-active-bg: linear-gradient(100deg, var(--nav-primary), var(--nav-accent));
-  --nav-active-text: #fff;
-  --nav-active-icon: #fff;
-  --nav-active-shadow: 0 6px 16px -6px rgb(0 112 107 / 60%);
+  --nav-card-active-bg: color-mix(in srgb, var(--nav-primary) 6%, var(--nav-card-bg));
 
   --nav-search-bg: rgb(255 255 255 / 85%);
   --nav-search-focus-bg: #fff;
@@ -309,40 +270,19 @@
   --nav-search-radius: 10px;
 }
 
-/* 深色侧栏只覆盖颜色变量，几何与浅色完全一致 */
+/* 深色侧栏只覆盖颜色变量，几何与浅色完全一致；悬停弹出菜单跟随侧栏主题 */
+.ui-sidebar-dark .ds-nav--vertical,
+.ds-nav-pop-dark {
+  .nav-level-tokens-dark();
+}
+
 .ui-sidebar-dark .ds-nav--vertical {
-  --nav-text: rgb(255 255 255 / 72%);
-  --nav-text-dim: rgb(255 255 255 / 45%);
-  --nav-text-strong: #fff;
-  --nav-text-open: #fff;
-  --nav-hover: rgb(255 255 255 / 6%);
-
-  --nav-icon-bg-1: #0f827b;
-  --nav-icon-fg-1: #fff;
-  --nav-icon-ring-1: none;
-  --nav-icon-bg-2: rgb(95 208 195 / 14%);
-  --nav-icon-fg-2: #5fd0c3;
-  --nav-icon-bg-3: rgb(255 255 255 / 4%);
-  --nav-icon-fg-3: rgb(255 255 255 / 70%);
-  --nav-icon-ring-3: inset 0 0 0 1px rgb(255 255 255 / 10%);
-  --nav-icon-fg-4: rgb(255 255 255 / 38%);
-  --nav-icon-bg-path-1: #0f827b;
-  --nav-icon-fg-path-1: #fff;
-  --nav-icon-fg-path: #5fd0c3;
-
   --nav-card-bg: #212c31;
   --nav-card-border: rgb(255 255 255 / 6%);
   --nav-card-shadow: none;
   --nav-card-open-border: rgb(95 208 195 / 24%);
   --nav-card-open-shadow: 0 10px 24px -16px rgb(0 0 0 / 60%);
-
-  --nav-list-bg-3: rgb(255 255 255 / 3%);
-  --nav-list-bg-4: rgb(255 255 255 / 5%);
-
-  --nav-active-bg: linear-gradient(100deg, #00706b, #2a9a92);
-  --nav-active-text: #fff;
-  --nav-active-icon: #fff;
-  --nav-active-shadow: 0 6px 16px -6px rgb(0 0 0 / 50%);
+  --nav-card-active-bg: color-mix(in srgb, #5fd0c3 11%, var(--nav-card-bg));
 
   --nav-search-bg: rgb(255 255 255 / 5%);
   --nav-search-focus-bg: rgb(255 255 255 / 8%);
@@ -572,62 +512,7 @@
 }
 
 /* ---------- 层级：行高 / 字号 / 图标框（第 4 层及更深共用 L4） ---------- */
-.ds-nav--vertical .ds-nav__menu [data-nav-level='1'] > .el-sub-menu__title,
-.ds-nav--vertical .ds-nav__menu [data-nav-level='1'].el-menu-item {
-  --nav-icon-box: var(--nav-icon-box-1);
-  --nav-icon-glyph: var(--nav-icon-glyph-1);
-  --nav-icon-bg: var(--nav-icon-bg-1);
-  --nav-icon-fg: var(--nav-icon-fg-1);
-  --nav-icon-radius: var(--nav-icon-radius-1);
-  --nav-icon-ring: var(--nav-icon-ring-1);
-
-  min-height: 48px;
-  font-size: var(--ds-text-base);
-  font-weight: 600;
-  border-radius: 12px;
-}
-
-.ds-nav--vertical .ds-nav__menu [data-nav-level='2'] > .el-sub-menu__title,
-.ds-nav--vertical .ds-nav__menu [data-nav-level='2'].el-menu-item {
-  --nav-icon-box: var(--nav-icon-box-2);
-  --nav-icon-glyph: var(--nav-icon-glyph-2);
-  --nav-icon-bg: var(--nav-icon-bg-2);
-  --nav-icon-fg: var(--nav-icon-fg-2);
-  --nav-icon-radius: var(--nav-icon-radius-2);
-  --nav-icon-ring: var(--nav-icon-ring-2);
-
-  min-height: 42px;
-  font-size: 13.5px;
-  font-weight: 500;
-}
-
-.ds-nav--vertical .ds-nav__menu [data-nav-level='3'] > .el-sub-menu__title,
-.ds-nav--vertical .ds-nav__menu [data-nav-level='3'].el-menu-item {
-  --nav-icon-box: var(--nav-icon-box-3);
-  --nav-icon-glyph: var(--nav-icon-glyph-3);
-  --nav-icon-bg: var(--nav-icon-bg-3);
-  --nav-icon-fg: var(--nav-icon-fg-3);
-  --nav-icon-radius: var(--nav-icon-radius-3);
-  --nav-icon-ring: var(--nav-icon-ring-3);
-
-  min-height: 40px;
-  font-size: var(--ds-text-md);
-  font-weight: 400;
-}
-
-.ds-nav--vertical .ds-nav__menu [data-nav-level='4'] > .el-sub-menu__title,
-.ds-nav--vertical .ds-nav__menu [data-nav-level='4'].el-menu-item {
-  --nav-icon-box: var(--nav-icon-box-4);
-  --nav-icon-glyph: var(--nav-icon-glyph-4);
-  --nav-icon-bg: var(--nav-icon-bg-4);
-  --nav-icon-fg: var(--nav-icon-fg-4);
-  --nav-icon-radius: var(--nav-icon-radius-4);
-  --nav-icon-ring: var(--nav-icon-ring-4);
-
-  min-height: 38px;
-  font-size: 12.5px;
-  font-weight: 400;
-}
+.nav-level-rows(~'.ds-nav--vertical .ds-nav__menu ');
 
 /* ---------- 列表容器：L2 行铺满卡片，L3 / L4 内层自成浅色面板 ---------- */
 .ds-nav--vertical .ds-nav__menu > .el-sub-menu > .el-menu--inline {
@@ -670,36 +555,7 @@
 }
 
 /* ---------- 图标框：同层同框，状态只改颜色 ---------- */
-.ds-nav--vertical .ds-nav__menu i.rr-sidebar-menu-entry__icon {
-  display: grid;
-  flex: 0 0 var(--nav-icon-box, var(--nav-icon-box-2));
-  place-items: center;
-  width: var(--nav-icon-box, var(--nav-icon-box-2));
-  height: var(--nav-icon-box, var(--nav-icon-box-2));
-  margin: 0;
-  color: var(--nav-icon-fg, inherit) !important;
-  background: var(--nav-icon-bg, transparent);
-  border-radius: var(--nav-icon-radius, 6px);
-  box-shadow: var(--nav-icon-ring, none);
-  transition:
-    color 0.15s ease,
-    background-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.ds-nav--vertical .rr-sidebar-menu-entry__icon .iconfont,
-.ds-nav--vertical .rr-sidebar-menu-entry__icon svg {
-  width: var(--nav-icon-glyph, var(--nav-icon-glyph-2));
-  height: var(--nav-icon-glyph, var(--nav-icon-glyph-2));
-  stroke-width: 1.75;
-}
-
-.ds-nav--vertical .rr-sidebar-menu-entry__dot {
-  width: 5px;
-  height: 5px;
-  background: currentColor;
-  border-radius: 50%;
-}
+.nav-level-well(~'.ds-nav--vertical .ds-nav__menu ');
 
 /* ---------- 路径高亮：当前页的所有祖先分组 ---------- */
 .ds-nav--vertical .ds-nav__menu [data-nav-level='1'].el-sub-menu.is-active > .el-sub-menu__title {
@@ -777,14 +633,14 @@
   white-space: nowrap;
 }
 
-/* ---------- 收起态：顶层只留图标 + 名称前两字 ---------- */
+/* ---------- 收起态：顶层 = 图标 + 名称前两字 ---------- */
 .ds-admin.is-sidebar-collapsed {
   .ds-nav.is-collapsed .ds-nav__footer {
     display: none;
   }
 
   .ds-nav.is-collapsed .ds-nav__menu.el-menu {
-    padding: 10px 6px;
+    padding: 10px 6px 12px;
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
@@ -796,12 +652,13 @@
     padding-right: 0 !important;
   }
 
+  /* 收紧成 63 × 63 的方形入口：图标与两字名称纵向居中，卡片之间留 8px 呼吸。 */
   .ds-nav.is-collapsed .ds-nav__menu > .el-sub-menu > .el-sub-menu__title,
   .ds-nav.is-collapsed .ds-nav__menu > .el-menu-item {
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
     justify-content: center;
-    min-height: 54px;
+    min-height: 61px;
     padding: 6px 0 !important;
     border-radius: 12px;
   }
@@ -811,17 +668,64 @@
     display: none;
   }
 
+  /* Element Plus 的 collapse 会隐藏标题行里所有 span（visibility: hidden + 0 尺寸），
+     这里只放行两字简称；完整名称仍由菜单项的 aria-label 提供。 */
   .ds-nav.is-collapsed .ds-nav__menu .rr-sidebar-menu-entry__short {
     display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    overflow: hidden;
     color: var(--nav-text);
     font-size: 11px;
     font-weight: 500;
     line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-overflow: ellipsis;
+    visibility: visible;
     white-space: nowrap;
   }
 
-  .ds-nav.is-collapsed .ds-nav__menu .rr-sidebar-menu-entry__icon {
+  /* 同一行里的图标框必须压过 collapse 的 24px 固定宽度，否则 30px 图标会被压扁。 */
+  .ds-nav.is-collapsed .ds-nav__menu > .el-sub-menu > .el-sub-menu__title > .rr-sidebar-menu-entry__icon,
+  .ds-nav.is-collapsed .ds-nav__menu > .el-menu-item > .rr-sidebar-menu-entry__icon {
+    flex: 0 0 var(--nav-icon-box);
+    width: var(--nav-icon-box);
     margin: 0 !important;
+  }
+
+  /* 当前页所在的业务域：底色 + 描边一起变化，避免只靠图标色区分。 */
+  .ds-nav.is-collapsed .ds-nav__menu > .el-sub-menu.is-active {
+    background: var(--nav-card-active-bg);
+    border-color: var(--nav-card-open-border);
+    box-shadow: var(--nav-card-open-shadow);
+  }
+
+  /* 悬停：描边与投影同步抬起，和展开态的卡片开合手感一致。 */
+  .ds-nav.is-collapsed .ds-nav__menu > .el-sub-menu:hover,
+  .ds-nav.is-collapsed .ds-nav__menu > .el-menu-item:hover {
+    border-color: var(--nav-card-open-border);
+    box-shadow: var(--nav-card-open-shadow);
+  }
+
+  /* 收起态没有行内列表，悬停只改卡片本身，标题行保持透明避免出现「双层底色」。 */
+  .ds-nav.is-collapsed .ds-nav__menu > .el-sub-menu:hover > .el-sub-menu__title,
+  .ds-nav.is-collapsed .ds-nav__menu > .el-sub-menu > .el-sub-menu__title:hover {
+    background: transparent !important;
+  }
+
+  /* 展开态给卡片标题留的是「上圆下方」，收起态每张卡都是独立方块，四角必须收圆。 */
+  .ds-nav.is-collapsed .ds-nav__menu > .el-sub-menu.is-opened > .el-sub-menu__title {
+    border-radius: 12px;
+  }
+
+  .ds-nav.is-collapsed .ds-nav__menu > .el-sub-menu.is-active .rr-sidebar-menu-entry__short {
+    color: var(--nav-text-strong);
+    font-weight: 600;
+  }
+
+  .ds-nav.is-collapsed .ds-nav__menu > .el-menu-item.is-active .rr-sidebar-menu-entry__short {
+    color: var(--nav-active-text);
   }
 }
 
@@ -913,7 +817,9 @@
   margin-right: 0;
 }
 
-/* Popup menus (rendered at body level by Element Plus) */
+/* --------------------------------------------------------------------------
+   Popup menus (rendered at body level by Element Plus)
+   -------------------------------------------------------------------------- */
 .ds-nav-pop-light,
 .ds-nav-pop-dark {
   border-radius: var(--ds-radius-md) !important;
@@ -978,3 +884,116 @@
     }
   }
 }
+
+/* --------------------------------------------------------------------------
+   收起态侧栏的悬停菜单（.ds-nav-pop-rail）
+   Element Plus 把分组 teleport 到 body，拿不到 .ds-nav--vertical 上的行 token，
+   所以这里挂同一份 nav-level mixin：图标、图标框、缩进、行高、选中态与
+   侧栏展开态逐项一致，悬停时视觉上就是同一行换了位置。
+   -------------------------------------------------------------------------- */
+/* 弹出层始终拿得到几何 token；深色只在其上覆盖颜色（与侧栏同一套继承方式） */
+.ds-nav-pop-rail {
+  .nav-level-tokens();
+}
+
+.ds-nav-pop-rail.ds-nav-pop-dark {
+  .nav-level-tokens-dark();
+}
+
+.ds-nav-pop-rail {
+  --nav-row-radius: 10px;
+  --nav-row-inset: 10px;
+
+  .el-menu.el-menu--popup {
+    min-width: 208px;
+  }
+
+  .el-menu-item,
+  .el-sub-menu__title {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    height: auto;
+    margin: 1px 0;
+    padding: 6px var(--nav-row-inset) 6px calc(var(--nav-row-inset) + var(--ds-nav-indent, 0px)) !important;
+    overflow: hidden;
+    color: var(--nav-text);
+    line-height: 1.4;
+    border-radius: var(--nav-row-radius);
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+
+    &:hover,
+    &:focus {
+      color: var(--nav-text) !important;
+      background: var(--nav-hover) !important;
+    }
+  }
+
+  /* 展开箭头与侧栏同位置、同图形；标题行右侧留出箭头位 */
+  .el-sub-menu > .el-sub-menu__title {
+    padding-right: 36px !important;
+  }
+
+  .el-sub-menu__icon-arrow {
+    right: var(--nav-row-inset);
+    display: grid;
+    flex: 0 0 16px;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    color: var(--nav-text-dim);
+    opacity: 1;
+
+    svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 1.75;
+    }
+  }
+
+  .el-sub-menu.is-opened > .el-sub-menu__title .el-sub-menu__icon-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* 深层目录在弹出层里同样包一层浅色面板 */
+  .el-menu--inline .el-menu--inline {
+    margin: 2px 0 4px;
+    padding: 3px;
+    background: var(--nav-list-bg-3);
+    border-radius: var(--nav-list-radius);
+  }
+
+  .el-menu--inline .el-menu--inline .el-menu--inline {
+    background: var(--nav-list-bg-4);
+  }
+
+  /* 路径高亮 / 展开态 / 选中态：与侧栏同一套规则 */
+  .el-sub-menu.is-opened > .el-sub-menu__title {
+    color: var(--nav-text-open);
+  }
+
+  .el-sub-menu.is-active > .el-sub-menu__title {
+    --nav-icon-fg: var(--nav-icon-fg-path);
+
+    color: var(--nav-text-strong);
+  }
+
+  .el-menu-item.is-active {
+    --nav-icon-bg: transparent;
+    --nav-icon-fg: var(--nav-active-icon);
+    --nav-icon-ring: none;
+
+    color: var(--nav-active-text) !important;
+    font-weight: 600;
+    background: var(--nav-active-bg) !important;
+    box-shadow: var(--nav-active-shadow);
+  }
+}
+
+/* 层级 → 图标框 token + 行几何：与侧栏展开态共用同一份 mixin，保证同层同框 */
+.nav-level-rows(~'.ds-nav-pop-rail ');
+.nav-level-well(~'.ds-nav-pop-rail ');

@@ -295,11 +295,11 @@
 .ds-user-menu__toggle,
 .ds-user-menu__link {
   display: flex;
-  gap: 9px;
+  gap: 10px;
   align-items: center;
   width: 100%;
   min-height: 36px;
-  padding: 0 10px;
+  padding: 6px 10px;
   color: var(--ds-ink);
   font: inherit;
   font-size: var(--ds-text-md);
@@ -333,14 +333,67 @@
   background: color-mix(in srgb, var(--ds-jade-100) 72%, #ffffff);
 }
 
-.ds-user-menu__icon {
-  flex: 0 0 auto;
-  color: var(--ds-ink-tertiary);
+/* 层级图标：与侧栏同一套 `--nav-icon-*`（L1 层叠 · L2 文件夹 · L3 文件 · L4 圆点），
+   同层同框、同图形、同色，只有行状态改底色 */
+.ds-user-menu [data-nav-level='1'] {
+  --nav-icon-box: var(--nav-icon-box-1);
+  --nav-icon-glyph: var(--nav-icon-glyph-1);
+  --nav-icon-bg: var(--nav-icon-bg-1);
+  --nav-icon-fg: var(--nav-icon-fg-1);
+  --nav-icon-radius: var(--nav-icon-radius-1);
+  --nav-icon-ring: var(--nav-icon-ring-1);
 }
 
-.ds-user-menu__link.is-active .ds-user-menu__icon,
-.ds-user-menu__toggle.is-active .ds-user-menu__icon {
-  color: var(--ds-jade-600);
+.ds-user-menu [data-nav-level='2'] {
+  --nav-icon-box: var(--nav-icon-box-2);
+  --nav-icon-glyph: var(--nav-icon-glyph-2);
+  --nav-icon-bg: var(--nav-icon-bg-2);
+  --nav-icon-fg: var(--nav-icon-fg-2);
+  --nav-icon-radius: var(--nav-icon-radius-2);
+  --nav-icon-ring: var(--nav-icon-ring-2);
+}
+
+.ds-user-menu [data-nav-level='3'] {
+  --nav-icon-box: var(--nav-icon-box-3);
+  --nav-icon-glyph: var(--nav-icon-glyph-3);
+  --nav-icon-bg: var(--nav-icon-bg-3);
+  --nav-icon-fg: var(--nav-icon-fg-3);
+  --nav-icon-radius: var(--nav-icon-radius-3);
+  --nav-icon-ring: var(--nav-icon-ring-3);
+}
+
+.ds-user-menu [data-nav-level='4'] {
+  --nav-icon-box: var(--nav-icon-box-4);
+  --nav-icon-glyph: var(--nav-icon-glyph-4);
+  --nav-icon-bg: var(--nav-icon-bg-4);
+  --nav-icon-fg: var(--nav-icon-fg-4);
+  --nav-icon-radius: var(--nav-icon-radius-4);
+  --nav-icon-ring: var(--nav-icon-ring-4);
+}
+
+.ds-user-menu__icon {
+  display: grid;
+  flex: 0 0 var(--nav-icon-box, var(--nav-icon-box-2));
+  place-items: center;
+  width: var(--nav-icon-box, var(--nav-icon-box-2));
+  height: var(--nav-icon-box, var(--nav-icon-box-2));
+  color: var(--nav-icon-fg, var(--ds-ink-tertiary));
+  background: var(--nav-icon-bg, transparent);
+  border-radius: var(--nav-icon-radius, 6px);
+  box-shadow: var(--nav-icon-ring, none);
+
+  svg {
+    width: var(--nav-icon-glyph, var(--nav-icon-glyph-2));
+    height: var(--nav-icon-glyph, var(--nav-icon-glyph-2));
+    stroke-width: 1.75;
+  }
+}
+
+.ds-user-menu__dot {
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  border-radius: 50%;
 }
 
 .ds-user-menu__label {

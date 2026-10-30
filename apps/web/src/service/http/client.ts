@@ -32,7 +32,9 @@ const pending = new Map<string, Promise<ApiResponse>>()
 
 let redirectingToLogin = false
 
-function handleUnauthorized() {
+function handleUnauthorized(requestToken: string) {
+  // 旧会话的迟到响应只能让原请求失败，不能注销后来建立的会话。
+  if (requestToken !== getToken()) return
   removeCache(CacheToken, true)
   removeCache(Permissions, true)
   if (redirectingToLogin || router.currentRoute.value.path === '/login') return
@@ -62,9 +64,7 @@ client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 client.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: unknown) => {
-    const normalized = normalizeError(error)
-    if (normalized.status === 401) handleUnauthorized()
-    return Promise.reject(normalized)
+    return Promise.reject(normalizeError(error))
   }
 )
 
@@ -85,7 +85,6 @@ async function dispatch<T>(config: HttpRequestConfig): Promise<ApiResponse<T>> {
   if (data && typeof data === 'object' && !Array.isArray(data)) {
     const payload = data as Record<string, unknown>
     if (payload.code === 401) {
-      handleUnauthorized()
       throw new ApiError(getHttpStatusMessage(401), { status: 401, code: 401, url: config.url })
     }
     attachHeaders(data, response.headers)
@@ -113,7 +112,10 @@ export default function request<T = unknown>(config: HttpRequestConfig): Promise
 
   const promise = dispatch<T>(requestConfig)
     .catch((error: unknown) => {
-      throw normalizeError(error)
+      const normalized = normalizeError(error)
+      // HTTP 401 与响应体 code: 401 统一在保留请求会话身份的位置处理。
+      if (normalized.status === 401) handleUnauthorized(token)
+      throw normalized
     })
     .finally(() => {
       if (canMerge) pending.delete(key)

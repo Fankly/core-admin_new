@@ -114,6 +114,11 @@ const createRow = (sequence: number, overrides: Record<string, any> = {}) => {
     cwpsyd: '按年度预算安排执行',
     jhlx: '1',
     gkcsId: 'gkcs-001',
+    sfxmlr: '1',
+    sfxylhhs: sequence % 2 ? '1' : '0',
+    isGjPspfwj: '0',
+    sfjjcl: sequence % 3 ? '0' : '1',
+    xmbbm: sequence % 2 ? `XMB-${projectType.id}-2026-01,XMB-${projectType.id}-2026-02` : '',
     createTime: '2026-01-15 10:00:00',
     ...overrides
   }
@@ -121,6 +126,8 @@ const createRow = (sequence: number, overrides: Record<string, any> = {}) => {
 
 let tableData = Array.from({ length: 12 }, (_, index) => createRow(index + 1))
 let idSeed = tableData.length
+
+export const getRequirementMatterRows = () => clone(tableData)
 
 const filterRows = (params: Record<string, any>) => {
   const text = (value: any) =>
@@ -180,6 +187,12 @@ Mock.mock(/yssxBasic\/delete(?:\?.*)?$/, 'post', (options: MockOptions) => {
 Mock.mock(/yssxBasic\/getById(?:\?.*)?$/, 'post', (options: MockOptions) => {
   const body = parseBody(options)
   const row = tableData.find((item) => item.id === String(body.yssxId || body.id || ''))
+  if (row && body.sfxqlr === '1') {
+    return success([{
+      stepId: 'xqlr-basic',
+      datas: { XMMC: row.zyssxmc, ND: row.nd, YJDW: 'DW001', XMBM: '' }
+    }])
+  }
   return row ? success(clone(row)) : fail('未找到预算事项')
 })
 
@@ -250,6 +263,22 @@ Mock.mock(/process40\/getComCodeByCode(?:\?.*)?$/, 'post', () =>
     ]
   })
 )
+// 预算包弹窗：按项目类型 + 年度返回项目包（全量，不分页）
+Mock.mock(/process40\/getXmbArr\/?(?:\?.*)?$/, 'post', (options: MockOptions) => {
+  const body = parseBody(options)
+  const nd = String(body.year || '')
+  const protypeId = String(body.xmlx || '')
+  if (!nd || !protypeId) return success([])
+  const projectType = PROJECT_TYPES.flatMap((item) => [item, ...(item.children || [])]).find((item) => item.id === protypeId)
+  const typeName = projectType?.name || protypeId
+  return success(
+    Array.from({ length: 6 }, (_, index) => ({
+      id: `xmb-${protypeId}-${nd}-${index + 1}`,
+      code: `XMB-${protypeId}-${nd}-${String(index + 1).padStart(2, '0')}`,
+      name: `${nd}年${typeName}项目包${index + 1}`
+    }))
+  )
+})
 Mock.mock(/commonCode\/pageCommonCode(?:\?.*)?$/, 'post', (options: MockOptions) => {
   const body = parseBody(options)
   const keyword = String(body.name || body.code || '').toLowerCase()

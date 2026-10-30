@@ -20,6 +20,8 @@ export const useFavoritesStore = defineStore('favorites', () => {
   const overrides = ref<Record<string, boolean>>({})
   const loadPending = ref(false)
   const loadFailed = ref(false)
+  let sessionVersion = 0
+  let loadVersion = 0
 
   const userId = computed(() => session.user.id)
   const favorites = computed<MenuFavorite[]>(() => favoritesByUser.value[userId.value] ?? [])
@@ -33,9 +35,14 @@ export const useFavoritesStore = defineStore('favorites', () => {
     const id = userId.value
     if (!id) return
     if (!force && loadedUsers.value[id]) return
+    const sessionId = sessionVersion
+    const requestId = ++loadVersion
+    const isCurrent = () => sessionId === sessionVersion && id === userId.value && requestId === loadVersion
     loadPending.value = true
+    loadFailed.value = false
     try {
       const res = await getFavoriteMenuList()
+      if (!isCurrent()) return
       if (!res.success) throw new Error(res.msg || '收藏菜单加载失败')
       favoritesByUser.value = {
         ...favoritesByUser.value,
@@ -45,9 +52,9 @@ export const useFavoritesStore = defineStore('favorites', () => {
       loadedUsers.value = { ...loadedUsers.value, [id]: true }
       loadFailed.value = false
     } catch {
-      loadFailed.value = true
+      if (isCurrent()) loadFailed.value = true
     } finally {
-      loadPending.value = false
+      if (isCurrent()) loadPending.value = false
     }
   }
 
@@ -67,21 +74,27 @@ export const useFavoritesStore = defineStore('favorites', () => {
     const id = menuId
     if (!id || !canFavorite.value || isPending(id)) return false
 
+    const accountId = userId.value
+    const sessionId = sessionVersion
+    const isCurrent = () => sessionId === sessionVersion && accountId === userId.value
     const current = isFavorite(id, initial)
     pendingMenuIds.value = { ...pendingMenuIds.value, [id]: true }
     overrides.value = { ...overrides.value, [id]: !current }
     try {
       const res = await toggleMenuFavorite(id)
+      if (!isCurrent()) return false
       if (!res.success) throw new Error(res.msg || '收藏操作失败')
       await reload(true)
-      return true
+      return isCurrent()
     } catch {
-      overrides.value = { ...overrides.value, [id]: current }
+      if (isCurrent()) overrides.value = { ...overrides.value, [id]: current }
       return false
     } finally {
-      const next = { ...pendingMenuIds.value }
-      Reflect.deleteProperty(next, id)
-      pendingMenuIds.value = next
+      if (isCurrent()) {
+        const next = { ...pendingMenuIds.value }
+        Reflect.deleteProperty(next, id)
+        pendingMenuIds.value = next
+      }
     }
   }
 
@@ -89,11 +102,15 @@ export const useFavoritesStore = defineStore('favorites', () => {
   watch(
     userId,
     () => {
+      sessionVersion += 1
+      loadVersion += 1
       overrides.value = {}
       pendingMenuIds.value = {}
-      void reload()
+      loadPending.value = false
+      loadFailed.value = false
+      void reload(true)
     },
-    { immediate: true }
+    { immediate: true, flush: 'sync' }
   )
 
   return {

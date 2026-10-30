@@ -47,7 +47,7 @@
           <p class="auth-status__copy">{{ stateCopy.description }}</p>
         </div>
 
-        <ol class="auth-steps" aria-label="登录进度">
+        <ol v-if="status !== 'external'" class="auth-steps" aria-label="登录进度">
           <li v-for="(step, index) in phases" :key="step.key" class="auth-step" :data-state="stepState(index)">
             <span class="auth-step__marker" aria-hidden="true">
               <Check v-if="stepState(index) === 'done'" :size="11" :stroke-width="2.4" />
@@ -58,7 +58,7 @@
           </li>
         </ol>
 
-        <div v-if="status !== 'loading'" class="auth-actions">
+        <div v-if="status !== 'loading' && status !== 'external'" class="auth-actions">
           <button class="ds-button ds-button--primary auth-actions__primary" type="button" @click="autoLogin">
             <RefreshCw :size="15" :stroke-width="1.8" aria-hidden="true" />
             {{ status === 'forbidden' ? '重新验证权限' : '重新登录' }}
@@ -70,7 +70,7 @@
 
         <div class="auth-card__foot">
           <LockKeyhole :size="13" :stroke-width="1.8" aria-hidden="true" />
-          <span>登录凭据由企业统一配置提供，本页不会收集或展示账号信息。</span>
+          <span>请通过企业统一认证访问，本页不收集或展示账号信息。</span>
         </div>
       </div>
 
@@ -86,25 +86,23 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Base64 } from 'js-base64'
 import { Check, CircleAlert, LoaderCircle, LockKeyhole, RefreshCw, ShieldAlert } from '@lucide/vue'
 import { useSessionStore } from '@/store'
 import baseService from '@/service/baseService'
 import { CacheToken, Permissions } from '@/constants/cacheKey'
 import { removeCache, setCache } from '@/utils/cache'
-import { getUuid } from '@/utils/utils'
 import app from '@/constants/app'
 import { BrandMark } from '@/design-system'
 
 defineOptions({ name: 'LoginPage' })
 
-type LoginStatus = 'loading' | 'forbidden' | 'error'
+type LoginStatus = 'loading' | 'forbidden' | 'error' | 'external'
 type LoginPhase = 'identity' | 'permission' | 'workspace'
 
 const router = useRouter()
 const session = useSessionStore()
 
-const status = ref<LoginStatus>('loading')
+const status = ref<LoginStatus>(import.meta.env.DEV ? 'loading' : 'external')
 const loginPending = ref(false)
 const phase = ref<LoginPhase>('identity')
 const failedPhase = ref<LoginPhase | null>(null)
@@ -135,6 +133,12 @@ const stepState = (index: number): 'done' | 'active' | 'error' | 'pending' => {
 }
 
 const stateCopy = computed(() => {
+  if (status.value === 'external') {
+    return {
+      title: '请从企业统一入口访问',
+      description: '本系统由外部统一认证提供登录身份。请返回企业统一入口重新进入，如仍无法访问，请联系系统管理员。'
+    }
+  }
   if (status.value === 'forbidden') {
     return {
       title: '暂无系统访问权限',
@@ -155,15 +159,9 @@ const stateCopy = computed(() => {
   return { title: '正在进入工作台', description: descriptions[phase.value] }
 })
 
-// 旧版统一认证入口：凭据由构建环境注入，避免把测试账号写死在源码里。
-const env = import.meta.env as Record<string, string | undefined>
-const credentials = {
-  account: env.VITE_APP_LOGIN_USER ?? 'admin',
-  password: env.VITE_APP_LOGIN_PASSWORD ?? 'admin',
-  captcha: env.VITE_APP_LOGIN_CAPTCHA ?? 'HE_YUE_11_22_33'
-}
-
 const autoLogin = async () => {
+  // 正式身份由外部系统提供；构建时会移除整个开发联调分支及凭据模块。
+  if (!import.meta.env.DEV) return
   if (loginPending.value) return
   loginPending.value = true
   status.value = 'loading'
@@ -171,12 +169,8 @@ const autoLogin = async () => {
   failedPhase.value = null
 
   try {
-    const res = await baseService.post<Record<string, unknown> | null>('/login', {
-      a: Base64.encode(credentials.account),
-      b: Base64.encode(credentials.password),
-      captcha: Base64.encode(credentials.captcha),
-      u: Base64.encode(getUuid())
-    })
+    const { loginForDevelopment } = await import('./development-login')
+    const res = await loginForDevelopment()
 
     if (res.code !== 0 || !res.data) throw new Error(res.msg || '登录接口返回异常')
 

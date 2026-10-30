@@ -73,6 +73,102 @@ describe('favorites store', () => {
     expect(favorites.isPending('embed')).toBe(false)
   })
 
+  it('ignores a failed toggle from an account that has signed out', async () => {
+    const oldToggle = Promise.withResolvers<unknown>()
+    api.toggle.mockReturnValueOnce(oldToggle.promise)
+    const favorites = useFavoritesStore()
+    await vi.waitFor(() => {
+      expect(favorites.loadPending).toBe(false)
+    })
+    const pending = favorites.toggleFavorite('embed', false)
+
+    api.list.mockResolvedValue(response([]))
+    useSessionStore().setUser({ id: 'user-2' })
+    await vi.waitFor(() => {
+      expect(favorites.loadPending).toBe(false)
+    })
+    expect(favorites.isFavorite('embed', false)).toBe(false)
+    oldToggle.reject(new Error('late failure from user-1'))
+    await expect(pending).resolves.toBe(false)
+    expect(favorites.isFavorite('embed', false)).toBe(false)
+  })
+
+  it.each(['success', 'failure'])('does not let an old toggle %s refresh or clear a new account pending operation', async (outcome) => {
+    const oldToggle = Promise.withResolvers<unknown>()
+    const newToggle = Promise.withResolvers<unknown>()
+    api.toggle.mockReturnValueOnce(oldToggle.promise).mockReturnValueOnce(newToggle.promise)
+    const favorites = useFavoritesStore()
+    await vi.waitFor(() => {
+      expect(favorites.loadPending).toBe(false)
+    })
+    const oldPending = favorites.toggleFavorite('embed', false)
+
+    api.list.mockResolvedValue(response([]))
+    useSessionStore().setUser({ id: 'user-2' })
+    await vi.waitFor(() => {
+      expect(favorites.loadPending).toBe(false)
+    })
+    const newPending = favorites.toggleFavorite('embed', false)
+    const listCalls = api.list.mock.calls.length
+
+    if (outcome === 'success') oldToggle.resolve(response(true))
+    else oldToggle.reject(new Error('late failure'))
+    await expect(oldPending).resolves.toBe(false)
+    expect(api.list).toHaveBeenCalledTimes(listCalls)
+    expect(favorites.isPending('embed')).toBe(true)
+    expect(favorites.isFavorite('embed', false)).toBe(true)
+
+    api.list.mockResolvedValue(response([favorite]))
+    newToggle.resolve(response(true))
+    await expect(newPending).resolves.toBe(true)
+    expect(favorites.isPending('embed')).toBe(false)
+  })
+
+  it('does not let a previous account list failure change the current loading state', async () => {
+    const oldList = Promise.withResolvers<unknown>()
+    const newList = Promise.withResolvers<unknown>()
+    api.list.mockReturnValueOnce(oldList.promise).mockReturnValueOnce(newList.promise)
+    const favorites = useFavoritesStore()
+    useSessionStore().setUser({ id: 'user-2' })
+    oldList.reject(new Error('old account unavailable'))
+    await oldList.promise.catch(() => undefined)
+    expect(favorites.loadPending).toBe(true)
+    expect(favorites.loadFailed).toBe(false)
+
+    newList.resolve(response([]))
+    await vi.waitFor(() => {
+      expect(favorites.loadPending).toBe(false)
+    })
+    expect(favorites.loadFailed).toBe(false)
+  })
+
+  it('ignores old results even when switching away and back to the same account synchronously', async () => {
+    const oldList = Promise.withResolvers<unknown>()
+    api.list.mockReturnValueOnce(oldList.promise).mockResolvedValue(response([]))
+    const favorites = useFavoritesStore()
+    const session = useSessionStore()
+    session.setUser({ id: 'user-2' })
+    session.setUser({ id: 'user-1' })
+    await vi.waitFor(() => {
+      expect(favorites.loadPending).toBe(false)
+    })
+    oldList.resolve(response([favorite]))
+    await oldList.promise
+    expect(favorites.favorites).toEqual([])
+    expect(favorites.isFavorite('embed', false)).toBe(false)
+  })
+
+  it('keeps the most recent reload when requests complete out of order', async () => {
+    const oldList = Promise.withResolvers<unknown>()
+    api.list.mockReturnValueOnce(oldList.promise).mockResolvedValue(response([]))
+    const favorites = useFavoritesStore()
+    await favorites.reload(true)
+    oldList.resolve(response([favorite]))
+    await oldList.promise
+    expect(favorites.favorites).toEqual([])
+    expect(favorites.loadPending).toBe(false)
+  })
+
   it('does not fetch without an authenticated user and reports load failures', async () => {
     setActivePinia(createPinia())
     const anonymous = useFavoritesStore()

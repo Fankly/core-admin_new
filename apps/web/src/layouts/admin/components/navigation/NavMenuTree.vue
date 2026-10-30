@@ -82,10 +82,10 @@ import classNames from 'classnames'
 import { computed } from 'vue'
 import type { CSSProperties } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
-import { FileText, Folder, Layers } from '@lucide/vue'
 import ReText from '@/components/ReText/src/index.vue'
 import SvgIcon from '@/components/base/svg-icon'
 import MenuFavoriteButton from './MenuFavoriteButton.vue'
+import { navLevelIcon } from './nav-level-icon'
 
 defineOptions({ name: 'NavMenuTree' })
 
@@ -112,10 +112,8 @@ const props = withDefaults(defineProps<Props>(), {
   levelIcons: false
 })
 
-/** 图标只由层级决定：L1 层叠 · L2 文件夹 · L3 文件 · L4 及以下圆点 */
-const LEVEL_ICONS = [Layers, Folder, FileText]
-
-const levelIcon = computed(() => (props.levelIcons ? LEVEL_ICONS[props.level - 1] : undefined))
+/** 图标只由层级决定，图形在各入口间共用 nav-level-icon */
+const levelIcon = computed(() => (props.levelIcons ? navLevelIcon(props.level) : undefined))
 
 const shortTitle = (item: RouteRecordRaw): string => {
   const title = item.meta?.title
