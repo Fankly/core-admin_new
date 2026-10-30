@@ -35,7 +35,7 @@ await page.route('**/api/**', async (route) => {
 await page.goto('http://127.0.0.1:8001/#/iframe/milestone')
 await page.waitForTimeout(1200)
 console.log('user chip:', await page.locator('.ds-user').innerText())
-await page.locator('.ds-breadcrumb__link', { hasText: '项目管理' }).click()
+console.log('crumbs:', await page.locator('.ds-breadcrumb').innerText()); await page.locator('.ds-breadcrumb a', { hasText: '项目管理' }).click({ timeout: 5000 })
 await page.waitForTimeout(1000)
 console.log('after click url:', page.url())
 console.log('tabs:', await page.locator('[role=tab]').allInnerTexts())
