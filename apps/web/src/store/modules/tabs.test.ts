@@ -77,6 +77,25 @@ describe('tabs store', () => {
     expect(tabs.closedPaths).toContain('/d')
   })
 
+  it('counts what each bulk close would remove, skipping affix tabs', () => {
+    const tabs = useTabsStore()
+    expect(tabs.closableCounts).toEqual({ left: 0, right: 0, others: 0, all: 0 })
+
+    ;['/a', '/b', '/c', '/d'].forEach((path) => {
+      tabs.openTab({ path, title: path })
+    })
+    tabs.activate('/c')
+    expect(tabs.closableCounts).toEqual({ left: 2, right: 1, others: 3, all: 4 })
+
+    tabs.activate('/home')
+    expect(tabs.closableCounts).toEqual({ left: 0, right: 4, others: 4, all: 4 })
+
+    tabs.activate('/c')
+    tabs.closeLeft()
+    tabs.closeRight()
+    expect(tabs.closableCounts).toEqual({ left: 0, right: 0, others: 0, all: 1 })
+  })
+
   it('honours keepAlive=false and ignores error routes', () => {
     const tabs = useTabsStore()
     tabs.openTab({ path: '/no-cache', title: 'No cache', keepAlive: false })

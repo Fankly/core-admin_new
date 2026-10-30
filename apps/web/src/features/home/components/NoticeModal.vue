@@ -262,17 +262,11 @@ const handleNotice = async (): Promise<void> => {
 /* 弹窗底部 */
 .notice-modal-footer {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: flex-end;
   gap: 0.75rem;
   width: 100%;
-}
-
-@media (min-width: 640px) {
-  .notice-modal-footer {
-    flex-direction: row;
-  }
 }
 
 .bpm-emergency-note {

@@ -297,11 +297,6 @@
   grid-auto-rows: 58px;
   gap: 10px 12px;
 }
-@media (max-width: 720px) {
-  .quick-all-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 
 /* 快捷入口配色：图标底色 / 图形色 */
 .tone-mint {
@@ -520,7 +515,7 @@
   }
 }
 
-/* ---------- 自适应 ---------- */
+/* ---------- 桌面内容区宽度调整 ---------- */
 @container home-dashboard (max-width: 850px) {
   .dash-hero-art {
     width: 46%;
@@ -531,37 +526,6 @@
   }
   .dash-hero {
     padding: 0 22px;
-  }
-}
-@container home-dashboard (max-width: 720px) {
-  .dash-hero {
-    min-height: 136px;
-  }
-  .dash-hero-art {
-    display: none;
-  }
-  .dash-hero-title {
-    max-width: none;
-  }
-  .dash-row {
-    grid-template-columns: 1fr;
-  }
-}
-@media (max-width: 720px) {
-  .home-dashboard {
-    padding: 0 10px 12px;
-  }
-}
-@container home-dashboard (max-width: 420px) {
-  .dash-hero {
-    min-height: 136px;
-    padding: 0 12px;
-  }
-  .dash-hero-title {
-    font-size: 26px;
-  }
-  .dash-card {
-    padding: 16px;
   }
 }
 /* ---------- 矮屏（笔记本/半屏窗口）----------

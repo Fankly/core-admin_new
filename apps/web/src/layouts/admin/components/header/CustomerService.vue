@@ -1,9 +1,9 @@
 <template>
-  <button class="ds-support-link" type="button" title="用户手册" @click="openHelpModal">
+  <button class="ds-support-link" type="button" aria-label="用户手册" title="用户手册" @click="openHelpModal">
     <BookOpen :size="15" :stroke-width="1.8" aria-hidden="true" />
     <span>用户手册</span>
   </button>
-  <button class="ds-support-link" type="button" title="联系客服" @click="openModal">
+  <button class="ds-support-link" type="button" aria-label="联系客服" title="联系客服" @click="openModal">
     <Headphones :size="15" :stroke-width="1.8" aria-hidden="true" />
     <span>联系客服</span>
   </button>
@@ -94,19 +94,23 @@ const openHelpModal = () => {
   display: inline-flex;
   gap: 6px;
   align-items: center;
-  height: 34px;
-  padding: 0 8px;
+  flex: 0 0 auto;
+  justify-content: center;
+  height: 36px;
+  padding: 0 10px;
   color: var(--ds-header-muted);
   font-size: var(--ds-text-sm);
   font-weight: 500;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: var(--ds-radius-xs);
+  border-radius: 9px;
+  white-space: nowrap;
   transition:
     color var(--ds-duration-fast) ease,
     background-color var(--ds-duration-fast) ease;
 
-  &:hover {
+  &:hover,
+  &:focus-visible {
     color: var(--ds-jade-700);
     background: var(--ds-jade-50);
   }
@@ -117,10 +121,21 @@ const openHelpModal = () => {
   color: var(--ds-header-muted);
 }
 
-.ui-topHeader-dark .ds-support-link:hover,
-.ui-topHeader-primary .ds-support-link:hover {
+.ui-topHeader-dark .ds-support-link:is(:hover, :focus-visible),
+.ui-topHeader-primary .ds-support-link:is(:hover, :focus-visible) {
   color: var(--ds-header-text);
   background: rgb(255 255 255 / 9%);
+}
+
+@media (max-width: 1180px) {
+  .ds-support-link {
+    width: 36px;
+    padding: 0;
+
+    span {
+      display: none;
+    }
+  }
 }
 
 :global(.ds-support-modal) {

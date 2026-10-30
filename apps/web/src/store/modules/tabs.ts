@@ -22,6 +22,18 @@ export const useTabsStore = defineStore('tabs', () => {
   const activeTab = computed(() => tabs.value.find((tab) => tab.path === activePath.value))
   const canClose = computed(() => tabs.value.some((tab) => !tab.affix))
 
+  /** 各批量关闭操作实际会关掉的标签数，与 closeLeft / closeRight / closeOthers / closeAll 同一规则（跳过固定页）。 */
+  const closableCounts = computed(() => {
+    const index = tabs.value.findIndex((tab) => tab.path === activePath.value)
+    const count = (predicate: (tab: TabItem, i: number) => boolean) => tabs.value.filter((tab, i) => !tab.affix && predicate(tab, i)).length
+    return {
+      left: index <= 0 ? 0 : count((_, i) => i < index),
+      right: index === -1 ? 0 : count((_, i) => i > index),
+      others: count((tab) => tab.path !== activePath.value),
+      all: count(() => true)
+    }
+  })
+
   function isAffix(path: string): boolean {
     return tabs.value.some((tab) => tab.path === path && tab.affix)
   }
@@ -135,6 +147,7 @@ export const useTabsStore = defineStore('tabs', () => {
     cachedViews,
     activeTab,
     canClose,
+    closableCounts,
     isAffix,
     openTab,
     activate,

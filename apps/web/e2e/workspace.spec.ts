@@ -160,6 +160,38 @@ test('page motion can be interrupted without reloading content or losing input',
   await expect(page.getByRole('tab', { name: '主页', exact: true })).toBeFocused()
 })
 
+test('tab actions menu counts what each command closes and works from the keyboard', async ({ page }) => {
+  await openWorkbench(page)
+  await page.getByRole('link', { name: /项目查询/ }).click()
+  await expect(page.frameLocator('iframe').getByRole('heading', { name: '项目页面' })).toBeVisible()
+  await page.getByRole('tab', { name: '工作台', exact: true }).click()
+
+  const trigger = page.getByRole('button', { name: '标签页操作' })
+  const menu = page.locator('.ds-tabs-menu')
+  await trigger.click()
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true')
+  await expect(menu.locator('.ds-tabs-menu__title')).toHaveText('工作台')
+  // 左侧只剩固定的主页，不可关闭；右侧 / 其他 / 全部按实际会关掉的数量标注
+  await expect(menu.getByRole('menuitem', { name: '关闭左侧标签页', exact: true })).toBeDisabled()
+  await expect(menu.getByRole('menuitem', { name: '关闭其他标签页（1 个）' })).toBeVisible()
+  await expect(menu.getByRole('menuitem', { name: '关闭全部标签页（2 个）' })).toBeVisible()
+  await menu.getByRole('menuitem', { name: '关闭右侧标签页（1 个）' }).click()
+  await expect(page.getByRole('tab', { name: '项目查询', exact: true })).toHaveCount(0)
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+
+  await trigger.focus()
+  await trigger.press('Enter')
+  await expect(menu.getByRole('menuitem', { name: '关闭右侧标签页', exact: true })).toBeDisabled()
+  await expect(menu.getByRole('menuitem', { name: '关闭其他标签页', exact: true })).toBeDisabled()
+  await page.keyboard.press('ArrowDown')
+  await expect(menu.getByRole('menuitem', { name: '关闭当前标签页', exact: true })).toBeFocused()
+  await page.keyboard.press('ArrowDown')
+  await expect(menu.getByRole('menuitem', { name: '关闭全部标签页（1 个）' })).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('tab', { name: '工作台', exact: true })).toHaveCount(0)
+  await expect(dashboardHeading(page)).toBeVisible()
+})
+
 test('system management lives in the avatar dropdown instead of the main navigation', async ({ page }) => {
   const menus = [
     {
@@ -204,7 +236,7 @@ test('system management lives in the avatar dropdown instead of the main navigat
   ]
   await page.route('**/api/sys/menu/nav**', (route) => route.fulfill({ json: { code: 0, success: true, data: menus } }))
   await page.route('**/api/sys/getUserInfo**', (route) =>
-    route.fulfill({ json: { code: 0, success: true, data: { id: 'e2e', name: '测试用户', fullName: '完整姓名', domainName: '总部' } } })
+    route.fulfill({ json: { code: 0, success: true, data: { id: 'e2e', name: '测试用户', fullName: '完整姓名', baseorg: '预算管理处' } } })
   )
   await openDashboard(page)
 
@@ -212,10 +244,11 @@ test('system management lives in the avatar dropdown instead of the main navigat
   await expect(rail.getByRole('menuitem', { name: '系统管理', exact: true })).toHaveCount(0)
   await expect(rail.getByRole('menuitem', { name: '业务平台', exact: true })).toBeVisible()
 
-  // 头像旁显示 user.name；fullName 只作为次要信息，不进顶部标签。
+  // 头像旁显示 user.name；fullName 只作为次要信息，不进顶部标签；名称下方是基准组织 baseorg。
   const trigger = page.getByRole('button', { name: '测试用户，系统管理' })
   await expect(trigger).toBeVisible()
   await expect(trigger).not.toContainText('完整姓名')
+  await expect(trigger.locator('.ds-user__org')).toHaveText('预算管理处')
   await expect(trigger).toHaveAttribute('aria-expanded', 'false')
 
   await trigger.click()
@@ -355,7 +388,8 @@ test('mixed navigation switches modules and keeps top labels visible when the ra
   await expect(rail.getByRole('menuitem', { name: '乙页面', exact: true })).toBeVisible()
   await expect(top.getByRole('menuitem', { name: '模块乙', exact: true })).toHaveClass(/is-active/)
   await page.setViewportSize({ width: 900, height: 900 })
-  await top.getByRole('menuitem', { name: '更多', exact: true }).hover()
+  const overflowMenu = top.getByRole('menuitem', { name: '更多', exact: true })
+  if (await overflowMenu.isVisible()) await overflowMenu.hover()
   await page.getByRole('menuitem', { name: '模块甲', exact: true }).click()
   await expect(rail.getByRole('menuitem', { name: '甲页面', exact: true })).toBeVisible()
   await page.setViewportSize({ width: 1440, height: 900 })

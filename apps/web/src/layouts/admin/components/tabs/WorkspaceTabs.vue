@@ -42,25 +42,49 @@
       </TransitionGroup>
     </div>
 
-    <el-dropdown trigger="click" placement="bottom-end" @command="onCommand">
-      <button class="ds-tabs__more" type="button" aria-label="标签页操作" title="标签页操作">
-        <ChevronDown :size="15" :stroke-width="1.9" aria-hidden="true" />
-      </button>
-      <template #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item v-for="item in operations" :key="item.command" :icon="item.icon" :command="item.command" :disabled="item.disabled">
-            {{ item.label }}
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </template>
-    </el-dropdown>
+    <div class="ds-tabs__actions">
+      <el-dropdown
+        trigger="click"
+        placement="bottom-end"
+        popper-class="ds-tabs-menu"
+        :show-arrow="false"
+        :offset="6"
+        @command="onCommand"
+        @visible-change="menuOpen = $event"
+      >
+        <button class="ds-tabs__more" :class="{ 'is-open': menuOpen }" type="button" aria-label="标签页操作" title="标签页操作">
+          <ChevronDown class="ds-tabs__more-icon" :size="16" :stroke-width="1.8" aria-hidden="true" />
+        </button>
+        <template #dropdown>
+          <div class="ds-tabs-menu__head">
+            <span class="ds-tabs-menu__dot" aria-hidden="true"></span>
+            <span class="ds-tabs-menu__title" :title="tabs.activeTab?.title">{{ tabs.activeTab?.title ?? '标签页' }}</span>
+          </div>
+          <el-dropdown-menu>
+            <el-dropdown-item
+              v-for="item in operations"
+              :key="item.command"
+              :command="item.command"
+              :disabled="item.disabled"
+              :divided="item.divided"
+              :class="{ 'is-danger': item.danger }"
+              :aria-label="item.count ? `${item.label}（${item.count} 个）` : item.label"
+            >
+              <component :is="item.icon" class="ds-tabs-menu__icon" :size="16" :stroke-width="1.8" aria-hidden="true" />
+              <span class="ds-tabs-menu__label">{{ item.label }}</span>
+              <span v-if="item.count" class="ds-tabs-menu__count" aria-hidden="true">{{ item.count }}</span>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ArrowLeft, ArrowRight, ChevronDown, CircleX, X } from '@lucide/vue'
+import { ArrowLeftToLine, ArrowRightToLine, ChevronDown, CopyX, FoldHorizontal, X } from '@lucide/vue'
 import type { TabItem } from '@/types/domain'
 import { usePreferencesStore, useTabsStore } from '@/store'
 
@@ -70,14 +94,19 @@ const router = useRouter()
 const tabs = useTabsStore()
 const preferences = usePreferencesStore()
 const scrollRef = ref<HTMLElement | null>(null)
+const menuOpen = ref(false)
 
-const operations = computed(() => [
-  { label: '关闭当前标签页', command: 'closeCurrent', icon: X, disabled: tabs.activeTab?.affix },
-  { label: '关闭其他标签页', command: 'closeOthers', icon: CircleX, disabled: tabs.tabs.length <= 2 },
-  { label: '关闭左侧标签页', command: 'closeLeft', icon: ArrowLeft, disabled: false },
-  { label: '关闭右侧标签页', command: 'closeRight', icon: ArrowRight, disabled: false },
-  { label: '关闭全部标签页', command: 'closeAll', icon: CircleX, disabled: tabs.tabs.length <= 1 }
-])
+/** 按作用范围分组：当前页 · 单侧 · 批量；计数即该操作会关掉的标签数，为 0 时禁用。 */
+const operations = computed(() => {
+  const counts = tabs.closableCounts
+  return [
+    { label: '关闭当前标签页', command: 'closeCurrent', icon: X, disabled: !tabs.activeTab || tabs.isAffix(tabs.activePath) },
+    { label: '关闭左侧标签页', command: 'closeLeft', icon: ArrowLeftToLine, count: counts.left, disabled: !counts.left, divided: true },
+    { label: '关闭右侧标签页', command: 'closeRight', icon: ArrowRightToLine, count: counts.right, disabled: !counts.right },
+    { label: '关闭其他标签页', command: 'closeOthers', icon: FoldHorizontal, count: counts.others, disabled: !counts.others, divided: true },
+    { label: '关闭全部标签页', command: 'closeAll', icon: CopyX, count: counts.all, disabled: !counts.all, danger: true }
+  ]
+})
 
 const navigate = (path?: string) => {
   if (path && path !== router.currentRoute.value.fullPath) void router.push(path)

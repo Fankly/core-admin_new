@@ -37,6 +37,8 @@ import './modules/versionNotice'
 import './modules/userManual'
 // 菜单收藏（侧栏星标）：toggle / list 两个接口，无路径参数收窄冲突
 import './modules/menuFavorite'
+// 外壳用户资料（/sys/getUserInfo）：顶栏头像旁的姓名与基准组织，菜单仍走真实后端
+import './modules/userProfile'
 // 预算统计配置页的 getNodeTree 收窄规则需先于宽泛的项目类别树注册（mockjs 按注册顺序取首个匹配）
 import './modules/budgetStatisticsConfig'
 // 预算执行分析（yszxylb / customYapProjectExecutionByType）依赖 budgetChanges 扩充的公共代码与参数，需在其后注册

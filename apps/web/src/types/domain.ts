@@ -11,6 +11,8 @@ export interface UserProfile {
   systemCode: string
   domainName: string
   fullName: string
+  /** 基准组织名称。后端字段名是全小写 baseorg，与 baseorg_id 对应。 */
+  baseorg: string
   [key: string]: unknown
 }
 
@@ -19,7 +21,8 @@ export const createEmptyUser = (): UserProfile => ({
   name: '',
   systemCode: '',
   domainName: '',
-  fullName: ''
+  fullName: '',
+  baseorg: ''
 })
 
 /** 服务端菜单元信息里前端真正消费的部分。 */

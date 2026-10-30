@@ -169,21 +169,215 @@
   display: none;
 }
 
+/* 操作入口：与标签条之间一根短竖线隔开，按钮本身是带边框的方形控件 */
+.ds-tabs__actions {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding-left: 9px;
+  margin-left: 6px;
+
+  &::before {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 1px;
+    height: 18px;
+    content: '';
+    background: var(--ds-line);
+    transform: translateY(-50%);
+  }
+}
+
 .ds-tabs__more {
   display: grid;
-  flex: 0 0 auto;
-  width: 30px;
-  height: 30px;
-  margin: 0 0 0 6px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   place-items: center;
   color: var(--ds-ink-secondary);
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: var(--ds-radius-xs);
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius-sm);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--ds-jade-700);
+    border-color: var(--ds-jade-200);
+  }
+
+  &.is-open {
+    color: var(--ds-jade-700);
+    background: var(--ds-jade-50);
+    border-color: var(--ds-jade-200);
+  }
 }
 
-.ds-tabs__more:hover {
+.ds-tabs__more-icon {
+  transition: transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.ds-tabs__more.is-open .ds-tabs__more-icon {
+  transform: rotate(180deg);
+}
+
+/* --------------------------------------------------------------------------
+   Tab actions menu — popper is teleported to body, so these rules are global
+   -------------------------------------------------------------------------- */
+
+.ds-tabs-menu.el-dropdown__popper.el-popper {
+  overflow: hidden;
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius-lg) !important;
+  transform-origin: top right;
+}
+
+.ds-tabs-menu.el-zoom-in-top-enter-active,
+.ds-tabs-menu.el-zoom-in-top-leave-active {
+  transform: none;
+  transition:
+    opacity var(--ds-duration-base) var(--ds-ease-out),
+    transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.ds-tabs-menu.el-zoom-in-top-leave-active {
+  transition-duration: var(--ds-duration-fast);
+}
+
+.ds-tabs-menu.el-zoom-in-top-enter-from,
+.ds-tabs-menu.el-zoom-in-top-leave-active {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+}
+
+.ds-tabs-menu__head {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  width: 248px;
+  padding: 11px 16px 10px;
+  border-bottom: 1px solid var(--ds-line);
+}
+
+.ds-tabs-menu__dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  background: var(--ds-jade-500);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-jade-500) 14%, transparent);
+}
+
+.ds-tabs-menu__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ds-ink);
+  font-size: var(--ds-text-md);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-tabs-menu .el-dropdown-menu {
+  padding: 6px;
+  border-radius: 0;
+  --el-dropdown-menuItem-hover-fill: var(--ds-jade-50);
+  --el-dropdown-menuItem-hover-color: var(--ds-jade-700);
+}
+
+.ds-tabs-menu .el-dropdown-menu__item {
+  gap: 10px;
+  min-height: 34px;
+  padding: 0 10px;
+  color: var(--ds-ink);
+  font-size: var(--ds-text-md);
+  line-height: 1;
+  border-radius: var(--ds-radius-sm);
+  transition:
+    color var(--ds-duration-fast) ease,
+    background-color var(--ds-duration-fast) ease;
+
+  &.is-disabled {
+    color: var(--el-text-color-disabled);
+  }
+
+  /* 面板 overflow 隐藏，全局 3px 外偏移的焦点环会被裁掉，菜单项改为内描边 */
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+}
+
+.ds-tabs-menu .el-dropdown-menu__item--divided {
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  margin: 6px 4px;
+  background: var(--ds-line);
+  border: 0;
+}
+
+.ds-tabs-menu__icon {
+  flex: 0 0 auto;
+  color: var(--ds-ink-tertiary);
+  transition: color var(--ds-duration-fast) ease;
+}
+
+.ds-tabs-menu .el-dropdown-menu__item:not(.is-disabled):is(:hover, :focus) .ds-tabs-menu__icon {
+  color: currentColor;
+}
+
+.ds-tabs-menu .el-dropdown-menu__item.is-disabled .ds-tabs-menu__icon {
+  color: inherit;
+}
+
+.ds-tabs-menu__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.ds-tabs-menu__count {
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  color: var(--ds-ink-secondary);
+  font-family: var(--ds-font-numeric);
+  font-size: var(--ds-text-xs);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  background: var(--ds-surface-sunken);
+  border-radius: var(--ds-radius-pill);
+  transition:
+    color var(--ds-duration-fast) ease,
+    background-color var(--ds-duration-fast) ease;
+}
+
+.ds-tabs-menu .el-dropdown-menu__item:not(.is-disabled):is(:hover, :focus) .ds-tabs-menu__count {
   color: var(--ds-jade-700);
-  background: var(--ds-jade-50);
+  background: var(--ds-jade-100);
+}
+
+/* 关闭全部会丢掉所有页面状态，悬停时用危险色提示 */
+.ds-tabs-menu .el-dropdown-menu__item.is-danger:not(.is-disabled):is(:hover, :focus) {
+  color: var(--ds-danger);
+  background: var(--ds-danger-soft);
+  outline-color: var(--ds-danger);
+
+  .ds-tabs-menu__count {
+    color: var(--ds-danger);
+    background: color-mix(in srgb, var(--ds-danger) 12%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-tabs__more-icon,
+  .ds-tabs-menu .el-dropdown-menu__item,
+  .ds-tabs-menu__icon,
+  .ds-tabs-menu__count {
+    transition: none;
+  }
 }
