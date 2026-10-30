@@ -14,7 +14,7 @@ The world is deliberately restrained because the product is used for long, dense
 2. **One workspace, not a card wall.** The content area is a framed sheet; panels inside it are separated by hairlines and spacing, not by nested elevation.
 3. **Signage, not decoration.** Headings are labels for work. No eyebrow labels, ornamental numerals, gradient text, or icon tiles standing in for content.
 4. **Attention is amber.** Teal means brand and current location. Amber means a real exception or missing permission. Both are used sparingly.
-5. **Quiet by default, precise on demand.** Dense data remains legible; transitions explain state and never choreograph page entry.
+5. **Consistent motion, legible data.** Navigation, page entry and controls share a short motion rhythm; dense tables remain stable.
 
 ## Palette
 
@@ -135,10 +135,13 @@ Permission refusal offers "重新验证权限". Workspace initialization failure
 
 ## Motion
 
-- 140–200ms for state changes; 320ms for the rail collapsing.
+- 140–200ms for controls, menu panels and tabs; 280ms for page entry; 320ms for drawers.
 - Ease-out `cubic-bezier(0.16, 1, 0.3, 1)` for spatial changes.
 - One authored loading moment: the route-line scan under the boot lockup and the phase pulse on sign-in.
-- No page-entry choreography. `prefers-reduced-motion: reduce` removes animation durations and iteration.
+- Both admin and fullscreen outlets use `usePageMotion`: an 8px fade-in on the existing container without remounting views or iframe documents. Rapid navigation cancels the previous animation; refresh waits for the new content to render.
+- System management keeps one expanded branch: opening a sibling closes the previous branch and its descendants while retaining the ancestors. Reopening the panel expands the current page's branch. Groups animate their natural height and stagger rows by 25ms, capped at 75ms. Home sections use the same bounded stagger; table rows are never staggered.
+- Tabs animate insertion, removal and movement without changing their keys or keyboard controls. Buttons, navigation icons, input focus and row highlights share the motion tokens in `styles/tokens.css` and `styles/motion.less`.
+- `prefers-reduced-motion: reduce` removes CSS delays and durations and cancels active page animations, including when the preference changes while the app is open.
 - The sidebar resizer uses rAF and suppresses transitions while dragging.
 
 ## Accessibility

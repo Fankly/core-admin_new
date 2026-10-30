@@ -1,7 +1,7 @@
 <template>
   <div class="ds-view" :class="{ 'ds-view--flush': route.meta.fullBleed }">
     <div class="ds-view__content">
-      <div class="ds-view__router">
+      <div ref="pageRef" class="ds-view__router">
         <router-view v-if="isShowView">
           <template #default="{ Component, route: currentRoute }">
             <KeepAliveFrame :curr-comp="Component" :curr-route="currentRoute">
@@ -26,6 +26,7 @@ import type { Component } from 'vue'
 import { useRoute } from 'vue-router'
 import { useShellStore, useTabsStore } from '@/store'
 import app from '@/constants/app'
+import { usePageMotion } from '@/hooks/usePageMotion'
 import KeepAliveFrame from './KeepAliveFrame/index.vue'
 import RouteLoading from '@/components/Loading/index.vue'
 
@@ -36,6 +37,8 @@ const shell = useShellStore()
 const tabs = useTabsStore()
 const isShowView = ref(true)
 const enabledKeepAlive = app.enabledKeepAlive
+const pageRef = ref<HTMLElement | null>(null)
+usePageMotion(pageRef, () => [route.fullPath, shell.reloadToken])
 
 /**
  * keep-alive 的 include 匹配组件 name，而 tabs store 保存的是 fullPath。

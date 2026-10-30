@@ -41,7 +41,11 @@
         <span class="ds-user__name">{{ displayName }}</span>
       </div>
 
-      <Transition name="ds-user-menu">
+      <Transition
+        name="ds-user-menu"
+        @before-leave="(el: Element) => el.setAttribute('inert', '')"
+        @before-enter="(el: Element) => el.removeAttribute('inert')"
+      >
         <UserMenuPanel v-if="userMenuOpen" id="ds-user-menu" :items="systemMenus" @close="closeUserMenu" />
       </Transition>
     </div>

@@ -1,4 +1,141 @@
-/* Motion belongs to state: loading, route transition, focus. */
+/* Shared motion for navigation, page content and business controls. */
+
+@keyframes ds-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ds-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.ds-fade-enter-active,
+.ds-fade-leave-active {
+  transition: opacity var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.ds-fade-enter-from,
+.ds-fade-leave-to {
+  opacity: 0;
+}
+
+.ds-fade-leave-active {
+  pointer-events: none;
+}
+
+/* Height is owned by ElCollapseTransition; row motion does not affect its measurement. */
+.ds-user-menu__node > :is(.ds-user-menu__toggle, .ds-user-menu__link) {
+  animation: ds-menu-enter var(--ds-duration-base) var(--ds-ease-out) backwards;
+}
+
+.ds-user-menu__node:nth-child(2) > :is(.ds-user-menu__toggle, .ds-user-menu__link) {
+  animation-delay: var(--ds-motion-stagger);
+}
+
+.ds-user-menu__node:nth-child(3) > :is(.ds-user-menu__toggle, .ds-user-menu__link) {
+  animation-delay: calc(var(--ds-motion-stagger) * 2);
+}
+
+.ds-user-menu__node:nth-child(n + 4) > :is(.ds-user-menu__toggle, .ds-user-menu__link) {
+  animation-delay: calc(var(--ds-motion-stagger) * 3);
+}
+
+.ds-user-menu__children.el-collapse-transition-leave-active {
+  pointer-events: none;
+}
+
+.ds-user-menu__icon,
+.ds-user-menu__external,
+.module-entry__arrow,
+.rr-sidebar-menu-entry__label {
+  transition: transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+/* Only the first screen's major sections are staggered; tables never animate every row. */
+.dash-hero,
+.dash-card,
+.workbench__body > *,
+.ds-empty-state,
+.ds-nav__empty {
+  animation: ds-content-enter var(--ds-duration-page) var(--ds-ease-out) backwards;
+}
+
+.dash-row > :nth-child(2),
+.workbench__body > :nth-child(2) {
+  animation-delay: var(--ds-motion-stagger);
+}
+
+.dash-row > :nth-child(3) {
+  animation-delay: calc(var(--ds-motion-stagger) * 2);
+}
+
+.dash-todo {
+  animation-delay: calc(var(--ds-motion-stagger) * 3);
+}
+
+:is(.ds-button, .ds-icon-button, .ds-tabs__more, .ds-nav__tool, .el-button, .vxe-button) {
+  transition:
+    color var(--ds-duration-fast) ease,
+    background-color var(--ds-duration-fast) ease,
+    border-color var(--ds-duration-fast) ease,
+    box-shadow var(--ds-duration-fast) ease,
+    transform var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+:is(.el-input__wrapper, .el-select__wrapper, .el-textarea__inner) {
+  transition:
+    border-color var(--ds-duration-fast) ease,
+    box-shadow var(--ds-duration-fast) ease,
+    background-color var(--ds-duration-fast) ease;
+}
+
+:is(.el-table__body, .vxe-table--body) td {
+  transition: background-color var(--ds-duration-fast) ease;
+}
+
+.el-drawer:not(.is-dragging) {
+  transition:
+    transform var(--ds-duration-slow) var(--ds-ease-out),
+    opacity var(--ds-duration-base) ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is(.ds-button, .ds-icon-button, .ds-tabs__more, .ds-nav__tool, .el-button, .vxe-button):not(:disabled, .is-disabled, .is-loading):active {
+    transform: scale(0.97);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :is(.ds-button, .ds-icon-button, .ds-tabs__more, .ds-nav__tool, .el-button, .vxe-button):not(:disabled, .is-disabled, .is-loading):hover {
+    transform: translateY(-1px);
+  }
+
+  :is(.ds-button, .ds-icon-button, .ds-tabs__more, .ds-nav__tool, .el-button, .vxe-button):not(:disabled, .is-disabled, .is-loading):active {
+    transform: scale(0.97);
+  }
+
+  :is(.ds-user-menu__toggle, .ds-user-menu__link):hover .ds-user-menu__icon,
+  .ds-user-menu__link:hover .ds-user-menu__external,
+  .module-entry:hover .module-entry__arrow,
+  .ds-nav--vertical .el-menu-item:hover .rr-sidebar-menu-entry__label {
+    transform: translateX(2px);
+  }
+}
 
 @keyframes ds-route-scan {
   0% {
@@ -63,7 +200,9 @@
   *::after {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
 }

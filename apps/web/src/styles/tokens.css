@@ -100,8 +100,14 @@
   --ds-duration-fast: 140ms;
   --ds-duration-base: 200ms;
   --ds-duration-slow: 320ms;
+  --ds-duration-page: 280ms;
+  --ds-motion-stagger: 25ms;
 
   /* Element Plus mapping — components inherit the same world. */
+  --el-transition-duration: var(--ds-duration-page);
+  --el-transition-duration-fast: var(--ds-duration-fast);
+  --el-transition-function-ease-in-out-bezier: var(--ds-ease-out);
+  --el-transition-function-fast-bezier: var(--ds-ease-out);
   --el-font-family: var(--ds-font-sans);
   --el-font-size-base: var(--ds-text-base);
   --el-font-size-small: var(--ds-text-md);

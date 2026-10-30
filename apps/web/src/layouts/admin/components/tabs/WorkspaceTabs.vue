@@ -1,37 +1,45 @@
 <template>
   <div class="ds-tabs" :class="`ds-tabs--${preferences.tabStyle}`">
     <div ref="scrollRef" class="ds-tabs__scroll" role="tablist" aria-label="已打开页面">
-      <div
-        v-for="(tab, index) in tabs.tabs"
-        :key="tab.path"
-        class="ds-tabs__item"
-        :class="{ 'is-active': tab.path === tabs.activePath, 'is-affix': tab.affix }"
+      <TransitionGroup
+        name="ds-tab"
+        tag="div"
+        class="ds-tabs__items"
+        @before-leave="(el: Element) => el.setAttribute('inert', '')"
+        @before-enter="(el: Element) => el.removeAttribute('inert')"
       >
-        <button
-          class="ds-tabs__link"
-          type="button"
-          role="tab"
-          :aria-selected="tab.path === tabs.activePath"
-          :tabindex="tab.path === tabs.activePath ? 0 : -1"
-          :title="tab.title"
-          @click="navigate(tab.path)"
-          @auxclick="onAuxClick($event, tab)"
-          @keydown="onTabKeydown($event, index)"
+        <div
+          v-for="(tab, index) in tabs.tabs"
+          :key="tab.path"
+          class="ds-tabs__item"
+          :class="{ 'is-active': tab.path === tabs.activePath, 'is-affix': tab.affix }"
         >
-          <span class="ds-tabs__dot" aria-hidden="true"></span>
-          <span class="ds-tabs__label">{{ tab.title }}</span>
-        </button>
-        <button
-          v-if="!tab.affix"
-          class="ds-tabs__close"
-          type="button"
-          :aria-label="`关闭 ${tab.title}`"
-          title="关闭"
-          @click.stop="closeTab(tab.path)"
-        >
-          <X :size="12" :stroke-width="2" aria-hidden="true" />
-        </button>
-      </div>
+          <button
+            class="ds-tabs__link"
+            type="button"
+            role="tab"
+            :aria-selected="tab.path === tabs.activePath"
+            :tabindex="tab.path === tabs.activePath ? 0 : -1"
+            :title="tab.title"
+            @click="navigate(tab.path)"
+            @auxclick="onAuxClick($event, tab)"
+            @keydown="onTabKeydown($event, index)"
+          >
+            <span class="ds-tabs__dot" aria-hidden="true"></span>
+            <span class="ds-tabs__label">{{ tab.title }}</span>
+          </button>
+          <button
+            v-if="!tab.affix"
+            class="ds-tabs__close"
+            type="button"
+            :aria-label="`关闭 ${tab.title}`"
+            title="关闭"
+            @click.stop="closeTab(tab.path)"
+          >
+            <X :size="12" :stroke-width="2" aria-hidden="true" />
+          </button>
+        </div>
+      </TransitionGroup>
     </div>
 
     <el-dropdown trigger="click" placement="bottom-end" @command="onCommand">
@@ -77,7 +85,7 @@ const navigate = (path?: string) => {
 
 const focusActiveTab = () => {
   void nextTick(() => {
-    scrollRef.value?.querySelector<HTMLElement>('.ds-tabs__item.is-active .ds-tabs__link')?.focus()
+    scrollRef.value?.querySelector<HTMLElement>('.ds-tabs__item.is-active:not([inert]) .ds-tabs__link')?.focus()
   })
 }
 
@@ -98,7 +106,7 @@ const onTabKeydown = (event: KeyboardEvent, index: number) => {
   const targetIndex = (keys[event.key] + tabs.tabs.length) % tabs.tabs.length
   event.preventDefault()
   const container = (event.currentTarget as HTMLElement).closest('.ds-tabs__scroll')
-  const buttons = container?.querySelectorAll<HTMLButtonElement>('.ds-tabs__link')
+  const buttons = container?.querySelectorAll<HTMLButtonElement>('.ds-tabs__item:not([inert]) .ds-tabs__link')
   buttons?.[targetIndex]?.focus()
 }
 
@@ -128,7 +136,7 @@ watch(
   () => {
     void nextTick(() => {
       const container = scrollRef.value
-      const active = container?.querySelector<HTMLElement>('.ds-tabs__item.is-active')
+      const active = container?.querySelector<HTMLElement>('.ds-tabs__item.is-active:not([inert])')
       if (!container || !active) return
       const viewport = container.getBoundingClientRect()
       const item = active.getBoundingClientRect()

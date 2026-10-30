@@ -15,14 +15,16 @@
   -->
   <el-config-provider :locale="locale">
     <a v-if="showPageLayout" class="ds-skip-link" href="#workspace-main" @click.prevent="focusWorkspace">跳转到工作区</a>
-    <div v-if="showLoading" class="app-boot" role="status" aria-live="polite">
-      <div class="app-boot__lockup">
-        <BrandMark />
-        <p class="app-boot__title">正在载入工作区</p>
-        <div class="app-boot__track ds-route-line" aria-hidden="true"></div>
-        <p class="app-boot__hint">正在同步身份、权限与导航</p>
+    <Transition name="ds-fade">
+      <div v-if="showLoading" class="app-boot" role="status" aria-live="polite">
+        <div class="app-boot__lockup">
+          <BrandMark />
+          <p class="app-boot__title">正在载入工作区</p>
+          <div class="app-boot__track ds-route-line" aria-hidden="true"></div>
+          <p class="app-boot__hint">正在同步身份、权限与导航</p>
+        </div>
       </div>
-    </div>
+    </Transition>
     <AdminLayout v-if="showPageLayout" />
     <FullscreenLayout v-else-if="showFullscreenLayout" />
   </el-config-provider>

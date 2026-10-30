@@ -7,7 +7,7 @@
       type="button"
       :style="indentStyle"
       :aria-expanded="open"
-      @click="open = !open"
+      @click="emit('toggle', item.key, depth)"
     >
       <i class="ds-user-menu__icon" aria-hidden="true">
         <component :is="levelIcon" v-if="levelIcon" />
@@ -33,14 +33,28 @@
       <ArrowUpRight v-if="item.isNewPage" class="ds-user-menu__external" :size="13" :stroke-width="1.8" aria-hidden="true" />
     </NavigationLink>
 
-    <ul v-if="hasChildren && open" class="ds-user-menu__children">
-      <UserMenuNode v-for="child in item.children" :key="child.key" :item="child" :depth="depth + 1" :active-path="activePath" />
-    </ul>
+    <el-collapse-transition
+      v-if="hasChildren"
+      @before-leave="(el: Element) => el.setAttribute('inert', '')"
+      @before-enter="(el: Element) => el.removeAttribute('inert')"
+    >
+      <ul v-if="open" class="ds-user-menu__children">
+        <UserMenuNode
+          v-for="child in item.children"
+          :key="child.key"
+          :item="child"
+          :depth="depth + 1"
+          :active-path="activePath"
+          :expanded-path="expandedPath"
+          @toggle="forwardToggle"
+        />
+      </ul>
+    </el-collapse-transition>
   </li>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { ArrowUpRight, ChevronDown } from '@lucide/vue'
 import { NavigationLink } from '@/design-system'
 import type { UserMenuItem } from '@/utils/menu'
@@ -52,7 +66,12 @@ const props = defineProps<{
   item: UserMenuItem
   depth: number
   activePath: string
+  expandedPath: string[]
 }>()
+const emit = defineEmits<{ toggle: [key: string, depth: number] }>()
+const forwardToggle = (key: string, depth: number) => {
+  emit('toggle', key, depth)
+}
 
 const hasChildren = computed(() => props.item.children.length > 0)
 const target = computed(() => (props.item.isNewPage ? props.item.url : props.item.path))
@@ -68,15 +87,7 @@ const containsActive = computed<boolean>(() => {
   return walk(props.item)
 })
 
-const open = ref(containsActive.value)
-
-// 从页签 / 面包屑切到系统管理页面后再次打开下拉时，自动展开所在分组
-watch(
-  () => props.activePath,
-  (path, previous) => {
-    if (path && path !== previous && containsActive.value) open.value = true
-  }
-)
+const open = computed(() => props.expandedPath[props.depth] === props.item.key)
 
 // 与侧栏同一套缩进：起点 10px，每级固定 14px（图标宽度不参与计算）
 const ROW_INSET = 10

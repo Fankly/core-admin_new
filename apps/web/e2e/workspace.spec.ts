@@ -116,6 +116,50 @@ test('home dashboard renders its cards and favourite-driven quick entries', asyn
   await expect(page.frameLocator('iframe').getByRole('heading', { name: '项目页面' })).toBeVisible()
 })
 
+test('page motion can be interrupted without reloading content or losing input', async ({ page }) => {
+  let frameRequests = 0
+  page.on('request', (request) => {
+    if (request.url() === 'https://example.com/project') frameRequests += 1
+  })
+  await openWorkbench(page)
+  const search = page.getByRole('textbox', { name: '搜索业务模块' })
+  // Leave enough time to change the OS preference during a running page animation.
+  await page.evaluate(() => document.documentElement.style.setProperty('--ds-duration-page', '2000ms'))
+  await page.getByRole('link', { name: /项目查询/ }).click()
+  const frameHeading = page.frameLocator('iframe').getByRole('heading', { name: '项目页面' })
+  await expect(frameHeading).toBeVisible()
+  const outlet = page.locator('.ds-view__router')
+  await expect.poll(() => outlet.evaluate((element) => element.getAnimations().length)).toBeGreaterThan(0)
+  const initialFrameRequests = frameRequests
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect.poll(() => outlet.evaluate((element) => element.getAnimations().length)).toBe(0)
+  await expect(frameHeading).toBeVisible()
+  expect(frameRequests).toBe(initialFrameRequests)
+
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.getByRole('tab', { name: '工作台', exact: true }).click()
+  await search.fill('保留筛选内容')
+  await expect.poll(() => outlet.evaluate((element) => element.getAnimations().length)).toBeGreaterThan(0)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect.poll(() => outlet.evaluate((element) => element.getAnimations().length)).toBe(0)
+  await expect(outlet).toHaveCSS('opacity', '1')
+  await expect(outlet).toHaveCSS('transform', 'none')
+  await expect(search).toHaveValue('保留筛选内容')
+  await page.getByRole('tab', { name: '主页', exact: true }).click()
+  await page.getByRole('tab', { name: '工作台', exact: true }).click()
+  await expect(search).toBeVisible()
+  expect(await outlet.evaluate((element) => element.getAnimations().length)).toBe(0)
+  await expect(page.locator('.workbench__aside')).toHaveCSS('animation-delay', '0s')
+
+  await page.evaluate(() => document.documentElement.style.removeProperty('--ds-duration-page'))
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.getByRole('button', { name: '关闭 工作台', exact: true }).click()
+  const remainingTab = page.getByRole('tab', { name: '项目查询', exact: true })
+  await expect(remainingTab).toBeFocused()
+  await remainingTab.press('ArrowLeft')
+  await expect(page.getByRole('tab', { name: '主页', exact: true })).toBeFocused()
+})
+
 test('system management lives in the avatar dropdown instead of the main navigation', async ({ page }) => {
   const menus = [
     {
@@ -140,8 +184,20 @@ test('system management lives in the avatar dropdown instead of the main navigat
               name: '部门管理',
               url: '/system/org/dept',
               children: [{ id: 'sys-dept-detail', name: '部门详情', url: 'https://example.com/project' }]
+            },
+            {
+              id: 'sys-position',
+              name: '岗位管理',
+              url: '/system/org/position',
+              children: [{ id: 'sys-position-detail', name: '岗位详情', url: 'https://example.com/project' }]
             }
           ]
+        },
+        {
+          id: 'sys-config',
+          name: '基础配置',
+          url: '/system/config',
+          children: [{ id: 'sys-param', name: '参数配置', url: 'https://example.com/project' }]
         }
       ]
     }
@@ -184,6 +240,32 @@ test('system management lives in the avatar dropdown instead of the main navigat
   await expect(detailRow.locator('.ds-user-menu__dot')).toHaveCount(1)
   await expect(detailRow.locator('.ds-user-menu__icon svg')).toHaveCount(0)
 
+  // 子级互斥但祖先保留，根级互斥时一并收起旧分支的所有后代。
+  const orgToggle = panel.getByRole('button', { name: '组织架构', exact: true })
+  const deptToggle = panel.getByRole('button', { name: '部门管理', exact: true })
+  const positionToggle = panel.getByRole('button', { name: '岗位管理', exact: true })
+  const configToggle = panel.getByRole('button', { name: '基础配置', exact: true })
+  await positionToggle.click()
+  await expect(positionToggle).toHaveAttribute('aria-expanded', 'true')
+  await expect(deptToggle).toHaveAttribute('aria-expanded', 'false')
+  await expect(orgToggle).toHaveAttribute('aria-expanded', 'true')
+  await expect(panel.getByRole('link', { name: '部门详情', exact: true })).toBeHidden()
+  await expect(panel.getByRole('link', { name: '岗位详情', exact: true })).toBeVisible()
+
+  await configToggle.click()
+  await expect(configToggle).toHaveAttribute('aria-expanded', 'true')
+  await expect(orgToggle).toHaveAttribute('aria-expanded', 'false')
+  await expect(positionToggle).toBeHidden()
+  await expect(panel.getByRole('link', { name: '岗位详情', exact: true })).toBeHidden()
+  await expect(panel.getByRole('link', { name: '参数配置', exact: true })).toBeVisible()
+  await configToggle.click()
+  await expect(configToggle).toHaveAttribute('aria-expanded', 'false')
+  await expect(panel.getByRole('link', { name: '参数配置', exact: true })).toBeHidden()
+
+  await orgToggle.click()
+  await expect(deptToggle).toHaveAttribute('aria-expanded', 'false')
+  await expect(positionToggle).toHaveAttribute('aria-expanded', 'false')
+  await deptToggle.click()
   await panel.getByRole('link', { name: '部门详情', exact: true }).click()
   await expect(panel).toBeHidden()
   await expect(page.frameLocator('iframe').getByRole('heading', { name: '项目页面' })).toBeVisible()
@@ -193,6 +275,9 @@ test('system management lives in the avatar dropdown instead of the main navigat
   await expect(panel).toBeVisible()
   await expect(panel.getByRole('link', { name: '部门详情', exact: true })).toHaveClass(/is-active/)
   await expect(panel.getByRole('button', { name: '组织架构', exact: true })).toHaveAttribute('aria-expanded', 'true')
+  await expect(deptToggle).toHaveAttribute('aria-expanded', 'true')
+  await expect(positionToggle).toHaveAttribute('aria-expanded', 'false')
+  await expect(configToggle).toHaveAttribute('aria-expanded', 'false')
 
   // Esc 收起并把焦点还给触发按钮。
   await page.keyboard.press('Escape')

@@ -234,19 +234,25 @@
   border: 1px solid var(--ds-line);
   border-radius: var(--ds-radius-lg);
   box-shadow: var(--ds-shadow-popover);
+  transform-origin: top right;
 }
 
 .ds-user-menu-enter-active,
 .ds-user-menu-leave-active {
   transition:
-    opacity var(--ds-duration-fast) var(--ds-ease-out),
-    transform var(--ds-duration-fast) var(--ds-ease-out);
+    opacity var(--ds-duration-base) var(--ds-ease-out),
+    transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.ds-user-menu-leave-active {
+  pointer-events: none;
+  transition-duration: var(--ds-duration-fast);
 }
 
 .ds-user-menu-enter-from,
 .ds-user-menu-leave-to {
   opacity: 0;
-  transform: translateY(-4px);
+  transform: translateY(-6px) scale(0.98);
 }
 
 .ds-user-menu__head {
