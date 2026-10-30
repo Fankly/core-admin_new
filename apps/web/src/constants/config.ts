@@ -2,8 +2,8 @@
  * 主题设置默认值
  */
 export const themeSetting = {
-  sidebar: 'dark',
-  topHeader: 'light',
+  sidebar: 'light',
+  topHeader: 'primary',
   themeColor: '#00706b',
   navLayout: 'left',
   openTabsPage: true,

@@ -29,12 +29,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { loadWorkspacePlugins } from '@/app/plugins'
 import FullscreenLayout from '@/layouts/fullscreen/index.vue'
-import { usePreferencesStore, useShellStore } from '@/store'
+import { useShellStore } from '@/store'
 import { resolveLayoutMode } from '@/router/layout'
 import { BrandMark } from '@/design-system'
 
@@ -42,7 +42,6 @@ defineOptions({ name: 'App' })
 
 const route = useRoute()
 const shell = useShellStore()
-const preferences = usePreferencesStore()
 const locale = zhCn
 const focusWorkspace = () => {
   document.getElementById('workspace-main')?.focus()
@@ -58,24 +57,22 @@ const isStandalone = computed(() => layoutMode.value === 'standalone')
 const showLoading = computed(() => !isStandalone.value && !shell.isRendered)
 const showPageLayout = computed(() => shell.isReady && !isStandalone.value && layoutMode.value === 'page')
 const showFullscreenLayout = computed(() => isStandalone.value || (shell.isReady && layoutMode.value === 'fullscreen'))
-
-onMounted(() => {
-  preferences.applyTheme()
-})
 </script>
 
 <style scoped>
+/* 首屏遮罩跟随品牌色：底色取品牌色最深的 jade-950，光晕与文字走同一色族，
+   换主题后不会停在固定的深青上。变量由 setThemeColor 在 mount 前写到 body。 */
 .app-boot {
-  --ds-brand-text: #f3fbf8;
+  --ds-brand-text: var(--ds-ink-inverse);
   position: fixed;
   inset: 0;
   z-index: 99999;
   display: grid;
   place-items: center;
-  color: #f3fbf8;
+  color: var(--ds-ink-inverse);
   background:
-    radial-gradient(circle at 76% 22%, rgb(44 168 152 / 10%), transparent 34%),
-    radial-gradient(circle at 12% 84%, rgb(27 159 143 / 8%), transparent 30%), #07241f;
+    radial-gradient(circle at 76% 22%, color-mix(in srgb, var(--ds-jade-400) 12%, transparent), transparent 34%),
+    radial-gradient(circle at 12% 84%, color-mix(in srgb, var(--ds-jade-500) 10%, transparent), transparent 30%), var(--ds-jade-950);
 }
 
 .app-boot__lockup {
@@ -87,7 +84,7 @@ onMounted(() => {
 
 .app-boot__title {
   margin-top: 28px;
-  color: #f3fbf8;
+  color: var(--ds-ink-inverse);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -97,12 +94,12 @@ onMounted(() => {
   width: 180px;
   height: 1px;
   margin-top: 16px;
-  background: rgb(255 255 255 / 10%);
+  background: color-mix(in srgb, var(--ds-ink-inverse) 10%, transparent);
 }
 
 .app-boot__hint {
   margin-top: 14px;
-  color: rgb(243 251 248 / 44%);
+  color: color-mix(in srgb, var(--ds-ink-inverse) 44%, transparent);
   font-size: 11px;
   letter-spacing: 0.05em;
 }

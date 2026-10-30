@@ -18,13 +18,13 @@ const routes: Array<RouteRecordRaw> = [
         path: '/home',
         name: '/home',
         component: () => import('@/views/home.vue'),
-        meta: { title: '主页', icon: 'icon-home' }
+        meta: { title: '主页', icon: 'icon-home', fullBleed: true }
       },
       {
         path: '/baseHome',
         name: '/baseHome',
         component: () => import('@/views/baseHome.vue'),
-        meta: { title: '主页', icon: 'icon-home', isNavigationMenu: false }
+        meta: { title: '工作台', icon: 'icon-home', isNavigationMenu: false }
       },
       ...workflow,
       ...whiteList

@@ -97,6 +97,8 @@ export const setThemeColor = (key: string, value: string): void => {
   // 设计系统品牌族：外壳、导航、页头都消费 --ds-jade-*。
   // 运行时换色必须同步这一族，否则设置面板只能改 Element 按钮。
   const brandRgb = hexToRgb(value)
+  /** jade-950 是导航与首屏遮罩的底色，单独记一份给 meta theme-color 复用。 */
+  const deepestRatio = 0.64
   const jadeRamp: Array<[string, 'light' | 'dark', number]> = [
     ['50', 'light', 0.94],
     ['100', 'light', 0.86],
@@ -108,10 +110,15 @@ export const setThemeColor = (key: string, value: string): void => {
     ['700', 'dark', 0.16],
     ['800', 'dark', 0.34],
     ['900', 'dark', 0.52],
-    ['950', 'dark', 0.64]
+    ['950', 'dark', deepestRatio]
   ]
   for (const [step, direction, ratio] of jadeRamp) {
     const rgb = direction === 'light' ? mixWhite(brandRgb, ratio) : mixBlack(brandRgb, ratio)
     elm.style.setProperty(`--ds-jade-${step}`, rgbToHex(rgb))
   }
+
+  // 浏览器外壳（地址栏 / 任务栏）与首屏遮罩共用 jade-950 这层底色，
+  // 否则换品牌色后 meta theme-color 仍停在 index.html 写死的深青。
+  const surfaceShade = rgbToHex(mixBlack(brandRgb, deepestRatio))
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', surfaceShade)
 }

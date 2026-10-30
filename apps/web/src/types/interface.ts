@@ -35,6 +35,8 @@ export interface IServerMenus {
   isFrame: string
   outsideMenu: string
   isNavigationMenu: boolean
+  /** 是否已被当前用户收藏（/sys/menu/nav 下发；后端字段拼写即为 isFavorite） */
+  isFavorite?: boolean
   frameSrc?: string
   isShow: number
   children?: IServerMenus[]

@@ -4,7 +4,7 @@
 
     <div class="ds-admin__body">
       <aside v-if="showRail" class="ds-admin__rail" aria-label="侧边导航">
-        <SideNav :menus="railMenus" :heading="railHeading" :router="true" mode="vertical" />
+        <SideNav :menus="railMenus" :router="true" mode="vertical" />
       </aside>
 
       <button
@@ -78,7 +78,6 @@ const railMenus = computed(() => {
   if (preferences.navLayout !== ESidebarLayoutEnum.Mix) return undefined
   return activeModule.value?.children ?? []
 })
-const railHeading = computed(() => (preferences.navLayout === ESidebarLayoutEnum.Mix ? activeModule.value?.meta?.title : undefined))
 
 watch(
   [() => preferences.navLayout, () => route.path, validMenus],

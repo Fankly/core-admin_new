@@ -1,6 +1,6 @@
 <template>
   <component :is="comp" v-if="comp" />
-  <div v-else class="home-skeleton" aria-label="正在加载工作台">
+  <div v-else class="home-skeleton" aria-label="正在加载主页">
     <span class="ds-skeleton"></span>
     <span class="ds-skeleton"></span>
     <span class="ds-skeleton"></span>
@@ -10,13 +10,15 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onMounted, onScopeDispose, shallowRef, watch } from 'vue'
 import type { Component } from 'vue'
-import { useShellStore } from '@/store'
+import { useMenuStore, useShellStore } from '@/store'
 import { getHomeConfiguration } from '@/api/system'
 import { resolveViewComponent } from '@/router/view-registry'
+import HomeDashboard from './HomeDashboard.vue'
 
 defineOptions({ name: 'HomeResolver' })
 
 const shell = useShellStore()
+const menu = useMenuStore()
 
 /** Component objects and loaders must not be deeply proxied. */
 const comp = shallowRef<Component | null>(null)
@@ -36,26 +38,23 @@ const resolveComponent = (path: string): Component | undefined => {
   return asyncComponent
 }
 
-const setFallback = () => {
-  comp.value = resolveComponent('/baseHome') ?? null
-}
-
-const loadHomePage = async () => {
+// 保留自定义首页；默认首页和旧欢迎页统一使用云卡工作台。
+const loadHomePage = async (): Promise<void> => {
   const currentRequest = ++requestId
   if (!shell.mainPageRole) {
-    setFallback()
+    comp.value = HomeDashboard
     return
   }
   try {
     const res = await getHomeConfiguration()
     if (currentRequest !== requestId) return
-    const data = res.data
-    if (!res.success || !data?.url) throw new Error(res.msg || '未设置主页')
-    // A home configuration pointing back to /home must not recursively mount itself.
-    comp.value =
-      data.url === '/home' ? (resolveComponent('/baseHome') ?? null) : (resolveComponent(data.url) ?? resolveComponent('/baseHome') ?? null)
+    const path = res.success ? res.data?.url : ''
+    const isDefaultHome = !path || ['/home', '/home/index', '/baseHome'].includes(path)
+    // 只有已注册为菜单的自定义主页才允许替换默认工作台，避免加载到不可用的视图。
+    const loader = !isDefaultHome && Object.hasOwn(menu.routeToMeta, path) ? resolveComponent(path) : undefined
+    comp.value = loader ?? HomeDashboard
   } catch {
-    if (currentRequest === requestId) setFallback()
+    if (currentRequest === requestId) comp.value = HomeDashboard
   }
 }
 
@@ -71,7 +70,7 @@ watch(() => shell.mainPageRole, loadHomePage)
   width: 100%;
   height: 100%;
   min-height: 320px;
-  padding-top: 10px;
+  padding: 10px 14px 16px;
 
   span {
     width: 100%;

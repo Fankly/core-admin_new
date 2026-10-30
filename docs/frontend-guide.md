@@ -268,7 +268,8 @@ import SvgIcon from '@/components/base/svg-icon'
 - 守卫拆在 `router/guards/index.ts`,写成"返回值即导航结果"的新式写法(vue-router 5 已弃用 `next()`):`return true` 放行、`return false` 取消、`return '/path'` 重定向。
 - 全屏页优先在路由 meta 声明 `layout: 'fullscreen'`,不要往 `App.vue` 加路径判断;外壳解析用 `router/layout.ts` 的 `resolveLayoutMode`。
 - 页面里取 store 必须在函数/守卫内部调用 `useXxxStore()`,模块顶层取会因 pinia 未安装而报错。
-- 工作台与菜单搜索共用 `menu.navigationEntries`。缺少视图的入口由 `isUnavailable` 统一标记,隐藏菜单与空分组不展示;不要复制菜单遍历与搜索逻辑。
+- 工作台消费 `menu.navigationEntries`。缺少视图的入口由 `isUnavailable` 统一标记,隐藏菜单与空分组不展示;不要复制菜单遍历与搜索逻辑。
+- 「系统管理」不进主导航,统一由顶栏头像下拉承载;名称匹配与菜单树抽取都在 `utils/menu.ts`,不要在各布局里另写一套判断。
 - 需要兼容内部路由和外部网址的组件消费 `NavigationLink`,内部链接保留 RouterLink 的 href 与键盘语义。
 - 初始化失败后的恢复必须进入 `/home` 重试菜单,直接刷新 `/error` 会再次留在错误页。进入 `/login` 时清理旧动态路由、标签页和会话。
 

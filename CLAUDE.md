@@ -94,9 +94,11 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 
 **路由守卫是管线，不是巨型 if。** `router/guards/index.ts` 按「菜单信息同步 → 新窗口拦截 → 登录/初始化 → 放行」组织；`router/layout.ts` 的 `resolveLayoutMode` 把外壳选择（page / fullscreen / standalone）抽成纯函数并有单测。全屏页优先用路由 `meta.layout = 'fullscreen'`，不要再往 `App.vue` 里加路径判断。
 
-**导航只展示可用入口。** 服务器菜单中没有对应视图、也不是 iframe / 新窗口的叶子标记为 `isUnavailable`；侧栏、顶部导航、工作台、全局菜单搜索统一过滤，空分组也不展示。工作台和菜单搜索消费 `menu.navigationEntries`，不要各自遍历菜单实现另一套规则。普通链接用 RouterLink，需兼容外链的通用入口用 `NavigationLink`。
+**导航只展示可用入口。** 服务器菜单中没有对应视图、也不是 iframe / 新窗口的叶子标记为 `isUnavailable`；侧栏、顶部导航、工作台统一过滤，空分组也不展示。工作台消费 `menu.navigationEntries`，不要各自遍历菜单实现另一套规则。普通链接用 RouterLink，需兼容外链的通用入口用 `NavigationLink`。
 
-**仅提供桌面布局。** 不按窄屏切换移动抽屉或隐藏侧栏。垂直导航固定使用手风琴：同级目录互斥展开，当前分支的父级保持展开。图标仍按服务端配置显示，父子缩进从父级文字起点继续递进。
+**「系统管理」在头像下拉里。** 菜单名称匹配「系统管理」的分组不参与主导航渲染（`toValidRoutes` 统一过滤），统一由顶栏头像下拉承载（`utils/menu.ts` + `header/UserMenuPanel.vue`）；路由本身仍正常注册，深链可直达。
+
+**仅提供桌面布局。** 不按窄屏切换移动抽屉或隐藏侧栏。垂直导航固定使用手风琴：同级目录互斥展开，当前分支的父级保持展开。纵向侧栏的图标由层级决定（L1 层叠 / L2 文件夹 / L3 文件 / L4 及更深圆点），每级缩进固定 14px；横向导航（顶部 / 混合）仍显示服务端配置的图标。侧栏顶部工具行（`SideNav.vue`）提供菜单过滤、只看收藏、收起全部：过滤只裁剪渲染树并在结束时还原展开快照，收藏态统一读 `useFavoritesStore`。
 
 **工作区依赖按进入时机加载。** 登录阶段不加载 VXE / Excel 导出栈；守卫与异步 AdminLayout 共用 `loadWorkspacePlugins()`，确保注册完成后再渲染外壳。平台状态只在抽屉打开时请求。进入 `/login` 清动态菜单路由、标签页和会话；初始化失败页的重试回到 `/home`，重新请求菜单，而不是刷新 `/error`。
 

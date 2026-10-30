@@ -4,6 +4,7 @@ import type { MenuMeta } from '@/types/domain'
 import type { IServerMenus } from '@/types/interface'
 import RouteHost from '@/layouts/RouteHost.vue'
 import { toSysViewComponentPath, type ViewModuleMap } from '@/router/view-registry'
+import { isSystemMenuRoute } from './menu'
 import { isExternalLink } from './utils'
 
 /**
@@ -32,6 +33,7 @@ export const mergeServerRoute = (
       url: item.url,
       outsideMenu: item.outsideMenu,
       isNavigationMenu: item.isNavigationMenu,
+      isFavorite: item.isFavorite,
       isUnavailable: isNotMatchComponent,
       matched: [...matched, { path, title: item.name }],
       ...openStyleMeta
@@ -79,10 +81,15 @@ export const routesToObject = (routes: RouteRecordRaw[]): Record<string, RouteRe
   return result
 }
 
-/** 过滤掉 isNavigationMenu === false 的路由，返回新数组，不修改入参。 */
+/**
+ * 过滤掉 isNavigationMenu === false 的路由，返回新数组，不修改入参。
+ *
+ * 「系统管理」不参与主导航渲染，统一收进头像下拉面板；路由本身仍保持注册，
+ * 所以这里只过滤导航视图，不修改菜单树。
+ */
 export const toValidRoutes = (routes: RouteRecordRaw[]): RouteRecordRaw[] => {
   return routes
-    .filter((route) => route.meta?.isNavigationMenu !== false && !route.meta?.isUnavailable)
+    .filter((route) => route.meta?.isNavigationMenu !== false && !route.meta?.isUnavailable && !isSystemMenuRoute(route))
     .flatMap((route) => {
       if (!route.children?.length) return [route]
       const children = toValidRoutes(route.children)

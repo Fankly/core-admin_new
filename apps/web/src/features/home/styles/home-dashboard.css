@@ -1,0 +1,633 @@
+/* 首页（欢迎页）· 版式对齐《欢迎使用 项目过程管控平台》设计稿
+   四套导航方案共用同一页内容：欢迎区 + 快捷入口 / 用户手册 / 系统公告 + 待办事项 */
+/* .quick-all 是「快捷入口 · 更多」弹窗内容，transfer 到 body 后不在 .home-dashboard 内，需单独挂变量 */
+.home-dashboard,
+.quick-all {
+  --dash-teal: #0f9d8f;
+  --dash-teal-deep: #0b5e59;
+  --dash-ink: #1e293b;
+  --dash-body: #334155;
+  --dash-muted: #64748b;
+  --dash-faint: #94a3b8;
+  --dash-line: #eef2f4;
+  --dash-radius: 8px;
+}
+
+/* 内容区底色：左侧近白、右上方一层雾青，托住插画 */
+.home-dashboard {
+  box-sizing: border-box;
+  container: home-dashboard / inline-size;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 14px 16px;
+  background: radial-gradient(900px 430px at 88% -6%, rgba(176, 236, 225, 0.6), rgba(176, 236, 225, 0) 66%),
+    radial-gradient(520px 260px at 4% 0%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 72%),
+    linear-gradient(180deg, #f6fdfd 0%, #f1faf9 52%, #f6fcfb 100%);
+}
+
+.dash {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+.home-dashboard *,
+.home-dashboard *::before,
+.home-dashboard *::after {
+  box-sizing: border-box;
+}
+.home-dashboard button,
+.quick-all button {
+  font-family: inherit;
+  cursor: pointer;
+}
+.home-dashboard button:focus-visible,
+.quick-all button:focus-visible {
+  outline: 2px solid var(--dash-teal);
+  outline-offset: 3px;
+}
+.home-dashboard button:disabled,
+.quick-all button:disabled {
+  cursor: not-allowed;
+}
+.quick-item:disabled {
+  opacity: 0.55;
+}
+.quick-item:disabled:hover {
+  border-color: #edf1f3;
+  box-shadow: none;
+}
+
+/* ---------- 欢迎区 ---------- */
+/* flex-basis 定高、允许收缩：矮屏下欢迎区先行压缩，保证整页一屏展示 */
+.dash-hero {
+  position: relative;
+  display: flex;
+  flex: 0 1 162px;
+  align-items: center;
+  min-height: 108px;
+  padding: 0 30px;
+  overflow: hidden;
+}
+.dash-hero::before {
+  content: '';
+  position: absolute;
+  inset: -20% -8% 0 30%;
+  background: linear-gradient(112deg, transparent 34%, rgba(255, 255, 255, 0.62) 45%, transparent 57%),
+    linear-gradient(112deg, transparent 52%, rgba(190, 238, 229, 0.32) 66%, transparent 80%);
+  pointer-events: none;
+}
+.dash-hero-title {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 16px;
+  max-width: 58%;
+  margin: 0;
+  color: #1b2b3d;
+  font-size: clamp(26px, 2.35vw, 38px);
+  font-weight: 700;
+  letter-spacing: 1px;
+  line-height: 1.22;
+}
+.dash-hero-brand {
+  color: var(--dash-teal-deep);
+}
+.dash-hero-art {
+  position: absolute;
+  top: 50%;
+  right: 22px;
+  z-index: 1;
+  width: min(49%, 548px);
+  height: 100%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.dash-art-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- 卡片 ---------- */
+.dash-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 18px 20px 16px;
+  background: #fff;
+  border: 1px solid var(--dash-line);
+  border-radius: var(--dash-radius);
+  box-shadow: 0 10px 26px -22px rgba(15, 92, 84, 0.55);
+}
+.dash-head {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 14px;
+}
+.dash-head-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+.dash-head-icon .d-ico {
+  width: 21px;
+  height: 21px;
+}
+.dash-head-icon.is-teal {
+  color: var(--dash-teal);
+}
+.dash-head-icon.is-red {
+  color: #f2545b;
+}
+.dash-head h2 {
+  margin: 0;
+  color: var(--dash-ink);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.dash-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  margin-left: auto;
+  padding: 2px 0;
+  color: var(--dash-faint);
+  font-size: 12.5px;
+  background: none;
+  border: 0;
+}
+.dash-more:hover {
+  color: var(--dash-teal);
+}
+.dash-more .d-ico {
+  width: 12px;
+  height: 12px;
+}
+.dash-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 19px;
+  height: 19px;
+  margin-left: -1px;
+  padding: 0 6px;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+  background: #f2545b;
+  border-radius: 10px;
+}
+
+/* ---------- 三栏 ---------- */
+.dash-row {
+  display: grid;
+  flex: 1 1 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+.dash-row > .dash-card {
+  min-height: 0;
+}
+
+/* 快捷入口 */
+.dash-quick {
+  padding-bottom: 18px;
+}
+/* 快捷入口：每行 2 个、共 3 行，行高随卡片高度弹性伸缩 */
+.quick-grid {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+.quick-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 0 12px 0 9px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #edf1f3;
+  border-radius: 9px;
+  transition: border-color 0.16s, box-shadow 0.16s, background 0.16s;
+}
+.quick-item:hover {
+  background: #fbfefd;
+  border-color: #b9e4dc;
+  box-shadow: 0 10px 20px -14px rgba(15, 92, 84, 0.5);
+}
+.quick-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  transition: transform 0.16s;
+}
+.quick-item:hover .quick-icon {
+  transform: scale(1.05);
+}
+.quick-icon .d-ico {
+  width: 20px;
+  height: 20px;
+}
+.quick-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--dash-ink);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.quick-go {
+  display: grid;
+  place-items: center;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--dash-teal);
+  opacity: 0;
+  transform: translateX(-3px);
+  transition: opacity 0.16s, transform 0.16s;
+}
+.quick-go .d-ico {
+  width: 10px;
+  height: 10px;
+}
+.quick-item:hover .quick-go {
+  opacity: 1;
+  transform: none;
+}
+.quick-empty {
+  gap: 8px;
+  min-height: 140px;
+}
+.quick-hint {
+  color: #b6c2cd;
+  font-size: 11.5px;
+}
+/* 「更多」弹窗：每行 3 个、行高固定，收藏多时在弹窗内滚动 */
+.quick-all {
+  max-height: min(62vh, 520px);
+  padding: 16px 20px 20px;
+  overflow-y: auto;
+}
+.quick-all-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 58px;
+  gap: 10px 12px;
+}
+@media (max-width: 720px) {
+  .quick-all-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 快捷入口配色：图标底色 / 图形色 */
+.tone-mint {
+  color: #10c3b2;
+  background: #ddf8f2;
+}
+.tone-blue {
+  color: #4b8df7;
+  background: #e8f1fd;
+}
+.tone-orange {
+  color: #f5a623;
+  background: #fdf0e2;
+}
+.tone-purple {
+  color: #8b5cf6;
+  background: #f1ecfd;
+}
+.tone-green {
+  color: #21b573;
+  background: #e8f8eb;
+}
+.tone-red {
+  color: #f4554e;
+  background: #fdeceb;
+}
+.tone-amber {
+  color: #f5b32b;
+  background: #fdf6e3;
+}
+
+/* 用户手册 / 系统公告 列表 */
+.dash-list {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dash-list li {
+  display: flex;
+  flex: 0 0 auto;
+  height: 36px;
+  min-height: 0;
+  border-bottom: 1px solid #f2f5f6;
+}
+.dash-list li:last-child {
+  border-bottom: 0;
+}
+.dash-row-btn {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 0;
+  color: var(--dash-body);
+  font-size: 12.5px;
+  text-align: left;
+  background: none;
+  border: 0;
+}
+.dash-row-btn:hover .dash-row-text {
+  color: var(--dash-teal);
+}
+.dash-row-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.doc-tag {
+  display: grid;
+  place-items: center;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 26px;
+  color: #fff;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  border-radius: 4px;
+}
+.doc-tag--pdf {
+  background: linear-gradient(180deg, #f4666a, #e94b4b);
+}
+.doc-tag--doc {
+  background: linear-gradient(180deg, #5a9cf8, #3b82f6);
+}
+.notice-dot {
+  flex: 0 0 5px;
+  width: 5px;
+  height: 5px;
+  margin-right: 1px;
+  background: #f2545b;
+  border-radius: 50%;
+}
+.notice-date {
+  flex: 0 0 auto;
+  color: var(--dash-faint);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+.dash-notice .dash-row-btn {
+  gap: 6px;
+}
+.dash-notice .dash-row-text {
+  font-size: 10.5px;
+}
+
+/* ---------- 待办事项 ---------- */
+.dash-todo {
+  flex: 0 1 50%;
+  min-height: 0;
+  padding-bottom: 14px;
+}
+.todo-vxe-box {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+/* 待办卡片分页条：与待办事宜页同款 Pagination 组件（total/sizes/prev/pager/next/jumper）。
+   该版本 beta 的 .el-pagination 为 inline-block 流、btn-prev/next 是块级 display:flex，
+   在卡片里会被继承的 text-align/换行规则拆成多行；这里统一为单行 flex，观感与 ProTable 一致。 */
+.todo-pager {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+.todo-pager .el-pagination.is-background {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.todo-biz {
+  display: block;
+  overflow: hidden;
+  color: var(--dash-body);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.todo-acts {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.todo-acts .act-divider {
+  width: 1px;
+  height: 11px;
+  background: #e2e8ee;
+}
+.dash-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  color: var(--dash-teal);
+  font-size: 12.5px;
+  font-weight: 500;
+  background: none;
+  border: 0;
+}
+.dash-action:hover {
+  color: #0b857a;
+}
+.dash-action .d-ico {
+  width: 11px;
+  height: 11px;
+}
+.dash-empty {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 160px;
+  color: var(--dash-faint);
+  font-size: 13px;
+}
+.dash-empty--todo {
+  min-height: 220px;
+}
+.home-todo-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 60vh;
+  border: 0;
+}
+
+/* 宽屏（≥1600）按参考稿的实际字号还原，行高不变 */
+@media (min-width: 1600px) {
+  .dash-head h2 {
+    font-size: 18px;
+  }
+  .dash-head-icon .d-ico {
+    width: 22px;
+    height: 22px;
+  }
+  .quick-label,
+  .dash-row-btn,
+  .dash-action {
+    font-size: 13px;
+  }
+  .dash-notice .dash-row-text {
+    font-size: 12.5px;
+  }
+  .notice-date {
+    font-size: 12.5px;
+  }
+}
+
+/* ---------- 自适应 ---------- */
+@container home-dashboard (max-width: 850px) {
+  .dash-hero-art {
+    width: 46%;
+    opacity: 0.9;
+  }
+  .dash-hero-title {
+    max-width: 62%;
+  }
+  .dash-hero {
+    padding: 0 22px;
+  }
+}
+@container home-dashboard (max-width: 720px) {
+  .dash-hero {
+    min-height: 136px;
+  }
+  .dash-hero-art {
+    display: none;
+  }
+  .dash-hero-title {
+    max-width: none;
+  }
+  .dash-row {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 720px) {
+  .home-dashboard {
+    padding: 0 10px 12px;
+  }
+}
+@container home-dashboard (max-width: 420px) {
+  .dash-hero {
+    min-height: 136px;
+    padding: 0 12px;
+  }
+  .dash-hero-title {
+    font-size: 26px;
+  }
+  .dash-card {
+    padding: 16px;
+  }
+}
+/* ---------- 矮屏（笔记本/半屏窗口）----------
+   压缩欢迎区与卡片内距，保证待办仍占一半、整页一屏展示，不出页面滚动条 */
+@media (max-height: 950px) {
+  .dash-hero {
+    flex-basis: 104px;
+    min-height: 104px;
+    padding: 0 24px;
+  }
+  .dash-hero-title {
+    font-size: clamp(22px, 2.2vw, 30px);
+  }
+  .dash-card {
+    padding: 14px 18px 12px;
+  }
+  .dash-head {
+    margin-bottom: 10px;
+  }
+  .quick-grid {
+    gap: 8px;
+  }
+  .quick-icon {
+    flex-basis: 31px;
+    width: 31px;
+    height: 31px;
+    border-radius: 8px;
+  }
+  .quick-icon .d-ico {
+    width: 18px;
+    height: 18px;
+  }
+  .dash-list li {
+    height: 33px;
+  }
+  .dash-empty {
+    min-height: 120px;
+  }
+  .dash-empty--todo {
+    min-height: 150px;
+  }
+}
+@media (max-height: 780px) {
+  .dash-hero {
+    flex-basis: 84px;
+    min-height: 84px;
+  }
+  .quick-icon {
+    flex-basis: 26px;
+    width: 26px;
+    height: 26px;
+  }
+  .quick-icon .d-ico {
+    width: 15px;
+    height: 15px;
+  }
+  .quick-label {
+    font-size: 12px;
+  }
+  .dash-list li {
+    height: 30px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quick-item,
+  .quick-go {
+    transition: none;
+  }
+}

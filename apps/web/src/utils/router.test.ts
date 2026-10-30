@@ -47,13 +47,19 @@ describe('registerToRouter', () => {
 })
 
 describe('navigation availability', () => {
-  it('keeps registered views and iframes, and prunes groups without reachable pages', () => {
+  it('keeps registered views and iframes, prunes unreachable groups and moves 系统管理 out of the navigation', () => {
     const [routes] = mergeServerRoute(
       [
         serverMenu({ id: '1', name: '已接入', url: '/available' }),
         serverMenu({ id: '2', name: '未接入', url: '/missing' }),
         serverMenu({ id: '3', name: '外部页面', url: 'https://example.com' }),
-        serverMenu({ id: '4', name: '空分组', url: '/empty', children: [serverMenu({ id: '5', name: '缺少视图', url: '/empty/missing' })] })
+        serverMenu({ id: '4', name: '空分组', url: '/empty', children: [serverMenu({ id: '5', name: '缺少视图', url: '/empty/missing' })] }),
+        serverMenu({
+          id: '6',
+          name: '系统管理',
+          url: '/system',
+          children: [serverMenu({ id: '7', name: '用户管理', url: 'https://example.com/system' })]
+        })
       ],
       { '/src/views/available.vue': () => Promise.resolve(RouteStub) }
     )

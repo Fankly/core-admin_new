@@ -26,7 +26,7 @@ The product is not a generic project-management suite. Its mechanism is a **serv
 
 - Desktop daily use on corporate networks; the application provides desktop layouts and accordion navigation.
 - Chinese-language interface, enterprise terminology, dense tabular data, and frequent cross-module navigation.
-- The application is commonly opened at `/home`; the actual home module can be configured by the server, with a local workbench fallback.
+- The application is commonly opened at `/home`; the actual home module can be configured by the server, with a local dashboard fallback. Favourite menu entries feed the dashboard quick-entry card, and the workbench remains reachable at `/baseHome`.
 - Legacy systems are sometimes embedded through iframes or opened in popup windows.
 - Session entry is automatic through the enterprise identity flow; there is no public sign-up or marketing funnel.
 - Server menus and runtime information can be read through the local proxy when the backend is running. Repeatable browser regression uses controlled API responses; production business workflows are not validated by those fixtures.

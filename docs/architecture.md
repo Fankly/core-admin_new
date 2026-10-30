@@ -63,21 +63,22 @@ src/
 │   │   ├── index.vue            管理后台外壳、移动抽屉
 │   │   ├── composables/         useSidebarResize：拖动 / 键盘 / 持久化
 │   │   └── components/
-│   │       ├── header/          HeaderBar / BrandMark / Breadcrumb / actions / support
-│   │       ├── navigation/      SideNav / NavMenuTree / HorizontalNav / MenuSearch
+│   │       ├── header/          HeaderBar / HeaderActions / UserMenuPanel（头像下拉）
+│   │       ├── navigation/      SideNav / NavMenuTree / HorizontalNav
 │   │       ├── tabs/            WorkspaceTabs（自定义 tablist）
 │   │       ├── view/            ViewOutlet / KeepAliveFrame
 │   │       └── settings/        主题、布局、交互偏好
 │   └── fullscreen/index.vue     登录、pop、显式 fullscreen 路由
 ├── views/                       路由适配层（路径约定仍在此）
 │   ├── login.vue → features/auth/LoginPage.vue
-│   ├── home.vue  → features/workbench/HomeResolver.vue
+│   ├── home.vue  → features/home/HomeResolver.vue
 │   ├── baseHome.vue → features/workbench/WorkbenchPage.vue
 │   ├── iframe.vue → features/embed/IframePage.vue
 │   └── error/                   403 / 404 → features/errors/ErrorPage.vue
 ├── features/
 │   ├── auth/                   自动登录三态 + 阶段进度
-│   ├── workbench/              HomeResolver + WorkbenchPage + components/
+│   ├── home/                   HomeResolver + 云卡工作台（快捷入口 / 手册 / 公告 / 待办）
+│   ├── workbench/              本地工作台 WorkbenchPage + components/
 │   ├── errors/                 统一错误页
 │   └── embed/                  iframe 页面 + frame-url 纯函数
 ├── design-system/
@@ -97,7 +98,7 @@ src/
 │   └── index.less              全局样式入口
 ├── components/                 旧公共组件（ProTable / SearchForm / base…）
 ├── hooks/                      通用组合式函数
-├── store/modules/              六个领域 store
+├── store/modules/              七个领域 store（含菜单收藏）
 ├── service/                    baseService + http
 ├── api/                        按业务域拆分
 ├── router/                     静态路由 + guards + view registry + navigation
@@ -130,7 +131,7 @@ import WorkbenchPage from '@/features/workbench/WorkbenchPage.vue'
 
 动态路由只注册顶层路由，子路由由 Vue Router 随父级递归挂载；不能把扁平化后的子路由再 `addRoute` 到根上，否则同名覆盖会丢失 `route.matched` 的父级链。菜单接口失败时，守卫会释放首屏并进入 `/error?to=503`，提供可重试出口。
 
-`router/navigation.ts` 定义 `NavigationEntry` 和统一搜索规则。缺少视图且不能通过 iframe / 新窗口打开的叶子标记为 `isUnavailable`，不展示在侧栏、顶部导航、工作台或全局搜索中。隐藏菜单和空分组同样过滤；深链仍保留明确的错误出口。工作台与全局搜索均消费 `menu.navigationEntries`，避免出现同一模块在不同位置可用性不同的情况。
+`router/navigation.ts` 定义 `NavigationEntry` 和统一搜索规则。缺少视图且不能通过 iframe / 新窗口打开的叶子标记为 `isUnavailable`，不展示在侧栏、顶部导航或工作台中。隐藏菜单和空分组同样过滤；深链仍保留明确的错误出口。工作台消费 `menu.navigationEntries`，避免出现同一模块在不同位置可用性不同的情况。
 
 进入 `/login` 会移除旧菜单路由，并重置菜单、标签页和会话。菜单初始化使用 generation校验，重置前发出的请求不能写回新会话。已经初始化的后续导航仍检查 token 与访问权限。初始化失败的“重新加载”返回 `/home` 重新请求；刷新 `/error` 不会触发初始化，因此不能作为恢复动作。
 
@@ -174,11 +175,17 @@ vendor CSS → tokens.css → tailwind.css → styles/index.less → driver.less
 
 `styles/index.less` 内部顺序为 `base → element → workspace → theme → shell → motion`。Vite 的 Less `additionalData` 指向 `src/styles/variables.less`，业务 Less 不再重复 import。VXE 的 vendor CSS 随工作区插件延迟加载，body 上的语义变量确保后到的默认样式不能覆盖既有主题。`shell.less` 仅汇总 `shell/` 中的 foundation、brand、header、navigation、workspace、tabs、tab-variants、settings 文件。
 
-### 5.4 工作台与常用交互
+### 5.4 主页与常用交互
 
-`WorkbenchPage` 只组装页头、业务目录、继续工作和账号信息。`ModuleDirectory` 负责搜索、分组筛选、分批展示与无结果恢复；`SystemStatus` 只在状态抽屉打开时读取 `/sys/info`。没有项目业务数据时不生成仪表盘指标，现有菜单与标签页提供可执行的入口和上下文。布局按工作台内容容器宽度调整，收起导航、改变导航模式时同样能使用可用空间。
+`/home` 由 `HomeResolver` 决定渲染哪个页面：服务端 `/sys/menu/getMenuByUrl?url=/home` 指向已注册的自定义主页时渲染对应视图；未配置、指回 `/home`、`/home/index`、`/baseHome` 或请求失败时渲染 `HomeDashboard`。角色切换写入 `shell.mainPageRole`，无主页权限时直接回到默认工作台。
 
-`MenuSearch` 提供 Ctrl / ⌘ K、输入聚焦、方向键选项、Enter 打开与 Escape 关闭。标签页的方向键导航仅滚动自身横向容器，跳转工作区链接聚焦 main 而不改变 hash 路由。ProTable 消费 `useTable` 的加载状态并提供空结果与帮助入口；SearchForm 使用原生表单提交语义。
+`HomeDashboard` 由欢迎区和四张卡片组成：快捷入口来自菜单收藏，用户手册取 `/mainPage` 菜单附件，系统公告取版本通知，待办事项按服务端分页展示。每块卡片独立维护加载、失败重试与空状态；待办处理在 iframe 弹窗中完成，关闭后刷新列表。
+
+`/baseHome` 保留本地工作台 `WorkbenchPage`：只组装页头、业务目录、继续工作和账号信息。`ModuleDirectory` 负责搜索、分组筛选、分批展示与无结果恢复；`SystemStatus` 只在状态抽屉打开时读取 `/sys/info`。工作台消费 `menu.navigationEntries`；布局按内容容器宽度调整，收起导航、改变导航模式时同样能使用可用空间。
+
+侧栏叶子菜单的收藏星标写入 `useFavoritesStore`（按账号隔离），成功后重新拉取 `/sys/menu/favorite/list`；主页快捷入口订阅同一份数据，因此收藏与取消收藏会立即反映到首页。
+
+`HeaderActions` 的头像下拉只承载「系统管理」：菜单名称与 `SYSTEM_MENU_TITLE` 完全一致时由 `utils/menu.ts` 抽取该分组（保留服务端层级），`UserMenuPanel` / `UserMenuNode` 渲染树形入口并复用 `NavigationLink` 兼容外链；当前页所在分组自动展开、叶子高亮，点击面板外区域、Esc 或路由变化时收起，没有该分组时退化为静态用户信息。标签页的方向键导航仅滚动自身横向容器，跳转工作区链接聚焦 main 而不改变 hash 路由。ProTable 消费 `useTable` 的加载状态并提供空结果与帮助入口；SearchForm 使用原生表单提交语义。
 
 ### 5.5 启动与加载边界
 
@@ -196,6 +203,7 @@ vendor CSS → tokens.css → tailwind.css → styles/index.less → driver.less
 | `shell`       | 首屏生命周期、全局 loading、刷新信号、混合导航选中项    | 业务数据     |
 | `preferences` | 主题、导航布局、标签页开关、主题色应用                  | 菜单结构     |
 | `context`     | 遗留业务穿透参数                                        | 框架状态     |
+| `favorites`   | 当前账号的菜单收藏、星标翻转与回滚、快捷入口数据        | 菜单结构     |
 
 - tabs 与导航的外壳选择仍是纯状态机，组件只渲染；
 - `App.vue` 只选择 page / fullscreen / standalone，不再包含路径 if；
@@ -231,7 +239,7 @@ pnpm e2e
 - typecheck：0 error。
 - tests：12 个文件、75 个用例通过，包含导航可用性、菜单树归属、搜索与 iframe URL 参数回归。
 - build：通过。
-- Playwright：9 个桌面用例通过，覆盖模块跳转、空结果、键盘菜单搜索、按需平台状态、导航布局、侧栏键盘调整、七层菜单缩进、手风琴展开、混合导航联动与刷新恢复、设置持久化与恢复默认、权限拒绝与初始化失败后的恢复。配置在 `apps/web/playwright.config.ts`，使用本机 Chrome 与受控 API 响应。
+- Playwright：11 个桌面用例通过，覆盖模块跳转、空结果、头像下拉「系统管理」、按需平台状态、导航布局、侧栏键盘调整、七层菜单缩进、手风琴展开、混合导航联动与刷新恢复、设置持久化与恢复默认、权限拒绝与初始化失败后的恢复。配置在 `apps/web/playwright.config.ts`，使用本机 Chrome 与受控 API 响应。
 - 浏览器走查：1440×900、1280×720、390×844 下标题可见，无横向文档滚动；本地菜单的分组筛选与移动品牌标记可用。浏览器覆盖不代表外部 iframe 的业务功能已验收。
 
 ## 9. 后续路线

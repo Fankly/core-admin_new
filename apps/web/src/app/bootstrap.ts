@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import App from '@/App.vue'
 import router from '@/router'
 import baseService from '@/service/baseService'
+import { usePreferencesStore } from '@/store'
 import { installDirectives } from '@/directives'
 import { installUiPlugins } from './plugins'
 
@@ -22,15 +23,19 @@ import '@/styles/driver.less'
 /**
  * 应用启动顺序：
  * 1. pinia（路由守卫与指令安装都依赖 store）
- * 2. 全局指令
- * 3. UI 库
- * 4. router（守卫内部会开始拉菜单）
+ * 2. 主题色（首屏「正在载入工作区」遮罩在第一帧就要取品牌色变量）
+ * 3. 全局指令
+ * 4. UI 库
+ * 5. router（守卫内部会开始拉菜单）
  */
 export function bootstrapApp() {
   const app = createApp(App)
   app.config.globalProperties.$baseService = baseService
 
-  app.use(createPinia())
+  const pinia = createPinia()
+  app.use(pinia)
+  // 必须早于 mount：换成靛蓝/绛红等品牌色后，遮罩不能再用 tokens.css 里的深青兜底。
+  usePreferencesStore(pinia).applyTheme()
   installDirectives(app)
   installUiPlugins(app)
   app.use(router)

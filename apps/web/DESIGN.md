@@ -69,7 +69,8 @@ Type scale is fixed; headings do not fluidly shrink with viewport width. Respons
 - The masthead is fixed; the rail and workspace form the body below it.
 - The workspace is one white sheet with a 14px radius, one hairline, and a single low shadow. Pages do not add another outer card.
 - Tabs live inside the sheet and inherit its surface. Active tabs connect visually to the content; inactive tabs recede.
-- The rail uses a deep jade field with 41px rows, 6px radius, and a station-dot marker for the active item. Nested items indent by 14px per level.
+- The rail sets its menu on card surfaces: a 48px top-level card, 42px second-level rows, and 40px deeper rows, with 12px card radius and 8px row radius. Nested items step 18px per level so a plain row and an icon row stay aligned.
+- Every row keeps the same 18px icon well and glyph size at any depth; only the well's colour and ring change with level, so state is read from colour rather than from resizing icons. The active row is a jade gradient pill with a white glyph.
 - Top and mixed navigation reuse the same menu grammar in a horizontal 64px shelf. Overflow folds into a "更多" submenu.
 - The rail is resizable with pointer and keyboard (`ArrowLeft` / `ArrowRight` / `Home` / `End`); width is persisted per user. Double-click restores 248px.
 - Below 960px the rail becomes a left drawer; the workspace loses only its outer margin, never its content.
@@ -82,9 +83,15 @@ A drawn SVG route mark: two station nodes connected by a bent line, with a secon
 
 ### Navigation
 
-Element Plus `el-menu` is retained for keyboard and router integration, but its surface is fully re-skinned. Active state uses a soft jade field plus a station dot. No colored left border is used. Horizontal active state uses a 2px underline.
+Element Plus `el-menu` is retained for keyboard and router integration, but its surface is fully re-skinned. The vertical rail mirrors the 云卡悬浮 reference in `core-admin/src/assets/css/sidebar-nav.less`: top-level groups are cards that only lift while open, and the active leaf is a jade gradient pill with white text and glyph. No colored left border or station dot marks the current row; horizontal active state keeps its 2px underline.
 
-The rail, workbench and menu search share availability rules. Hidden routes, unavailable leaves and empty groups are omitted. The global search opens with Ctrl / ⌘ K, focuses its input, supports arrow-key selection and Enter on a result, and closes with Escape. Internal and external entry links share `NavigationLink` so both keep a real href and keyboard behavior.
+Icons are a function of depth, never of the server-supplied icon: L1 is a layered mark in a 30px solid jade well, L2 a folder in a 24px mist well, L3 a file in a 22px outlined well, and L4 and deeper a 5px dot with no well. Row height steps down 48 → 42 → 40 → 38px, and each level adds 14px of indent on top of a 10px row inset. State only recolors these wells; it never resizes them. Horizontal navigation keeps the configured SVG icons, since depth carries no meaning there.
+
+Light and dark rails are both supported. The light rail is a white surface with white cards and a hairline; the dark rail uses the `#263238` field with `#212c31` cards. Both read from the same `--nav-*` variables, so the brand colour switch moves them together.
+
+The rail carries the reference's tool row above the tree: an inline menu filter, a favourites-only toggle and a collapse-all button. Filtering narrows the rendered tree, keeps every matched leaf's ancestor path and expands it automatically; `unique-opened` is suspended while a filter is active so a deep match is not collapsed by a sibling, and the previous expanded trail is restored when the filter ends. The favourites toggle reads `useFavoritesStore`, so the rail stars and the workbench quick entries stay in sync. `/` focuses the filter when focus is idle or already inside the rail, and Escape clears it.
+
+The rail and the workbench share availability rules. Hidden routes, unavailable leaves and empty groups are omitted. Internal and external entry links share `NavigationLink` so both keep a real href and keyboard behavior.
 
 ### Tabs
 
@@ -102,7 +109,15 @@ Icon buttons are 34px, Lucide line icons at 16–18px, 1.8 stroke. A user avatar
 
 Panels use one border and no shadow. Empty states teach the next move and are never just "暂无数据". Loading uses quiet skeletons; route loading is a translucent sheet with a small spinner, and it never appears for the login route.
 
+The boot lockup ("正在载入工作区") owns the first frame: its ground is `--ds-jade-950`, its glows and route line come from the same brand ramp, and the browser `theme-color` is kept in step. Never hardcode a jade hex there, or the overlay will stay dark green after the brand colour is switched.
+
 `EmptyState` provides a reusable title, explanation, icon and recovery action. Tables expose their loading state and keep search, refresh and help controls identifiable. Search forms use native submit behavior, including Enter.
+
+### Home
+
+`/home` opens on the dashboard: a welcome band followed by four panels — favourite quick entries, user manuals, system notices, and pending work. Quick entries are whatever the user starred in the rail; the dashboard never invents shortcuts. Each panel owns its loading, failure and empty state, and an empty panel explains the next move ("在左侧菜单点击星标收藏后…") instead of showing placeholder rows. Pending work is a server-paged VXE table that opens its handling page in a modal iframe.
+
+Panels are separated by hairlines and spacing inside the single workspace sheet; the dashboard adds no second elevation layer and no gradients as decoration. The welcome band compresses first on short viewports so the whole page stays on one screen. The local workbench at `/baseHome` remains the fallback when the server points `/home` back to itself.
 
 ### Workbench
 
@@ -151,6 +166,7 @@ Direct, calm, and specific. Controls name the action ("刷新当前页面", "关
 | Brand, header, empty state, links         | `src/design-system/components/`               |
 | Shell and navigation                      | `src/layouts/admin/`                          |
 | Sign-in                                   | `src/features/auth/LoginPage.vue`             |
+| Home dashboard and home resolver          | `src/features/home/`                          |
 | Workbench and directory/status components | `src/features/workbench/`                     |
 | Error surfaces                            | `src/features/errors/ErrorPage.vue`           |
 
