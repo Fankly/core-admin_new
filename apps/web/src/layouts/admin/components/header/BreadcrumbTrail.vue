@@ -1,131 +1,123 @@
 <template>
   <nav ref="trail" class="ds-breadcrumb" aria-label="面包屑">
     <ol class="ds-breadcrumb__list">
-      <li class="ds-breadcrumb__item ds-breadcrumb__home" :class="{ 'is-current': isHome }">
-        <router-link v-if="!isHome" to="/home" class="ds-breadcrumb__root" aria-label="工作台" title="返回工作台">
+      <li class="ds-breadcrumb__item">
+        <router-link v-if="!isHome" to="/home" class="ds-breadcrumb__home" :class="{ 'is-icon': !fit.homeLabel }" aria-label="主页" title="主页">
           <House :size="16" :stroke-width="1.8" aria-hidden="true" />
-          <span class="ds-breadcrumb__home-label">工作台</span>
+          <span v-if="fit.homeLabel" class="ds-breadcrumb__text">主页</span>
         </router-link>
         <span v-else class="ds-breadcrumb__current" aria-current="page">
           <House :size="16" :stroke-width="1.8" aria-hidden="true" />
-          <span class="ds-breadcrumb__label">工作台</span>
+          <span class="ds-breadcrumb__text">主页</span>
         </span>
       </li>
 
-      <template v-if="!isHome">
-        <li v-if="compact && ancestors.length" class="ds-breadcrumb__item ds-breadcrumb__overflow">
-          <ChevronRight class="ds-breadcrumb__separator" :size="13" aria-hidden="true" />
-          <el-popover
-            v-model:visible="pathOpen"
-            trigger="click"
-            role="dialog"
-            aria-label="完整页面路径"
-            placement="bottom-start"
-            :width="280"
-            popper-class="ds-breadcrumb-popover"
-            @after-enter="focusPath"
-          >
-            <template #reference>
-              <button
-                ref="pathTrigger"
-                class="ds-breadcrumb__more"
-                type="button"
-                aria-label="展开完整路径"
-                title="完整路径"
-                @keydown.esc.stop.prevent="closePath"
-              >
-                <Ellipsis :size="18" aria-hidden="true" />
-              </button>
-            </template>
-            <nav ref="pathPanel" aria-label="完整页面路径" @keydown.esc.stop.prevent="closePath">
-              <p class="ds-breadcrumb-popover__title">页面路径</p>
-              <ol class="ds-breadcrumb-popover__list">
-                <li v-for="(item, index) in ancestors" :key="`${item.path}-${item.title}`">
-                  <router-link :to="item.path" class="ds-breadcrumb-popover__link" @click="pathOpen = false">
-                    <span class="ds-breadcrumb-popover__level" aria-hidden="true">{{ index + 1 }}</span>
-                    <span>{{ item.title }}</span>
-                    <ChevronRight :size="14" aria-hidden="true" />
-                  </router-link>
-                </li>
-                <li class="ds-breadcrumb-popover__current" aria-current="page">
-                  <FileText :size="15" aria-hidden="true" />
-                  <span>{{ current?.title }}</span>
-                </li>
-              </ol>
-            </nav>
-          </el-popover>
-        </li>
-        <template v-else>
-          <li v-for="item in ancestors" :key="`${item.path}-${item.title}`" class="ds-breadcrumb__item ds-breadcrumb__ancestor">
-            <ChevronRight class="ds-breadcrumb__separator" :size="13" aria-hidden="true" />
-            <router-link :to="item.path" class="ds-breadcrumb__link" :title="item.title">
-              {{ item.title }}
-            </router-link>
-          </li>
-        </template>
-      </template>
+      <li v-for="item in leading" :key="item.path" class="ds-breadcrumb__item">
+        <ChevronRight class="ds-breadcrumb__separator" :size="14" :stroke-width="1.8" aria-hidden="true" />
+        <BreadcrumbMenu :root="item" :trail-paths="trailPaths" />
+      </li>
 
-      <li v-if="!isHome && current" class="ds-breadcrumb__item is-current">
-        <ChevronRight class="ds-breadcrumb__separator" :size="13" aria-hidden="true" />
-        <span class="ds-breadcrumb__current" aria-current="page" :title="current.title">
-          <FileText :size="15" :stroke-width="1.8" aria-hidden="true" />
-          <span class="ds-breadcrumb__label">{{ current.title }}</span>
+      <li v-if="foldedRoot" class="ds-breadcrumb__item">
+        <ChevronRight class="ds-breadcrumb__separator" :size="14" :stroke-width="1.8" aria-hidden="true" />
+        <BreadcrumbMenu :root="foldedRoot" :trail-paths="trailPaths" :folded="foldedLabel" />
+      </li>
+
+      <li v-for="item in trailing" :key="item.path" class="ds-breadcrumb__item">
+        <ChevronRight class="ds-breadcrumb__separator" :size="14" :stroke-width="1.8" aria-hidden="true" />
+        <BreadcrumbMenu :root="item" :trail-paths="trailPaths" />
+      </li>
+
+      <li v-if="currentTitle" class="ds-breadcrumb__item is-current">
+        <ChevronRight class="ds-breadcrumb__separator" :size="14" :stroke-width="1.8" aria-hidden="true" />
+        <span class="ds-breadcrumb__current" aria-current="page" :title="currentTitle">
+          <span class="ds-breadcrumb__text">{{ currentTitle }}</span>
         </span>
       </li>
     </ol>
+
+    <!-- 测量层：按真实样式渲染每一段，决定哪些祖先折进「…」；不可见、不可聚焦 -->
+    <div v-if="!isHome" ref="measure" class="ds-breadcrumb__measure" aria-hidden="true" inert>
+      <span class="ds-breadcrumb__home" data-measure="home-label"><House :size="16" /><span class="ds-breadcrumb__text">主页</span></span>
+      <span class="ds-breadcrumb__home is-icon" data-measure="home-icon"><House :size="16" /></span>
+      <span data-measure="separator"><ChevronRight class="ds-breadcrumb__separator" :size="14" /></span>
+      <span class="ds-breadcrumb__segment ds-breadcrumb__more" data-measure="more"><Ellipsis :size="16" /></span>
+      <span v-for="item in ancestors" :key="item.path" class="ds-breadcrumb__segment" data-measure="ancestor">
+        <span class="ds-breadcrumb__text">{{ item.title }}</span>
+        <ChevronDown class="ds-breadcrumb__caret" :size="13" />
+      </span>
+      <span class="ds-breadcrumb__current" data-measure="current">
+        <span class="ds-breadcrumb__text">{{ currentTitle }}</span>
+      </span>
+    </div>
   </nav>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useElementSize } from '@vueuse/core'
-import { ChevronRight, Ellipsis, FileText, House } from '@lucide/vue'
-import { ElPopover } from 'element-plus'
+import { useResizeObserver } from '@vueuse/core'
+import { ChevronDown, ChevronRight, Ellipsis, House } from '@lucide/vue'
+import { useMenuStore } from '@/store'
+import { resolveBreadcrumb, type BreadcrumbNode } from '@/router/navigation'
+import BreadcrumbMenu from './BreadcrumbMenu.vue'
+import { fitBreadcrumb, hiddenCount, type BreadcrumbWidths } from './breadcrumb-fit'
 
 defineOptions({ name: 'BreadcrumbTrail' })
 
 const route = useRoute()
+const menu = useMenuStore()
 const trail = ref<HTMLElement | null>(null)
-const pathTrigger = ref<HTMLButtonElement | null>(null)
-const pathPanel = ref<HTMLElement | null>(null)
-const pathOpen = ref(false)
-const { width } = useElementSize(trail)
+const measure = ref<HTMLElement | null>(null)
+const available = ref(0)
+const widths = ref<BreadcrumbWidths>({ homeLabel: 0, homeIcon: 0, separator: 0, more: 0, ancestors: [], current: 0 })
 
-const isHome = computed(() => route.path === '/home' || route.path === '/baseHome')
+const isHome = computed(() => route.path === '/home')
 
-const crumbs = computed(() => {
-  const titles = new Set<string>()
-  return route.matched
-    .filter((record) => {
-      const title = typeof record.meta.title === 'string' ? record.meta.title : ''
-      if (!title || record.path === '/' || record.path === '/home' || record.path === '/baseHome') return false
-      const key = `${record.path}:${title}`
-      if (titles.has(key)) return false
-      titles.add(key)
-      return true
-    })
-    .map((record) => ({
-      path: record.path,
-      title: String(record.meta.title)
-    }))
+const resolved = computed(() => (isHome.value ? null : resolveBreadcrumb(menu.routes, route.path)))
+const ancestors = computed<BreadcrumbNode[]>(() => resolved.value?.ancestors ?? [])
+
+// 不在菜单树里的页面（工作台、错误页、穿透页）只显示自己的标题。
+const currentTitle = computed(() => {
+  if (isHome.value) return ''
+  if (resolved.value) return resolved.value.current.title
+  const record = [...route.matched].reverse().find((item) => typeof item.meta.title === 'string' && item.meta.title)
+  return record && record.path !== '/' ? String(record.meta.title) : ''
 })
 
-const ancestors = computed(() => crumbs.value.slice(0, -1))
-const current = computed(() => crumbs.value.at(-1))
-// 按路径长度预留空间，侧栏拖宽或工具区变宽时优先保留当前页面。
-const compact = computed(() => width.value < 240 + ancestors.value.reduce((total, item) => total + Math.min(item.title.length * 13, 156) + 24, 0))
+const trailPaths = computed(() => [...ancestors.value.map((item) => item.path), route.path])
 
-const focusPath = () => {
-  pathPanel.value?.querySelector<HTMLAnchorElement>('a')?.focus()
-}
+const fit = computed(() => fitBreadcrumb(available.value, widths.value))
+const leading = computed(() => ancestors.value.slice(0, fit.value.head))
+const trailing = computed(() => ancestors.value.slice(ancestors.value.length - fit.value.tail))
+const folded = computed(() => ancestors.value.slice(fit.value.head, ancestors.value.length - fit.value.tail))
+const foldedLabel = computed(() => folded.value.map((item) => item.title).join(' / '))
 
-const closePath = () => {
-  pathOpen.value = false
-  pathTrigger.value?.focus()
-}
-
-watch([() => route.path, compact], () => {
-  pathOpen.value = false
+/** 只折叠一层时「…」就是那一层；折叠多层时先列出这些祖先，再逐层点开。 */
+const foldedRoot = computed<BreadcrumbNode | null>(() => {
+  if (!hiddenCount(fit.value, ancestors.value.length)) return null
+  const [first] = folded.value
+  if (folded.value.length === 1 && first) return first
+  return { path: '__folded__', title: '页面路径', level: first?.level ?? 1, external: false, href: '', children: folded.value }
 })
+
+const readWidths = () => {
+  const root = measure.value
+  if (!root) return
+  const width = (key: string) => root.querySelector(`[data-measure="${key}"]`)?.getBoundingClientRect().width ?? 0
+  widths.value = {
+    homeLabel: width('home-label'),
+    homeIcon: width('home-icon'),
+    separator: width('separator'),
+    more: width('more'),
+    ancestors: Array.from(root.querySelectorAll('[data-measure="ancestor"]'), (node) => node.getBoundingClientRect().width),
+    current: width('current')
+  }
+}
+
+useResizeObserver(trail, (entries) => {
+  available.value = entries[0]?.contentRect.width ?? 0
+})
+// 标题或字体变化会改变测量层尺寸；路由切换时标题可能等宽，所以同时监听路径
+useResizeObserver(measure, readWidths)
+watch([() => route.path, ancestors], readWidths, { flush: 'post' })
 </script>

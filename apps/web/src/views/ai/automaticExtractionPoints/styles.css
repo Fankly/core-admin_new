@@ -1,0 +1,1937 @@
+/**
+ * 要点自动提取 页面样式
+ *
+ * 设计稿（10-11/要点自动提取V0.2.html）的蓝色系配色按 DESIGN.md 映射到项目设计系统：
+ * 主色统一为深青绿 #00706b，工具栏按钮用 plain 雾面，卡片无阴影，圆角走 6px/12px 双轨，
+ * 表头用浅青绿底 + 主色字。换肤只需改本文件的色板变量。
+ *
+ * ⚠️ 弹窗与 Toast 用 <Teleport to="body"> 渲染，DOM 上不在 .aep-page 之内，
+ *    因此：色板变量定义在 :root，控件复位与 box-sizing 同时覆盖 .aep-page / .aep-modal / .aep-toast。
+ *    （否则弹窗会取不到变量：主色按钮透明、表头色带消失、原生按钮灰底凸边）
+ */
+
+:root {
+  /* ===== 设计系统色板 ===== */
+  --aep-primary: #00706b;
+  --aep-primary-active: #005f5a;
+  --aep-mist: #f2f9f8;
+  --aep-mist-hover: #e6f4f3;
+  --aep-border-teal: #b8ddd9;
+  --aep-table-head: #dff3f0;
+  --aep-table-stripe: #f7fcfb;
+  --aep-table-current: #d8efec;
+  --aep-success: #67c23a;
+  --aep-warning: #e6a23c;
+  --aep-danger: #f56c6c;
+  --aep-info: #909399;
+  --aep-text: #1e293b;
+  --aep-text-2: #475569;
+  --aep-text-3: #64748b;
+  --aep-line: #e2e8f0;
+  --aep-line-light: #f1f5f9;
+  --aep-surface: #ffffff;
+  /* 与设计稿一致：浅青绿底 + 细点阵 */
+  --aep-page-bg: #f1f7f3;
+  --aep-page-dots: radial-gradient(circle at 1px 1px, rgba(5, 150, 105, 0.09) 1px, transparent 0);
+  --aep-page-dots-size: 22px 22px;
+
+  /* 圆角：控件 6px / 大卡 12px */
+  --aep-radius-control: 6px;
+  --aep-radius-card: 12px;
+  /* 行高（与 hooks/useEmptyRows.ts 中的 ROW_HEIGHT 保持一致） */
+  --aep-row-height: 53px;
+}
+
+.aep-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+  /* 视口过矮（如页内分栏）时整页纵向滚动，避免表格区被压成 0 高度 */
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  color: var(--aep-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑',
+    'Noto Sans SC', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  /* 页面底色：与设计稿一致（浅青绿 + 细点阵） */
+  background-color: var(--aep-page-bg);
+  background-image: var(--aep-page-dots);
+  background-size: var(--aep-page-dots-size);
+}
+
+/**
+ * 内容区外层的 10px 内边距与 el-card 白底会露出灰色/白色边框，
+ * 这里让它们跟随页面底色，保证整块内容区是连续的浅青绿背景。
+ */
+.rr-view-ctx:has(.aep-page) {
+  background-color: var(--aep-page-bg);
+  background-image: var(--aep-page-dots);
+  background-size: var(--aep-page-dots-size);
+}
+
+.rr-view-ctx-card:has(.aep-page) {
+  background: transparent;
+}
+
+.aep-page,
+.aep-modal,
+.aep-toast {
+  box-sizing: border-box;
+}
+
+.aep-page *,
+.aep-page *::before,
+.aep-page *::after,
+.aep-modal *,
+.aep-modal *::before,
+.aep-modal *::after,
+.aep-toast *,
+.aep-toast *::before,
+.aep-toast *::after {
+  box-sizing: border-box;
+}
+
+/* 关闭了 Tailwind preflight，手写控件需要自行复位（页面与弹窗都要覆盖） */
+:where(.aep-page, .aep-modal, .aep-toast) button {
+  border: 0 solid transparent;
+  background-color: transparent;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+:where(.aep-page, .aep-modal, .aep-toast) h1,
+:where(.aep-page, .aep-modal, .aep-toast) h2,
+:where(.aep-page, .aep-modal, .aep-toast) h3,
+:where(.aep-page, .aep-modal, .aep-toast) p {
+  margin: 0;
+  font-weight: inherit;
+}
+
+:where(.aep-page, .aep-modal, .aep-toast) table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+:where(.aep-page, .aep-modal, .aep-toast) input,
+:where(.aep-page, .aep-modal, .aep-toast) select,
+:where(.aep-page, .aep-modal, .aep-toast) textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--aep-text-2);
+  background-color: var(--aep-surface);
+  outline: none;
+  margin: 0;
+}
+
+:where(.aep-page, .aep-modal, .aep-toast) input[type='checkbox'],
+:where(.aep-page, .aep-modal, .aep-toast) input[type='radio'] {
+  accent-color: var(--aep-primary);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/** 数字统一等宽（The Tnum Rule） */
+.aep-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/** 表格行内操作组：图标按钮 + 文字链接 */
+.aep-row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/** 表格行内图标操作（预览 / 下载） */
+.aep-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--aep-radius-control);
+  background: transparent;
+  color: var(--aep-primary);
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.aep-link-icon:hover {
+  background-color: var(--aep-mist);
+  color: var(--aep-primary-active);
+}
+
+.aep-link-icon:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+  background: transparent;
+}
+
+/** 表格行内操作链接（删除等危险操作） */
+.aep-link-danger {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--aep-danger);
+  cursor: pointer;
+  transition: color 0.12s ease;
+}
+
+.aep-link-danger:hover {
+  color: #d9534f;
+  text-decoration: underline;
+}
+
+/* 已固化为AI审核要点等不可删除的行：按钮置灰且不可点 */
+.aep-link-danger:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.aep-link-danger:disabled:hover {
+  color: #94a3b8;
+  text-decoration: none;
+}
+
+/** 表格行内普通操作链接（详情等） */
+.aep-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--aep-primary);
+  cursor: pointer;
+  transition: color 0.12s ease;
+}
+
+.aep-link:hover {
+  color: var(--aep-primary-active);
+  text-decoration: underline;
+}
+
+/* ================= 指标卡区域 ================= */
+.aep-cards {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .aep-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1400px) {
+  .aep-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.aep-page.is-fullscreen .aep-cards {
+  display: none;
+}
+
+.aep-card {
+  position: relative;
+  padding: 16px 18px;
+  background: var(--aep-surface);
+  border: 1px solid var(--aep-line);
+  border-radius: var(--aep-radius-card);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.2s ease, background-color 0.2s ease;
+  will-change: transform;
+}
+
+/* hover：整卡上浮 + 柔和投影（保留卡片自身底色与描边） */
+.aep-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px -8px rgba(16, 24, 40, 0.16);
+}
+
+/* hover：左侧竖条加宽（保留卡片自身配色） */
+.aep-card:hover::before {
+  width: 6px;
+}
+
+/* hover：图标块轻微放大 */
+.aep-card:hover .aep-icon-chip {
+  transform: scale(1.06);
+}
+
+/* 尊重系统「减少动态效果」偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .aep-card,
+  .aep-card::before,
+  .aep-icon-chip {
+    transition: none;
+  }
+
+  .aep-card:hover {
+    transform: none;
+  }
+
+  .aep-card:hover .aep-icon-chip {
+    transform: none;
+  }
+}
+
+/* 左侧竖条 + 卡片底色/描边：按最新设计稿（同色系四档：青绿 / 湖水绿 / 湖蓝 / 草木绿） */
+.aep-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: var(--aep-primary);
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.aep-card--teal {
+  background: linear-gradient(150deg, #e9f9f4 0%, #f7fdfb 100%);
+  border-color: #c6ece2;
+}
+
+.aep-card--teal::before {
+  background: linear-gradient(180deg, #35a98c, #74cdb4);
+}
+
+.aep-card--green {
+  background: linear-gradient(150deg, #eaf8f2 0%, #f7fdfa 100%);
+  border-color: #c4ebe0;
+}
+
+.aep-card--green::before {
+  background: linear-gradient(180deg, #2a9d8f, #6ecfc4);
+}
+
+.aep-card--blue {
+  background: linear-gradient(150deg, #eaf6f9 0%, #f6fcfe 100%);
+  border-color: #c3e4ee;
+}
+
+.aep-card--blue::before {
+  background: linear-gradient(180deg, #2a8fb0, #6cc2dd);
+}
+
+.aep-card--orange {
+  background: linear-gradient(150deg, #ecf7f0 0%, #f8fdfa 100%);
+  border-color: #ccebd8;
+}
+
+.aep-card--orange::before {
+  background: linear-gradient(180deg, #3f9e6a, #7fd0a0);
+}
+
+.aep-card__hint {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--aep-text-3);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.aep-card:hover .aep-card__hint {
+  opacity: 1;
+}
+
+.aep-card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.aep-card__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--aep-text);
+}
+
+.aep-card__desc {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--aep-text-3);
+}
+
+/* 卡片右上角的分布维度下拉（审核要点分布：按来源 / 按状态） */
+.aep-card__dimension {
+  margin-left: auto;
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--aep-line);
+  border-radius: var(--aep-radius-control);
+  background: var(--aep-surface);
+  color: var(--aep-text-2);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.aep-card__dimension:hover {
+  border-color: var(--aep-border-teal);
+}
+
+.aep-card__dimension:focus {
+  outline: none;
+  border-color: var(--aep-primary);
+}
+
+.aep-icon-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--aep-radius-control);
+  background: var(--aep-mist);
+  color: var(--aep-primary);
+  transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+/* 图标块配色：按最新设计稿（同色系四档的浅色渐变底 + 深色图标） */
+.aep-card--teal .aep-icon-chip {
+  background: linear-gradient(135deg, #d2f1e8, #b4e7da);
+  color: #22876f;
+}
+
+.aep-card--green .aep-icon-chip {
+  background: linear-gradient(135deg, #d2f0ea, #b4e6de);
+  color: #1f8577;
+}
+
+.aep-card--blue .aep-icon-chip {
+  background: linear-gradient(135deg, #d3ebf3, #b3dfee);
+  color: #1f7a99;
+}
+
+.aep-card--orange .aep-icon-chip {
+  background: linear-gradient(135deg, #d6f1e0, #b9eaca);
+  color: #2d8f5f;
+}
+
+.aep-card__body {
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+}
+
+/* ================= 环形图 ================= */
+/*
+ * 与仪表盘圆环对齐：
+ * - 外径：仪表盘 viewBox 120 里圆环外径 110，按 108 的盒子缩放后约 99px → 环形图外径取 99px
+ * - 粗细：仪表盘描边 10（缩放后 9px）→ 环形图环带取 9px（内孔 inset 9px）
+ */
+.aep-donut {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 99px;
+  height: 99px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.aep-donut::after {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  background: var(--aep-surface);
+  border-radius: 50%;
+}
+
+.aep-donut__center {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.aep-donut__value {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--aep-text);
+}
+
+.aep-donut__label {
+  margin-top: 3px;
+  font-size: 10px;
+  color: var(--aep-text-3);
+}
+
+/* ================= 仪表盘 ================= */
+.aep-gauge {
+  width: 108px;
+  height: 108px;
+  flex-shrink: 0;
+}
+
+/* SVG 按 120 的 viewBox 等比缩到 108（90%），内部文字/圆环一并缩小 */
+.aep-gauge svg {
+  width: 108px;
+  height: 108px;
+}
+
+/* ================= 图例 / 进度 ================= */
+.aep-legend {
+  flex: 1;
+  min-width: 0;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* 部门分布图例更紧凑 */
+.aep-legend--dept {
+  gap: 8px;
+}
+
+/* 图例行 + 进度条为一组 */
+.aep-legend-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aep-legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.aep-legend-row:hover .aep-legend-text {
+  color: var(--aep-text);
+  font-weight: 500;
+}
+
+.aep-legend-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--aep-text-2);
+  white-space: nowrap;
+}
+
+.aep-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.aep-legend-value {
+  color: var(--aep-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.aep-legend-value span {
+  margin-left: 4px;
+  font-weight: 400;
+  color: var(--aep-text-3);
+}
+
+.aep-legend-foot {
+  padding-top: 2px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--aep-text-3);
+}
+
+.aep-legend-foot b {
+  color: var(--aep-primary);
+  font-weight: 600;
+}
+
+/* 卡片底部的「率」文字按卡片色（最新设计稿：emerald 系） */
+.aep-card--green .aep-legend-foot b {
+  color: #047857;
+}
+
+.aep-card--blue .aep-legend-foot b {
+  color: #059669;
+}
+
+.aep-card--orange .aep-legend-foot b {
+  color: #047857;
+}
+
+.aep-track {
+  height: 6px;
+  background: var(--aep-mist);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.aep-track__bar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--aep-primary);
+  transition: width 0.6s ease;
+}
+
+/* ================= 列表大卡 ================= */
+.aep-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  height: 0;
+  /* 保证矮视口下表格区仍有可用高度 */
+  min-height: 360px;
+  overflow: hidden;
+  background: var(--aep-surface);
+  border: 1px solid var(--aep-line);
+  border-radius: var(--aep-radius-card);
+}
+
+/* 工具栏 */
+.aep-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 12px;
+  min-height: 48px;
+  border-bottom: 1px solid var(--aep-line-light);
+  flex-shrink: 0;
+}
+
+.aep-toolbar__left {
+  display: flex;
+  align-items: center;
+}
+
+.aep-toolbar__bar {
+  width: 3px;
+  height: 16px;
+  margin-right: 12px;
+  border-radius: 999px;
+  background: var(--aep-primary);
+}
+
+.aep-toolbar__right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.aep-divider-v {
+  width: 1px;
+  height: 20px;
+  background: var(--aep-line);
+}
+
+/* 分段页签 */
+.aep-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  background-color: var(--aep-mist);
+  border: 1px solid;
+  border-color: var(--aep-line);
+  border-radius: var(--aep-radius-control);
+}
+
+.aep-tab {
+  padding: 5px 14px;
+  border-radius: var(--aep-radius-control);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--aep-text-2);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.aep-tab:hover {
+  color: var(--aep-primary);
+}
+
+.aep-tab.is-active {
+  background-color: var(--aep-surface);
+  color: var(--aep-primary);
+  font-weight: 600;
+}
+
+/* ================= 按钮 =================
+   注意：这里刻意用 background-color / border-color 长写，
+   与 <button> 的 UA/framework 样式叠加时不依赖 background/border 简写展开。 */
+.aep-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: var(--aep-radius-control);
+  background-color: transparent;
+  color: var(--aep-text-2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+/* 工具栏命令按钮：primary plain（雾面底 + 描边 + 主色字） */
+.aep-btn--plain {
+  background-color: var(--aep-mist);
+  border-color: var(--aep-border-teal);
+  color: var(--aep-primary);
+}
+
+.aep-btn--plain:hover {
+  background-color: var(--aep-mist-hover);
+  border-color: var(--aep-primary);
+}
+
+.aep-btn--plain:active {
+  color: var(--aep-primary-active);
+}
+
+/* 次级命令按钮：白底 + slate 字 + 结构边 */
+.aep-btn--ghost {
+  background-color: var(--aep-surface);
+  border-color: var(--aep-line);
+  color: var(--aep-text-2);
+}
+
+.aep-btn--ghost:hover {
+  background-color: var(--aep-mist);
+  border-color: var(--aep-border-teal);
+  color: var(--aep-primary);
+}
+
+/* 实心主色：仅用于明确的主提交动作 */
+.aep-btn--primary {
+  background-color: var(--aep-primary);
+  border-color: var(--aep-primary);
+  color: #fff;
+}
+
+.aep-btn--primary:hover {
+  background-color: var(--aep-primary-active);
+  border-color: var(--aep-primary-active);
+}
+
+/* 危险操作：仅确认弹窗等危险场景 */
+.aep-btn--danger {
+  background-color: var(--aep-surface);
+  border-color: #fbc4c4;
+  color: var(--aep-danger);
+}
+
+.aep-btn--danger:hover {
+  background-color: #fef0f0;
+}
+
+.aep-btn--lg {
+  height: 32px;
+  padding: 0 20px;
+  font-size: 13px;
+}
+
+.aep-btn__chevron {
+  transition: transform 0.3s ease;
+}
+
+.aep-btn__chevron.is-open {
+  transform: rotate(180deg);
+}
+
+/* ================= 查询带 ================= */
+.aep-filter {
+  max-height: 0;
+  padding: 0 12px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--aep-line-light);
+  background: #fafcfc;
+  opacity: 0;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+  flex-shrink: 0;
+}
+
+.aep-filter.is-open {
+  /* 条件多（7 项）+ 窄屏单列时也不会被裁掉 */
+  max-height: 520px;
+  padding: 12px;
+  opacity: 1;
+}
+
+.aep-filter__grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* 断点与设计稿一致：md(768) 起多列，宽屏时知识管理铺满 7 列 */
+@media (min-width: 768px) {
+  .aep-filter__grid--file {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .aep-filter__grid--knowledge {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .aep-filter__grid--knowledge {
+    /* 8 项条件：文件名称/发布年度/发布部门/审核要点/审核要点来源/是否已确认/是否已转化/是否已实现 */
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+/* 查询带里的 Element 控件（年份选择器等）与原生 input/select 同宽同高 */
+.aep-filter__grid .el-date-editor {
+  width: 100%;
+}
+
+.aep-filter__grid .el-input__inner {
+  height: 32px;
+  line-height: 32px;
+  border: 1px solid var(--aep-line);
+  border-radius: var(--aep-radius-control);
+  background-color: var(--aep-surface);
+  color: var(--aep-text-2);
+}
+
+.aep-filter__grid .el-input__inner:hover {
+  border-color: var(--aep-border-teal);
+}
+
+.aep-filter__grid .el-input__inner:focus {
+  border-color: var(--aep-primary);
+}
+
+.aep-filter__grid .el-input__inner::placeholder {
+  color: #94a3b8;
+}
+
+.aep-filter__grid .el-input__prefix,
+.aep-filter__grid .el-input__clear {
+  color: var(--aep-text-3);
+}
+
+.aep-filter__actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+/* 知识管理筛选的查询/重置：右对齐 */
+.aep-filter__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.aep-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--aep-text-3);
+}
+
+.aep-input,
+.aep-select {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--aep-line);
+  border-radius: var(--aep-radius-control);
+  color: var(--aep-text-2);
+  transition: border-color 0.2s ease;
+}
+
+.aep-input::placeholder {
+  color: #94a3b8;
+}
+
+.aep-input:hover,
+.aep-select:hover {
+  border-color: var(--aep-border-teal);
+}
+
+.aep-input:focus,
+.aep-select:focus {
+  border-color: var(--aep-primary);
+}
+
+.aep-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--aep-line);
+  border-radius: var(--aep-radius-control);
+  color: var(--aep-text-2);
+  resize: none;
+  line-height: 1.6;
+}
+
+.aep-textarea:focus {
+  border-color: var(--aep-primary);
+}
+
+/* 只读/禁用：置灰（知识列表「详情」打开的确认弹窗为只读） */
+.aep-input:disabled,
+.aep-select:disabled,
+.aep-textarea:disabled {
+  background: #f1f5f9;
+  color: var(--aep-text-3);
+  border-color: var(--aep-line);
+  cursor: not-allowed;
+}
+
+.aep-input:disabled:hover,
+.aep-select:disabled:hover {
+  border-color: var(--aep-line);
+}
+
+/* ================= 表格 ================= */
+.aep-table-region {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.aep-table {
+  width: 100%;
+  text-align: left;
+}
+
+/* 全边框：竖线 + 横线（表格已有 border-collapse，末列去掉右边线避免与外框叠线） */
+.aep-table th,
+.aep-table td {
+  border-right: 1px solid var(--aep-line);
+}
+
+.aep-table th:last-child,
+.aep-table td:last-child {
+  border-right: none;
+}
+
+.aep-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--aep-line);
+  background: var(--aep-table-head);
+  color: var(--aep-primary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.aep-table tbody td {
+  height: var(--aep-row-height);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--aep-line);
+  font-size: 13px;
+  color: var(--aep-text-2);
+  vertical-align: middle;
+}
+
+/* 知识管理：点击行即勾选（单选） */
+.aep-table tbody tr.aep-row--selectable {
+  cursor: pointer;
+}
+
+.aep-table tbody tr.aep-row--selectable.is-checked td {
+  background: var(--aep-table-current);
+}
+
+.aep-table tbody tr:hover td {
+  background: var(--aep-mist-hover);
+}
+
+.aep-table tbody tr.aep-row--selectable.is-checked:hover td {
+  background: var(--aep-table-current);
+}
+
+.aep-table tbody tr.is-selected td {
+  background: var(--aep-table-current);
+}
+
+.aep-table .aep-td--index {
+  color: var(--aep-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 横向滚动时固定「文件名称」列（连同表头），右侧留一条分隔线 */
+.aep-table th.aep-sticky-col,
+.aep-table td.aep-sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--aep-surface);
+  border-right: 1px solid var(--aep-line);
+}
+
+.aep-table th.aep-sticky-col {
+  z-index: 3;
+  background: var(--aep-table-head);
+}
+
+.aep-table tbody tr:hover td.aep-sticky-col {
+  background: var(--aep-mist-hover);
+}
+
+.aep-table tbody tr.is-selected td.aep-sticky-col {
+  background: var(--aep-table-current);
+}
+
+/* 知识管理：横向滚动时冻结前 4 列（勾选 / 序号 / 审核要点 / 判断规则） */
+.aep-table th.aep-freeze-col,
+.aep-table td.aep-freeze-col {
+  position: sticky;
+  z-index: 1;
+  background: var(--aep-surface);
+  border-right: 1px solid var(--aep-line);
+}
+
+.aep-table th.aep-freeze-col {
+  z-index: 3;
+  background: var(--aep-table-head);
+}
+
+/* 冻结列必须固定宽度：sticky 的 left 是按这组宽度累加的，列宽一变就会错位 */
+.aep-freeze-col--1 {
+  left: 0;
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+}
+
+.aep-freeze-col--2 {
+  left: 48px;
+  width: 64px;
+  min-width: 64px;
+  max-width: 64px;
+}
+
+.aep-freeze-col--3 {
+  left: 112px;
+  width: 200px;
+  min-width: 200px;
+  max-width: 200px;
+}
+
+/* 最后一列冻结列加一点右侧投影，滚动内容不会和固定列糊在一起 */
+.aep-freeze-col--4 {
+  left: 312px;
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  box-shadow: 6px 0 8px -8px rgba(15, 23, 42, 0.35);
+}
+
+.aep-table tbody tr:hover td.aep-freeze-col {
+  background: var(--aep-mist-hover);
+}
+
+.aep-table tbody tr.aep-row--selectable.is-checked td.aep-freeze-col,
+.aep-table tbody tr.is-selected td.aep-freeze-col {
+  background: var(--aep-table-current);
+}
+
+.aep-table tbody tr.aep-row--selectable.is-checked:hover td.aep-freeze-col {
+  background: var(--aep-table-current);
+}
+
+/* 表头右缘的列宽拖拽手柄 */
+.aep-col-resize {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  z-index: 4;
+}
+
+.aep-col-resize:hover,
+body.is-col-resizing .aep-col-resize {
+  background: linear-gradient(180deg, transparent, var(--aep-primary), transparent);
+  opacity: 0.45;
+}
+
+body.is-col-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.aep-table .aep-td--strong {
+  font-weight: 500;
+  color: var(--aep-text);
+}
+
+.aep-table .aep-td--num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 单元格文本最多两行，超出省略（悬浮由 ClampText 浮出完整内容） */
+.aep-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* 单行省略（发文字号 / 发文部门 / 解析时间等）：一行展示，放不下打点，悬浮看全文 */
+.aep-clamp--nowrap {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+
+/* 悬浮浮层：内容被截断时展示全文（挂到 body，不被表格滚动区裁剪） */
+.aep-clamp-tip {
+  position: fixed;
+  z-index: 3000;
+  max-width: 420px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: #1e293b;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow: 0 8px 22px -10px rgba(15, 23, 42, 0.5);
+  pointer-events: none;
+}
+
+.aep-empty-cell {
+  padding: 48px 0;
+  text-align: center;
+  color: var(--aep-text-3);
+  font-size: 13px;
+}
+
+/* 文件类型徽标 */
+.aep-filechip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 24px;
+  margin-right: 10px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.aep-filechip--pdf {
+  background: var(--aep-danger);
+}
+
+.aep-filechip--doc {
+  background: var(--aep-primary);
+}
+
+/* ================= 状态标签 / 计数药丸 ================= */
+.aep-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.aep-badge--teal {
+  background: var(--aep-mist);
+  border-color: var(--aep-border-teal);
+  color: var(--aep-primary);
+}
+
+.aep-badge--success {
+  background: #f0f9eb;
+  border-color: #d7edc8;
+  color: #529b2e;
+}
+
+.aep-badge--warning {
+  background: #fdf6ec;
+  border-color: #f5dab1;
+  color: #b88230;
+}
+
+.aep-badge--danger {
+  background: #fef0f0;
+  border-color: #fbc4c4;
+  color: var(--aep-danger);
+}
+
+.aep-badge--gray {
+  background: #f8fafc;
+  border-color: var(--aep-line);
+  color: var(--aep-text-3);
+}
+
+.aep-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  padding: 2px 10px;
+  border: 1px solid var(--aep-border-teal);
+  border-radius: 999px;
+  background: var(--aep-mist);
+  color: var(--aep-primary);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.aep-pill:hover {
+  background: var(--aep-primary);
+  color: #fff;
+}
+
+.aep-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--aep-text-3);
+}
+
+.aep-state--done {
+  color: #529b2e;
+  font-weight: 600;
+}
+
+/* ================= 分页 =================
+   用系统统一的 el-pagination（layout: total, sizes, prev, pager, next, jumper），
+   样式由全局 app.less 与控制台的 --el-color-primary 决定，这里只留外层容器。 */
+.aep-pager {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 12px;
+  border-top: 1px solid var(--aep-line-light);
+  flex-shrink: 0;
+}
+
+/* ================= 弹窗 ================= */
+.aep-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(3px);
+  animation: aep-fade-in 0.25s ease;
+}
+
+/* 叠在另一个弹窗之上（如从知识列表「详情」打开的只读确认弹窗）
+   z-index 取一个明显高于普通弹窗（2000）与 Element Plus 覆盖层的值，确保不被遮住 */
+.aep-modal--stack {
+  z-index: 2200;
+}
+
+@keyframes aep-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.aep-modal__panel {
+  display: flex;
+  flex-direction: column;
+  max-width: 95vw;
+  max-height: 88vh;
+  overflow: hidden;
+  background: var(--aep-surface);
+  border-radius: var(--aep-radius-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 12px 32px -12px rgba(16, 24, 40, 0.28);
+  animation: aep-modal-in 0.25s ease;
+}
+
+/* 全屏：铺满视口，去掉圆角 */
+.aep-modal__panel--fullscreen {
+  max-width: 100vw;
+  max-height: 100vh;
+  border-radius: 0;
+}
+
+@keyframes aep-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.aep-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--aep-line-light);
+  flex-shrink: 0;
+}
+
+.aep-modal__title {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--aep-text);
+}
+
+.aep-modal__title::before {
+  content: '';
+  width: 3px;
+  height: 18px;
+  margin-right: 12px;
+  border-radius: 999px;
+  background: var(--aep-primary);
+}
+
+.aep-modal__subtitle {
+  margin-left: 10px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--aep-text-3);
+}
+
+.aep-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--aep-radius-control);
+  color: var(--aep-text-3);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.aep-modal__close:hover {
+  background-color: var(--aep-line-light);
+  color: var(--aep-text-2);
+}
+
+.aep-modal__head-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aep-modal__fullscreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: var(--aep-radius-control);
+  color: var(--aep-text-3);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.aep-modal__fullscreen:hover {
+  background-color: var(--aep-line-light);
+  color: var(--aep-text-2);
+}
+
+.aep-modal__body {
+  /* flex-basis 用 auto：面板高度自适应时按内容撑开（审核要点确认弹窗），
+     面板给了固定高度时再由 flex-grow 吃满（解析与提取弹窗）；
+     用 1 1 0 会让自适应高度的面板把内容压成 0 */
+  flex: 1 1 auto;
+  min-height: 0;
+  /* 必须是 flex 列：内部白卡/表格区用 flex: 1 1 0 撑满 */
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 18px 20px;
+  background: #fbfcfd;
+}
+
+.aep-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--aep-line-light);
+  flex-shrink: 0;
+}
+
+.aep-danger-text {
+  color: var(--aep-danger);
+}
+
+/* 步骤条 */
+.aep-steps {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--aep-line-light);
+  flex-shrink: 0;
+}
+
+.aep-steps::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: 50%;
+  height: 2px;
+  background: var(--aep-line);
+}
+
+/* 已完成步骤的进度线 */
+.aep-steps__progress {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  height: 2px;
+  max-width: calc(100% - 48px);
+  background: var(--aep-primary);
+  transition: width 0.3s ease;
+}
+
+.aep-step {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  background: var(--aep-surface);
+}
+
+.aep-step__no {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--aep-line-light);
+  color: var(--aep-text-3);
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.aep-step.is-active .aep-step__no {
+  background: var(--aep-primary);
+  color: #fff;
+}
+
+.aep-step__text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--aep-text-3);
+  white-space: nowrap;
+}
+
+.aep-step.is-active .aep-step__text {
+  color: var(--aep-primary);
+}
+
+/* 弹窗内白卡 */
+.aep-subcard {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--aep-surface);
+  border: 1px solid var(--aep-line);
+  border-radius: var(--aep-radius-card);
+}
+
+.aep-subcard__head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--aep-line-light);
+  flex-shrink: 0;
+}
+
+.aep-subcard__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--aep-text);
+}
+
+.aep-subcard__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--aep-radius-control);
+  background: var(--aep-mist);
+  color: var(--aep-primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.aep-subcard__search {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* 关键字输入占满剩余宽度，部门固定宽 */
+.aep-subcard__search .aep-search-keyword {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.aep-subcard__search .aep-search-dept {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+/* 弹窗内查询控件（el-input / el-date-picker）统一到设计系统控件规格：
+   32px 高、6px 圆角、结构边，聚焦变主色 */
+.aep-subcard__search .el-input__inner {
+  height: 32px;
+  line-height: 32px;
+  border: 1px solid var(--aep-line);
+  border-radius: var(--aep-radius-control);
+  background-color: var(--aep-surface);
+  color: var(--aep-text-2);
+}
+
+.aep-subcard__search .el-input__inner:hover {
+  border-color: var(--aep-border-teal);
+}
+
+.aep-subcard__search .el-input__inner:focus {
+  border-color: var(--aep-primary);
+}
+
+.aep-subcard__search .el-input__inner::placeholder {
+  color: #94a3b8;
+}
+
+/* 清空/前缀图标颜色跟随文本色 */
+.aep-subcard__search .el-input__prefix,
+.aep-subcard__search .el-input__clear {
+  color: var(--aep-text-3);
+}
+
+/* 弹窗内的年份选择器（el-date-picker type="year"）：宽度对齐其它查询控件 */
+.aep-subcard__search .aep-year-picker {
+  width: 130px;
+  flex-shrink: 0;
+}
+
+.aep-subcard__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--aep-line-light);
+  background: #fafcfc;
+  flex-shrink: 0;
+}
+
+.aep-subcard__hint {
+  font-size: 12px;
+  color: var(--aep-text-3);
+  white-space: nowrap;
+}
+
+/* 弹窗内分页：与系统一致（el-pagination），只做收紧边距 */
+.aep-subcard__foot .el-pagination {
+  margin: 0;
+  padding: 0;
+}
+
+/* 消息提醒弹窗 */
+.aep-notice-panel {
+  width: 440px;
+}
+
+.aep-notice-panel__bar {
+  height: 5px;
+  background: linear-gradient(90deg, var(--aep-primary), #2f9e8f);
+  flex-shrink: 0;
+}
+
+.aep-notice-panel__foot {
+  display: flex;
+  justify-content: center;
+  padding: 0 24px 24px;
+  flex-shrink: 0;
+}
+
+.aep-notice {
+  position: relative;
+  padding: 32px 24px 24px;
+  text-align: center;
+}
+
+.aep-notice__ring {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  width: 72px;
+  height: 72px;
+  margin-left: -36px;
+  border-radius: 50%;
+  background: rgba(0, 112, 107, 0.12);
+  animation: aep-pulse 2s ease-out infinite;
+}
+
+@keyframes aep-pulse {
+  0% {
+    transform: scale(0.75);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+.aep-notice__icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 18px;
+  border-radius: 16px;
+  background: var(--aep-primary);
+  color: #fff;
+}
+
+.aep-notice__title {
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--aep-text);
+}
+
+.aep-notice__text {
+  max-width: 330px;
+  margin: 0 auto;
+  font-size: 13px;
+  color: var(--aep-text-2);
+  line-height: 1.8;
+}
+
+.aep-notice__text b {
+  color: var(--aep-primary);
+  font-weight: 600;
+}
+
+/* ================= 确认弹窗表单 ================= */
+.aep-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--aep-surface);
+}
+
+.aep-field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 同一行两个字段（是否为有效审核要点 / 是否固化为AI审核要点），窄屏堆叠 */
+.aep-field-row {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .aep-field-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.aep-field__label {
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--aep-text);
+}
+
+.aep-required {
+  color: var(--aep-danger);
+  font-style: normal;
+}
+
+.aep-modal__foot--confirm {
+  gap: 10px;
+}
+
+/* ================= 审核要点确认：左侧来源文件预览 ================= */
+.aep-confirm-form {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.aep-confirm-body--split {
+  flex-direction: row;
+  overflow: hidden;
+  padding: 0;
+  background: var(--aep-surface);
+}
+
+.aep-confirm-preview {
+  display: flex;
+  flex: 0 0 58%;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid var(--aep-line);
+  background: #f1f5f9;
+}
+
+.aep-confirm-preview__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--aep-line-light);
+  background: var(--aep-surface);
+}
+
+.aep-confirm-preview__label {
+  flex-shrink: 0;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--aep-mist);
+  color: var(--aep-primary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.aep-confirm-preview__name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--aep-text-2);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aep-confirm-preview__canvas {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  padding: 12px;
+}
+
+.aep-confirm-preview__canvas > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.aep-confirm-preview__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  border: 1px solid var(--aep-line-light);
+  border-radius: var(--aep-radius-card);
+  background: var(--aep-surface);
+  color: var(--aep-text-3);
+  font-size: 13px;
+  text-align: center;
+}
+
+.aep-preview-empty__icon {
+  flex-shrink: 0;
+  margin-bottom: 14px;
+}
+
+.aep-preview-empty__title {
+  color: var(--aep-text-3);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.aep-preview-empty__desc {
+  margin-top: 6px;
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.aep-confirm-body--split .aep-confirm-form {
+  flex: 1 1 0;
+  overflow-y: auto;
+  padding: 18px 20px;
+}
+
+.aep-confirm-body--split .aep-confirm {
+  min-height: 100%;
+}
+
+/* 文件预览画布（无弹窗壳，可被确认弹窗左侧复用） */
+.aep-file-preview {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--aep-line);
+  border-radius: var(--aep-radius-card);
+  background: var(--aep-surface);
+}
+
+.aep-file-preview__inner {
+  width: 100%;
+  height: 100%;
+}
+
+.aep-file-preview__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.aep-file-preview__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  color: var(--aep-text-3);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ================= 知识列表弹窗 ================= */
+.aep-list-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--aep-line-light);
+  background: #fafcfc;
+  flex-shrink: 0;
+}
+
+.aep-filter__grid--list {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 992px) {
+  .aep-filter__grid--list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.aep-list-head .aep-filter__foot {
+  margin-top: 12px;
+}
+
+/* ================= Toast ================= */
+.aep-toast {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px 10px 14px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--aep-radius-card);
+  background: rgba(15, 23, 42, 0.92);
+  color: #fff;
+  font-size: 13px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  animation: aep-toast-in 0.3s ease;
+}
+
+.aep-toast svg {
+  margin-right: 10px;
+  color: var(--aep-warning);
+  flex-shrink: 0;
+}
+
+@keyframes aep-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -16px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}

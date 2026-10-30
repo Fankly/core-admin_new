@@ -6,7 +6,7 @@ import { registerDynamicRoute, registerDynamicToRouterAndNext } from '../dynamic
 import { isWorkflowStandalone } from '../layout'
 import { getBaseRouteToMeta, registerToRouter, resetRoute } from '@/utils/router'
 import { getPermissions, getToken } from '@/utils/cache'
-import { useMenuStore, useSessionStore, useShellStore, useTabsStore } from '@/store'
+import { useContextStore, useMenuStore, useSessionStore, useShellStore, useTabsStore } from '@/store'
 import type { MenuMeta } from '@/types/domain'
 import { loadWorkspacePlugins } from '@/app/plugins'
 
@@ -81,6 +81,7 @@ export function setupRouterGuards(router: Router) {
       resetRoute(router, menu.routes)
       menu.reset()
       tabs.reset()
+      useContextStore().reset()
       session.logout()
       shell.setRouteLoading(false)
       shell.markReady()

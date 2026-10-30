@@ -1,0 +1,76 @@
+// 动效仅作用于总览页；过渡不占用额外布局空间，也不延长接口等待时间。
+.overview-page {
+  --overview-motion-fast: 140ms;
+  --overview-motion-enter: 260ms;
+  --overview-motion-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  :deep(.overview-state-enter-active),
+  :deep(.overview-view-enter-active) {
+    transition: opacity var(--overview-motion-enter) var(--overview-motion-ease);
+  }
+  :deep(.overview-state-leave-active),
+  :deep(.overview-view-leave-active) {
+    // 新旧内容同时占据同一网格，接续淡出，避免 out-in 先清空再挂载。
+    transition: opacity var(--overview-motion-enter) var(--overview-motion-ease);
+    pointer-events: none;
+  }
+  // 骨架屏不参与离开过渡：数据已经渲染还挂着骨架淡出，看起来就是「接口回来了页面还在加载」。
+  // leave-from 在重绘前补上、leave-active 紧随其后，两者都置为不占位即立刻消失；transition 归零让节点立即回收。
+  :deep(.overview-state-leave-from.is-loading-state),
+  :deep(.overview-state-leave-active.is-loading-state) {
+    display: none;
+    transition: none;
+  }
+  :deep(.overview-state-leave-to),
+  :deep(.overview-view-leave-to) {
+    opacity: 0;
+  }
+  :deep(.overview-state-enter-from),
+  :deep(.overview-view-enter-from) {
+    // 旧图表销毁时，新内容仍保持可见，避免画布释放产生白帧。
+    opacity: 0.4;
+  }
+  :deep(.stage-card) {
+    animation: overview-stage-arrive 320ms var(--overview-motion-ease) both;
+    animation-delay: calc(var(--stage-index, 0) * 40ms);
+  }
+  :deep(.total-box),
+  :deep(.stage-total) {
+    animation: overview-value-change var(--overview-motion-enter) var(--overview-motion-ease);
+  }
+  :deep(.overview-spinner) {
+    animation: overview-spin 900ms linear infinite;
+  }
+  :deep(.overview-table .overview-row-move) {
+    transition: transform var(--overview-motion-enter) var(--overview-motion-ease), background-color var(--overview-motion-fast) ease;
+  }
+  :deep(button),
+  :deep(select) {
+    transition: color var(--overview-motion-fast) ease, background-color var(--overview-motion-fast) ease,
+      border-color var(--overview-motion-fast) ease;
+  }
+  :deep(button:not(:disabled):active) {
+    filter: brightness(0.94);
+  }
+  :deep(.overview-table tbody tr) {
+    transition: background-color var(--overview-motion-fast) ease;
+  }
+  :deep(.overview-table tbody tr:hover) {
+    background-color: #e6f5f3;
+  }
+}
+@keyframes overview-stage-arrive {
+  from {
+    transform: translateX(8px);
+  }
+}
+@keyframes overview-value-change {
+  from {
+    opacity: 0.35;
+  }
+}
+@keyframes overview-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

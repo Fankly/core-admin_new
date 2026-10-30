@@ -6,10 +6,12 @@ import { handleError } from '@/utils/error'
 
 /** 兼容旧的 getter 名称：getXqGlobalInfo → xqGlobalInfo。 */
 const normalizeContextKey = (flag: string): GlobalContextKey => {
-  if (flag.startsWith('get')) {
-    const key = flag.slice(3)
-    return `${key.charAt(0).toLowerCase()}${key.slice(1)}` as GlobalContextKey
+  const getterKeys: Record<string, GlobalContextKey> = {
+    getXqGlobalInfo: 'xqGlobalInfo', getCbGlobalInfo: 'cbGlobalInfo',
+    getJRGlobalInfo: 'JRGlobalInfo', getZlGlobalInfo: 'ZlGlobalInfo',
+    getLSGlobalInfo: 'LSGlobalInfo', getSZWLlobalInfo: 'SZWLlobalInfo'
   }
+  if (getterKeys[flag]) return getterKeys[flag]
   return flag as GlobalContextKey
 }
 

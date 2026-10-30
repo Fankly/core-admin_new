@@ -1,0 +1,253 @@
+// =============================================================================
+// 项目物资参考价格库编辑弹窗 — 对齐标杆 modal.less
+// 注意：本文件由弹窗以「非 scoped」方式 import，勿使用 :deep()
+// =============================================================================
+@primary-color: var(--color-primary, #00706b);
+@primary-bg-light: #f2f9f8;
+@primary-border-light: #b8ddd9;
+@primary-solid: #00706b;
+@primary-solid-hover: #2a9a92;
+@primary-solid-active: #005f5a;
+@primary-bg-hover: #e6f4f3;
+
+@text-main: ~'var(--el-text-color-primary, #1e293b)';
+@text-secondary: ~'var(--el-text-color-regular, #475569)';
+@text-muted: ~'var(--el-text-color-secondary, #64748b)';
+@border-light: ~'var(--el-border-color-lighter, #f1f5f9)';
+@border-main: ~'var(--el-border-color-light, #e2e8f0)';
+@page-bg: ~'var(--el-bg-color-page, #f5fbfb)';
+@surface: ~'var(--el-bg-color, #ffffff)';
+@surface-tint: ~'var(--el-fill-color-extra-light, #f3fbfa)';
+@header-bg: ~'var(--el-bg-color, #fcffff)';
+@disabled-text: ~'var(--el-text-color-disabled, #94a3b8)';
+
+@btn-primary-text: @primary-solid;
+@btn-primary-bg: @primary-bg-light;
+@btn-secondary-text: @text-secondary;
+@btn-secondary-bg: @surface;
+@btn-secondary-border: @border-main;
+@btn-hover-soft-bg: @primary-bg-light;
+@btn-hover-soft-border: @primary-border-light;
+@btn-hover-soft-text: @primary-solid;
+
+/* 弹窗按钮锁色：对齐 smartTaskAudit 浅青绿 plain 基准 */
+.xmrp-edit-modal {
+  .el-button--primary,
+  .el-button--primary.is-plain {
+    color: @primary-solid !important;
+    background-color: @primary-bg-light !important;
+    border-color: @primary-border-light !important;
+    background-image: none !important;
+  }
+
+  .el-button--primary:hover:not(.is-disabled),
+  .el-button--primary:focus:not(.is-disabled),
+  .el-button--primary.is-plain:hover:not(.is-disabled),
+  .el-button--primary.is-plain:focus:not(.is-disabled) {
+    color: @primary-solid !important;
+    background-color: @primary-bg-hover !important;
+    border-color: @primary-solid !important;
+    background-image: none !important;
+  }
+
+  .el-button--primary:active:not(.is-disabled),
+  .el-button--primary.is-plain:active:not(.is-disabled) {
+    color: @primary-solid-active !important;
+    background-color: @primary-bg-hover !important;
+    border-color: @primary-solid-active !important;
+    background-image: none !important;
+  }
+
+  .el-button.is-plain:not(.el-button--primary):not(.el-button--danger):hover,
+  .el-button.is-plain:not(.el-button--primary):not(.el-button--danger):focus {
+    color: @primary-solid !important;
+    border-color: @primary-border-light !important;
+    background: @primary-bg-light !important;
+  }
+
+  .vxe-modal--box {
+    border-radius: 12px !important;
+    border: 1px solid @border-main !important;
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12) !important;
+    overflow: hidden;
+  }
+
+  .vxe-modal--header {
+    min-height: 48px !important;
+    padding: 10px 16px !important;
+    background: @header-bg !important;
+    border-bottom: 1px solid @border-light !important;
+    color: @text-main !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+  }
+
+  .vxe-modal--header-title {
+    color: @text-main !important;
+    font-weight: 700 !important;
+  }
+
+  .vxe-modal--close-btn {
+    color: @text-muted !important;
+
+    &:hover {
+      color: @primary-color !important;
+    }
+  }
+
+  .vxe-modal--body,
+  .vxe-modal--content {
+    background: @page-bg !important;
+  }
+
+  .vxe-modal--content {
+    padding: 10px !important;
+  }
+}
+
+.xmrp-modal-body {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 0;
+  color: @text-secondary;
+  padding: 0;
+  background: transparent;
+}
+
+.xmrp-modal-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background: @surface;
+  border: 1px solid @border-main;
+  border-radius: 12px;
+  box-shadow: none;
+
+  .el-row {
+    row-gap: 2px;
+  }
+
+  .el-col:not(.el-col-24) {
+    &:nth-child(odd) {
+      padding-right: 10px !important;
+    }
+
+    &:nth-child(even) {
+      padding-left: 10px !important;
+    }
+  }
+}
+
+.xmrp-modal-form {
+  .el-form-item__label {
+    color: @text-main;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .el-input,
+  .el-textarea,
+  .el-select,
+  .el-input-number {
+    width: 100%;
+  }
+
+  .el-input__inner,
+  .el-textarea__inner {
+    border-radius: 6px;
+    border-color: @border-main;
+    color: @text-secondary;
+    transition: border-color 0.15s ease;
+
+    &:focus {
+      border-color: @primary-color;
+    }
+  }
+
+  .el-textarea__inner {
+    line-height: 1.55;
+  }
+
+  .el-input.is-disabled .el-input__inner,
+  .el-textarea.is-disabled .el-textarea__inner {
+    background: @surface-tint;
+    color: @text-muted;
+    border-color: @border-light;
+  }
+
+  .el-select .el-input__inner {
+    border-radius: 6px;
+  }
+
+  .el-input .el-input__count,
+  .el-textarea .el-input__count {
+    color: @text-muted;
+    background: transparent;
+  }
+}
+
+.xmrp-modal-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid @border-light;
+
+  .el-button {
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 12px;
+    height: 28px;
+    min-height: 28px;
+    transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease;
+  }
+
+  .el-button--primary {
+    color: @btn-primary-text !important;
+    background-color: @btn-primary-bg !important;
+    border-color: @primary-border-light !important;
+    background-image: none !important;
+
+    &:hover:not(.is-disabled),
+    &:focus:not(.is-disabled) {
+      color: @primary-solid !important;
+      background-color: @primary-bg-hover !important;
+      border-color: @primary-solid !important;
+      background-image: none !important;
+    }
+
+    &:active:not(.is-disabled) {
+      color: @primary-solid-active !important;
+      background-color: @primary-bg-hover !important;
+      border-color: @primary-solid-active !important;
+    }
+
+    &.is-disabled,
+    &.is-disabled:hover {
+      color: #a8cfcb !important;
+      background-color: @primary-bg-light !important;
+      border-color: @primary-border-light !important;
+      background-image: none !important;
+    }
+  }
+
+  .el-button.is-plain:not(.el-button--primary):not(.el-button--danger) {
+    color: @btn-secondary-text !important;
+    background: @btn-secondary-bg !important;
+    border-color: @btn-secondary-border !important;
+
+    &:hover,
+    &:focus {
+      color: @btn-hover-soft-text !important;
+      border-color: @btn-hover-soft-border !important;
+      background: @btn-hover-soft-bg !important;
+    }
+  }
+}

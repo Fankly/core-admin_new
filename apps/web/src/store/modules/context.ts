@@ -6,6 +6,10 @@ export type GlobalContextKey = 'xqGlobalInfo' | 'cbGlobalInfo' | 'JRGlobalInfo' 
 
 export type GlobalInfoMap = Record<GlobalContextKey, Record<string, unknown>>
 
+const createProjectStageData = () => ({
+  ztbData: {}, htqdData: {}, xmssData: {}, xmsjData: {}, jsyzjzfData: {}, jsyzzData: {}
+})
+
 const createGlobalInfo = (): GlobalInfoMap => ({
   xqGlobalInfo: {},
   cbGlobalInfo: {},
@@ -29,6 +33,7 @@ export const useContextStore = defineStore('context', () => {
   const yssxbm = ref('')
   const oldDwId = ref('')
   const processData = ref<unknown[]>([])
+  const projectStageData = ref(createProjectStageData())
 
   const getXqGlobalInfo = computed(() => globalInfo.value.xqGlobalInfo)
   const getCbGlobalInfo = computed(() => globalInfo.value.cbGlobalInfo)
@@ -68,6 +73,7 @@ export const useContextStore = defineStore('context', () => {
     yssxbm.value = ''
     oldDwId.value = ''
     processData.value = []
+    projectStageData.value = createProjectStageData()
   }
 
   return {
@@ -77,6 +83,7 @@ export const useContextStore = defineStore('context', () => {
     yssxbm,
     oldDwId,
     processData,
+    projectStageData,
     getXqGlobalInfo,
     getCbGlobalInfo,
     getJRGlobalInfo,

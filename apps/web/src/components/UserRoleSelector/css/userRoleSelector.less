@@ -1,0 +1,74 @@
+// 角色选择弹窗的单选列表样式。
+// 由 UserRoleSelector/index.vue 与 components/select/userDialog.vue 共用，改这里两个弹窗一起生效。
+// 色值取 DESIGN.md 青绿色板，不要换回 Element 默认蓝。
+
+@role-border: #e2e8f0; // colors.border
+@role-border-hover: #b8ddd9; // colors.primary-border
+@role-bg-hover: #f2f9f8; // colors.primary-soft
+@role-bg-checked: #e6f4f3; // colors.primary-hover-soft
+@role-text: #475569; // colors.text-body
+
+.role-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// Element 的 .el-radio 默认 display:inline-block、无边框、margin-right:30px，
+// 只写 border-color 是不生效的；这里补上 1px 实边框，整行才能作为可点选卡片
+.role-radio-group :deep(.el-radio) {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: auto;
+  margin-right: 0;
+  padding: 14px;
+  border: 1px solid @role-border;
+  border-radius: 6px; // rounded.control
+  // 角色名可能长于弹窗宽度，允许换行；不要沿用 Element 的 nowrap
+  white-space: normal;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.role-radio-group :deep(.el-radio:hover) {
+  border-color: @role-border-hover;
+  background-color: @role-bg-hover;
+}
+
+.role-radio-group :deep(.el-radio.is-checked) {
+  border-color: var(--color-primary);
+  background-color: @role-bg-checked;
+}
+
+// Element 在 .el-radio 上写了 outline:0，且默认焦点提示只是小圆点上的一层 box-shadow。
+// 整行变成卡片后需要整行可见的焦点环：DESIGN.md 规定 2px 主色、外偏移 2px
+.role-radio-group :deep(.el-radio:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.role-radio-group :deep(.el-radio__input) {
+  flex-shrink: 0;
+}
+
+.role-radio-group :deep(.el-radio__label) {
+  font-size: 14px;
+  line-height: 1.5;
+  color: @role-text;
+}
+
+// 这条选择器的权重高于 Element 自己的 .el-radio__input.is-checked + .el-radio__label，
+// 所以选中态的主色字必须在这里显式写回来
+.role-radio-group :deep(.el-radio.is-checked .el-radio__label) {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+// 真正的 input 是 aria-hidden="true" + tabindex="-1" 的代理元素，视觉上要藏掉。
+// 用 opacity 而不是 display:none：<label> 往隐藏控件转发点击在部分浏览器上不可靠
+.role-radio-group :deep(.el-radio__original) {
+  position: absolute;
+  z-index: -1;
+  margin: 0;
+  opacity: 0;
+}

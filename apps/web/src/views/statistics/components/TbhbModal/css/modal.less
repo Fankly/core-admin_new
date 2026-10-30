@@ -1,0 +1,38 @@
+// 复用 fileShare 弹窗视觉体系（ai-audit-range-modal 锁色 + air-modal-* 表格/按钮策略）
+@import '@/views/sys/fileShare/css/modal.less';
+
+// 同比/环比弹窗工具栏：左对齐，按钮 plain 主色（H4 雾面规则）
+.tbhb-modal {
+  .air-modal-panel {
+    gap: 10px;
+  }
+
+  .tbhb-toolbar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0 10px;
+
+    .el-button {
+      min-width: 96px;
+      min-height: 32px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 7px 14px;
+    }
+  }
+
+  // 表格区填满剩余空间
+  .air-modal-table {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  // 多层表头行高略增，避免文字换行
+  .vxe-header--column {
+    height: 40px;
+  }
+}

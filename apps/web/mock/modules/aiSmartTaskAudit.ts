@@ -15,6 +15,18 @@ import { PROJECT_ORIGINAL_TEXT, RULE_DETAIL_FIXTURES } from '../fixtures/aiSmart
 import { MANUAL_REVIEW_VERDICTS } from '../fixtures/aiSmartTaskAudit/manualReviewVerdicts'
 import { AUDIT_OPINION_EXPORT_CONTENT_TYPE, decodeAuditOpinionExportXlsx } from '../fixtures/aiSmartTaskAudit/auditOpinionExportSample'
 
+// 迁入页面使用统一角色组件；同时覆盖菜单缓存和直接打开页面的初始化链路。
+const AUDIT_BUSICODE = '001-02-01'
+Mock.mock(/sys\/menu\/getMenuByUrl\?[^#]*smartTaskAudit(?:%2[fF]|\/)index(?:&|$)/, 'get', () =>
+  success({ id: 'mock-menu-audit', outsideMenu: AUDIT_BUSICODE, url: '/ai/smartTaskAudit/index' })
+)
+Mock.mock(new RegExp(`getRoleByBusicode\\?[^#]*busicode=${AUDIT_BUSICODE}(?:&|$)`), 'get', () => [{
+  id: 'mock-audit-role', name: '智能审核演示角色', code: 'SCWYSZZ', role_id: 'mock-audit-role',
+  specialorgid: 'mock-audit-dept', specialorgname: '财务预算部门', specialorgcode: 'BM_CWZC',
+  org_id: 'DW001', org_name: '演示单位'
+}])
+Mock.mock(new RegExp(`sysMenu/getButtonList\\?[^#]*menuCode=${AUDIT_BUSICODE}(?:&|$)`), 'get', () => success([]))
+
 /**
  * 本地预览样例：源文件来自 C:\Users\13934\Downloads\file，
  * 已拷贝到 public/mock-files/office-preview/，开发态通过 Vite 静态访问。

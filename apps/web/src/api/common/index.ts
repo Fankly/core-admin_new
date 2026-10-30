@@ -463,3 +463,17 @@ interface CommonDictResult {
 export const getCommonDict = (code: string, pCode?: string): Promise<Result & { data: CommonDictResult[] }> => {
   return budget.get('commonCode/listCommonCode/', { code, pCode })
 }
+
+interface XmbArrParams {
+  year: string // 年度
+  xmlx: string // 项目类型，多个逗号拼接
+  xmblx?: string // 项目包类型
+  xmxz?: string // 项目性质，多个逗号拼接
+  sjfl?: string // 三级分类
+  xmbid?: string // 项目包id
+}
+
+// 获取项目包（预算包），返回 { code, name } 列表
+export const getXmbArr = (params: XmbArrParams): Promise<Result> => {
+  return baseService.post('process40/getXmbArr/', params)
+}

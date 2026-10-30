@@ -1,0 +1,108 @@
+.detail-card {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--overview-border);
+  border-radius: var(--overview-radius, 12px);
+  background: #fff;
+}
+.detail-card h3 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--overview-text, #233743);
+  font-weight: 600;
+}
+.detail-table {
+  border-collapse: collapse;
+  color: var(--overview-text, #233743);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.detail-table th,
+.detail-table td {
+  height: 28px;
+  padding: 3px 8px;
+  font-weight: 400;
+  text-align: center;
+}
+.detail-table td.amount-cell {
+  text-align: right;
+}
+.detail-table th {
+  color: #42646d;
+  background: #eef4f5;
+  font-weight: 600;
+  // 窄卡片里「排名」「金额（万元）」等表头保持单行，交给容器横向滚动，避免折成两行。
+  white-space: nowrap;
+}
+.detail-table tbody tr:nth-child(even) {
+  background: #f7f9fa;
+}
+.detail-table tbody tr:hover {
+  background: #edf7f4;
+}
+.detail-table tbody tr.is-total-row > * {
+  background: #eef8f7;
+  color: #00766e;
+  font-weight: 700;
+}
+// 阶段详情四张卡片共用的标题行、加载/失败状态与「取消筛选」入口。
+.detail-heading {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-height: 42px;
+  padding: 8px 12px;
+}
+.detail-state {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+  padding: 16px;
+  overflow: auto;
+  overflow-wrap: anywhere;
+  flex-wrap: wrap;
+  color: #64748b;
+  font-size: 14px;
+}
+.detail-state.is-error button {
+  padding: 4px 12px;
+  border: 1px solid var(--overview-border);
+  border-radius: 6px;
+  color: #007d77;
+  background: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.detail-filter-clear {
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: #007d77;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.detail-filter-clear:hover {
+  color: #005f59;
+}
+.detail-empty {
+  position: absolute;
+  inset: 42px 20px 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}

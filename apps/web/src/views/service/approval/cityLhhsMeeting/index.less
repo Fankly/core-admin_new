@@ -1,0 +1,111 @@
+.container {
+  height: 100%;
+  padding: 10px;
+
+  .operation {
+    display: flex;
+    width: 100%;
+
+    &-left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+
+      :deep(.el-button) {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 28px;
+        padding: 0 12px;
+
+        &.is-disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        &:not(.is-disabled):hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 10px rgba(0, 112, 107, 0.12);
+        }
+
+        &:not(.is-disabled):active {
+          transform: translateY(0);
+        }
+      }
+    }
+
+    &-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex: 1 1 auto;
+
+      :deep(.el-select) {
+        width: 120px;
+      }
+
+      &-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0;
+        margin-right: 10px;
+
+        .highlight {
+          display: inline-flex;
+          align-items: center;
+          font-size: 13px;
+          padding: 4px 12px;
+          background: linear-gradient(135deg, rgba(0, 112, 107, 0.05) 0%, rgba(0, 112, 107, 0.02) 100%);
+          border: 1px solid rgba(0, 112, 107, 0.15);
+          border-radius: 4px;
+          white-space: nowrap;
+          transition: all 0.3s ease;
+          max-width: 280px;
+
+          &:hover {
+            background: linear-gradient(135deg, rgba(0, 112, 107, 0.08) 0%, rgba(0, 112, 107, 0.04) 100%);
+            border-color: rgba(0, 112, 107, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 112, 107, 0.06);
+          }
+
+          dt {
+            color: rgba(0, 112, 107, 0.85);
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+
+            &::before {
+              content: '';
+              display: inline-block;
+              width: 5px;
+              height: 5px;
+              background-color: #00706b;
+              border-radius: 50%;
+              margin-right: 6px;
+            }
+          }
+
+          dd {
+            font-weight: 600;
+            color: var(--el-text-color-primary, #303133);
+            margin: 0 0 0 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+
+      &-tool__button {
+        margin-left: 10px;
+      }
+    }
+  }
+}

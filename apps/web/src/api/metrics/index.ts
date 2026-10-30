@@ -60,8 +60,8 @@ export const getConfigByMenuId = (menuId: string | number): Promise<ApiResponse<
   return baseService.get<MenuHelpConfig | null>('sys/menuConfig/getConfigByMenuId', { menuId })
 }
 //菜单帮助配置-根据菜单ID获取附件列表
-export const listFj = (menuId: string | number): Promise<ApiResponse<HelpAttachment[]>> => {
-  return baseService.get<HelpAttachment[]>('sys/menuConfig/listFj', { menuId })
+export const listFj = (menuId: string | number, options?: { statusList?: number[] }): Promise<ApiResponse<HelpAttachment[]>> => {
+  return baseService.get<HelpAttachment[]>('sys/menuConfig/listFj', { menuId, ...options })
 }
 
 //菜单帮助配置-保存菜单配置

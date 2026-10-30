@@ -1,0 +1,120 @@
+// 看板穿透弹窗（事项明细 / 文件清单 / 未通过清单）专用样式
+//
+// 这些弹窗复用 css/modal.less 的弹窗外壳与 vxe 表格样式（class-name 挂
+// "ai-audit-rule-modal ai-audit-rule-detail-modal"），本文件只补标签药丸。
+// 非 scoped 导入：vxe-modal 的外壳 DOM 不在 SFC scope 内（见 css/modal.less:16 注释）。
+//
+// 药丸规格来自同模块 aiAuditRulePoint/components/left.vue:305-354：
+// 高 22px / 圆角 11px / padding 0 10px / 字号 12px / 1px 描边，不用 el-tag。
+
+.ai-audit-rule-detail-modal {
+  .detail-tag {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 10px;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    border-radius: 11px;
+    color: #475569;
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+
+    // 主色系：项目类型、文件类型、审核要点
+    &--primary {
+      color: #00706b;
+      background-color: #f2f9f8;
+      border-color: #b8ddd9;
+    }
+
+    // 警告系：未通过（程度轻于「不通过」）
+    &--warning {
+      color: #b35e0a;
+      background-color: #fdf3e6;
+      border-color: #f3d3a6;
+    }
+
+    // 危险系：不通过
+    &--danger {
+      color: #f56c6c;
+      background-color: fade(#f56c6c, 8%);
+      border-color: #f56c6c;
+    }
+
+    // 成功系：通过（审核结论字典 AI_AUDIT_REVIEW_OPINION_COM 的 1）
+    &--success {
+      color: #4e9a24;
+      background-color: #f0f9eb;
+      border-color: #c2e7b0;
+    }
+
+    // 可点开的标签（如要点弹层里的「已分配事项数」→ 二级弹层）：
+    // 与主列表 .rule-count-tag--link 同一套悬停/焦点反馈
+    &--link {
+      cursor: pointer;
+
+      &:hover,
+      &:focus-visible {
+        border-color: #00706b;
+        background-color: #e6f4f3;
+      }
+
+      &:focus-visible {
+        outline: 2px solid #00706b;
+        outline-offset: 1px;
+      }
+    }
+
+    // 标签内的小图标（12px，与主列表计数药丸一致）
+    .detail-tag__icon {
+      width: 12px;
+      height: 12px;
+      margin-right: 4px;
+      opacity: 0.85;
+    }
+  }
+
+  // 单元格空值占位（与主列表 .rule-count-empty 同一处理）
+  .detail-empty {
+    color: #94a3b8;
+    font-size: 12px;
+  }
+
+  // 操作列的文字链接（未通过清单的「查看」）：用本模块的主色，悬停加下划线
+  .detail-link {
+    color: #00706b;
+    font-size: 12px;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #00706b;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+
+  // 「已分配审核要点」这种多标签单元格
+  .detail-tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 4px 0;
+  }
+
+  // 数值单元格（如要点数量）
+  .detail-num {
+    font-weight: 600;
+    color: #00706b;
+  }
+
+  .detail-unit {
+    margin-left: 2px;
+    color: #94a3b8;
+  }
+}

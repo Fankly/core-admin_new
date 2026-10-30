@@ -1,0 +1,429 @@
+// 智能审核规则看板样式
+// 说明：Less 变量没有跨文件作用域，本模块的既有做法是在每个样式文件顶部重复声明同一套 token
+// （grep "@primary: #00706b" 在本模块命中 10 个文件）。此处沿用，值与 css/index.less:1-20 一致。
+@primary: #00706b;
+@primary-hover: #2a9a92;
+@primary-soft: #f2f9f8;
+@primary-hover-soft: #e6f4f3;
+@primary-active: #005f5a;
+@primary-border: #b8ddd9;
+@text-main: #1e293b;
+@text-body: #475569;
+@text-muted: #64748b;
+@disabled: #94a3b8;
+@surface: #ffffff;
+@page-bg: #f5fbfb;
+@search-bg: #f8fcfb;
+@toolbar-bg: #fcffff;
+@border: #e2e8f0;
+@border-light: #eef2f6;
+@table-header: #dff3f0;
+@table-hover: #e6f4f3;
+@table-current: #d8efec;
+@table-stripe: #f7fcfb;
+
+.rule-dashboard {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+/*
+ 指标带：底色照最新原型 `docs/1009/智能审核规则v3.html` 的 `.stats-band`（需求 2026-10-20，只同步背景色）。
+ v3 的「浅雾薄荷」底：三层径向光（左上蓝 / 右上暖橙 / 下方青绿）+ 180° 淡青绿渐变
+ （`#f6fcfa → #eaf7f3`）。圆角 / 投影 / 段间虚线分隔保持本页既有值，不跟着原型改。
+*/
+.dashboard-body {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  border-radius: 20px;
+  background:
+    radial-gradient(70% 128% at -4% -30%, rgba(176, 216, 244, 0.58) 0%, rgba(176, 216, 244, 0) 56%),
+    radial-gradient(62% 128% at 104% -34%, rgba(252, 226, 198, 0.42) 0%, rgba(252, 226, 198, 0) 56%),
+    radial-gradient(86% 140% at 58% 136%, rgba(170, 227, 209, 0.52) 0%, rgba(170, 227, 209, 0) 62%),
+    linear-gradient(180deg, #f6fcfa 0%, #eaf7f3 100%);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03), 0 14px 34px -22px rgba(16, 24, 40, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.metric-card {
+  position: relative; // 虚线分隔（.metric-card + .metric-card::before）的定位基准
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  // 卡自身透明：底色来自 .dashboard-body 的通栏渐变，无边框、无圆角、无投影、无 hover 上浮，
+  // 卡只是带子里的一个分区（照原型 v2，四张卡不再各是一块独立面板）。
+  // ⚠️ 不能加 overflow:hidden —— 会裁掉卡外 -8px 处的虚线分隔（见下）
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/*
+ 分区之间的虚线分隔（需求 2026-10-15，照原型 v2 `.stat-zone + .stat-zone::before`）：
+ 落在栅格间距正中（间距 16px → 左移 8px），上下内缩（top 16px / bottom 12px）。
+ 原型按列数控制显隐：4 列全显、2 列只显两列之间那条（第 2、4 张左边）、1 列不显 —— 见文件末尾的媒体查询。
+*/
+.metric-card + .metric-card::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 16px;
+  bottom: 12px;
+  border-left: 1px dashed rgba(100, 116, 139, 0.4);
+}
+
+/** 标题前的图标底盘（原型 .icon-chip）：36px 圆角块，浅色渐变底 + 同色系图标 */
+.metric-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  &--blue {
+    color: #2563eb;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  }
+
+  &--violet {
+    color: #7c3aed;
+    background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  }
+
+  &--cyan {
+    color: #0891b2;
+    background: linear-gradient(135deg, #ecfeff, #cffafe);
+  }
+
+  &--orange {
+    color: #ea580c;
+    background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  }
+}
+
+.metric-head {
+  // 照原型 .kpi-hd：图标 / 标题+数字两行 / 右侧控件，顶端对齐
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.metric-head__main {
+  // 标题一行、数字+描述一行（需求 2026-10-13：数量与描述放到标题下方）
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 3px;
+  min-width: 0;
+}
+
+.metric-head {
+  .metric-label {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: @text-main;
+    line-height: 1.2;
+  }
+
+  // 数字 + 描述同一行（数字大、描述小）
+  .metric-stat {
+    display: flex;
+    align-items: baseline;
+    /* 数字与描述之间照原型 v2 的 .zone-value：gap 5px */
+    gap: 5px;
+    min-width: 0;
+  }
+
+  .metric-value {
+    /* 数值样式照最新原型 智能审核规则v2.html 的 .zone-value b：21px / 800 / -0.5px。
+       颜色**跟着卡片主题色走**（见下面四条 .metric-card--* .metric-value），不再一律深灰。 */
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    color: @text-main;
+  }
+
+  .metric-sub {
+    font-size: 11px;
+    font-weight: 500;
+    color: @disabled;
+  }
+
+  // 卡片4 右上角的「查看全部」：主色文字链接
+  .metric-viewall {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 2px;
+    font-size: 10px;
+    color: @primary;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      color: @primary-active;
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid @primary;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+}
+
+/*
+ 数值颜色跟着卡片主题色（原型 v2：`.stat-zone.t-* .zone-value b` 各一个色）。
+ ⚠️ 必须写在 `.metric-head` 块**之外**：写在里面会被编译成
+ `.metric-head .metric-card--blue .metric-value`（卡片是 head 的祖先，永远匹配不到）。
+*/
+.metric-card--blue .metric-value {
+  color: #2563eb;
+}
+.metric-card--violet .metric-value {
+  color: #7c3aed;
+}
+.metric-card--cyan .metric-value {
+  color: #0891b2;
+}
+.metric-card--orange .metric-value {
+  color: #ea580c;
+}
+
+/*
+ 卡1 右上角的维度下拉（「按状态/按级别/按分类/按业务」）：照原型 v2 的
+ `.mini-select` + `.stat-zone .mini-select`（带内适配）—— 胶囊形、11.5px、
+ 半透明白底 + 灰蓝描边；hover / focus 的浅蓝高亮也照原型（带内用色属既有例外，见文件顶部说明）。
+*/
+.metric-select {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  color: #000;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+  cursor: pointer;
+  outline: none;
+  transition: 0.2s;
+
+  &:hover {
+    color: #000;
+    background: #fff;
+    border-color: #c7d2fe;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  }
+}
+
+.metric-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+
+  &--row {
+    justify-content: space-between;
+  }
+
+  // 横向柱图容器：高度锁在原型卡片的 h-32（128px），条目多时由**这里**出滚动条。
+  // 图表自身按 条目数 × 行距 长高（见组件里的 projectBarHeight / riskBarHeight），
+  // echarts 因此不会压缩柱子高度与轴标签。
+  &--scroll {
+    display: block;
+    max-height: 128px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    // 给滚动条留位置，避免压住柱端的数字
+    padding-right: 4px;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #b8ccc8;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #eef2f1;
+    }
+  }
+}
+
+.chart {
+  width: 100%;
+
+  &--donut {
+    flex: 0 0 auto;
+    width: 96px;
+    height: 96px;
+  }
+
+  &--bar {
+    height: 128px;
+  }
+}
+
+.legend {
+  flex: 1 1 auto;
+  min-width: 0;
+  // 图例与 96px 的环形图对齐：条目多了同样滚动，而不是被裁掉
+  max-height: 96px;
+  margin: 0;
+  padding-left: 16px;
+  padding-right: 4px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #b8ccc8;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #eef2f1;
+  }
+}
+
+.legend-item {
+  // 原型是两端对齐：左边「圆点 + 名称」，右边数值
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 4px;
+  font-size: 12px;
+  color: @text-body;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  // 悬停/选中底色取新版原型的值（#eef2f1 / #d6f0ec），不再用主色雾面
+  &:hover {
+    background: #eef2f1;
+  }
+
+  &.is-active {
+    background: #d6f0ec;
+  }
+}
+
+.legend-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.legend-dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.legend-value {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  white-space: nowrap;
+  color: @text-body;
+
+  b {
+    font-weight: 700;
+    color: #334155;
+  }
+
+  em {
+    font-style: normal;
+    font-weight: 500;
+    color: @primary;
+  }
+
+  i {
+    margin: 0 4px;
+    font-style: normal;
+    color: #cbd5e1;
+  }
+}
+
+/** 数值后面的单位（「条」「个要点」这类），原型是 10px 的浅灰小字 */
+.legend-unit {
+  font-size: 10px;
+  color: @disabled;
+}
+
+// 响应式降级断点与 css/index.less 保持一致（1280px / 900px）
+@media (max-width: 1280px) {
+  .dashboard-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  // 两列布局：只保留两列之间那条虚线（第 2、4 张卡左边）
+  .metric-card + .metric-card::before {
+    display: none;
+  }
+
+  .metric-card:nth-child(even)::before {
+    display: block;
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  // 单列布局：不留任何虚线分隔
+  .metric-card + .metric-card::before,
+  .metric-card:nth-child(even)::before {
+    display: none;
+  }
+
+  .chart--bar {
+    height: 150px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .legend-item {
+    transition: none;
+  }
+
+  .metric-select {
+    transition: none;
+  }
+}

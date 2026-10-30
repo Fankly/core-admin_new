@@ -160,7 +160,7 @@ test('page motion can be interrupted without reloading content or losing input',
   await expect(page.getByRole('tab', { name: '主页', exact: true })).toBeFocused()
 })
 
-test('tab actions menu counts what each command closes and works from the keyboard', async ({ page }) => {
+test('tab actions menu counts what each command closes and disables empty commands', async ({ page }) => {
   await openWorkbench(page)
   await page.getByRole('link', { name: /项目查询/ }).click()
   await expect(page.frameLocator('iframe').getByRole('heading', { name: '项目页面' })).toBeVisible()
@@ -179,15 +179,20 @@ test('tab actions menu counts what each command closes and works from the keyboa
   await expect(page.getByRole('tab', { name: '项目查询', exact: true })).toHaveCount(0)
   await expect(trigger).toHaveAttribute('aria-expanded', 'false')
 
+  // 键盘：Enter 打开、Escape 收起并把焦点还给触发按钮
   await trigger.focus()
   await trigger.press('Enter')
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true')
   await expect(menu.getByRole('menuitem', { name: '关闭右侧标签页', exact: true })).toBeDisabled()
   await expect(menu.getByRole('menuitem', { name: '关闭其他标签页', exact: true })).toBeDisabled()
-  await page.keyboard.press('ArrowDown')
-  await expect(menu.getByRole('menuitem', { name: '关闭当前标签页', exact: true })).toBeFocused()
-  await page.keyboard.press('ArrowDown')
-  await expect(menu.getByRole('menuitem', { name: '关闭全部标签页（1 个）' })).toBeFocused()
-  await page.keyboard.press('Enter')
+  // 展开动画结束后焦点才移入菜单，Escape 由菜单处理
+  await expect(menu.getByRole('menu')).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  await expect(trigger).toBeFocused()
+
+  await trigger.click()
+  await menu.getByRole('menuitem', { name: '关闭全部标签页（1 个）' }).click()
   await expect(page.getByRole('tab', { name: '工作台', exact: true })).toHaveCount(0)
   await expect(dashboardHeading(page)).toBeVisible()
 })

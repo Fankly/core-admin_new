@@ -36,3 +36,36 @@ export const queryWorkItemsByEmployee = (params: WorkItemQuery): Promise<ApiResp
 export const getWfTracking = (wfInstId: string): Promise<ApiResponse<string | null>> => {
   return baseService.post<string>(`/workflow/getWfTracking?wfInstId=${encodeURIComponent(wfInstId)}`)
 }
+
+
+export const getNextPersionAndPathFromStart = (spOrgId: string, spRoleId: string, params: Record<string, any>): any => {
+  return baseService.post(`/workflow/getNextPersionAndPathFromStart?spOrgId=${spOrgId}&spRoleId=${spRoleId}`, params)
+}
+
+export const initWfJavascript = (spOrgId: string, wfCode: string, workItemId: string): Promise<ApiResponse<any>> => {
+  return baseService.post(`/workflow/initWfJavascript?spOrgId=${spOrgId}&wfCode=${wfCode}&workItemId=${workItemId}`)
+}
+
+export const loadUserWfInfo = (workItemId: string): any => {
+  return baseService.post(`/workflow/loadUserWfInfo?workItemId=${workItemId}`)
+}
+
+export const notify = (workItemId: string): any => {
+  return baseService.get(`/db/handle/close?workItemId=${workItemId}`)
+}
+
+export const reSendToJhxt = (params: { ids: string[]; xmjd: string }): Promise<ApiResponse<any>> => {
+  return baseService.post(`/workflow/cbxqsh/reSendToJhxt`, params)
+}
+
+export const getZlpzForJh = (params: Record<string, any>): any => {
+  return baseService.post('/zlht/getZlpzForJh', params)
+}
+
+export const downloadJhCzsc = (): Promise<ApiResponse<any>> => {
+  return baseService.exportGet(`/zlht/downloadJhCzsc`)
+}
+
+export const getXmWithOutHt = (params: Record<string, any>): any => {
+  return baseService.post('/zlht/getXmWithOutHt', params)
+}

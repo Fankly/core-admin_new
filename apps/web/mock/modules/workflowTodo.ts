@@ -44,5 +44,7 @@ const all = Array.from({ length: total }, (_, i) => {
 
 Mock.mock(/workflow\/queryWorkItemsByEmployee(\?.*)?$/, 'post', (options: MockOptions) => {
   const body = parseBody(options)
-  return success(pageResult(all, body.page || 1, body.limit || 20))
+  const keyword = String(body.customFilters?.BIZ_NAME || '').trim()
+  const rows = keyword ? all.filter((item) => item.bizName.includes(keyword)) : all
+  return success(pageResult(rows, body.page || 1, body.limit || 20))
 })

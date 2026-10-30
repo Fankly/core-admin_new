@@ -23,6 +23,8 @@ const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 
 // 页面菜单编码（UserRoleSelector 链路：getMenuByUrl → getRoleByBusicode → getButtonList）
 const PAGE_BUSICODE = 'BWB_GZT'
+// 统一角色组件优先读取菜单缓存，兼容开发后端返回的业务编码。
+const PAGE_BUSICODES = [PAGE_BUSICODE, '001-4-03-07']
 // 三个模块卡片按钮的菜单编码
 const MENU_BUSICODES = ['BWB_XQZYK', 'BWB_LHHS', 'BWB_XMCBK']
 // 与 aiDocument 的 getNdTreeNode 返回年度保持一致
@@ -47,9 +49,9 @@ const role = {
 Mock.mock(/sys\/menu\/getMenuByUrl\?[^#]*businessWorkbench/, 'get', (options: MockOptions) =>
   success({ outsideMenu: PAGE_BUSICODE, url: getQueryValue(options.url, 'url') })
 )
-Mock.mock(new RegExp(`getRoleByBusicode\\?[^#]*busicode=${PAGE_BUSICODE}(?:&|$)`), 'get', () => [clone(role)])
+Mock.mock(new RegExp(`getRoleByBusicode\\?[^#]*busicode=(?:${PAGE_BUSICODES.join('|')})(?:&|$)`), 'get', () => [clone(role)])
 Mock.mock(
-  new RegExp(`sysMenu/getButtonList\\?[^#]*menuCode=(?:${[PAGE_BUSICODE, ...MENU_BUSICODES].join('|')})(?:&|$)`),
+  new RegExp(`sysMenu/getButtonList\\?[^#]*menuCode=(?:${[...PAGE_BUSICODES, ...MENU_BUSICODES].join('|')})(?:&|$)`),
   'get',
   () => success(['ADD', 'EDIT', 'EXPORT'])
 )

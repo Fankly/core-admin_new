@@ -5,6 +5,8 @@ import { defineComponent, h, ref } from 'vue'
 import { CurrentUserRoleInjectionKey } from './interface'
 import type { UserRole } from './interface'
 import { useRoleSelector } from './useRoleSelector'
+import UserRoleSelector from './index.vue'
+import { CurrentUserRoleInjectionKey as SuzhouRoleKey, defaultUserRole } from '@/views/suzhou/common/types/crud'
 
 const api = vi.hoisted(() => ({ roles: vi.fn(), buttons: vi.fn(), setPermissions: vi.fn(), back: vi.fn(), emit: vi.fn() }))
 vi.mock('@/api/process', () => ({ getMenuMessage: vi.fn() }))
@@ -43,6 +45,32 @@ const setup = () => {
 }
 
 describe('role permission lifecycle', () => {
+  it('renders a migrated page with the shared Suzhou role context after loading its role and permissions', async () => {
+    const currentRole = ref(defaultUserRole())
+    api.roles.mockResolvedValue([{
+      id: 'selected', specialorgid: 'dept', specialorgname: '业务部门',
+      org_id: 'company', org_name: '业务单位', specialorgcode: 'dept-code',
+      role_id: 'role', code: 'business-role'
+    }])
+    api.buttons.mockResolvedValue({ success: true, data: ['QUERY'] })
+    const wrapper = mount(UserRoleSelector, {
+      slots: { default: '<div data-testid="business-page">业务内容</div>' },
+      global: {
+        provide: { [SuzhouRoleKey as symbol]: currentRole },
+        stubs: { 'vxe-modal': true, 'el-radio-group': true, 'el-radio': true, 'el-button': true }
+      }
+    })
+    wrappers.push(wrapper)
+    expect(wrapper.find('[data-testid="business-page"]').exists()).toBe(false)
+    await wrapper.vm.getUser()
+    expect(api.roles).toHaveBeenCalledWith('user', 'menu')
+    expect(api.buttons).toHaveBeenCalledWith('menu', 'selected')
+    expect(currentRole.value).toMatchObject({ bmId: 'dept', dwId: 'company', spRoleId: 'selected' })
+    expect(api.setPermissions).toHaveBeenLastCalledWith(['QUERY'])
+    expect(wrapper.find('[data-testid="business-page"]').text()).toBe('业务内容')
+    expect(wrapper.emitted('loadCompany')).toHaveLength(1)
+  })
+
   it('prevents repeated confirmation and ignores a response after cancellation', async () => {
     let resolve!: (value: unknown) => void
     api.buttons.mockImplementation(

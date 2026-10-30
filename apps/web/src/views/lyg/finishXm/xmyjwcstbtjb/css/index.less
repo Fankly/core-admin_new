@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 10px;
+}
+
+.operation {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 37px;
+  margin-bottom: 10px;
+}
+
+.table-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  .form {
+    width: 100%;
+
+    :deep(.el-row) {
+      height: 40px;
+      line-height: 30px;
+    }
+
+    .search {
+      text-align: right;
+    }
+  }
+
+  .table {
+    flex: 1;
+    min-height: 0;
+    padding-bottom: 10px;
+  }
+}
+
+:deep(.mytable-style .vxe-cell) {
+  font-size: 14px;
+}

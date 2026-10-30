@@ -1,0 +1,411 @@
+@primary-color: #00706b; // 国家电网品牌绿
+@success-color: #52c41a;
+@warning-color: #faad14;
+@error-color: #ff4d4f;
+@text-main: #1d2129;
+@text-regular: #4e5969;
+@text-secondary: #86909c;
+@bg-light: #f2f3f5; // 更具现代感的浅灰背景
+@border-color: #e5e6eb;
+@border-radius-base: 2px; // 国家电网风格通常更偏向硬朗，减少圆角
+@shadow-subtle: 0 4px 10px rgba(0, 0, 0, 0.05);
+@spacing-unit: 5px; // 调整为5px，实现 *2 = 10px 的统一边距
+@transition-base: all 0.4s cubic-bezier(0.3, 1, 0.5, 1);
+
+// 入场动画
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.service-general-report {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: @spacing-unit * 2; // 统一 10px 外边距
+  background-color: @bg-light;
+  box-sizing: border-box;
+  overflow: hidden;
+
+  // 组件入场序时动画
+  .tabs-container,
+  .opeartion,
+  .search,
+  .table,
+  .bottom {
+    animation: fadeInUp 0.6s ease-out both;
+  }
+
+  .tabs-container {
+    animation-delay: 0.1s;
+  }
+  .opeartion {
+    animation-delay: 0.2s;
+  }
+  .search {
+    animation-delay: 0.3s;
+  }
+  .table {
+    animation-delay: 0.4s;
+  }
+  .bottom {
+    animation-delay: 0.5s;
+  }
+
+  // 顶部页签容器
+  .tabs-container {
+    margin-bottom: @spacing-unit * 2; // 统一 10px 下边距
+    background: #fff;
+    padding: @spacing-unit * 2 @spacing-unit * 2 0; // 统一 10px 内边距
+    border-radius: @border-radius-base;
+    box-shadow: @shadow-subtle;
+
+    :deep(.el-tabs--card > .el-tabs__header) {
+      border-bottom: 1px solid @border-color;
+      margin-bottom: 0;
+
+      .el-tabs__nav {
+        border: none;
+        display: flex;
+        align-items: center;
+      }
+
+      .el-tabs__item {
+        border: none;
+        transition: @transition-base;
+        color: @text-secondary;
+        font-size: 14px;
+        padding: 0 24px; // 稍微加宽页签点击区域
+        position: relative;
+        margin-right: 0 !important; // 强制消除页签间距
+        height: 40px;
+        line-height: 40px;
+
+        // 使用伪元素创建垂直分割线
+        &:not(:last-child)::before {
+          content: '';
+          position: absolute;
+          right: 0;
+          top: 30%;
+          height: 40%;
+          width: 1px;
+          background-color: @border-color;
+          transition: opacity 0.3s;
+        }
+
+        &.is-active {
+          color: @primary-color;
+          font-weight: 600;
+
+          // 激活态时隐藏其右侧的分割线，保持整洁
+          &::before {
+            opacity: 0;
+          }
+
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: @primary-color;
+            border-radius: 2px 2px 0 0;
+            z-index: 1;
+          }
+        }
+
+        &:hover {
+          color: @primary-color;
+          background-color: fade(@primary-color, 4%);
+        }
+      }
+    }
+  }
+
+  // 内容区域包装器
+  .content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    .tab-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: #fff;
+      border-radius: @border-radius-base;
+      box-shadow: @shadow-subtle;
+      overflow: hidden;
+    }
+  }
+
+  // 1. 操作栏
+  .opeartion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: @spacing-unit * 2; // 统一 10px 内边距
+    background: #fff;
+    border-bottom: 1px solid @border-color;
+
+    .left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: @spacing-unit * 2; // 统一 10px 按钮间距
+
+      :deep(.el-button) {
+        border-radius: @border-radius-base;
+        padding: 8px 16px;
+        font-weight: 500;
+        transition: @transition-base;
+
+        &.el-button--primary {
+          border-color: @primary-color;
+
+          &:hover {
+            background: lighten(@primary-color, 5%);
+            border-color: lighten(@primary-color, 5%);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px fade(@primary-color, 20%);
+          }
+          &:active {
+            background: darken(@primary-color, 5%);
+            transform: translateY(0);
+          }
+        }
+      }
+    }
+
+    .right {
+      .toolbar-guide-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        cursor: pointer;
+        font-size: 22px;
+        color: @text-secondary;
+        border-radius: @border-radius-base;
+        transition: @transition-base;
+        border: 1px solid transparent;
+
+        &:hover {
+          background-color: fade(@primary-color, 5%);
+          color: @primary-color;
+          border-color: fade(@primary-color, 20%);
+          transform: rotate(90deg);
+        }
+      }
+    }
+  }
+
+  // 2. 搜索区域
+  .search {
+    padding: @spacing-unit * 2; // 统一 10px 内边距
+    background: #fff;
+    border-bottom: 1px solid @border-color;
+
+    :deep(.el-form-item) {
+      margin-bottom: @spacing-unit * 2; // 统一 10px 底部边距
+
+      .el-form-item__label {
+        font-weight: 500;
+        color: @text-main;
+        position: relative;
+        padding-left: 0;
+        &::before {
+          display: none;
+        }
+      }
+
+      .el-input__wrapper,
+      .el-select__wrapper {
+        box-shadow: none !important;
+        border: 1px solid @border-color;
+        border-radius: @border-radius-base;
+        transition: @transition-base;
+
+        &:hover {
+          border-color: @primary-color;
+        }
+        &.is-focus {
+          border-color: @primary-color;
+          box-shadow: 0 0 0 2px fade(@primary-color, 10%) !important;
+        }
+      }
+    }
+
+    .operation {
+      padding-top: 4px;
+      display: flex;
+      justify-content: flex-end;
+      gap: @spacing-unit * 2; // 统一 10px 间距
+
+      :deep(.el-button) {
+        border-radius: @border-radius-base;
+      }
+
+      :deep(.el-button--primary) {
+        border-color: @primary-color;
+        &:hover {
+          background: lighten(@primary-color, 5%);
+          border-color: lighten(@primary-color, 5%);
+        }
+      }
+    }
+  }
+
+  // 3. 表格区域 (VxeGrid)
+  .table {
+    flex: 1;
+    background: #fff;
+    padding: @spacing-unit * 2; // 统一 10px 内边距
+    min-height: 200px;
+
+    :deep(.vxe-grid) {
+      .vxe-table--render-default {
+        color: @text-main;
+        font-size: 13px;
+
+        .vxe-body--row.row--hover {
+          background-color: #f7fcfb;
+        }
+
+        .vxe-cell {
+          padding: 0 12px;
+        }
+      }
+
+      .vxe-header--column {
+        background-color: #f9fafb;
+        color: @text-main;
+        font-weight: 600;
+        border-bottom: 2px solid @border-color;
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #e5e6eb;
+        border-radius: 3px;
+        &:hover {
+          background: #c9cdd4;
+        }
+      }
+    }
+  }
+
+  // 4. 底部翻页区域
+  .bottom {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: @spacing-unit * 2; // 统一 10px 内边距
+    background: #fff;
+    border-top: 1px solid @border-color;
+
+    :deep(.el-pagination) {
+      .el-pager li {
+        background: #f4f5f7 !important;
+        color: @text-regular;
+        border-radius: @border-radius-base;
+        margin: 0 4px;
+        font-weight: 500;
+        transition: @transition-base;
+
+        &:hover {
+          color: @primary-color;
+        }
+
+        &.active {
+          background: @primary-color !important;
+          color: #fff !important;
+          box-shadow: 0 2px 8px fade(@primary-color, 30%);
+        }
+      }
+
+      .btn-prev,
+      .btn-next {
+        background: #f4f5f7 !important;
+        border-radius: @border-radius-base;
+        &:hover {
+          color: @primary-color;
+        }
+      }
+    }
+  }
+  // 中间页签布局样式
+  .is-middle-layout {
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+
+    .card-style {
+      background: #fff;
+      border-radius: @border-radius-base;
+      box-shadow: @shadow-subtle;
+      overflow: hidden;
+    }
+
+    .top-section {
+      margin-bottom: @spacing-unit * 2;
+
+      // 确保内部元素圆角协调
+      .opeartion {
+        border-radius: @border-radius-base @border-radius-base 0 0;
+      }
+      .search {
+        border-radius: 0 0 @border-radius-base @border-radius-base;
+        border-bottom: none;
+      }
+    }
+  }
+
+  // 确保底部区域在所有布局下都能撑开高度
+  .bottom-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+}
+
+// 按钮点击效果
+:deep(.el-button) {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.5s, opacity 1s;
+  }
+  &:active::after {
+    transform: scale(0, 0);
+    opacity: 0.3;
+    transition: 0s;
+  }
+}

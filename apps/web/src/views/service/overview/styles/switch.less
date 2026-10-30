@@ -1,0 +1,46 @@
+// 总览页分段切换共用尺寸与状态，选中底色始终贴合按钮本身。
+.overview-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+  flex-shrink: 0;
+  height: 32px;
+  padding: 3px;
+  border: 1px solid #e0e8eb;
+  border-radius: 7px;
+  background: #f2f6f7;
+}
+.overview-switch > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 4px;
+  color: #526a75;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.overview-switch > button:not(.active):hover {
+  background: #e6f5f3;
+}
+.overview-switch > button.active {
+  color: #fff;
+  background: #00857e;
+  box-shadow: 0 1px 3px rgba(0, 94, 88, 0.16);
+}
+.overview-switch > button.active:hover {
+  background: #007d77;
+}
+.overview-switch > button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid #007d77;
+  outline-offset: 2px;
+}

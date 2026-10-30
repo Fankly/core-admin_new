@@ -1,0 +1,58 @@
+:deep(.el-select) {
+  width: 100%;
+}
+
+:deep(.el-select .el-input__inner) {
+  height: auto !important;
+  min-height: 32px;
+}
+
+:deep(.el-select__tags) {
+  height: auto !important;
+  max-height: none !important;
+  flex-wrap: wrap;
+  padding: 2px 0;
+  .el-select__input {
+    max-width: 110px !important;
+  }
+}
+
+:deep(.el-input__wrapper) {
+  height: auto !important;
+}
+.main {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  .opeartion {
+    margin-bottom: 10px;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    .left {
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+    }
+    .right {
+      min-width: 0;
+      min-height: 0;
+    }
+  }
+
+  .table {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #f5f7fa;
+  border-bottom: 1px solid #ebeef5;
+}

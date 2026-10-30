@@ -18,9 +18,12 @@ strictPeerDependencies: false
 # 依赖有更新时自动去重，减小 node_modules 体积。
 dedupePeerDependents: true
 
-# 含构建脚本的包需显式放行，pnpm 默认全部拦截。
-onlyBuiltDependencies:
-  - esbuild
+# Univer 0.20.1 使用旧图标导出；其宽松范围会选中新版不兼容的图标包。
+overrides:
+  '@univerjs/icons': 1.1.1
+
+# pnpm 11 使用 allowBuilds；Sass 使用已提供的 watcher 二进制，
+# es5-ext 的安装脚本仅展示捐赠提示，两者均无需执行安装脚本。
 
 # pnpm 的新包冷却期（minimumReleaseAge）会挡住刚发布不久的版本，
 # 这一条是安装时自动写入的例外。vxe-pc-ui 发版极频繁，latest 常在冷却期内，
@@ -28,3 +31,8 @@ onlyBuiltDependencies:
 minimumReleaseAgeExclude:
   - vxe-pc-ui@4.20.1
   - '@lucide/vue@1.57.0'
+
+allowBuilds:
+  esbuild: true
+  '@parcel/watcher': false
+  es5-ext: false

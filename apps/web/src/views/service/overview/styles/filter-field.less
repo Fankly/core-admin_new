@@ -1,0 +1,172 @@
+// 筛选栏条件胶囊与下拉面板：OverviewSelect（自绘下拉）与统计月份共用同一套外观，样式在组件内 scoped 引入。
+// 胶囊：白底细边框、32px 高；标签次级色、取值主色，右侧是 18px 的箭头热区。
+// 状态：悬停加深描边；打开或聚焦时青绿描边 + 浅青光圈，箭头翻转；已设置非默认值时浅青底，提示条件已生效。
+.filter-field {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  margin: 0;
+  padding: 0 6px 0 12px;
+  border: 1px solid #dde7eb;
+  border-radius: 8px;
+  outline: none;
+  color: #233743;
+  background: #fff;
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 140ms ease, background-color 140ms ease, box-shadow 140ms ease;
+}
+.filter-field:not(.is-disabled):hover {
+  border-color: #b9d6d3;
+}
+.filter-field.is-applied {
+  border-color: #b7dcd8;
+  background: #f1f9f8;
+}
+.filter-field.is-open,
+.filter-field.is-open:hover {
+  border-color: #00857e;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 133, 126, 0.12);
+}
+.filter-field:focus-visible {
+  outline: 2px solid #007d77;
+  outline-offset: 2px;
+}
+.filter-field.is-disabled {
+  border-color: #e6ecef;
+  color: #93a5ad;
+  background: #f6f8f9;
+  cursor: not-allowed;
+}
+.filter-label {
+  flex: none;
+  color: #61757f;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+.filter-value {
+  min-width: 0;
+  max-width: 168px;
+  overflow: hidden;
+  color: inherit;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  text-overflow: ellipsis;
+}
+.filter-field.is-applied .filter-value {
+  color: #00706b;
+}
+.filter-arrow {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-left: -2px;
+  border-radius: 5px;
+  color: #7a8f98;
+  pointer-events: none;
+  transition: color 140ms ease, background-color 140ms ease;
+}
+.filter-arrow > svg {
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.filter-field:not(.is-disabled):hover .filter-arrow {
+  color: #00857e;
+  background: #ecf6f5;
+}
+.filter-field.is-open .filter-arrow {
+  color: #00857e;
+  background: #e3f3f1;
+}
+.filter-field.is-open .filter-arrow > svg {
+  transform: rotate(180deg);
+}
+.filter-field.is-disabled .filter-arrow {
+  color: #b3c1c7;
+}
+// 下拉面板与胶囊左对齐，最小宽度跟随胶囊；选项 32px 高，当前项浅青底 + 勾选，键盘或鼠标经过的项浅灰底。
+.filter-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 100%;
+  max-width: 280px;
+  max-height: 272px;
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #e3eaed;
+  border-radius: 10px;
+  list-style: none;
+  background: #fff;
+  box-shadow: 0 12px 32px -12px rgba(20, 48, 58, 0.28), 0 2px 6px rgba(20, 48, 58, 0.06);
+  scrollbar-color: #c4d2d6 transparent;
+  scrollbar-width: thin;
+}
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+  padding: 0 8px 0 10px;
+  border-radius: 6px;
+  color: #34495a;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+.filter-option + .filter-option {
+  margin-top: 2px;
+}
+.filter-option-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.filter-option-check {
+  flex: none;
+  color: #00857e;
+}
+.filter-option.is-active {
+  background: #f1f6f7;
+}
+.filter-option.is-selected {
+  color: #00706b;
+  background: #e8f5f3;
+  font-weight: 600;
+}
+.filter-option.is-selected.is-active {
+  background: #dcf0ed;
+}
+.filter-menu-enter-active {
+  transition: opacity 140ms ease, transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.filter-menu-leave-active {
+  transition: opacity 100ms ease, transform 100ms ease;
+}
+// 展开只做下移淡入，不用缩放：面板文字在缩放过程中会发虚，且整块缩放与阴影边缘不同步。
+.filter-menu-enter-from,
+.filter-menu-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .filter-arrow > svg,
+  .filter-menu-enter-active,
+  .filter-menu-leave-active {
+    transition: none;
+  }
+}
