@@ -13,6 +13,16 @@
 
 @color-text-secondary: #5d6d66;
 
+// Preserve the theme colors used by migrated business components.
+@--color-primary: #0e8b8d;
+@--color-primary-light-1: mix(#ffffff, @--color-primary, 10%);
+@--color-primary-light-4: mix(#ffffff, @--color-primary, 40%);
+@--color-primary-light-7: mix(#ffffff, @--color-primary, 70%);
+@--color-success: #67c23a;
+@--color-warning: #e6a23c;
+@--color-danger: #f56c6c;
+@--color-text-secondary: #909399;
+
 .clearfix() {
   &::after {
     content: '';
@@ -22,12 +32,14 @@
 }
 
 .textoverflow(@clamp: 1) {
-  display: -webkit-box;
+  display: block;
   overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: @clamp;
   text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: @clamp;
   /*! autoprefixer: ignore next */
+  -webkit-box-orient: vertical;
 }
 
 .flexbox(@jc: space-between, @ai: center, @fd: row, @fw: nowrap) {

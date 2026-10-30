@@ -500,7 +500,7 @@ export default {
   }
 }
 </script>
-<style lang="scss">
+<style lang="less">
 .rr-view-ctx:has(.reserveApproval) {
   background-color: rgba(0, 168, 150, 0.08);
 }

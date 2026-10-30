@@ -1397,7 +1397,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="less">
 .rr-view-ctx-card:has(.dashboard) {
   background: transparent;
 }

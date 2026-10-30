@@ -137,12 +137,12 @@ export const getListPageData = (params: Params): Promise<ServiceResult<PageData>
 
 ### 2.4 CSS / class
 
-- 业务样式走 **SCSS/Less**,页面局部样式一律 `<style scoped>`。
+- 业务样式统一使用 **Less**,页面局部样式一律 `<style lang="less" scoped>`。
 - 全局样式集中在 `src/styles/`;设计 token 在 `src/styles/tokens.css`,Element Plus 覆盖在 `src/styles/element.less`,外壳入口 `src/styles/shell.less` 汇总 `shell/` 中的品牌、头部、导航、标签页、工作区与设置样式。VXE 延迟加载的样式通过 body 上的语义变量保持主题一致。
-- **不要重复 import** Vite `additionalData` 已全局注入的 `styles/variables.less`。当前 SCSS 没有自动注入;遗留 SCSS 文件不代表已经配置预处理器。
+- **不要重复 import** Vite `additionalData` 已全局注入的 `styles/variables.less`,业务主题兼容变量和 mixin 均在此定义。
 - Tailwind v4 **CSS-first**,类名前缀是 `tw:`(变体式),不是 `tw-`;没有 `tailwind.config.js`。用法规范见 `src/styles/tailwind.css` 顶部注释。
 - Tailwind 不引入 preflight,`tw:border` 单独用不出边框(无 border-style 重置),需要自己写 border-style。
-- 当前没有页面使用 Tailwind 类;新 UI 优先消费 `src/styles/tokens.css` 的语义 token 与 Less。确需 Tailwind 或新增 SCSS 预处理配置时需在评审中说明理由。
+- 当前没有页面使用 Tailwind 类;新 UI 优先消费 `src/styles/tokens.css` 的语义 token 与 Less。确需 Tailwind 时需在评审中说明理由。
 
 ---
 
@@ -342,7 +342,7 @@ import SvgIcon from '@/components/base/svg-icon'
 - [ ] 没有新增事件总线 / 字符串事件订阅。
 - [ ] 没有让 `eslint-suppressions.json` 中出现新增条目。
 - [ ] 表格用 `useTable` + `ProTable`,`v-for` 有稳定 key。
-- [ ] 样式 scoped,未重复 import 全局 scss,未散写魔法色值。
+- [ ] 样式使用 Less 且 scoped,未重复 import 全局变量,未散写魔法色值。
 - [ ] 按钮级权限给了 `v-permission` 或逻辑校验。
 - [ ] 无 `console.log`、无死代码、无 `debugger`。
 - [ ] 复杂逻辑补了"为什么"注释;行为变更给出了验证路径。

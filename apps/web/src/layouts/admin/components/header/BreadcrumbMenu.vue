@@ -31,7 +31,14 @@
 
     <nav ref="panel" class="ds-crumb-menu__panel" :aria-label="root.title" @keydown="onKeydown">
       <header class="ds-crumb-menu__head">
-        <button v-if="parent" class="ds-crumb-menu__back" type="button" :aria-label="`返回${parent.title}`" :title="`返回${parent.title}`" @click="back">
+        <button
+          v-if="parent"
+          class="ds-crumb-menu__back"
+          type="button"
+          :aria-label="`返回${parent.title}`"
+          :title="`返回${parent.title}`"
+          @click="back"
+        >
           <ChevronLeft :size="15" :stroke-width="2" aria-hidden="true" />
         </button>
         <span class="ds-crumb-menu__title">{{ view.title }}</span>
@@ -113,12 +120,17 @@ const activePath = computed(() => route.path)
 const view = computed(() => stack.value.at(-1) ?? props.root)
 const parent = computed(() => (stack.value.length ? (stack.value.at(-2) ?? props.root) : undefined))
 
-const rows = () => Array.from(panel.value?.querySelectorAll<HTMLElement>('.ds-crumb-menu__list:not(.ds-crumb-slide-back-leave-active, .ds-crumb-slide-forward-leave-active) .ds-crumb-menu__row') ?? [])
+const rows = () =>
+  Array.from(
+    panel.value?.querySelectorAll<HTMLElement>(
+      '.ds-crumb-menu__list:not(.ds-crumb-slide-back-leave-active, .ds-crumb-slide-forward-leave-active) .ds-crumb-menu__row'
+    ) ?? []
+  )
 
 const focusRow = (path?: string) => {
   void nextTick(() => {
     const list = rows()
-    const target = (path && list.find((row) => row.dataset.path === path)) || list.find((row) => row.matches('.is-active, .is-trail')) || list[0]
+    const target = (path && list.find((row) => row.dataset.path === path)) || list.find((row) => row.matches('.is-active, .is-trail')) || list.at(0)
     target?.focus()
   })
 }
@@ -167,7 +179,7 @@ const onKeydown = (event: KeyboardEvent) => {
   }
   if (event.key in moves && list.length) {
     event.preventDefault()
-    list[moves[event.key]]?.focus()
+    list[moves[event.key]].focus()
     return
   }
   if (event.key === 'ArrowRight' && index >= 0) {

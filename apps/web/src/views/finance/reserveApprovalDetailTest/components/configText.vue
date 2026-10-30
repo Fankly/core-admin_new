@@ -75,7 +75,7 @@ export default {
   watch: {}
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .configText__view {
   display: flex;
   flex-wrap: wrap;

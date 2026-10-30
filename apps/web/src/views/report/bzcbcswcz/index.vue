@@ -284,7 +284,7 @@ const xmwczSearchColumns = reactive<ColumnProps[]>([
 ])
 </script>
 
-<style scoped lang="scss">
+<style scoped lang="less">
 .bzcbcswcz-tabs-page {
   display: flex;
   flex-direction: column;

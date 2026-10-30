@@ -60,7 +60,7 @@ import { ChevronDown, ChevronRight, Ellipsis, House } from '@lucide/vue'
 import { useMenuStore } from '@/store'
 import { resolveBreadcrumb, type BreadcrumbNode } from '@/router/navigation'
 import BreadcrumbMenu from './BreadcrumbMenu.vue'
-import { fitBreadcrumb, hiddenCount, type BreadcrumbWidths } from './breadcrumb-fit'
+import { fitBreadcrumb, type BreadcrumbWidths } from './breadcrumb-fit'
 
 defineOptions({ name: 'BreadcrumbTrail' })
 
@@ -94,10 +94,10 @@ const foldedLabel = computed(() => folded.value.map((item) => item.title).join('
 
 /** 只折叠一层时「…」就是那一层；折叠多层时先列出这些祖先，再逐层点开。 */
 const foldedRoot = computed<BreadcrumbNode | null>(() => {
-  if (!hiddenCount(fit.value, ancestors.value.length)) return null
-  const [first] = folded.value
-  if (folded.value.length === 1 && first) return first
-  return { path: '__folded__', title: '页面路径', level: first?.level ?? 1, external: false, href: '', children: folded.value }
+  const nodes = folded.value
+  if (!nodes.length) return null
+  if (nodes.length === 1) return nodes[0]
+  return { path: '__folded__', title: '页面路径', level: nodes[0].level, external: false, href: '', children: nodes }
 })
 
 const readWidths = () => {

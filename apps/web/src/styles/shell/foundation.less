@@ -56,12 +56,13 @@
   --ds-header-muted: #5d6d66;
 }
 
-/* 次要文字（面包屑祖先、顶部导航、客服入口）在深色与品牌色顶栏上保持 ≥ 4.5:1 */
 .ui-topHeader-dark {
   --ds-header-surface: #0a2b26;
   --ds-header-text: #f2faf7;
-  --ds-header-muted: rgb(231 243 239 / 72%);
+  --ds-header-muted: rgb(231 243 239 / 62%);
 }
+
+/* 品牌色底上的次要文字（面包屑祖先、顶部导航、客服入口）需要更高不透明度才能 ≥ 4.5:1 */
 
 .ui-topHeader-primary {
   --ds-header-surface: var(--ds-jade-600);

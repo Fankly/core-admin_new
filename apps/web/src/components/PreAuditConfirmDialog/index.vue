@@ -183,7 +183,7 @@ const handleHidden = () => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .pre-audit-confirm {
   padding: 2px 0;
 

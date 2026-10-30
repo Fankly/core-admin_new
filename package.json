@@ -19,7 +19,7 @@
     "typecheck": "pnpm -r --parallel typecheck",
     "lint": "pnpm -r --parallel lint",
     "lint:check": "pnpm --filter budget-process lint:check && eslint packages eslint.config.js prettier.config.js",
-    "format": "prettier --write \"**/*.{vue,ts,tsx,js,mjs,scss,less,json,md}\" --ignore-path .gitignore",
+    "format": "prettier --write \"**/*.{vue,ts,tsx,js,mjs,less,json,md}\" --ignore-path .gitignore",
     "test": "pnpm -r --parallel test",
     "e2e": "pnpm --filter budget-process e2e",
     "clean": "pnpm -r exec rm -rf dist node_modules && rm -rf node_modules"

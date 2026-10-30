@@ -43,7 +43,11 @@ describe('navigation directory', () => {
               { path: '/iframe/draft', meta: { title: '草稿', isNavigationMenu: false }, component: {} }
             ]
           },
-          { path: '/platform/empty', meta: { title: '空分组' }, children: [{ path: '/platform/empty/x', meta: { title: '缺视图', isUnavailable: true }, component: {} }] },
+          {
+            path: '/platform/empty',
+            meta: { title: '空分组' },
+            children: [{ path: '/platform/empty/x', meta: { title: '缺视图', isUnavailable: true }, component: {} }]
+          },
           { path: '/webview/9', meta: { title: '外部平台', isNewPage: true, url: 'https://example.com' }, component: {} }
         ]
       }

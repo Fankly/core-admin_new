@@ -67,7 +67,7 @@ export default {
   watch: {}
 }
 </script>
-<style lang="scss" scoped>
+<style lang="less" scoped>
 .base-scrollbar {
   width: 100%;
   height: 100%;

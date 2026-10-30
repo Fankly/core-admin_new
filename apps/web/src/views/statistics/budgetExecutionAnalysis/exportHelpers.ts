@@ -5,7 +5,7 @@ import { BudgetExecutionFormulaContext, INDICATOR_FORMULAS, getIndicatorCellForm
 import { applyTreeSumFormulas } from './treeExport'
 import { ignoreFormulaRangeWarnings } from './exportFormulaWarnings'
 
-// 与 VXE 默认表格主题及 assets/css/element.scss 的表头样式一致。
+// 与 VXE 默认表格主题及 styles/element.less 的表头样式一致。
 const BORDER_COLOR = 'FFE8EAEC'
 const HEADER_BACKGROUND = 'FFF8F8F9'
 const STRIPE_BACKGROUND = 'FFFAFAFA'

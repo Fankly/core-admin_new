@@ -19,7 +19,8 @@
   display: flex;
   flex: 1;
   align-items: center;
-  align-self: stretch;
+  /* 占满顶栏高度、左右各留 4px，裁剪溢出时不会裁掉分段的焦点环 */
+  height: var(--ds-header-height);
   min-width: 0;
   padding: 0 4px;
   overflow: hidden;

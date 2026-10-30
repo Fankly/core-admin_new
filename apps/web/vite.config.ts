@@ -62,10 +62,6 @@ export default defineConfig({
   },
   css: {
     preprocessorOptions: {
-      scss: {
-        additionalData: '@import "@/assets/element-variables-green.scss";\n@import "@/assets/style/mixin.scss";\n',
-        silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'legacy-js-api']
-      },
       less: {
         additionalData: '@import "@/styles/variables.less";\n',
         javascriptEnabled: true

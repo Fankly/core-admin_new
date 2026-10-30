@@ -47,7 +47,7 @@ pnpm e2e           # Playwright，桌面交互回归
 ## 构建约定
 
 - 别名：`@` → `apps/web/src`，`@mock` → `apps/web/mock`（仅 `pnpm mock` 由 Vite 注入，`main.ts` 无需加载 mock）。
-- 当前仅对 Less 自动注入 `@/styles/variables.less`，不要重复 import。遗留 SCSS 文件未自动注入；新增 SCSS 使用前需明确配置预处理器。
+- 样式预处理器统一使用 Less，Vite 自动注入 `@/styles/variables.less`，不要重复 import。业务主题兼容变量和 mixin 均在此定义。
 - `vue` 指向 `vue/dist/vue.esm-bundler.js`（保留运行时模板编译）。
 - dev 代理 `/api` → `http://localhost:10027/budget-process`，代理配置位于 `apps/web/vite.config.ts`。
 - 环境文件在 `apps/web/`：`.env.development` / `.env.mock` / `.env.production` / `.env.production.sit` / `.env.production.uat`。`pnpm dev` 与 `pnpm mock` 都使用 `/api` 代理；打包和 preview 不加载 mock。
