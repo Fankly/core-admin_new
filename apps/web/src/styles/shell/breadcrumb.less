@@ -1,0 +1,384 @@
+@import './nav-level.less';
+
+/* --------------------------------------------------------------------------
+   Breadcrumb — 单行路线：主页 › 模块 ▾ › … › 父级 ▾ › 当前页
+
+   祖先是分组，没有自己的视图，所以每段是下拉而不是链接：点开列出这一层的可达入口，
+   分组可在面板内逐层点开。空间不够时先把「主页」收成图标，再把中间层折进「…」。
+   颜色全部从 --ds-header-* 派生，浅色 / 深色 / 品牌色顶栏共用一套规则。
+   -------------------------------------------------------------------------- */
+
+.ds-breadcrumb {
+  --crumb-ink: var(--ds-header-text);
+  --crumb-muted: var(--ds-header-muted);
+  --crumb-faint: color-mix(in srgb, var(--ds-header-text) 38%, transparent);
+  --crumb-hover: color-mix(in srgb, var(--ds-header-text) 8%, transparent);
+  --crumb-open: color-mix(in srgb, var(--ds-header-text) 12%, transparent);
+
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  align-self: stretch;
+  min-width: 0;
+  padding: 0 4px;
+  overflow: hidden;
+}
+
+.ds-breadcrumb__list {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  font-size: var(--ds-text-md);
+  line-height: 1;
+  white-space: nowrap;
+  list-style: none;
+}
+
+.ds-breadcrumb__item {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+.ds-breadcrumb__item.is-current {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.ds-breadcrumb__separator {
+  flex: 0 0 auto;
+  margin: 0 3px;
+  color: var(--crumb-faint);
+}
+
+.ds-breadcrumb__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-breadcrumb__home,
+.ds-breadcrumb__segment {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 5px;
+  align-items: center;
+  height: 32px;
+  padding: 0 8px;
+  color: var(--crumb-muted);
+  font: inherit;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  cursor: pointer;
+  transition:
+    color var(--ds-duration-fast) ease,
+    background-color var(--ds-duration-fast) ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--crumb-ink);
+    background: var(--crumb-hover);
+  }
+}
+
+.ds-breadcrumb__home {
+  padding-left: 6px;
+
+  &.is-icon {
+    justify-content: center;
+    width: 32px;
+    padding: 0;
+  }
+
+  > svg {
+    flex: 0 0 auto;
+  }
+}
+
+.ds-breadcrumb__segment {
+  max-width: 168px;
+  padding-right: 6px;
+
+  &.is-open {
+    color: var(--crumb-ink);
+    background: var(--crumb-open);
+  }
+}
+
+.ds-breadcrumb__caret {
+  flex: 0 0 auto;
+  opacity: 0.6;
+  transition:
+    opacity var(--ds-duration-fast) ease,
+    transform var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.ds-breadcrumb__segment:is(:hover, :focus-visible) .ds-breadcrumb__caret {
+  opacity: 1;
+}
+
+.ds-breadcrumb__segment.is-open .ds-breadcrumb__caret {
+  opacity: 1;
+  transform: rotate(180deg);
+}
+
+.ds-breadcrumb__more {
+  justify-content: center;
+  width: 32px;
+  padding: 0;
+}
+
+.ds-breadcrumb__current {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  height: 32px;
+  padding: 0 6px;
+  color: var(--crumb-ink);
+  font-weight: 600;
+
+  > svg {
+    flex: 0 0 auto;
+  }
+}
+
+/* 测量层与真实列表同一套样式，按自然宽度排开，不参与布局与无障碍树 */
+.ds-breadcrumb__measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: max-content;
+  visibility: hidden;
+  pointer-events: none;
+  font-size: var(--ds-text-md);
+  line-height: 1;
+  white-space: nowrap;
+
+  > * {
+    display: inline-flex;
+    flex: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   分段下拉：teleport 到 body，自带层级图标 token
+   -------------------------------------------------------------------------- */
+
+.ds-crumb-menu.el-popover.el-popper {
+  .nav-level-tokens();
+
+  padding: 6px;
+  color: var(--ds-ink);
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-popover);
+}
+
+.ds-crumb-menu__head {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 8px 6px;
+  margin: 0 -6px 6px;
+  border-bottom: 1px solid var(--ds-line);
+}
+
+.ds-crumb-menu__back {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  color: var(--ds-ink-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  cursor: pointer;
+  transition:
+    color var(--ds-duration-fast) ease,
+    background-color var(--ds-duration-fast) ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--ds-jade-700);
+    background: var(--ds-jade-50);
+  }
+}
+
+.ds-crumb-menu__title {
+  min-width: 0;
+  padding: 0 4px;
+  overflow: hidden;
+  color: var(--ds-ink-tertiary);
+  font-size: var(--ds-text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-crumb-menu__list {
+  max-height: min(420px, calc(100dvh - 160px));
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.ds-crumb-menu [data-nav-level='1'] {
+  --nav-icon-box: var(--nav-icon-box-1);
+  --nav-icon-glyph: var(--nav-icon-glyph-1);
+  --nav-icon-bg: var(--nav-icon-bg-1);
+  --nav-icon-fg: var(--nav-icon-fg-1);
+  --nav-icon-radius: var(--nav-icon-radius-1);
+  --nav-icon-ring: var(--nav-icon-ring-1);
+}
+
+.ds-crumb-menu [data-nav-level='2'] {
+  --nav-icon-box: var(--nav-icon-box-2);
+  --nav-icon-glyph: var(--nav-icon-glyph-2);
+  --nav-icon-bg: var(--nav-icon-bg-2);
+  --nav-icon-fg: var(--nav-icon-fg-2);
+  --nav-icon-radius: var(--nav-icon-radius-2);
+  --nav-icon-ring: var(--nav-icon-ring-2);
+}
+
+.ds-crumb-menu [data-nav-level='3'] {
+  --nav-icon-box: var(--nav-icon-box-3);
+  --nav-icon-glyph: var(--nav-icon-glyph-3);
+  --nav-icon-bg: var(--nav-icon-bg-3);
+  --nav-icon-fg: var(--nav-icon-fg-3);
+  --nav-icon-radius: var(--nav-icon-radius-3);
+  --nav-icon-ring: var(--nav-icon-ring-3);
+}
+
+.ds-crumb-menu [data-nav-level='4'] {
+  --nav-icon-box: var(--nav-icon-box-4);
+  --nav-icon-glyph: var(--nav-icon-glyph-4);
+  --nav-icon-bg: var(--nav-icon-bg-4);
+  --nav-icon-fg: var(--nav-icon-fg-4);
+  --nav-icon-radius: var(--nav-icon-radius-4);
+  --nav-icon-ring: var(--nav-icon-ring-4);
+}
+
+.ds-crumb-menu__row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  color: var(--ds-ink);
+  font: inherit;
+  font-size: var(--ds-text-md);
+  line-height: 1.45;
+  text-align: left;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-radius: var(--ds-radius-md);
+  cursor: pointer;
+  transition:
+    color var(--ds-duration-fast) ease,
+    background-color var(--ds-duration-fast) ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--ds-jade-700);
+    background: var(--ds-jade-50);
+  }
+
+  &:focus-visible {
+    outline-offset: -2px;
+  }
+}
+
+/* 当前页所在分支：只改文字色，不加底色，和真正的当前页区分开 */
+.ds-crumb-menu__row.is-trail {
+  color: var(--ds-jade-700);
+  font-weight: 500;
+}
+
+.ds-crumb-menu__row.is-active {
+  color: var(--ds-jade-700);
+  font-weight: 600;
+  background: color-mix(in srgb, var(--ds-jade-100) 72%, #ffffff);
+}
+
+.ds-crumb-menu__icon {
+  display: grid;
+  flex: 0 0 var(--nav-icon-box, var(--nav-icon-box-2));
+  place-items: center;
+  width: var(--nav-icon-box, var(--nav-icon-box-2));
+  height: var(--nav-icon-box, var(--nav-icon-box-2));
+  color: var(--nav-icon-fg, var(--ds-ink-tertiary));
+  background: var(--nav-icon-bg, transparent);
+  border-radius: var(--nav-icon-radius, 6px);
+  box-shadow: var(--nav-icon-ring, none);
+
+  svg {
+    width: var(--nav-icon-glyph, var(--nav-icon-glyph-2));
+    height: var(--nav-icon-glyph, var(--nav-icon-glyph-2));
+    stroke-width: 1.75;
+  }
+}
+
+.ds-crumb-menu__dot {
+  width: 5px;
+  height: 5px;
+  background: currentColor;
+  border-radius: 50%;
+}
+
+.ds-crumb-menu__label {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ds-crumb-menu__trailing {
+  flex: 0 0 auto;
+  opacity: 0.7;
+}
+
+.ds-crumb-menu__row.is-active .ds-crumb-menu__trailing {
+  opacity: 1;
+}
+
+.ds-crumb-menu__empty {
+  padding: 20px 12px;
+  color: var(--ds-ink-tertiary);
+  font-size: var(--ds-text-sm);
+  text-align: center;
+}
+
+/* 逐层点开时列表横向换场；离场的旧列表直接移除，面板高度不跳动 */
+.ds-crumb-slide-forward-enter-active,
+.ds-crumb-slide-back-enter-active {
+  transition:
+    opacity var(--ds-duration-fast) var(--ds-ease-out),
+    transform var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.ds-crumb-slide-forward-leave-active,
+.ds-crumb-slide-back-leave-active {
+  display: none;
+}
+
+.ds-crumb-slide-forward-enter-from {
+  opacity: 0;
+  transform: translateX(8px);
+}
+
+.ds-crumb-slide-back-enter-from {
+  opacity: 0;
+  transform: translateX(-8px);
+}

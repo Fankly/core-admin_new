@@ -1,6 +1,6 @@
 <template>
   <header class="ds-header">
-    <router-link class="ds-header__brand" to="/home" aria-label="返回工作台">
+    <router-link class="ds-header__brand" to="/home" aria-label="返回主页">
       <BrandMark />
     </router-link>
 
