@@ -4,7 +4,7 @@
     <viewTable ref="tableRef" :type="'city'" :specialorgid="specialorgid" @click-btn="clickBtn" @page-type="pageType" />
   </div>
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle" />
-  <reporting ref="reportTable" @loadCompany="getRoleHandle" :formData="formData" :title="'预计结余-上报'" />
+  <reporting ref="reportTable" :formData="formData" :title="'预计结余-上报'" />
 </template>
 
 

@@ -105,17 +105,15 @@
     </div>
     <div class="table">
       <vxe-table
+        :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
         :loading="pageInfo.loading"
-        resizable
         :data="tableData"
         align="center"
         header-align="center"
         :show-overflow="true"
         border
         stripe
-        :row-config="{
-          height: 32
-        }"
+        :row-config="{}"
         height="100%"
         ref="vxeTableRef"
       >

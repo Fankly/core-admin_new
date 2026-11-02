@@ -1,5 +1,5 @@
 <template>
-  <el-tag :type="type" v-bind="$attrs" class="base-tag">
+  <el-tag :type="type || 'primary'" v-bind="$attrs" class="base-tag">
     <template v-if="showIcon">
       <div class="tag-icon" v-html="iconSvg"></div>
     </template>

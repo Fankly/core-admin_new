@@ -246,16 +246,14 @@ onMounted(async () => {
       <el-button type="primary" size="small" plain v-debounce="[exportHandle, `click`, 300]">导 出</el-button>
     </div>
     <div class="table">
-      <vxe-table 
+      <vxe-table
+        :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
         ref="tableRef"
         border
-        resizable
         show-overflow
         align="center"
         header-align="center"
-        :row-config="{
-          height: 32
-        }"
+        :row-config="{}"
         :data="pageData"
         height="100%"
       >

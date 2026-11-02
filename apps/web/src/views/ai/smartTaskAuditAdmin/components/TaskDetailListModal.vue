@@ -17,6 +17,7 @@
   >
     <div class="task-detail-list">
       <vxe-table
+        :cell-config="{ height: 40 }"
         ref="tableRef"
         :data="dataList"
         :loading="modal.loading"
@@ -26,7 +27,7 @@
         round
         show-overflow
         show-header-overflow
-        :row-config="{ height: 40 }"
+        :row-config="{}"
         :column-config="{ resizable: true }"
         :scroll-y="{ enabled: true }"
         empty-text="暂无审核要点数据"

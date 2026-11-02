@@ -12,7 +12,7 @@
       show-footer
       :width="1200"
       :height="800"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeHandle"
     >
       <div style="margin-bottom: 10px">
@@ -20,7 +20,8 @@
         <el-button size="small" type="primary" plain @click="exportHandle">导 出</el-button>
       </div>
       <div style="height: 85%">
-        <vxe-grid ref="gridRef" v-bind="gridOptions" v-on="gridEvent" />
+        <vxe-grid
+      ref="gridRef" v-bind="gridOptions" v-on="gridEvent" />
       </div>
       <div class="main-pagination">
         <el-pagination
@@ -160,9 +161,8 @@ const gridOptions = reactive<any>({
   headerAlign: 'center',
   align: 'center',
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },

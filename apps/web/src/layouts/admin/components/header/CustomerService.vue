@@ -54,8 +54,8 @@ import { BookOpen, Headphones, Mail, Phone } from '@lucide/vue'
 import HelpModal from '@/components/HelpModal/index.vue'
 
 interface Props {
-  phone: string
-  email: string
+  phone?: string
+  email?: string
 }
 
 interface HelpModalInstance {

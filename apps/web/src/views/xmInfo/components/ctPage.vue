@@ -9,7 +9,7 @@
     :title="`超包明细`"
     width="970"
     height="820"
-    :close-on-press-escape="true"
+    :esc-closable="true"
     @close="closeHandle"
   >
     <div class="modal_content" ref="fromTableRef">
@@ -32,7 +32,8 @@
         </div>
       </div>
       <div class="table">
-        <vxe-grid ref="tableRef" v-bind="tableInfo" />
+        <vxe-grid
+      ref="tableRef" v-bind="tableInfo" />
       </div>
     </div>
   </vxe-modal>
@@ -73,8 +74,8 @@ const tableInfo = reactive<any>({
   align: 'right',
   showOverflow: true,
   height: '100%',
+  cellConfig: { height: 32 },
   rowConfig: {
-    height: 32,
     keyField: 'id'
   },
   border: true,

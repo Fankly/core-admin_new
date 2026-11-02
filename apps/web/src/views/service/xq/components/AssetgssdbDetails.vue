@@ -25,12 +25,13 @@
         </div>
         <div class="table" :style="{ height: itemHeight + 'px' }">
           <vxe-table
+            :cell-config="{ height: 32 }"
             :data="project"
             stripe
             :column-config="{
               resizable: true
             }"
-            :row-config="{ height: 32 }"
+            :row-config="{}"
             show-header-overflow
             show-overflow
             border
@@ -54,9 +55,8 @@
       <el-button v-if="opType == 'EDIT'" size="small" plain type="primary" @click="uploadHandle"> 上 传 </el-button>
     </div>
     <vxe-table
-      :row-config="{
-        height: 32
-      }"
+      :cell-config="{ height: 32 }"
+      :row-config="{}"
       :show-overflow="true"
       ref="tableRef"
       :data="fileList"
@@ -136,9 +136,9 @@ import baseService from '@/service/baseService'
 defineOptions({ name: "AssetgssdbDetails" })
 
 interface Props {
-  selectData: any
-  globalParams: any
-  opType: string
+  selectData?: any
+  globalParams?: any
+  opType?: string
 }
 
 type Names = 'accessories' | 'unpriced' | 'estimate'

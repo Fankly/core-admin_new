@@ -55,11 +55,12 @@
             </div>
             <div class="bottom">
               <vxe-table
+                :cell-config="{ height: 32 }"
                 ref="yskmTableRef"
                 @current-change="handleCurrentChange"
                 :cell-style="cellStyle"
                 show-overflow
-                :row-config="{ height: 32, isCurrent: true, keyField: 'id' }"
+                :row-config="{ isCurrent: true, keyField: 'id' }"
                 :show-header="false"
                 border="outer"
                 :tree-config="{
@@ -102,9 +103,9 @@
             </div>
             <div class="table">
               <vxe-table
+                :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
                 border
                 :row-config="{
-                  height: 32,
                   keyField: 'id'
                 }"
                 :radio-config="{
@@ -116,7 +117,6 @@
                 show-header-overflow
                 align="center"
                 header-align="center"
-                resizable
                 height="100%"
                 :data="yssxDataList"
                 ref="yssxTableRef"
@@ -248,7 +248,7 @@
         title="维护出租方信息"
         width="860"
         :height="700"
-        :close-on-press-escape="false"
+        :esc-closable="false"
         @close="closeModal"
       >
         <proTable

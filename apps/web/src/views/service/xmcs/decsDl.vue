@@ -1964,6 +1964,10 @@ const { handleExport } = exportExcel(
 )
 
 onMounted(async () => {
+  if (typeof route.query.xmcsParams !== 'string' || !route.query.xmcsParams) {
+    ElMessage.warning('缺少页面参数，请从项目列表重新进入')
+    return
+  }
   userInfo.value = JSON.parse(decrypt(route.query.xmcsParams))
   initUniver()
   if (univerAPI) {

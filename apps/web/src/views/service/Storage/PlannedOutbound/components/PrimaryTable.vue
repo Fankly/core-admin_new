@@ -1,7 +1,8 @@
 <template>
   <div class="table">
     <div class="main">
-      <vxe-grid ref="gridRef" v-bind="gridOptions"></vxe-grid>
+      <vxe-grid
+    ref="gridRef" v-bind="gridOptions"></vxe-grid>
     </div>
     <div class="pager">
       <el-pagination
@@ -48,9 +49,8 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   showOverflow: true,
   showHeaderOverflow: true,
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   checkboxConfig: {
     trigger: 'row',
     highlight: true,

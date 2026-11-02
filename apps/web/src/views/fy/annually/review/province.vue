@@ -23,6 +23,7 @@
         </div>
         <div class="standrand-table">
           <vxe-table
+            :cell-config="tableMsg.cellConfig"
             keep-source
             :edit-config="tableMsg.editConfig"
             :row-config="tableMsg.rowConfig"
@@ -107,6 +108,7 @@
         </div>
         <div class="standrand-table">
           <vxe-table
+            :cell-config="tableMsg.cellConfig"
             keep-source
             :edit-config="tableMsg.editConfig"
             :row-config="tableMsg.rowConfig"
@@ -180,7 +182,8 @@
       :xsws="tableMsg.xsws"
       busi-type="ND"
       ref="reviewLayoutRef"
-      :row-config="{ isCurrent: true, height: 32 }"
+      :row-config="{ isCurrent: true }"
+      :cell-config="{ height: 32 }"
       @close-dialog="closeDialog"
       :request-api="getTableList"
       :columns="reviewColumns"
@@ -349,9 +352,8 @@ const activeCellMethod = ({ row }: any) => {
   return !row.leaf
 }
 const tableMsg = reactive<TableMsg>({
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   nd: '',
   xsws: '',
   tableData: [],

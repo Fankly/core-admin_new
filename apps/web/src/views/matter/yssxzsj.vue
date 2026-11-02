@@ -609,16 +609,14 @@ onMounted(() => {
     </div>
     <div class="table">
       <vxe-table
-        resizable
+        :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
         ref="tableRef"
         border
         stripe
         show-overflow
         align="center"
         header-align="center"
-        :row-config="{
-          height: 32
-        }"
+        :row-config="{}"
         :checkbox-config="{ highlight: true }"
         @cell-click="cellClickHandle"
         :data="tableDataList"
@@ -716,6 +714,7 @@ onMounted(() => {
       </div>
       <div class="financial-basis-table">
         <vxe-table
+          :cell-config="{ height: 32 }"
           ref="financialBasisTableRef"
           border
           stripe
@@ -725,7 +724,7 @@ onMounted(() => {
           headerAlign="center"
           align="center"
           :data="financialBasisRows"
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           :edit-config="{ trigger: 'click', mode: 'cell', showStatus: true }"
           @edit-closed="handleFinancialBasisEditClosed"
         >

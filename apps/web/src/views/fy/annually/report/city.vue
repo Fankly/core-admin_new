@@ -19,6 +19,7 @@
         </div>
         <div class="standrand-table">
           <vxe-table
+            :cell-config="tableMsg.cellConfig"
             :row-config="tableMsg.rowConfig"
             :cell-style="cellStyle"
             :header-cell-style="headerCellStyle"
@@ -133,6 +134,7 @@
         </div>
         <div class="standrand-table">
           <vxe-table
+            :cell-config="tableMsg.cellConfig"
             :row-config="tableMsg.rowConfig"
             :header-cell-style="headerCellStyle"
             :cell-style="cellStyle"
@@ -332,9 +334,8 @@ const headerCellStyle = () => {
   }
 }
 const tableMsg = reactive<TableMsg>({
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   nd: '',
   xsws: '',
   tableData: [],

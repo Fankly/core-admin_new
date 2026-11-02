@@ -257,17 +257,17 @@
             </div>
             <div class="main-table">
               <vxe-table
+                :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
                 :checkbox-config="{
                   trigger: 'row',
                   highlight: true
                 }"
                 ref="tableRef"
-                :row-config="{ height: 32 }"
+                :row-config="{}"
                 align="center"
                 show-overflow
                 header-align="center"
                 border
-                resizable
                 stripe
                 :data="tableData"
                 height="auto"

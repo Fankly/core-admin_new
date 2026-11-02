@@ -1197,6 +1197,10 @@ async function prevNextStep(number) {
   }
 }
 async function getPreNextStatus() {
+  if (!approvalListKey.value || !approvalId.value) {
+    componentData.preNextIds = { preId: null, nextId: null }
+    return
+  }
   const preId = await getPreNext(1)
   const nextId = await getPreNext(2)
   componentData.preNextIds = {

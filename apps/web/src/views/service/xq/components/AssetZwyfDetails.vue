@@ -3,13 +3,14 @@
     <el-tabs type="border-card" v-model="tabName" @tab-click="handleChangeTab">
       <el-tab-pane name="projectDevices" :label="tabLabel.projectDevices">
         <vxe-table
+          :cell-config="{ height: 32 }"
           :loading="loading"
           :data="gjsbLists"
           stripe
           :column-config="{
             resizable: true
           }"
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           show-header-overflow
           show-overflow
           border
@@ -94,13 +95,14 @@
       </el-tab-pane>
       <el-tab-pane name="quotaInfo" :label="tabLabel.quotaInfo">
         <vxe-table
+          :cell-config="{ height: 32 }"
           :loading="loading"
           :data="dexxLists"
           stripe
           :column-config="{
             resizable: true
           }"
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           show-header-overflow
           show-overflow
           border
@@ -170,13 +172,14 @@
       </el-tab-pane>
       <el-tab-pane name="quotaTeams" :label="tabLabel.quotaTeams">
         <vxe-table
+          :cell-config="{ height: 32 }"
           :loading="loading"
           :data="gjbzLists"
           stripe
           :column-config="{
             resizable: true
           }"
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           show-header-overflow
           show-overflow
           border
@@ -194,10 +197,11 @@
       </el-tab-pane>
       <el-tab-pane name="quotaStationLines" :label="tabLabel.quotaStationLines">
         <vxe-table
+          :cell-config="{ height: 32 }"
           :loading="loading"
           :data="gjzxLists"
           show-header-overflow
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           show-overflow
           border
           stripe
@@ -239,9 +243,9 @@ import { useMainnetOps } from './hoooks/useMainnetOps'
 defineOptions({ name: "AssetZwyfDetails" })
 
 interface Props {
-  selectData: any
-  globalParams: any
-  opType: string
+  selectData?: any
+  globalParams?: any
+  opType?: string
 }
 
 // 默认值

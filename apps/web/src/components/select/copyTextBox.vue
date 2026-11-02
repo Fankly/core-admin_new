@@ -1,5 +1,5 @@
 <template>
-  <el-input v-model="text" :title="text" readonly="true">
+  <el-input v-bind="$attrs" v-model="text" :title="text" readonly>
     <template #append>
       <el-button @click="addData" :icon="EpCirclePlus" />
     </template>
@@ -18,6 +18,7 @@
 <script setup>
 import { CirclePlus as EpCirclePlus } from '@element-plus/icons-vue'
 import { reactive, toRef } from 'vue'
+defineOptions({ inheritAttrs: false })
 const setupState = reactive({
   text: '',
   array: [],

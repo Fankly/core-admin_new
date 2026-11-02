@@ -17,12 +17,13 @@
         </div>
         <div class="table" :style="{ height: itemHeight + 'px' }">
           <vxe-table
+            :cell-config="{ height: 32 }"
             :data="project"
             stripe
             :column-config="{
               resizable: true
             }"
-            :row-config="{ height: 32 }"
+            :row-config="{}"
             show-header-overflow
             show-overflow
             border
@@ -58,9 +59,9 @@ import { getDdPageByXmId } from '@/api/xmInfo/dispatchIntegrationList'
 defineOptions({ name: "AssetDdqdDetails" })
 
 interface Props {
-  selectData: any
-  globalParams: any
-  opType: string
+  selectData?: any
+  globalParams?: any
+  opType?: string
   pageType: string
 }
 

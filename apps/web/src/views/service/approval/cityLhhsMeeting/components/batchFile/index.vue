@@ -11,7 +11,6 @@
     :mask-closable="false"
     :loading="loading"
     @close="closeHandle"
-    :show-footer="true"
     transfer
   >
     <div class="modal-content">

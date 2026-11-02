@@ -214,7 +214,7 @@ import {
   ToolboxComponent,
   DataZoomComponent
 } from 'echarts/components'
-import VChart, { THEME_KEY } from 'vue-echarts'
+import VChart, { THEME_KEY } from '@/components/charts/VChart'
 import { ref, provide } from 'vue'
 import { setup } from 'xe-utils/ctor'
 const bar = ref({

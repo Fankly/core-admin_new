@@ -3,12 +3,13 @@
     <el-alert v-if="loadError" class="estate-alert" type="error" :closable="false" show-icon :title="loadError" />
 
     <vxe-grid
+      :cell-config="{ height: 32 }"
       class="estate-grid"
       :loading="loading"
       :data="tableData"
       :columns="tableColumns"
       :column-config="{ resizable: true }"
-      :row-config="{ height: 32 }"
+      :row-config="{}"
       empty-text="暂无自有房产信息"
       show-header-overflow
       show-overflow

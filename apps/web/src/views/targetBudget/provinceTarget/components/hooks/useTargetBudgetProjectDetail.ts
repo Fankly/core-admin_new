@@ -43,7 +43,8 @@ export const useTargetBudgetProjectDetail = () => {
     showOverflow: true,
     showHeaderOverflow: true,
     height: '100%',
-    rowConfig: { height: 32 },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columns: [
       { type: 'seq', title: '序号', width: 70, fixed: 'left' },
       { field: 'versionNo', title: '版本编号', width: 180, fixed: 'left' },

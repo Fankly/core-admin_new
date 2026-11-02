@@ -9,7 +9,7 @@
       show-zoom
       :title="title"
       :width="1200"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeHandle"
     >
       <el-form label-suffix=" : " ref="rmarkDataRef" label-width="160px" label-position="right" :model="rmarkData">

@@ -16,7 +16,8 @@
           </div>
         </div>
         <div class="standrand-table">
-          <vxe-table 
+          <vxe-table
+            :cell-config="tableMsg.cellConfig"
             :row-config="tableMsg.rowConfig"
             keep-source
             :loading="userMsg.loading"
@@ -82,7 +83,8 @@
           </div>
         </div>
         <div class="standrand-table">
-          <vxe-table 
+          <vxe-table
+            :cell-config="tableMsg.cellConfig"
             :row-config="tableMsg.rowConfig"
             keep-source
             show-overflow
@@ -256,9 +258,8 @@ const activeCellMethod = ({ row }: any) => {
   return row.edit
 }
 const tableMsg = reactive<TableMsg>({
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   nd: '',
   xsws: '',
   tableData: [],

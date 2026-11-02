@@ -10,7 +10,7 @@
     :title="'评审分工'"
     :width="800"
     :height="750"
-    :close-on-press-escape="false"
+    :esc-closable="false"
     @close="closeHandle"
     :loading="loading"
   >

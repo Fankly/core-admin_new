@@ -11,7 +11,8 @@
       </div>
     </div>
     <div class="standrand-table">
-      <vxe-table  :header-cell-style="headerCellStyle" :rowConfig="tableMsg.rowConfig" height="100%" ref="treeTableRef" :border="true" :column-config="{ resizable: true }" :data="tableMsg.tableData">
+      <vxe-table
+        :cell-config="{ ...tableMsg.cellConfig, ...props.cellConfig }"  :header-cell-style="headerCellStyle" :rowConfig="tableMsg.rowConfig" height="100%" ref="treeTableRef" :border="true" :column-config="{ resizable: true }" :data="tableMsg.tableData">
         <template :key="item.columnKey" v-for="item in tableMsg.columns">
           <vxe-column show-overflow :formatter="formatterData" header-align="center" align="center" v-if="item.columnKey === 'dwName'" win-width="180px" :field="item.columnKey" :title="item.columnValue"></vxe-column>
           <vxe-column show-overflow :formatter="formatterData" header-align="center" align="right" v-else win-width="180px" :field="item.columnKey" :title="item.columnValue"></vxe-column>
@@ -23,6 +24,7 @@
 
 
 <script setup lang="ts">
+import type { VxeTablePropTypes } from 'vxe-table'
 import { reactive, ref, toRef } from 'vue'
 import { KmDataMsg, TableMsg } from '../../interface'
 import { ElMessage } from 'element-plus'
@@ -33,10 +35,12 @@ defineOptions({
 })
 
 export interface ModalProps {
-  isShowModal: boolean
+  rowConfig?: VxeTablePropTypes.RowConfig
+  cellConfig?: VxeTablePropTypes.CellConfig
+  isShowModal?: boolean
   kmId: number[]
-  nd: string
-  specialorgid: string
+  nd?: string
+  specialorgid?: string
   kmlx: string
   flag: string
   tableApi: (params: any) => Promise<any>
@@ -90,9 +94,8 @@ const getTableDataHandle = (val: any[]) => {
 }
 const tableMsg = reactive<TableMsg>({
   xsws: '',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   tableData: [],
   nd: '',
   columns: []

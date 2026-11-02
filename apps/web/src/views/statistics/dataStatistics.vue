@@ -9,7 +9,7 @@
           <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
             <span class="el-dropdown-link">
               <el-icon class="ep-icon-s-operation">
-                <arrow-down />
+                <EpArrowDown />
               </el-icon>
             </span>
             <template #dropdown>
@@ -70,7 +70,7 @@
       </el-table>
     </div>
   </div>
-  <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+  <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
 </template>
 
 <script setup>
@@ -83,7 +83,7 @@ import { ElMessage } from 'element-plus'
 defineOptions({
   name: '/statistics/dataStatistics'
 })
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const setupState = reactive({
   EpArrowDown: markElementIconRaw(EpArrowDown),

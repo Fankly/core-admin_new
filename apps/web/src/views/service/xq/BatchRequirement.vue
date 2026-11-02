@@ -78,16 +78,14 @@
             <div class="title">②：校验结果</div>
             <div class="main">
               <vxe-table
+                :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
                 :span-method="spanMethod"
-                resizable
                 show-overflow
                 header-align="center"
                 align="center"
                 border
                 stripe
-                :row-config="{
-                  height: 32
-                }"
+                :row-config="{}"
                 height="100%"
                 :data="excelData"
               >
@@ -113,16 +111,14 @@
             <div class="title">②：文件内容</div>
             <div class="main">
               <vxe-table
+                :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
                 :data="attachData"
                 header-align="center"
                 align="center"
-                resizable
                 border
                 stripe
                 show-overflow
-                :row-config="{
-                  height: 32
-                }"
+                :row-config="{}"
                 height="100%"
               >
                 <vxe-column title="序号" type="seq"></vxe-column>

@@ -7,7 +7,7 @@
           ref="treeRef"
           :check-strictly="false"
           :default-checked-keys="checkedKeys"
-          :default-expanded-keys="[treeDataList[0].id]"
+          :default-expanded-keys="treeDataList.length ? [treeDataList[0].id] : []"
           node-key="id"
           show-checkbox
           :props="defaultProps"
@@ -20,7 +20,7 @@
           ref="treeRef"
           :check-strictly="false"
           :default-checked-keys="checkedKeys"
-          :default-expanded-keys="[treeDataList[0].id]"
+          :default-expanded-keys="treeDataList.length ? [treeDataList[0].id] : []"
           node-key="id"
           show-checkbox
           :props="defaultProps"

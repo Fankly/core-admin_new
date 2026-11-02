@@ -23,7 +23,8 @@
         </div>
       </div>
       <div class="tbhb_table_main">
-        <vxe-grid ref="gridRef" class="range-vxe-table" v-bind="gridOptions" @cell-click="handleCellClick" />
+        <vxe-grid
+      ref="gridRef" class="range-vxe-table" v-bind="gridOptions" @cell-click="handleCellClick" />
       </div>
     </div>
     <FxbgModal ref="fxbgModalRef" />
@@ -115,9 +116,8 @@ const gridOptions = reactive<VxeGridProps<TbhbRowVo>>({
   showOverflow: true,
   showHeaderOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 36
-  },
+  cellConfig: { height: 36 },
+  rowConfig: {},
   size: 'mini',
   columns: [],
   data: [],

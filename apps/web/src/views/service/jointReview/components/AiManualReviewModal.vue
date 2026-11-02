@@ -7,7 +7,7 @@
     :height="280"
     resize
     show-zoom
-    :close-on-press-escape="false"
+    :esc-closable="false"
     :loading="loading"
     class-name="ai-manual-review-modal"
     @close="handleClose"

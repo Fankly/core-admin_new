@@ -254,10 +254,10 @@ const showHistory = async (list: any) => {
 // 行样式
 const rowStyle = ({ row }: any) => {
   if (row.bhcs >= 3) {
-    return 'color:red;'
+    return { color: 'red' }
   }
   if (row.bhcs > 0 && row.bhcs < 3) {
-    return 'color:#E6A23C;'
+    return { color: '#E6A23C' }
   }
   if (row.sfth == '1') {
     return {
@@ -588,6 +588,10 @@ onMounted(async () => {
 // 获取公共代码
 const initParamLists = async () => {
   isShowPage.value = false
+  if (typeof route.query.meetingParams !== 'string' || !route.query.meetingParams) {
+    ElMessage.warning('缺少页面参数，请从项目列表重新进入')
+    return
+  }
   userInfo.value = JSON.parse(decrypt(route.query.meetingParams as string))
   userInfo.value.expertName = decodeURIComponent(userInfo.value.expertName as string)
   pageDataList.value.length = 0

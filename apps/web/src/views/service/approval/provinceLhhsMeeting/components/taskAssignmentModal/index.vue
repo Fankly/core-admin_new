@@ -434,10 +434,10 @@ const assignRightGridOptions = reactive<VxeGridProps<any>>({
     highlight: true,
     range: true
   },
+  cellConfig: { height: 32 },
   rowConfig: {
     isCurrent: true,
-    isHover: true,
-    height: 32
+    isHover: true
   },
   columns: columnsMap['1'],
   data: []

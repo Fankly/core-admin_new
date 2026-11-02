@@ -1,6 +1,6 @@
 <!-- 两库一平台总览 -->
 <template>
-  <div class="containerAll" v-show="isShowPage">
+  <div class="containerAll" v-if="isShowPage">
     <div class="page_other">
       <div>
         <span style="color: #000; font-weight: bold">计划实施年度：</span>

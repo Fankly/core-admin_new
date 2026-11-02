@@ -39,7 +39,8 @@
       </div>
 
       <div class="offline-review-opinion-modal__table">
-        <vxe-grid ref="gridRef" v-bind="gridOptions" :data="tableData" :loading="loading">
+        <vxe-grid
+          ref="gridRef" v-bind="gridOptions" :data="tableData" :loading="loading">
           <template #sdjeInput="{ row }">
             <el-input-number v-model="row.sdje" size="small" :controls="false" :precision="6" style="width: 100%" />
           </template>
@@ -270,7 +271,8 @@ const gridOptions = reactive<VxeGridProps<OfflineReviewOpinionRow>>({
   height: '100%',
   showOverflow: true,
   showHeaderOverflow: true,
-  rowConfig: { keyField: 'id', isHover: true, height: 32 },
+  cellConfig: { height: 32 },
+  rowConfig: { keyField: 'id', isHover: true },
   columnConfig: { resizable: true },
   columns: [
     { type: 'seq', width: 60, title: '序号', fixed: 'left', ...centerConfig },

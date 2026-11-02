@@ -62,10 +62,10 @@ defineOptions({
 })
 
 interface Props {
-  isShowDialog: boolean
-  isShowLog: boolean
-  meetingId: string
-  searchApi: (params: any) => Promise<Result>
+  isShowDialog?: boolean
+  isShowLog?: boolean
+  meetingId?: string
+  searchApi?: (params: any) => Promise<Result>
 }
 const props = withDefaults(defineProps<Props>(), {
   isShowDialog: false,

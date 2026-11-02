@@ -69,7 +69,10 @@ export interface ColumnProps<T extends object = TableRow> extends Omit<TableColu
   render?: (scope: RenderScope<T>) => VNode | string
   _children?: ColumnProps<T>[]
 }
-export interface TablePageData<T = TableRow> extends TablePageable {
+export interface TablePageData<T = TableRow> {
+  current: number | string
+  size: number | string
+  total: number | string
   records: T[]
 }
 export type TableResponseData<T = TableRow> = TablePageData<T> | T[]

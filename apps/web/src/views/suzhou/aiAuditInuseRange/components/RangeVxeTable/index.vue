@@ -29,7 +29,8 @@
 
     <div class="table-main">
       <div class="table-grid-wrap">
-        <vxe-grid ref="gridRef" v-bind="gridOptions" v-on="gridEvents">
+        <vxe-grid
+          ref="gridRef" v-bind="gridOptions" v-on="gridEvents">
           <template v-for="name in forwardSlotNames" #[name]="scope" :key="name">
             <slot :name="name" v-bind="normalizeSlotScope(scope)" />
           </template>
@@ -172,10 +173,10 @@ const gridOptions = reactive<VxeGridProps>({
   columnConfig: {
     resizable: true
   },
+  cellConfig: { height: 44 },
   rowConfig: {
     keyField: props.rowKey,
-    isHover: true,
-    height: 44
+    isHover: true
   },
   checkboxConfig: {
     reserve: props.reserveSelection,

@@ -160,7 +160,7 @@
       @size-change="limitChangeHandle"
       @current-change="pageChangeHandle"
     ></el-pagination>
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   </div>
 </template>
 
@@ -201,7 +201,7 @@ const gkbmRef = useTemplateRef('gkbm')
 const jfhtbhzxRef = useTemplateRef('jfhtbhzx')
 const typeRef = useTemplateRef('type')
 const zxxybmRef = useTemplateRef('zxxybm')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const helpHandle = () => {
   const url = store.getters.getMenuMsg.url
@@ -363,7 +363,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   userCode: '',
   userId: '',
@@ -420,7 +420,8 @@ function remarksbtn(val) {
   loadData()
 }
 function columnDrop() {
-  const wrapperTr = document.getElementById('crTable').querySelector('.el-table__header-wrapper tr')
+  const wrapperTr = document.getElementById('crTable')?.querySelector('.el-table__header-wrapper tr')
+  if (!wrapperTr) return
   componentData.sortable = Sortable.create(wrapperTr, {
     animation: 180,
     delay: 0,
@@ -649,7 +650,7 @@ function reset() {
   setupState.page.total = 0
   setupState.page.limit = 10
   setupState.page.page = 1
-  setupState.page.current = '1'
+  setupState.page.current = 1
   loadData()
 }
 //搜索展示与隐藏
@@ -666,11 +667,11 @@ function loadCompany() {
 }
 onMounted(() => {
   setupState.tableKey = 0
-  setupState.topHeight = document.querySelector('.topBox').clientHeight
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setupState.topHeight = (document.querySelector('.topBox')?.clientHeight ?? 0)
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  setupState.searchHeight = (document.querySelector('.search')?.clientHeight ?? 0)
   setTableHeight()
-  if (JSON.stringify(route.query) != '{}') {
+  if (typeof route.query.specialorgid === 'string' && route.query.specialorgid) {
     // this.$refs.jfhtbhzx.ids = this.$route.query.zhtbh;
     // this.$refs.jfhtbhzx.text = this.$route.query.zhtbh;
     // this.$refs.jfhtbhzx.array.push(this.$route.query.zhtbh);

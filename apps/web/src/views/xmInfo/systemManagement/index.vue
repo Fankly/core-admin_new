@@ -26,7 +26,8 @@
       </div>
     </div>
     <div class="table">
-      <vxe-grid ref="tableRef" v-bind="gridOptions" v-on="gridEvent" />
+      <vxe-grid
+    ref="tableRef" v-bind="gridOptions" v-on="gridEvent" />
     </div>
   </div>
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle" />
@@ -119,9 +120,8 @@ const gridOptions = reactive<VxeGridProps<IObject>>({
   showOverflow: true,
   showHeaderOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   cellStyle,
   treeConfig: {
     rowField: 'id',

@@ -159,7 +159,7 @@ defineOptions({
 })
 
 interface Prop {
-  flag: 'DECLARATION' | 'VERIFICATION'
+  flag?: 'DECLARATION' | 'VERIFICATION'
 }
 const props = withDefaults(defineProps<Prop>(), {
   flag: 'DECLARATION'

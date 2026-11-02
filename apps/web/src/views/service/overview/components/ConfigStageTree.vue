@@ -1,6 +1,7 @@
 <template>
   <div class="stage-tree">
     <vxe-table
+      :cell-config="{ height: 32 }"
       ref="treeRef"
       height="100%"
       border="outer"
@@ -9,7 +10,7 @@
       :loading="loading"
       :data="treeData"
       :tree-config="{}"
-      :row-config="{ keyField: 'id', height: 32, isCurrent: true, isHover: true }"
+      :row-config="{ keyField: 'id', isCurrent: true, isHover: true }"
       :row-style="{ cursor: 'pointer' }"
       @current-change="handleCurrentChange"
     >

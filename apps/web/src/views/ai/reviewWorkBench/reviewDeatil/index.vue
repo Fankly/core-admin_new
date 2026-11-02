@@ -483,6 +483,10 @@ const submitReview = async () => {
 }
 
 onMounted(async () => {
+  if (typeof route.query.params !== 'string' || !route.query.params) {
+    ElMessage.warning('缺少页面参数，请从项目列表重新进入')
+    return
+  }
   userInfo.value = JSON.parse(decrypt(route.query.params as string))
   userInfo.value.expertName = decodeURIComponent(userInfo.value.expertName as string)
   const aiAuditParams = await initAiAuditParams()

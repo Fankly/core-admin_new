@@ -1,7 +1,8 @@
 <template>
   <el-drawer v-model="drawer" title="字段显示设置">
     <div class="container">
-      <vxe-grid v-bind="gridOptions">
+      <vxe-grid
+        v-bind="gridOptions">
         <template #bottom>
           <div class="operation">
             <el-button type="primary" plain @click="handleSave">保 存</el-button>
@@ -59,9 +60,8 @@ const gridOptions = reactive<VxeGridProps<RowVO>>({
   showHeaderOverflow: true,
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },

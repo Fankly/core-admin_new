@@ -10,7 +10,7 @@
       :title="`版本比对`"
       :width="850"
       :height="850"
-      :close-on-press-escape="true"
+      :esc-closable="true"
       @close="closeHandle"
     >
       <div class="modal_content" ref="fromTableRef">
@@ -30,7 +30,8 @@
           </div>
         </div>
         <div class="table">
-          <vxe-grid ref="tableMatchRef" v-bind="tableInfo" />
+          <vxe-grid
+        ref="tableMatchRef" v-bind="tableInfo" />
         </div>
       </div>
     </vxe-modal>
@@ -102,8 +103,8 @@ const tableInfo = reactive<any>({
   align: 'right',
   showOverflow: true,
   height: '92%',
+  cellConfig: { height: 32 },
   rowConfig: {
-    height: 32,
     keyField: 'id'
   },
   border: true,

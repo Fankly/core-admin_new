@@ -38,7 +38,8 @@
         </el-form>
       </div>
       <div class="table">
-        <vxe-grid ref="gridRef" @cell-click="handleCellClick" height="100%" v-bind="gridOptions" />
+        <vxe-grid
+      ref="gridRef" @cell-click="handleCellClick" height="100%" v-bind="gridOptions" />
       </div>
     </div>
   </vxe-modal>
@@ -153,9 +154,8 @@ const gridOptions = reactive<any>({
       }
     }
   },
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [
     { field: 'name', title: '预算事项', width: 180 },
     { field: 'sbje', title: '初始申报金额(万元)', width: 180, formatter: formatAmount, headerAlign: 'center', align: 'right' },

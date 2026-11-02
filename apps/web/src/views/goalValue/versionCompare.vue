@@ -17,7 +17,8 @@
       <el-tabs v-model="isZgs" @tab-click="handleTab">
         <el-tab-pane :key="item.code" :disabled="disabled" v-for="item in tabList" :label="item.name" :name="item.code" />
       </el-tabs>
-      <vxe-grid ref="tableRef" v-bind="gridOptions"> </vxe-grid>
+      <vxe-grid
+    ref="tableRef" v-bind="gridOptions"> </vxe-grid>
     </div>
   </div>
 </template>
@@ -119,8 +120,8 @@ const gridOptions = reactive<any>({
   align: 'right',
   showOverflow: true,
   height: '92%',
+  cellConfig: { height: 32 },
   rowConfig: {
-    height: 32,
     keyField: 'id'
   },
   columns: [],
@@ -270,6 +271,11 @@ const initParamLists = async () => {
   }
 }
 const initData = () => {
+  if (typeof route.query.versionParams !== 'string' || !route.query.versionParams) {
+    gridOptions.loading = false
+    ElMessage.warning('缺少版本参数，请从版本列表重新进入')
+    return
+  }
   getYearDataList()
   getRoleHandle()
   initParamLists()
@@ -277,7 +283,7 @@ const initData = () => {
 watch(
   () => route.query,
   () => {
-    if (route.name === '/goalValue/versionCompare' && route.query) {
+    if (route.name === '/goalValue/versionCompare' && typeof route.query.versionParams === 'string' && route.query.versionParams) {
       const params = JSON.parse(decrypt(route.query.versionParams as string))
       formData.nd = params.nd as string
       userInfo.specialOrgId = params.specialOrgId as string

@@ -115,7 +115,8 @@ function setWidth(prop) {
   return 180
 }
 function columnDrop() {
-  const wrapperTr = document.getElementById('crTable').querySelector('.el-table__header-wrapper tr')
+  const wrapperTr = document.getElementById('crTable')?.querySelector('.el-table__header-wrapper tr')
+  if (!wrapperTr) return
   componentData.sortable = Sortable.create(wrapperTr, {
     animation: 180,
     delay: 0,
@@ -158,8 +159,8 @@ function loadData() {
 }
 onMounted(() => {
   setupState.tableKey = 0
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  componentData.topHeight = document.querySelector('.title').clientHeight
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  componentData.topHeight = (document.querySelector('.title')?.clientHeight ?? 0)
   setTableHeight()
 })
 ;(() => {

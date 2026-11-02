@@ -173,7 +173,8 @@
               </el-form>
             </div>
             <!-- vxe-grid：toolbarConfig { custom: true } -->
-            <vxe-grid ref="gridRef" v-bind="gridOptions" v-on="gridEvents" class="range-pro-table">
+            <vxe-grid
+              ref="gridRef" v-bind="gridOptions" v-on="gridEvents" class="range-pro-table">
               <template #checkbox="{ row }">
                 <template v-if="row._isGroupHeader">
                   <div class="group-header-content">
@@ -666,7 +667,8 @@ const gridOptions = reactive<VxeGridProps>({
   // showHeaderOverflow: true,
   headerAlign: 'center',
   align: 'center',
-  rowConfig: { height: 32 },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   toolbarConfig: { custom: true, slots: { buttons: 'toolbar_actions' } },
   spanMethod: groupSpanMethod,
   rowClassName,

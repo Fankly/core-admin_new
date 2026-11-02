@@ -34,16 +34,16 @@
       <div class="table-wrap">
         <div class="table-wrap__main">
           <vxe-table
+            :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
             ref="processTableRef"
             height="100%"
             border
-            resizable
             show-overflow
             show-header-overflow
             align="center"
             header-align="center"
             :data="tableData"
-            :row-config="{ keyField: 'expertId', isHover: true, height: 32 }"
+            :row-config="{ keyField: 'expertId', isHover: true }"
           >
             <vxe-column field="expertName" title="专家姓名" min-width="120" />
             <vxe-column field="expertAccount" title="专家账号" min-width="140" />
@@ -152,16 +152,16 @@
       <div class="table-wrap">
         <div class="table-wrap__main">
           <vxe-table
+            :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
             ref="throughTableRef"
             height="100%"
             border
-            resizable
             show-overflow
             show-header-overflow
             align="center"
             header-align="center"
             :data="throughTableData"
-            :row-config="{ keyField: 'xmbm', isHover: true, height: 32 }"
+            :row-config="{ keyField: 'xmbm', isHover: true }"
           >
             <vxe-column field="xmmc" title="项目名称" min-width="200" />
             <vxe-column field="yssxmc" title="预算事项名称" min-width="160" />

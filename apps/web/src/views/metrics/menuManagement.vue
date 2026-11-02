@@ -9,7 +9,7 @@
         </div>
       </div>
       <div class="conbtn_right">
-        <el-tabs type="border-card" v-model="tabNum" v-show="isShowPage">
+        <el-tabs type="border-card" v-model="tabNum" v-if="isShowPage">
           <el-tab-pane label="帮助配置" name="1" >
             <div style="margin-bottom: 10px">
               <el-button :disabled="isPublish" size="small" type="primary" plain @click="handlerBtn('save')">保 存</el-button>
@@ -108,7 +108,7 @@ onMounted(async () => {
 // 列颜色
 const columnStyle = ({ row, column, rowIndex, columnIndex }: any) => {
   if (column.label == '附件名称') {
-    return 'color:#00706b;cursor: pointer;'
+    return { color: '#00706b', cursor: 'pointer' }
   }
 }
 // 下载附件
@@ -381,6 +381,8 @@ const menuData = async (id: any) => {
       configId: res.data?.configId
     }
     pageData.value = res.data?.configDetailList ? res.data?.configDetailList : []
+    isShowPage.value = true
+    await nextTick()
     basicEditorRef.value.valueHtml = res.data?.helpInfo
     if (res.data?.status == '1') {
       basicEditorRef.value?.editorRef.disable()

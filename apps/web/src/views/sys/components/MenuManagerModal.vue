@@ -100,16 +100,13 @@ defineExpose({
         <el-button type="primary" size="small" @click="addOrEditHandle('ADD')">新 增</el-button>
       </div>
       <div class="table">
-        <vxe-table 
-          :row-config="{
-            height: 32
-          }"
+        <vxe-table
+          :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
+          :row-config="{ keyField: 'appId' }"
           show-overflow
           ref="tableRef"
-          row-id="appId"
           :data="tableData"
           stripe
-          resizable
           align="center"
           header-align="center"
           border

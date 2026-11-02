@@ -299,7 +299,8 @@
                 </span>
               </div>
               <div class="review-card__content audit-review-table">
-                <vxe-grid v-bind="getReviewGridOptions(table)" class="audit-review-table__table" />
+                <vxe-grid
+              v-bind="getReviewGridOptions(table)" class="audit-review-table__table" />
               </div>
             </div>
           </template>

@@ -37,7 +37,7 @@ const tableInfo = reactive<any>({
   columns: [
     { field: 'ztName', width: 200, title: '状态' },
     { field: 'requestor', width: 200, title: '填报单位' },
-    { field: 'requestor', width: 200, title: '承租方' },
+    { width: 200, title: '承租方', formatter: ({ row }: { row: { requestor?: string } }) => row.requestor },
     { field: 'zlxz', width: 200, title: '租赁性质1' },
     { field: 'zlxz2', width: 200, title: '租赁性质2' },
     { field: 'xmmc', width: 200, title: '租赁需求名称' },
@@ -305,7 +305,8 @@ const disabled = computed(() => loading.value)
     </div>
     <div class="table">
       <vxe-table
-        :row-config="{ isCurrent: true, height: 32 }"
+        :cell-config="{ height: 32 }"
+        :row-config="{ isCurrent: true }"
         @current-change="cellClickHandle"
         show-overflow
         :loading="loading"
@@ -317,8 +318,8 @@ const disabled = computed(() => loading.value)
         :data="tableInfo.tableData"
       >
         <vxe-column header-align="center" align="center" width="80" type="seq"> </vxe-column>
-        <template v-for="item in tableInfo.columns" :key="item.code">
-          <vxe-column header-align="center" align="center" width="200" :field="item.field" :title="item.title"> </vxe-column>
+        <template v-for="item in tableInfo.columns" :key="item.title">
+          <vxe-column header-align="center" align="center" width="200" :field="item.field" :title="item.title" :formatter="item.formatter"> </vxe-column>
         </template>
       </vxe-table>
     </div>

@@ -1,6 +1,6 @@
 <template>
   <div class="container-main">
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
     <template v-if="isShowPage">
       <div v-loading="loading" class="process" element-loading-text="正在从服务器获取数据.....">
         <div class="topBox">
@@ -37,7 +37,7 @@
               >
                 <span class="el-dropdown-link">
                   <el-icon class="ep-icon-s-operation">
-                    <arrow-down />
+                    <EpArrowDown />
                   </el-icon>
                 </span>
                 <template #dropdown>
@@ -300,7 +300,7 @@ defineOptions({
 })
 const helpModalRefRef = useTemplateRef('helpModalRef')
 const multipleTableRef = useTemplateRef('multipleTable')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const contentTablesRef = useTemplateRef('contentTables')
 const store = useStore()
 const dialogFormRef = ref('')
@@ -328,7 +328,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   dialogTableData: [],
   dialogTableColumns: [],

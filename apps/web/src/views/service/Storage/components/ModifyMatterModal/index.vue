@@ -103,14 +103,14 @@
       </div>
       <div class="matter-modal__table">
         <vxe-table
-          resizable
+          :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
           ref="tableRef"
           border
           stripe
           show-overflow
           align="center"
           header-align="center"
-          :row-config="{ height: 32, keyField: 'id' }"
+          :row-config="{ keyField: 'id' }"
           :radio-config="{ highlight: true, trigger: 'row' }"
           :data="tableDataList"
           height="100%"

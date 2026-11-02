@@ -37,7 +37,7 @@
       :destroy-on-close="true"
       :title="modalParams.title"
       :width="800"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeHandle"
     >
       <el-form

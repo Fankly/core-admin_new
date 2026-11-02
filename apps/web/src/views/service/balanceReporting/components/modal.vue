@@ -7,7 +7,7 @@
       :destroy-on-close="true"
       :title="props.title"
       :width="700"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeHandle"
     >
       <el-form
@@ -53,7 +53,7 @@ const props = defineProps({
     default: '版本创建'
   },
   nd: {
-    type: Number,
+    type: [String, Number],
     default: 0
   }
 })

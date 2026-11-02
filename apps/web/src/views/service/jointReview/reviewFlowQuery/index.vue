@@ -113,9 +113,8 @@ const gridOptions = reactive<VxeGridProps<any>>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   data: [],
   rowStyle: ({ row }: any) => {
@@ -867,7 +866,8 @@ onMounted(async () => {
       </el-form>
     </div>
     <div class="table review-flow-query__table" :class="{ 'is-empty': !hasTableData }">
-      <vxe-grid ref="gridRef" height="100%" v-bind="gridOptions" @cell-click="cellClickHandle">
+      <vxe-grid
+        ref="gridRef" height="100%" v-bind="gridOptions" @cell-click="cellClickHandle">
         <template #empty>
           <div class="review-flow-query__empty">
             <div class="review-flow-query__empty-title">暂无数据</div>

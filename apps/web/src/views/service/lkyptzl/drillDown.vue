@@ -86,6 +86,10 @@ onMounted(() => {
 })
 // 年度列表
 const publicCode = async () => {
+  if (typeof route.query.drillDownParams !== 'string' || !route.query.drillDownParams) {
+    ElMessage.warning('缺少查询条件，请从驾驶舱重新进入')
+    return
+  }
   userInfo.value = JSON.parse(decrypt(route.query.drillDownParams as string))
   let year = new Date().getFullYear()
   if (year < 2026) {

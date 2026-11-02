@@ -1,5 +1,5 @@
 <template>
-  <vxe-modal @close="closeHandle" width="570" height="510" :destroy-on-close="true" :show-footer="false" show-zoom resize position="center" title="数据配置" v-model="isShowModal">
+  <vxe-modal @close="closeHandle" width="570" height="510" :destroy-on-close="true"  :show-footer="false" show-zoom resize position="center" title="数据配置" v-model="isShowModal">
     <div class="form-group">
       <label class="form-label">表名：</label>
       <input v-model="formData.tabName" type="text" class="form-input" placeholder="请输入表名" />

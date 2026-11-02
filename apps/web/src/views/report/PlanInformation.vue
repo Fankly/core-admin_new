@@ -58,7 +58,8 @@
       </el-form>
     </div>
     <div class="table">
-      <vxe-grid height="100%" v-bind="gridOptions"></vxe-grid>
+      <vxe-grid
+    height="100%" v-bind="gridOptions"></vxe-grid>
     </div>
 
     <el-pagination
@@ -128,9 +129,8 @@ const gridOptions = reactive<any>({
   headerAlign: 'center',
   showOverflow: true,
   showHeaderOverflow: true,
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [
     {
       field: 'gwxmbm',

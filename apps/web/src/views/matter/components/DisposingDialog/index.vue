@@ -1,6 +1,6 @@
 <template>
-  <el-dialog v-loading="loading" top="10px" @open="handleOpenPage" :close-on-press-escape="false" :close-on-click-modal="false" :destroy-on-close="true" :show-close="true" v-model="isShowPage" :title="pageTitle" @close="handleClosePage">
-    <el-table ref="tableRef" :load="tableLoad" height="760px" :tree-props="{ children: 'children', hasChildren: 'leaf' }" lazy border stripe row-key="id" :data="tableData">
+  <el-dialog  top="10px" @open="handleOpenPage" :close-on-press-escape="false" :close-on-click-modal="false" :destroy-on-close="true" :show-close="true" v-model="isShowPage" :title="pageTitle" @close="handleClosePage">
+    <el-table v-loading="loading" ref="tableRef" :load="tableLoad" height="760px" :tree-props="{ children: 'children', hasChildren: 'leaf' }" lazy border stripe row-key="id" :data="tableData">
       <el-table-column width="300" show-overflow-tooltip header-align="center" label="单位名称" prop="dwName"></el-table-column>
       <el-table-column header-align="center" align="right" label="事项预算金额（万元）" prop="fjYs">
         <template #default="{ row }">

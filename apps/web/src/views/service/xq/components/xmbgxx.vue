@@ -246,10 +246,10 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 defineOptions({ name: "xmbgxx" })
 
 interface Props {
-  selectData: any
-  globalParams: any
+  selectData?: any
+  globalParams?: any
   initialData?: Record<string, any>
-  opType: string
+  opType?: string
   projectChangeEditable?: boolean
   pageType?: string
   projectChangeMode?: string

@@ -15,7 +15,7 @@
           style="font-size: 20px; color: #333333; cursor: pointer"
           @click="onRowHeightToogle"
         /> -->
-        <vxe-toolbar ref="toolbarRef" custom :refresh="{ query: refresh }"></vxe-toolbar>
+        <vxe-toolbar ref="toolbarRef" custom refresh :refresh-options="{ queryMethod: refresh }"></vxe-toolbar>
       </div>
     </el-row>
     <div class="vxe-table-box" :style="{ borderRadius: type == 'card' ? '16px' : '0' }">

@@ -4,7 +4,7 @@
     <div class="search-box" v-if="hasSearch" :style="{ 'min-width': minMenuWidth + 'px' }">
       <el-button class="search-btn flat--button" type="primary" :size="defaultFormItemSize" @click="search">查询</el-button>
       <!-- icon="el-icon-search" -->
-      <el-button v-if="hasReset" type="default flat--button" :plain="true" :size="defaultFormItemSize" @click="reset">重置</el-button>
+      <el-button v-if="hasReset" type="default" class="flat--button" :plain="true" :size="defaultFormItemSize" @click="reset">重置</el-button>
       <!-- style="width: 72px" -->
       <div style="float: right">
         <slot name="operation" />

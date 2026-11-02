@@ -50,7 +50,7 @@
             <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
               <span class="el-dropdown-link">
                 <el-icon class="ep-icon-s-operation">
-                  <arrow-down />
+                  <EpArrowDown />
                 </el-icon>
               </span>
               <template #dropdown>
@@ -136,7 +136,7 @@
             <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
               <span class="el-dropdown-link">
                 <el-icon class="ep-icon-s-operation">
-                  <arrow-down />
+                  <EpArrowDown />
                 </el-icon>
               </span>
               <template #dropdown>
@@ -262,7 +262,7 @@
       </div>
     </div>
   </el-dialog>
-  <!-- <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog> -->
+  <!-- <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog> -->
 </template>
 
 <script setup>
@@ -280,7 +280,7 @@ defineOptions({
 })
 const treeRef = useTemplateRef('tree')
 const tree2Ref = useTemplateRef('tree2')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const helpHandle = () => {
   const url = store.getters.getMenuMsg.url
@@ -345,7 +345,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   attributeDia: false,
   display: true,
@@ -1090,9 +1090,9 @@ watch(
   }
 )
 onMounted(() => {
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  setupState.topHeight = document.querySelector('.operation').clientHeight
-  setupState.searchHeight = document.querySelector('.searchBox').clientHeight
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  setupState.topHeight = (document.querySelector('.operation')?.clientHeight ?? 0)
+  setupState.searchHeight = (document.querySelector('.searchBox')?.clientHeight ?? 0)
   setTableHeight()
 })
 ;(() => {

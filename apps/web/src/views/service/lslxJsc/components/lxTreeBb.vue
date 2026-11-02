@@ -7,7 +7,7 @@
       :title="title"
       :width="500"
       resize
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeModalHandle"
     >
       <div style="display: flex; justify-content: space-between">

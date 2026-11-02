@@ -22,10 +22,10 @@
       </div>
       <div class="table">
         <vxe-table
+          :cell-config="tableInfo.cellConfig"
           :header-cell-style="headerCellStyle"
-          :row-config="tableInfo.rowConfig"
+          :row-config="{ isCurrent: true, ...(tableInfo.rowConfig) }"
           :cell-style="cellStyle"
-          highlight-current-row
           @current-change="currentChangeHandle"
           ref="tableRef"
           :show-overflow="true"
@@ -173,9 +173,8 @@ const activeCellMethod = ({ row }: any) => {
   return row.id && !row.leaf
 }
 const tableInfo: TableInfo = reactive({
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   tableData: [],
   loading: false,

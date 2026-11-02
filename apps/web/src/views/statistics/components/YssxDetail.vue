@@ -5,7 +5,8 @@
         <el-button plain size="small" type="primary" @click="exportHandle">导 出</el-button>
       </div>
       <div class="table">
-        <vxe-table  @cell-click="handleRowDblclick" :highlight-current-row="true" :row-style="rowStyle" :row-config="{ height: 36 }" resizable align="center" border stripe :show-overflow="true" :data="tableData" height="100%">
+        <vxe-table
+          :cell-config="{ height: 36 }" :column-config="{ resizable: true }"  @cell-click="handleRowDblclick"  :row-style="rowStyle" :row-config="{ isCurrent: true }"  align="center" border stripe :show-overflow="true" :data="tableData" height="100%">
           <vxe-column width="60" type="seq" title="序号"></vxe-column>
           <vxe-column :formatter="item.formatter" :align="item.align" :width="item.width" v-for="item in columns" :key="item.field" :field="item.field" :title="item.title"></vxe-column>
         </vxe-table>
@@ -14,7 +15,7 @@
         <el-pagination :current-page="page.page" background :page-sizes="[10, 20, 50, 100, 500]" :page-size="page.limit" :total="parseInt(page.total + '')" layout="total, sizes, prev, pager, next, jumper" @size-change="limitChangeHandle" @current-change="pageChangeHandle"></el-pagination>
       </div>
     </div>
-    <TableDetail ref="tableDetailRef" :detailParams="detailTableParams"></TableDetail>
+    <TableDetail v-if="detailTableParams" ref="tableDetailRef" :detailParams="detailTableParams"></TableDetail>
   </vxe-modal>
 </template>
 
@@ -22,7 +23,7 @@
 import TableDetail from '@/views/statistics/components/TableDetail.vue'
 import { BmDetail, getBmDetail, exportData } from '@/api/statistics/yssxtjfx'
 import { formatNumValue } from '@/utils/utils'
-import { ref, reactive } from 'vue'
+import { nextTick, ref, reactive } from 'vue'
 import { VxeTableDefines } from 'vxe-table'
 import { DetailParams, RowVo } from '../interface'
 interface Props {
@@ -226,13 +227,14 @@ const exportHandle = () => {
     loading.value = false
   })
 }
-const handleRowDblclick = ({ row }: VxeTableDefines.CellDblclickParams<RowVo>) => {
+const handleRowDblclick = async ({ row }: VxeTableDefines.CellDblclickParams<RowVo>) => {
   let isCity = row.id !== row.yssxId
   detailTableParams.value = {
     ...row,
     isCity,
     ...props.detailParams
   }
+  await nextTick()
   tableDetailRef.value.isShowModal = true
 }
 const pageChangeHandle = (currentPageNum: number) => {

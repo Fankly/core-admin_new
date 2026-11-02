@@ -84,14 +84,14 @@
               </div>
               <div class="user-table">
                 <vxe-table
+                  :cell-config="{ height: 32 }"
                   show-header-overflow
                   show-overflow
-                  :row-config="{ keyField: 'id', height: 32 }"
+                  :row-config="{ isHover: true, ...({ keyField: 'id' }) }"
                   ref="xTable"
                   border
                   align="center"
                   header-align="center"
-                  highlight-hover-row
                   height="100%"
                   :data="userList"
                   :checkbox-config="{ checkRowKeys: checkedRowKeys, checkMethod: checkMethod }"

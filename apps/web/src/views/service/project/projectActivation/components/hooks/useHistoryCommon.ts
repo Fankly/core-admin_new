@@ -58,9 +58,8 @@ export const useHistoryCommon = () => {
     align: 'center',
     height: '100%',
     loading: false,
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columnConfig: {
       resizable: true
     },

@@ -1,11 +1,10 @@
 <template>
-  <el-dialog v-loading="loading" class="diaposing-bm-dialog" width="60%" top="10px" @open="handleOpenPage" :close-on-press-escape="false" :close-on-click-modal="false" :destroy-on-close="true" :show-close="true" v-model="isShowPage" :title="pageTitle" @close="handleClosePage">
-    <vxe-table 
+  <el-dialog  class="diaposing-bm-dialog" width="60%" top="10px" @open="handleOpenPage" :close-on-press-escape="false" :close-on-click-modal="false" :destroy-on-close="true" :show-close="true" v-model="isShowPage" :title="pageTitle" @close="handleClosePage">
+    <vxe-table v-loading="loading"
+      :column-config="{ resizable: true }" :row-config="{ keyField: 'dwId' }"
       ref="tableRef"
       :edit-config="{ trigger: 'click', mode: 'cell' }"
       @checkbox-change="selectChangeHandle"
-      resizable
-      row-id="dwId"
       :checkbox-config="{ showHeader: false, labelField: 'dwName', visibleMethod: isVisibleHandle, checkStrictly: false }"
       :tree-config="treeConfig"
       border

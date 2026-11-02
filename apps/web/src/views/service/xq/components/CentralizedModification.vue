@@ -94,11 +94,11 @@ const props = defineProps({
   },
   formData: {
     type: Object as any,
-    required: true
+    default: () => ({})
   },
   userInfo: {
     type: Object as any,
-    required: true
+    default: () => ({})
   },
   flag: {
     type: String,

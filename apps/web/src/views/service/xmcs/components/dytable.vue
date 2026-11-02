@@ -7,16 +7,16 @@
     </div>
     <div class="table">
       <vxe-table
+        :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
         ref="vxeTableRef"
         :cell-style="cellStyle"
         @cell-click="cellClick"
         border
         stripe
-        resizable
         show-overflow
         height="100%"
         :data="tableData"
-        :row-config="{ height: 32 }"
+        :row-config="{}"
       >
         <vxe-column align="center" type="checkbox" width="50" fixed="left" />
         <vxe-column align="center" type="seq" width="50" title="序号" fixed="left" />
@@ -543,9 +543,8 @@ const standardGridOptions = reactive<any>({
   showHeaderOverflow: true,
   height: '100%',
   size: 'mini',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },

@@ -9,9 +9,8 @@
     </div>
 
     <vxe-table
-      :row-config="{
-        height: 32
-      }"
+      :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
+      :row-config="{}"
       :show-overflow="true"
       :data="fileList"
       align="center"
@@ -20,7 +19,6 @@
       :max-height="fitContent ? tableHeight : undefined"
       stripe
       border
-      resizable
       class="file-table"
       v-show="fileList.length > 0"
     >
@@ -114,9 +112,8 @@
           </div>
 
           <vxe-table
-            :row-config="{
-              height: 32
-            }"
+            :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
+            :row-config="{}"
             :ref="(el:any) => setTableRef(group.fjId, el)"
             :show-overflow="true"
             :data="getGroupFileList(group.fjId)"
@@ -125,7 +122,6 @@
             max-height="220"
             stripe
             border
-            resizable
             class="file-table group-file-table"
             empty-text="暂无文件"
           >

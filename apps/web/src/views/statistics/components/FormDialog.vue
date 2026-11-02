@@ -774,12 +774,12 @@ defineExpose({
             </div>
             <div class="bottom-table">
               <vxe-table
+                :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
                 ref="typeTableRef"
                 show-overflow
-                :row-config="{ height: 32 }"
+                :row-config="{}"
                 :data="dataDetails"
                 v-show="formData.statMethod === '1'"
-                resizable
                 align="center"
                 border
                 class="table"
@@ -790,12 +790,12 @@ defineExpose({
                 <vxe-column :show-overflow="true" field="packTypeName" width="240" title="包类型"></vxe-column>
               </vxe-table>
               <vxe-table
+                :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
                 ref="treeTableRef"
                 show-overflow
-                :row-config="{ height: 32 }"
+                :row-config="{}"
                 :data="dataSum"
                 v-show="formData.statMethod === '2'"
-                resizable
                 align="center"
                 border
                 class="table"

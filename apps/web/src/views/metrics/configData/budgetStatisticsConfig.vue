@@ -44,7 +44,7 @@ const pageInfo = reactive({
 })
 const initParams = reactive<InitParams>({
   nd: '',
-  busiType: route.query.busiType
+  busiType: String(route.query.busiType ?? '')
 })
 const deleteDataHandle = async () => {
   const $table = mainTableRef.value.mainTableRef

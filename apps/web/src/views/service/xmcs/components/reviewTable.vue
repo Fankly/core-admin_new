@@ -10,7 +10,7 @@
       :title="`审批意见`"
       :width="1200"
       :height="500"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeSxModal"
     >
       <proTable

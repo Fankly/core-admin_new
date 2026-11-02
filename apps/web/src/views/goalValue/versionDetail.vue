@@ -28,9 +28,10 @@
         <el-tab-pane :key="item.code" v-for="item in tabList" :disabled="disabled" :label="item.name" :name="item.code" />
       </el-tabs>
       <vxe-table
+        :cell-config="{ height: 32 }"
         :cell-style="cellStyle"
         :cell-class-name="cellClassName"
-        :row-config="{ keyField: 'id', height: 32 }"
+        :row-config="{ keyField: 'id' }"
         :loading="pageInfo.loading"
         :column-config="{ resizable: true }"
         :border="true"
@@ -519,6 +520,11 @@ const initParamLists = async () => {
   }
 }
 const initData = () => {
+  if (typeof route.query.versionParams !== 'string' || !route.query.versionParams) {
+    pageInfo.loading = false
+    ElMessage.warning('缺少版本参数，请从版本列表重新进入')
+    return
+  }
   initParamLists()
   getYearDataList()
   getRoleHandle()
@@ -526,7 +532,7 @@ const initData = () => {
 watch(
   () => route.query,
   () => {
-    if (route.name === '/goalValue/versionDetail' && route.query) {
+    if (route.name === '/goalValue/versionDetail' && typeof route.query.versionParams === 'string' && route.query.versionParams) {
       const params = JSON.parse(decrypt(route.query.versionParams as string))
       if (params.status === 3) {
         tableInfo.editConfig.enabled = false

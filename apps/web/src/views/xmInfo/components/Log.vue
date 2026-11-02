@@ -63,8 +63,8 @@
     </el-form>
     <div class="table">
       <vxe-table
-        :rowConfig="{
-          height: 32,
+        :cell-config="{ height: 32 }"
+        :row-config="{
           keyField: 'id'
         }"
         :column-config="{ resizable: true }"
@@ -102,7 +102,7 @@ defineOptions({
 })
 
 interface Props {
-  title: string
+  title?: string
   nd: string
   specialorgid: string
 }

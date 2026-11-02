@@ -4,7 +4,7 @@
     v-model="isShowTable"
     class-name="smart-task-progress-modal"
     :destroy-on-close="true"
-    :close-on-press-escape="false"
+    :esc-closable="false"
     resize
     show-zoom
     fullscreen

@@ -54,11 +54,12 @@
             </div>
             <div class="bottom">
               <vxe-table
+                :cell-config="{ height: 32 }"
                 ref="yskmTableRef"
                 @current-change="handleCurrentChange"
                 :cell-style="cellStyle"
                 show-overflow
-                :row-config="{ height: 32, isCurrent: true }"
+                :row-config="{ isCurrent: true }"
                 :show-header="false"
                 border="outer"
                 :tree-config="{
@@ -101,9 +102,9 @@
             </div>
             <div class="table">
               <vxe-table
+                :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
                 border
                 :row-config="{
-                  height: 32,
                   keyField: 'id'
                 }"
                 :radio-config="{
@@ -115,7 +116,6 @@
                 show-header-overflow
                 align="center"
                 header-align="center"
-                resizable
                 height="100%"
                 :data="yssxDataList"
                 ref="yssxTableRef"

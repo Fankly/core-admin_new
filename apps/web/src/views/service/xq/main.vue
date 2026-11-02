@@ -9,7 +9,7 @@ import userDialog from '@/components/select/userDialog.vue'
 import baseService from '@/service/baseService'
 import { MenuConfig } from '@/views/service/xq/interface'
 import { computed, onMounted, reactive, ref } from 'vue'
-import VChart from 'vue-echarts'
+import VChart from '@/components/charts/VChart'
 import { useRouter } from 'vue-router'
 import { useStore } from '@/store/business'
 defineOptions({
@@ -159,9 +159,7 @@ const dwOBarOptions = reactive<any>({
       show: false
     },
     axisLabel: {
-      textStyle: {
-        fontFamily: 'Microsoft YaHei'
-      }
+      fontFamily: 'Microsoft YaHei'
     }
   },
   yAxis: {

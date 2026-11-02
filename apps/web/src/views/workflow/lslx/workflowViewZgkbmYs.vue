@@ -28,10 +28,11 @@
     </div>
     <div class="table">
       <vxe-table
+        :cell-config="{ height: 32 }"
         @cell-click="handleCellClick"
         :cell-style="tableInfo.cellStyle"
         :loading="tableInfo.loading"
-        :row-config="{ keyField: 'id', height: 32 }"
+        :row-config="{ keyField: 'id' }"
         :column-config="{ resizable: true }"
         :border="true"
         align="center"

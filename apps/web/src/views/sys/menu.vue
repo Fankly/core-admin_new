@@ -6,7 +6,7 @@
       </el-form-item>
     </el-form>
     <div class="menu-table-box">
-      <el-table height="100%" v-loading="dataListLoading" :data="dataList" row-key="id" border style="width: 100%">
+      <el-table ref="elTableRef" height="100%" v-loading="dataListLoading" :data="dataList" row-key="id" border style="width: 100%">
         <el-table-column prop="name" label="名称" header-align="center" min-width="150"></el-table-column>
         <el-table-column prop="icon" width="80" label="图标" header-align="center" align="center">
           <template v-slot="scope">
@@ -69,7 +69,7 @@
       </el-table>
     </div>
     <!-- 弹窗, 新增 / 修改 -->
-    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdate" @refreshDataList="getDataList"></add-or-update>
+    <add-or-update v-if="addOrUpdateVisible" ref="addOrUpdateRef" @refreshDataList="getDataList"></add-or-update>
   </div>
 </template>
 
@@ -123,8 +123,8 @@ const total = toRef(setupState, 'total')
 const dataListLoading = toRef(setupState, 'dataListLoading')
 const dataListSelections = toRef(setupState, 'dataListSelections')
 const addOrUpdateVisible = toRef(setupState, 'addOrUpdateVisible')
-const addOrUpdate = toRef(setupState, 'addOrUpdate')
-const elTable = toRef(setupState, 'elTable')
+const addOrUpdateRef = toRef(setupState, 'addOrUpdate')
+const elTableRef = toRef(setupState, 'elTable')
 defineExpose({
   query,
   dataListSelectionChangeHandle,
@@ -157,8 +157,8 @@ defineExpose({
   dataListLoading,
   dataListSelections,
   addOrUpdateVisible,
-  addOrUpdate,
-  elTable,
+  addOrUpdate: addOrUpdateRef,
+  elTable: elTableRef,
   formatHandle
 })
 </script>

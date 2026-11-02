@@ -119,17 +119,17 @@ defineExpose({
 <template>
   <div class="table-box" :class="{ 'table-box--row-select': props.clickRowSelect }">
     <vxe-table
+      :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
       :loading="mainLoading"
       ref="mainTableRef"
       :checkbox-config="props.clickRowSelect ? { trigger: 'row', highlight: true } : undefined"
       @cell-click="cellClickHandle"
       :show-overflow="true"
-      :row-config="{ height: 32, isCurrent: false }"
+      :row-config="{ isCurrent: false }"
       :data="props.mainTableData"
       align="center"
       height="100%"
       border
-      resizable
     >
       <vxe-column :width="props.showBoldField ? 48 : 80" type="checkbox"></vxe-column>
       <vxe-column :width="props.showBoldField ? 64 : 80" title="序号" field="dispOrder"></vxe-column>

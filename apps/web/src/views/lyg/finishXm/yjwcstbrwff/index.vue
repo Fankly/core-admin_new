@@ -124,7 +124,7 @@ const handleClickRow = (row: any) => {
 
 const tableCellStyle = ({ row, column }: any) => {
   if (column.label == '应填报项目数' || column.label == '任务名称') {
-    return 'color:#00706b;cursor: pointer;'
+    return { color: '#00706b', cursor: 'pointer' }
   }
 }
 const handleCellClick = (row: any, column: any) => {

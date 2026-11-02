@@ -4,7 +4,7 @@ import userDialog from '@/components/select/userDialog.vue'
 import { computed, onMounted, reactive, ref, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
-import VChart from 'vue-echarts'
+import VChart from '@/components/charts/VChart'
 import { getAppMenu } from '@/api/menu/menuConfig'
 import { MenuConfig } from '@/views/service/xq/interface'
 import baseService from '@/service/baseService'
@@ -277,10 +277,7 @@ const dwOBarOptions = reactive<any>({
       show: false
     },
     axisLabel: {
-      textStyle: {
-        fontFamily: 'Microsoft YaHei'
-        // padding: [20, 0, 0, 105]
-      },
+      fontFamily: 'Microsoft YaHei',
       interval: 0,
       clickable: true,
       rich: {
@@ -405,7 +402,7 @@ const handleClick = (val: any) => {
 </script>
 
 <template>
-  <div class="container" v-show="isShowPage">
+  <div class="container" v-if="isShowPage">
     <div class="page_other">
       <div>
         <span style="color: #000; font-weight: bold">年度：</span>

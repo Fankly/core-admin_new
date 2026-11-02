@@ -9,7 +9,7 @@
     title="重点投向选择"
     width="860"
     :height="700"
-    :close-on-press-escape="false"
+    :esc-closable="false"
   >
     <proTable
       @row-click="rowClick"

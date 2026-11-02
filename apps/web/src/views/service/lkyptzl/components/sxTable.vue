@@ -1,7 +1,7 @@
 <!-- 事项展示列表 -->
 <template>
   <div>
-    <vxe-modal ref="modalRef" resize show-zoom v-model="isShowTable" :destroy-on-close="true" :title="tableTitle" :width="1200" :height="700" :close-on-press-escape="false" @close="closeSxModal" :loading="loading">
+    <vxe-modal ref="modalRef" resize show-zoom v-model="isShowTable" :destroy-on-close="true" :title="tableTitle" :width="1200" :height="700" :esc-closable="false" @close="closeSxModal" :loading="loading">
       <proTable ref="proTableRef" :data-callback="pageList" :toolButton="['other']" :request-api="pageMeeting" :request-auto="false" :search-col="4" :columns="tableColumns" @row-click="handleClickRow">
         <template #tableHeader="scope">
           <el-button size="small" type="primary" :disabled="!scope.isSelected" plain @click="showProView(scope.selectedList)">查 看</el-button>
@@ -11,7 +11,7 @@
       </proTable>
     </vxe-modal>
   </div>
-  <vxe-modal ref="modalRef" resize show-zoom v-model="showXmModal" :destroy-on-close="true" :title="modalTitle" :width="1200" :height="700" :close-on-press-escape="false" @close="closeHandle" :loading="loading">
+  <vxe-modal ref="modalRef" resize show-zoom v-model="showXmModal" :destroy-on-close="true" :title="modalTitle" :width="1200" :height="700" :esc-closable="false" @close="closeHandle" :loading="loading">
     <viewTable ref="viewsTableRef" :isCity="true" />
   </vxe-modal>
 </template>

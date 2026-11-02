@@ -72,7 +72,7 @@
     <SettlementPayment v-if="this.temShow == 'box-7'"></SettlementPayment>
     <BinalAccounts v-if="this.temShow == 'box-8'"></BinalAccounts>
     <ProjectClosure v-if="this.temShow == 'box-9'"></ProjectClosure>
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   </div>
 </template>
 
@@ -104,7 +104,7 @@ import { ElMessage } from 'element-plus'
 defineOptions({
   name: '/budget-process/04-monitor/01-monitor-general-situation-monitor'
 })
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const setupState = reactive({
   EpCoin: markElementIconRaw(EpCoin),

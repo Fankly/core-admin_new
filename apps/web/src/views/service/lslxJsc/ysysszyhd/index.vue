@@ -72,7 +72,7 @@ onMounted(async () => {
     userInfo.value = lSGlobalInfo.deptId
     isPass(userInfo.value.org_id)
   } else {
-    await userDialogRef.value.getUser()
+    await userDialogRef.value?.getUser()
   }
 })
 const pushPage = (val: any) => {

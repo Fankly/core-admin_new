@@ -55,7 +55,15 @@ const mainRef = ref()
 
 // 初始化数据
 const initData = () => {
-  proParams.value = store.getters.getProParams.nd ? store.getters.getProParams : JSON.parse(sessionStorage.getItem('ProParams') as string)
+  const params = store.getters.getProParams.nd
+    ? store.getters.getProParams
+    : JSON.parse(sessionStorage.getItem('ProParams') || 'null')
+  if (!params?.nd) {
+    loading.value = false
+    ElMessage.warning('缺少查询条件，请从监控列表重新进入')
+    return
+  }
+  proParams.value = params
   nd.value = proParams.value.nd
   specialorgid.value = proParams.value.specialorgid
   roleCode.value = proParams.value.roleCode

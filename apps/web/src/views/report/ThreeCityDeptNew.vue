@@ -78,7 +78,8 @@
       </el-form>
     </div>
     <div class="table">
-      <vxe-grid ref="gridRef" height="100%" v-bind="gridOptions" />
+      <vxe-grid
+    ref="gridRef" height="100%" v-bind="gridOptions" />
     </div>
   </div>
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle" />
@@ -234,9 +235,8 @@ const gridOptions = reactive<any>({
       }
     }
   },
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   data: []
 })

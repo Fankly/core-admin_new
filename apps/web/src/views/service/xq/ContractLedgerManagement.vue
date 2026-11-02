@@ -130,7 +130,7 @@
     :title="vueModel === 'czf' ? '维护出租方信息' : '项目编码信息'"
     width="860"
     :height="700"
-    :close-on-press-escape="false"
+    :esc-closable="false"
     @close="closeModal"
   >
     <proTable
@@ -688,9 +688,8 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: []
 })
 const getDynamicTable = async () => {

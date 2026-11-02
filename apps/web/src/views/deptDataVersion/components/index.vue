@@ -142,7 +142,7 @@ interface Props {
   modalTitle: string
   labelWidth: string
   versionId: string //版本ID
-  nd: string //年度
+  nd: string | number //年度
   busiType: string //报表类型
 }
 const props = defineProps<Props>()

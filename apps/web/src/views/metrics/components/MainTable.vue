@@ -72,7 +72,8 @@ defineExpose({
 
 <template>
   <div class="table-box">
-    <vxe-table  :loading="mainLoading" ref="mainTableRef" :show-overflow="true" :row-config="{ height: 32, isCurrent: false }" :data="props.mainTableData" align="center" height="100%" border resizable>
+    <vxe-table
+      :cell-config="{ height: 32 }" :column-config="{ resizable: true }"  :loading="mainLoading" ref="mainTableRef" :show-overflow="true" :row-config="{ isCurrent: false }" :data="props.mainTableData" align="center" height="100%" border >
       <vxe-column width="80" type="checkbox"></vxe-column>
       <vxe-column width="80" title="序号" field="dispOrder"></vxe-column>
       <vxe-column title="名称" field="configName"></vxe-column>

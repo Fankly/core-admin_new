@@ -19,15 +19,15 @@
         </div>
         <div class="pane-table">
           <vxe-table
+            :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
             ref="tableRef"
             height="100%"
             border
-            resizable
             show-overflow
             align="center"
             :loading="loading"
             :data="tableRows"
-            :row-config="{ height: 32, isHover: true }"
+            :row-config="{ isHover: true }"
             :checkbox-config="{ highlight: true }"
             @cell-click="handleCellClick"
           >

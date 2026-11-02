@@ -42,9 +42,15 @@ const specialorgid = ref('')
 const dataList = ref([])
 const nd = ref('')
 onMounted(() => {
-  proParams.value = store.getters.getPenetrateParams.nd
+  const params = store.getters.getPenetrateParams.nd
     ? store.getters.getPenetrateParams
-    : JSON.parse(sessionStorage.getItem('PenetrateParams') as string)
+    : JSON.parse(sessionStorage.getItem('PenetrateParams') || 'null')
+  if (!params?.nd) {
+    loading.value = false
+    ElMessage.warning('缺少查询条件，请从监控列表重新进入')
+    return
+  }
+  proParams.value = params
   nd.value = proParams.value.nd
   specialorgid.value = proParams.value.specialorgid
   dataList.value = proParams.value.data

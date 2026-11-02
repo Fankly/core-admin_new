@@ -43,7 +43,8 @@
       </div>
 
       <div class="online-pre-review-opinion-modal__table">
-        <vxe-grid ref="gridRef" v-bind="gridOptions" :data="tableData" :loading="loading">
+        <vxe-grid
+          ref="gridRef" v-bind="gridOptions" :data="tableData" :loading="loading">
           <template #reviewOpinionSelect="{ row }">
             <vxe-select
               clearable
@@ -206,7 +207,8 @@ const gridOptions = reactive<VxeGridProps<OnlinePreReviewOpinionRow>>({
   height: '100%',
   showOverflow: true,
   showHeaderOverflow: true,
-  rowConfig: { keyField: 'reviewId', isHover: true, height: 32 },
+  cellConfig: { height: 32 },
+  rowConfig: { keyField: 'reviewId', isHover: true },
   columnConfig: { resizable: true },
   columns: [
     { type: 'seq', width: 60, title: '序号', fixed: 'left', ...centerConfig },

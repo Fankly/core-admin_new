@@ -24,8 +24,9 @@
         <el-tab-pane :key="item.code" v-for="item in tabList" :disabled="disabled" :label="item.name" :name="item.code" />
       </el-tabs>
       <vxe-table
+        :cell-config="{ height: 32 }"
         :cell-style="cellStyle"
-        :row-config="{ keyField: 'id', height: 32 }"
+        :row-config="{ keyField: 'id' }"
         :loading="pageInfo.loading"
         :column-config="{ resizable: true }"
         :border="true"

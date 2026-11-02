@@ -23,8 +23,8 @@ export const useService = () => {
     align: 'center',
     height: '100%',
     loading: false,
+    cellConfig: { height: 32 },
     rowConfig: {
-      height: 32,
       isCurrent: true
     },
     columnConfig: {
@@ -88,17 +88,6 @@ export const useService = () => {
         field: 'amount',
         width: 150,
         title: '总预算不含税(万元)',
-        align: 'right',
-        headerAlign: 'center',
-        formatter: ({ cellValue }: { cellValue: string }) => {
-          if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
-          return formatNumValue(cellValue.toString(), 6)
-        }
-      },
-      {
-        field: 'dntzjh',
-        width: 150,
-        title: '本年投资计划(万元)',
         align: 'right',
         headerAlign: 'center',
         formatter: ({ cellValue }: { cellValue: string }) => {

@@ -7,7 +7,7 @@
       :title="props.title"
       width="95%"
       height="90%"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeHandle"
     >
       <div class="form-title">基础信息</div>
@@ -353,16 +353,16 @@ const formTableRef = ref()
 //接收父组件传参
 const props = withDefaults(
   defineProps<{
-    title: string
-    dialogState: string
-    htID: string
-    sffpqzArr: OptionItem[]
-    sfhmArr: OptionItem[]
-    sflgArr: OptionItem[]
-    sfnbdwArr: OptionItem[]
-    slArr: OptionItem[]
-    pcsxArr: OptionItem[]
-    userInfo: any
+    title?: string
+    dialogState?: string
+    htID?: string
+    sffpqzArr?: OptionItem[]
+    sfhmArr?: OptionItem[]
+    sflgArr?: OptionItem[]
+    sfnbdwArr?: OptionItem[]
+    slArr?: OptionItem[]
+    pcsxArr?: OptionItem[]
+    userInfo?: any
   }>(),
   {
     title: '新增',

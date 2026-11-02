@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="table">
-      <vxe-table
+      <vxe-table keep-source
         ref="tableRef"
         border
         height="100%"

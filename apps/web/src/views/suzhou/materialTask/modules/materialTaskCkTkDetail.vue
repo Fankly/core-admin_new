@@ -13,7 +13,8 @@
   >
     <div class="material-task-ck-tk-detail">
       <div class="table">
-        <vxe-grid ref="gridRef" v-bind="gridOptions"></vxe-grid>
+        <vxe-grid
+      ref="gridRef" v-bind="gridOptions"></vxe-grid>
       </div>
     </div>
   </vxe-modal>
@@ -70,9 +71,8 @@ const gridOptions = reactive<VxeGridProps<CkTkDetailRow>>({
   showHeaderOverflow: true,
   headerAlign: 'center',
   align: 'center',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },

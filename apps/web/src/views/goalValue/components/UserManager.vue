@@ -9,7 +9,7 @@
           <el-button type="primary" plain size="small" @click="saveHandle">保 存</el-button>
         </div>
         <div class="right">
-          <el-from :models="searchForm">
+          <el-form :models="searchForm">
             <Grid ref="gridRef" :gap="[10, 0]" :cols="2">
               <GridItem>
                 <el-form-item prop="yjdw">
@@ -42,11 +42,12 @@
                 </el-form-item>
               </GridItem>
             </Grid>
-          </el-from>
+          </el-form>
         </div>
       </div>
       <div class="main">
         <vxe-table
+          :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
           keep-source
           :edit-config="{
             trigger: 'click',
@@ -54,14 +55,13 @@
             showStatus: true
           }"
           ref="tableRef"
-          resizable
           show-overflow
           show-header-overflow
           align="center"
           header-align="center"
           border
           stripe
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           height="100%"
           :data="tableData"
         >

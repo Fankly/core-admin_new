@@ -16,6 +16,7 @@ export interface TableInfo {
   treeConfig: VxeTablePropTypes.TreeConfig;
   editConfig: VxeTablePropTypes.EditConfig;
   loading: boolean;
+  cellConfig?: VxeTablePropTypes.CellConfig;
   rowConfig: VxeTablePropTypes.RowConfig;
 }
 

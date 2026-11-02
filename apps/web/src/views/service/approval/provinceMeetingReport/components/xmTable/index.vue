@@ -10,7 +10,7 @@
       :title="`穿透明细`"
       :width="1200"
       :height="700"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeDetailModal"
       :loading="loading"
     >

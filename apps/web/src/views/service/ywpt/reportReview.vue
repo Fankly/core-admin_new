@@ -83,6 +83,10 @@ onMounted(async () => {
 // 获取公共代码
 const initParamLists = async () => {
   isShowPage.value = false
+  if (typeof route.query.Meetingparams !== 'string' || !route.query.Meetingparams) {
+    ElMessage.warning('缺少页面参数，请从项目列表重新进入')
+    return
+  }
   userInfo.value = JSON.parse(decrypt(route.query.Meetingparams as string))
   isShowData.value = true
   isShowTable.value = true

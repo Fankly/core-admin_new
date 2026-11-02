@@ -138,16 +138,14 @@ onMounted(() => {
     </div>
     <div class="table">
       <vxe-table
-        resizable
+        :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
         ref="tableRef"
         border
         stripe
         show-overflow
         align="center"
         header-align="center"
-        :row-config="{
-          height: 32
-        }"
+        :row-config="{}"
         :checkbox-config="{ highlight: true }"
         @cell-click="cellClickHandle"
         :data="tableDataList"

@@ -23,7 +23,7 @@
             </div>
 
             <div class="table" v-loading="loading">
-              <el-table ref="tableRef" border :header-cell-style="'text-align: center;'" :data="pageData" height="550px" @selection-change="handelCheckRow">
+              <el-table ref="tableRef" border :header-cell-style="{ textAlign: 'center' }" :data="pageData" height="550px" @selection-change="handelCheckRow">
                 <el-table-column type="selection" width="50" align="center" />
                 <el-table-column label="字段" prop="code" width="130" align="center" />
                 <el-table-column label="名称" prop="name" width="180" align="center" />

@@ -76,7 +76,7 @@ import {
   ToolboxComponent,
   DataZoomComponent
 } from 'echarts/components'
-import VChart, { THEME_KEY } from 'vue-echarts'
+import VChart, { THEME_KEY } from '@/components/charts/VChart'
 import { ref, provide, onMounted, useTemplateRef } from 'vue'
 import { setup } from 'xe-utils/ctor'
 import baseService from '@/service/baseService'

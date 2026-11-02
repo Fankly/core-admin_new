@@ -22,7 +22,8 @@
         </div>
       </div>
       <div class="tbhb_table_main">
-        <vxe-grid ref="gridRef" v-bind="gridOptions"></vxe-grid>
+        <vxe-grid
+      ref="gridRef" v-bind="gridOptions"></vxe-grid>
       </div>
     </div>
   </vxe-modal>
@@ -134,9 +135,8 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   showOverflow: true,
   showHeaderOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   rowStyle: ({ row }: any) => ({
     fontWeight: row?.sfjc === 1 || row?.sfjc === '1' ? 'bold' : 'normal'
   }),

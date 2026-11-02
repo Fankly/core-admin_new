@@ -57,10 +57,10 @@ export interface Props {
   isShowModal: boolean
   kmlx: string
   nd: string
-  busiId: string
-  specialorgid: string
+  busiId?: string
+  specialorgid?: string
   toolButton?: ('save' | 'sigle' | 'multiple' | 'delete' | 'download')[] | boolean // 是否显示
-  title: string
+  title?: string
 }
 interface RowVO {
   fjmc: string
@@ -73,6 +73,7 @@ const props = withDefaults(defineProps<Props>(), {
   // @ts-ignore
   toolButton: true,
   busiId: '',
+  specialorgid: '',
   title: '文件上传'
 })
 const showModal = toRef(props, 'isShowModal')

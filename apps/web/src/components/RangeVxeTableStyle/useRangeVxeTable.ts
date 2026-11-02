@@ -88,10 +88,10 @@ export const useRangeVxeTable = (props: Readonly<RangeVxeTableProps>, emit: Rang
     columnConfig: {
       resizable: true
     },
+    cellConfig: { height: 32 },
     rowConfig: {
       keyField: props.rowKey,
-      isHover: true,
-      height: 32
+      isHover: true
     },
     checkboxConfig: {
       reserve: props.reserveSelection,

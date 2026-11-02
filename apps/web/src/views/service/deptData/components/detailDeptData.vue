@@ -29,7 +29,8 @@
         </el-form-item>
       </el-form> -->
     </div>
-    <vxe-grid v-if="isShowTable" ref="gridRef" v-bind="gridOptions" />
+    <vxe-grid
+    v-if="isShowTable" ref="gridRef" v-bind="gridOptions" />
     <TbhbDeptModal ref="tbhbDeptModalRef" />
   </vxe-modal>
 </template>
@@ -284,9 +285,8 @@ const gridOptions = reactive<any>({
   align: 'center',
   spanMethod: objectSpanMethod,
   height: '90%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },

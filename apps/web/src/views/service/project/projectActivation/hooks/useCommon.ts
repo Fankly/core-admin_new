@@ -42,9 +42,8 @@ export const useCommon = () => {
       trigger: 'row',
       highlight: true
     },
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columnConfig: {
       resizable: true
     },

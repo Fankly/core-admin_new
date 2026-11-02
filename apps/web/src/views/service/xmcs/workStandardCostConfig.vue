@@ -86,7 +86,8 @@
               <el-button @click="resetDetailSearch">重 置</el-button>
             </div>
             <div class="panel-right-table">
-              <vxe-grid ref="gridRef" v-bind="gridOptions" @checkbox-change="handleCheckboxChange" @checkbox-all="handleCheckboxChange" >
+              <vxe-grid
+                ref="gridRef" v-bind="gridOptions" @checkbox-change="handleCheckboxChange" @checkbox-all="handleCheckboxChange" >
                 <template #mlcjbm="{ row }">
                   <el-tooltip effect="dark" placement="bottom" popper-class="project-info-full-tooltip" :enterable="true">
                     <div style="cursor: pointer; color: var(--color-primary)">
@@ -227,9 +228,8 @@ const gridOptions = reactive<any>({
   showHeaderOverflow: true,
   height: '100%',
   size: 'mini',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },

@@ -22,6 +22,7 @@
       </div>
       <div class="view-table-wrapper">
         <vxe-table
+          :cell-config="{ height: 36 }"
           ref="tableRef"
           :loading="tableLoading"
           :checkbox-config="checkboxConfig"
@@ -30,7 +31,7 @@
           align="center"
           header-align="center"
           height="100%"
-          :row-config="{ height: 36, isHover: true }"
+          :row-config="{ isHover: true }"
           :border="true"
           :data="tableData"
           :column-config="{ resizable: true }"

@@ -14,9 +14,9 @@
   >
     <div class="table">
       <vxe-table
+        :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
         border
         :row-config="{
-          height: 32,
           keyField: 'id'
         }"
         stripe
@@ -24,7 +24,6 @@
         show-header-overflow
         align="center"
         header-align="center"
-        resizable
         height="100%"
         :data="logDataList"
         ref="logTableRef"

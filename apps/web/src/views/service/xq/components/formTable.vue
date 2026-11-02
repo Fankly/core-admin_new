@@ -207,16 +207,14 @@
       <template v-if="searchCode === 'ZLHTTZGL_HTFJ'">
         <div class="table">
           <vxe-table
-            resizable
+            :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
             ref="tableRef"
             border
             stripe
             show-overflow
             align="center"
             header-align="center"
-            :row-config="{
-              height: 32
-            }"
+            :row-config="{}"
             :data="tableDataList"
             height="320px"
           >
@@ -263,12 +261,12 @@ import { searchPayDayList, getZlhtfjList, payDayDelete, getDownloadUrl } from '@
 //接收父组件传参
 const props = withDefaults(
   defineProps<{
-    fpqz: string
-    startDate: string
-    endDate: string
-    htID: string
-    htBm: string
-    dialogState: string
+    fpqz?: string
+    startDate?: string
+    endDate?: string
+    htID?: string
+    htBm?: string
+    dialogState?: string
   }>(),
   {
     fpqz: '',

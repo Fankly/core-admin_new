@@ -19,7 +19,8 @@
         <!-- <el-button :loading="reportLoading" size="small" plain type="primary" @click="viewReportHandle">分析报告</el-button> -->
       </div>
       <div class="tbhb_table_main">
-        <vxe-grid ref="gridRef" class="range-vxe-table" v-bind="gridOptions" @cell-click="handleCellClick" />
+        <vxe-grid
+      ref="gridRef" class="range-vxe-table" v-bind="gridOptions" @cell-click="handleCellClick" />
       </div>
     </div>
     <!-- 详情级同比/环比弹窗 -->
@@ -89,8 +90,8 @@ const gridOptions = reactive<any>({
   headerAlign: 'center',
   align: 'center',
   height: '100%',
+  cellConfig: { height: 36 },
   rowConfig: {
-    height: 36,
     isHover: true
   },
   size: 'mini',

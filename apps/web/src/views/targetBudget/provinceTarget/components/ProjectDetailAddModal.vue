@@ -85,7 +85,8 @@
         </div>
       </div>
       <div class="project-detail-add-modal__grid">
-        <vxe-grid ref="gridRef" auto-resize :data="tableData" v-bind="gridOptions" />
+        <vxe-grid
+      ref="gridRef" auto-resize :data="tableData" v-bind="gridOptions" />
       </div>
       <div class="project-detail-add-modal__pager">
         <el-pagination

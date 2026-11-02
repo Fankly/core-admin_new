@@ -83,7 +83,8 @@
     </el-form>
   </div>
   <div class="table">
-    <vxe-grid :show-footer="isShowFooter" ref="tableRef" v-bind="gridOptions" v-on="gridEvents">
+    <vxe-grid
+      :show-footer="isShowFooter" ref="tableRef" v-bind="gridOptions" v-on="gridEvents">
       <template #pager v-if="zsfs === '3'">
         <el-pagination
           :current-page="page.page"
@@ -202,9 +203,8 @@ const gridOptions = reactive<any>({
   align: 'right',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   data: [],
   exportConfig: {

@@ -10,7 +10,7 @@
     show-zoom
     :width="420"
     :height="180"
-    :close-on-press-escape="false"
+    :esc-closable="false"
     @close="closeHandle"
   >
     <div class="modal_select">

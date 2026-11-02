@@ -245,9 +245,8 @@ const gridOptions = reactive<any>({
       cursor: 'pointer'
     }
   },
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   data: []
 })

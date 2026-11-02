@@ -87,7 +87,6 @@
           :data="example"
           v-if="tableHeight"
           :height="tableHeight"
-          :span-method="objectSpanMethod"
           style="width: 100%"
           :header-cell-style="{ 'text-align': 'center' }"
           :cell-style="{ 'text-align': 'center' }"
@@ -264,7 +263,6 @@
           :data="example2"
           v-if="tableHeight"
           :height="tableHeight2"
-          :span-method="objectSpanMethod1"
           style="width: 100%"
           :header-cell-style="{ 'text-align': 'center' }"
           :cell-style="{ 'text-align': 'center' }"
@@ -308,7 +306,7 @@
       </el-tab-pane>
     </el-tabs>
 
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   </div>
 </template>
 
@@ -347,7 +345,7 @@ const company2Ref = useTemplateRef('company2')
 const gkbm2Ref = useTemplateRef('gkbm2')
 const type2Ref = useTemplateRef('type2')
 const xmxz2Ref = useTemplateRef('xmxz2')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const helpHandle = () => {
   const url = store.getters.getMenuMsg.url
@@ -392,14 +390,14 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   example2: [],
   page2: {
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   searchShow: true,
   titleHeight: '',
@@ -810,11 +808,10 @@ watch(
   },
   {}
 )
-watch(() => componentInstance.deep, true)
 onMounted(() => {
-  setupState.titleHeight = document.querySelector('.title').clientHeight
-  setupState.searchHeight = document.querySelector('.search').clientHeight
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.titleHeight = (document.querySelector('.title')?.clientHeight ?? 0)
+  setupState.searchHeight = (document.querySelector('.search')?.clientHeight ?? 0)
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
   setTableHeight()
   setTableHeight2()
   if (setupState.store.state.jsyzjzfData.pspid && setupState.store.state.jsyzjzfData.specialorgid) {

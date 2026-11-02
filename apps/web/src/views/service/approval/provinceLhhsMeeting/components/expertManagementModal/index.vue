@@ -57,7 +57,8 @@
         </div>
 
         <div class="table-flex-container">
-          <vxe-grid ref="leftGridRef" v-bind="leftGridOptions" @current-change="handleLeftCurrentChange"> </vxe-grid>
+          <vxe-grid
+        ref="leftGridRef" v-bind="leftGridOptions" @current-change="handleLeftCurrentChange"> </vxe-grid>
         </div>
       </div>
 
@@ -280,10 +281,10 @@ const rightGridOptions = reactive<VxeGridProps<any>>({
     highlight: true,
     range: true
   },
+  cellConfig: { height: 32 },
   rowConfig: {
     isCurrent: true,
-    isHover: true,
-    height: 32
+    isHover: true
   },
   columnConfig: {
     resizable: true

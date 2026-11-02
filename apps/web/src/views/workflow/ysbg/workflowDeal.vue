@@ -366,7 +366,8 @@ const disabled = computed(() => loading.value)
     </div>
     <div class="table">
       <vxe-table
-        :row-config="{ isCurrent: true, height: 32 }"
+        :cell-config="{ height: 32 }"
+        :row-config="{ isCurrent: true }"
         @current-change="cellClickHandle"
         show-overflow
         :loading="loading"
@@ -419,7 +420,6 @@ const disabled = computed(() => loading.value)
     </div>
   </div>
   <el-dialog
-    v-loading="loading"
     v-model="spyjDialog.showDialog"
     title="审批意见"
     :destroy-on-close="true"
@@ -427,7 +427,7 @@ const disabled = computed(() => loading.value)
     :close-on-press-escape="false"
     :close-on-click-modal="false"
   >
-    <el-form :disabled="loading" :model="spyjForm">
+    <el-form v-loading="loading" :disabled="loading" :model="spyjForm">
       <el-form-item label="审批意见：">
         <el-input maxlength="128" v-model="spyjForm.spyj" type="textarea" :rows="6" resize="none" />
       </el-form-item>

@@ -1,6 +1,6 @@
 <!--select弹窗组件 -->
 <template>
-  <vxe-modal ref="dialogFormRef" show-footer v-model="isShowModel" :destroy-on-close="true" :title="title" resize :width="300" :height="180" :close-on-press-escape="false" @close="closeHandle">
+  <vxe-modal ref="dialogFormRef"  v-model="isShowModel" :destroy-on-close="true" :title="title" resize :width="300" :height="180" :esc-closable="false" @close="closeHandle">
     <div class="modalCss">
       <div class="modal_select">
         <el-radio-group v-model="type">

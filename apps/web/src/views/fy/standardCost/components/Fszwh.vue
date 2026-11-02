@@ -5,7 +5,8 @@
       <el-button type="primary" size="small" plain @click="closeHandle">关 闭</el-button>
     </div>
     <div class="table">
-      <vxe-table  stripe resizable ref="tableRef" keep-source :edit-config="tableInfo.editConfig" border :data="tableInfo.tableData" height="100%">
+      <vxe-table
+        :column-config="{ resizable: true }"  stripe  ref="tableRef" keep-source :edit-config="tableInfo.editConfig" border :data="tableInfo.tableData" height="100%">
         <vxe-column header-align="center" align="center" type="seq" title="序号" width="60"></vxe-column>
         <vxe-column width="160" header-align="center" align="center" title="成本中心编码" field="cbzx"></vxe-column>
         <vxe-column header-align="center" align="center" title="成本中心名称" field="cbzxName"></vxe-column>

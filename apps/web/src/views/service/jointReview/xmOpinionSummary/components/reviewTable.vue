@@ -10,7 +10,7 @@
       fullscreen
       :title="'项目评审意见汇总明细'"
       :width="1200"
-      :close-on-press-escape="true"
+      :esc-closable="true"
       @close="closeHandle"
     >
       <div class="modal_content">
@@ -37,7 +37,8 @@
           </div>
         </div>
         <div class="right-column-table">
-          <vxe-grid ref="xmTableRef" v-bind="gridProps" />
+          <vxe-grid
+        ref="xmTableRef" v-bind="gridProps" />
         </div>
         <el-pagination
           :page-size="xmListPage.pageSize"
@@ -104,8 +105,8 @@ const gridProps = reactive<any>({
   align: 'center',
   showOverflow: true,
   height: '100%',
+  cellConfig: { height: 32 },
   rowConfig: {
-    height: 32,
     keyField: 'id'
   },
   border: true,

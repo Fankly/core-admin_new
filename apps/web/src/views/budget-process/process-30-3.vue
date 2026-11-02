@@ -4,7 +4,7 @@
       <h2>超合同支付、收款方不一致</h2>
     </div>
 
-    <el-table border :data="example" v-if="tableHeight" :height="tableHeight" :span-method="objectSpanMethod" style="width: 100%; margin-top: 20px" :header-cell-style="{ 'text-align': 'center' }" :cell-style="{ 'text-align': 'center' }">
+    <el-table border :data="example" v-if="tableHeight" :height="tableHeight" style="width: 100%; margin-top: 20px" :header-cell-style="{ 'text-align': 'center' }" :cell-style="{ 'text-align': 'center' }">
       <el-table-column width="160" fixed prop="pspid" label="项目编码"></el-table-column>
       <el-table-column width="300" fixed prop="post1" label="项目名称"></el-table-column>
       <el-table-column width="160" prop="qkjxmlxmc" label="项目类型"></el-table-column>
@@ -86,8 +86,8 @@ function loadData() {
   })
 }
 onMounted(() => {
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  componentData.topHeight = document.querySelector('.title').clientHeight
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  componentData.topHeight = (document.querySelector('.title')?.clientHeight ?? 0)
   setTableHeight()
 })
 ;(() => {

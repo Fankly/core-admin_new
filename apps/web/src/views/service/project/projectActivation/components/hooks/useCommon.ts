@@ -57,8 +57,8 @@ export const useCommon = (gridRef: Ref<any>, handleCloseModal: () => void) => {
     align: 'center',
     height: '100%',
     loading: false,
+    cellConfig: { height: 32 },
     rowConfig: {
-      height: 32,
       isCurrent: true
     },
     columnConfig: {

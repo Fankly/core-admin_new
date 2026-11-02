@@ -21,9 +21,8 @@ export const createProjectGridOptions = (): ProjectGridOptions => ({
   columnConfig: {
     resizable: true
   },
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   checkboxConfig: {
     trigger: 'row',
     highlight: true,

@@ -29,7 +29,7 @@
     </div>
   </div>
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
-  <YssxDetail ref="yssxDetailRef" :detailParams="detailParams"></YssxDetail>
+  <YssxDetail v-if="detailParams" ref="yssxDetailRef" :detailParams="detailParams"></YssxDetail>
   <HelpModal ref="helpModalRef" />
 </template>
 
@@ -38,7 +38,7 @@
 import userDialog from '@/components/select/userDialog.vue'
 import YssxDetail from '@/views/statistics/components/YssxDetail.vue'
 import { getPublicData, getYearData } from '@/api/common'
-import { onMounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
 import { Data, getData } from '@/api/statistics/yssxtjfx'
 import { EChartsOption } from 'echarts'
 import { formatValue } from '@/utils/utils'
@@ -219,7 +219,7 @@ const getBarData = async () => {
     }
   }
 }
-const clickBarHandle = (params: any) => {
+const clickBarHandle = async (params: any) => {
   let tjfs = tabsMsg.name.split('-').concat()
   let data: SelectData = params.data
   detailParams.value = {
@@ -227,6 +227,7 @@ const clickBarHandle = (params: any) => {
     ...initParam,
     ...data
   }
+  await nextTick()
   yssxDetailRef.value.isShowModal = true
 }
 const formatterData = (cellValue: string) => {

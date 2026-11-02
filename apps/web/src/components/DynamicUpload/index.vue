@@ -14,9 +14,8 @@
     </div>
 
     <vxe-table
-      :row-config="{
-        height: 32
-      }"
+      :cell-config="{ height: 32 }"
+      :row-config="{}"
       :show-overflow="true"
       :loading="loading"
       ref="tableRef"

@@ -36,9 +36,8 @@ export const useBudgetConfig = (props: Props) => {
       highlight: true
     },
     height: '100%',
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columnConfig: {
       resizable: true
     },

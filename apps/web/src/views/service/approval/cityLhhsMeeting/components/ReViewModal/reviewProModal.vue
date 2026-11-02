@@ -114,7 +114,9 @@ const loading = ref(false)
 
 const getModalRoleRequestParams = () => buildRoleRequestParams(modalProps.value)
 
+const emit = defineEmits(['clearSelect'])
 const closeHandle = () => {
+  emit('clearSelect')
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
   sgbmListData.value.length = 0

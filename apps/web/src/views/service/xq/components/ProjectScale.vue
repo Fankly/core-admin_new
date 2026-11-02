@@ -146,9 +146,9 @@ import { ElMessage } from 'element-plus'
 defineOptions({ name: "ProjectScale" })
 
 interface Props {
-  selectData: any
-  globalParams: any
-  opType: string
+  selectData?: any
+  globalParams?: any
+  opType?: string
 }
 type Names = 'hardware' | 'engine' | 'information'
 // 默认值

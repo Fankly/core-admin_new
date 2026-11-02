@@ -39,14 +39,14 @@
             </el-col>
             <el-col :span="6">
               <el-form-item label="供应商名称：">
-                <el-input class="formWidth" v-model="dataList.lifnr_name" :options="projects" />
+                <el-input class="formWidth" v-model="dataList.lifnr_name" />
               </el-form-item>
             </el-col>
           </el-row>
           <el-row :gutter="24">
             <el-col :span="6">
               <el-form-item label="项目名称：">
-                <el-input class="formWidth" v-model="dataList.post1" :options="projects" />
+                <el-input class="formWidth" v-model="dataList.post1" />
               </el-form-item>
             </el-col>
             <el-col :span="6">
@@ -157,7 +157,7 @@
       @current-change="pageChangeHandle"
     >
     </el-pagination>
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   </div>
 </template>
 
@@ -193,7 +193,7 @@ const companyRef = useTemplateRef('company')
 const gysbmRef = useTemplateRef('gysbm')
 const gkbmRef = useTemplateRef('gkbm')
 const xmxzRef = useTemplateRef('xmxz')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const helpHandle = () => {
   const url = store.getters.getMenuMsg.url
@@ -337,7 +337,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   tableHeight: '',
   topHeight: '',
@@ -577,12 +577,12 @@ function loadCompany() {
   gkbmRef.value.getProjectType(setupState.specialorgid)
 }
 onMounted(() => {
-  setupState.topHeight = document.querySelector('.topBox').clientHeight
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setupState.topHeight = (document.querySelector('.topBox')?.clientHeight ?? 0)
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  setupState.searchHeight = (document.querySelector('.search')?.clientHeight ?? 0)
   setTableHeight()
   getTime()
-  if (JSON.stringify(route.query) != '{}') {
+  if (typeof route.query.specialorgid === 'string' && route.query.specialorgid) {
     gysbmRef.value.ids = route.query.lifnr
     gysbmRef.value.text = route.query.lifnr
     gysbmRef.value.array.push(route.query.lifnr)

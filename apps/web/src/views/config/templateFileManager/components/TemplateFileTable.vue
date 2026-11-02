@@ -19,6 +19,7 @@
 
     <div class="template-file-table__content">
       <vxe-table
+        :cell-config="{ height: 32 }"
         ref="tableRef"
         :checkbox-config="{ trigger: 'row', highlight: true }"
         @cell-click="cellClickHandle"
@@ -30,7 +31,7 @@
         show-header-overflow
         header-align="center"
         height="100%"
-        :row-config="{ height: 32 }"
+        :row-config="{}"
         :border="true"
         :data="rows"
         :column-config="{ resizable: true }"

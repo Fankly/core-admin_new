@@ -52,9 +52,8 @@ export const useTargetBudgetVersionCompare = (tableStructure: TableStructure = '
     showOverflow: true,
     showHeaderOverflow: true,
     height: '100%',
-    rowConfig: {
-      height: 32
-    }
+    cellConfig: { height: 32 },
+    rowConfig: {}
   })
 
   const getFlatColumns = (columns: VxeTablePropTypes.ColumnConfig[]) => {

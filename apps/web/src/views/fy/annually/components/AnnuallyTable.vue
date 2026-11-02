@@ -1,5 +1,6 @@
 <template>
-  <vxe-table 
+  <vxe-table
+    :cell-config="tableInfo.cellConfig"
     :header-cell-style="headerCellStyle"
     :row-config="tableInfo.rowConfig"
     @cell-click="(tables:any)=>cellClickHandle(tables)"
@@ -89,9 +90,8 @@ const activeCellMethod = ({ row }: any) => {
   return false
 }
 const tableInfo = reactive<TableInfo>({
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   loading: false,
   treeConfig: {
     lazy: true,

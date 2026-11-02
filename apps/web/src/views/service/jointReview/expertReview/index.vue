@@ -304,7 +304,7 @@ onMounted(async () => {
     await getExperytInfo()
     await workflowMsg()
   } else {
-    await userDialogRef.value.getUser()
+    await userDialogRef.value?.getUser()
   }
   window.onmessage = function (e) {
     if (e.data) {

@@ -9,7 +9,7 @@
       show-zoom
       :title="formData?.title"
       :width="1200"
-      :close-on-press-escape="true"
+      :esc-closable="true"
       @close="closeHandle"
       :loading="dwInfo.loading"
     >

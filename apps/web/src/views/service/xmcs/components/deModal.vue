@@ -32,8 +32,6 @@
       </div>
     </vxe-modal>
   </div>
-  <!-- 导入 -->
-  <ImportExcel ref="importRef" />
 </template>
 
 <script setup>

@@ -1,6 +1,6 @@
 <!-- 指标查看页面 -->
 <template>
-  <div class="container" v-show="isShowPage" v-loading="loading">
+  <div class="container" v-if="isShowPage" v-loading="loading">
     <div class="modal_cont">
       <el-button :disabled="loading" type="primary" size="small" plain @click="notifyHandle">知道了</el-button>
       <el-button :disabled="loading" type="primary" size="small" plain @click="closeDialogHandle">关闭页面</el-button>
@@ -35,7 +35,7 @@
 import { reactive, ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { notify } from '@/api/workflow'
-import VChart from 'vue-echarts'
+import VChart from '@/components/charts/VChart'
 import ProTable from '@/components/ProTable/index.vue'
 import detaildeptData from '@/views/service/deptData/components/detailDeptData.vue'
 import { getProSlDataByDept } from '@/api/service/deptData/index'
@@ -124,10 +124,8 @@ const bmOBarOptions = reactive<any>({
       show: false
     },
     axisLabel: {
-      textStyle: {
-        fontFamily: 'Microsoft YaHei',
-        padding: [20, 0, 0, 105]
-      },
+      fontFamily: 'Microsoft YaHei',
+      padding: [20, 0, 0, 105],
       interval: 0,
       rotate: 15,
       clickable: true,

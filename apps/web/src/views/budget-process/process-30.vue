@@ -9,7 +9,7 @@
           <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
             <span class="el-dropdown-link">
               <el-icon style="font-size: 18px" class="ep-icon-s-operation">
-                <arrow-down />
+                <EpArrowDown />
               </el-icon>
             </span>
             <template #dropdown>
@@ -90,7 +90,6 @@
       :data="example"
       v-if="tableHeight"
       :height="tableHeight"
-      :span-method="objectSpanMethod"
       style="width: 100%"
       :header-cell-style="{ 'text-align': 'center' }"
       :cell-style="{ 'text-align': 'center' }"
@@ -143,7 +142,7 @@
       @current-change="pageChangeHandle"
     >
     </el-pagination>
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   </div>
 </template>
 
@@ -171,7 +170,7 @@ defineOptions({
   name: '/budget-process/process-30'
 })
 const router = useRouter()
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const companyRef = useTemplateRef('company')
 const gkbmRef = useTemplateRef('gkbm')
 const xmbmRef = useTemplateRef('xmbm')
@@ -214,7 +213,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   tableHeight: '',
   topHeight: '',
@@ -436,9 +435,9 @@ function showSearch(i) {
   setTableHeight()
 }
 onMounted(() => {
-  setupState.topHeight = document.querySelector('.topBox').clientHeight
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setupState.topHeight = (document.querySelector('.topBox')?.clientHeight ?? 0)
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  setupState.searchHeight = (document.querySelector('.search')?.clientHeight ?? 0)
   setTableHeight()
   setupState.loading = true
   userDialogRef.value.getUser(setupState.userId, setupState.userCode)

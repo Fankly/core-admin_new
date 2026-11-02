@@ -420,7 +420,8 @@ const detailHandle = () => {
     </div>
     <div class="table">
       <vxe-table
-        :row-config="{ height: 32 }"
+        :cell-config="{ height: 32 }"
+        :row-config="{}"
         show-overflow
         :loading="loading"
         align="center"

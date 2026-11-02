@@ -392,8 +392,8 @@ export const useProjectDetailAddModal = (props: ProjectDetailAddModalProps, emit
     showOverflow: true,
     showHeaderOverflow: true,
     height: '100%',
+    cellConfig: { height: 32 },
     rowConfig: {
-      height: 32,
       keyField: PROJECT_DETAIL_ROW_KEY_FIELD
     },
     columns: readonlyColumns.value

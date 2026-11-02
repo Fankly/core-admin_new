@@ -10,7 +10,7 @@
       :title="`人员清单`"
       :width="1200"
       :height="500"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeSxModal"
     >
       <proTable

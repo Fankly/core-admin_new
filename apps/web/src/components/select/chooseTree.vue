@@ -6,7 +6,7 @@
       :destroy-on-close="true"
       :title="title"
       :width="400"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeModalHandle"
     >
       <el-button plain size="small" type="primary" v-if="showAll" @click="handleAll">

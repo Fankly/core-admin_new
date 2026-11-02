@@ -22,7 +22,8 @@
         <slot name="search" />
       </div>
       <div class="table-grid">
-        <vxe-grid v-bind="gridOptions" />
+        <vxe-grid
+      v-bind="gridOptions" />
       </div>
       <div class="pagination-bar">
         <el-pagination
@@ -77,7 +78,8 @@ const gridOptions = reactive<VxeGridProps>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: { height: 32 },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   data: []
 })

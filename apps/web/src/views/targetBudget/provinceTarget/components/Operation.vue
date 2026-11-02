@@ -8,11 +8,11 @@
               >{{ dropdown.label }}<el-icon class="ep-icon-arrow-down" style="margin-left: 6px"><EpArrowDown /></el-icon>
             </el-button>
             <template #dropdown>
-              <template v-for="dropdownChild in dropdown.children" :key="dropdownChild.permission">
-                <el-dropdown-menu v-if="checkPermissions(dropdownChild.permission)">
-                  <el-dropdown-item @click="dropdownChild.click">{{ dropdownChild.label }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
+              <el-dropdown-menu>
+                <template v-for="dropdownChild in dropdown.children" :key="dropdownChild.permission">
+                  <el-dropdown-item v-if="checkPermissions(dropdownChild.permission)" @click="dropdownChild.click">{{ dropdownChild.label }}</el-dropdown-item>
+                </template>
+              </el-dropdown-menu>
             </template>
           </el-dropdown>
           <el-button v-else @click="dropdown.click" :disabled="btnDisabledStatus" type="primary" size="small" plain>

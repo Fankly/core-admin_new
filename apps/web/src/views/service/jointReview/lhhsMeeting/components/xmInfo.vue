@@ -1,6 +1,6 @@
 <!-- 项目展示 -->
 <template>
-  <vxe-modal ref="dialogFormRef" fullscreen show-zoom v-model="isShowModel" :destroy-on-close="true" :title="props.title" :width="800" :height="750" :close-on-press-escape="false" @close="closeHandle">
+  <vxe-modal ref="dialogFormRef" fullscreen show-zoom v-model="isShowModel" :destroy-on-close="true" :title="props.title" :width="800" :height="750" :esc-closable="false" @close="closeHandle">
     <div class="expertName">组长：{{ meetingInfo?.expertName }}</div>
     <proTable ref="proTableRef" @row-click="handerClickTable" :data-callback="pageList" @search="searchHandle" @reset="resetHandle" :row-style="rowStyle" :request-api="getListPageData" :request-auto="true" :search-col="4" :columns="tableColumns">
       <template #tableHeader="scope">
@@ -13,7 +13,7 @@
   </vxe-modal>
   <ImportExcel ref="importRef" />
   <proModel ref="modelForm" :title="'联合会审终评意见'" :label="'专家组长终评意见'" @show-modal="pushMsgHandle" @get-reason="getReason" />
-  <select-modal ref="selectModalRef" @show-modal="showModal" :title="'联合会审终评意见'" :label="'专家组长终评意见'" :options="options" />
+  <select-modal ref="selectModalRef" @show-modal="showModal" :title="'联合会审终评意见'" />
   <review-modal ref="returnModal" :title="'退回意见'" :label="'退回意见'" @show-modal="returnMag"></review-modal>
 </template>
 
@@ -134,10 +134,10 @@ const getListPageData = async (params: any) => {
 // 行样式
 const rowStyle = ({ row }: any) => {
   if (row.bhcs >= 3) {
-    return 'color:red;'
+    return { color: 'red' }
   }
   if (row.bhcs > 0 && row.bhcs < 3) {
-    return 'color:#E6A23C;'
+    return { color: '#E6A23C' }
   }
   if (row.sfth == '1') {
     return {

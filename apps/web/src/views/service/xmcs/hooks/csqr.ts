@@ -69,9 +69,8 @@ export const csqrParams = (userInfo?: any) => {
     headerAlign: 'center',
     align: 'center',
     height: '100%',
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columnConfig: {
       resizable: true
     },
@@ -114,9 +113,8 @@ export const csqrParams = (userInfo?: any) => {
     headerAlign: 'center',
     align: 'center',
     height: '100%',
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columnConfig: {
       resizable: true
     },
@@ -145,9 +143,8 @@ export const csqrParams = (userInfo?: any) => {
     headerAlign: 'center',
     align: 'center',
     height: '100%',
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columnConfig: {
       resizable: true
     },

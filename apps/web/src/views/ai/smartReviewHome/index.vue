@@ -215,7 +215,8 @@
         最近审核业务
       </h2>
       <div class="srh-business-table">
-        <vxe-grid ref="gridRef" v-bind="gridOptions">
+        <vxe-grid
+          ref="gridRef" v-bind="gridOptions">
           <template #action_default="{ row }">
             <button type="button" class="srh-view-btn" @click="showDetail(row)">查看</button>
           </template>
@@ -283,8 +284,8 @@ const gridOptions = reactive<VxeGridProps<AuditRow>>({
   columnConfig: {
     resizable: true
   },
+  cellConfig: { height: 42 },
   rowConfig: {
-    height: 42,
     isHover: true
   },
   columns: [

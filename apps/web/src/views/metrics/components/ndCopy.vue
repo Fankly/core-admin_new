@@ -7,7 +7,7 @@
       :title="title"
       height="200"
       width="24%"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeModalHandle"
     >
       <el-form label-suffix=":">

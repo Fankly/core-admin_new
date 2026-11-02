@@ -65,6 +65,17 @@ const respond = (request: ReceivedRequest, rows: string[], pageable = true) => {
 }
 
 describe('useTable with HTTP responses', () => {
+  it('normalizes numeric strings in pagination responses before rendering or paging', async () => {
+    const table = useTable(api)
+    const pending = table.getTableList()
+    const request = await nextRequest()
+    request.response.setHeader('Content-Type', 'application/json')
+    request.response.end(JSON.stringify({ data: { records: ['one'], current: '2', size: '50', total: '101' } }))
+    await pending
+    expect(table.pageable.value).toEqual({ current: 2, size: 50, total: 101 })
+    expect(table.tableData.value).toEqual(['one'])
+  })
+
   it('keeps the latest page when responses arrive in reverse order', async () => {
     const transformed: string[][] = []
     const table = useTable(api, {}, true, (data) => {

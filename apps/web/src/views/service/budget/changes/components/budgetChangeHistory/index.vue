@@ -28,6 +28,7 @@
       </div>
       <div class="table">
         <vxe-table
+          :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
           keep-source
           height="auto"
           max-height="100%"
@@ -36,9 +37,8 @@
             trigger: 'row',
             highlight: true
           }"
-          resizable
           :loading-config="{ icon: 'vxe-icon-spinner roll', text: '正在加载...' }"
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           border
           stripe
           show-overflow

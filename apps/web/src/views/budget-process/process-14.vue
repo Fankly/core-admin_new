@@ -141,7 +141,7 @@
       @current-change="pageChangeHandle"
     >
     </el-pagination>
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   </div>
 </template>
 
@@ -176,7 +176,7 @@ const xmbmRef = useTemplateRef('xmbm')
 const typeRef = useTemplateRef('type')
 const companyRef = useTemplateRef('company')
 const gkbmRef = useTemplateRef('gkbm')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const helpHandle = () => {
   const url = store.getters.getMenuMsg.url
@@ -195,7 +195,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   searchShow: true,
   dataList: {
@@ -518,9 +518,9 @@ function loadCompany() {
   gkbmRef.value.getProjectType(setupState.specialorgid)
 }
 onMounted(() => {
-  setupState.topHeight = document.querySelector('.topBox').clientHeight
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setupState.topHeight = (document.querySelector('.topBox')?.clientHeight ?? 0)
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  setupState.searchHeight = (document.querySelector('.search')?.clientHeight ?? 0)
   setTableHeight()
   getTime()
   setupState.loading = true

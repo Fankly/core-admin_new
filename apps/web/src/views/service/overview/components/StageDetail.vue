@@ -151,9 +151,9 @@ const props = withDefaults(
     year: string
     month: string
     /** 项目单位筛选（chooseYjdws）：所选一级单位编码，空数组表示全部。 */
-    yjdws: string[]
+    yjdws?: string[]
     /** 省专业归口筛选（chooseZybms）：所选省归口部门编码，空数组表示全部。 */
-    zybms: string[]
+    zybms?: string[]
     statMode: StatMode
     amountUnit: AmountUnit
     viewMode: ViewMode

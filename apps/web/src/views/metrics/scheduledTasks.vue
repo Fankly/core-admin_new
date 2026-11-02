@@ -8,7 +8,7 @@
         </template>
       </template>
     </proTable>
-    <vxe-modal ref="dialogFormRef" v-model="modalRef.isShow" :destroy-on-close="true" :title="modalRef.title" :width="800" :close-on-press-escape="false" @close="closeHandle">
+    <vxe-modal ref="dialogFormRef" v-model="modalRef.isShow" :destroy-on-close="true" :title="modalRef.title" :width="800" :esc-closable="false" @close="closeHandle">
       <el-form label-suffix=" : " ref="rmarkDataRef" :rules="rules" label-width="160px" label-position="right" :model="rmarkData">
         <el-row :gutter="20">
           <el-col :span="24">
@@ -166,7 +166,7 @@ const runTask = async (row: any, column: any) => {
 // 列颜色
 const columnStyle = ({ row, column, rowIndex, columnIndex }: any) => {
   if (column.label == '操作') {
-    return 'color:#00706b;cursor: pointer;'
+    return { color: '#00706b', cursor: 'pointer' }
   }
 }
 

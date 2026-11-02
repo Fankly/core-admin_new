@@ -36,7 +36,8 @@
             </el-input>
           </div>
           <div class="air-modal-table">
-            <vxe-grid ref="leftGridRef" v-bind="leftGridOptions" v-on="leftGridEvents">
+            <vxe-grid
+              ref="leftGridRef" v-bind="leftGridOptions" v-on="leftGridEvents">
               <template #toolbar_actions>
                 <span class="link-transfer__count">共 {{ leftFiltered.length }} 条</span>
               </template>
@@ -68,7 +69,8 @@
             </el-input>
           </div>
           <div class="air-modal-table">
-            <vxe-grid ref="rightGridRef" v-bind="rightGridOptions" v-on="rightGridEvents">
+            <vxe-grid
+              ref="rightGridRef" v-bind="rightGridOptions" v-on="rightGridEvents">
               <template #toolbar_actions>
                 <span class="link-transfer__count">共 {{ rightFiltered.length }} 条</span>
               </template>
@@ -192,10 +194,10 @@ const leftGridOptions = reactive<VxeGridProps>({
   showOverflow: true,
   headerAlign: 'center',
   align: 'center',
+  cellConfig: { height: 36 },
   rowConfig: {
     keyField: 'id',
-    isHover: true,
-    height: 36
+    isHover: true
   },
   checkboxConfig: {
     highlight: true
@@ -231,10 +233,10 @@ const rightGridOptions = reactive<VxeGridProps>({
   showOverflow: true,
   headerAlign: 'center',
   align: 'center',
+  cellConfig: { height: 36 },
   rowConfig: {
     keyField: 'id',
-    isHover: true,
-    height: 36
+    isHover: true
   },
   checkboxConfig: {
     highlight: true

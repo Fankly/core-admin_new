@@ -11,7 +11,8 @@
       </div>
     </div>
     <div class="report-table">
-      <vxe-grid v-bind="gridOptions" />
+      <vxe-grid
+    v-bind="gridOptions" />
     </div>
   </div>
 </template>
@@ -244,8 +245,8 @@ const gridOptions = reactive<VxeGridProps<ReportRow>>({
   align: 'center',
   data: tableData.value,
   spanMethod,
+  cellConfig: { height: 36 },
   rowConfig: {
-    height: 36,
     keyField: 'rowKey'
   },
   scrollY: {

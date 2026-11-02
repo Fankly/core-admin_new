@@ -324,7 +324,7 @@ const downloadReport = async (row: any, column: any) => {
 // 列颜色
 const columnStyle = ({ row, column, rowIndex, columnIndex }: any) => {
   if (props.type == 'report' && (column.label == '评审意见报告(初稿)' || column.label == '评审意见报告(定稿)')) {
-    return 'color:#00706b;cursor: pointer;'
+    return { color: '#00706b', cursor: 'pointer' }
   }
   if (props.type == 'leader' && ['评审模式'].includes(column.label)) {
     return {

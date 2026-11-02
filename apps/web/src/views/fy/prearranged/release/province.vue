@@ -16,7 +16,8 @@
           </div>
         </div>
         <div class="standrand-table">
-          <vxe-table 
+          <vxe-table
+            :cell-config="tableMsg.cellConfig"
             :row-config="tableMsg.rowConfig"
             :loading="userMsg.loading"
             align="center"
@@ -64,7 +65,8 @@
           </div>
         </div>
         <div class="standrand-table">
-          <vxe-table 
+          <vxe-table
+            :cell-config="tableMsg.cellConfig"
             :row-config="tableMsg.rowConfig"
             show-overflow
             :loading="userMsg.loading"
@@ -224,9 +226,8 @@ const kmMsg = reactive<any>({
   kmId: []
 })
 const tableMsg = reactive<TableMsg>({
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   xsws: '',
   nd: '',
   tableData: [],

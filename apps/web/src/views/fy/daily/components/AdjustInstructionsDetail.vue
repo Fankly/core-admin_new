@@ -1,6 +1,7 @@
 <template>
   <vxe-modal :destroy-on-close="true" height="800" width="70%" :loading="loading" @show="showHandle" @close="closeHandle" title="调整明细详情" v-model="isShowModal" show-zoom resize position="center">
-    <vxe-grid ref="gridRef" v-bind="gridOptions"></vxe-grid>
+    <vxe-grid
+  ref="gridRef" v-bind="gridOptions"></vxe-grid>
   </vxe-modal>
 </template>
 
@@ -48,9 +49,8 @@ const gridOptions = reactive<any>({
   showOverflow: true,
   showHeaderOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   treeConfig: {
     lazy: true,
     hasChildField: 'leaf',

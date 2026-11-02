@@ -95,11 +95,11 @@ const getApi = reactive<{
   removeApi: (params: any) => Promise<any>
   orderApi: (params: any) => Promise<any>
 }>({
-  tableApi: `''`,
-  treeApi: `''`,
-  saveApi: `''`,
-  removeApi: `''`,
-  orderApi: `''`
+  tableApi: pageDwYs,
+  treeApi: getDwTreeYs,
+  saveApi: saveDwYs,
+  removeApi: removeDwYs,
+  orderApi: updateDispOrderYs
 })
 const tableRef = ref()
 const modalRef = ref()
@@ -108,7 +108,7 @@ const lxTreeRef = ref()
 const lxTreeRefBb = ref()
 const title = ref<any>('')
 const nd = ref<any>(0)
-const specialorgid = ref<any>() //单位id
+const specialorgid = ref('') //单位id
 const lslxStatus = ref<any[]>([])
 const userInfo = ref<any>()
 const btnList = ref<any[]>([

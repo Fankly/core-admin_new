@@ -654,7 +654,8 @@ defineExpose({
               </div>
             </div>
             <div class="bottom-table">
-              <vxe-table ref="typeTableRef" show-overflow :row-config="{ height: 32 }" :data="dataDetails" v-if="formData.statMethod === '1'" resizable align="center" border class="table" height="100%">
+              <vxe-table
+                :cell-config="{ height: 32 }" :column-config="{ resizable: true }" ref="typeTableRef" show-overflow :row-config="{}" :data="dataDetails" v-if="formData.statMethod === '1'"  align="center" border class="table" height="100%">
                 <vxe-column type="checkbox" width="60"></vxe-column>
                 <vxe-column :show-overflow="true" field="proTypeName" width="240" title="项目类型"></vxe-column>
                 <vxe-column :show-overflow="true" field="packTypeName" width="240" title="包类型"></vxe-column>
@@ -663,7 +664,8 @@ defineExpose({
                 <div>
                   <el-button plain size="small" type="primary" @click="addDialogHandle">新 增</el-button>
                   <el-button plain size="small" type="primary" @click="delTableHandle('add')">删 除</el-button>
-                  <vxe-table style="margin: 10px 0" ref="treeTableRef" show-overflow :row-config="{ height: 32 }" :data="dataAdd" resizable align="center" border class="table" height="300">
+                  <vxe-table
+                    :cell-config="{ height: 32 }" :column-config="{ resizable: true }" style="margin: 10px 0" ref="treeTableRef" show-overflow :row-config="{}" :data="dataAdd"  align="center" border class="table" height="300">
                     <vxe-column type="checkbox" width="60"></vxe-column>
                     <vxe-column field="name" :show-overflow="true" width="280" title="目标汇总项名称"></vxe-column>
                   </vxe-table>
@@ -671,7 +673,8 @@ defineExpose({
                 <div>
                   <el-button plain size="small" type="primary" @click="addTableHandle">新 增</el-button>
                   <el-button plain size="small" type="primary" @click="delTableHandle('sub')">删 除</el-button>
-                  <vxe-table style="margin: 10px 0" ref="treeSubRef" show-overflow :row-config="{ height: 32 }" :data="dataSub" resizable align="center" border class="table" height="300">
+                  <vxe-table
+                    :cell-config="{ height: 32 }" :column-config="{ resizable: true }" style="margin: 10px 0" ref="treeSubRef" show-overflow :row-config="{}" :data="dataSub"  align="center" border class="table" height="300">
                     <vxe-column type="checkbox" width="60"></vxe-column>
                     <vxe-column field="name" :show-overflow="true" width="280" title="目标扣减项名称"></vxe-column>
                   </vxe-table>

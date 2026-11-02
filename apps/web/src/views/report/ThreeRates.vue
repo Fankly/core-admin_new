@@ -306,9 +306,8 @@ const gridOptions = reactive<any>({
       }
     }
   },
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   data: []
 })

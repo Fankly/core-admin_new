@@ -10,7 +10,7 @@
     >
       <div v-if="icon" class="icon">
         <i v-if="!isSvgIcon" :class="icon"></i>
-        <svg-icon v-else :icon="`svg-${icon}`" />
+        <svg-icon v-else :name="`icon-${icon}`" />
       </div>
       <div v-if="rectangularIcon" class="rectangularIcon"></div>
       <div class="dashboardContainer__title">
@@ -43,6 +43,7 @@
 </template>
 
 <script setup>
+import SvgIcon from '@/components/base/svg-icon'
 import { CaretBottom as EpCaretBottom, CaretTop as EpCaretTop } from '@element-plus/icons-vue'
 import { reactive, toRef, toRefs } from 'vue'
 defineOptions({

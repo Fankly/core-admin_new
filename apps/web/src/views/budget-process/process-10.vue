@@ -9,7 +9,7 @@
           <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
             <span class="el-dropdown-link">
               <el-icon class="ep-icon-s-operation">
-                <arrow-down />
+                <EpArrowDown />
               </el-icon>
             </span>
             <template #dropdown>
@@ -131,7 +131,7 @@
       </el-table-column>
     </el-table>
 
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   </div>
 </template>
 
@@ -158,7 +158,7 @@ defineOptions({
 })
 const typeRef = useTemplateRef('type')
 const companyRef = useTemplateRef('company')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const helpHandle = () => {
   const url = store.getters.getMenuMsg.url
@@ -364,9 +364,9 @@ function loadCompany() {
   companyRef.value.getAffiliatedUnit(setupState.specialorgid)
 }
 onMounted(() => {
-  setupState.topHeight = document.querySelector('.topBox').clientHeight
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setupState.topHeight = (document.querySelector('.topBox')?.clientHeight ?? 0)
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  setupState.searchHeight = (document.querySelector('.search')?.clientHeight ?? 0)
   setTableHeight()
   getTime()
   setupState.loading = true

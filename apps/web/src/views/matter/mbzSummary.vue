@@ -43,7 +43,7 @@ const initData = () => {
     codes
   }).then((res) => {
     if (res.success && res.data && res.data[codes[0]]) {
-      helpMessage.value = res.data[codes[0]][0].name
+      helpMessage.value = res.data[codes[0]][0]?.name ?? ''
     }
   })
   userDialogRef.value.getUser()

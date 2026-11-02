@@ -1,5 +1,5 @@
 <template>
-  <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+  <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   <div v-loading="loading" id="process_42" class="process process_42" element-loading-text="正在从服务器获取数据.....">
     <div class="topBox">
       <div class="title">
@@ -10,7 +10,7 @@
           <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
             <span class="el-dropdown-link">
               <el-icon class="ep-icon-s-operation">
-                <arrow-down />
+                <EpArrowDown />
               </el-icon>
             </span>
             <template #dropdown>
@@ -411,7 +411,7 @@ const tableNameRef = useTemplateRef('tableName')
 const centerTreeRef = useTemplateRef('centerTree')
 const XmlxTreeRef = useTemplateRef('XmlxTree')
 const DwTreeRef = useTemplateRef('DwTree')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const contentTablesRef = useTemplateRef('contentTables')
 const XMMCRef = useTemplateRef('XMMC')
 const GWXMBMRef = useTemplateRef('GWXMBM')
@@ -430,7 +430,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   isQuery: false,
   searchShow: true,

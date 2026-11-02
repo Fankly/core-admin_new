@@ -1,5 +1,5 @@
 <template>
-  <vxe-modal :loading="loading" @close="closeHandle" :destroy-on-close="true" :width="modalWidth" :height="modalHeight" :show-footer="false" @show="showHandle" show-zoom resize title="可用值明细" position="center" v-model="isShowModal" class-name="custom-modal">
+  <vxe-modal :loading="loading" @close="closeHandle" :destroy-on-close="true" :width="modalWidth" :height="modalHeight"  :show-footer="false" @show="showHandle" show-zoom resize title="可用值明细" position="center" v-model="isShowModal" class-name="custom-modal">
     <div class="container">
       <div class="top">
         <div class="info">
@@ -20,7 +20,8 @@
       </div>
       <div class="main">
         <div class="table">
-          <vxe-table header-align="center" :row-style="rowStyle" :row-config="{ height: 32 }" :show-overflow="true" resizable align="center" height="100%" :data="tableData" border stripe>
+          <vxe-table
+            :cell-config="{ height: 32 }" :column-config="{ resizable: true }" header-align="center" :row-style="rowStyle" :row-config="{}" :show-overflow="true"  align="center" height="100%" :data="tableData" border stripe>
             <vxe-column width="80" title="序号"></vxe-column>
             <vxe-column field="gwxmbm" width="140" title="项目编码"></vxe-column>
             <vxe-column field="lxsj" width="140" title="立项日期"></vxe-column>

@@ -10,7 +10,6 @@
     height="60%"
     @close="resetForm"
     :loading="loading"
-    show-footer
     ><ProTable
       @search="resetTable"
       @reset="resetHandle"

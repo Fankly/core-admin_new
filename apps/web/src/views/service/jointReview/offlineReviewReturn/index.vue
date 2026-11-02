@@ -103,16 +103,16 @@
       <div class="table-wrap" v-tableRowSelect>
         <div class="table-wrap__main">
           <vxe-table
+            :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
             ref="vxeTableRef"
             height="100%"
             border
-            resizable
             show-overflow
             show-header-overflow
             align="center"
             header-align="center"
             :data="tableData"
-            :row-config="{ keyField: 'meetingId', isHover: true, height: 32 }"
+            :row-config="{ keyField: 'meetingId', isHover: true }"
             :checkbox-config="{ reserve: true, highlight: true }"
             @checkbox-change="handleSelectionChange"
             @checkbox-all="handleSelectionChange"

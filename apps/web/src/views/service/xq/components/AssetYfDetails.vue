@@ -3,10 +3,11 @@
     <el-tabs type="border-card" v-model="tabName">
       <el-tab-pane name="hardware" :label="tabLabel.hardware">
         <vxe-table
+          :cell-config="{ height: 32 }"
           :data="yjLists"
           stripe
           resize
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           show-header-overflow
           show-overflow
           border
@@ -27,10 +28,11 @@
       </el-tab-pane>
       <el-tab-pane name="engine" :label="tabLabel.engine">
         <vxe-table
+          :cell-config="{ height: 32 }"
           :data="jfLists"
           stripe
           resize
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           show-header-overflow
           show-overflow
           border
@@ -44,10 +46,11 @@
       </el-tab-pane>
       <el-tab-pane name="information" :label="tabLabel.information">
         <vxe-table
+          :cell-config="{ height: 32 }"
           :data="xxxtLists"
           stripe
           resize
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           show-header-overflow
           show-overflow
           border
@@ -68,9 +71,10 @@
       </el-tab-pane>
       <el-tab-pane name="virtualization" :label="tabLabel.virtualization">
         <vxe-table
+          :cell-config="{ height: 32 }"
           :data="xnhptLists"
           show-header-overflow
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           show-overflow
           border
           stripe
@@ -99,9 +103,9 @@ import { ElMessage } from 'element-plus'
 defineOptions({ name: "AssetYfDetails" })
 
 interface Props {
-  selectData: any
-  globalParams: any
-  opType: string
+  selectData?: any
+  globalParams?: any
+  opType?: string
 }
 
 // 自定义组件标识

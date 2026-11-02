@@ -70,7 +70,7 @@
     title="维护出租方信息"
     width="860"
     :height="700"
-    :close-on-press-escape="false"
+    :esc-closable="false"
     @close="closeModal"
   >
     <proTable
@@ -113,11 +113,11 @@ const props = defineProps({
   },
   formData: {
     type: Object as any,
-    required: true
+    default: () => ({})
   },
   userInfo: {
     type: Object as any,
-    required: true
+    default: () => ({})
   },
   flag: {
     type: String,

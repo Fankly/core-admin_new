@@ -64,9 +64,8 @@ export const useBudgetingTable = () => {
       highlight: true
     },
     height: '100%',
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columnConfig: {
       resizable: true
     },

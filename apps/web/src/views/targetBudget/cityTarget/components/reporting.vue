@@ -10,7 +10,7 @@
       fullscreen
       :title="formData?.title"
       :width="1200"
-      :close-on-press-escape="true"
+      :esc-closable="true"
       @close="closeHandle"
       :loading="tableInfo.loading"
     >
@@ -86,9 +86,10 @@
         <div class="table">
           <!-- <vxe-toolbar ref="toolbarRef" custom /> -->
           <vxe-table
+            :cell-config="{ height: 32 }"
             :cell-style="tableInfo.cellStyle"
             :row-style="tableInfo.rowStyle"
-            :row-config="{ keyField: 'id', height: 32 }"
+            :row-config="{ keyField: 'id' }"
             :column-config="{ resizable: true }"
             :border="true"
             align="center"
@@ -254,9 +255,8 @@ const tableInfo = reactive<any>({
   headerAlign: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   tableData: [],
   columns: [],
   treeConfig: {

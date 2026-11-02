@@ -10,7 +10,7 @@
       :fullscreen="isViewMode"
       :title="formData?.isStatus == '2' ? props.title : '预计结余-查看'"
       :width="1200"
-      :close-on-press-escape="true"
+      :esc-closable="true"
       @close="closeHandle"
       :loading="pageInfo.loading"
     >
@@ -48,9 +48,10 @@
         <div class="table">
           <!-- <vxe-toolbar ref="yjjyToolRef" custom /> -->
           <vxe-table
+            :cell-config="{ height: 32 }"
             :cell-style="tableInfo.cellStyle"
             :row-style="tableInfo.rowStyle"
-            :row-config="{ keyField: 'id', height: 32 }"
+            :row-config="{ keyField: 'id' }"
             :column-config="{ resizable: true }"
             :border="tableInfo.border"
             align="center"

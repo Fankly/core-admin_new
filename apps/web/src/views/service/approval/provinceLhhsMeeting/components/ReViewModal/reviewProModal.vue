@@ -102,7 +102,9 @@ const rowClick = (row: any) => {
 
 const loading = ref(false)
 
+const emit = defineEmits(['clearSelect'])
 const closeHandle = () => {
+  emit('clearSelect')
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
   pszyListData.value.length = 0

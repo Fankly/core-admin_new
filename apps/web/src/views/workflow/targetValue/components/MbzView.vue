@@ -25,7 +25,8 @@
         </template>
       </el-tabs>
       <vxe-table
-        :row-config="{ keyField: 'id', height: 32 }"
+        :cell-config="{ height: 32 }"
+        :row-config="{ keyField: 'id' }"
         :loading="tableLoading"
         :column-config="{ resizable: true }"
         :border="true"

@@ -149,7 +149,9 @@ const resetModalState = () => {
   tabCountRequestId += 1
 }
 
+const emit = defineEmits(['clearSelect'])
 const closeHandle = () => {
+  emit('clearSelect')
   resetModalState()
 }
 

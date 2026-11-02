@@ -694,7 +694,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   addDia: false,
   addNewMultipleSelection: [],
@@ -705,7 +705,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   cblrDia: false,
   buttonState: '基本信息',
@@ -802,8 +802,8 @@ function addNew() {
 }
 //创建后获取dialog的body高度
 function openHeight() {
-  let height = document.querySelector('.attribute').clientHeight
-  let title = document.querySelector('.el-dialog__header').clientHeight
+  let height = (document.querySelector('.attribute')?.clientHeight ?? 0)
+  let title = (document.querySelector('.el-dialog__header')?.clientHeight ?? 0)
   setupState.bodyHeight = height - title - 160 + 'px'
 }
 //创建dialog关闭后清除数据
@@ -1151,10 +1151,10 @@ function changebtn(val) {
 }
 onMounted(() => {
   // this.loading = false;
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  setupState.btnHeight = document.querySelector('.operation').clientHeight
-  setupState.searchHeight = document.querySelector('.searchBox').clientHeight
-  setupState.tabsHeight = document.querySelector('.tabBox').clientHeight
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  setupState.btnHeight = (document.querySelector('.operation')?.clientHeight ?? 0)
+  setupState.searchHeight = (document.querySelector('.searchBox')?.clientHeight ?? 0)
+  setupState.tabsHeight = (document.querySelector('.tabBox')?.clientHeight ?? 0)
   setTableHeight()
 })
 defineExpose({

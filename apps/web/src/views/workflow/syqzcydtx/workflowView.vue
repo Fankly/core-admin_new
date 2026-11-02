@@ -24,6 +24,7 @@
     </div>
     <div class="table">
       <vxe-table
+        :cell-config="{ height: 32 }"
         :checkbox-config="{
           trigger: 'row',
           highlight: true
@@ -31,7 +32,7 @@
         @cell-click="cellClickHandle"
         @checkbox-change="checkChangeHandle"
         @checkbox-all="checkChangeAllHandle"
-        :row-config="{ height: 32 }"
+        :row-config="{}"
         show-overflow
         :loading="loading"
         align="center"

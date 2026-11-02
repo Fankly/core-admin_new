@@ -34,6 +34,7 @@ export interface Columns {
 }
 
 export interface TableInfo {
+  cellConfig?: VxeTablePropTypes.CellConfig;
   rowConfig: VxeTablePropTypes.RowConfig;
   columns: Columns[];
   sumColumns?: Columns[];

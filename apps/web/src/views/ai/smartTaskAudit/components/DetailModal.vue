@@ -78,7 +78,7 @@ const props = defineProps({
 
 defineEmits(['close'])
 
-const currentUserRole = inject<Ref<UserRole>>(CurrentUserRoleInjectionKey)
+const currentUserRole = inject(CurrentUserRoleInjectionKey, undefined)
 const projectDetailRef = ref<InstanceType<typeof CentralizedModification> | null>(null)
 const projectDetailData = ref({ id: '', xmlx: '' })
 

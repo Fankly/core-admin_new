@@ -180,6 +180,7 @@
       </div>
       <div class="table">
         <vxe-table
+          :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
           keep-source
           height="auto"
           max-height="100%"
@@ -187,8 +188,7 @@
             trigger: 'row',
             highlight: true
           }"
-          resizable
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           border
           stripe
           show-overflow

@@ -236,7 +236,7 @@
 <script setup>
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Search as EpSearch } from '@element-plus/icons-vue'
 import { markRaw as markElementIconRaw, ref, reactive, toRef } from 'vue'
-import VChart from 'vue-echarts'
+import VChart from '@/components/charts/VChart'
 import userDialog from '@/components/select/userDialog.vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'

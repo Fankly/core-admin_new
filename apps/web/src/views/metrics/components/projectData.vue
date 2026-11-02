@@ -1,7 +1,7 @@
 <!-- 项目明细 -->
 <template>
   <div>
-    <vxe-modal resize show-zoom fullscreen  v-model="isShowModel" :destroy-on-close="true" title="项目明细" :width="1200" :close-on-press-escape="false" @close="closeHandle">
+    <vxe-modal resize show-zoom fullscreen  v-model="isShowModel" :destroy-on-close="true" title="项目明细" :width="1200" :esc-closable="false" @close="closeHandle">
       <proTable row-key="id" ref="proTableRef" sortable :search-col="4" :data-callback="pageList" :request-api="pageMeeting" :request-auto="true" :columns="tableColumns" >
         <template #tableHeader>
           <el-button type="primary" size="small" plain @click="handlerExport">导 出</el-button>

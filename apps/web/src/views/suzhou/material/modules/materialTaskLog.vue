@@ -30,7 +30,8 @@
         </el-row>
       </el-form>
       <div class="table">
-        <vxe-grid ref="gridRef" v-bind="gridOptions"></vxe-grid>
+        <vxe-grid
+      ref="gridRef" v-bind="gridOptions"></vxe-grid>
       </div>
       <div class="main-pagination">
         <el-pagination
@@ -89,9 +90,8 @@ const gridOptions = reactive<VxeGridProps<MaterialTaskLogRow>>({
   showHeaderOverflow: true,
   headerAlign: 'center',
   align: 'center',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },

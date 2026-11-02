@@ -4,7 +4,8 @@
       <el-button type="primary" size="small" plain @click="exportHandle">导 出</el-button>
     </div>
     <div class="table">
-      <vxe-table  ref="tableRef" :data="tableData" border stripe resizable align="center" header-align="center" show-overflow show-header-overflow :row-config="{ height: 32 }" height="100%">
+      <vxe-table
+        :cell-config="{ height: 32 }" :column-config="{ resizable: true }"  ref="tableRef" :data="tableData" border stripe  align="center" header-align="center" show-overflow show-header-overflow :row-config="{}" height="100%">
         <vxe-column width="220" title="项目类型" field="xmlx"></vxe-column>
         <vxe-column width="220" title="单位" field="dw"></vxe-column>
         <vxe-colgroup title="当前执行速度">

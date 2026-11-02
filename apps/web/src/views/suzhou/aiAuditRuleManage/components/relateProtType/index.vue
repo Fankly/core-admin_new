@@ -9,7 +9,7 @@
       :width="500"
       :height="640"
       resize
-      :close-on-press-escape="false"
+      :esc-closable="false"
       :loading="loading"
       @close="closeModalHandle"
     >

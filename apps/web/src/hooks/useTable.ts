@@ -63,9 +63,9 @@ export const useTable = <T = unknown>(
       state.tableData = shallowReactive(Array.isArray(data) ? data : data.records)
       if (pageable && !Array.isArray(data)) {
         Object.assign(state.pageable, {
-          current: data.current,
-          size: data.size,
-          total: data.total
+          current: Number(data.current) || state.pageable.current,
+          size: Number(data.size) || state.pageable.size,
+          total: Number(data.total) || 0
         })
       }
     } catch (error) {

@@ -54,7 +54,6 @@ const loadUserWfInfoMethod = () => {
         message: res.msg
       })
     }
-    document.domain = 'sgcc.com.cn'
     const width = window.parent.innerWidth
     const height = window.parent.innerHeight
     window.parent.Appframe ? window.parent.Appframe.workflow.WorkList.setWidth(width, height) : ''
@@ -400,7 +399,8 @@ const unitDescImportHandle = async () => {
       </div>
     </div>
     <div class="table">
-      <vxe-table
+      <vxe-table keep-source
+        :cell-config="{ height: 32 }"
         :checkbox-config="{
           trigger: 'row',
           highlight: true
@@ -408,7 +408,7 @@ const unitDescImportHandle = async () => {
         @cell-click="cellClickHandle"
         @checkbox-change="checkChangeHandle"
         @checkbox-all="checkChangeAllHandle"
-        :row-config="{ height: 32 }"
+        :row-config="{}"
         show-overflow
         :loading="loading"
         align="center"
@@ -477,7 +477,6 @@ const unitDescImportHandle = async () => {
   </div>
   <el-dialog
     @close="closeHandle"
-    v-loading="loading"
     v-model="spyjDialog.showDialog"
     title="审批意见"
     :destroy-on-close="true"
@@ -485,14 +484,16 @@ const unitDescImportHandle = async () => {
     :close-on-press-escape="false"
     :close-on-click-modal="false"
   >
-    <el-form :disabled="loading" :model="spyjForm">
-      <el-form-item label="审批意见：">
-        <el-input maxlength="128" v-model="spyjForm.spyj" type="textarea" :rows="6" resize="none" />
-      </el-form-item>
-    </el-form>
-    <div style="text-align: center">
-      <el-button :loading="loading" @click="detailHandle" type="primary" plain size="small">确 定</el-button>
-      <el-button :loading="loading" @click="closeHandle" type="primary" plain size="small">关 闭</el-button>
+    <div v-loading="loading">
+      <el-form :disabled="loading" :model="spyjForm">
+        <el-form-item label="审批意见：">
+          <el-input maxlength="128" v-model="spyjForm.spyj" type="textarea" :rows="6" resize="none" />
+        </el-form-item>
+      </el-form>
+      <div style="text-align: center">
+        <el-button :loading="loading" @click="detailHandle" type="primary" plain size="small">确 定</el-button>
+        <el-button :loading="loading" @click="closeHandle" type="primary" plain size="small">关 闭</el-button>
+      </div>
     </div>
   </el-dialog>
   <ImportExcel ref="importRef" />

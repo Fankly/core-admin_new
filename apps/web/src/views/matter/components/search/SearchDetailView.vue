@@ -1,6 +1,7 @@
 <template>
   <vxe-modal @show="showHandle" height="800" width="70%" :destroy-on-close="true" @close="closeHandle" title="项目明细" v-model="isShowModal" show-zoom resize position="center">
-    <vxe-grid v-bind="gripOptions">
+    <vxe-grid
+      v-bind="gripOptions">
       <template #pager>
         <el-pagination :current-page="page.page" background align="center" :page-sizes="[10, 20, 50, 100, 500]" :page-size="page.limit" :total="parseInt(page.total + '')" layout="total, sizes, prev, pager, next, jumper" @size-change="limitChangeHandle" @current-change="pageChangeHandle"></el-pagination>
       </template>
@@ -56,9 +57,8 @@ const gripOptions = reactive<VxeGridProps<RowVO>>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [
     {
       field: 'xmmc',

@@ -35,10 +35,11 @@
       </div>
       <div class="table-main">
         <vxe-table
+          :cell-config="{ height: 32 }"
           :cell-style="cellStyle"
           :loading="pageInfo.loading"
           @cell-click="handleCell"
-          :row-config="{ keyField: 'id', height: 32 }"
+          :row-config="{ keyField: 'id' }"
           :column-config="{ resizable: true }"
           :sort-config="{ remote: false }"
           :border="true"

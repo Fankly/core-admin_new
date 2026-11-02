@@ -1,6 +1,6 @@
 <template>
   <div class="allSee" v-loading="loading" element-loading-text="正在从服务器获取数据.....">
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
     <div class="title">
       <div class="searchBox">
         <span class="searchShow" v-if="searchShow == false" @click="showSearch(true)">
@@ -37,7 +37,7 @@
         <div class="proportionBox">
           <div>上年同期：{{ allData.lastYsje }}万元</div>
           <div class="percentageBox">
-            <img v-if="this.one > 0" src="@/assets/allsee/raise.png" />
+            <img v-if="one > 0" src="@/assets/allsee/raise.png" />
             <img v-else src="@/assets/allsee/decline.png" />
             <div style="margin-left: 10px">{{ allData.ysjeChange }}</div>
           </div>
@@ -50,7 +50,7 @@
         <div class="proportionBox">
           <div>上年同期：{{ allData.lastNdysze }}万元</div>
           <div class="percentageBox">
-            <img v-if="this.two > 0" src="@/assets/allsee/raise.png" />
+            <img v-if="two > 0" src="@/assets/allsee/raise.png" />
             <img v-else src="@/assets/allsee/decline.png" />
             <div style="margin-left: 10px">{{ allData.ndyszeChange }}</div>
           </div>
@@ -63,7 +63,7 @@
         <div class="proportionBox">
           <div>上年同期：{{ allData.lastYszxje }}万元</div>
           <div class="percentageBox">
-            <img v-if="this.three > 0" src="@/assets/allsee/raise.png" />
+            <img v-if="three > 0" src="@/assets/allsee/raise.png" />
             <img v-else src="@/assets/allsee/decline.png" />
             <div style="margin-left: 10px">{{ allData.yszxjeChange }}</div>
           </div>
@@ -76,7 +76,7 @@
         <div class="proportionBox">
           <div>上年同期：{{ allData.lastYszxl }}</div>
           <div class="percentageBox">
-            <img v-if="this.four > 0" src="@/assets/allsee/raise.png" />
+            <img v-if="four > 0" src="@/assets/allsee/raise.png" />
             <img v-else src="@/assets/allsee/decline.png" />
             <div style="margin-left: 10px">{{ allData.yszxlChange }}</div>
           </div>
@@ -353,7 +353,7 @@
 <script setup>
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Search as EpSearch } from '@element-plus/icons-vue'
 import { markRaw as markElementIconRaw, ref, reactive, toRef, onMounted, useTemplateRef } from 'vue'
-import VChart from 'vue-echarts'
+import VChart from '@/components/charts/VChart'
 import userDialog from '@/components/select/userDialog.vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
@@ -364,7 +364,7 @@ defineOptions({
   name: '/budget-process/04-monitor/overview'
 })
 const companyRef = useTemplateRef('company')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const setupState = reactive({
   EpArrowDown: markElementIconRaw(EpArrowDown),

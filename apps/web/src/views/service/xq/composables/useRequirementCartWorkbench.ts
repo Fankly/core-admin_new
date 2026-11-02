@@ -190,9 +190,8 @@ export const useRequirementCartWorkbench = (options: RequirementCartWorkbenchOpt
     align: 'center',
     showOverflow: true,
     height: '100%',
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columns: [],
     rowStyle: ({ row }: any) => {
       if (['Q01', 'Q02', 'Q03'].includes(row['zt'])) {
@@ -211,9 +210,8 @@ export const useRequirementCartWorkbench = (options: RequirementCartWorkbenchOpt
     align: 'center',
     showOverflow: true,
     height: '100%',
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columns: []
   })
 

@@ -120,9 +120,8 @@ const gridOptions = reactive<VxeGridProps<any>>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },

@@ -1,0 +1,44 @@
+diff --git a/es/components/form/src/form-label-wrap.mjs b/es/components/form/src/form-label-wrap.mjs
+index 9b604509eae47eb544274a29be9eb0b65dc96857..fed533fa2ae25976cf33192f8afa31ee08381d63 100644
+--- a/es/components/form/src/form-label-wrap.mjs
++++ b/es/components/form/src/form-label-wrap.mjs
+@@ -21,14 +21,15 @@ var form_label_wrap_default = /* @__PURE__ */ defineComponent({
+ 		const getLabelWidth = () => {
+ 			if (el.value?.firstElementChild) {
+ 				const width = window.getComputedStyle(el.value.firstElementChild).width;
+-				return Math.ceil(Number.parseFloat(width));
++				const numericWidth = Number.parseFloat(width);
++				return Number.isFinite(numericWidth) ? Math.ceil(numericWidth) : 0;
+ 			} else return 0;
+ 		};
+ 		const updateLabelWidth = (action = "update") => {
+ 			nextTick(() => {
+ 				if (formItemContext.hasLabel && props.isAutoWidth) {
+ 					if (action === "update") computedWidth.value = getLabelWidth();
+-					else if (action === "remove") formContext?.deregisterLabelWidth(computedWidth.value);
++					else if (action === "remove" && computedWidth.value > 0) formContext?.deregisterLabelWidth(computedWidth.value);
+ 				}
+ 			});
+ 		};
+diff --git a/lib/components/form/src/form-label-wrap.js b/lib/components/form/src/form-label-wrap.js
+index 58c4ab73747e099cdb552ec1ca00285949b9537e..6865920bf5d593198a20d00d19fc1d716683588a 100644
+--- a/lib/components/form/src/form-label-wrap.js
++++ b/lib/components/form/src/form-label-wrap.js
+@@ -21,14 +21,15 @@ var form_label_wrap_default = /* @__PURE__ */ (0, vue.defineComponent)({
+ 		const getLabelWidth = () => {
+ 			if (el.value?.firstElementChild) {
+ 				const width = window.getComputedStyle(el.value.firstElementChild).width;
+-				return Math.ceil(Number.parseFloat(width));
++				const numericWidth = Number.parseFloat(width);
++				return Number.isFinite(numericWidth) ? Math.ceil(numericWidth) : 0;
+ 			} else return 0;
+ 		};
+ 		const updateLabelWidth = (action = "update") => {
+ 			(0, vue.nextTick)(() => {
+ 				if (formItemContext.hasLabel && props.isAutoWidth) {
+ 					if (action === "update") computedWidth.value = getLabelWidth();
+-					else if (action === "remove") formContext?.deregisterLabelWidth(computedWidth.value);
++					else if (action === "remove" && computedWidth.value > 0) formContext?.deregisterLabelWidth(computedWidth.value);
+ 				}
+ 			});
+ 		};

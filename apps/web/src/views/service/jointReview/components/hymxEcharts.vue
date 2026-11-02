@@ -10,7 +10,7 @@
       :title="tableTitle"
       :width="1200"
       :height="700"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeSxModal"
       :loading="loading"
     >
@@ -227,10 +227,7 @@ const dwOBarOptions = reactive<any>({
       show: false
     },
     axisLabel: {
-      textStyle: {
-        fontFamily: 'Microsoft YaHei'
-        // padding: [20, 0, 0, 105]
-      },
+      fontFamily: 'Microsoft YaHei',
       interval: 0,
       clickable: true,
       rich: {

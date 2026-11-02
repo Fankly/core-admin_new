@@ -28,6 +28,7 @@
 
       <div class="parse-panel__body">
         <vxe-grid
+          :cell-config="{ height: 32 }"
           ref="gridRef"
           border
           stripe
@@ -35,7 +36,7 @@
           :loading="loading"
           :columns="columns"
           :data="rows"
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           :column-config="{ resizable: true }"
           :radio-config="{ trigger: 'row', highlight: true }"
           @radio-change="syncSelectedRows"

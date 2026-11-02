@@ -12,13 +12,14 @@
       </div>
     </div>
     <vxe-table
+      :cell-config="{ height: 32 }"
       ref="tableRef"
       @cell-click="handleTypeCellClick"
       :column-config="{ resizable: true }"
       show-overflow
       keep-source
       headerAlign="center"
-      :row-config="{ keyField: 'id', height: 32 }"
+      :row-config="{ keyField: 'id' }"
       border
       :row-style="rowStyle"
       :cell-style="cellStyle"
@@ -52,13 +53,14 @@
     </vxe-table>
     <!-- 业扩配套资源配置 -->
     <vxe-table
+      :cell-config="{ height: 32 }"
       style="margin-top: 10px"
       ref="typeRef"
       :column-config="{ resizable: true }"
       show-overflow
       keep-source
       headerAlign="center"
-      :row-config="{ keyField: 'id', height: 32 }"
+      :row-config="{ keyField: 'id' }"
       border
       :row-style="rowStyle"
       :cell-style="cellStyle"

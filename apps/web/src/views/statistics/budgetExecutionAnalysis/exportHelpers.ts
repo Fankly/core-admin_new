@@ -175,7 +175,7 @@ export const formatBudgetExecutionExportSheet = (
   const exportColumns = getExportLeafColumns(columns)
   const formulaWriters = buildCellFormulaWriters(exportColumns, context)
   const headerRowCount = options.isHeader === false ? 0 : options.isColgroup && colgroups?.length ? colgroups.length : 1
-  const { align, headerAlign, rowConfig, stripe, treeConfig } = $table.props
+  const { align, headerAlign, cellConfig, stripe, treeConfig } = $table.props
   const border = {
     top: { style: 'thin', color: { argb: BORDER_COLOR } },
     left: { style: 'thin', color: { argb: BORDER_COLOR } },
@@ -197,7 +197,7 @@ export const formatBudgetExecutionExportSheet = (
     if (!isHeader && !exportRow) return
     const sourceRow = exportRow?._row || exportRow
     const isStripe = !isHeader && stripe && ($table.getVTRowIndex(sourceRow) + 1) % 2 === 0
-    if (!isHeader && rowConfig?.height) row.height = rowConfig.height * 0.75
+    if (!isHeader && cellConfig?.height) row.height = cellConfig.height * 0.75
 
     // includeEmpty 仍可能漏掉行尾空格，按实际导出列补齐整行样式。
     exportColumns.forEach((column, index) => {

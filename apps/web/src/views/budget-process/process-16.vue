@@ -39,7 +39,7 @@
             </el-col>
             <el-col :span="6">
               <el-form-item label="供应商名称：">
-                <el-input class="formWidth" v-model="dataList.lifnr_name" :options="projects" @change="handleChange" />
+                <el-input class="formWidth" v-model="dataList.lifnr_name" />
               </el-form-item>
             </el-col>
           </el-row>
@@ -117,7 +117,7 @@
       @current-change="pageChangeHandle"
     >
     </el-pagination>
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   </div>
 </template>
 
@@ -146,7 +146,7 @@ defineOptions({
 const router = useRouter()
 const companyRef = useTemplateRef('company')
 const gysbmRef = useTemplateRef('gysbm')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const helpHandle = () => {
   const url = store.getters.getMenuMsg.url
@@ -251,7 +251,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   tableHeight: '',
   topHeight: '',
@@ -483,9 +483,9 @@ function loadCompany() {
   companyRef.value.getAffiliatedUnit(setupState.specialorgid)
 }
 onMounted(() => {
-  setupState.topHeight = document.querySelector('.topBox').clientHeight
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setupState.topHeight = (document.querySelector('.topBox')?.clientHeight ?? 0)
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  setupState.searchHeight = (document.querySelector('.search')?.clientHeight ?? 0)
   setTableHeight()
   getTime()
   setupState.loading = true

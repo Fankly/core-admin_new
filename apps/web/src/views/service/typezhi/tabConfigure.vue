@@ -475,9 +475,8 @@ const gridBaseOptions: VxeGridProps<any> = {
   columnConfig: {
     resizable: true
   },
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   checkboxConfig: {
     highlight: true
   }

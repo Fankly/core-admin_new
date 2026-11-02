@@ -15,6 +15,7 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle" />
   <viewModal ref="modalRef" @show-modal="showModal" :title="title" :nd="nd" />
   <ProtableCurdModal
+    v-if="userInfo"
     :export-api="table1.exportApi"
     :get-table-list="table1.getTableList"
     :delete-api="table1.deleteApi"

@@ -346,7 +346,7 @@ const getRuleReviewParams = (taskId: string, ruleClassify: string) => {
 
 defineEmits(['close'])
 
-const currentUserRole = inject<Ref<UserRole>>(CurrentUserRoleInjectionKey)
+const currentUserRole = inject(CurrentUserRoleInjectionKey, undefined)
 
 const assetGssdbDetailsLoader = () => import('@/views/service/xq/components/AssetgssdbDetails.vue')
 const xmbgxxLoader = () => import('@/views/service/xq/components/xmbgxx.vue')

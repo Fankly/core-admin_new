@@ -22,8 +22,8 @@ export const useService = () => {
     align: 'center',
     height: '100%',
     loading: false,
+    cellConfig: { height: 32 },
     rowConfig: {
-      height: 32,
       isCurrent: true
     },
     columnConfig: {

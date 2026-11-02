@@ -6,7 +6,7 @@ import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import SvgIcon from '@/components/base/svg-icon/index.vue'
-import VChart from 'vue-echarts'
+import VChart from '@/components/charts/VChart'
 import { getAppMenu } from '@/api/menu/menuConfig'
 import { MenuConfig } from '@/views/service/xq/interface'
 import baseService from '@/service/baseService'
@@ -113,9 +113,7 @@ const dwOBarOptions = reactive<any>({
       }
     },
     axisLabel: {
-      textStyle: {
-        fontFamily: 'Microsoft YaHei'
-      }
+      fontFamily: 'Microsoft YaHei'
     }
   },
   yAxis: {

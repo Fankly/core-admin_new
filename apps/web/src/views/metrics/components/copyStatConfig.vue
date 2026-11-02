@@ -39,9 +39,9 @@ interface NdList {
 interface Props {
   nd: string
   ndList: NdList[]
-  busiType: string
+  busiType?: string
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), { busiType: '' })
 const emit = defineEmits(['close', 'copy'])
 const showModal = ref(false)
 const loading = ref(false)

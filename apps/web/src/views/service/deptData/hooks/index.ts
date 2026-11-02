@@ -56,10 +56,8 @@ export function echartOption() {
         show: false
       },
       axisLabel: {
-        textStyle: {
-          fontFamily: 'Microsoft YaHei',
-          padding: [20, 0, 0, 105]
-        },
+        fontFamily: 'Microsoft YaHei',
+        padding: [20, 0, 0, 105],
         interval: 0,
         rotate: 15,
         clickable: true,

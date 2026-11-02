@@ -75,7 +75,7 @@
           }}</base-tag>
         </template>
       </vxe-column>
-      <vxe-column title="操作" width="150px" fixed="right">
+      <vxe-column field="actions" title="操作" width="150px" fixed="right">
         <template v-slot="scope">
           <el-button type="primary" link :size="defaultFormItemSize" @click="onDetail(scope.row.approveId)"> 详情 </el-button>
         </template>

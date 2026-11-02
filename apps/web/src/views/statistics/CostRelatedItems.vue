@@ -128,11 +128,9 @@
     </div>
     <div class="table">
       <vxe-table
+        :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
         :loading="pageInfo.loading"
-        resizable
-        :rowConfig="{
-          height: 32
-        }"
+        :row-config="{}"
         show-header-overflow
         show-overflow
         border

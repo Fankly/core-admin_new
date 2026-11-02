@@ -1,5 +1,5 @@
 <template>
-  <div class="container_echarts" v-loading="loading" v-show="!formData.isCity">
+  <div class="container_echarts" v-loading="loading" v-if="!formData.isCity">
     <div class="container_bar">
       <div class="echarts_title">
         <template v-for="(item, index) in dwTitle" :key="index">
@@ -38,7 +38,7 @@
       />
     </div>
     <div class="container_bar" v-if="!isBMCW">
-      <div class="echarts_title" v-show="txOBarOptions.xAxis.data.length != 0">
+      <div class="echarts_title" v-if="txOBarOptions.xAxis.data.length != 0">
         <template v-for="(item, index) in zdtxTitle" :key="index">
           <span>{{ item.name }}：</span>
           <span class="echarts_title_click" :style="{ color: item.color }" @click="handleNumber(item, index, 'ZDTX')">{{ item.total }}</span>
@@ -48,14 +48,14 @@
       <v-chart
         @click="handleZdtx"
         class="echarts_style"
-        v-show="txOBarOptions.xAxis.data.length != 0"
+        v-if="txOBarOptions.xAxis.data.length != 0"
         style="height: 90%"
         :option="txOBarOptions"
         :autoresize="true"
         :update-options="{ notMerge: true }"
         :loadingOptions="barLoadingOptions"
       />
-      <v-chart class="echarts_style" v-show="txOBarOptions.xAxis.data.length == 0" style="height: 90%" :option="nullOptions" :autoresize="true" />
+      <v-chart class="echarts_style" v-if="txOBarOptions.xAxis.data.length == 0" style="height: 90%" :option="nullOptions" :autoresize="true" />
     </div>
   </div>
   <sxTable ref="modalTbaleRef" />
@@ -63,7 +63,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch, nextTick } from 'vue'
-import VChart from 'vue-echarts'
+import VChart from '@/components/charts/VChart'
 import { getStatDataByDw, getStatDataByZgkbm, getStatDataByZdtx } from '@/api/lkyptzl/index'
 import sxTable from '@/views/service/lkyptzl/components/sxTable.vue'
 import { useRoute } from 'vue-router'
@@ -163,10 +163,8 @@ const txOBarOptions = reactive<any>({
       show: false
     },
     axisLabel: {
-      textStyle: {
-        fontFamily: 'Microsoft YaHei',
-        padding: [20, 0, 0, 105]
-      },
+      fontFamily: 'Microsoft YaHei',
+      padding: [20, 0, 0, 105],
       interval: 0,
       rotate: 15
       // formatter:formatterFun
@@ -231,10 +229,8 @@ const bmOBarOptions = reactive<any>({
       show: false
     },
     axisLabel: {
-      textStyle: {
-        fontFamily: 'Microsoft YaHei',
-        padding: [20, 0, 0, 105]
-      },
+      fontFamily: 'Microsoft YaHei',
+      padding: [20, 0, 0, 105],
       interval: 0,
       rotate: 15
       // formatter:formatterFun
@@ -343,9 +339,7 @@ const dwOBarOptions = reactive<any>({
       show: false
     },
     axisLabel: {
-      textStyle: {
-        fontFamily: 'Microsoft YaHei'
-      },
+      fontFamily: 'Microsoft YaHei',
       interval: 0,
       clickable: true,
       rich: {

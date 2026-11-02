@@ -201,6 +201,7 @@
   <review-modal ref="returnModal" :text="`是否确认退回？`" :title="'退回意见'" :label="'退回意见'" @show-modal="returnMag" />
 </template>
 <script lang="ts" setup>
+import historyModal from '@/views/service/ywpt/components/history.vue'
 import { More as EpMore, Search as EpSearch } from '@element-plus/icons-vue'
 import { ref, reactive, nextTick, onMounted, computed } from 'vue'
 import otherOpinion from './components/otherOpinion.vue'
@@ -564,6 +565,10 @@ const submitReview = async () => {
 }
 
 onMounted(async () => {
+  if (typeof route.query.params !== 'string' || !route.query.params) {
+    ElMessage.warning('缺少页面参数，请从项目列表重新进入')
+    return
+  }
   userInfo.value = JSON.parse(decrypt(route.query.params as string))
   userInfo.value.expertName = decodeURIComponent(userInfo.value.expertName as string)
   const aiAuditParams = await initAiAuditParams()

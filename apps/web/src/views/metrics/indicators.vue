@@ -214,7 +214,7 @@ const getCurrentMonth = () => {
 // 列颜色
 const columnStyle = ({ row, column, rowIndex, columnIndex }: any) => {
   if (['结算率(%)', '单位', '项目类型'].includes(column.label)) {
-    return 'background-color:#F5F7FA;cursor: pointer'
+    return { backgroundColor: '#F5F7FA', cursor: 'pointer' }
   }
 }
 // 行样式

@@ -9,7 +9,7 @@
     :destroy-on-close="true"
     :title="'编辑'"
     :width="1000"
-    :close-on-press-escape="false"
+    :esc-closable="false"
     @close="closeHandle"
   >
     <div style="margin: 0 0 10px 0">
@@ -389,7 +389,7 @@ const selectionChange = (selection: any) => {
 // 列颜色
 const columnStyle = ({ row, column, rowIndex, columnIndex }: any) => {
   if (column.label == '附件名称') {
-    return 'color:#00706b;cursor: pointer;'
+    return { color: '#00706b', cursor: 'pointer' }
   }
 }
 // 下载附件

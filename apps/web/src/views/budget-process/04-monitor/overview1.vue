@@ -269,7 +269,7 @@
         </figure>
       </div>
     </div>
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   </div>
 </template>
 
@@ -300,7 +300,7 @@ import {
   ToolboxComponent,
   DataZoomComponent
 } from 'echarts/components'
-import VChart, { THEME_KEY } from 'vue-echarts'
+import VChart, { THEME_KEY } from '@/components/charts/VChart'
 import { ref, proxyRefs, toRef, provide, useTemplateRef } from 'vue'
 import { setup } from 'xe-utils/ctor'
 import userDialog from '@/components/select/userDialog.vue'
@@ -310,7 +310,7 @@ import { useStore } from '@/store/business'
 defineOptions({
   name: '/budget-process/04-monitor/overview'
 })
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const loading = ref(false)
 const userCode = ref()
@@ -670,10 +670,8 @@ const zz1 = ref({
       },
       axisLabel: {
         margin: 10,
-        textStyle: {
-          fontSize: 14,
+        fontSize: 14,
           color: '#ccc'
-        }
       },
       data: [
         '立项及时性',
@@ -803,10 +801,8 @@ const zz2 = ref({
       },
       axisLabel: {
         margin: 10,
-        textStyle: {
-          fontSize: 14,
+        fontSize: 14,
           color: '#ccc'
-        }
       },
       data: [
         '立项规范性',

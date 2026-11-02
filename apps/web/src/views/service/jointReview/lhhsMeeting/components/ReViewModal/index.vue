@@ -91,6 +91,8 @@ defineOptions({
   name: 'ReViewModal'
 })
 
+const emit = defineEmits(['clearSelect'])
+
 interface ModalProps {
   title: string
   pageFlag: string
@@ -122,6 +124,7 @@ const rowClick = (row: any) => {
 }
 const loading = ref(false)
 const closeHandle = () => {
+  emit('clearSelect')
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
   pszyListData.value.length = 0

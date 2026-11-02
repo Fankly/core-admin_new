@@ -146,7 +146,7 @@ const initParamLists = async () => {
 // 列颜色
 const columnStyle = ({ row, column, rowIndex, columnIndex }: any) => {
   if (column.label == '评审意见报告') {
-    return 'color:#00706b;cursor: pointer;'
+    return { color: '#00706b', cursor: 'pointer' }
   }
 }
 // 行颜色

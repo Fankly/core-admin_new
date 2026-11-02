@@ -231,9 +231,8 @@ export const useTargetControlAdjustmentModal = (props: TargetControlAdjustmentMo
       showStatus: true,
       beforeEditMethod: ({ row }) => isDetailRow(row)
     },
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     cellClassName,
     rowClassName,
     cellStyle,

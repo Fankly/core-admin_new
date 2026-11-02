@@ -116,7 +116,8 @@
         </el-form>
       </div>
       <div class="table">
-        <vxe-grid ref="gridRef" class="mytable-style" :rowClassName="rowClassName" v-bind="gridOptions"></vxe-grid>
+        <vxe-grid
+      ref="gridRef" class="mytable-style" :rowClassName="rowClassName" v-bind="gridOptions"></vxe-grid>
       </div>
     </div>
   </div>
@@ -603,9 +604,8 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   size: 'mini'
 })
 const rowClassName: VxeTablePropTypes.RowClassName<RowVo> = ({ row }) => {

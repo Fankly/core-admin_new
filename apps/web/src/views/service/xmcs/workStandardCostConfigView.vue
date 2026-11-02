@@ -53,7 +53,8 @@
               <el-button @click="resetDetailSearch">重 置</el-button>
             </div>
             <div class="panel-right-table">
-              <vxe-grid ref="gridRef" v-bind="gridOptions" />
+              <vxe-grid
+            ref="gridRef" v-bind="gridOptions" />
             </div>
             <div class="main-pagination">
               <el-pagination
@@ -146,9 +147,8 @@ const gridOptions = reactive<any>({
   showHeaderOverflow: true,
   height: '100%',
   size: 'mini',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },

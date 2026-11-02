@@ -56,7 +56,7 @@
             </el-col>
             <el-col :span="6">
               <el-form-item label="展示维度：">
-                <el-radio-group v-model="dataList.select" @change="changeCompany">
+                <el-radio-group v-model="dataList.select">
                   <el-radio :value="0" border style="margin-right: 10px">单位</el-radio>
                   <el-radio :value="1" border>类型</el-radio>
                 </el-radio-group>
@@ -104,7 +104,7 @@
         <el-table-column width="160" prop="dataMap.zl04" label="3年以上" align="center"></el-table-column>
       </el-table-column>
     </el-table>
-    <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+    <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   </div>
 </template>
 
@@ -135,7 +135,7 @@ const xmxzRef = useTemplateRef('xmxz')
 const typeRef = useTemplateRef('type')
 const companyRef = useTemplateRef('company')
 const gkbmRef = useTemplateRef('gkbm')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const store = useStore()
 const helpHandle = () => {
   const url = store.getters.getMenuMsg.url
@@ -326,9 +326,9 @@ function loadCompany() {
   gkbmRef.value.getProjectType(setupState.specialorgid)
 }
 onMounted(() => {
-  setupState.topHeight = document.querySelector('.topBox').clientHeight
-  setupState.heightNum = document.querySelector('.el-card').clientHeight
-  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setupState.topHeight = (document.querySelector('.topBox')?.clientHeight ?? 0)
+  setupState.heightNum = (document.querySelector('.ds-workspace__viewport')?.clientHeight ?? window.innerHeight)
+  setupState.searchHeight = (document.querySelector('.search')?.clientHeight ?? 0)
   setTableHeight()
   getTime()
   setupState.loading = true

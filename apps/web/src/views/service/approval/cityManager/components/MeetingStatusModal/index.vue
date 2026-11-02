@@ -8,7 +8,7 @@
     show-zoom
     :width="420"
     :height="190"
-    :close-on-press-escape="false"
+    :esc-closable="false"
     @close="closeHandle"
   >
     <div class="meeting-status-modal">

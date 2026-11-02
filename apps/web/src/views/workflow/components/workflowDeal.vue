@@ -440,7 +440,6 @@ const baseMsgData = reactive<BaseMsgData>({
           <el-table-column show-overflow-tooltip width="160" :label="item.columnName" :prop="item.columnKey"></el-table-column>
         </template>
       </el-table>
-      <el-pagination></el-pagination>
     </div>
     <div class="pagination">
       <el-pagination

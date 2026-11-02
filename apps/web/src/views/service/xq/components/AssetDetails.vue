@@ -232,7 +232,6 @@
         :show-overflow="true"
         border
         stripe
-        resizable
         header-align="center"
         height="100%"
       >

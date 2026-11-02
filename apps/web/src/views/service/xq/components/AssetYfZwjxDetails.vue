@@ -8,13 +8,14 @@
         <div class="amount">金额单位:元</div>
         <div class="table" :style="{ height: itemHeight + 'px' }">
           <vxe-table
+            :cell-config="{ height: 32 }"
             :loading="loading"
             :data="glsbLists"
             stripe
             :column-config="{
               resizable: true
             }"
-            :row-config="{ height: 32 }"
+            :row-config="{}"
             show-header-overflow
             show-overflow
             border
@@ -102,13 +103,14 @@
         <div class="amount">金额单位:元</div>
         <div class="table" :style="{ height: itemHeight + 'px' }">
           <vxe-table
+            :cell-config="{ height: 32 }"
             :data="cbgjLists"
             :loading="loading"
             stripe
             :column-config="{
               resizable: true
             }"
-            :row-config="{ height: 32 }"
+            :row-config="{}"
             show-header-overflow
             show-overflow
             border
@@ -260,9 +262,9 @@ import { IObject } from '@/types/interface'
 defineOptions({ name: "AssetYfZwjxDetails" })
 
 interface Props {
-  selectData: any
-  globalParams: any
-  opType: string
+  selectData?: any
+  globalParams?: any
+  opType?: string
 }
 
 type Names = 'hardware' | 'information'

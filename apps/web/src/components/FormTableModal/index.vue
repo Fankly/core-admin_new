@@ -186,6 +186,7 @@
           <el-button type="primary" plain size="small" @click="gzlImport">工作量导入</el-button>
         </div>
         <vxe-table
+          :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
           keep-source
           :edit-config="{
             trigger: 'click',
@@ -193,14 +194,13 @@
             showStatus: true
           }"
           ref="tableRef"
-          resizable
           show-overflow
           show-header-overflow
           align="center"
           header-align="center"
           border
           stripe
-          :row-config="{ height: 32 }"
+          :row-config="{}"
           height="100%"
           :data="gzljnrData"
         >

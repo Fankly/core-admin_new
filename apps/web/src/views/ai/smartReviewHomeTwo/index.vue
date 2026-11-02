@@ -211,7 +211,8 @@
               <h2>最近审核业务</h2>
             </div>
             <div class="srh-business-table">
-              <vxe-grid ref="gridRef" v-bind="gridOptions">
+              <vxe-grid
+                ref="gridRef" v-bind="gridOptions">
                 <template #status_default="{ row }">
                   <span v-if="row.status" class="cell-status" :class="resolveStatusClass(row.status)">
                     <component :is="resolveStatusIcon(row.status)" class="cell-status__icon" aria-hidden="true" />
@@ -474,8 +475,8 @@ const gridOptions = reactive<VxeGridProps<AuditRow>>({
   columnConfig: {
     resizable: true
   },
+  cellConfig: { height: 32 },
   rowConfig: {
-    height: 32,
     isHover: true
   },
   columns: [

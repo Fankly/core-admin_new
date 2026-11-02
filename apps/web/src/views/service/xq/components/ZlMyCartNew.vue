@@ -699,9 +699,8 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   rowStyle: ({ row, rowIndex }: any) => {
     if (['Q01', 'Q02'].includes(row['zt'])) {

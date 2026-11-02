@@ -312,9 +312,9 @@ const gridOptions = reactive<VxeGridProps<MeetingRow>>({
     highlight: true,
     range: true
   },
+  cellConfig: { height: 32 },
   rowConfig: {
-    isHover: true,
-    height: 32
+    isHover: true
   },
   columnConfig: {
     resizable: true

@@ -1,5 +1,5 @@
 <template>
-  <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+  <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   <div v-loading="loading" v-if="isShow" class="ImplementationProgress">
     <div class="tabs">
       <div class="fatherBox box-1" @click="changeColor('box-1')">
@@ -86,7 +86,7 @@ defineOptions({
   name: '/budget-process/04-monitor/visualOverview'
 })
 const componentInstance = getCurrentInstance().proxy
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const setupState = reactive({
   temShow: '',
   isShow: false,

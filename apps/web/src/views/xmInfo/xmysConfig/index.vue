@@ -37,7 +37,7 @@
       :destroy-on-close="true"
       :title="modalParams.title"
       :width="800"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeHandle"
     >
       <el-form label-suffix=" : " ref="ruleFormRef" label-width="120px" label-position="right" :model="rmarkData" :hide-required-asterisk="false">

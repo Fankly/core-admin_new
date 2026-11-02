@@ -209,7 +209,8 @@
           </el-form>
         </div>
         <div class="table">
-          <vxe-grid v-on="gridEvent" ref="gridRef" v-bind="gridOptions"> </vxe-grid>
+          <vxe-grid
+        v-on="gridEvent" ref="gridRef" v-bind="gridOptions"> </vxe-grid>
         </div>
       </div>
     </el-tabs>
@@ -358,8 +359,8 @@ const gridOptions = reactive<any>({
   align: 'right',
   showOverflow: true,
   height: '100%',
+  cellConfig: { height: 32 },
   rowConfig: {
-    height: 32,
     keyField: 'id'
   },
   columns: [],
@@ -497,7 +498,7 @@ const setDefaultValue = async () => {
       searchForm[key] = ''
     }
     if (key === 'templateCode' && publicCode.BZCBCXPZ_TEMPLATE_CODE) {
-      searchForm.templateCode = publicCode.BZCBCXPZ_TEMPLATE_CODE[0].code
+      searchForm.templateCode = publicCode.BZCBCXPZ_TEMPLATE_CODE[0]?.code ?? ''
     }
   }
   year.value = new Date().getFullYear().toString()

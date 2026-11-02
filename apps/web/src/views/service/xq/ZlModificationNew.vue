@@ -190,7 +190,7 @@ const isShowModal = ref(false)
 const isShowPage = ref(false)
 const loading = ref(false)
 const selectData = ref<any>({})
-const selectDatas = ref<RowVo[]>()
+const selectDatas = ref<RowVo[]>([])
 const gridRef = ref()
 const editPageRef = ref()
 const searchCode = ref('ZLXQLR')
@@ -750,9 +750,8 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   rowStyle: ({ row, rowIndex }: any) => {
     if (['Q01', 'Q02'].includes(row['zt'])) {

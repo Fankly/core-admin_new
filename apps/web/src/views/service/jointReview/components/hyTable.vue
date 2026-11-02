@@ -10,7 +10,7 @@
       :title="tableTitle"
       :width="1200"
       :height="700"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeSxModal"
       :loading="loading"
     >

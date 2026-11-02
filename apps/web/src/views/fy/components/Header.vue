@@ -43,7 +43,7 @@ defineOptions({
 })
 
 export interface HeaderData {
-  dwName: string
+  dwName?: string
   toolButton?: ('nd' | 'dw' | 'xsws')[] | boolean // 是否显示年度或者单位 ==> 非必传（默认为true）
 }
 const props = withDefaults(defineProps<HeaderData>(), {

@@ -25,7 +25,7 @@ defineOptions({
 })
 
 interface Props {
-  helpMessage: string
+  helpMessage?: string
 }
 const emits = defineEmits(['pageExportData', 'exportApiData', 'onDetailView', 'expandData'])
 const props = withDefaults(defineProps<Props>(), {

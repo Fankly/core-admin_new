@@ -58,6 +58,24 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
+test('dashboard startup, refresh and settings leave the console warning-free', async ({ page }) => {
+  const warnings: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'warning' || message.type() === 'error') warnings.push(message.text())
+  })
+  page.on('pageerror', (error) => warnings.push(error.message))
+  await openDashboard(page)
+  await expect(page.locator('.todo-vxe .vxe-table--body-wrapper')).toBeVisible()
+  await page.getByRole('button', { name: '打开界面设置' }).click()
+  await expect(page.getByRole('dialog', { name: '界面设置' })).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog', { name: '界面设置' })).toBeHidden()
+  await page.getByRole('button', { name: '刷新当前页面' }).click()
+  await expect(dashboardHeading(page)).toBeVisible()
+  await expect(page.locator('.todo-vxe .vxe-table--body-wrapper')).toBeVisible()
+  expect(warnings).toEqual([])
+})
+
 test('an empty menu completes startup and remains ready across navigation', async ({ page }) => {
   let menuRequests = 0
   await page.route('**/api/sys/menu/nav*', async (route) => {

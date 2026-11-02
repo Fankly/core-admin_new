@@ -88,7 +88,8 @@ const gridOptions = reactive<VxeGridProps>({
   showOverflow: true,
   height: '100%',
   // 多选：取消 current 行高亮，改用 checkbox 选中行高亮；单选：保留 current 高亮
-  rowConfig: { height: 32, isCurrent: !props.showCheckbox, isHover: true },
+  cellConfig: { height: 32 },
+  rowConfig: { isCurrent: !props.showCheckbox, isHover: true },
   checkboxConfig: {
     highlight: props.showCheckbox,
     // 开启 trigger:row 后点击整行即可勾选/取消复选框

@@ -101,7 +101,8 @@
         </el-form>
       </div>
       <div class="table">
-        <vxe-grid ref="gridRef" v-bind="gridOptions">
+        <vxe-grid
+          ref="gridRef" v-bind="gridOptions">
           <template #confirmIsGdzcName_default="{ row }">
             <span>{{ formatColumnValue(row, 'confirmIsGdzcName') }}</span>
           </template>

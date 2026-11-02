@@ -10,7 +10,7 @@
       :title="formData?.title"
       :fullscreen="true"
       :width="1200"
-      :close-on-press-escape="true"
+      :esc-closable="true"
       @close="closeHandle"
       :loading="pageInfo.loading"
     >
@@ -39,9 +39,10 @@
         <div class="table">
           <!-- <vxe-toolbar ref="toolbarRef" custom /> -->
           <vxe-table
+            :cell-config="{ height: 32 }"
             :row-style="tableInfo.rowStyle"
             :cell-style="tableInfo.cellStyle"
-            :row-config="{ keyField: 'id', height: 32 }"
+            :row-config="{ keyField: 'id' }"
             :column-config="{ resizable: true }"
             :border="true"
             align="center"

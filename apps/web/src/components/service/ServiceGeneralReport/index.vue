@@ -38,7 +38,7 @@ interface ApiResponse<T = any> {
 
 interface ServiceGeneralReportProps {
   searchCode: string
-  tabLayout: 'top' | 'middle'
+  tabLayout?: 'top' | 'middle'
   buttonPermissions: string[]
   searchApi: (params: SearchParams) => Promise<ApiResponse<any>>
   exportApi?: (params: SearchParams) => Promise<any>
@@ -138,7 +138,8 @@ const createTabState = (): TabState => ({
     align: 'center',
     showOverflow: true,
     height: '100%',
-    rowConfig: { height: 32 },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columns: [],
     data: []
   },

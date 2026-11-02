@@ -40,6 +40,7 @@ export interface TableMsg {
   zyTreeConfig?: VxeTablePropTypes.TreeConfig;
   ndTreeConfig?: VxeTablePropTypes.TreeConfig;
   editConfig?: VxeTablePropTypes.EditConfig;
+  cellConfig?: VxeTablePropTypes.CellConfig;
   rowConfig: VxeTablePropTypes.RowConfig;
 }
 

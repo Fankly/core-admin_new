@@ -96,8 +96,10 @@
       </el-form>
     </div>
     <div class="table">
-      <vxe-grid v-if="activeName === 'first'" ref="gridRef" height="100%" v-bind="gridOptions"></vxe-grid>
-      <vxe-grid v-else ref="gridSecRef" height="100%" v-bind="gridSecOptions"></vxe-grid>
+      <vxe-grid
+      v-if="activeName === 'first'" ref="gridRef" height="100%" v-bind="gridOptions"></vxe-grid>
+      <vxe-grid
+    v-else ref="gridSecRef" height="100%" v-bind="gridSecOptions"></vxe-grid>
     </div>
     <div class="bottom">
       <el-pagination
@@ -791,9 +793,8 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: []
 })
 const gridSecOptions = reactive<VxeGridProps<RowVo>>({
@@ -806,9 +807,8 @@ const gridSecOptions = reactive<VxeGridProps<RowVo>>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: []
 })
 const getDynamicTable = async () => {

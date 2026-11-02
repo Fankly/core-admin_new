@@ -1,7 +1,7 @@
 <!-- 项目历史评审意见 -->
 <template>
   <div>
-    <vxe-modal ref="dialogHistoryef" :destroy-on-close="true" v-model="isShowModal" resize show-zoom fullscreen :title="`项目评审历史记录`" width="1200" :close-on-press-escape="false" @close="closeHandle">
+    <vxe-modal ref="dialogHistoryef" :destroy-on-close="true" v-model="isShowModal" resize show-zoom fullscreen :title="`项目评审历史记录`" width="1200" :esc-closable="false" @close="closeHandle">
       <div :style="{ maxHeight: isShowData ? '60vh' : '80vh' }" v-if="isShowModal">
         <proTable ref="proDataRef" :isShowTable="isShowTable" :data="props.dataList" @row-click="handerClickTable" :columns="tableColumns" :pagination="true" :toolButton="['other']">
           <!-- 表格 header 按钮 -->

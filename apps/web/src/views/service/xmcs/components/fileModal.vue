@@ -11,16 +11,16 @@
     </div>
     <div class="table">
       <vxe-table
+        :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
         ref="vxeTableRef"
         header-align="center"
         align="center"
         border
         stripe
-        resizable
         show-overflow
         height="400px"
         :data="fileList"
-        :row-config="{ height: 32 }"
+        :row-config="{}"
       >
         <vxe-column type="seq" width="50" title="序号" />
         <vxe-column field="attachTypeName" title="附件类型" width="160" />

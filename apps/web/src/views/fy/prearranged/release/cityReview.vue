@@ -16,7 +16,8 @@
           </div>
         </div>
         <div class="standrand-table">
-          <vxe-table 
+          <vxe-table
+            :cell-config="tableMsg.cellConfig"
             :row-config="tableMsg.rowConfig"
             show-overflow
             :loading="userMsg.loading"
@@ -64,7 +65,8 @@
           </div>
         </div>
         <div class="standrand-table">
-          <vxe-table 
+          <vxe-table
+            :cell-config="tableMsg.cellConfig"
             :row-config="tableMsg.rowConfig"
             show-overflow
             :loading="userMsg.loading"
@@ -100,7 +102,8 @@
       :xsws="tableMsg.xsws"
       busi-type="YAP"
       ref="reviewLayoutRef"
-      :row-config="{ isCurrent: true, height: 32 }"
+      :row-config="{ isCurrent: true }"
+      :cell-config="{ height: 32 }"
       @close-dialog="closeDialog"
       :request-api="getTableList"
       :columns="reviewColumns"
@@ -269,9 +272,8 @@ const kmMsg = reactive<{
   title: '预安排审定 - 科目查看'
 })
 const tableMsg = reactive<TableMsg>({
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   nd: '',
   xsws: '',
   tableData: [],

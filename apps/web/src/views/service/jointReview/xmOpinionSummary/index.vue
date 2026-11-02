@@ -63,7 +63,8 @@
           </div>
         </div>
         <div class="right-column-table">
-          <vxe-grid ref="xmTableRef" v-bind="gridProps" />
+          <vxe-grid
+        ref="xmTableRef" v-bind="gridProps" />
         </div>
         <el-pagination
           :page-size="xmListPage.pageSize"
@@ -280,8 +281,8 @@ const gridProps = reactive<any>({
   align: 'center',
   showOverflow: true,
   height: '92%',
+  cellConfig: { height: 32 },
   rowConfig: {
-    height: 32,
     keyField: 'id'
   },
   border: true,

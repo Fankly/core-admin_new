@@ -231,6 +231,7 @@
             </div>
             <div class="table">
               <vxe-table
+                :cell-config="{ height: 32 }"
                 ref="uploadRef"
                 show-overflow
                 header-align="center"
@@ -240,7 +241,7 @@
                   resizable: true
                 }"
                 :checkbox-config="{ trigger: 'row', highlight: true }"
-                :row-config="{ isCurrent: true, isHover: true, height: 32 }"
+                :row-config="{ isCurrent: true, isHover: true }"
                 :data="fileList"
                 height="100%"
                 class="file-table"

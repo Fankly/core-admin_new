@@ -105,6 +105,7 @@
         </header>
         <div class="todo-vxe-box">
           <vxe-table
+            :cell-config="{ height: 44 }"
             class="todo-vxe"
             border="full"
             :data="todoRows"
@@ -114,7 +115,7 @@
             size="small"
             show-overflow
             :column-config="{ resizable: true }"
-            :row-config="{ isHover: true, height: 44 }"
+            :row-config="{ isHover: true }"
             :cell-style="{ color: '#475569' }"
             :header-cell-style="{ height: '36px', backgroundColor: '#f6f8fa', color: '#64748b', fontWeight: 400 }"
           >

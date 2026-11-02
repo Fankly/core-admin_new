@@ -43,7 +43,7 @@
 
       <div class="table-area">
         <vxe-table
-          resizable
+          :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
           showHeaderOverflow
           showOverflow
           ref="xTable"
@@ -52,7 +52,7 @@
           align="center"
           header-align="center"
           height="100%"
-          :row-config="{ keyField: idField, height: 32, isHover: true }"
+          :row-config="{ keyField: idField, isHover: true }"
           :radio-config="{}"
           @radio-change="handleRadioChange"
           @cell-click="handleRowClick"

@@ -12,7 +12,7 @@ export function installUiPlugins(app: App) {
   app.use(ElementPlus, { locale: zhCn, size: 'small' })
   app.component(
     'v-chart',
-    defineAsyncComponent(() => import('vue-echarts'))
+    defineAsyncComponent(() => import('@/components/charts/VChart'))
   )
 }
 

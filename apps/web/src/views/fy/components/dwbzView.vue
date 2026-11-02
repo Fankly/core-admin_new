@@ -19,9 +19,10 @@
       </div>
     </div>
     <div class="standrand-table">
-      <vxe-table 
+      <vxe-table
+        :cell-config="{ ...tableMsg.cellConfig, ...props.cellConfig }"
         :header-cell-style="headerCellStyle"
-        :row-config="tableMsg.rowConfig"
+        :row-config="{ ...tableMsg.rowConfig, ...props.rowConfig }"
         :cell-style="cellStyle"
         keep-source
         :edit-config="tableMsg.editConfig"
@@ -50,6 +51,7 @@
 
 
 <script setup lang="ts">
+import type { VxeTablePropTypes } from 'vxe-table'
 import FileUpload from '@/views/fy/components/FileUpload.vue'
 import ImportExcel from '@/components/ImportExcel/index.vue'
 import { computed, reactive, ref, toRef } from 'vue'
@@ -67,14 +69,16 @@ defineOptions({
 })
 
 export interface ModalProps {
-  isShowModal: boolean
-  dwId: string
-  nd: string
+  rowConfig?: VxeTablePropTypes.RowConfig
+  cellConfig?: VxeTablePropTypes.CellConfig
+  isShowModal?: boolean
+  dwId?: string
+  nd?: string
   xsws: string
-  specialorgid: string
+  specialorgid?: string
   kmlx: string
   flag: string
-  operationFlag: string
+  operationFlag?: string
   templateApi?: (params: any) => Promise<any>
   importDataApi?: (params: any) => Promise<any>
   tableApi: (params: any) => Promise<any>
@@ -84,7 +88,7 @@ export interface ModalProps {
   exportApi?: (params: any) => Promise<any>
   toolButton?: ('save' | 'import' | 'export' | 'download' | 'sd' | 'close')[] | boolean // 是否显示
   title: string
-  showHeader: boolean
+  showHeader?: boolean
   busiId?: string
   busiType: string
   sdzt?: string
@@ -127,9 +131,8 @@ const headerCellStyle = () => {
   }
 }
 const tableMsg = reactive<TableMsg>({
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   tableData: [],
   nd: '',
   xsws: '',

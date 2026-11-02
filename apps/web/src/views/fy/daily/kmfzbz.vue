@@ -35,7 +35,8 @@
       </div>
     </div>
     <div class="table">
-      <vxe-grid ref="gridRef" v-bind="gridOptions">
+      <vxe-grid
+        ref="gridRef" v-bind="gridOptions">
         <template #cnx_default="{ row }">
           <span v-if="!!row.itemId">&nbsp;&nbsp;&nbsp;&nbsp;{{ row.cnx }}</span>
           <span v-else style="font-weight: 700">{{ row.cnx }}</span>
@@ -123,9 +124,8 @@ const gridOptions = reactive<VxeGridProps<RowVO>>({
   headerAlign: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   data: []
 })

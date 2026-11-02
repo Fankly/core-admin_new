@@ -448,7 +448,7 @@ const page = reactive({
   total: 0,
   limit: 10,
   page: 1,
-  current: '1'
+  current: 1
 })
 const leftSearchData = reactive({
   xmlx: [],

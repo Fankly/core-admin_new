@@ -87,7 +87,8 @@
       </el-form>
     </div>
     <div class="table">
-      <vxe-grid ref="gridRef" v-bind="gridOptions">
+      <vxe-grid
+        ref="gridRef" v-bind="gridOptions">
         <template #confirmIsGdzcName_default="{ row }">
           <span>{{ formatColumnValue(row, 'confirmIsGdzcName') }}</span>
         </template>
@@ -252,9 +253,8 @@ const gridOptions = reactive<VxeGridProps<MaterialTaskDetailRow>>({
   showHeaderOverflow: false,
   headerAlign: 'center',
   align: 'center',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },

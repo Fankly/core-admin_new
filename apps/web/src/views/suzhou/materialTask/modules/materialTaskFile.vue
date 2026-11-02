@@ -16,7 +16,8 @@
         <vxe-button size="small" status="primary" icon="vxe-icon-upload" @click="uploadHandle" class="upload-btn pulse"> 文件上传 </vxe-button>
       </div>
       <div class="table">
-        <vxe-table ref="vxeTableRef" header-align="center" align="center" border stripe resizable show-overflow height="400px" :data="fileList">
+        <vxe-table
+          :column-config="{ resizable: true }" ref="vxeTableRef" header-align="center" align="center" border stripe  show-overflow height="400px" :data="fileList">
           <vxe-column type="seq" width="50" title="序号" />
           <vxe-column field="fileName" title="附件名称" min-width="200">
             <template #default="{ row }">

@@ -577,7 +577,7 @@ onMounted(async () => {
     isShowPage.value = true
   } else {
     await nextTick()
-    if (userDialogRef.value) await userDialogRef.value.getUser()
+    if (userDialogRef.value) await userDialogRef.value?.getUser()
   }
 })
 </script>

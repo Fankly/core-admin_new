@@ -34,3 +34,6 @@ minimumReleaseAgeExclude:
 allowBuilds:
   esbuild: true
   es5-ext: false
+
+patchedDependencies:
+  element-plus@2.14.7: patches/element-plus@2.14.7.patch

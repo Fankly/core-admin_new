@@ -4,7 +4,8 @@
       <el-button type="primary" size="small" plain @click="exportHandle">导 出</el-button>
     </div>
     <div class="table">
-      <vxe-grid ref="gridRef" height="100%" v-bind="gridOptions"></vxe-grid>
+      <vxe-grid
+    ref="gridRef" height="100%" v-bind="gridOptions"></vxe-grid>
     </div>
   </vxe-modal>
 </template>
@@ -28,9 +29,8 @@ const gridOptions = reactive<any>({
   headerAlign: 'center',
   showOverflow: true,
   showHeaderOverflow: true,
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   data: []
 })

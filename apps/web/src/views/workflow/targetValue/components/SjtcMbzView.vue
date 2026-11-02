@@ -53,13 +53,15 @@
               </div>
             </div>
             <div class="target-value-sjtc__grid">
-              <vxe-grid ref="gridRef" auto-resize :data="tableData" v-bind="gridOptions" />
+              <vxe-grid
+            ref="gridRef" auto-resize :data="tableData" v-bind="gridOptions" />
             </div>
           </div>
         </div>
         <div v-else class="target-value-sjtc__pane">
           <div class="target-value-sjtc__grid">
-            <vxe-grid ref="projectDetailGridRef" auto-resize :data="projectDetailVisibleData" v-bind="projectDetailGridOptions" />
+            <vxe-grid
+          ref="projectDetailGridRef" auto-resize :data="projectDetailVisibleData" v-bind="projectDetailGridOptions" />
           </div>
           <div class="target-value-sjtc__pager">
             <el-pagination
@@ -228,9 +230,8 @@ const gridOptions = reactive<any>({
   showOverflow: true,
   showHeaderOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  }
+  cellConfig: { height: 32 },
+  rowConfig: {}
 })
 
 const projectDetailGridOptions = reactive<VxeGridProps<ProjectDetailRow>>({
@@ -243,9 +244,8 @@ const projectDetailGridOptions = reactive<VxeGridProps<ProjectDetailRow>>({
   showOverflow: true,
   showHeaderOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [
     {
       type: 'seq',

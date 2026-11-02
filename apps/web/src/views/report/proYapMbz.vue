@@ -119,7 +119,8 @@
       </el-form>
     </div>
     <div class="main">
-      <vxe-grid ref="gridRef" v-bind="gridOptions"></vxe-grid>
+      <vxe-grid
+    ref="gridRef" v-bind="gridOptions"></vxe-grid>
     </div>
   </div>
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
@@ -264,9 +265,8 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   showOverflow: true,
   showHeaderOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   rowStyle: ({ row }: any) => {
     return {
       fontWeight: row?.sfjc === 1 || row?.sfjc === '1' ? 'bold' : 'normal'

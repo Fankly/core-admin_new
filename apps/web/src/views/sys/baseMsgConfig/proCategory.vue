@@ -105,6 +105,7 @@
           </div>
           <div class="panel-right-table">
             <vxe-table
+              :cell-config="{ height: 32 }"
               ref="tableRef"
               :checkbox-config="tableCheckboxConfig"
               @cell-click="cellClickHandle"
@@ -277,9 +278,7 @@ const tableCheckboxConfig = {
   trigger: 'row',
   highlight: true
 }
-const tableRowConfig = {
-  height: 32
-}
+const tableRowConfig = {}
 const tableColumnConfig = {
   resizable: true
 }

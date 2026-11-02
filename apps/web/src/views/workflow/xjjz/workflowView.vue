@@ -259,7 +259,6 @@ const cellClickHandle = async ({ row }: any) => {
     </div>
   </div>
   <el-dialog
-    v-loading="loading"
     v-model="spyjDialog.showDialog"
     title="审批意见"
     :destroy-on-close="true"
@@ -267,7 +266,7 @@ const cellClickHandle = async ({ row }: any) => {
     :close-on-press-escape="false"
     :close-on-click-modal="false"
   >
-    <el-form :disabled="loading" :model="spyjForm">
+    <el-form v-loading="loading" :disabled="loading" :model="spyjForm">
       <el-form-item label="审批意见：">
         <el-input maxlength="128" v-model="spyjForm.spyj" type="textarea" :rows="6" resize="none" />
       </el-form-item>

@@ -32,7 +32,6 @@ let currentTableRequestToken = 0
 const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({})
 const expandConfig = reactive<VxeTablePropTypes.ExpandConfig>({})
 const rowConfig = reactive<VxeTablePropTypes.RowConfig>({
-  height: 32,
   isCurrent: true,
   keyField: 'id'
 })
@@ -140,6 +139,7 @@ onMounted(initData)
 <template>
   <div class="tree-box">
     <vxe-table
+      :cell-config="{ height: 32 }"
       :loading="loading"
       :row-style="rowStyle"
       :expand-config="expandConfig"

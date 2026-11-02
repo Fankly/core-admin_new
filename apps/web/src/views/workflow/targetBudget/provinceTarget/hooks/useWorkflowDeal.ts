@@ -401,9 +401,8 @@ export const useWorkflowDeal = ({ initializeAudit = true }: WorkflowDealOptions 
     showOverflow: true,
     showHeaderOverflow: true,
     height: '100%',
-    rowConfig: {
-      height: 32
-    }
+    cellConfig: { height: 32 },
+    rowConfig: {}
   })
 
   const summaryGridOptions = reactive<VxeGridProps<IObject>>({
@@ -416,9 +415,8 @@ export const useWorkflowDeal = ({ initializeAudit = true }: WorkflowDealOptions 
     showOverflow: true,
     showHeaderOverflow: true,
     height: '100%',
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columns: createSummaryColumns()
   })
 
@@ -432,9 +430,8 @@ export const useWorkflowDeal = ({ initializeAudit = true }: WorkflowDealOptions 
     showOverflow: true,
     showHeaderOverflow: true,
     height: '100%',
-    rowConfig: {
-      height: 32
-    },
+    cellConfig: { height: 32 },
+    rowConfig: {},
     columns: [
       {
         type: 'seq',

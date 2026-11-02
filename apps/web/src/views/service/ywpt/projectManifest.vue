@@ -173,10 +173,10 @@ const selectChange = (val: any) => {
 // 行样式
 const rowStyle = ({ row }: any) => {
   if (row.bhcs >= 3) {
-    return 'color:red;'
+    return { color: 'red' }
   }
   if (row.bhcs > 0 && row.bhcs < 3) {
-    return 'color:#E6A23C;'
+    return { color: '#E6A23C' }
   }
   if (row.sfth == '1') {
     return {

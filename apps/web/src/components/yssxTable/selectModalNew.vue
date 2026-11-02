@@ -11,7 +11,7 @@
       show-footer
       :width="500"
       :height="200"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeHandle"
     >
       <div class="modal_select">

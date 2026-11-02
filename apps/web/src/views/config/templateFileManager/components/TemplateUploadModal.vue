@@ -34,8 +34,9 @@
             </div>
             <div class="fj-card__table">
               <vxe-table
+                :cell-config="{ height: 32 }"
                 show-overflow
-                :row-config="{ height: 32, isHover: true }"
+                :row-config="{ isHover: true }"
                 header-align="center"
                 :ref="(el: any) => setTableRef(fjType.code, el)"
                 :data="fileListMap[fjType.code] || []"

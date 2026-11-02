@@ -10,7 +10,7 @@
       :title="formData?.title"
       :width="1200"
       fullscreen
-      :close-on-press-escape="true"
+      :esc-closable="true"
       @close="closeHandle"
     >
       <div class="content">
@@ -130,10 +130,11 @@
         </div>
         <div class="table">
           <vxe-table
+            :cell-config="{ height: 32 }"
             :cell-style="tableInfo.cellStyle"
             :row-style="tableInfo.rowStyle"
             :loading="pageInfo.loading"
-            :row-config="{ keyField: 'id', height: 32 }"
+            :row-config="{ keyField: 'id' }"
             :column-config="{ resizable: true }"
             :border="true"
             align="center"

@@ -1,5 +1,5 @@
 <template>
-  <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
+  <userDialog ref="userDialogInstance" @loadCompany="loadCompany"></userDialog>
   <div v-loading="loading" id="process_42" class="process process_42" element-loading-text="正在从服务器获取数据.....">
     <div class="topBox">
       <div class="title">
@@ -346,12 +346,13 @@
     <div class="content_table" ref="contentTables">
       <div class="content_table_center">
         <vxe-table
+          :cell-config="{ height: 32 }"
           ref="tableName"
           stripe
           border
           height="100%"
           :data="example"
-          :row-config="{ keyField: 'id', height: 32 }"
+          :row-config="{ keyField: 'id' }"
           :checkbox-config="{ highlight: true, trigger: 'row' }"
           style="width: 100%; margin-top: 10px"
           :column-config="{ resizable: true }"
@@ -494,7 +495,7 @@ const centerTreeRef = useTemplateRef('centerTree')
 const XmbmcTreeRef = useTemplateRef('XmbmcTree')
 const XmlxTreeRef = useTemplateRef('XmlxTree')
 const DwTreeRef = useTemplateRef('DwTree')
-const userDialogRef = useTemplateRef('userDialog')
+const userDialogRef = useTemplateRef('userDialogInstance')
 const contentTablesRef = useTemplateRef('contentTables')
 const editPageRefRef = useTemplateRef('editPageRef')
 const store = useStore()
@@ -513,7 +514,7 @@ const setupState = reactive({
     total: 0,
     limit: 10,
     page: 1,
-    current: '1'
+    current: 1
   },
   isQuery: false,
   searchShow: true,
@@ -555,9 +556,9 @@ const setupState = reactive({
     ZYQCGBM: '',
     DWID: [],
     DWIDTree: [],
-    NDYSWCL_START_NUM: '',
+    NDYSWCL_START_NUM: undefined,
     NDYSWCL_START_QJ: '',
-    NDYSWCL_END_NUM: '',
+    NDYSWCL_END_NUM: undefined,
     NDYSWCL_END_QJ: '',
     SFAQSC: '',
     YSLY: '',
@@ -740,7 +741,7 @@ function getComboData(values) {
         switch (key) {
           case 'QUERYTYPE_NEW':
             // 设置查询类型默认值
-            setupState.searchData.searchType = data[key][0].code
+            setupState.searchData.searchType = data[key][0]?.code ?? ''
             setupState.searchCombo.searchType = data[key].map((item) => {
               return {
                 label: item.name,
@@ -1871,7 +1872,7 @@ onMounted(async () => {
     'XMLB_JHLX'
   ])
   getZdtxOptions()
-  if (route.query && JSON.stringify(route.query) != '{}') {
+  if (typeof route.query.specialorgid === 'string' && route.query.specialorgid) {
     const nd = new Date(route.query.nd).getFullYear() || new Date().getFullYear()
     setupState.searchData.YSQJ_DATE_START = nd + '-01-01'
     setupState.searchData.YSQJ_DATE_END = nd + '-12-31'

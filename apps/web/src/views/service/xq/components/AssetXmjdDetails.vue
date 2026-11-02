@@ -37,9 +37,9 @@ defineOptions({
 })
 
 interface Props {
-  selectData: any
-  globalParams: any
-  opType: string
+  selectData?: any
+  globalParams?: any
+  opType?: string
   pageType: string
 }
 

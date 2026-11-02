@@ -213,9 +213,8 @@ const gridOptions = reactive<any>({
   headerAlign: 'center',
   showOverflow: true,
   showHeaderOverflow: true,
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   exportConfig: {
     sheetName: '成本性项目三率报表-按单位-导出',
     type: 'xlsx',

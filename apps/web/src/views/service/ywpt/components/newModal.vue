@@ -8,7 +8,7 @@
       :title="props.title"
       :width="800"
       :height="750"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeHandle"
     >
       <el-form
@@ -161,9 +161,9 @@ interface OptionItem {
 //接收父组件传参
 const props = withDefaults(
   defineProps<{
-    title: string
-    zjjb: OptionItem[]
-    pszy: OptionItem[]
+    title?: string
+    zjjb?: OptionItem[]
+    pszy?: OptionItem[]
   }>(),
   {
     title: '新增',

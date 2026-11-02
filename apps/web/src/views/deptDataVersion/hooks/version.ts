@@ -14,7 +14,7 @@ export const handleTable = (busiType: string) => {
   const tableRef = ref()
   const modalRef = ref()
   const title = ref<any>('')
-  const nd = ref<any>(0)
+  const nd = ref<string | number>(0)
   const userInfo = ref<any>()
   const versionId = ref<string>('')
 

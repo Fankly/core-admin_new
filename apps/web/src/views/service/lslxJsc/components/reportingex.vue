@@ -1,7 +1,7 @@
 <!-- 二下编制组件 -->
 <template>
   <div>
-    <vxe-modal ref="dialogFormRef" v-model="isShowModel" :destroy-on-close="true" resize show-zoom fullscreen :title="formData?.title" :width="1200" :close-on-press-escape="true" @close="closeHandle" :loading="tableInfo.loading">
+    <vxe-modal ref="dialogFormRef" v-model="isShowModel" :destroy-on-close="true" resize show-zoom fullscreen :title="formData?.title" :width="1200" :esc-closable="true" @close="closeHandle" :loading="tableInfo.loading">
       <div class="modal_content" ref="fromTableRef">
         <div class="toolButtoon">
           <div class="left">
@@ -57,9 +57,10 @@
         <div class="table">
           <vxe-toolbar ref="toolbarRef" custom />
           <vxe-table
+            :cell-config="{ height: 32 }"
             :cell-style="tableInfo.cellStyle"
             :row-style="tableInfo.rowStyle"
-            :row-config="{ keyField: 'id', height: 32 }"
+            :row-config="{ keyField: 'id' }"
             :column-config="{ resizable: true }"
             :border="true"
             align="center"
@@ -194,9 +195,8 @@ const tableInfo = reactive<any>({
   headerAlign: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   tableData: [],
   data: [],
   columns: [],

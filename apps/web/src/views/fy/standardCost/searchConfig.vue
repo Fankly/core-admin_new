@@ -4,11 +4,12 @@
       <template #paneL>
         <div class="tree">
           <vxe-table
+            :cell-config="{ height: 32 }"
             show-overflow
             :cell-style="cellStyle"
             ref="treeRef"
             @current-change="treeNodeClickHandle"
-            :row-config="{ height: 32, isCurrent: true }"
+            :row-config="{ isCurrent: true }"
             :show-header="false"
             border="none"
             :tree-config="treeConfig"
@@ -114,7 +115,8 @@
         </div>
         <div class="table">
           <vxe-table
-            :row-config="{ height: 32 }"
+            :cell-config="{ height: 32 }"
+            :row-config="{}"
             ref="tableRef"
             :loading="tableInfo.loading"
             show-overflow

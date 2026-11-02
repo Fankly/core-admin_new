@@ -8,7 +8,7 @@
       :destroy-on-close="true"
       title="版本下发单位配置"
       :width="900"
-      :close-on-press-escape="false"
+      :esc-closable="false"
       @close="closeHandle"
     >
       <div style="height: 60vh">
@@ -126,7 +126,7 @@ const saveTree = async (val: any) => {
 // 列颜色
 const columnStyle = ({ row, column, rowIndex, columnIndex }: any) => {
   if (column.label != '显示顺序') {
-    return 'background-color:rgba(232, 234, 236,0.5);cursor: pointer;'
+    return { backgroundColor: 'rgba(232, 234, 236,0.5)', cursor: 'pointer' }
   }
 }
 // 单选

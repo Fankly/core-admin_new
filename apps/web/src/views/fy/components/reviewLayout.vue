@@ -9,7 +9,8 @@
       </div>
     </div>
     <div class="standrand-table">
-      <vxe-table  :header-cell-style="headerCellStyle" ref="tableRef" @current-change="currentChange" v-bind="$attrs" height="100%" :border="true" :column-config="{ resizable: true }" :data="tableMsg.tableData">
+      <vxe-table
+         :header-cell-style="headerCellStyle" ref="tableRef" @current-change="currentChange" v-bind="$attrs" height="100%" :border="true" :column-config="{ resizable: true }" :data="tableMsg.tableData">
         <template v-for="item in tableColumns" :key="item">
           <vxe-column show-overflow v-if="item.type && columnTypes.includes(item.type)" v-bind="item" :align="item.align ?? 'center'"></vxe-column>
           <vxe-column v-bind="item" v-if="!item.type && item.field" show-overflow header-align="center" align="center" :field="item.field" :title="item.title"></vxe-column>
@@ -26,12 +27,13 @@ import { VxeColumnProps, VxeTable, VxeTableEvents } from 'vxe-table'
 import { TypeProps } from '@/views/fy/prearranged/release/components/interface'
 import { TableMsg } from '../prearranged/interface'
 defineOptions({
-  name: 'reviewLayout'
+  name: 'reviewLayout',
+  inheritAttrs: false
 })
 
 export interface ModalProps {
-  isShowModal: boolean
-  nd: string
+  isShowModal?: boolean
+  nd?: string
   xsws: string
   specialorgid: string
   kmlx: string

@@ -9,7 +9,8 @@
       </div>
     </div>
     <div class="table">
-      <vxe-table 
+      <vxe-table
+        :cell-config="tableInfo.cellConfig"
         :header-cell-style="headerCellStyle"
         :row-config="tableInfo.rowConfig"
         :cell-style="cellStyle"
@@ -79,9 +80,8 @@ const activeCellMethod = ({ row }: any) => {
   return false
 }
 const tableInfo = reactive<TableMsg>({
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   editConfig: {
     trigger: 'click',
     mode: 'cell',

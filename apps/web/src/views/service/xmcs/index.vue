@@ -99,7 +99,8 @@
     <!-- 项目信息 -->
     <div class="panel-section is-top" :style="{ flexBasis: projectPanelHeight + 'px' }">
       <div class="panel-body">
-        <vxe-grid ref="gridRef" :empty-text="projectGridOptions.emptyRender" v-bind="projectGridOptions" @cell-click="handleProjectRowClick" />
+        <vxe-grid
+      ref="gridRef" :empty-text="projectGridOptions.emptyRender" v-bind="projectGridOptions" @cell-click="handleProjectRowClick" />
       </div>
       <div class="main-pagination">
         <el-pagination
@@ -122,7 +123,8 @@
     <div class="panel-section is-bottom">
       <div class="panel-body">
         <div v-if="!currentProjectRow" class="dy-empty">请选择上方一条项目数据查看动因信息</div>
-        <vxe-grid v-else :empty-text="dyGridOptions.emptyRender" v-bind="dyGridOptions" />
+        <vxe-grid
+      v-else :empty-text="dyGridOptions.emptyRender" v-bind="dyGridOptions" />
       </div>
     </div>
   </div>
@@ -252,7 +254,8 @@ const projectGridOptions = reactive<any>({
   height: '100%',
   showOverflow: true,
   checkboxConfig: { trigger: 'row', highlight: true, range: true },
-  rowConfig: { isHover: true, height: 32 },
+  cellConfig: { height: 32 },
+  rowConfig: { isHover: true },
   columnConfig: { resizable: true },
   size: 'mini',
   data: [],
@@ -269,7 +272,8 @@ const dyGridOptions = reactive<any>({
   align: 'center',
   height: '100%',
   showOverflow: true,
-  rowConfig: { height: 32 },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: { resizable: true },
   size: 'mini',
   data: [],

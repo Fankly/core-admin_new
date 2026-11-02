@@ -243,7 +243,7 @@
     title="预算事项编码"
     width="860"
     :height="700"
-    :close-on-press-escape="false"
+    :esc-closable="false"
     @close="closeModal"
   >
     <proTable
@@ -269,7 +269,7 @@
     title="预算包"
     width="1100"
     :height="700"
-    :close-on-press-escape="false"
+    :esc-closable="false"
     @close="closeXmbModal"
   >
     <proTable

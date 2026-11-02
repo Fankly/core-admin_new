@@ -11,11 +11,11 @@
       </div>
     </div>
     <div class="table">
-      <vxe-table 
+      <vxe-table
+        :cell-config="{ height: 32 }"
         @cell-click="cellClickHandle"
         :row-style="rowStyle"
-        highlight-current-row
-        :row-config="rowConfig"
+        :row-config="{ isCurrent: true, ...(rowConfig) }"
         :header-cell-style="headerCellStyle"
         :data="tableInfo.data"
         ref="tableRef"
@@ -78,9 +78,7 @@ const page = reactive({
   page: 1,
   current: '1'
 })
-const rowConfig = reactive({
-  height: 32
-})
+const rowConfig = reactive({})
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   showHandle()

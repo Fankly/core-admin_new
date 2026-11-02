@@ -147,7 +147,7 @@
           <div class="worker_meeting" :style="{ border: `1px solid ${chooseTab?.borderColor}`, backgroundColor: `${chooseTab?.backgroundColor}` }">
             <div class="worker_percentTitle">{{ chooseTab?.percentTitle }}</div>
             <div class="worker_percent" :style="{ color: `${chooseTab?.iconColor}` }">{{ chooseTab?.percent }}<span>%</span></div>
-            <el-progress :color="`${chooseTab?.iconColor}`" :show-text="false" :stroke-width="10" :percentage="`${chooseTab?.percent}`" />
+            <el-progress :color="`${chooseTab?.iconColor}`" :show-text="false" :stroke-width="10" :percentage="Number(chooseTab?.percent) || 0" />
             <div style="font-size: 12px">{{ `${chooseTab?.content1}${chooseTab?.total}${chooseTab?.content2}` }}</div>
           </div>
           <div class="worker_tjwd">

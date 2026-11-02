@@ -69,17 +69,17 @@ defineExpose({
 <template>
   <div class="table-box">
     <vxe-table
+      :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
       :loading="mainLoading"
       ref="mainTableRef"
       :checkbox-config="{ trigger: 'row', highlight: true }"
       @cell-click="cellClickHandle"
       :show-overflow="true"
-      :row-config="{ height: 32, isCurrent: false }"
+      :row-config="{ isCurrent: false }"
       :data="props.mainTableData"
       align="center"
       height="100%"
       border
-      resizable
     >
       <vxe-column width="80" type="checkbox"></vxe-column>
       <vxe-column width="80" title="序号" field="sort"></vxe-column>

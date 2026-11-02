@@ -17,6 +17,7 @@
     </div>
     <div class="modal-table">
       <vxe-table
+        :cell-config="tableInfo.cellConfig"
         :header-cell-style="headerCellStyle"
         :row-config="tableInfo.rowConfig"
         :cell-style="cellStyle"
@@ -115,9 +116,8 @@ const activeCellMethod = ({ row }: any) => {
   }
 }
 const tableInfo: TableInfo = reactive({
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columns: [],
   sumColumns: [],
   tableData: [],

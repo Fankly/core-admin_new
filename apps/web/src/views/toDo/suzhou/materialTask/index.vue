@@ -17,7 +17,8 @@
       <el-button type="primary" size="small" plain @click="closeDialogHandle">关闭页面</el-button>
     </div>
     <div class="table">
-      <vxe-grid ref="gridRef" v-bind="gridOptions">
+      <vxe-grid
+        ref="gridRef" v-bind="gridOptions">
         <template #confirmIsGdzcName_default="{ row }">
           <span>{{ formatColumnValue(row, 'confirmIsGdzcName') }}</span>
         </template>
@@ -364,9 +365,8 @@ const gridOptions = reactive<VxeGridProps<MaterialTaskDetailRow>>({
   showHeaderOverflow: false,
   headerAlign: 'center',
   align: 'center',
-  rowConfig: {
-    height: 32
-  },
+  cellConfig: { height: 32 },
+  rowConfig: {},
   columnConfig: {
     resizable: true
   },
@@ -417,7 +417,6 @@ const gridOptions = reactive<VxeGridProps<MaterialTaskDetailRow>>({
       slots: { default: 'confirmIsGdzcName_default', edit: 'confirmIsGdzcName_edit' }
     },
     {
-      field: 'reasonWhenYzgGdzc',
       title: '独立资产（是）',
       fixed: 'right',
       children: [
@@ -440,7 +439,6 @@ const gridOptions = reactive<VxeGridProps<MaterialTaskDetailRow>>({
       ]
     },
     {
-      field: 'reasonWhenNotGdzc',
       title: '非独立资产（否）',
       fixed: 'right',
       children: [

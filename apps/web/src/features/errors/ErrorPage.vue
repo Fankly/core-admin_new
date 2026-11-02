@@ -30,7 +30,7 @@ defineOptions({ name: 'ErrorPage' })
 interface Props {
   code: string
   title: string
-  description: string
+  description?: string
   reload?: boolean
 }
 

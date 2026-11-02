@@ -65,14 +65,14 @@ interface SelectData {
 interface Props {
   title: string
   opeartionFlag: string
-  selectedCnxDatas: any[]
+  selectedCnxDatas?: any[]
   nd: string
   templateCode: string
   selectData: SelectData
   sort: number
   cnxDisabled: boolean
 }
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), { selectedCnxDatas: () => [] })
 const emit = defineEmits(['close', 'save'])
 const selectedDatas = computed(() => props.selectedCnxDatas)
 const disabled = computed(() => props.cnxDisabled)
