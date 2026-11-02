@@ -15,11 +15,11 @@
         <transition-group name="pec-tag" tag="div" class="pec-topbar__tags">
           <span v-if="selectedUnit.yjdwName" key="unit" class="pec-crumb-tag pec-crumb-tag--primary">
             {{ selectedUnit.ejdwName || selectedUnit.yjdwName }}
-            <i class="el-icon-close" @click.stop="clearUnitSelection" />
+            <el-icon class="ep-icon-close" @click.stop="clearUnitSelection"><EpClose /></el-icon>
           </span>
           <span v-if="selectedProType.name" key="proType" class="pec-crumb-tag pec-crumb-tag--success">
             {{ selectedProType.name }}
-            <i class="el-icon-close" @click.stop="clearProTypeSelection" />
+            <el-icon class="ep-icon-close" @click.stop="clearProTypeSelection"><EpClose /></el-icon>
           </span>
         </transition-group>
       </div>
@@ -55,7 +55,7 @@
             >
               <template #default="{ node, data }">
                 <div class="pec-tree-node">
-                  <i class="pec-tree-node__icon" :class="data.children?.length ? 'el-icon-office-building' : 'el-icon-document'" />
+                  <el-icon class="pec-tree-node__icon" :class="data.children?.length ? 'ep-icon-office-building' : 'ep-icon-document'"><component :is="data.children?.length ? EpOfficeBuilding : EpDocument" /></el-icon>
                   <span class="pec-tree-node__label">{{ node.label }}</span>
                 </div>
               </template>
@@ -91,7 +91,7 @@
             >
               <template #default="{ node, data }">
                 <div class="pec-tree-node" :class="{ 'is-leaf': !data.children?.length }">
-                  <i class="pec-tree-node__icon" :class="data.children?.length ? 'el-icon-folder' : 'el-icon-document'" />
+                  <el-icon class="pec-tree-node__icon" :class="data.children?.length ? 'ep-icon-folder' : 'ep-icon-document'"><component :is="data.children?.length ? EpFolder : EpDocument" /></el-icon>
                   <span class="pec-tree-node__label">{{ node.label }}</span>
                 </div>
               </template>
@@ -141,8 +141,8 @@
 
             <el-form-item label="市级联合会审流程" prop="enableFlag" :rules="[{ required: true, message: '请选择启用状态' }]">
               <el-radio-group v-model="configForm.enableFlag" class="pec-enable-group">
-                <el-radio-button label="1">启用</el-radio-button>
-                <el-radio-button label="0">停用</el-radio-button>
+                <el-radio-button value="1">启用</el-radio-button>
+                <el-radio-button value="0">停用</el-radio-button>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="流程编码" prop="wfCode" :rules="wfCodeRules">
@@ -169,6 +169,8 @@
 </template>
 
 <script setup lang="ts">
+import { Close as EpClose, Document as EpDocument, Folder as EpFolder, OfficeBuilding as EpOfficeBuilding } from '@element-plus/icons-vue'
+
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
 
 defineOptions({ name: "/lyg/processEnableConfig/index" })
@@ -580,7 +582,7 @@ onMounted(() => {
     border: 1px solid @success-border;
   }
 
-  .el-icon-close {
+  .ep-icon-close {
     font-size: 12px;
     cursor: pointer;
     opacity: 0.6;

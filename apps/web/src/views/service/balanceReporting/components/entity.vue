@@ -45,6 +45,8 @@
   <chooseTree ref="treeModalRef" @choose-data="saveTree" />
 </template>
 <script lang="ts">
+import { EditPen as EpEditPen } from '@element-plus/icons-vue'
+import { ElIcon } from 'element-plus'
 export default {}
 </script>
 <script setup lang="ts">
@@ -201,7 +203,7 @@ const tableColumns = reactive<ColumnProps<any>[]>([
     label: '显示顺序',
     width: '120',
     headerRender: () => {
-      return h('i', { class: 'el-icon-edit-outline' }, '显示顺序')
+      return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '显示顺序'])
     },
     render: ({ row }: any) => {
       return h(ElInput, {

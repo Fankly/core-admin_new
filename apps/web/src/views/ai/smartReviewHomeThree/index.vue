@@ -534,7 +534,7 @@
                 :collapse-tags="true"
                 :check-on-click-node="false"
                 node-key="middleId"
-                :popper-append-to-body="true"
+                :teleported="true"
                 placeholder="请选择"
               />
             </div>
@@ -555,7 +555,7 @@
                 :collapse-tags="true"
                 :check-on-click-node="false"
                 node-key="code"
-                :popper-append-to-body="true"
+                :teleported="true"
                 placeholder="请选择"
               />
             </div>

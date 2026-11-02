@@ -4,7 +4,7 @@
       <el-dropdown trigger="click" :disabled="disabled" @command="handleTaskCommand">
         <el-button type="primary" size="small" plain :disabled="disabled">
           <el-icon class="btn-icon"><SlidersHorizontal /></el-icon>
-          任务管理<i class="el-icon-arrow-down task-manage__icon"></i>
+          任务管理<el-icon class="ep-icon-arrow-down task-manage__icon"><EpArrowDown /></el-icon>
         </el-button>
         <template #dropdown>
           <el-dropdown-menu>
@@ -79,6 +79,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 import { computed } from 'vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import type { PropType } from 'vue'

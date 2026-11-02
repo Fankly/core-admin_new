@@ -168,7 +168,7 @@
                   <div class="majorMain">
                     <el-checkbox-group v-model="modalProps.row.major" disabled>
                       <template v-for="item in majorList" :key="item.code">
-                        <el-checkbox border :label="item.code">{{ item.name }}</el-checkbox>
+                        <el-checkbox border :value="item.code">{{ item.name }}</el-checkbox>
                       </template>
                     </el-checkbox-group>
                   </div>
@@ -223,11 +223,11 @@
                   :value="getCodeValue(item)"
                 ></el-option>
               </el-select>
-              <vxe-button size="small" status="primary" icon="el-icon-upload" @click="handleUploadClick" class="upload-btn pulse">
+              <vxe-button size="small" status="primary" icon="vxe-icon-upload" @click="handleUploadClick" class="upload-btn pulse">
                 文件上传
               </vxe-button>
               <input type="file" ref="fileInput" multiple style="display: none" :accept="acceptedFileTypes" @change="handleFileChange" />
-              <vxe-button size="small" status="danger" icon="el-icon-delete" @click="handleDelete" class="delete-btn pulse">文件删除</vxe-button>
+              <vxe-button size="small" status="danger" icon="vxe-icon-delete" @click="handleDelete" class="delete-btn pulse">文件删除</vxe-button>
             </div>
             <div class="table">
               <vxe-table
@@ -245,7 +245,7 @@
                 height="100%"
                 class="file-table"
                 :row-class-name="rowClassName"
-                :loading-config="{ icon: 'el-icon-loading', text: '正在加载文件...' }"
+                :loading-config="{ icon: 'vxe-icon-spinner roll', text: '正在加载文件...' }"
                 @checkbox-change="handleUploadFileSelection"
                 @checkbox-all="handleUploadFileSelection"
               >
@@ -1111,18 +1111,18 @@ const handleUploadFileSelection = ({ records }: any) => {
 const getFileIcon = (fileName: any) => {
   const extension = fileName.split('.').pop().toLowerCase()
   const iconMap: any = {
-    pdf: 'el-icon-document-copy',
-    doc: 'el-icon-document',
-    docx: 'el-icon-document',
-    xls: 'el-icon-tickets',
-    xlsx: 'el-icon-tickets',
-    txt: 'el-icon-document',
-    jpg: 'el-icon-picture',
-    jpeg: 'el-icon-picture',
-    png: 'el-icon-picture',
-    gif: 'el-icon-picture'
+    pdf: 'vxe-icon-file-pdf',
+    doc: 'vxe-icon-file',
+    docx: 'vxe-icon-file',
+    xls: 'vxe-icon-file-excel',
+    xlsx: 'vxe-icon-file-excel',
+    txt: 'vxe-icon-file',
+    jpg: 'vxe-icon-file-image',
+    jpeg: 'vxe-icon-file-image',
+    png: 'vxe-icon-file-image',
+    gif: 'vxe-icon-file-image'
   }
-  return iconMap[extension] || 'el-icon-document'
+  return iconMap[extension] || 'vxe-icon-file'
 }
 const rowClassName = ({ row }: any) => {
   return row.isNew ? 'row-new' : ''

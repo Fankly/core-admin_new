@@ -44,7 +44,7 @@
               <proTable @selection-change="selectionChange" :cell-style="columnStyle" @cell-click="downloadReport" ref="proDataRef" :data="pageData1" :search-col="4" :columns="tableColumns1" @row-click="handerClickTable"  :pagination="false">
                 <template #tableHeader="scope">
                   <el-upload style="display: inline; padding: 0 0 0 10px" :on-change="uploadHandle" :auto-upload="false" :show-file-list="false">
-                    <el-button :disabled="isPublish" size="small" type="success" icon="el-icon-upload">上 传</el-button>
+                    <el-button :disabled="isPublish" size="small" type="success" :icon="EpUpload">上 传</el-button>
                   </el-upload>
                   <!-- <el-button size="small" :disabled="!scope.isSelected && isPublish" type="primary" style="margin-left: 10px" plain @click="handlerBtn1('download', scope.selectedList)">批量下载</el-button> -->
                   <el-button size="small" :disabled="!scope.isSelected || isPublish" type="primary" plain style="margin-left: 10px" @click="handlerBtn1('del', scope.selectedList)">删 除</el-button>
@@ -64,6 +64,8 @@ export default {
 };
 </script>
   <script setup lang="ts">
+import { Upload as EpUpload } from '@element-plus/icons-vue'
+
 import proTable from "@/components/ProTable/index.vue"; //表格组件
 import { h } from "vue";
 import { onMounted, ref, reactive, nextTick, computed, shallowRef } from "vue";

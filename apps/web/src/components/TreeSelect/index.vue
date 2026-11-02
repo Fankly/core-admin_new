@@ -12,7 +12,7 @@
       @visible-change="handleVisibleChange"
       remote
       :remote-method="remoteMethod"
-      :popper-append-to-body="true"
+      :teleported="true"
       :popper-class="['tree-select-dropdown', popperClass].join(' ')"
       ref="select"
     >

@@ -5,6 +5,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown, Operation as EpOperation, QuestionFilled as EpQuestionFilled } from '@element-plus/icons-vue'
+
 import userDialog from '@/components/select/userDialog.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
@@ -438,7 +440,7 @@ const clearDataHandle = () => {
           :hide-on-click="false"
         >
           <el-tooltip content="列设置" placement="top">
-            <span class="el-icon-s-operation" style="font-size: 18px"></span>
+            <el-icon class="ep-icon-s-operation" style="font-size: 18px"><EpOperation /></el-icon>
           </el-tooltip>
           <template #dropdown>
             <el-dropdown-menu>
@@ -452,7 +454,7 @@ const clearDataHandle = () => {
         </el-dropdown>
         <el-tooltip content="隐藏/展示查询" placement="top">
           <span style="cursor: pointer; font-size: 18px" @click="isHiddenQueryForm">
-            <i class="el-icon-arrow-down"></i>
+            <el-icon class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
           </span>
         </el-tooltip>
         <el-tooltip content="帮助" placement="top">
@@ -460,7 +462,7 @@ const clearDataHandle = () => {
             style="cursor: pointer; margin-left: 30px; font-size: 18px"
             @click="getHelpMessageHandle"
           >
-            <i class="el-icon-question"></i>
+            <el-icon class="ep-icon-question"><EpQuestionFilled /></el-icon>
           </span>
         </el-tooltip>
       </div>

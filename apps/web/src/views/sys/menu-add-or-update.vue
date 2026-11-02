@@ -3,8 +3,8 @@
     <el-form :model="dataForm" :rules="dataRule" ref="dataFormRef" @keyup.enter="dataFormSubmitHandle()" label-width="120px">
       <el-form-item prop="type" label="类型" size="small">
         <el-radio-group v-model="dataForm.type" :disabled="!!dataForm.id">
-          <el-radio :label="0">{{ '菜单' }}</el-radio>
-          <el-radio :label="1">{{ '按钮' }}</el-radio>
+          <el-radio :value="0">{{ '菜单' }}</el-radio>
+          <el-radio :value="1">{{ '按钮' }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item prop="name" label="名称">
@@ -15,8 +15,7 @@
           <template v-slot:reference>
             <el-input v-model="dataForm.parentName" :readonly="true" placeholder="请选择菜单">
               <template v-slot:suffix
-                ><i v-if="dataForm.pid !== '0'" @click.stop="deptListTreeSetDefaultHandle()" class="el-icon-circle-close el-input__icon"></i
-              ></template>
+                ><el-icon v-if="dataForm.pid !== '0'" @click.stop="deptListTreeSetDefaultHandle()" class="ep-icon-circle-close el-input__icon"><EpCircleClose /></el-icon></template>
             </el-input>
           </template>
           <el-tree
@@ -39,20 +38,20 @@
       </el-form-item>
       <el-form-item v-if="dataForm.type === 0" prop="openStyle" label="打开方式" size="small">
         <el-radio-group v-model="dataForm.openStyle">
-          <el-radio :label="0">{{ '内部打开' }}</el-radio>
-          <el-radio :label="1">{{ '外部打开' }}</el-radio>
+          <el-radio :value="0">{{ '内部打开' }}</el-radio>
+          <el-radio :value="1">{{ '外部打开' }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item prop="isShow" label="是否显示菜单" size="small">
         <el-radio-group v-model="dataForm.isShow">
-          <el-radio :label="1">{{ '是' }}</el-radio>
-          <el-radio :label="0">{{ '否' }}</el-radio>
+          <el-radio :value="1">{{ '是' }}</el-radio>
+          <el-radio :value="0">{{ '否' }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item prop="isMainPage" label="是否主页" size="small">
         <el-radio-group v-model="dataForm.isMainPage">
-          <el-radio :label="1">{{ '是' }}</el-radio>
-          <el-radio :label="0">{{ '否' }}</el-radio>
+          <el-radio :value="1">{{ '是' }}</el-radio>
+          <el-radio :value="0">{{ '否' }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-if="dataForm.type === 0" prop="icon" label="图标" class="icon-list">
@@ -80,9 +79,9 @@
                   title="清除图标"
                   @click.stop="clearIconHandle"
                 >
-                  <i class="el-icon-circle-close" aria-hidden="true"></i>
+                  <el-icon class="ep-icon-circle-close" aria-hidden="true"><EpCircleClose /></el-icon>
                 </button>
-                <i v-else class="el-icon-arrow-down" aria-hidden="true"></i>
+                <el-icon v-else class="ep-icon-arrow-down" aria-hidden="true"><EpArrowDown /></el-icon>
               </template>
             </el-input>
           </template>
@@ -110,8 +109,8 @@
       </el-form-item>
       <el-form-item prop="isFrame" label="是否内嵌" size="small">
         <el-radio-group v-model="dataForm.isFrame">
-          <el-radio :label="1">{{ '是' }}</el-radio>
-          <el-radio :label="0">{{ '否' }}</el-radio>
+          <el-radio :value="1">{{ '是' }}</el-radio>
+          <el-radio :value="0">{{ '否' }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item v-if="dataForm.isFrame" prop="frameSrc" label="内嵌地址" size="small">
@@ -126,6 +125,8 @@
 </template>
 
 <script lang="ts">
+import { ArrowDown as EpArrowDown, CircleClose as EpCircleClose } from '@element-plus/icons-vue'
+
 import useView from '@/hooks/useView'
 import { defineComponent, reactive, toRefs, watch } from 'vue'
 import baseService from '@/service/baseService'
@@ -176,7 +177,9 @@ export default defineComponent({
       }
     )
 
-    return { ...useView(state), ...toRefs(state), store }
+    return {
+      EpArrowDown,
+      EpCircleClose, ...useView(state), ...toRefs(state), store }
   },
   computed: {
     dataRule() {

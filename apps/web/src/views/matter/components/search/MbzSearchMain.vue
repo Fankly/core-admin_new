@@ -710,8 +710,8 @@ defineExpose({
   height: 38px;
 }
 
-:deep(.el-icon-arrow-left),
-:deep(.el-icon-arrow-right) {
+:deep(.btn-prev .el-icon),
+:deep(.btn-next .el-icon) {
   margin: 0 auto;
 }
 </style>

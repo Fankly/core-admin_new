@@ -4,7 +4,7 @@
     ref="select"
     v-model="innerValue"
     v-bind="selectProps"
-    :popper-append-to-body="popperAppendToBody"
+    :teleported="teleported"
     :filter-method="filterMethod"
     :popper-class="[popperClass, 'el-tree-select__popper']"
     @visible-change="visibleChange"
@@ -22,7 +22,7 @@
       style="height: auto; padding: 0; overflow: visible"
       @click.stop="() => {}"
     >
-      <div ref="treeWrapper" class="el-tree-select__tree-wrapper" role="tree" :aria-invalid="placeholder" tabindex="-1" :style="colorStyle">
+      <div ref="treeWrapper" class="el-tree-select__tree-wrapper" role="tree" :aria-label="placeholder" tabindex="-1" :style="colorStyle">
         <div class="el-tree-select__container" ref="container">
           <div v-if="$slots.header" class="el-tree-select__header">
             <slot name="header"></slot>
@@ -173,7 +173,7 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    popperAppendToBody: {
+    teleported: {
       type: Boolean,
       default: false
     },
@@ -234,7 +234,7 @@ export default defineComponent({
         multiple: props.multiple || props.showCheckbox,
         'collapse-tags': props.collapseTags,
         'collapse-tags-tooltip': props.collapseTagsToolTip,
-        'collapse-tags-limit': props.collapseTagsLimit,
+        'max-collapse-tags': props.collapseTagsLimit,
         'reserve-keyword': true,
         'automatic-dropdown': false,
         'popper-options': {
@@ -281,7 +281,6 @@ export default defineComponent({
 
         if (select.value) {
           select.value.blur()
-          select.value.visible = false
         }
 
         setTimeout(() => {
@@ -300,7 +299,7 @@ export default defineComponent({
               dropdownEl.style.minWidth = `${selectWidth}px`
 
               nextTick(() => {
-                const selectedItems = dropdownEl.querySelectorAll('.el-tree-dropdown__item.selected')
+                const selectedItems = dropdownEl.querySelectorAll('.el-select-dropdown__item.is-selected')
                 selectedItems.forEach((item: any) => {
                   if (!item.classList.contains('tree-select-option')) {
                     item.style.display = 'none'
@@ -331,7 +330,7 @@ export default defineComponent({
             })
 
             if (treeWrapper.value.contains(activeElement)) {
-              select.value.$el.querySelector('.el-input__inner').focus()
+              select.value.focus()
             }
           }
         })
@@ -356,7 +355,7 @@ export default defineComponent({
       }
     }
 
-    const handleNodeClick = (data: any, node: any) => {
+    const handleNodeClick = (data: any, node: any, _component: unknown, event?: MouseEvent) => {
       if (props.showCheckbox) return
       if (!node.isLeaf && node.childNodes && node.childNodes.length > 0) return
       const value = data[props.nodeKey]
@@ -365,60 +364,20 @@ export default defineComponent({
       emit('change', value, data)
       emit('node-click', data, node)
 
-      const event = window.event || arguments.callee.caller.arguments[0]
       if (event) {
         event.stopPropagation()
         event.preventDefault()
       }
       preventReopen.value = true
 
-      if (props.filterable && select.value) {
-        const el = select.value.$el
-        if (el) {
-          const handle = (e: any) => {
-            e.stopPropagation()
-            e.preventDefault()
-            document.removeEventListener('click', handle, true)
-            el.removeEventListener('click', handle, true)
-          }
-
-          document.addEventListener('click', handle, true)
-          el.addEventListener('click', handle, true)
-        }
+      if (props.filterable && keyword.value) {
+        keyword.value = ''
+        tree.value?.filter('')
       }
-
-      if (select.value) {
-        if (props.filterable && keyword.value) {
-          keyword.value = ''
-          if (tree.value) {
-            tree.value.filter('')
-          }
-        }
-
-        setTimeout(() => {
-          const inputEl = select.value.$el.querySelector('input')
-          if (inputEl) {
-            inputEl.blur()
-          }
-
-          select.value.visible = false
-          select.value.blur()
-
-          setTimeout(() => {
-            select.value.visible = false
-            select.value.blur()
-            setTimeout(() => {
-              if (select.value.visible) {
-                select.value.visible = false
-                select.value.blur()
-              }
-              setTimeout(() => {
-                preventReopen.value = false
-              }, 100)
-            }, 50)
-          }, 50)
-        }, 0)
-      }
+      select.value?.blur()
+      nextTick(() => {
+        preventReopen.value = false
+      })
     }
 
     const handleCheckChange = (data: any, checked: any) => {
@@ -733,7 +692,7 @@ export default defineComponent({
   background: transparent;
 }
 
-.el-tree-select__popper .el-select-dropdown__item.selected {
+.el-tree-select__popper .el-select-dropdown__item.is-selected {
   display: none !important;
 }
 

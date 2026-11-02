@@ -14,15 +14,20 @@
     <el-option v-for="item in options" :key="item.projectId" :label="item.name" :value="item.projectId"> </el-option>
 
     <!-- 状态提示 (作为选项的一部分，不会引发重绘闪烁) -->
-    <div v-if="loading" class="lazy-status-text"> <i class="el-icon-loading"></i> 数据加载中... </div>
+    <div v-if="loading" class="lazy-status-text"> <el-icon class="ep-icon-loading is-loading"><EpLoading /></el-icon> 数据加载中... </div>
     <div v-if="isFinished && options.length > 0" class="lazy-status-text"> 已加载全部数据 </div>
   </el-select>
 </template>
 
 <script>
+import { Loading as EpLoading } from '@element-plus/icons-vue'
+
 import { CwProject } from '@/api/mainController'
 
 export default {
+  setup() {
+    return { EpLoading }
+  },
   name: 'ProjectSelect',
   props: {
     value: {

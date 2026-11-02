@@ -1,7 +1,7 @@
 <template>
   <el-input v-model="text" :title="text" readonly="true">
     <template #append>
-      <el-button @click="addData" icon="el-icon-circle-plus-outline" />
+      <el-button @click="addData" :icon="EpCirclePlus" />
     </template>
   </el-input>
   <el-dialog v-model="dialogVisible" width="30%" :show-close="false" :close-on-click-modal="false">
@@ -16,8 +16,12 @@
 </template>
 
 <script>
+import { CirclePlus as EpCirclePlus } from '@element-plus/icons-vue'
+
 import { defineComponent, reactive } from 'vue'
 export default defineComponent({
+  components: { EpCirclePlus },
+  computed: { EpCirclePlus: () => EpCirclePlus },
   setup() {
     return reactive({
       text: '',

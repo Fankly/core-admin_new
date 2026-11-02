@@ -57,7 +57,7 @@
             <el-button
               v-if="hasPermission('EDIT')"
               class="row-edit-button"
-              type="text"
+              type="primary" link
               size="small"
               title="编辑房产"
               aria-label="编辑房产"

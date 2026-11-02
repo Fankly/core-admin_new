@@ -53,7 +53,7 @@ export const useBudgetingTable = () => {
     stripe: true,
     loading: false,
     loadingConfig: {
-      icon: 'el-icon-loading',
+      icon: 'vxe-icon-spinner roll',
       text: '正在加载中...'
     },
     headerAlign: 'center',

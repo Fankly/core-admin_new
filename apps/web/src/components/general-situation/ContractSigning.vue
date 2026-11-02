@@ -9,9 +9,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度合同签订金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4445)` }}
                       </span>
@@ -23,9 +23,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度合同签订数量</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(50)` }}
                       </span>
@@ -37,9 +37,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">其中：</span>
-                      </label>
+                      </template>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -47,9 +47,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">通用物资合同签订数量</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(50)` }}
                       </span>
@@ -61,9 +61,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">框架服务合同签订金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(50)` }}
                       </span>
@@ -75,9 +75,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">框架服务合同签订数量</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(50)` }}
                       </span>
@@ -93,9 +93,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度合同签订金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4445)` }}
                       </span>
@@ -107,9 +107,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度合同签订数量</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(50)` }}
                       </span>
@@ -121,9 +121,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">其中：</span>
-                      </label>
+                      </template>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -131,9 +131,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">通用物资合同签订数量</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(50)` }}
                       </span>
@@ -145,9 +145,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">框架服务合同签订金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(50)` }}
                       </span>
@@ -159,9 +159,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">框架服务合同签订数量</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(50)` }}
                       </span>

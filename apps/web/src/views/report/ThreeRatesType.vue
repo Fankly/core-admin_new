@@ -15,7 +15,7 @@
       <div class="right">
         <el-tooltip content="帮助" placement="top">
           <span style="cursor: pointer; font-size: 18px" @click="getHelpMessageHandle">
-            <i class="el-icon-question"></i>
+            <el-icon class="ep-icon-question"><EpQuestionFilled /></el-icon>
           </span>
         </el-tooltip>
       </div>
@@ -187,6 +187,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { QuestionFilled as EpQuestionFilled } from '@element-plus/icons-vue'
+
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
 import userDialog from '@/components/select/userDialog.vue'

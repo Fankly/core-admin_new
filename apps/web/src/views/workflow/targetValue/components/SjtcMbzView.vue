@@ -40,7 +40,7 @@
                 <el-form label-suffix="：" label-width="100px" @submit.prevent>
                   <el-form-item class="target-value-sjtc__panel-item target-value-sjtc__panel-item--filter" label="数据项统计">
                     <el-checkbox-group v-model="maintainSearchForm.dataType" class="target-value-sjtc__checkbox-group" size="small">
-                      <el-checkbox v-for="item in maintainDataTypeOptions" :key="item.value" :label="item.value" class="target-value-sjtc__checkbox">
+                      <el-checkbox v-for="item in maintainDataTypeOptions" :key="item.value" :value="item.value" class="target-value-sjtc__checkbox">
                         {{ item.label }}
                       </el-checkbox>
                     </el-checkbox-group>

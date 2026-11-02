@@ -89,7 +89,7 @@
             :loading="loading"
           >
             <template #status="{ row }">
-              <el-button size="small" type="text" @click.prevent.stop="toggleRuleStatus(row)">
+              <el-button size="small" type="primary" link @click.prevent.stop="toggleRuleStatus(row)">
                 <span :style="{ color: row.ruleStatus === '0' ? 'red' : '#00706b' }">{{ row.ruleStatusName }}</span>
               </el-button>
             </template>

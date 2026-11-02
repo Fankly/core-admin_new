@@ -72,6 +72,7 @@
 </template>
 
 <script lang="tsx">
+import { EditPen as EpEditPen } from '@element-plus/icons-vue'
 export default {
   name: '/metrics/indicators'
 }
@@ -82,7 +83,7 @@ import ImportExcel from '@/components/ImportExcel/indexSy.vue' //导入组件
 import { h } from 'vue'
 import proTable from '@/components/ProTable/index.vue' //表格组件
 import { onMounted, ref, reactive, watch } from 'vue'
-import { ElMessage, ElMessageBox, ElInput } from 'element-plus'
+import { ElMessage, ElMessageBox, ElInput, ElIcon } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { getPublicData } from '@/api/common' //公共代码
 import {
@@ -394,7 +395,7 @@ const DWColumns = reactive<any>([
         label: '目标值(万元)',
         width: '150',
         headerRender: () => {
-          return h('i', { class: 'el-icon-edit-outline' }, '目标值(万元)')
+          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '目标值(万元)'])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -419,7 +420,7 @@ const DWColumns = reactive<any>([
         prop: 'currentWcz',
         label: '完成值(万元)',
         headerRender: () => {
-          return h('i', { class: 'el-icon-edit-outline' }, '完成值(万元)')
+          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '完成值(万元)'])
         },
         width: '150',
         render: ({ row }: any) => {
@@ -456,7 +457,7 @@ const DWColumns = reactive<any>([
         label: '目标值(万元)',
         width: '150',
         headerRender: () => {
-          return h('i', { class: 'el-icon-edit-outline' }, '目标值(万元)')
+          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '目标值(万元)'])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -481,7 +482,7 @@ const DWColumns = reactive<any>([
         label: '完成值(万元)',
         width: '150',
         headerRender: () => {
-          return h('i', { class: 'el-icon-edit-outline' }, '完成值(万元)')
+          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '完成值(万元)'])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -518,7 +519,7 @@ const LXColumns = reactive<any>([
         label: '目标值(万元)',
         width: '150',
         headerRender: () => {
-          return h('i', { class: 'el-icon-edit-outline' }, '目标值(万元)')
+          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '目标值(万元)'])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -539,7 +540,7 @@ const LXColumns = reactive<any>([
         label: '完成值(万元)',
         width: '150',
         headerRender: () => {
-          return h('i', { class: 'el-icon-edit-outline' }, '完成值(万元)')
+          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '完成值(万元)'])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -567,7 +568,7 @@ const LXColumns = reactive<any>([
         label: '目标值(万元)',
         width: '150',
         headerRender: () => {
-          return h('i', { class: 'el-icon-edit-outline' }, '目标值(万元)')
+          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '目标值(万元)'])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -588,7 +589,7 @@ const LXColumns = reactive<any>([
         label: '完成值(万元)',
         width: '150',
         headerRender: () => {
-          return h('i', { class: 'el-icon-edit-outline' }, '完成值(万元)')
+          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '完成值(万元)'])
         },
         render: ({ row }: any) => {
           return h(ElInput, {

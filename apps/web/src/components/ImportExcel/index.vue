@@ -34,7 +34,7 @@
           >
             <slot name="empty">
               <div class="import-excel__upload-empty">
-                <i class="el-icon-upload import-excel__upload-icon"></i>
+                <el-icon class="ep-icon-upload import-excel__upload-icon"><EpUpload /></el-icon>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                 <p class="import-excel__upload-note">单次仅支持上传 1 个文件，选中文件后会自动开始导入。</p>
               </div>
@@ -52,6 +52,8 @@
 </template>
 
 <script setup lang="ts">
+import { Upload as EpUpload } from '@element-plus/icons-vue'
+
 defineOptions({ name: "ImportExcel" })
 import { ref, defineExpose } from 'vue'
 import { useDownload } from '@/hooks/useDownload'

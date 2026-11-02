@@ -36,7 +36,7 @@
                 <div class="tree-actions">
                   <el-dropdown trigger="click" @command="handleTreeCommand">
                     <el-tooltip content="选择列表展现方式" placement="top">
-                      <i class="el-icon-arrow-down"> </i>
+                      <el-icon class="ep-icon-arrow-down"> <EpArrowDown /></el-icon>
                     </el-tooltip>
                     <template #dropdown>
                       <el-dropdown-menu>
@@ -54,7 +54,7 @@
                     </template>
                   </el-dropdown>
                   <el-tooltip content="刷新" placement="top">
-                    <i class="el-icon-refresh" @click="refreshTree"> </i>
+                    <el-icon class="ep-icon-refresh" @click="refreshTree"> <EpRefresh /></el-icon>
                   </el-tooltip>
                 </div>
               </div>
@@ -138,6 +138,8 @@
 </template>
 
 <script lang="ts">
+import { ArrowDown as EpArrowDown, Refresh as EpRefresh } from '@element-plus/icons-vue'
+
 import { getAppframeResponse } from '@/api/common'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
@@ -465,6 +467,8 @@ export default defineComponent({
     })
 
     return {
+      EpArrowDown,
+      EpRefresh,
       settingLR,
       dialogVisible,
       searchForm,

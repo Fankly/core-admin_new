@@ -37,7 +37,7 @@
             highlight: true
           }"
           resizable
-          :loading-config="{ icon: 'el-icon-loading', text: '正在加载...' }"
+          :loading-config="{ icon: 'vxe-icon-spinner roll', text: '正在加载...' }"
           :row-config="{ height: 32 }"
           border
           stripe
@@ -103,7 +103,7 @@
             title="变更说明附件"
           >
             <template #default="{ row }">
-              <el-button @click="() => handleDownloadAttach(row)" type="text">{{
+              <el-button @click="() => handleDownloadAttach(row)" type="primary" link>{{
                 row['attachName']
               }}</el-button>
             </template>

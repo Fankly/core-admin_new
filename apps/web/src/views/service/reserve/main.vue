@@ -5,6 +5,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { Search as EpSearch } from '@element-plus/icons-vue'
+
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -284,7 +286,7 @@ onMounted(async () => {
               <template v-for="operation in operationBtn" :key="operation.id">
                 <el-col :span="12">
                   <div class="container-btn-box-content-container-box" @click="handleRequired(operation.url)">
-                    <i class="el-icon-search"></i>
+                    <el-icon class="ep-icon-search"><EpSearch /></el-icon>
                     <span>{{ operation.name }}</span>
                   </div>
                 </el-col>
@@ -304,7 +306,7 @@ onMounted(async () => {
               <template v-for="search in searchBtn" :key="search.id">
                 <el-col :span="12">
                   <div class="container-btn-box-content-container-box" @click="handleRequired(search.url)">
-                    <i class="el-icon-search"></i>
+                    <el-icon class="ep-icon-search"><EpSearch /></el-icon>
                     <span>{{ search.name }}</span>
                   </div>
                 </el-col>

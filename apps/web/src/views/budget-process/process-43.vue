@@ -15,7 +15,7 @@
                 :hide-on-click="false"
               >
                 <span class="el-dropdown-link">
-                  <el-icon class="el-icon-s-operation">
+                  <el-icon class="ep-icon-s-operation">
                     <arrow-down />
                   </el-icon>
                 </span>
@@ -33,10 +33,10 @@
                 </template>
               </el-dropdown>
               <span class="searchShow" v-if="searchShow === false" @click="showSearch(true)">
-                <i class="el-icon-arrow-down"></i>
+                <el-icon class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
               </span>
               <span class="searchShow" @click="showSearch(false)" v-else>
-                <i class="el-icon-arrow-up"></i>
+                <el-icon class="ep-icon-arrow-up"><EpArrowUp /></el-icon>
               </span>
               <ToolbarButtons :tool-button="['help']" @help-click="getHelpMessageHandle" />
             </div>
@@ -196,13 +196,13 @@
                     size="small"
                     v-debounce="[loadData]"
                     type="primary"
-                    icon="el-icon-search"
+                    :icon="EpSearch"
                     >查 询
                   </el-button>
                   <el-button
                     v-permission="'RESET'"
                     size="small"
-                    icon="el-icon-refresh-right"
+                    :icon="EpRefreshRight"
                     @click="reset"
                     >重 置
                   </el-button>
@@ -211,7 +211,7 @@
                     size="small"
                     v-debounce="[exportData]"
                     type="warning"
-                    icon="el-icon-download"
+                    :icon="EpDownload"
                     >导 出
                   </el-button>
                   <el-upload
@@ -222,7 +222,7 @@
                     :show-file-list="false"
                     :on-change="handleChange"
                   >
-                    <el-button size="small" type="success" icon="el-icon-upload">导 入</el-button>
+                    <el-button size="small" type="success" :icon="EpUpload">导 入</el-button>
                   </el-upload>
                 </el-col>
               </el-row>
@@ -451,6 +451,16 @@
 </template>
 
 <script>
+import {
+  ArrowDown as EpArrowDown,
+  ArrowUp as EpArrowUp,
+  Download as EpDownload,
+  RefreshRight as EpRefreshRight,
+  Search as EpSearch,
+  Upload as EpUpload
+} from '@element-plus/icons-vue'
+import { markRaw as markElementIconRaw } from 'vue'
+
 import { defineComponent, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import copyTextBox from '@/components/select/copyTextBox.vue'
@@ -487,6 +497,12 @@ export default defineComponent({
       }
     }
     return reactive({
+      EpArrowDown: markElementIconRaw(EpArrowDown),
+      EpArrowUp: markElementIconRaw(EpArrowUp),
+      EpDownload: markElementIconRaw(EpDownload),
+      EpRefreshRight: markElementIconRaw(EpRefreshRight),
+      EpSearch: markElementIconRaw(EpSearch),
+      EpUpload: markElementIconRaw(EpUpload),
       store,
       dialogFormRef,
       page: {

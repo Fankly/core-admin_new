@@ -33,12 +33,12 @@
           <div class="panel-left">
             <div class="panel-left-header">
               <span class="panel-title">
-                <i class="el-icon-folder-opened"></i>
+                <el-icon class="ep-icon-folder-opened"><EpFolderOpened /></el-icon>
                 <span>作业标准分类目录</span>
               </span>
             </div>
             <div class="panel-left-search">
-              <el-input @input="changeFilterHandle" v-model="filterText" placeholder="请输入目录名称" prefix-icon="el-icon-search" clearable />
+              <el-input @input="changeFilterHandle" v-model="filterText" placeholder="请输入目录名称" :prefix-icon="EpSearch" clearable />
             </div>
             <div class="panel-left-content">
               <el-tree
@@ -53,7 +53,7 @@
               >
                 <template #default="{ node, data }">
                   <span class="custom-tree-node">
-                    <i class="tree-node-icon" :class="node.isLeaf ? ['el-icon-document', 'is-leaf'] : ['el-icon-folder', 'is-parent']"></i>
+                    <el-icon class="tree-node-icon" :class="node.isLeaf ? ['ep-icon-document', 'is-leaf'] : ['ep-icon-folder', 'is-parent']"><component :is="node.isLeaf ? EpDocument : EpFolder" /></el-icon>
                     <span class="tree-node-label" :title="data.dirName">{{ data.dirName }}</span>
                   </span>
                 </template>
@@ -136,6 +136,8 @@
 </template>
 
 <script setup lang="ts">
+import { Document as EpDocument, Folder as EpFolder, FolderOpened as EpFolderOpened, Search as EpSearch } from '@element-plus/icons-vue'
+
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
 
 defineOptions({ name: "/service/xmcs/workStandardCostConfig" })

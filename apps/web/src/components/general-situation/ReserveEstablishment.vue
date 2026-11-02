@@ -28,8 +28,8 @@
           <el-col :span="8"> </el-col>
           <el-col :span="8">
             <el-form-item>
-              <el-button style="margin-left: 100px" type="primary" icon="el-icon-search" @click="search">查 询</el-button>
-              <el-button icon="el-icon-refresh-right" @click="reset">重 置</el-button>
+              <el-button style="margin-left: 100px" type="primary" :icon="EpSearch" @click="search">查 询</el-button>
+              <el-button :icon="EpRefreshRight" @click="reset">重 置</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -59,6 +59,8 @@
 </template>
 
 <script lang="ts">
+import { RefreshRight as EpRefreshRight, Search as EpSearch } from '@element-plus/icons-vue'
+
 import { number, use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart } from 'echarts/charts'
@@ -369,6 +371,8 @@ export default defineComponent({
       ]
     })
     return {
+      EpRefreshRight,
+      EpSearch,
       activeName1,
       activeName2,
       echarts1,

@@ -19,22 +19,22 @@
           <div class="lsf-panel">
             <div class="lsf-panel-header">
               <div class="lsf-section-title">
-                <i class="el-icon-folder-opened lsf-section-title__icon" aria-hidden="true"></i>
+                <el-icon class="ep-icon-folder-opened lsf-section-title__icon" aria-hidden="true"><EpFolderOpened /></el-icon>
                 文件目录
               </div>
               <div class="lsf-panel-header__actions">
-                <i
-                  class="el-icon-sort lsf-section-title__icon lsf-section-title__icon--action"
+                <el-icon
+                  class="ep-icon-sort lsf-section-title__icon lsf-section-title__icon--action"
                   aria-hidden="true"
                   title="一键展开/收起"
                   @click="handleExpandAll"
-                />
-                <i
-                  class="el-icon-refresh lsf-section-title__icon lsf-section-title__icon--action"
+><EpSort /></el-icon>
+                <el-icon
+                  class="ep-icon-refresh lsf-section-title__icon lsf-section-title__icon--action"
                   aria-hidden="true"
                   title="刷新"
                   @click="handleRefreshTree"
-                />
+><EpRefresh /></el-icon>
               </div>
             </div>
             <div class="lsf-tree-list">
@@ -51,7 +51,7 @@
               >
                 <template #default="{ node, data }">
                   <span class="lsf-tree-node">
-                    <i :class="data.leaf === '1' ? 'el-icon-document' : 'el-icon-folder'" class="lsf-tree-node__icon" aria-hidden="true"></i>
+                    <el-icon :class="data.leaf === '1' ? 'ep-icon-document' : 'ep-icon-folder'" class="lsf-tree-node__icon" aria-hidden="true"><component :is="data.leaf === '1' ? EpDocument : EpFolder" /></el-icon>
                     <span class="lsf-tree-node__label" :title="node.label">{{ `${node.label}(${data.attachNum || 0})` }}</span>
                   </span>
                 </template>
@@ -64,7 +64,7 @@
           <div class="lsf-panel lsf-detail-panel">
             <div class="lsf-detail-header">
               <div class="lsf-section-title">
-                <i class="el-icon-document lsf-section-title__icon" aria-hidden="true"></i>
+                <el-icon class="ep-icon-document lsf-section-title__icon" aria-hidden="true"><EpDocument /></el-icon>
                 文件列表
               </div>
               <el-tag v-if="chooseNodeName" size="small" class="lsf-current-node-tag" effect="plain">
@@ -97,17 +97,17 @@
                   <div style="margin-bottom: 10px">
                     <el-input clearable placeholder="输入文件名进行过滤" @clear="handleSearch" v-model.trim="attachName">
                       <template #append>
-                        <i class="el-icon-search" @click="handleSearch" style="color: var(--color-primary); cursor: pointer"></i>
+                        <el-icon class="ep-icon-search" @click="handleSearch" style="color: var(--color-primary); cursor: pointer"><EpSearch /></el-icon>
                       </template>
                     </el-input>
                   </div>
                 </template>
                 <template #operation="{ row }">
                   <el-tooltip content="预览文件" placement="top">
-                    <i class="el-icon-view lsf-row-action-icon" @click="handlePreview(row)"></i>
+                    <el-icon class="ep-icon-view lsf-row-action-icon" @click="handlePreview(row)"><EpView /></el-icon>
                   </el-tooltip>
                   <el-tooltip content="下载文件" placement="top">
-                    <i class="el-icon-download lsf-row-action-icon" @click="downloadFile(row)"></i>
+                    <el-icon class="ep-icon-download lsf-row-action-icon" @click="downloadFile(row)"><EpDownload /></el-icon>
                   </el-tooltip>
                 </template>
               </RangeVxeTableStyle>
@@ -156,6 +156,17 @@ export default {
 </script>
 
 <script setup lang="ts">
+import {
+  Document as EpDocument,
+  Download as EpDownload,
+  Folder as EpFolder,
+  FolderOpened as EpFolderOpened,
+  Refresh as EpRefresh,
+  Search as EpSearch,
+  Sort as EpSort,
+  View as EpView
+} from '@element-plus/icons-vue'
+
 import { ref, shallowRef, markRaw, nextTick } from 'vue'
 import { ElMessage, ElImageViewer } from 'element-plus'
 import RangeVxeTableStyle from '@/components/RangeVxeTableStyle/index.vue'

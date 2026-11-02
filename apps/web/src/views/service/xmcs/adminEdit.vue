@@ -3,7 +3,7 @@
   <div class="container" v-loading="gridOptions.loading" v-if="isShowPage">
     <div class="operation">
       <el-dropdown placement="bottom" style="margin: 0 10px">
-        <el-button size="small" plain type="primary">项目管理<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-button size="small" plain type="primary">项目管理<el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon></el-button>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="handleBtn('ADD', '新增')">新 增</el-dropdown-item>
@@ -16,7 +16,7 @@
         </template>
       </el-dropdown>
       <el-dropdown placement="bottom" style="margin: 0 10px">
-        <el-button size="small" plain type="primary">测算查询<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-button size="small" plain type="primary">测算查询<el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon></el-button>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="handleBtn('VIEW', '查看')">基本信息</el-dropdown-item>
@@ -27,7 +27,7 @@
       </el-dropdown>
 
       <el-dropdown placement="bottom" style="margin: 0 10px">
-        <el-button size="small" plain type="primary">修 改<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-button size="small" plain type="primary">修 改<el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon></el-button>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="handleZxcsMb">定额测算模板</el-dropdown-item>
@@ -130,6 +130,8 @@
 </template>
 
 <script setup lang="tsx">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/service/xmcs/adminEdit" })
 import { nextTick, onMounted, reactive, ref, h } from 'vue'
 import {

@@ -10,7 +10,7 @@
   >
     <DashboardContainer rectangularIcon circleIcon title="选择文件" :headerStyle="{ padding: '0', height: '32px' }" :bodyStyle="{ padding: 0 }">
       <template v-slot:extra>
-        <el-button v-if="handleTemplate" @click="handleExportTemplate" type="text">点击下载模版文件</el-button>
+        <el-button v-if="handleTemplate" @click="handleExportTemplate" type="primary" link>点击下载模版文件</el-button>
       </template>
       <FormConfigBox
         style="margin-top: 5px"
@@ -38,7 +38,7 @@
         :on-change="handleChange"
         :before-upload="onBeforeUpload"
       >
-        <i class="el-icon-upload"></i>
+        <el-icon class="ep-icon-upload"><EpUpload /></el-icon>
         <div class="el-upload__text">将文件拖到此处</div>
         <template #tip>
           <div class="el-upload__tip">支持拓展名: {{ accept || '.xls,.xlsx,.et' }}</div>
@@ -47,7 +47,10 @@
     </DashboardContainer>
   </dialogContainer>
 </template>
+
 <script>
+import { Upload as EpUpload } from '@element-plus/icons-vue'
+
 import httpUtil from '@/core/http/index.js'
 
 import { uploadCustomMixin, uploadMixin } from '@/core/mixins'
@@ -57,6 +60,9 @@ import { uploadCustomMixin, uploadMixin } from '@/core/mixins'
 // };
 
 export default {
+  setup() {
+    return { EpUpload }
+  },
   components: {},
   props: {
     accept: String,

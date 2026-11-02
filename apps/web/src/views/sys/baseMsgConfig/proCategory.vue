@@ -12,7 +12,7 @@
           <div class="panel-left-main">
             <div class="panel-left-header">
               <span class="panel-title">
-                <i class="el-icon-folder-opened"></i>
+                <el-icon class="ep-icon-folder-opened"><EpFolderOpened /></el-icon>
                 <span>项目类型树</span>
               </span>
             </div>
@@ -21,7 +21,7 @@
                 @input="changeInputValueHandle"
                 v-model="pageData.filterXmlxData"
                 placeholder="请输入项目类型名称"
-                prefix-icon="el-icon-search"
+                :prefix-icon="EpSearch"
                 clearable
               ></el-input>
             </div>
@@ -38,7 +38,7 @@
               >
                 <template #default="{ data }">
                   <span class="custom-tree-node">
-                    <i class="tree-node-icon" :class="data.leaf ? ['el-icon-document', 'is-leaf'] : ['el-icon-folder', 'is-parent']"></i>
+                    <el-icon class="tree-node-icon" :class="data.leaf ? ['ep-icon-document', 'is-leaf'] : ['ep-icon-folder', 'is-parent']"><component :is="data.leaf ? EpDocument : EpFolder" /></el-icon>
                     <span class="tree-node-label" :title="data.name">{{ data.name }}</span>
                   </span>
                 </template>
@@ -214,6 +214,8 @@
 </template>
 
 <script setup lang="ts">
+import { Document as EpDocument, Folder as EpFolder, FolderOpened as EpFolderOpened, Search as EpSearch } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/sys/baseMsgConfig/proCategory" })
 import { getProtypeTree, getPublicCodeList } from '@/api/common'
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
@@ -291,7 +293,7 @@ const tableScrollY = {
   gt: 80
 }
 const tableLoadingConfig = {
-  icon: 'el-icon-loading',
+  icon: 'vxe-icon-spinner roll',
   text: '数据加载中...'
 }
 let treeFilterTimer: number | undefined
@@ -966,7 +968,7 @@ const searchData = async () => {
   }
 
   .vxe-loading--default-icon,
-  .el-icon-loading {
+  .vxe-icon-spinner {
     color: @primary-color;
     font-size: 24px;
     animation: loadingRotate 1s linear infinite;

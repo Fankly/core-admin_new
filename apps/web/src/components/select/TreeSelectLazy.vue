@@ -1,6 +1,6 @@
 <template>
   <el-select @remove-tag="selectChange" collapse-tags v-model="selectTree" placeholder="请选择"
-    :popper-append-to-body="false" multiple class="select-tree">
+    :teleported="false" multiple class="select-tree">
     <el-option :value="selectTreeValue" style="height: auto">
       <el-tree  :check-strictly="checkStrictly" :data="data" show-checkbox :node-key="nodeKey"
         ref="tree" :lazy="lazy" :load="loadNode" :props="defaultProps" :default-expand-all="defaultExpandAll" @check="handleCheckChange"></el-tree>
@@ -150,7 +150,7 @@ export default {
     position: relative;
   }
 
-  .expanded.el-tree-node__expand-icon.el-icon-arrow-down {
+  .el-tree-node__expand-icon.expanded {
     position: absolute;
     top: 0;
     right: 0;

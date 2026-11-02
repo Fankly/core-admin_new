@@ -25,7 +25,7 @@
           @keyup.enter="handleSearch"
         >
           <template #append>
-            <i class="el-icon-search" @click="handleSearch" style="color: var(--color-primary, #00706b); cursor: pointer"></i>
+            <el-icon class="ep-icon-search" @click="handleSearch" style="color: var(--color-primary, #00706b); cursor: pointer"><EpSearch /></el-icon>
           </template>
         </el-input>
         <el-button v-permission="'UPLOAD'" plain size="small" type="primary" @click="handleAdd"> 新 增 </el-button>
@@ -50,10 +50,10 @@
         >
           <template #operation="{ row }">
             <el-tooltip content="编辑" placement="top">
-              <i class="el-icon-edit row-action-icon" @click="handleEdit(row)" v-permission="'EDITBZ'"></i>
+              <el-icon class="ep-icon-edit row-action-icon" @click="handleEdit(row)" v-permission="'EDITBZ'"><EpEdit /></el-icon>
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <i class="el-icon-delete row-action-icon row-action-icon--danger" @click="handleDelete(row)" v-permission="'DELETEFILE'"></i>
+              <el-icon class="ep-icon-delete row-action-icon row-action-icon--danger" @click="handleDelete(row)" v-permission="'DELETEFILE'"><EpDelete /></el-icon>
             </el-tooltip>
           </template>
         </RangeVxeTableStyle>
@@ -70,6 +70,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { Delete as EpDelete, Edit as EpEdit, Search as EpSearch } from '@element-plus/icons-vue'
+
 import { ref, markRaw, nextTick, defineAsyncComponent } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'

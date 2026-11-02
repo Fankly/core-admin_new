@@ -27,7 +27,7 @@
           <div class="search_panel">
             <el-input clearable placeholder="输入项目编码或者名称进行过滤" @clear="handleSearch" v-model="searchParam">
               <template #append>
-                <i class="el-icon-search" @click="handleSearch" style="color: var(--color-primary, #00857c); cursor: pointer"></i>
+                <el-icon class="ep-icon-search" @click="handleSearch" style="color: var(--color-primary, #00857c); cursor: pointer"><EpSearch /></el-icon>
               </template>
             </el-input>
             <el-button size="small" v-debounce="[searchHandle, `click`, 300]" type="primary"> 高级查询 </el-button>
@@ -119,7 +119,7 @@
                 <div class="section-title">专家评审意见</div>
                 <div class="header-actions">
                   <span @click="showMoreOpinion">更多意见</span>
-                  <i class="el-icon-more el-icon--right"></i>
+                  <el-icon class="ep-icon-more el-icon--right"><EpMore /></el-icon>
                 </div>
               </div>
               <div class="expert-reviews-container">
@@ -150,8 +150,8 @@
               <div class="my-opinion-row">
                 <div class="review">评审意见</div>
                 <el-radio-group @change="handleView" :disabled="isViewMode" v-model="myReview.opinion">
-                  <el-radio label="1">通过</el-radio>
-                  <el-radio label="0">不通过</el-radio>
+                  <el-radio value="1">通过</el-radio>
+                  <el-radio value="0">不通过</el-radio>
                 </el-radio-group>
               </div>
               <div class="my-opinion-row my-opinion-row--reason">
@@ -185,6 +185,8 @@
   <ImportExcel ref="importRef" />
 </template>
 <script lang="ts" setup>
+import { More as EpMore, Search as EpSearch } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/ai/reviewWorkBench/reviewDeatil/index" })
 import { ref, reactive, nextTick, onMounted, computed } from 'vue'
 import otherOpinion from './components/otherOpinion.vue'

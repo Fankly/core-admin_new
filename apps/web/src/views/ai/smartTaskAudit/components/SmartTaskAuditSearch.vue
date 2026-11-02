@@ -36,7 +36,7 @@
                     :show-checkbox="true"
                     :collapse-tags="true"
                     :check-on-click-node="false"
-                    :popper-append-to-body="true"
+                    :teleported="true"
                     node-key="middleId"
                     placeholder="请选择"
                   />

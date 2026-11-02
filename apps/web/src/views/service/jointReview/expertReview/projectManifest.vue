@@ -28,7 +28,7 @@
           <div class="search_panel">
             <el-input clearable placeholder="输入项目编码或者名称进行过滤" @clear="handleSearch" v-model="searchParam">
               <template #append>
-                <i class="el-icon-search" @click="handleSearch" style="color: var(--color-primary, #00857c); cursor: pointer"></i>
+                <el-icon class="ep-icon-search" @click="handleSearch" style="color: var(--color-primary, #00857c); cursor: pointer"><EpSearch /></el-icon>
               </template>
             </el-input>
             <el-button size="small" v-debounce="[searchHandle, `click`, 300]" type="primary"> 高级查询 </el-button>
@@ -111,7 +111,7 @@
           aria-controls="expert-review-project-list"
           @click="toggleLeftPanel"
         >
-          <i class="el-icon-arrow-left left-collapse-toggle__icon" :class="{ 'is-collapsed': isLeftCollapsed }" aria-hidden="true"></i>
+          <el-icon class="ep-icon-arrow-left left-collapse-toggle__icon" :class="{ 'is-collapsed': isLeftCollapsed }" aria-hidden="true"><EpArrowLeft /></el-icon>
         </button>
       </el-tooltip>
       <!-- 中间：项目详情和评审 -->
@@ -137,13 +137,13 @@
               </el-button>
               <div class="column-header">
                 <div class="section-title-group">
-                  <div class="section-title"><i class="el-icon-document section-title__icon" aria-hidden="true"></i>项目信息</div>
+                  <div class="section-title"><el-icon class="ep-icon-document section-title__icon" aria-hidden="true"><EpDocument /></el-icon>项目信息</div>
                 </div>
                 <div class="project-header-actions">
                   <zzfile ref="zzfileRef" :show-financial-basis="isFinanceMajor" :show-auto-gen-mark="false" />
                   <button type="button" class="header-actions header-link-action" aria-label="查看更多项目详情" @click="showProjectInfo">
                     <span>更多详情</span>
-                    <i class="el-icon-more el-icon--right" aria-hidden="true"></i>
+                    <el-icon class="ep-icon-more el-icon--right" aria-hidden="true"><EpMore /></el-icon>
                   </button>
                 </div>
               </div>
@@ -248,9 +248,9 @@
               <div class="column-header">
                 <div class="section-title">
                   <template v-if="showXxLhhsYj && selectedProject">
-                    <i class="el-icon-s-custom section-title__icon" aria-hidden="true"></i>人工审核意见
+                    <el-icon class="ep-icon-s-custom section-title__icon" aria-hidden="true"><EpUserFilled /></el-icon>人工审核意见
                   </template>
-                  <template v-else> <i class="el-icon-user section-title__icon" aria-hidden="true"></i>专家评审意见 </template>
+                  <template v-else> <el-icon class="ep-icon-user section-title__icon" aria-hidden="true"><EpUser /></el-icon>专家评审意见 </template>
                 </div>
                 <button
                   v-if="!showXxLhhsYj || !selectedProject || reviewOpinionTab === 'expert'"
@@ -260,20 +260,20 @@
                   @click="showMoreOpinion"
                 >
                   <span>更多意见</span>
-                  <i class="el-icon-more el-icon--right" aria-hidden="true"></i>
+                  <el-icon class="ep-icon-more el-icon--right" aria-hidden="true"><EpMore /></el-icon>
                 </button>
               </div>
               <div class="review-opinion-content" :class="{ 'review-opinion-content--with-tabs': showXxLhhsYj && selectedProject }">
                 <el-tabs v-if="showXxLhhsYj && selectedProject" v-model="reviewOpinionTab" tab-position="left" class="review-opinion-tabs">
                   <el-tab-pane name="expert">
                     <template #label>
-                      <i class="el-icon-user review-opinion-tabs__icon" aria-hidden="true"></i>
+                      <el-icon class="ep-icon-user review-opinion-tabs__icon" aria-hidden="true"><EpUser /></el-icon>
                       <span class="review-opinion-tabs__label">专家</span>
                     </template>
                   </el-tab-pane>
                   <el-tab-pane name="offline">
                     <template #label>
-                      <i class="el-icon-s-cooperation review-opinion-tabs__icon" aria-hidden="true"></i>
+                      <el-icon class="ep-icon-s-cooperation review-opinion-tabs__icon" aria-hidden="true"><EpSuitcase /></el-icon>
                       <span class="review-opinion-tabs__label">线下</span>
                     </template>
                   </el-tab-pane>
@@ -308,7 +308,7 @@
                             @change="(val) => handleOpinionChange('development', val)"
                           >
                             <template v-for="(item, index) in xxOpinton" :key="index">
-                              <el-radio class="radio-style" :label="item.code">{{ item.name }}</el-radio>
+                              <el-radio class="radio-style" :value="item.code">{{ item.name }}</el-radio>
                             </template>
                           </el-radio-group>
                         </el-form-item>
@@ -334,7 +334,7 @@
                             @change="(val) => handleOpinionChange('finance', val)"
                           >
                             <template v-for="(item, index) in xxOpinton" :key="index">
-                              <el-radio class="radio-style" :label="item.code">{{ item.name }}</el-radio>
+                              <el-radio class="radio-style" :value="item.code">{{ item.name }}</el-radio>
                             </template>
                           </el-radio-group>
                         </el-form-item>
@@ -365,13 +365,13 @@
             <el-col class="final-review-col" :span="10">
               <div class="info-section final-review-section">
                 <div class="column-header">
-                  <div class="section-title"><i class="el-icon-s-check section-title__icon" aria-hidden="true"></i>我的评审意见</div>
+                  <div class="section-title"><el-icon class="ep-icon-s-check section-title__icon" aria-hidden="true"><EpChecked /></el-icon>我的评审意见</div>
                   <el-button v-if="!isViewMode" size="small" type="primary" @click="submitReview"> 提交意见 </el-button>
                 </div>
                 <div class="review-opinion-content" :class="{ 'review-opinion-content--with-tabs': showXxLhhsYj && selectedProject }">
                   <div v-if="showXxLhhsYj && selectedProject" class="review-opinion-tabs final-review-tabs" aria-label="我的评审意见">
                     <div class="final-review-tabs__item is-active">
-                      <i class="el-icon-s-check review-opinion-tabs__icon" aria-hidden="true"></i>
+                      <el-icon class="ep-icon-s-check review-opinion-tabs__icon" aria-hidden="true"><EpChecked /></el-icon>
                       <span class="review-opinion-tabs__label">评审</span>
                     </div>
                   </div>
@@ -379,8 +379,8 @@
                     <el-form :model="myReview" label-width="100px" class="review-form">
                       <el-form-item class="review-opinion-item" label="评审意见：">
                         <el-radio-group @change="handleView" v-model="myReview.opinion" :disabled="isViewMode">
-                          <el-radio label="1">通过</el-radio>
-                          <el-radio label="0">不通过</el-radio>
+                          <el-radio value="1">通过</el-radio>
+                          <el-radio value="0">不通过</el-radio>
                         </el-radio-group>
                       </el-form-item>
                       <el-form-item class="review-reason-item" label="意见说明：">
@@ -422,6 +422,17 @@
 </template>
 
 <script lang="tsx" setup>
+import {
+  ArrowLeft as EpArrowLeft,
+  Checked as EpChecked,
+  Document as EpDocument,
+  More as EpMore,
+  Search as EpSearch,
+  Suitcase as EpSuitcase,
+  User as EpUser,
+  UserFilled as EpUserFilled
+} from '@element-plus/icons-vue'
+
 import { computed, onMounted, nextTick, ref } from 'vue'
 import { expertReview } from '@/views/service/jointReview/expertReview/hooks/psy'
 import { reviewHandle } from '@/views/service/jointReview/hooks/showReview'

@@ -83,7 +83,7 @@ export const useRangeVxeTable = (props: Readonly<RangeVxeTableProps>, emit: Rang
     stripe: props.stripe,
     loading: props.loading || false,
     loadingConfig: {
-      icon: 'el-icon-loading',
+      icon: 'vxe-icon-spinner roll',
       text: '正在加载中...'
     },
     height: '100%',

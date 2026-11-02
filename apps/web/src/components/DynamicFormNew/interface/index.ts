@@ -1,3 +1,5 @@
+import type { Component } from 'vue'
+
 export interface FormField {
   prop: string;
   label: string;
@@ -55,7 +57,7 @@ export interface FormField {
   uploadDrag?: boolean;
   uploadStyle?: string;
   uploadButton?: string;
-  uploadIcon?: string;
+  uploadIcon?: string | Component;
   uploadTableHeight?: string | number;
   uploadShowPreview?: boolean;
   uploadShowDownload?: boolean;

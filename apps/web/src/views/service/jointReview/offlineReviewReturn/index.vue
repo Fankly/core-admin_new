@@ -129,7 +129,7 @@
             <vxe-column field="bmName" title="专业部门" width="180" />
             <vxe-column field="psms" title="评审模式" width="80">
               <template #default="{ row }">
-                <el-button type="text" @click.stop="psmsView(row)">
+                <el-button type="primary" link @click.stop="psmsView(row)">
                   {{ row.psmsName || getReviewModeName(row.psms, '-') }}
                 </el-button>
               </template>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Document as EpDocument, Search as EpSearch } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/service/jointReview/main" })
 import userDialog from '@/components/select/userDialog.vue'
 import { computed, onMounted, reactive, ref, nextTick } from 'vue'
@@ -455,7 +457,7 @@ const handleClick = (val: any) => {
                 <el-col :span="12">
                   <div class="container-btn-box-content-container-box" @click="handleRequired(operation)">
                     <svg-icon v-if="operation.icon" :name="operation.icon"></svg-icon>
-                    <i v-else class="el-icon-document"></i>
+                    <el-icon v-else class="ep-icon-document"><EpDocument /></el-icon>
                     <span>{{ operation.name }}</span>
                   </div>
                 </el-col>
@@ -464,7 +466,7 @@ const handleClick = (val: any) => {
                 <template #reference>
                   <el-col :span="12">
                     <div class="container-btn-box-content-container-box">
-                      <i class="el-icon-document"></i>
+                      <el-icon class="ep-icon-document"><EpDocument /></el-icon>
                       <span>更 多</span>
                     </div>
                   </el-col>
@@ -473,7 +475,7 @@ const handleClick = (val: any) => {
                   <template v-for="operation in hiddenOperationBtn" :key="operation.id">
                     <div class="item-popover" @click="handleRequired(operation)">
                       <svg-icon v-if="operation.icon" :name="operation.icon"></svg-icon>
-                      <i v-else class="el-icon-document"></i>
+                      <el-icon v-else class="ep-icon-document"><EpDocument /></el-icon>
                       <span style="padding-left: 4px">{{ operation.name }}</span>
                     </div>
                   </template>
@@ -495,7 +497,7 @@ const handleClick = (val: any) => {
                 <el-col :span="12">
                   <div class="container-btn-box-content-container-box" @click="handleRequired(search)">
                     <svg-icon v-if="search.icon" :name="search.icon"></svg-icon>
-                    <i v-else class="el-icon-search"></i>
+                    <el-icon v-else class="ep-icon-search"><EpSearch /></el-icon>
                     <span>{{ search.name }}</span>
                   </div>
                 </el-col>
@@ -504,7 +506,7 @@ const handleClick = (val: any) => {
                 <template #reference>
                   <el-col :span="12">
                     <div class="container-btn-box-content-container-box">
-                      <i class="el-icon-search"></i>
+                      <el-icon class="ep-icon-search"><EpSearch /></el-icon>
                       <span>更 多</span>
                     </div>
                   </el-col>
@@ -513,7 +515,7 @@ const handleClick = (val: any) => {
                   <template v-for="search in hiddenSearchBtn" :key="search.id">
                     <div class="item-popover" @click="handleRequired(search)">
                       <svg-icon v-if="search.icon" :name="search.icon"></svg-icon>
-                      <i class="el-icon-search"></i>
+                      <el-icon class="ep-icon-search"><EpSearch /></el-icon>
                       <span>{{ search.name }}</span>
                     </div>
                   </template>

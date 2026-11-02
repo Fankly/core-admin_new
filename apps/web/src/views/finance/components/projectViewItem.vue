@@ -21,15 +21,21 @@
         <!-- 左侧文本 -->
         <span class="sec-content" v-html="diffData?.[item.secTextProp] || '无数据'"></span>
         <!-- 右侧半透明操作按钮，通过 emit 抛出事件给父级 -->
-        <span v-if="showRerunBtn" class="sec-rerun-btn" @click="$emit('onRerun', item)"> <i class="el-icon-refresh-right"></i> 重新分析 </span>
+        <span v-if="showRerunBtn" class="sec-rerun-btn" @click="$emit('onRerun', item)"> <el-icon class="ep-icon-refresh-right"><EpRefreshRight /></el-icon> 重新分析 </span>
       </div>
     </div>
   </div>
 </template>
+
 <script>
+import { RefreshRight as EpRefreshRight } from '@element-plus/icons-vue'
+
 import { mapGetters } from '@/store/business'
 
 export default {
+  setup() {
+    return { EpRefreshRight }
+  },
   components: {},
   props: {
     keyValues: {

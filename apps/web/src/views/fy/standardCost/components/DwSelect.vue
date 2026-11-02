@@ -1,5 +1,5 @@
 <template>
-  <el-select :disabled="disabled" @change="clearHandle" v-model="selectedData" collapse-tags placeholder="请选择" :popper-append-to-body="false" multiple class="select-tree">
+  <el-select :disabled="disabled" @change="clearHandle" v-model="selectedData" collapse-tags placeholder="请选择" :teleported="false" multiple class="select-tree">
     <el-option style="height: auto">
       <el-tree :default-expanded-keys="defaultExpandedKeys" node-key="id" @check="getCheckedDataHandle" ref="dwSelectRef" show-checkbox lazy :props="dwProps" :load="lazyLoad" :check-strictly="true"></el-tree>
     </el-option>
@@ -169,7 +169,7 @@ defineExpose({
     position: relative;
   }
 
-  .expanded.el-tree-node__expand-icon.el-icon-arrow-down {
+  .el-tree-node__expand-icon.expanded {
     position: absolute;
     top: 0;
     right: 0;

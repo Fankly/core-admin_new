@@ -9,9 +9,9 @@
               <el-row>
                 <el-col>
                   <el-form-item>
-                    <label slot="label">
+                    <template #label>
                       <span style="font-size: 16px">关闭项目数量</span>
-                    </label>
+                    </template>
                     <div>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(12)` }}
@@ -24,9 +24,9 @@
               <el-row>
                 <el-col>
                   <el-form-item>
-                    <label slot="label">
+                    <template #label>
                       <span style="font-size: 16px">项目关闭率</span>
-                    </label>
+                    </template>
                     <div>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4.6)` }}
@@ -39,9 +39,9 @@
               <el-row>
                 <el-col>
                   <el-form-item>
-                    <label slot="label">
+                    <template #label>
                       <span style="font-size: 16px">已关闭完成项目率</span>
-                    </label>
+                    </template>
                     <div>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(25.6)` }}

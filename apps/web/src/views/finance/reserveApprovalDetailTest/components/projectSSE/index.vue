@@ -7,7 +7,7 @@
         <div class="header-actions">
           <transition name="el-fade-in">
             <div v-if="isCompleted" class="header-completion">
-              <i class="el-icon-circle-check"></i>
+              <el-icon class="ep-icon-circle-check"><EpCircleCheck /></el-icon>
               <span class="completion-text">推理已完成，即将跳转...</span>
               <span v-if="countdown" class="countdown-badge">{{ countdown }}s</span>
             </div>
@@ -45,9 +45,14 @@
 </template>
 
 <script>
+import { CircleCheck as EpCircleCheck } from '@element-plus/icons-vue'
+
 import SSEClient from './SSEClient'
 
 export default {
+  setup() {
+    return { EpCircleCheck }
+  },
   components: {}, // ✅ 注册组件
   props: {
     id: String,

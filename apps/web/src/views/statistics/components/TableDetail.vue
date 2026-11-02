@@ -1,5 +1,5 @@
 <template>
-  <el-dialog width="60%" @close="closeHandle" :destroy-on-close="true" :show-close="true" custom-class="decl-dialog" :close-on-press-escape="false" :close-on-click-modal="false" top="18px" v-model="isShowModal">
+  <el-dialog width="60%" @close="closeHandle" :destroy-on-close="true" :show-close="true" class="decl-dialog" :close-on-press-escape="false" :close-on-click-modal="false" top="18px" v-model="isShowModal">
     <el-tabs v-model="activeName">
       <el-tab-pane label="事项储备信息" name="eventReserve">
         <MatterDeclMsg :detailParams="detailTableParams"></MatterDeclMsg>
@@ -12,7 +12,7 @@
       </el-tab-pane>
     </el-tabs>
     <div class="close-icon">
-      <i class="el-icon-close" @click="closeHandle"></i>
+      <el-icon class="ep-icon-close" @click="closeHandle"><EpClose /></el-icon>
     </div>
     <template #footer>
       <div class="operation">
@@ -23,6 +23,8 @@
 </template>
 
 <script setup lang="ts">
+import { Close as EpClose } from '@element-plus/icons-vue'
+
 import MatterDeclMsg from "@/views/statistics/components/MatterDeclMsg.vue";
 import Backlog from "@/views/statistics/components/Backlog.vue";
 import ExtensionMsg from "@/views/statistics/components/ExtensionMsg.vue";

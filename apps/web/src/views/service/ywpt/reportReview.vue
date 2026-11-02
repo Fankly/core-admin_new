@@ -24,7 +24,7 @@
         <template #headerButton>
           <div style="position: relative">
             <span @click="isShowTable = !isShowTable" style="position: absolute; left: 100px; top: 13px; z-index: 999 !important">
-              <i :class="isShowTable ? 'el-icon-arrow-down' : 'el-icon-arrow-right'" style="cursor: pointer"></i>
+              <el-icon :class="isShowTable ? 'ep-icon-arrow-down' : 'ep-icon-arrow-right'" style="cursor: pointer"><component :is="isShowTable ? EpArrowDown : EpArrowRight" /></el-icon>
             </span>
             <el-tabs>
               <el-tab-pane label="项目评审信息" name="0"></el-tab-pane>
@@ -45,6 +45,8 @@ export default {
 }
 </script>
 <script setup lang="tsx">
+import { ArrowDown as EpArrowDown, ArrowRight as EpArrowRight } from '@element-plus/icons-vue'
+
 import { onActivated, ref, reactive, nextTick, watch, onMounted } from 'vue'
 import { pageExpertReviewInfo, leaderReviewPageXmInfo, leaderReviewExportXmInfo } from '@/api/service/jointReview'
 import { ElNotification, ElMessage } from 'element-plus'

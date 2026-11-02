@@ -8,7 +8,7 @@
         <div class="searchBox">
           <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
             <span class="el-dropdown-link">
-              <el-icon class="el-icon-s-operation">
+              <el-icon class="ep-icon-s-operation">
                 <arrow-down />
               </el-icon>
             </span>
@@ -22,10 +22,10 @@
             </template>
           </el-dropdown>
           <span class="searchShow" v-if="searchShow == false" @click="showSearch(true)">
-            <i class="el-icon-arrow-down"></i>
+            <el-icon class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
           </span>
           <span class="searchShow" @click="showSearch(false)" v-else>
-            <i class="el-icon-arrow-up"></i>
+            <el-icon class="ep-icon-arrow-up"><EpArrowUp /></el-icon>
           </span>
         </div>
       </div>
@@ -45,8 +45,8 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-button type="primary" icon="el-icon-search" style="margin-left: 120px" @click="loadData"> 查询 </el-button>
-              <el-button icon="el-icon-refresh-right" @click="reset">重 置</el-button>
+              <el-button type="primary" :icon="EpSearch" style="margin-left: 120px" @click="loadData"> 查询 </el-button>
+              <el-button :icon="EpRefreshRight" @click="reset">重 置</el-button>
             </el-col>
           </el-row>
         </el-form>
@@ -74,6 +74,9 @@
 </template>
 
 <script>
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, RefreshRight as EpRefreshRight, Search as EpSearch } from '@element-plus/icons-vue'
+import { markRaw as markElementIconRaw } from 'vue'
+
 import { defineComponent, reactive } from 'vue'
 import baseService from '@/service/baseService'
 import userDialog from '@/components/select/userDialog.vue'
@@ -86,6 +89,10 @@ export default defineComponent({
   setup() {
     const store = useStore()
     return reactive({
+      EpArrowDown: markElementIconRaw(EpArrowDown),
+      EpArrowUp: markElementIconRaw(EpArrowUp),
+      EpRefreshRight: markElementIconRaw(EpRefreshRight),
+      EpSearch: markElementIconRaw(EpSearch),
       store,
       ydList: [
         {

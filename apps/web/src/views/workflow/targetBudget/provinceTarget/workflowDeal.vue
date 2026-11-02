@@ -46,10 +46,10 @@
             <div class="workflowTargetBudget-panel workflowTargetBudget-panel--remark">
               <div class="workflowTargetBudget-panel__header" @click="toggleRemarkPanel">
                 <span class="workflowTargetBudget-panel__title">
-                  <i class="el-icon-arrow-down workflowTargetBudget-panel__arrow" :class="{ 'is-expanded': isRemarkPanelExpanded }"></i>
+                  <el-icon class="ep-icon-arrow-down workflowTargetBudget-panel__arrow" :class="{ 'is-expanded': isRemarkPanelExpanded }"><EpArrowDown /></el-icon>
                   调整说明及附件
                 </span>
-                <el-button type="text" size="small" @click.stop="toggleRemarkPanel">
+                <el-button type="primary" link size="small" @click.stop="toggleRemarkPanel">
                   {{ isRemarkPanelExpanded ? '收 起' : '展 开' }}
                 </el-button>
               </div>
@@ -74,7 +74,7 @@
                       <el-checkbox
                         v-for="item in maintainDataTypeOptions"
                         :key="item.value"
-                        :label="item.value"
+                        :value="item.value"
                         class="workflowTargetBudget-checkbox"
                       >
                         {{ item.label }}
@@ -154,6 +154,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 defineOptions({ name: "WorkflowDeal" })
 import { onMounted } from 'vue'
 import { useWorkflowDeal } from './hooks/useWorkflowDeal'

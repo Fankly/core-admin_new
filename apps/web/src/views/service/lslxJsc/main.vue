@@ -4,7 +4,7 @@
     <div class="custom_steps" v-for="(item, index) in allSteps" :key="index">
       <div class="mid_steps">
         <el-steps align-center space="9.375rem">
-          <el-step v-for="(d, i) in item.topSteps" icon="el-icon-success" :key="i" :status="d.state == 1 ? 'finish' : ''">
+          <el-step v-for="(d, i) in item.topSteps" :icon="EpSuccessFilled" :key="i" :status="d.state == 1 ? 'finish' : ''">
             <div class="step_title" :title="d.title">{{ d.title }}</div>
             <div class="step_description">{{ d.description }}</div>
           </el-step>
@@ -12,7 +12,7 @@
         <el-steps align-center space="9.375rem" v-if="item.bottomSteps.length" style="justify-content: flex-end">
           <el-step
             v-for="(d, i) in item.bottomSteps"
-            icon="el-icon-success"
+            :icon="EpSuccessFilled"
             :title="d.title"
             :description="d.description"
             :key="i"
@@ -38,6 +38,8 @@ export default {
 }
 </script>
 <script setup lang="tsx">
+import { SuccessFilled as EpSuccessFilled } from '@element-plus/icons-vue'
+
 import { ref } from 'vue'
 const allSteps = ref<any[]>([])
 

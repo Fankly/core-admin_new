@@ -6,7 +6,7 @@
           <el-dropdown class="drop-button" style="margin-right: 10px">
             <el-button v-permission="'ADD'" :disabled="loading || !isLeaf || !isDisabled" type="primary" plain>
               创建项目申请单
-              <i class="el-icon-arrow-down el-icon--right"></i>
+              <el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon>
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
@@ -45,11 +45,11 @@
         <div class="right">
           <div class="tool-button">
             <el-tooltip content="列设置" placement="top">
-              <span @click="openColSetting" style="cursor: pointer; font-size: 18px" class="el-icon-s-operation"></span>
+              <el-icon @click="openColSetting" style="cursor: pointer; font-size: 18px" class="ep-icon-s-operation"><EpOperation /></el-icon>
             </el-tooltip>
             <el-tooltip content="隐藏/展示查询" placement="top">
               <span style="cursor: pointer; font-size: 18px; margin: 0 10px" @click="handleIsShowSearch">
-                <i :class="isShowSearch ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
+                <el-icon :class="isShowSearch ? 'ep-icon-arrow-down' : 'ep-icon-arrow-up'"><component :is="isShowSearch ? EpArrowDown : EpArrowUp" /></el-icon>
               </span>
             </el-tooltip>
             <ToolbarButtons :tool-button="['help']" @help-click="getHelpMessageHandle" />
@@ -428,7 +428,7 @@
                 ></vxe-column>
                 <vxe-column show-overflow show-header-overflow headerAlign="center" align="center" :width="220" field="xjjzAttachname" title="附件">
                   <template #default="{ row }">
-                    <el-button type="text" v-if="row['xjjzAttachname']" @click="() => handleDownloadFile(row['xjjzUuid'], row['xjjzAttachname'])">
+                    <el-button type="primary" link v-if="row['xjjzAttachname']" @click="() => handleDownloadFile(row['xjjzUuid'], row['xjjzAttachname'])">
                       {{ row['xjjzAttachname'] }}
                     </el-button>
                     <span v-else>{{ row['xjjzAttachname'] }}</span>
@@ -636,6 +636,8 @@
 </template>
 
 <script lang="ts" setup>
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Operation as EpOperation } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/service/continueCarryOver/index" })
 import LinkMatter from '@/views/service/continueCarryOver/modules/LinkMatter.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'

@@ -34,11 +34,11 @@
             <div class="xsx_data_prc" :class="xmInfo.totalScore >= 0.7 ? 'score-high' : xmInfo.totalScore >= 0.4 ? 'score-mid' : 'score-low'">{{
               formatTotalScore(xmInfo.totalScore)
             }}</div>
-            <i
+            <el-icon
               class="xsx_data_icon"
-              :class="expandedSet.has(index) ? 'el-icon-caret-bottom' : 'el-icon-caret-right'"
+              :class="expandedSet.has(index) ? 'ep-icon-caret-bottom' : 'ep-icon-caret-right'"
               @click="toggleDetail(index)"
-            ></i>
+><component :is="expandedSet.has(index) ? EpCaretBottom : EpCaretRight" /></el-icon>
           </div>
         </div>
         <template v-if="expandedSet.has(index)">
@@ -94,6 +94,8 @@
 </template>
 
 <script setup lang="ts">
+import { CaretBottom as EpCaretBottom, CaretRight as EpCaretRight } from '@element-plus/icons-vue'
+
 import { onBeforeUnmount, ref, watch } from 'vue'
 
 interface Top10Progress {

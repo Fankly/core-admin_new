@@ -11,7 +11,7 @@
 
         <details v-for="(record, index) in historyBudgetChangeData" :key="record.bgid || `${record.xmid}-${index}`" class="xmbgxx__record" open>
           <summary class="xmbgxx__record-header">
-            <i class="el-icon-arrow-right xmbgxx__record-arrow" aria-hidden="true"></i>
+            <el-icon class="ep-icon-arrow-right xmbgxx__record-arrow" aria-hidden="true"><EpArrowRight /></el-icon>
             <span class="xmbgxx__record-title">变更记录 {{ index + 1 }}</span>
             <span class="xmbgxx__record-type">{{ getBglxDisplay(record) }}</span>
           </summary>
@@ -235,6 +235,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowRight as EpArrowRight } from '@element-plus/icons-vue'
+
 defineOptions({ name: "xmbgxx" })
 import { getPublicData } from '@/api/common'
 import { getBgInfo, getFjGroupByXmlx, getHisBgInfo, uploadYsbgAttach } from '@/api/service/budget'

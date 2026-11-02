@@ -22,8 +22,8 @@
       <el-button
         v-if="switchIcon"
         @click="itemShow = !itemShow"
-        type="text"
-        :icon="itemShow ? 'el-icon-caret-top' : 'el-icon-caret-bottom'"
+        type="primary" link
+        :icon="itemShow ? EpCaretTop : EpCaretBottom"
         style="font-size: 20px"
       ></el-button>
       <span v-if="!$slots.extra" class="titleExtra">{{ extraTitle }}</span>
@@ -41,8 +41,14 @@
     </div>
   </div>
 </template>
+
 <script>
+import { CaretBottom as EpCaretBottom, CaretTop as EpCaretTop } from '@element-plus/icons-vue'
+
 export default {
+  setup() {
+    return { EpCaretBottom, EpCaretTop }
+  },
   components: {},
   props: {
     overflowAuto: {

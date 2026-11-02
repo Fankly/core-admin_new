@@ -270,11 +270,11 @@ export const tourManager = new TourManager()
 
 export const getDefaultTourSteps = (): TourStep[] => {
   const helpButtonSelectors = [
-    'i.el-icon-question',
-    '.el-icon-question',
-    '[class*="el-icon-question"]',
+    'i.ep-icon-question',
+    '.ep-icon-question',
+    '[class*="ep-icon-question"]',
     'i[class*=question]',
-    '.el-tooltip i.el-icon-question'
+    '.el-tooltip i.ep-icon-question'
   ]
 
   const fallbackSelectors = ['.container', 'el-container', '.layout-header', '.el-header', 'body']

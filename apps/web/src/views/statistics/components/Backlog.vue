@@ -1,11 +1,11 @@
 <template>
   <div class="container">
     <div class="upload-table">
-      <el-button class="title-button" @click="isShowSearch = !isShowSearch" type="text"
+      <el-button class="title-button" @click="isShowSearch = !isShowSearch" type="primary" link
         ><h3 class="sub-title">
           可研报告及支撑材料
           <span>
-            <i :class="isShowSearch ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
+            <el-icon :class="isShowSearch ? 'ep-icon-arrow-down' : 'ep-icon-arrow-up'"><component :is="isShowSearch ? EpArrowDown : EpArrowUp" /></el-icon>
           </span></h3
       ></el-button>
       <div v-show="!isShowSearch" class="table-box" v-loading="loading">
@@ -17,11 +17,11 @@
       </div>
     </div>
     <div class="preview-layout">
-      <el-button class="title-button" @click="isShowTable = !isShowTable" type="text"
+      <el-button class="title-button" @click="isShowTable = !isShowTable" type="primary" link
         ><h3 class="sub-title">
           附件预览
           <span>
-            <i :class="isShowTable ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
+            <el-icon :class="isShowTable ? 'ep-icon-arrow-down' : 'ep-icon-arrow-up'"><component :is="isShowTable ? EpArrowDown : EpArrowUp" /></el-icon>
           </span></h3
       ></el-button>
       <div class="perview" v-show="!isShowTable">
@@ -37,6 +37,8 @@ export default {
 };
 </script>
 <script setup lang="tsx">
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
+
 import proTable from "@/components/ProTable/index.vue";
 import { ColumnProps } from "@/components/ProTable/interface";
 import { onMounted, reactive, ref, toRef, defineProps } from "vue";
@@ -121,7 +123,7 @@ const fjColumns = reactive<ColumnProps<any>[]>([
     label: "附件名称",
     render: (scope) => {
       return (
-        <el-button type="text" onClick={() => downloadUploadHandle(scope.row)}>
+        <el-button type="primary" link onClick={() => downloadUploadHandle(scope.row)}>
           {scope.row.fjmc}
         </el-button>
       );

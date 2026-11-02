@@ -27,7 +27,7 @@
           <el-input
             v-model="assignLeftSearchName"
             placeholder="搜索专家姓名/专业"
-            prefix-icon="el-icon-search"
+            :prefix-icon="EpSearch"
             clearable
             @input="handleAssignLeftSearch"
             style="width: 100%"
@@ -54,14 +54,14 @@
               未分配项目清单
             </div>
             <el-radio-group v-model="assignMode" class="custom-radio-group" @change="changeAssignMode">
-              <el-radio-button v-for="item in assignModeOptions" :key="item.code" :label="item.code">
-                <span class="radio-label-content"> <i :class="assignModeIconMap[item.code]"></i> {{ item.name }} </span>
+              <el-radio-button v-for="item in assignModeOptions" :key="item.code" :value="item.code">
+                <span class="radio-label-content"> <el-icon><component :is="assignModeIconMap[item.code]" /></el-icon> {{ item.name }} </span>
               </el-radio-button>
             </el-radio-group>
           </div>
           <div>
-            <el-button type="success" icon="el-icon-check" :disabled="!isAssignEnabled" @click="handleAllocated">确认分配</el-button>
-            <el-button icon="el-icon-close" @click="closeHandle">关闭</el-button>
+            <el-button type="success" :icon="EpCheck" :disabled="!isAssignEnabled" @click="handleAllocated">确认分配</el-button>
+            <el-button :icon="EpClose" @click="closeHandle">关闭</el-button>
           </div>
         </div>
 
@@ -105,7 +105,7 @@
               </div>
             </template>
           </div>
-          <el-button circle icon="el-icon-refresh" title="刷新数据" @click="loadAssignRightData"></el-button>
+          <el-button circle :icon="EpRefresh" title="刷新数据" @click="loadAssignRightData"></el-button>
         </div>
 
         <div class="table-flex-container">
@@ -139,6 +139,10 @@
 </template>
 
 <script setup lang="ts">
+import { Tickets as EpTickets, OfficeBuilding as EpOfficeBuilding, Folder as EpFolder } from '@element-plus/icons-vue'
+import type { Component } from 'vue'
+import { Check as EpCheck, Close as EpClose, Refresh as EpRefresh, Search as EpSearch } from '@element-plus/icons-vue'
+
 defineOptions({ name: "TaskAssignmentModal" })
 import { ref, reactive, nextTick, defineExpose, computed } from 'vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
@@ -173,10 +177,10 @@ interface AssignModeOption {
 }
 
 const ASSIGN_MODE_PUBLIC_CODE = 'LHHS_FGPS_TYPE_CITY'
-const assignModeIconMap: Record<AssignModeCode, string> = {
-  '1': 'el-icon-tickets',
-  '2': 'el-icon-office-building',
-  '3': 'el-icon-folder'
+const assignModeIconMap: Record<AssignModeCode, Component> = {
+  '1': EpTickets,
+  '2': EpOfficeBuilding,
+  '3': EpFolder
 }
 
 const emit = defineEmits(['allocated'])

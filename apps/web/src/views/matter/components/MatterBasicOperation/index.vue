@@ -20,7 +20,7 @@
               <el-form-item label="预算事项编码：" prop="zyssxbm">
                 <el-input maxlength="80" placeholder="请选择" v-model="formData.zyssxbm" disabled>
                   <template #append>
-                    <el-button :disabled="props.matterBasicMsg.opType == 'EDIT'" class="el-icon-more" @click="handleSearch" />
+                    <el-button :disabled="props.matterBasicMsg.opType == 'EDIT'" class="ep-icon-more" :icon="EpMore" @click="handleSearch" />
                   </template>
                 </el-input>
               </el-form-item>
@@ -197,16 +197,16 @@
               <el-form-item label="预算包：" prop="xmbbm">
                 <el-input placeholder="请选择" :model-value="xmbmcText" disabled>
                   <template #suffix>
-                    <i
+                    <el-icon
                       v-if="formData.xmbbm"
-                      class="el-input__icon el-icon-circle-close"
+                      class="el-input__icon ep-icon-circle-close"
                       style="cursor: pointer"
                       title="清空"
                       @click="clearXmbHandle"
-                    ></i>
+><EpCircleClose /></el-icon>
                   </template>
                   <template #append>
-                    <el-button class="el-icon-more" title="选择预算包" @click="handleXmbSearch" />
+                    <el-button class="ep-icon-more" :icon="EpMore" title="选择预算包" @click="handleXmbSearch" />
                   </template>
                 </el-input>
               </el-form-item>
@@ -296,6 +296,8 @@ export default {
 }
 </script>
 <script setup lang="ts">
+import { CircleClose as EpCircleClose, More as EpMore } from '@element-plus/icons-vue'
+
 import { ref, defineExpose, defineEmits, defineProps, reactive, watch, nextTick } from 'vue'
 import { getYESJFL, saveMatterBasicData, SaveYssxMsg } from '@/api/matter/matterBasic'
 import { getGkbmInProvince, getProtypeTreeByGkbm, getPublicCodeList, getPublicData, pageCommonCode, getGkcsByGkbm, getXmbArr } from '@/api/common'

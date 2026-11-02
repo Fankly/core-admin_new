@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading">
     <div class="searchBox">
-      <el-input placeholder="输入关搜索内容" v-model="filterText" suffix-icon="el-icon-search"> </el-input>
+      <el-input placeholder="输入关搜索内容" v-model="filterText" :suffix-icon="EpSearch"> </el-input>
     </div>
     <div class="sonTtreeBox">
       <el-tree ref="tree" class="filter-tree" show-checkbox node-key="id" :data="treeData" :props="defaultProps" :filter-node-method="filterNode" :check-strictly="true" @check="treeCheck">
@@ -18,10 +18,14 @@
 </template>
 
 <script>
+import { Search as EpSearch } from '@element-plus/icons-vue'
+
 import { defineComponent, reactive } from "vue";
 import baseService from "@/service/baseService";
 import { ElMessage } from "element-plus";
 export default defineComponent({
+  components: { EpSearch },
+  computed: { EpSearch: () => EpSearch },
   name: "/budget-process/process-33",
 
   setup() {

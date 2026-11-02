@@ -20,9 +20,9 @@
           </el-col>
           <el-col :span="6">
             <el-form-item>
-              <el-button type="primary" icon="el-icon-search">查 询</el-button>
-              <el-button icon="el-icon-refresh-right">重 置</el-button>
-              <el-button type="warning" icon="el-icon-download">导 出</el-button>
+              <el-button type="primary" :icon="EpSearch">查 询</el-button>
+              <el-button :icon="EpRefreshRight">重 置</el-button>
+              <el-button type="warning" :icon="EpDownload">导 出</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -56,6 +56,8 @@
 </template>
 
 <script lang="ts">
+import { Download as EpDownload, RefreshRight as EpRefreshRight, Search as EpSearch } from '@element-plus/icons-vue'
+
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart } from 'echarts/charts'
@@ -171,6 +173,9 @@ export default defineComponent({
       ]
     })
     return {
+      EpDownload,
+      EpRefreshRight,
+      EpSearch,
       value: '',
       value2: '',
       dataList: {},

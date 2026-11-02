@@ -39,7 +39,7 @@
             <div class="modal-body">
               <div class="dialog-tips" v-if="showTips">
                 <div class="tips-icon">
-                  <i class="el-icon-info"></i>
+                  <el-icon class="ep-icon-info"><EpInfoFilled /></el-icon>
                   <span>每行一个值,确认后将以逗号隔开(最多支持10000行)</span>
                 </div>
               </div>
@@ -71,6 +71,10 @@
 </template>
 
 <script setup lang="ts">
+import { CirclePlus as EpCirclePlus } from '@element-plus/icons-vue'
+import type { Component } from 'vue'
+import { InfoFilled as EpInfoFilled } from '@element-plus/icons-vue'
+
 defineOptions({ name: "ReMultipleText" })
 import { ElMessage } from 'element-plus'
 import type { PropType } from 'vue'
@@ -102,8 +106,8 @@ const props = defineProps({
     default: true
   },
   dialogIcon: {
-    type: String,
-    default: 'el-icon-circle-plus-outline'
+    type: [String, Object, Function] as PropType<string | Component>,
+    default: () => EpCirclePlus
   },
   tooltipText: {
     type: String,

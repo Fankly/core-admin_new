@@ -424,7 +424,7 @@
               <div class="form">
                 <el-input :readonly="true" v-model="formData.zdtxName">
                   <template #append>
-                    <el-button class="el-icon-more" @click="showZdtxModal" />
+                    <el-button class="ep-icon-more" :icon="EpMore" @click="showZdtxModal" />
                   </template>
                 </el-input>
               </div>
@@ -842,6 +842,8 @@
 </template>
 
 <script setup lang="ts">
+import { More as EpMore } from '@element-plus/icons-vue'
+
 defineOptions({ name: "BasicAttributeModal" })
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'

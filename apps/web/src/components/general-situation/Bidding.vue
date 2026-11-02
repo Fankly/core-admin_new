@@ -15,9 +15,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度物资需求提报金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4445)` }}
                       </span>
@@ -28,9 +28,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度物资需求中标金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4445)` }}
                       </span>
@@ -44,9 +44,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度服务需求提报金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4445)` }}
                       </span>
@@ -57,9 +57,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度服务需求中标金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4445)` }}
                       </span>
@@ -77,9 +77,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度物资需求提报金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4445)` }}
                       </span>
@@ -90,9 +90,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度物资需求中标金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4445)` }}
                       </span>
@@ -106,9 +106,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度服务需求提报金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4445)` }}
                       </span>
@@ -119,9 +119,9 @@
                 <el-row>
                   <el-col>
                     <el-form-item>
-                      <label slot="label">
+                      <template #label>
                         <span style="font-size: 16px">年度服务需求中标金额</span>
-                      </label>
+                      </template>
                       <span style="font-size: 14px; color: blue; margin-left: 30px">
                         {{ `(4445)` }}
                       </span>

@@ -4,8 +4,8 @@
       <div class="left">
         <el-dropdown @command="expandByLevelHandle">
           <el-button v-permission="'EXPAND'" style="margin-right: 10px" size="small" plain type="primary"
-            >一键展开 <i class="el-icon-arrow-down el-icon--right"
-          /></el-button>
+            >一键展开 <el-icon class="ep-icon-arrow-down el-icon--right"
+><EpArrowDown /></el-icon></el-button>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item v-for="item in formList.ZKCJ" :key="item.code" :command="item.code">{{ item.name }}</el-dropdown-item>
@@ -151,6 +151,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 import userDialog from '@/components/select/userDialog.vue'
 import DwSelect from '@/views/fy/standardCost/components/DwSelect.vue'
 import XmlbSelect from '@/views/statistics/components/XmlbSelect.vue'

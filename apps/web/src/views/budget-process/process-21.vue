@@ -8,14 +8,14 @@
         <div class="searchBox">
           <span style="margin-right: 20px">
             <span class="searchShow" v-if="searchShow == false" @click="showSearch(true)">
-              <i style="font-size: 18px" class="el-icon-arrow-down"></i>
+              <el-icon style="font-size: 18px" class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
             </span>
             <span class="searchShow" @click="showSearch(false)" v-else>
-              <i style="font-size: 18px" class="el-icon-arrow-up"></i>
+              <el-icon style="font-size: 18px" class="ep-icon-arrow-up"><EpArrowUp /></el-icon>
             </span>
           </span>
           <span class="searchShow">
-            <i style="font-size: 18px" class="el-icon-question" @click="helpHandle"></i>
+            <el-icon style="font-size: 18px" class="ep-icon-question" @click="helpHandle"><EpQuestionFilled /></el-icon>
           </span>
         </div>
       </div>
@@ -51,7 +51,6 @@
                   value-format="YYYYMMDD"
                   format="YYYY-MM-DD"
                   type="daterange"
-                  :picker-options="pickerOptions0"
                   range-separator="至"
                 ></el-date-picker>
               </el-form-item>
@@ -73,7 +72,6 @@
                   value-format="YYYYMMDD"
                   format="YYYY-MM-DD"
                   type="daterange"
-                  :picker-options="pickerOptions0"
                   range-separator="至"
                 ></el-date-picker>
               </el-form-item>
@@ -97,16 +95,15 @@
                   value-format="YYYYMMDD"
                   format="YYYY-MM-DD"
                   type="daterange"
-                  :picker-options="pickerOptions0"
                   range-separator="至"
                 ></el-date-picker>
               </el-form-item>
             </el-col>
             <el-col :span="6">
               <el-form-item class="btnPostion">
-                <el-button type="primary" icon="el-icon-search" @click="search">查 询</el-button>
-                <el-button icon="el-icon-refresh-right" @click="reset">重 置</el-button>
-                <el-button type="warning" icon="el-icon-download" @click="exportData">导 出</el-button>
+                <el-button type="primary" :icon="EpSearch" @click="search">查 询</el-button>
+                <el-button :icon="EpRefreshRight" @click="reset">重 置</el-button>
+                <el-button type="warning" :icon="EpDownload" @click="exportData">导 出</el-button>
               </el-form-item>
             </el-col>
           </el-row>
@@ -186,6 +183,16 @@
 </template>
 
 <script>
+import {
+  ArrowDown as EpArrowDown,
+  ArrowUp as EpArrowUp,
+  Download as EpDownload,
+  QuestionFilled as EpQuestionFilled,
+  RefreshRight as EpRefreshRight,
+  Search as EpSearch
+} from '@element-plus/icons-vue'
+import { markRaw as markElementIconRaw } from 'vue'
+
 import { defineComponent, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import baseService from '@/service/baseService'
@@ -214,6 +221,12 @@ export default defineComponent({
       showHelpMsg(url)
     }
     return reactive({
+      EpArrowDown: markElementIconRaw(EpArrowDown),
+      EpArrowUp: markElementIconRaw(EpArrowUp),
+      EpDownload: markElementIconRaw(EpDownload),
+      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+      EpRefreshRight: markElementIconRaw(EpRefreshRight),
+      EpSearch: markElementIconRaw(EpSearch),
       store,
       helpHandle,
       spanArr: [], // 用于存放需要合并的行的个数
@@ -481,7 +494,7 @@ export default defineComponent({
       } else {
         ElMessage({
           message: '请选择日期查询',
-          iconClass: 'el-icon-search',
+          icon: EpSearch,
           customClass: 'tipsBox'
         })
       }

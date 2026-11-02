@@ -76,7 +76,7 @@
                 <el-checkbox-group v-model="modalProps.row.major">
                   <el-row :gutter="20">
                     <el-col :span="8" v-for="item in majorList" :key="item.code">
-                      <el-checkbox :label="item.code">{{ item.name }}</el-checkbox>
+                      <el-checkbox :value="item.code">{{ item.name }}</el-checkbox>
                     </el-col>
                   </el-row>
                 </el-checkbox-group>

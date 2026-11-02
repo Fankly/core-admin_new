@@ -53,8 +53,8 @@
                 <vxe-column title="操作" width="180" align="center">
                   <template #default="{ row }">
                     <div class="file-actions">
-                      <el-button type="text" :disabled="!row.uuid" @click="handleDownload(row)">下载</el-button>
-                      <el-button v-if="singleSelection" type="text" :disabled="!hasAttachmentId(row)" @click="handleDelete(fjType.code, row)">
+                      <el-button type="primary" link :disabled="!row.uuid" @click="handleDownload(row)">下载</el-button>
+                      <el-button v-if="singleSelection" type="primary" link :disabled="!hasAttachmentId(row)" @click="handleDelete(fjType.code, row)">
                         删除
                       </el-button>
                     </div>

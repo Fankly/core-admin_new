@@ -4,10 +4,10 @@
     <div class="title">
       <div class="searchBox">
         <span class="searchShow" v-if="searchShow == false" @click="showSearch(true)">
-          <i class="el-icon-arrow-down"></i>
+          <el-icon class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
         </span>
         <span class="searchShow" @click="showSearch(false)" v-else>
-          <i class="el-icon-arrow-up"></i>
+          <el-icon class="ep-icon-arrow-up"><EpArrowUp /></el-icon>
         </span>
       </div>
     </div>
@@ -24,7 +24,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-button type="primary" icon="el-icon-search" @click="search">查 询</el-button>
+          <el-button type="primary" :icon="EpSearch" @click="search">查 询</el-button>
         </el-col>
       </el-form>
     </div>
@@ -351,6 +351,9 @@
 </template>
 
 <script>
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Search as EpSearch } from '@element-plus/icons-vue'
+import { markRaw as markElementIconRaw } from 'vue'
+
 import VChart from 'vue-echarts'
 import { ref, defineComponent, reactive } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
@@ -370,6 +373,9 @@ export default defineComponent({
   setup() {
     const store = useStore()
     return reactive({
+      EpArrowDown: markElementIconRaw(EpArrowDown),
+      EpArrowUp: markElementIconRaw(EpArrowUp),
+      EpSearch: markElementIconRaw(EpSearch),
       store,
       userCode: '',
       userId: '',

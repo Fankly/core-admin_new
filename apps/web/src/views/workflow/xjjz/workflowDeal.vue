@@ -242,7 +242,7 @@ const cellClickHandle = async ({ row }: any) => {
           <el-input v-model="data.xmmc" type="text"></el-input>
         </template>
         <template #xjjzAttachname_default="{ row }">
-          <el-button type="text" v-if="row.xjjzAttachname" @click="() => handleDownloadFile(row.xjjzUuid, row.xjjzAttachname)">{{
+          <el-button type="primary" link v-if="row.xjjzAttachname" @click="() => handleDownloadFile(row.xjjzUuid, row.xjjzAttachname)">{{
             row.xjjzAttachname
           }}</el-button>
           <span v-else>{{ row.xjjzAttachname }}</span>
@@ -326,7 +326,7 @@ const cellClickHandle = async ({ row }: any) => {
 }
 
 :deep(.vxe-table--render-default .vxe-body--row.row--current) {
-  .el-button--text {
+  .el-button.is-link {
     color: white;
   }
 }

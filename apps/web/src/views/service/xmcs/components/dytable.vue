@@ -56,7 +56,7 @@
         @clear="clearStandardCost(setFieldValue)"
       >
         <template #suffix>
-          <i class="el-icon-arrow-down"></i>
+          <el-icon class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
         </template>
       </el-input>
     </template>
@@ -81,7 +81,7 @@
             <el-input
               v-model="standardFilterText"
               placeholder="请输入目录名称"
-              prefix-icon="el-icon-search"
+              :prefix-icon="EpSearch"
               clearable
               class="standard-selector__search"
               @input="filterStandardTree"
@@ -98,7 +98,7 @@
             >
               <template #default="{ node, data }">
                 <span class="standard-tree-node">
-                  <i :class="data.nodeLevel === 3 || node.isLeaf ? 'el-icon-document' : 'el-icon-folder'"></i>
+                  <el-icon :class="data.nodeLevel === 3 || node.isLeaf ? 'ep-icon-document' : 'ep-icon-folder'"><component :is="data.nodeLevel === 3 || node.isLeaf ? EpDocument : EpFolder" /></el-icon>
                   <span :title="data.dirName">{{ data.dirName }}</span>
                 </span>
               </template>
@@ -135,7 +135,7 @@
               </el-tooltip>
               <span v-else class="standard-selector__selected-empty">暂未选择</span>
               <span class="standard-selector__selected-count">共 {{ selectedStandardNames.length }} 项</span>
-              <el-button type="text" :disabled="!selectedStandardNames.length" @click="clearStandardSelection">清 空</el-button>
+              <el-button type="primary" link :disabled="!selectedStandardNames.length" @click="clearStandardSelection">清 空</el-button>
             </div>
             <div class="standard-selector__table">
               <vxe-grid
@@ -196,6 +196,8 @@ export default {
 }
 </script>
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown, Document as EpDocument, Folder as EpFolder, Search as EpSearch } from '@element-plus/icons-vue'
+
 import { computed, nextTick, reactive, ref } from 'vue'
 import FormTableModal, { FormField } from '@/components/FormTableModal'
 import VXETable from 'vxe-table'

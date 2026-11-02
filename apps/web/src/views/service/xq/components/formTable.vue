@@ -227,7 +227,7 @@
             <vxe-column width="150" title="附件查看">
               <template #default="scope">
                 <span v-if="scope.row.imageId" @click="downloadFile(scope.row)">
-                  <i class="el-icon-view" style="cursor: pointer; color: #409eff"></i>
+                  <el-icon class="ep-icon-view" style="cursor: pointer; color: #409eff"><EpView /></el-icon>
                 </span>
                 <span v-else>暂无</span>
               </template>
@@ -253,6 +253,8 @@
 </template>
 
 <script setup lang="ts">
+import { View as EpView } from '@element-plus/icons-vue'
+
 import { onMounted, ref, reactive, defineExpose, defineEmits, withDefaults, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { checkMoney } from '@/utils/validate'

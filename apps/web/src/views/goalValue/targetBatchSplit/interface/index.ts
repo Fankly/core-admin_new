@@ -1,7 +1,9 @@
+import type { Component } from 'vue'
+
 export interface DropdownData {
   label: string
   value: string
-  icon?: string
+  icon?: Component
   permission?: string
   children?: DropdownData[]
 }

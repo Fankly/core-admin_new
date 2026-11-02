@@ -100,7 +100,7 @@
       <el-pagination
         :current-page="page.page"
         background
-        small
+        size="small"
         align="center"
         :page-sizes="[10, 20, 50]"
         :page-size="page.limit"

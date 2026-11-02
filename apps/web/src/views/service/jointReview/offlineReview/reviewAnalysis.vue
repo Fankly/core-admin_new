@@ -66,7 +66,7 @@
     </div>
 
     <!-- 结果弹窗：渲染 /lhhsPivot/getPivotData 返回的表头树 + 数据行（多级表头由后端决定） -->
-    <el-dialog v-model="resultVisible" custom-class="review-pivot-dialog" title="评审分析结果" width="86%" top="6vh" append-to-body>
+    <el-dialog v-model="resultVisible" class="review-pivot-dialog" title="评审分析结果" width="86%" top="6vh" append-to-body>
       <div class="pivot-summary">
         <span class="pivot-summary__item"><em>行维度</em>{{ config.rowDimensions.map((item) => item.label).join('、') || '—' }}</span>
         <span class="pivot-summary__item"><em>列维度</em>{{ config.columnDimensions.map((item) => item.label).join('、') || '—' }}</span>
@@ -115,7 +115,7 @@
     </el-dialog>
 
     <!-- 穿透明细弹窗：数据来自 /lhhsPivot/getCtData（分页），列对齐《穿透.xlsx》 -->
-    <el-dialog v-model="drillVisible" custom-class="review-drill-dialog" title="穿透明细" width="94%" top="4vh" append-to-body>
+    <el-dialog v-model="drillVisible" class="review-drill-dialog" title="穿透明细" width="94%" top="4vh" append-to-body>
       <div class="drill-meta">
         <span class="drill-meta__path">{{ drillPath }}</span>
         <span class="drill-meta__sum">共 {{ drillTotalCount }} 条 · 单元格金额 {{ drillCellText }} 万元 · 当前页 {{ drillRows.length }} 条</span>

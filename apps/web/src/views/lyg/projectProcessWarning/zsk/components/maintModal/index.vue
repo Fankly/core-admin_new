@@ -29,7 +29,7 @@
               :on-change="handleChange"
               :limit="1"
             >
-              <el-button size="small" type="success" icon="el-icon-upload">上传附件</el-button>
+              <el-button size="small" type="success" :icon="EpUpload">上传附件</el-button>
             </el-upload>
             <span v-if="searchParams.fileName" class="file-name-text" style="margin-left: 10px">{{ searchParams.fileName }}</span>
           </el-form-item>
@@ -65,6 +65,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { Upload as EpUpload } from '@element-plus/icons-vue'
+
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'

@@ -24,7 +24,7 @@
       <div class="modal-table">
         <vxe-grid ref="gridRef" v-bind="gridOptions">
           <template #attachName_default="{ row }">
-            <el-button type="text" v-if="row.attachName" @click="() => handleDownloadFile(row.uuid, row.attachName)">{{ row.attachName }}</el-button>
+            <el-button type="primary" link v-if="row.attachName" @click="() => handleDownloadFile(row.uuid, row.attachName)">{{ row.attachName }}</el-button>
             <span v-else>{{ row.attachName }}</span>
           </template>
         </vxe-grid>
@@ -111,7 +111,7 @@ defineExpose({
 }
 
 :deep(.vxe-table--render-default .vxe-body--row.row--current) {
-  .el-button--text {
+  .el-button.is-link {
     color: white;
   }
 }

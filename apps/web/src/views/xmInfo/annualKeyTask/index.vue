@@ -64,7 +64,7 @@
             <el-button
               v-if="hasPermission('VIEW')"
               class="row-action-button"
-              type="text"
+              type="primary" link
               size="small"
               title="查看年度重点任务"
               aria-label="查看年度重点任务"
@@ -75,7 +75,7 @@
             <el-button
               v-if="hasPermission('EDIT')"
               class="row-action-button"
-              type="text"
+              type="primary" link
               size="small"
               title="修改年度重点任务"
               aria-label="修改年度重点任务"

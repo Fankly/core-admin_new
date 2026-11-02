@@ -52,12 +52,12 @@
             <el-table-column label="省统筹预算编制状态" prop="ysStatusName" align="center" />
             <el-table-column label="操作" prop="ggdm" align="center">
               <template #default="{ row }">
-                <el-button type="text" size="small" @click="handleClick('VIEW', row)">
+                <el-button type="primary" link size="small" @click="handleClick('VIEW', row)">
                   明细查看
                 </el-button>
                 <el-button
                   v-if="row.ysStatus == '3'"
-                  type="text"
+                  type="primary" link
                   size="small"
                   @click="handleClick('PASS', row)"
                 >
@@ -65,7 +65,7 @@
                 </el-button>
                 <el-button
                   v-if="row.ysStatus == '3'"
-                  type="text"
+                  type="primary" link
                   size="small"
                   @click="handleClick('REJECT', row)"
                 >

@@ -27,7 +27,7 @@
             accept=".xls,.xlsx"
           >
             <slot name="empty">
-              <i class="el-icon-upload"></i>
+              <el-icon class="ep-icon-upload"><EpUpload /></el-icon>
               <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
             </slot>
             <template #tip>
@@ -43,6 +43,8 @@
 </template>
 
 <script setup lang="ts">
+import { Upload as EpUpload } from '@element-plus/icons-vue'
+
 defineOptions({ name: "ImportExcelNew" })
 import { ref, defineExpose } from 'vue'
 import { useDownload } from '@/hooks/useDownload'

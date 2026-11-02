@@ -69,7 +69,7 @@
             <div class="title">①：附件上传</div>
             <div class="main">
               <el-upload ref="uploadRef" :limit="1" :on-remove="onRemoveFile" :show-file-list="true" action="#" :before-upload="(file:any)=>beforeExcelUpload(file,'xmExcel')" :http-request="(file:any) => uploadExcel(file, 'xmExcel')" :accept="fileTypeOne" drag>
-                <i class="el-icon-upload"></i>
+                <el-icon class="ep-icon-upload"><EpUpload /></el-icon>
                 <div class="el-upload__text">将文件拖到此处,或<em>点击上传</em></div>
               </el-upload>
             </div>
@@ -104,7 +104,7 @@
             <div class="title">①：附件上传</div>
             <div class="main">
               <el-upload :show-file-list="false" action="#" :before-upload="(file:any) => beforeExcelUpload(file, 'xmAttach')" :http-request="(file:any) => uploadExcel(file, 'xmAttach')" :accept="fileTypeTwo" drag>
-                <i class="el-icon-upload"></i>
+                <el-icon class="ep-icon-upload"><EpUpload /></el-icon>
                 <div class="el-upload__text">将文件拖到此处,或<em>点击上传</em></div>
               </el-upload>
             </div>
@@ -150,6 +150,8 @@ export default {
 </script>
 
 <script lang="ts" setup>
+import { Upload as EpUpload } from '@element-plus/icons-vue'
+
 import { getProtypeTreeNoMiddle, getXqlrNum } from '@/api/service/requirement'
 import baseService from '@/service/baseService'
 import MyCart from '@/views/service/xq/components/MyCart.vue'

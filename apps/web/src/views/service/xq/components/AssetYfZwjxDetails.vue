@@ -3,7 +3,7 @@
     <el-collapse v-model="activeNames">
       <el-collapse-item name="hardware" title="大修项目关联设备表">
         <template #title>
-          <div><i class="el-icon-s-grid elIconFile"></i>大修项目关联设备表</div>
+          <div><el-icon class="ep-icon-s-grid elIconFile"><EpGrid /></el-icon>大修项目关联设备表</div>
         </template>
         <div class="amount">金额单位:元</div>
         <div class="table" :style="{ height: itemHeight + 'px' }">
@@ -97,7 +97,7 @@
       </el-collapse-item>
       <el-collapse-item name="information" title="估算书中资产级设备成本归集表">
         <template #title>
-          <div><i class="el-icon-s-grid elIconFile"></i>估算书中资产级设备成本归集表</div>
+          <div><el-icon class="ep-icon-s-grid elIconFile"><EpGrid /></el-icon>估算书中资产级设备成本归集表</div>
         </template>
         <div class="amount">金额单位:元</div>
         <div class="table" :style="{ height: itemHeight + 'px' }">
@@ -250,6 +250,8 @@
 </template>
 
 <script setup lang="ts">
+import { Grid as EpGrid } from '@element-plus/icons-vue'
+
 defineOptions({ name: "AssetYfZwjxDetails" })
 import { onMounted, ref, nextTick, watch, onUnmounted, reactive } from 'vue'
 import { getRepairByXmid } from '@/api/service/requirement'

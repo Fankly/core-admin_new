@@ -19,20 +19,20 @@
         <div class="form-body">
           <div class="form-title">
             <div class="upload-main" v-if="!modalProps.isView">
-              <vxe-button status="primary" icon="el-icon-upload" @click="handleUploadClick" class="upload-btn pulse"> 文件上传 </vxe-button>
+              <vxe-button status="primary" icon="vxe-icon-upload" @click="handleUploadClick" class="upload-btn pulse"> 文件上传 </vxe-button>
               <input type="file" ref="fileInput" multiple style="display: none" :accept="acceptedFileTypes" @change="handleFileChange" />
             </div>
-            <vxe-button v-if="!modalProps.isView" status="danger" icon="el-icon-delete" @click="handleDeleteDatas" class="delete-btn pulse"
+            <vxe-button v-if="!modalProps.isView" status="danger" icon="vxe-icon-delete" @click="handleDeleteDatas" class="delete-btn pulse"
               >批量删除</vxe-button
             >
-            <vxe-button type="button" icon="el-icon-close" @click="closeHandle" class="close-btn pulse">关闭</vxe-button>
+            <vxe-button type="button" icon="vxe-icon-close" @click="closeHandle" class="close-btn pulse">关闭</vxe-button>
           </div>
         </div>
       </div>
       <div class="table-container">
         <div class="table-header">
           <div class="header-left">
-            <i class="el-icon-document-copy"></i>
+            <el-icon class="ep-icon-document-copy"><EpDocumentCopy /></el-icon>
             <span>已上传文件列表</span>
           </div>
           <div class="header-right">
@@ -43,7 +43,7 @@
           <transition-group name="content-switch" mode="out-in">
             <div v-if="fileList.length === 0" key="empty" class="empty-container">
               <div class="empty-placeholder">
-                <i class="el-icon-upload empty-icon"></i>
+                <el-icon class="ep-icon-upload empty-icon"><EpUpload /></el-icon>
                 <p>暂无文件,请点击上传按钮添加文件</p>
               </div>
             </div>
@@ -65,7 +65,7 @@
                 :loading="tableLoading"
                 class="file-table"
                 :row-class-name="rowClassName"
-                :loading-config="{ icon: 'el-icon-loading', text: '正在加载文件...' }"
+                :loading-config="{ icon: 'vxe-icon-spinner roll', text: '正在加载文件...' }"
                 @checkbox-change="handleUploadFileSelection"
                 @checkbox-all="handleUploadFileSelection"
               >
@@ -85,12 +85,12 @@
                       v-if="!modalProps.isView"
                       status="danger"
                       size="small"
-                      icon="el-icon-delete"
+                      icon="vxe-icon-delete"
                       @click="handleDelete(row)"
                       class="delete-btn"
                       >删除</vxe-button
                     >
-                    <vxe-button status="primary" size="small" icon="el-icon-download" @click="handleDownload(row)" class="delete-btn"
+                    <vxe-button status="primary" size="small" icon="vxe-icon-download" @click="handleDownload(row)" class="delete-btn"
                       >附件下载</vxe-button
                     >
                   </template>
@@ -105,6 +105,8 @@
 </template>
 
 <script lang="ts">
+import { DocumentCopy as EpDocumentCopy, Upload as EpUpload } from '@element-plus/icons-vue'
+
 import { computed, defineComponent, ref } from 'vue'
 import { VXETable } from 'vxe-table'
 import { ElMessage } from 'element-plus'
@@ -358,18 +360,18 @@ export default defineComponent({
     const getFileIcon = (fileName: any) => {
       const extension = fileName.split('.').pop().toLowerCase()
       const iconMap: any = {
-        pdf: 'el-icon-document-copy',
-        doc: 'el-icon-document',
-        docx: 'el-icon-document',
-        xls: 'el-icon-tickets',
-        xlsx: 'el-icon-tickets',
-        txt: 'el-icon-document',
-        jpg: 'el-icon-picture',
-        jpeg: 'el-icon-picture',
-        png: 'el-icon-picture',
-        gif: 'el-icon-picture'
+        pdf: 'vxe-icon-file-pdf',
+        doc: 'vxe-icon-file',
+        docx: 'vxe-icon-file',
+        xls: 'vxe-icon-file-excel',
+        xlsx: 'vxe-icon-file-excel',
+        txt: 'vxe-icon-file',
+        jpg: 'vxe-icon-file-image',
+        jpeg: 'vxe-icon-file-image',
+        png: 'vxe-icon-file-image',
+        gif: 'vxe-icon-file-image'
       }
-      return iconMap[extension] || 'el-icon-document'
+      return iconMap[extension] || 'vxe-icon-file'
     }
     const rowClassName = ({ row }: any) => {
       return row.isNew ? 'row-new' : ''
@@ -447,6 +449,8 @@ export default defineComponent({
     })
 
     return {
+      EpDocumentCopy,
+      EpUpload,
       handleDeleteDatas,
       handleUploadFileSelection,
       handleDownload,

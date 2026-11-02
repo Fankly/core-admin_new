@@ -5,6 +5,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
+
 import { computed, onMounted, ref, toRef, defineProps, defineExpose } from "vue";
 import { BaseMsgData } from "@/views/matter/types/matterDecl";
 import { getYhzd, saveOrUpdateYhzd } from "@/api/matter";
@@ -77,11 +79,11 @@ defineExpose({
 
 <template>
   <div class="container">
-    <el-button class="title-button" @click="isShowSearch = !isShowSearch" type="text"
+    <el-button class="title-button" @click="isShowSearch = !isShowSearch" type="primary" link
       ><h3 class="sub-title">
         事项扩展信息
         <span>
-          <i :class="isShowSearch ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
+          <el-icon :class="isShowSearch ? 'ep-icon-arrow-down' : 'ep-icon-arrow-up'"><component :is="isShowSearch ? EpArrowDown : EpArrowUp" /></el-icon>
         </span></h3
     ></el-button>
     <el-form :disabled="isDisabled" v-show="!isShowSearch" :model="extensionData" label-position="right" label-width="80px">

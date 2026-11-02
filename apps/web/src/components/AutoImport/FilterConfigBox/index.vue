@@ -17,7 +17,7 @@
               <div class="label-with-tooltip">
                 {{ option.label }}
                 <el-tooltip v-if="option.labelPrompt" :content="option.labelPrompt" placement="top">
-                  <i class="el-icon-info tooltip-icon"></i>
+                  <el-icon class="ep-icon-info tooltip-icon"><EpInfoFilled /></el-icon>
                 </el-tooltip>
               </div>
             </template>
@@ -37,12 +37,18 @@
     </template>
   </el-form>
 </template>
+
 <script>
+import { InfoFilled as EpInfoFilled } from '@element-plus/icons-vue'
+
 import ConfigItem from '../ConfigItem/index.vue'
 import FilterBox from '../FilterBox/index.vue'
 import _ from 'lodash'
 
 export default {
+  setup() {
+    return { EpInfoFilled }
+  },
   components: {
     ConfigItem,
     FilterBox

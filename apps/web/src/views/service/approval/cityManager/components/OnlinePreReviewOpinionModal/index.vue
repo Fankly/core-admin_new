@@ -69,7 +69,7 @@
               @keydown.space.prevent.stop="openReasonModal(row)"
             >
               <span class="online-pre-review-opinion-modal__reason-text">{{ row.reason || '点击编辑' }}</span>
-              <i class="el-icon-edit online-pre-review-opinion-modal__reason-icon"></i>
+              <el-icon class="ep-icon-edit online-pre-review-opinion-modal__reason-icon"><EpEdit /></el-icon>
             </div>
           </template>
         </vxe-grid>
@@ -125,6 +125,8 @@
 </template>
 
 <script setup lang="ts">
+import { Edit as EpEdit } from '@element-plus/icons-vue'
+
 defineOptions({ name: "OnlinePreReviewOpinionModal" })
 import { nextTick, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'

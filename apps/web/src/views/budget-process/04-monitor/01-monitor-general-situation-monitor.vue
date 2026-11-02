@@ -2,7 +2,7 @@
   <div class="GeneralSituation" v-loading="loading" element-loading-text="正在从服务器获取数据.....">
     <div class="tabs">
       <div class="fatherBox box-1" @click="changeColor('box-1')">
-        <i class="el-icon-reading"></i>
+        <el-icon class="ep-icon-reading"><EpReading /></el-icon>
         总体情况监控
         <div class="box-right"></div>
       </div>
@@ -10,56 +10,56 @@
       <div class="fatherBox box-2" @click="changeColor('box-2')">
         <div class="box-left"></div>
         <div class="box-right"></div>
-        <i class="el-icon-pie-chart"></i>
+        <el-icon class="ep-icon-pie-chart"><EpPieChart /></el-icon>
         储备与立项
       </div>
 
       <div class="fatherBox box-3" @click="changeColor('box-3')">
         <div class="box-left"></div>
         <div class="box-right"></div>
-        <i class="el-icon-data-analysis"></i>
+        <el-icon class="ep-icon-data-analysis"><EpDataAnalysis /></el-icon>
         招投标
       </div>
 
       <div class="fatherBox box-4" @click="changeColor('box-4')">
         <div class="box-left"></div>
         <div class="box-right"></div>
-        <i class="el-icon-collection-tag"></i>
+        <el-icon class="ep-icon-collection-tag"><EpCollectionTag /></el-icon>
         合同签订
       </div>
 
       <div class="fatherBox box-5" @click="changeColor('box-5')">
         <div class="box-left"></div>
         <div class="box-right"></div>
-        <i class="el-icon-files"></i>
+        <el-icon class="ep-icon-files"><EpFiles /></el-icon>
         项目实施
       </div>
 
       <div class="fatherBox box-6" @click="changeColor('box-6')">
         <div class="box-left"></div>
         <div class="box-right"></div>
-        <i class="el-icon-discount"></i>
+        <el-icon class="ep-icon-discount"><EpDiscount /></el-icon>
         项目审计
       </div>
 
       <div class="fatherBox box-7" @click="changeColor('box-7')">
         <div class="box-left"></div>
         <div class="box-right"></div>
-        <i class="el-icon-bank-card"></i>
+        <el-icon class="ep-icon-bank-card"><EpCreditCard /></el-icon>
         结算与支付
       </div>
 
       <div class="fatherBox box-8" @click="changeColor('box-8')">
         <div class="box-left"></div>
         <div class="box-right"></div>
-        <i class="el-icon-coin"></i>
+        <el-icon class="ep-icon-coin"><EpCoin /></el-icon>
         决算与增资
       </div>
 
       <div class="fatherBox box-9" @click="changeColor('box-9')">
         <div class="box-left"></div>
         <div class="box-right"></div>
-        <i class="el-icon-turn-off"></i>
+        <el-icon class="ep-icon-turn-off"><EpTurnOff /></el-icon>
         项目关闭
       </div>
     </div>
@@ -77,6 +77,19 @@
 </template>
 
 <script>
+import {
+  Coin as EpCoin,
+  CollectionTag as EpCollectionTag,
+  CreditCard as EpCreditCard,
+  DataAnalysis as EpDataAnalysis,
+  Discount as EpDiscount,
+  Files as EpFiles,
+  PieChart as EpPieChart,
+  Reading as EpReading,
+  TurnOff as EpTurnOff
+} from '@element-plus/icons-vue'
+import { markRaw as markElementIconRaw } from 'vue'
+
 import { defineComponent, reactive } from "vue";
 import GeneralSituation from "@/components/general-situation/GeneralSituation.vue";
 import ReserveEstablishment from "@/components/general-situation/ReserveEstablishment.vue";
@@ -108,6 +121,15 @@ export default defineComponent({
   setup() {
     const store = useStore();
     return reactive({
+      EpCoin: markElementIconRaw(EpCoin),
+      EpCollectionTag: markElementIconRaw(EpCollectionTag),
+      EpCreditCard: markElementIconRaw(EpCreditCard),
+      EpDataAnalysis: markElementIconRaw(EpDataAnalysis),
+      EpDiscount: markElementIconRaw(EpDiscount),
+      EpFiles: markElementIconRaw(EpFiles),
+      EpPieChart: markElementIconRaw(EpPieChart),
+      EpReading: markElementIconRaw(EpReading),
+      EpTurnOff: markElementIconRaw(EpTurnOff),
       store,
       temShow: "",
       loading: false,

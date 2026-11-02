@@ -116,7 +116,7 @@
       >
         <template #tableHeader="scope">
           <el-upload style="display: inline; padding: 0 0 0 10px" :on-change="uploadHandle" :auto-upload="false" :show-file-list="false">
-            <el-button size="small" type="success" icon="el-icon-upload">上传附件</el-button>
+            <el-button size="small" type="success" :icon="EpUpload">上传附件</el-button>
           </el-upload>
           <el-button
             size="small"
@@ -134,6 +134,8 @@
 </template>
 
 <script setup lang="ts">
+import { Upload as EpUpload } from '@element-plus/icons-vue'
+
 defineOptions({ name: "EditModal" })
 import { ref, reactive, nextTick, computed } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'

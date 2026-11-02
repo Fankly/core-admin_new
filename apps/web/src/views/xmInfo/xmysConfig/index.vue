@@ -66,7 +66,7 @@
                 clearable
                 :data="projectList"
                 :props="projectTypeProps"
-                :popper-append-to-body="true"
+                :teleported="true"
                 node-key="middleId"
                 placeholder="请选择"
               />

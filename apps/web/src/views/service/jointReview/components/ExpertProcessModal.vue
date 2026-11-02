@@ -50,7 +50,7 @@
             <vxe-column field="pszyType" title="评审专业" min-width="140" />
             <vxe-column field="totalNum" title="评审项目总数量" min-width="130">
               <template #default="{ row }">
-                <el-button v-if="ENABLE_COUNT_THROUGH && isCountClickable(row.totalNum)" type="text" @click="openThrough(row, 'totalNum')">
+                <el-button v-if="ENABLE_COUNT_THROUGH && isCountClickable(row.totalNum)" type="primary" link @click="openThrough(row, 'totalNum')">
                   {{ formatCount(row.totalNum) }}
                 </el-button>
                 <span v-else>{{ formatCount(row.totalNum) }}</span>
@@ -58,7 +58,7 @@
             </vxe-column>
             <vxe-column field="ypsxmNum" title="已评审项目数量" min-width="130">
               <template #default="{ row }">
-                <el-button v-if="ENABLE_COUNT_THROUGH && isCountClickable(row.ypsxmNum)" type="text" @click="openThrough(row, 'ypsxmNum')">
+                <el-button v-if="ENABLE_COUNT_THROUGH && isCountClickable(row.ypsxmNum)" type="primary" link @click="openThrough(row, 'ypsxmNum')">
                   {{ formatCount(row.ypsxmNum) }}
                 </el-button>
                 <span v-else>{{ formatCount(row.ypsxmNum) }}</span>
@@ -66,7 +66,7 @@
             </vxe-column>
             <vxe-column field="thdpsxmNum" title="退回待入会项目统计" min-width="150">
               <template #default="{ row }">
-                <el-button v-if="ENABLE_COUNT_THROUGH && isCountClickable(row.thdpsxmNum)" type="text" @click="openThrough(row, 'thdpsxmNum')">
+                <el-button v-if="ENABLE_COUNT_THROUGH && isCountClickable(row.thdpsxmNum)" type="primary" link @click="openThrough(row, 'thdpsxmNum')">
                   {{ formatCount(row.thdpsxmNum) }}
                 </el-button>
                 <span v-else>{{ formatCount(row.thdpsxmNum) }}</span>
@@ -74,7 +74,7 @@
             </vxe-column>
             <vxe-column field="thxmNum" title="退回项目数量" min-width="130">
               <template #default="{ row }">
-                <el-button v-if="ENABLE_COUNT_THROUGH && isCountClickable(row.thxmNum)" type="text" @click="openThrough(row, 'thxmNum')">
+                <el-button v-if="ENABLE_COUNT_THROUGH && isCountClickable(row.thxmNum)" type="primary" link @click="openThrough(row, 'thxmNum')">
                   {{ formatCount(row.thxmNum) }}
                 </el-button>
                 <span v-else>{{ formatCount(row.thxmNum) }}</span>
@@ -82,7 +82,7 @@
             </vxe-column>
             <vxe-column field="dpsxmNum" title="待评审项目数量" min-width="130">
               <template #default="{ row }">
-                <el-button v-if="ENABLE_COUNT_THROUGH && isCountClickable(row.dpsxmNum)" type="text" @click="openThrough(row, 'dpsxmNum')">
+                <el-button v-if="ENABLE_COUNT_THROUGH && isCountClickable(row.dpsxmNum)" type="primary" link @click="openThrough(row, 'dpsxmNum')">
                   {{ formatCount(row.dpsxmNum) }}
                 </el-button>
                 <span v-else>{{ formatCount(row.dpsxmNum) }}</span>

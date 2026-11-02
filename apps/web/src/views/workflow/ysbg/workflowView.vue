@@ -402,7 +402,7 @@ const disabled = computed(() => loading.value)
             :title="item.columnValue"
           >
             <template #default="{ row }">
-              <el-button @click="() => handleDownloadAttach(row)" type="text">{{ row['attach_name'] }}</el-button>
+              <el-button @click="() => handleDownloadAttach(row)" type="primary" link>{{ row['attach_name'] }}</el-button>
             </template>
           </vxe-column>
           <vxe-column

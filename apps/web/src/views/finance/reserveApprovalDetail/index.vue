@@ -66,7 +66,7 @@
           </el-button> -->
           <!-- <el-button plain @click="prevNextStep(1)"> <i class="el-icon-arrow-left detail-nav-icon--left"></i>上一个 </el-button> -->
           <!-- <el-button plain @click="prevNextStep(2)"> 下一个<i class="el-icon-arrow-right detail-nav-icon--right"></i> </el-button> -->
-          <el-button v-if="!embedded" plain circle icon="el-icon-back" style="margin-left: 20px" @click="handleBack"></el-button>
+          <el-button v-if="!embedded" plain circle :icon="EpBack" style="margin-left: 20px" @click="handleBack"></el-button>
         </template>
         <!-- <configText :options="InfoKeyValues" :dataValue="dataValue" /> -->
       </DashboardContainer>
@@ -189,7 +189,7 @@
                     <div class="review-card__header">
                       <span class="title">AI审核结果</span>
                       <span v-if="showRerunBtn" class="rerun-btn" @click="handleRerun(RERUN_TYPE.NECESSITY)"
-                        ><i class="el-icon-refresh-right"></i> 重新分析</span
+                        ><el-icon class="ep-icon-refresh-right"><EpRefreshRight /></el-icon> 重新分析</span
                       >
                     </div>
                     <div class="review-card__content">
@@ -312,7 +312,7 @@
                     <div class="review-card__header">
                       <span class="title">AI审核结果</span>
                       <span v-if="showRerunBtn" class="rerun-btn" @click="handleRerun(RERUN_TYPE.THREE_ONE)"
-                        ><i class="el-icon-refresh-right"></i> 重新分析</span
+                        ><el-icon class="ep-icon-refresh-right"><EpRefreshRight /></el-icon> 重新分析</span
                       >
                     </div>
                     <div class="review-card__content"><p v-html="streamedData.threeOne_coreResult || ''"></p></div>
@@ -392,7 +392,7 @@
                     <div class="review-card__header">
                       <span class="title">AI审核结果</span>
                       <span v-if="showRerunBtn" class="rerun-btn" @click="handleRerun(RERUN_TYPE.ASSET_COMP)"
-                        ><i class="el-icon-refresh-right"></i> 重新分析</span
+                        ><el-icon class="ep-icon-refresh-right"><EpRefreshRight /></el-icon> 重新分析</span
                       >
                     </div>
                     <div class="review-card__content"><p v-html="streamedData.assetComp_coreResult || ''"></p></div>
@@ -517,7 +517,7 @@
           <template v-slot:extra>
             <div class="extra--button" v-if="detailData">
               <el-button
-                icon="el-icon-back"
+                :icon="EpBack"
                 @click="
                   () => {
                     $refs.projectView?.clearDiff()
@@ -559,7 +559,7 @@
           <template v-slot:extra>
             <div class="extra--button" v-if="sameItemData">
               <el-button
-                icon="el-icon-back"
+                :icon="EpBack"
                 @click="
                   () => {
                     sameItemData = undefined
@@ -577,6 +577,8 @@
 </template>
 
 <script>
+import { Back as EpBack, RefreshRight as EpRefreshRight } from '@element-plus/icons-vue'
+
 import { projectConfigMixin, uploadMixin, statsDateRangeMixin, cachedSinglePageMixin } from '@/core/mixins'
 import configText from '@/views/finance/components/configText.vue'
 
@@ -626,6 +628,9 @@ const RERUN_TYPE = {
 }
 
 export default {
+  setup() {
+    return { EpBack, EpRefreshRight }
+  },
   components: {
     // configText,
     projectView,

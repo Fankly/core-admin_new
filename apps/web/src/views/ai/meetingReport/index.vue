@@ -19,7 +19,7 @@
       <!-- 表格 header 按钮 -->
       <template #tableHeader="scope">
         <el-dropdown placement="bottom" style="margin: 0 10px">
-          <el-button size="small" v-permission="'XMXXGL'" plain type="primary">项目信息管理<i class="el-icon-arrow-down el-icon--right" /></el-button>
+          <el-button size="small" v-permission="'XMXXGL'" plain type="primary">项目信息管理<el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon></el-button>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item v-permission="'CKXMMX'" @click="handleViewXm(scope.selectedList)">查看项目明细</el-dropdown-item>
@@ -27,7 +27,7 @@
           </template>
         </el-dropdown>
         <el-dropdown placement="bottom" style="margin: 0 10px">
-          <el-button size="small" v-permission="'PSBGGL'" plain type="primary">评审报告管理<i class="el-icon-arrow-down el-icon--right" /></el-button>
+          <el-button size="small" v-permission="'PSBGGL'" plain type="primary">评审报告管理<el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon></el-button>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item v-permission="'SCBG'" @click="handleReportXm(scope.selectedList)">生成报告</el-dropdown-item>
@@ -36,7 +36,7 @@
           </template>
         </el-dropdown>
         <el-dropdown placement="bottom" style="margin: 0 10px">
-          <el-button size="small" v-permission="'LCSP'" plain type="primary">流程审批<i class="el-icon-arrow-down el-icon--right" /></el-button>
+          <el-button size="small" v-permission="'LCSP'" plain type="primary">流程审批<el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon></el-button>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item v-permission="'TJSP'" @click="handleConfirm(scope.selectedList)">提交审批</el-dropdown-item>
@@ -57,6 +57,8 @@
   ></component>
 </template>
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/ai/meetingReport/index" })
 import userDialog from '@/components/select/userDialog.vue' //权限弹框
 import { ref, reactive, onMounted, nextTick } from 'vue'

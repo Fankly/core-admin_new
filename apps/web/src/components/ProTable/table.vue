@@ -40,7 +40,7 @@
           </el-button>
           <el-dropdown style="margin-right: 10px" placement="bottom" v-else trigger="click">
             <el-button v-permission="item.label" size="small" plain type="primary">
-              {{ item.value }}<i class="el-icon-arrow-down" style="margin-left: 6px"></i>
+              {{ item.value }}<el-icon class="ep-icon-arrow-down" style="margin-left: 6px"><EpArrowDown /></el-icon>
             </el-button>
             <template #dropdown>
               <el-dropdown-menu v-for="operation in item.children" :key="operation.id" v-permission="operation.label">
@@ -61,6 +61,8 @@ export default {
 }
 </script>
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 import { ref, nextTick } from 'vue'
 import proTable from '@/components/ProTable/index.vue' //表格组件
 

@@ -94,7 +94,7 @@
               @keydown.space.prevent.stop="openReasonModal(row, 'reason')"
             >
               <span class="offline-review-opinion-modal__reason-text">{{ row.reason || '点击编辑' }}</span>
-              <i class="el-icon-edit offline-review-opinion-modal__reason-icon"></i>
+              <el-icon class="ep-icon-edit offline-review-opinion-modal__reason-icon"><EpEdit /></el-icon>
             </div>
           </template>
           <template #fzbReasonDefault="{ row }">
@@ -109,7 +109,7 @@
               @keydown.space.prevent.stop="openReasonModal(row, 'fzbReason')"
             >
               <span class="offline-review-opinion-modal__reason-text">{{ row.fzbReason || '点击编辑' }}</span>
-              <i class="el-icon-edit offline-review-opinion-modal__reason-icon"></i>
+              <el-icon class="ep-icon-edit offline-review-opinion-modal__reason-icon"><EpEdit /></el-icon>
             </div>
           </template>
           <template #cwbReasonDefault="{ row }">
@@ -124,7 +124,7 @@
               @keydown.space.prevent.stop="openReasonModal(row, 'cwbReason')"
             >
               <span class="offline-review-opinion-modal__reason-text">{{ row.cwbReason || '点击编辑' }}</span>
-              <i class="el-icon-edit offline-review-opinion-modal__reason-icon"></i>
+              <el-icon class="ep-icon-edit offline-review-opinion-modal__reason-icon"><EpEdit /></el-icon>
             </div>
           </template>
         </vxe-grid>
@@ -180,6 +180,8 @@
 </template>
 
 <script setup lang="ts">
+import { Edit as EpEdit } from '@element-plus/icons-vue'
+
 defineOptions({ name: "OfflineReviewOpinionModal" })
 import { computed, nextTick, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'

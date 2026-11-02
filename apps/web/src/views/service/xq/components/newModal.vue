@@ -55,7 +55,7 @@
               >
                 <template #append>
                   <el-button
-                    class="el-icon-more"
+                    class="ep-icon-more" :icon="EpMore"
                     @click="handleSearch('xmbm')"
                   />
                 </template>
@@ -100,7 +100,7 @@
               >
                 <template #append>
                   <el-button
-                    class="el-icon-more"
+                    class="ep-icon-more" :icon="EpMore"
                     @click="handleSearch('czf')"
                   />
                 </template>
@@ -337,6 +337,8 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { More as EpMore } from '@element-plus/icons-vue'
+
 import { ref, defineProps, defineEmits, defineExpose } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getEjdwData, getBm } from '@/api/service/expertinformation'

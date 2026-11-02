@@ -2,7 +2,7 @@
   <div class="dropdown-table-selector">
     <el-input v-model="displayLabel" :placeholder="placeholder" readonly clearable @clear="handleClear" @click="openModal" class="selector-input">
       <template #suffix>
-        <i class="el-icon-arrow-down"></i>
+        <el-icon class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
       </template>
     </el-input>
     <teleport to="body">
@@ -25,6 +25,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 defineOptions({ name: "dropdownTableSelector" })
 import { ref, watch, defineProps, defineEmits } from 'vue'
 import TableSelectorModal from './TableSelectorModal.vue'

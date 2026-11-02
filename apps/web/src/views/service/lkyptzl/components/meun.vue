@@ -70,7 +70,7 @@
             </div>
             <el-popover v-if="item.other.length != 0" :width="170" placement="bottom" v-model:visible="item.showPopover" trigger="click">
               <template #reference>
-                <i class="el-icon-arrow-right arrowClick"></i>
+                <el-icon class="ep-icon-arrow-right arrowClick"><EpArrowRight /></el-icon>
               </template>
               <div class="more-items-popover" :style="{ color: item.tabColor }">
                 <template v-for="operation in item.other" :key="operation.id">
@@ -89,7 +89,7 @@
             </div>
             <el-popover v-if="item.any.length != 0" :width="170" placement="bottom" v-model:visible="item.showPopover1" trigger="click">
               <template #reference>
-                <i class="el-icon-arrow-right arrowClick"></i>
+                <el-icon class="ep-icon-arrow-right arrowClick"><EpArrowRight /></el-icon>
               </template>
               <div class="more-items-popover" :style="{ color: item.tabColor }">
                 <template v-for="operation in item.any" :key="operation.id">
@@ -109,6 +109,8 @@ export default {
 }
 </script>
 <script setup lang="ts">
+import { ArrowRight as EpArrowRight } from '@element-plus/icons-vue'
+
 import { ref, defineExpose, defineEmits, defineProps, nextTick } from 'vue'
 import { useStore } from '@/store/business'
 import { useRouter } from 'vue-router'

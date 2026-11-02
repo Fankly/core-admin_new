@@ -40,7 +40,7 @@
         @click="openDetailModal()"
       >
         <span>更多意见</span>
-        <i class="el-icon-more el-icon--right" aria-hidden="true"></i>
+        <el-icon class="ep-icon-more el-icon--right" aria-hidden="true"><EpMore /></el-icon>
       </button>
     </div>
 
@@ -149,6 +149,8 @@
 </template>
 
 <script setup lang="ts">
+import { More as EpMore } from '@element-plus/icons-vue'
+
 import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { PropType } from 'vue'

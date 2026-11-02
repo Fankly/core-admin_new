@@ -18,7 +18,7 @@
           <template #tableHeader>
             <el-input v-model="searchKeyword" placeholder="搜索会议名称、编号..." class="search-input" clearable @change="searchMeeting">
               <template #prefix>
-                <i style="font-size: 18px" class="el-icon-search"></i>
+                <el-icon style="font-size: 18px" class="ep-icon-search"><EpSearch /></el-icon>
               </template>
             </el-input>
           </template>
@@ -83,6 +83,8 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 <script setup lang="ts">
+import { Search as EpSearch } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/service/jointReview/xmOpinionSummary/index" })
 import { ref, reactive, nextTick, onMounted } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'

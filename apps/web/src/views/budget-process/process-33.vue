@@ -49,7 +49,7 @@
           <div class="lieBox">
             <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
               <span class="el-dropdown-link">
-                <el-icon class="el-icon-s-operation">
+                <el-icon class="ep-icon-s-operation">
                   <arrow-down />
                 </el-icon>
               </span>
@@ -93,7 +93,7 @@
     </el-pagination>
   </div>
 
-  <el-dialog v-model="newlyDia" custom-class="attributeDia" :title="disTtile" width="50%">
+  <el-dialog v-model="newlyDia" class="attributeDia" :title="disTtile" width="50%">
     <div style="height: 400px; margin-top: 10px; padding: 10px; background-color: rgb(241, 241, 241)">
       <el-form :inline="true" label-width="100px">
         <el-row>
@@ -123,19 +123,19 @@
     </template>
   </el-dialog>
 
-  <el-dialog v-model="attributeDia" custom-class="attributeDia" @close="closeTableDialog" title="属性维护" width="80%">
+  <el-dialog v-model="attributeDia" class="attributeDia" @close="closeTableDialog" title="属性维护" width="80%">
     <div class="dialogHeight">
       <el-form>
         <el-row>
           <el-col :span="23">
-            <el-button icon="el-icon-platform-eleme" @click="addition('insert')">新增</el-button>
-            <el-button icon="el-icon-eleme" @click="save">保存</el-button>
-            <el-button icon="el-icon-delete-solid" @click="deletntion('delete')">删除</el-button>
+            <el-button :icon="EpElemeFilled" @click="addition('insert')">新增</el-button>
+            <el-button :icon="EpEleme" @click="save">保存</el-button>
+            <el-button :icon="EpDeleteFilled" @click="deletntion('delete')">删除</el-button>
           </el-col>
           <el-col :span="1">
             <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
               <span class="el-dropdown-link">
-                <el-icon class="el-icon-s-operation">
+                <el-icon class="ep-icon-s-operation">
                   <arrow-down />
                 </el-icon>
               </span>
@@ -266,6 +266,9 @@
 </template>
 
 <script>
+import { DeleteFilled as EpDeleteFilled, Eleme as EpEleme, ElemeFilled as EpElemeFilled } from '@element-plus/icons-vue'
+import { markRaw as markElementIconRaw } from 'vue'
+
 import { defineComponent, reactive } from "vue";
 import baseService from "@/service/baseService";
 import userDialog from "@/components/select/userDialog.vue";
@@ -289,6 +292,9 @@ export default defineComponent({
       showHelpMsg(url);
     }
     return reactive({
+      EpDeleteFilled: markElementIconRaw(EpDeleteFilled),
+      EpEleme: markElementIconRaw(EpEleme),
+      EpElemeFilled: markElementIconRaw(EpElemeFilled),
       store,
       helpHandle,
       loading: false,

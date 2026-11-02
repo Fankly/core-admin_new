@@ -18,9 +18,9 @@
                   <el-row>
                     <el-col>
                       <el-form-item>
-                        <label slot="label">
+                        <template #label>
                           <span style="font-size: 16px">项目送审金额</span>
-                        </label>
+                        </template>
                         <div>
                           <span style="font-size: 14px; color: blue; margin-left: 30px">
                             {{ `(4445)` }}
@@ -33,9 +33,9 @@
                   <el-row>
                     <el-col>
                       <el-form-item>
-                        <label slot="label">
+                        <template #label>
                           <span style="font-size: 16px">项目送审数量</span>
-                        </label>
+                        </template>
                         <div>
                           <span style="font-size: 14px; color: blue; margin-left: 30px">
                             {{ `(12)` }}
@@ -56,9 +56,9 @@
                   <el-row>
                     <el-col>
                       <el-form-item>
-                        <label slot="label">
+                        <template #label>
                           <span style="font-size: 16px">项目送审金额</span>
-                        </label>
+                        </template>
                         <div>
                           <span style="font-size: 14px; color: blue; margin-left: 30px">
                             {{ `(4445)` }}
@@ -71,9 +71,9 @@
                   <el-row>
                     <el-col>
                       <el-form-item>
-                        <label slot="label">
+                        <template #label>
                           <span style="font-size: 16px">项目送审数量</span>
-                        </label>
+                        </template>
                         <div>
                           <span style="font-size: 14px; color: blue; margin-left: 30px">
                             {{ `(12)` }}

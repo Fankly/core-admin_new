@@ -5,6 +5,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown, Operation as EpOperation, QuestionFilled as EpQuestionFilled } from '@element-plus/icons-vue'
+
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { onMounted, reactive, ref, watch } from 'vue'
 import { useStore } from '@/store/business'
@@ -453,7 +455,7 @@ const getHelpMessageHandle = () => {
           trigger="click"
           :hide-on-click="false"
         >
-          <span class="el-icon-s-operation" style="font-size: 18px"></span>
+          <el-icon class="ep-icon-s-operation" style="font-size: 18px"><EpOperation /></el-icon>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item v-for="item in tableColumn" :key="item.prop">
@@ -465,13 +467,13 @@ const getHelpMessageHandle = () => {
           </template>
         </el-dropdown>
         <span style="cursor: pointer; font-size: 18px" @click="isHiddenQueryForm">
-          <i class="el-icon-arrow-down"></i>
+          <el-icon class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
         </span>
         <span
           style="cursor: pointer; margin-left: 30px; font-size: 18px"
           @click="getHelpMessageHandle"
         >
-          <i class="el-icon-question"></i>
+          <el-icon class="ep-icon-question"><EpQuestionFilled /></el-icon>
         </span>
       </div>
     </div>

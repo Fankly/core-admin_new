@@ -21,9 +21,9 @@
                   <el-row>
                     <el-col>
                       <el-form-item>
-                        <label slot="label">
+                        <template #label>
                           <span style="font-size: 16px">项目入账金额</span>
-                        </label>
+                        </template>
                         <div>
                           <span style="font-size: 14px; color: blue; margin-left: 30px">
                             {{ `(4445)` }}
@@ -36,9 +36,9 @@
                   <el-row>
                     <el-col>
                       <el-form-item>
-                        <label slot="label">
+                        <template #label>
                           <span style="font-size: 16px">资金支付金额</span>
-                        </label>
+                        </template>
                         <div>
                           <span style="font-size: 14px; color: blue; margin-left: 30px">
                             {{ `(4445)` }}
@@ -51,9 +51,9 @@
                   <el-row>
                     <el-col>
                       <el-form-item>
-                        <label slot="label">
+                        <template #label>
                           <span style="font-size: 16px">当年项目资金支付比例</span>
-                        </label>
+                        </template>
                         <div>
                           <span style="font-size: 14px; color: blue; margin-left: 30px">
                             {{ `(6.7)` }}

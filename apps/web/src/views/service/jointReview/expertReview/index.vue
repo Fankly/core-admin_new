@@ -23,18 +23,18 @@
       <el-col :span="9">
         <el-card shadow="never" class="user-profile-card">
           <div class="overview-title">
-            <i style="color: var(--color-primary, #00857c); font-size: 20px" class="el-icon-s-marketing top_icons"></i>
+            <el-icon style="color: var(--color-primary, #00857c); font-size: 20px" class="ep-icon-s-marketing top_icons"><EpTrendCharts /></el-icon>
             评审概览
           </div>
           <div class="overview-stats">
             <div class="stat-item stat_blue">
-              <div class="stat-label"> <i class="el-icon-user stat-icon"></i>累计参与评审会议数</div>
+              <div class="stat-label"> <el-icon class="ep-icon-user stat-icon"><EpUser /></el-icon>累计参与评审会议数</div>
               <div class="stat-value">
                 {{ Number(overviewData.cypshysl).toLocaleString() }}
               </div>
             </div>
             <div class="stat-item stat_purple">
-              <div class="stat-label"> <i class="el-icon-folder-opened stat-icon"></i>累计评审项目数</div>
+              <div class="stat-label"> <el-icon class="ep-icon-folder-opened stat-icon"><EpFolderOpened /></el-icon>累计评审项目数</div>
               <div class="stat-value">
                 {{ Number(overviewData.xmsl).toLocaleString() }}
               </div>
@@ -47,7 +47,7 @@
       <el-col :span="9">
         <el-card shadow="never" class="user-profile-card">
           <div class="overview-title">
-            <i style="color: var(--color-primary, #00857c); font-size: 20px" class="el-icon-message"></i>
+            <el-icon style="color: var(--color-primary, #00857c); font-size: 20px" class="ep-icon-message"><EpMessage /></el-icon>
             <el-badge :offset="[10, 5]" :value="messageList.length" :max="99" :is-dot="messageList.length == 0">
               <span style="padding-right: 10px">催办消息</span>
             </el-badge>
@@ -56,7 +56,7 @@
           <div class="message-list" v-else-if="messageList.length == 1">
             <div @click="handleTask(msg)" v-for="(msg, index) in messageList" :key="index" class="message-item">
               <div class="message-icon">
-                <i style="font-size: 18px" class="el-icon-document"></i>
+                <el-icon style="font-size: 18px" class="ep-icon-document"><EpDocument /></el-icon>
               </div>
               <div class="message-content">
                 <div class="message-content-top">
@@ -71,7 +71,7 @@
             <div class="meaasge-scroll" :style="{ animationDuration: `${messageList.length + messageList.length}s` }">
               <div @click="handleTask(msg)" v-for="(msg, index) in messageList" :key="index" class="message-item">
                 <div class="message-icon">
-                  <i style="font-size: 18px" class="el-icon-document"></i>
+                  <el-icon style="font-size: 18px" class="ep-icon-document"><EpDocument /></el-icon>
                 </div>
                 <div class="message-content">
                   <div class="message-content-top">
@@ -83,7 +83,7 @@
               </div>
               <div @click="handleTask(msg)" v-for="(msg, index) in messageList" :key="index" class="message-item">
                 <div class="message-icon">
-                  <i style="font-size: 18px" class="el-icon-document"></i>
+                  <el-icon style="font-size: 18px" class="ep-icon-document"><EpDocument /></el-icon>
                 </div>
                 <div class="message-content">
                   <div class="message-content-top">
@@ -105,7 +105,7 @@
       <div class="search-filter-section">
         <el-input v-model="searchKeyword" placeholder="搜索会议名称、编号..." class="search-input" clearable @input="handleSearch">
           <template #prefix>
-            <i style="font-size: 18px" class="el-icon-search"></i>
+            <el-icon style="font-size: 18px" class="ep-icon-search"><EpSearch /></el-icon>
           </template>
         </el-input>
         <div class="filter-tabs">
@@ -117,7 +117,7 @@
           <div class="filter-tabsRight">
             <el-tooltip content="刷新" placement="top" effect="light">
               <span class="toolbar-action-icon" style="cursor: pointer; font-size: 18px" @click="refresh">
-                <i class="el-icon-refresh"></i>
+                <el-icon class="ep-icon-refresh"><EpRefresh /></el-icon>
               </span>
             </el-tooltip>
             <ToolbarButtons :tool-button="['help']" @help-click="getHelpMessageHandle" />
@@ -140,7 +140,7 @@
               )
             </div>
             <div :class="['project-status', `status-${project.meetingStatus}`]">
-              <i style="font-size: 18px; cursor: pointer" class="el-icon-bell"></i>
+              <el-icon style="font-size: 18px; cursor: pointer" class="ep-icon-bell"><EpBell /></el-icon>
               <span>{{ getStatusText(project.meetingStatus) }}</span>
             </div>
           </div>
@@ -148,23 +148,23 @@
             <div class="project-info">
               <template v-if="project.pspcId">
                 <div class="info-item">
-                  <i style="font-size: 18px" class="el-icon-timer"></i>
+                  <el-icon style="font-size: 18px" class="ep-icon-timer"><EpTimer /></el-icon>
                   <span>线上预审起止时间：{{ `${project.lhhsOneStartTime}~${project.lhhsOneEndTime}` }}</span>
                 </div>
                 <div class="info-item">
-                  <i style="font-size: 18px" class="el-icon-timer"></i>
+                  <el-icon style="font-size: 18px" class="ep-icon-timer"><EpTimer /></el-icon>
                   <span>线下会审起止时间：{{ `${project.lhhsTwoStartTime}~${project.lhhsTwoEndTime}` }}</span>
                 </div>
               </template>
               <template v-else>
                 <div class="info-item">
-                  <i style="font-size: 18px" class="el-icon-timer"></i>
+                  <el-icon style="font-size: 18px" class="ep-icon-timer"><EpTimer /></el-icon>
                   <span>会议起止时间：{{ `${project.startTime}~${project.endTime}` }}</span>
                 </div>
               </template>
               <el-dropdown style="margin: 0 10px" placement="bottom" v-if="project.meetingAttachList.length != 0">
                 <div class="info-item" style="color: var(--color-primary, #00857c); cursor: pointer">
-                  <i style="font-size: 18px" class="el-icon-bell"></i>
+                  <el-icon style="font-size: 18px" class="ep-icon-bell"><EpBell /></el-icon>
                   <span>附件信息</span>
                 </div>
                 <template #dropdown>
@@ -221,6 +221,18 @@
 </template>
 
 <script lang="ts" setup>
+import {
+  Bell as EpBell,
+  Document as EpDocument,
+  FolderOpened as EpFolderOpened,
+  Message as EpMessage,
+  Refresh as EpRefresh,
+  Search as EpSearch,
+  Timer as EpTimer,
+  TrendCharts as EpTrendCharts,
+  User as EpUser
+} from '@element-plus/icons-vue'
+
 defineOptions({ name: "/service/jointReview/expertReview/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref } from 'vue'

@@ -7,30 +7,30 @@
         <el-card shadow="never" class="tree-list-card">
           <div class="panel-header">
             <div class="section-title">
-              <i class="el-icon-folder-opened section-title__icon" aria-hidden="true"></i>
+              <el-icon class="ep-icon-folder-opened section-title__icon" aria-hidden="true"><EpFolderOpened /></el-icon>
               方案目录
             </div>
             <div class="panel-header__actions">
-              <i
-                class="el-icon-plus section-title__icon section-title__icon--action"
+              <el-icon
+                class="ep-icon-plus section-title__icon section-title__icon--action"
                 v-permission="'ADDML'"
                 aria-hidden="true"
                 title="新增方案"
                 @click="handlePlusClick"
-              />
-              <i
-                class="el-icon-set-up section-title__icon section-title__icon--action"
+><EpPlus /></el-icon>
+              <el-icon
+                class="ep-icon-set-up section-title__icon section-title__icon--action"
                 v-permission="'EDIT'"
                 aria-hidden="true"
                 title="步骤管理"
                 @click="handleStepManage"
-              />
-              <i class="el-icon-refresh section-title__icon section-title__icon--action" aria-hidden="true" title="刷新" @click="handleRefreshTree" />
+><EpSetUp /></el-icon>
+              <el-icon class="ep-icon-refresh section-title__icon section-title__icon--action" aria-hidden="true" title="刷新" @click="handleRefreshTree"><EpRefresh /></el-icon>
             </div>
           </div>
           <div class="tree-list">
             <div v-if="treeLoadError" class="tree-error" role="alert">
-              <i class="el-icon-warning-outline tree-error__icon" aria-hidden="true"></i>
+              <el-icon class="ep-icon-warning-outline tree-error__icon" aria-hidden="true"><EpWarning /></el-icon>
               <p>{{ treeLoadError }}</p>
               <el-button size="small" type="primary" @click="retryTreeLoad">重新加载</el-button>
             </div>
@@ -47,22 +47,22 @@
             >
               <template #default="{ node, data }">
                 <span class="tree-node">
-                  <i class="el-icon-folder tree-node__icon" aria-hidden="true"></i>
+                  <el-icon class="ep-icon-folder tree-node__icon" aria-hidden="true"><EpFolder /></el-icon>
                   <span class="tree-node__label" :title="node.label">{{ `${node.label}` }}</span>
                   <span class="tree-node__actions" @click.stop>
-                    <i
-                      class="el-icon-connection tree-node__action"
+                    <el-icon
+                      class="ep-icon-connection tree-node__action"
                       title="关联步骤"
                       v-permission="'GLBZ'"
                       @click="handleTreeNodeLink(node, data)"
-                    ></i>
-                    <i class="el-icon-edit tree-node__action" title="编辑方案" v-permission="'EDIT'" @click="handleTreeNodeEdit(node, data)"></i>
-                    <i
-                      class="el-icon-delete tree-node__action tree-node__action--danger"
+><EpConnection /></el-icon>
+                    <el-icon class="ep-icon-edit tree-node__action" title="编辑方案" v-permission="'EDIT'" @click="handleTreeNodeEdit(node, data)"><EpEdit /></el-icon>
+                    <el-icon
+                      class="ep-icon-delete tree-node__action tree-node__action--danger"
                       v-permission="'DELETE'"
                       title="删除方案"
                       @click="handleTreeNodeDelete(node, data)"
-                    ></i>
+><EpDelete /></el-icon>
                   </span>
                 </span>
               </template>
@@ -78,7 +78,7 @@
               <div class="detail-header__button">
                 <div class="detail-header__meta">
                   <div class="section-title">
-                    <i class="el-icon-document section-title__icon" aria-hidden="true"></i>
+                    <el-icon class="ep-icon-document section-title__icon" aria-hidden="true"><EpDocument /></el-icon>
                     步骤列表
                   </div>
                   <span v-if="currentNodeLabel" class="current-node-tag" :title="currentNodeLabel">{{ currentNodeLabel }}</span>
@@ -93,7 +93,7 @@
                   @keyup.enter="handleSearch"
                 >
                   <template #append>
-                    <i class="el-icon-search" @click="handleSearch" style="color: var(--color-primary); cursor: pointer"></i>
+                    <el-icon class="ep-icon-search" @click="handleSearch" style="color: var(--color-primary); cursor: pointer"><EpSearch /></el-icon>
                   </template>
                 </el-input>
               </div>
@@ -127,6 +127,20 @@
 </template>
 
 <script setup lang="ts">
+import {
+  Connection as EpConnection,
+  Delete as EpDelete,
+  Document as EpDocument,
+  Edit as EpEdit,
+  Folder as EpFolder,
+  FolderOpened as EpFolderOpened,
+  Plus as EpPlus,
+  Refresh as EpRefresh,
+  Search as EpSearch,
+  SetUp as EpSetUp,
+  Warning as EpWarning
+} from '@element-plus/icons-vue'
+
 defineOptions({ name: "/xmInfo/stageConfig/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, onBeforeUnmount, onActivated, ref, nextTick, defineAsyncComponent, markRaw } from 'vue'

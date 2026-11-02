@@ -3,7 +3,7 @@
   <div class="container" v-loading="projectGridOptions.loading" v-if="isShowPage">
     <div class="operation">
       <el-dropdown placement="bottom" style="margin: 0 10px">
-        <el-button size="small" plain type="primary">项目管理<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-button size="small" plain type="primary">项目管理<el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon></el-button>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item v-permission="'ADD'" @click="handleBtn('ADD', '新增')">新 增</el-dropdown-item>
@@ -16,7 +16,7 @@
         </template>
       </el-dropdown>
       <el-dropdown placement="bottom" style="margin: 0 10px">
-        <el-button size="small" plain type="primary">在线测算<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-button size="small" plain type="primary">在线测算<el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon></el-button>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item v-permission="'ZXCS'" @click="handleZxcs('1', 'EDIT')"> 定额测算 </el-dropdown-item>
@@ -25,7 +25,7 @@
         </template>
       </el-dropdown>
       <el-dropdown placement="bottom" style="margin: 0 10px">
-        <el-button size="small" v-permission="'CSCX'" plain type="primary">测算查询<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-button size="small" v-permission="'CSCX'" plain type="primary">测算查询<el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon></el-button>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item v-permission="'JBXX'" @click="handleBtn('VIEW', '查看')">基本信息</el-dropdown-item>
@@ -138,6 +138,8 @@
 </template>
 
 <script setup lang="tsx">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/service/xmcs/index" })
 import { nextTick, onMounted, reactive, ref, watch } from 'vue'
 import {

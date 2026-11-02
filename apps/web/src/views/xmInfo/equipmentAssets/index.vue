@@ -63,7 +63,7 @@
             </el-tabs>
           </template>
           <template #operation="{ row }">
-            <el-button class="row-edit-btn" type="text" size="small" title="编辑资产" @click="openEdit([row])"> 编 辑 </el-button>
+            <el-button class="row-edit-btn" type="primary" link size="small" title="编辑资产" @click="openEdit([row])"> 编 辑 </el-button>
           </template>
         </RangeVxeTable>
       </div>

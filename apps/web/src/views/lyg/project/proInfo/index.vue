@@ -26,8 +26,8 @@
           <div style="margin-left: auto">
             <el-button @click="showSourceRow = !showSourceRow" size="small" :type="showSourceRow ? 'primary' : 'default'">字段来源</el-button>
             <el-radio-group v-model="amountUnit" size="small" style="margin-left: 12px">
-              <el-radio-button label="yuan">元</el-radio-button>
-              <el-radio-button label="wan">万元</el-radio-button>
+              <el-radio-button value="yuan">元</el-radio-button>
+              <el-radio-button value="wan">万元</el-radio-button>
             </el-radio-group>
           </div>
         </div>

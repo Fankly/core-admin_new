@@ -19,22 +19,22 @@
         <div class="form-body">
           <div class="form-title">
             <div class="upload-main" v-if="!modalProps.isView">
-              <vxe-button status="primary" icon="el-icon-document" @click="handleSave" class="close-btn pulse"> 保存 </vxe-button>
-              <vxe-button status="primary" icon="el-icon-upload" @click="handleUploadClick" class="upload-btn pulse"> 附件上传 </vxe-button>
+              <vxe-button status="primary" icon="vxe-icon-file" @click="handleSave" class="close-btn pulse"> 保存 </vxe-button>
+              <vxe-button status="primary" icon="vxe-icon-upload" @click="handleUploadClick" class="upload-btn pulse"> 附件上传 </vxe-button>
               <input type="file" ref="fileInput" style="display: none" :accept="acceptedFileTypes" @change="handleFileChange" />
-              <vxe-button type="button" icon="el-icon-close" @click="closeHandle" class="close-btn pulse">关闭</vxe-button>
+              <vxe-button type="button" icon="vxe-icon-close" @click="closeHandle" class="close-btn pulse">关闭</vxe-button>
             </div>
           </div>
         </div>
       </div>
       <div class="form-card">
         <div class="form-item">
-          <i class="el-icon-tickets form-icon"></i>
+          <el-icon class="ep-icon-tickets form-icon"><EpTickets /></el-icon>
           <span class="label">{{ modalProps.inputText }}：</span>
           <vxe-input maxlength="127" v-model="wh" :placeholder="'请输入' + modalProps.inputText" class="approval-input"></vxe-input>
         </div>
         <div class="form-item" v-if="modalProps.selectText">
-          <i class="el-icon-tickets form-icon"></i>
+          <el-icon class="ep-icon-tickets form-icon"><EpTickets /></el-icon>
           <span class="label">{{ modalProps.selectText }}：</span>
           <el-select v-model="nd" :placeholder="'请选择' + modalProps.selectText" class="approval-input">
             <el-option v-for="item in selectList" :key="item.code" :value="item.code" :label="item.name"></el-option>
@@ -44,7 +44,7 @@
       <div class="table-container">
         <div class="table-header">
           <div class="header-left">
-            <i class="el-icon-document-copy"></i>
+            <el-icon class="ep-icon-document-copy"><EpDocumentCopy /></el-icon>
             <span>已上传文件列表</span>
           </div>
           <div class="header-right">
@@ -55,7 +55,7 @@
           <transition-group name="content-switch" mode="out-in">
             <div v-if="fileList.length === 0" key="empty" class="empty-container">
               <div class="empty-placeholder">
-                <i class="el-icon-upload empty-icon"></i>
+                <el-icon class="ep-icon-upload empty-icon"><EpUpload /></el-icon>
                 <p>暂无文件,请点击上传按钮添加文件</p>
               </div>
             </div>
@@ -76,7 +76,7 @@
                 :loading="tableLoading"
                 class="file-table"
                 :row-class-name="rowClassName"
-                :loading-config="{ icon: 'el-icon-loading', text: '正在加载文件...' }"
+                :loading-config="{ icon: 'vxe-icon-spinner roll', text: '正在加载文件...' }"
               >
                 <vxe-column align="center" type="seq" width="60" title="序号"></vxe-column>
                 <vxe-column align="center" field="uuid" width="60" title="uuid" :visible="false"></vxe-column>
@@ -84,7 +84,7 @@
                   <template #default="{ row }">
                     <div class="file-name">
                       <i class="file-icon" :class="getFileIcon(row['name'])"></i>
-                      <el-button type="text" @click="handleDownload(row)">{{ row['name'] }}</el-button>
+                      <el-button type="primary" link @click="handleDownload(row)">{{ row['name'] }}</el-button>
                     </div>
                   </template>
                 </vxe-column>
@@ -98,6 +98,8 @@
 </template>
 
 <script lang="ts">
+import { DocumentCopy as EpDocumentCopy, Tickets as EpTickets, Upload as EpUpload } from '@element-plus/icons-vue'
+
 import { computed, defineComponent, ref } from 'vue'
 import { VXETable, VxeTableInstance } from 'vxe-table'
 import { ElMessage } from 'element-plus'
@@ -380,18 +382,18 @@ export default defineComponent({
     const getFileIcon = (fileName: any) => {
       const extension = fileName.split('.').pop().toLowerCase()
       const iconMap: any = {
-        pdf: 'el-icon-document-copy',
-        doc: 'el-icon-document',
-        docx: 'el-icon-document',
-        xls: 'el-icon-tickets',
-        xlsx: 'el-icon-tickets',
-        txt: 'el-icon-document',
-        jpg: 'el-icon-picture',
-        jpeg: 'el-icon-picture',
-        png: 'el-icon-picture',
-        gif: 'el-icon-picture'
+        pdf: 'vxe-icon-file-pdf',
+        doc: 'vxe-icon-file',
+        docx: 'vxe-icon-file',
+        xls: 'vxe-icon-file-excel',
+        xlsx: 'vxe-icon-file-excel',
+        txt: 'vxe-icon-file',
+        jpg: 'vxe-icon-file-image',
+        jpeg: 'vxe-icon-file-image',
+        png: 'vxe-icon-file-image',
+        gif: 'vxe-icon-file-image'
       }
-      return iconMap[extension] || 'el-icon-document'
+      return iconMap[extension] || 'vxe-icon-file'
     }
     const rowClassName = ({ row }: any) => {
       return row.isNew ? 'row-new' : ''
@@ -454,6 +456,9 @@ export default defineComponent({
     })
 
     return {
+      EpDocumentCopy,
+      EpTickets,
+      EpUpload,
       tableRef,
       selectList,
       handleSave,

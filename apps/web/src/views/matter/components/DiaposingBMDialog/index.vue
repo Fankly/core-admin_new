@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-loading="loading" custom-class="diaposing-bm-dialog" width="60%" top="10px" @open="handleOpenPage" :close-on-press-escape="false" :close-on-click-modal="false" :destroy-on-close="true" :show-close="true" v-model="isShowPage" :title="pageTitle" @close="handleClosePage">
+  <el-dialog v-loading="loading" class="diaposing-bm-dialog" width="60%" top="10px" @open="handleOpenPage" :close-on-press-escape="false" :close-on-click-modal="false" :destroy-on-close="true" :show-close="true" v-model="isShowPage" :title="pageTitle" @close="handleClosePage">
     <vxe-table 
       ref="tableRef"
       :edit-config="{ trigger: 'click', mode: 'cell' }"
@@ -24,7 +24,7 @@
       <vxe-column align="right" header-align="center" field="wxhje" title="事项未消耗金额（万元）"></vxe-column>
       <vxe-column align="center" header-align="center" field="zdjxcs" title="自动建项次数"></vxe-column>
     </vxe-table>
-    <template #title>
+    <template #header>
       <div class="header-operation">
         <el-button v-if="operationFlag === 'EDIT' && isShowButton" type="primary" plain @click="autoBuildHandle">自动建项 </el-button>
         <span class="el-dialog__title" v-else>{{ pageTitle }}</span>

@@ -16,7 +16,7 @@
       <el-form :model="form" label-width="100px" label-position="right" class="ai-manual-review__form review-form">
         <el-form-item class="review-opinion-item" label="评审意见：" required>
           <el-radio-group v-model="form.reviewOpinion" :disabled="submitting || isViewMode">
-            <el-radio v-for="item in opinionOptions" :key="item.code" :label="item.code">
+            <el-radio v-for="item in opinionOptions" :key="item.code" :value="item.code">
               {{ item.name }}
             </el-radio>
           </el-radio-group>

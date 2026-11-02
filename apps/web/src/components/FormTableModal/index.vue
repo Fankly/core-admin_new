@@ -145,7 +145,7 @@
                     :disabled="isViewMode || field.disabled"
                     @change="handleFieldChange(field, true)"
                   >
-                    <el-radio v-for="option in field.options" :key="option.value || option.code" :label="option.value || option.code">
+                    <el-radio v-for="option in field.options" :key="option.value || option.code" :value="option.value || option.code">
                       {{ option.label || option.name }}
                     </el-radio>
                   </el-radio-group>
@@ -157,7 +157,7 @@
                     :disabled="isViewMode || field.disabled"
                     @change="handleFieldChange(field, true)"
                   >
-                    <el-checkbox v-for="option in field.options" :key="option.value || option.code" :label="option.value || option.code">
+                    <el-checkbox v-for="option in field.options" :key="option.value || option.code" :value="option.value || option.code">
                       {{ option.label || option.name }}
                     </el-checkbox>
                   </el-checkbox-group>

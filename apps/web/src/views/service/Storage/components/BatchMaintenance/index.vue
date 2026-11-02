@@ -18,7 +18,7 @@
           <div class="form-row">
             <div class="form-group">
               <div class="form-item">
-                <i class="el-icon-tickets form-icon"></i>
+                <el-icon class="ep-icon-tickets form-icon"><EpTickets /></el-icon>
                 <span class="label">{{ inputText }}：</span>
                 <vxe-input maxlength="127" v-model="approvalNumber" :placeholder="'请输入' + inputText" class="approval-input"></vxe-input>
               </div>
@@ -26,7 +26,7 @@
             <div class="upload-main">
               <vxe-button
                 status="primary"
-                icon="el-icon-upload"
+                icon="vxe-icon-upload"
                 :disabled="loading || tableLoading || submitLoading"
                 @click="handleUploadClick"
                 class="upload-btn pulse"
@@ -39,19 +39,19 @@
           <div class="form-row" v-if="hasFileRestrictions">
             <div class="upload-info">
               <div class="info-header">
-                <i class="el-icon-info"></i>
+                <el-icon class="ep-icon-info"><EpInfoFilled /></el-icon>
                 <span>上传要求</span>
               </div>
               <div class="info-content">
                 <div v-if="allowedFileTypesDisplay" class="restriction-item">
-                  <i class="el-icon-document restriction-icon"></i>
+                  <el-icon class="ep-icon-document restriction-icon"><EpDocument /></el-icon>
                   <span
                     >支持的文件类型:
                     <span class="highlight">{{ allowedFileTypesDisplay }} </span>
                   </span>
                 </div>
                 <div v-if="maxFileSizeDisplay" class="restriction-item">
-                  <i class="el-icon-warning-outline restriction-icon"></i>
+                  <el-icon class="ep-icon-warning-outline restriction-icon"><EpWarning /></el-icon>
                   <span
                     >单个文件大小限制:
                     <span class="highlight">{{ maxFileSizeDisplay }}</span>
@@ -65,7 +65,7 @@
       <div class="table-container">
         <div class="table-header">
           <div class="header-left">
-            <i class="el-icon-document-copy"></i>
+            <el-icon class="ep-icon-document-copy"><EpDocumentCopy /></el-icon>
             <span>已上传文件列表</span>
           </div>
           <div class="header-right">
@@ -76,7 +76,7 @@
           <transition-group name="content-switch" mode="out-in">
             <div v-if="fileList.length === 0" key="empty" class="empty-container">
               <div class="empty-placeholder">
-                <i class="el-icon-upload empty-icon"></i>
+                <el-icon class="ep-icon-upload empty-icon"><EpUpload /></el-icon>
                 <p>暂无文件,请点击上传按钮添加文件</p>
               </div>
             </div>
@@ -93,7 +93,7 @@
                 :loading="tableLoading"
                 class="file-table"
                 :row-class-name="rowClassName"
-                :loading-config="{ icon: 'el-icon-loading', text: '正在加载文件...' }"
+                :loading-config="{ icon: 'vxe-icon-spinner roll', text: '正在加载文件...' }"
               >
                 <vxe-column align="center" type="seq" width="60" title="序号"></vxe-column>
                 <vxe-column field="name" title="文件名称" min-width="240">
@@ -106,7 +106,7 @@
                 </vxe-column>
                 <vxe-column align="center" title="操作" width="120">
                   <template #default="{ row }">
-                    <vxe-button status="danger" size="small" icon="el-icon-delete" @click="handleDelete(row)" class="delete-btn">删除</vxe-button>
+                    <vxe-button status="danger" size="small" icon="vxe-icon-delete" @click="handleDelete(row)" class="delete-btn">删除</vxe-button>
                   </template>
                 </vxe-column>
               </vxe-table>
@@ -119,7 +119,7 @@
           <vxe-button
             type="button"
             status="primary"
-            icon="el-icon-check"
+            icon="vxe-icon-check"
             @click="handleSubmit"
             :disabled="loading || tableLoading"
             :loading="submitLoading"
@@ -127,7 +127,7 @@
           >
             保存
           </vxe-button>
-          <vxe-button type="button" icon="el-icon-close" @click="modalVisible = false" class="close-btn">关闭</vxe-button>
+          <vxe-button type="button" icon="vxe-icon-close" @click="modalVisible = false" class="close-btn">关闭</vxe-button>
         </div>
       </transition>
     </div>
@@ -135,6 +135,15 @@
 </template>
 
 <script lang="ts">
+import {
+  Document as EpDocument,
+  DocumentCopy as EpDocumentCopy,
+  InfoFilled as EpInfoFilled,
+  Tickets as EpTickets,
+  Upload as EpUpload,
+  Warning as EpWarning
+} from '@element-plus/icons-vue'
+
 import { computed, defineComponent, PropType, ref, watch } from 'vue'
 import { VXETable } from 'vxe-table'
 import baseService from '@/service/baseService'
@@ -476,18 +485,18 @@ export default defineComponent({
     const getFileIcon = (fileName: string) => {
       const extension = fileName.includes('.') ? fileName.split('.').pop()?.toLowerCase() : ''
       const iconMap: Record<string, string> = {
-        pdf: 'el-icon-document-copy',
-        doc: 'el-icon-document',
-        docx: 'el-icon-document',
-        xls: 'el-icon-tickets',
-        xlsx: 'el-icon-tickets',
-        txt: 'el-icon-document',
-        jpg: 'el-icon-picture',
-        jpeg: 'el-icon-picture',
-        png: 'el-icon-picture',
-        gif: 'el-icon-picture'
+        pdf: 'vxe-icon-file-pdf',
+        doc: 'vxe-icon-file',
+        docx: 'vxe-icon-file',
+        xls: 'vxe-icon-file-excel',
+        xlsx: 'vxe-icon-file-excel',
+        txt: 'vxe-icon-file',
+        jpg: 'vxe-icon-file-image',
+        jpeg: 'vxe-icon-file-image',
+        png: 'vxe-icon-file-image',
+        gif: 'vxe-icon-file-image'
       }
-      return iconMap[extension || ''] || 'el-icon-document'
+      return iconMap[extension || ''] || 'vxe-icon-file'
     }
 
     const rowClassName = ({ row }: { row: FileRecord }) => {
@@ -601,6 +610,12 @@ export default defineComponent({
     })
 
     return {
+      EpDocument,
+      EpDocumentCopy,
+      EpInfoFilled,
+      EpTickets,
+      EpUpload,
+      EpWarning,
       modalVisible,
       approvalNumber,
       fileInput,

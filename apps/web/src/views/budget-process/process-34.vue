@@ -175,7 +175,7 @@
     >
     </el-pagination>
 
-    <el-dialog v-model="addDia" fullscreen="true" custom-class="attribute" @opened="openHeight" @closed="closeList" :title="title" width="60%">
+    <el-dialog v-model="addDia" fullscreen="true" class="attribute" @opened="openHeight" @closed="closeList" :title="title" width="60%">
       <div class="searchBox">
         <el-form :inline="true" label-width="110px" label-position="left">
           <el-row>
@@ -260,7 +260,7 @@
         <el-button @click="addDia = false">关闭</el-button>
       </div>
     </el-dialog>
-    <el-dialog v-model="cblrDia" title="储备录入" fullscreen="true" width="100%" custom-class="technological">
+    <el-dialog v-model="cblrDia" title="储备录入" fullscreen="true" width="100%" class="technological">
       <div class="lcBtn">
         <div class="btnBox" v-if="buttonState == '基本信息'" @click="changebtn('基本信息')">基本信息</div>
         <div class="btnBoxTwo" v-else @click="changebtn('基本信息')">基本信息</div>

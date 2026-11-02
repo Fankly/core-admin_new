@@ -4,14 +4,14 @@
       <el-collapse-item name="estimate" title="调度清单">
         <template #title>
           <div>
-            <i class="el-icon-s-grid elIconFile"></i>
+            <el-icon class="ep-icon-s-grid elIconFile"><EpGrid /></el-icon>
             <span>调度清单</span>
           </div>
         </template>
         <div class="amount">
           <el-tooltip content="刷新" placement="top" effect="light">
             <span class="toolbar-action-icon" style="cursor: pointer; font-size: 18px" @click="refresh">
-              <i class="el-icon-refresh"></i>
+              <el-icon class="ep-icon-refresh"><EpRefresh /></el-icon>
             </span>
           </el-tooltip>
         </div>
@@ -51,6 +51,8 @@
 </template>
 
 <script setup lang="ts">
+import { Grid as EpGrid, Refresh as EpRefresh } from '@element-plus/icons-vue'
+
 defineOptions({ name: "AssetDdqdDetails" })
 import { onMounted, ref, nextTick, watch, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'

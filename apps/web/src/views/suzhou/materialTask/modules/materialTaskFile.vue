@@ -13,7 +13,7 @@
   >
     <div class="material-task-log">
       <div class="operation">
-        <vxe-button size="small" status="primary" icon="el-icon-upload" @click="uploadHandle" class="upload-btn pulse"> 文件上传 </vxe-button>
+        <vxe-button size="small" status="primary" icon="vxe-icon-upload" @click="uploadHandle" class="upload-btn pulse"> 文件上传 </vxe-button>
       </div>
       <div class="table">
         <vxe-table ref="vxeTableRef" header-align="center" align="center" border stripe resizable show-overflow height="400px" :data="fileList">
@@ -21,7 +21,7 @@
           <vxe-column field="fileName" title="附件名称" min-width="200">
             <template #default="{ row }">
               <div class="file-name">
-                <i class="el-icon-document"></i>
+                <el-icon class="ep-icon-document"><EpDocument /></el-icon>
                 <span>{{ row.fileName }}</span>
               </div>
             </template>
@@ -31,8 +31,8 @@
           <vxe-column title="操作" width="180">
             <template #default="{ row }">
               <div class="file-actions">
-                <el-button type="text" @click="handleDownload(row)"> <i class="el-icon-download"></i> 下载 </el-button>
-                <el-button type="text" @click="handleDelete(row)"> <i class="el-icon-delete"></i> 删除 </el-button>
+                <el-button type="primary" link @click="handleDownload(row)"> <el-icon class="ep-icon-download"><EpDownload /></el-icon> 下载 </el-button>
+                <el-button type="primary" link @click="handleDelete(row)"> <el-icon class="ep-icon-delete"><EpDelete /></el-icon> 删除 </el-button>
               </div>
             </template>
           </vxe-column>
@@ -43,6 +43,8 @@
 </template>
 
 <script setup lang="ts">
+import { Delete as EpDelete, Document as EpDocument, Download as EpDownload } from '@element-plus/icons-vue'
+
 defineOptions({ name: "materialTaskFile" })
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'

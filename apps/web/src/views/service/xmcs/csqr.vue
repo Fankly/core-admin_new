@@ -3,7 +3,7 @@
   <div class="container" v-loading="loading" v-if="isShowPage">
     <div class="operation">
       <el-dropdown placement="bottom" style="margin: 0 10px">
-        <el-button size="small" v-permission="'PERSON'" plain type="primary">审核人员设置<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-button size="small" v-permission="'PERSON'" plain type="primary">审核人员设置<el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon></el-button>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item v-permission="'PERSONGL'" @click="handlePerson">审核人员管理</el-dropdown-item>
@@ -51,6 +51,8 @@
 </template>
 
 <script setup lang="tsx">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/service/xmcs/csqr" })
 import { onMounted, ref } from 'vue'
 import { getZxcsSpPage, exportZxcsSp, bindStaffSave } from '@/api/service/xmcs/index'

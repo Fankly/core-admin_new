@@ -16,7 +16,7 @@
             <el-form :model="suppliesForm" :rules="formRules" ref="suppliesFormRef">
               <el-form-item prop="cglb" label="采购类别：">
                 <el-radio-group v-model="suppliesForm.cglb" @change="getCglbDataHandle">
-                  <el-radio :key="item.code" v-for="item in props.purchaseData.wzlb" :label="item.code">{{ item.name }} </el-radio>
+                  <el-radio :key="item.code" v-for="item in props.purchaseData.wzlb" :value="item.code">{{ item.name }} </el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-form>
@@ -97,7 +97,7 @@
             <el-form :model="serviceForm" :rules="formRules" ref="serviceFormRef">
               <el-form-item prop="cglb" label="采购类别：">
                 <el-radio-group v-model="serviceForm.cglb" @change="getCglbSerDataHandle">
-                  <el-radio :key="item.code" v-for="item in props.purchaseData.fwlb" :label="item.code">{{ item.name }} </el-radio>
+                  <el-radio :key="item.code" v-for="item in props.purchaseData.fwlb" :value="item.code">{{ item.name }} </el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-form>

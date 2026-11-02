@@ -7,11 +7,11 @@
       <div class="right">
         <div class="tool-button">
           <el-tooltip content="列设置" placement="top">
-            <span @click="openColSetting" style="cursor: pointer; font-size: 18px" class="el-icon-s-operation"></span>
+            <el-icon @click="openColSetting" style="cursor: pointer; font-size: 18px" class="ep-icon-s-operation"><EpOperation /></el-icon>
           </el-tooltip>
           <el-tooltip content="隐藏/展示查询" placement="top">
             <span style="cursor: pointer; font-size: 18px; margin: 0 10px" @click="handleIsShowSearch">
-              <i :class="isShowSearch ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
+              <el-icon :class="isShowSearch ? 'ep-icon-arrow-down' : 'ep-icon-arrow-up'"><component :is="isShowSearch ? EpArrowDown : EpArrowUp" /></el-icon>
             </span>
           </el-tooltip>
           <ToolbarButtons :tool-button="['help']" @help-click="getHelpMessageHandle" />
@@ -50,6 +50,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Operation as EpOperation } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/service/budget/budgeting/index" })
 import BudgetingToolbar from '@/views/service/budget/budgeting/modules/BudgetingToolbar.vue'
 import BudgetingTree from '@/views/service/budget/budgeting/modules/BudgetingTree.vue'

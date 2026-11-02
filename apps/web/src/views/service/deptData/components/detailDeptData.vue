@@ -257,7 +257,7 @@ const gridOptions = reactive<any>({
   loading: false,
   toolbarConfig: { custom: true },
   loadingConfig: {
-    icon: 'el-icon-loading',
+    icon: 'vxe-icon-spinner roll',
     text: '正在加载中...'
   },
   headerAlign: 'center',

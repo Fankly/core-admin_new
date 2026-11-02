@@ -6,7 +6,7 @@
           <el-dropdown>
             <el-button v-show="permissions.includes(item.permission)" type="primary">
               {{ item.label }}
-              <i v-if="item.icon" :class="item.icon" />
+              <el-icon v-if="item.icon" class="el-icon--right"><component :is="item.icon" /></el-icon>
             </el-button>
             <template #dropdown>
               <el-dropdown-menu v-for="dropdown in item.children" :key="dropdown.value">

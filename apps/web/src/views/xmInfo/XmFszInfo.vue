@@ -13,11 +13,11 @@
             <div class="searchBox">
               <div class="tool-button">
                 <el-tooltip content="列设置" placement="top" style="margin-right: 10px">
-                  <span @click="openColSetting" style="cursor: pointer" class="el-icon-s-operation"></span>
+                  <el-icon @click="openColSetting" style="cursor: pointer" class="ep-icon-s-operation"><EpOperation /></el-icon>
                 </el-tooltip>
                 <el-tooltip content="隐藏/展示查询" placement="top" style="margin-right: 10px">
                   <span @click="isShowSearchHandle">
-                    <i :class="isShowSearch ? 'el-icon-arrow-down' : 'el-icon-arrow-up'" style="cursor: pointer"></i>
+                    <el-icon :class="isShowSearch ? 'ep-icon-arrow-down' : 'ep-icon-arrow-up'" style="cursor: pointer"><component :is="isShowSearch ? EpArrowDown : EpArrowUp" /></el-icon>
                   </span>
                 </el-tooltip>
                 <ToolbarButtons :tool-button="['help']" @help-click="getHelpMessageHandle" />
@@ -168,6 +168,8 @@ export default {
 }
 </script>
 <script lang="ts" setup>
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Operation as EpOperation } from '@element-plus/icons-vue'
+
 // 是否显示搜索模块
 import { onMounted, reactive, ref, watch } from 'vue'
 import ColSetting from '@/components/ProTable/components/ColSetting.vue'

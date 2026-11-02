@@ -9,7 +9,7 @@
         <div class="searchBox">
           <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
             <span class="el-dropdown-link">
-              <el-icon class="el-icon-s-operation">
+              <el-icon class="ep-icon-s-operation">
                 <arrow-down />
               </el-icon>
             </span>
@@ -24,10 +24,10 @@
             </template>
           </el-dropdown>
           <span class="searchShow" v-if="searchShow === false" @click="showSearch(true)">
-            <i class="el-icon-arrow-down"></i>
+            <el-icon class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
           </span>
           <span class="searchShow" @click="showSearch(false)" v-else>
-            <i class="el-icon-arrow-up"></i>
+            <el-icon class="ep-icon-arrow-up"><EpArrowUp /></el-icon>
           </span>
         </div>
       </div>
@@ -93,7 +93,7 @@
           <el-row class="rowStyle">
             <el-col :span="6">
               <el-form-item label="项目类型：" class="cacelDel">
-                <el-select v-model="searchData.XmlxIDTreeValue" :popper-append-to-body="false" multiple placeholder="请选择" collapse-tags>
+                <el-select v-model="searchData.XmlxIDTreeValue" :teleported="false" multiple placeholder="请选择" collapse-tags>
                   <el-option :value="searchData.XMLXID" class="setstyle" disabled>
                     <el-tree
                       :data="searchCombo.XMLXID"
@@ -195,7 +195,7 @@
           <el-row class="rowStyle">
             <el-col :span="6">
               <el-form-item label="一二级单位：" class="cacelDel">
-                <el-select v-model="searchData.DWID" :popper-append-to-body="false" multiple placeholder="请选择" collapse-tags>
+                <el-select v-model="searchData.DWID" :teleported="false" multiple placeholder="请选择" collapse-tags>
                   <el-option :value="searchData.DWIDTree" class="setstyle" disabled>
                     <el-tree
                       :data="searchCombo.DWList"
@@ -288,15 +288,15 @@
               <el-form-item label="查询类型：">
                 <el-radio-group v-model="searchData.searchType">
                   <template v-for="item in searchCombo.searchType" :key="item.value">
-                    <el-radio size="small" :label="item.value">{{ item.label }}</el-radio>
+                    <el-radio size="small" :value="item.value">{{ item.label }}</el-radio>
                   </template>
                 </el-radio-group>
               </el-form-item>
             </el-col>
             <el-col :span="6" style="text-align: right; font-size: 12px">
-              <el-button size="small" v-debounce="[loadData]" type="primary" icon="el-icon-search" style="margin-left: 90px"> 查询 </el-button>
-              <el-button size="small" icon="el-icon-refresh-right" @click="reset">重 置</el-button>
-              <el-button size="small" v-debounce="[exportData]" type="warning" icon="el-icon-download">导 出</el-button>
+              <el-button size="small" v-debounce="[loadData]" type="primary" :icon="EpSearch" style="margin-left: 90px"> 查询 </el-button>
+              <el-button size="small" :icon="EpRefreshRight" @click="reset">重 置</el-button>
+              <el-button size="small" v-debounce="[exportData]" type="warning" :icon="EpDownload">导 出</el-button>
             </el-col>
           </el-row>
         </el-form>
@@ -381,6 +381,15 @@
 </template>
 
 <script>
+import {
+  ArrowDown as EpArrowDown,
+  ArrowUp as EpArrowUp,
+  Download as EpDownload,
+  RefreshRight as EpRefreshRight,
+  Search as EpSearch
+} from '@element-plus/icons-vue'
+import { markRaw as markElementIconRaw } from 'vue'
+
 import { defineComponent, reactive } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
@@ -397,6 +406,11 @@ export default defineComponent({
   setup() {
     const store = useStore()
     return reactive({
+      EpArrowDown: markElementIconRaw(EpArrowDown),
+      EpArrowUp: markElementIconRaw(EpArrowUp),
+      EpDownload: markElementIconRaw(EpDownload),
+      EpRefreshRight: markElementIconRaw(EpRefreshRight),
+      EpSearch: markElementIconRaw(EpSearch),
       store,
       show_Ljwcl: true,
       show_Yswcl: true,

@@ -7,7 +7,7 @@
     </div>
     <div v-if="listError" class="target-budget-attachments__error" role="alert">
       <span>{{ listError }}</span>
-      <el-button v-if="versionId" type="text" size="small" :disabled="busy" @click="loadAttachments">重新加载</el-button>
+      <el-button v-if="versionId" type="primary" link size="small" :disabled="busy" @click="loadAttachments">重新加载</el-button>
     </div>
     <el-table v-if="attachments.length" :data="attachments" border size="small" :max-height="176" row-key="uuid">
       <el-table-column type="index" label="序号" width="60" align="center" />
@@ -15,9 +15,9 @@
       <el-table-column prop="uploadUserName" label="上传人" width="100" align="center" show-overflow-tooltip />
       <el-table-column label="操作" :width="readonly ? 120 : 180" align="center" fixed="right">
         <template #default="{ row }">
-          <el-button type="text" size="small" :disabled="busy" @click="handlePreview(row)">查 看</el-button>
-          <el-button type="text" size="small" :disabled="busy" @click="handleDownload(row)">下 载</el-button>
-          <el-button v-if="!readonly" class="target-budget-attachments__delete" type="text" size="small" :disabled="busy" @click="handleDelete(row)"
+          <el-button type="primary" link size="small" :disabled="busy" @click="handlePreview(row)">查 看</el-button>
+          <el-button type="primary" link size="small" :disabled="busy" @click="handleDownload(row)">下 载</el-button>
+          <el-button v-if="!readonly" class="target-budget-attachments__delete" type="primary" link size="small" :disabled="busy" @click="handleDelete(row)"
             >删 除</el-button
           >
         </template>

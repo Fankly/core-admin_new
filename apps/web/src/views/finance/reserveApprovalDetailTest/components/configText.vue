@@ -8,7 +8,7 @@
     >
       <div class="configText__view--item__label">{{ item.label }}：</div>
       <span v-if="item.isCopy" style="cursor: pointer; margin-right: 5px" @click.stop="() => $utils.textToCopy(getText(item))">
-        <i style="color: #51afeb" class="el-icon-document-copy" />
+        <el-icon style="color: #51afeb" class="ep-icon-document-copy"><EpDocumentCopy /></el-icon>
       </span>
       <div :class="`configText__view--item__text ${item.danger && 'danger--color'}`">
         <el-tag
@@ -24,9 +24,15 @@
     </div>
   </div>
 </template>
+
 <script>
+import { DocumentCopy as EpDocumentCopy } from '@element-plus/icons-vue'
+
 import { uploadMixin } from '@/core/mixins'
 export default {
+  setup() {
+    return { EpDocumentCopy }
+  },
   components: {},
   mixins: [uploadMixin],
   props: {

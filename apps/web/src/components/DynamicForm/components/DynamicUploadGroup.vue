@@ -35,10 +35,10 @@
       <vxe-column field="name" title="附件名称" min-width="200">
         <template #default="{ row }">
           <div class="file-name">
-            <i class="el-icon-document" />
+            <el-icon class="ep-icon-document"><EpDocument /></el-icon>
             <span class="file-name__text" :title="row.name">{{ row.name }}</span>
             <span v-if="isAutoGenFile(row)" class="auto-gen-chip" title="该附件由线上预审自动生成">
-              <i class="el-icon-magic-stick" aria-hidden="true"></i>
+              <el-icon class="ep-icon-magic-stick" aria-hidden="true"><EpMagicStick /></el-icon>
               <span>自动生成</span>
             </span>
           </div>
@@ -50,8 +50,8 @@
       <vxe-column v-if="showActions" title="操作" :width="showDelete ? 180 : 100" align="center">
         <template #default="{ row }">
           <div class="file-actions">
-            <el-button v-if="showDownload" type="text" @click="handleDownload(row)"> <i class="el-icon-download"></i> 下载 </el-button>
-            <el-button v-if="showDelete" type="text" @click="handleDelete(row)"> <i class="el-icon-delete"></i> 删除 </el-button>
+            <el-button v-if="showDownload" type="primary" link @click="handleDownload(row)"> <el-icon class="ep-icon-download"><EpDownload /></el-icon> 下载 </el-button>
+            <el-button v-if="showDelete" type="primary" link @click="handleDelete(row)"> <el-icon class="ep-icon-delete"><EpDelete /></el-icon> 删除 </el-button>
           </div>
         </template>
       </vxe-column>
@@ -61,7 +61,7 @@
       <p>{{ emptyText }}</p>
     </div>
 
-    <div v-if="tip" class="upload-tip"><i class="el-icon-info-circle"></i> {{ tip }}</div>
+    <div v-if="tip" class="upload-tip"><el-icon class="ep-icon-info-circle"><EpInfoFilled /></el-icon> {{ tip }}</div>
   </div>
 
   <vxe-modal
@@ -138,10 +138,10 @@
             <vxe-column field="name" title="附件名称" min-width="260">
               <template #default="{ row }">
                 <div class="file-name">
-                  <i class="el-icon-document" />
+                  <el-icon class="ep-icon-document"><EpDocument /></el-icon>
                   <span class="file-name__text" :title="row.name">{{ row.name }}</span>
                   <span v-if="isAutoGenFile(row)" class="auto-gen-chip" title="该附件由线上预审自动生成">
-                    <i class="el-icon-magic-stick" aria-hidden="true"></i>
+                    <el-icon class="ep-icon-magic-stick" aria-hidden="true"><EpMagicStick /></el-icon>
                     <span>自动生成</span>
                   </span>
                 </div>
@@ -153,8 +153,8 @@
             <vxe-column v-if="showActions" title="操作" :width="showDelete ? 180 : 100" align="center">
               <template #default="{ row }">
                 <div class="file-actions">
-                  <el-button v-if="showDownload" type="text" @click="handleDownload(row)"> <i class="el-icon-download"></i> 下载 </el-button>
-                  <el-button v-if="showDelete" type="text" @click="handleDelete(row)"> <i class="el-icon-delete"></i> 删除 </el-button>
+                  <el-button v-if="showDownload" type="primary" link @click="handleDownload(row)"> <el-icon class="ep-icon-download"><EpDownload /></el-icon> 下载 </el-button>
+                  <el-button v-if="showDelete" type="primary" link @click="handleDelete(row)"> <el-icon class="ep-icon-delete"><EpDelete /></el-icon> 删除 </el-button>
                 </div>
               </template>
             </vxe-column>
@@ -166,6 +166,16 @@
 </template>
 
 <script lang="ts">
+import { Upload as EpUpload } from '@element-plus/icons-vue'
+import type { Component } from 'vue'
+import {
+  Delete as EpDelete,
+  Document as EpDocument,
+  Download as EpDownload,
+  InfoFilled as EpInfoFilled,
+  MagicStick as EpMagicStick
+} from '@element-plus/icons-vue'
+
 import { computed, defineComponent, PropType, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import baseService from '@/service/baseService'
@@ -257,8 +267,8 @@ export default defineComponent({
       default: '点击上传'
     },
     icon: {
-      type: String,
-      default: 'el-icon-upload'
+      type: [String, Object, Function] as PropType<string | Component>,
+      default: () => EpUpload
     },
     tableHeight: {
       type: [String, Number],
@@ -656,6 +666,11 @@ export default defineComponent({
     }
 
     return {
+      EpDelete,
+      EpDocument,
+      EpDownload,
+      EpInfoFilled,
+      EpMagicStick,
       closeHandle,
       emptyText,
       fileList,

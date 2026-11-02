@@ -59,7 +59,7 @@
       :show-close="true"
       :close-on-press-escape="false"
       :close-on-click-modal="false"
-      custom-class="adjust-dialog"
+      class="adjust-dialog"
       width="80%"
       top="80px"
       title="预算事项查询"

@@ -1,11 +1,11 @@
 <template>
   <div class="first-container">
     <div class="base-msg" v-if="!matterBaseMsg.isCity">
-      <el-button class="title-button" @click="isShowSearch = !isShowSearch" type="text">
+      <el-button class="title-button" @click="isShowSearch = !isShowSearch" type="primary" link>
         <h3 class="sub-title">
           事项基本信息
           <span>
-            <i :class="isShowSearch ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
+            <el-icon :class="isShowSearch ? 'ep-icon-arrow-down' : 'ep-icon-arrow-up'"><component :is="isShowSearch ? EpArrowDown : EpArrowUp" /></el-icon>
           </span>
         </h3>
       </el-button>
@@ -92,11 +92,11 @@
       </el-form>
     </div>
     <div class="outbound" v-if="!matterBaseMsg.isCity">
-      <el-button class="title-button" @click="isShowOutbound = !isShowOutbound" type="text">
+      <el-button class="title-button" @click="isShowOutbound = !isShowOutbound" type="primary" link>
         <h3 class="sub-title">
           事项出库信息
           <span>
-            <i :class="isShowOutbound ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
+            <el-icon :class="isShowOutbound ? 'ep-icon-arrow-down' : 'ep-icon-arrow-up'"><component :is="isShowOutbound ? EpArrowDown : EpArrowUp" /></el-icon>
           </span>
         </h3>
       </el-button>
@@ -118,11 +118,11 @@
       </div>
     </div>
     <div class="unit-msg">
-      <el-button class="title-button" @click="isShowTable = !isShowTable" type="text">
+      <el-button class="title-button" @click="isShowTable = !isShowTable" type="primary" link>
         <h3 class="sub-title">
           实施单位及费用安排
           <span>
-            <i :class="isShowTable ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"></i>
+            <el-icon :class="isShowTable ? 'ep-icon-arrow-down' : 'ep-icon-arrow-up'"><component :is="isShowTable ? EpArrowDown : EpArrowUp" /></el-icon>
           </span>
         </h3>
       </el-button>
@@ -145,6 +145,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
+
 import { getChildData } from "@/api/matter/yssxMatter";
 import { getYssxDetailByCity } from "@/api/statistics/yssxtjfx";
 import { Decimal } from "decimal.js";

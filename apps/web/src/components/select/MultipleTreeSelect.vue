@@ -193,7 +193,7 @@ defineExpose({
   position: relative;
 }
 
-.expanded.el-tree-node__expand-icon.el-icon-arrow-down {
+.el-tree-node__expand-icon.expanded {
   position: absolute;
   top: 0;
   right: 0;

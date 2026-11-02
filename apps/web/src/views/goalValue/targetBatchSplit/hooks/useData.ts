@@ -1,3 +1,5 @@
+import { ArrowDown } from '@element-plus/icons-vue'
+import { markRaw } from 'vue'
 import { reactive, ref } from 'vue'
 import { DropdownData, FormParams, Params } from '../interface'
 import { User, RowVo } from '@/views/goalValue/interface'
@@ -182,7 +184,7 @@ export const useData = (api: (params: any) => Promise<Result>) => {
   const dropdownData = ref<DropdownData[]>([
     {
       label: '版本管理',
-      icon: 'el-icon-arrow-down',
+      icon: markRaw(ArrowDown),
       value: 'version',
       permission: 'VERSION',
       children: [
@@ -215,7 +217,7 @@ export const useData = (api: (params: any) => Promise<Result>) => {
     },
     {
       label: '目标值管理',
-      icon: 'el-icon-arrow-down',
+      icon: markRaw(ArrowDown),
       value: 'targetValue"',
       permission: 'TARGETVALUE',
       children: [

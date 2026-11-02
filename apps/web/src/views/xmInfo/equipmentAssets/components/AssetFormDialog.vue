@@ -4,7 +4,7 @@
     :title="`${mode === 'add' ? '新增' : '编辑'}${config.label}`"
     width="980px"
     top="6vh"
-    custom-class="equipment-asset-dialog"
+    class="equipment-asset-dialog"
     :close-on-click-modal="false"
     :destroy-on-close="true"
   >
@@ -25,7 +25,7 @@
                   v-else-if="item.type === 'date'"
                   v-model="formData[item.prop]"
                   type="date"
-                  value-format="yyyy-MM-dd"
+                  value-format="YYYY-MM-DD"
                   :placeholder="`请选择${item.label}`"
                 />
                 <el-select v-else-if="item.type === 'boolean'" v-model="formData[item.prop]" clearable :placeholder="`请选择${item.label}`">

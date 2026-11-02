@@ -19,7 +19,7 @@
           v-for="item in list"
           :key="item.id"
           :name="item.id"
-          :label="item.id"
+          :value="item.id"
           @change="changeId(item.specialorgid, item.code, item.id, item)"
         >
           {{ item.name }}
@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import { UserFilled as EpUserFilled } from '@element-plus/icons-vue'
 import { defineComponent, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import baseService from '@/service/baseService'
@@ -149,7 +150,7 @@ export default defineComponent({
         this.resetPermissions()
         ElMessage({
           message: '无权限访问页面',
-          iconClass: 'el-icon-user-solid',
+          icon: EpUserFilled,
           customClass: 'tipsBox'
         })
         if (this.store.getters.getMenuMsg.url === '/home') {
@@ -166,7 +167,7 @@ export default defineComponent({
       if (this.specialorgid === '') {
         ElMessage({
           message: '请选择角色再确定',
-          iconClass: 'el-icon-user-solid',
+          icon: EpUserFilled,
           customClass: 'tipsBox'
         })
         return

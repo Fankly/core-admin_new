@@ -27,7 +27,7 @@
           <el-input
             v-model="leftSearchName"
             placeholder="搜索专家姓名/专业"
-            prefix-icon="el-icon-search"
+            :prefix-icon="EpSearch"
             clearable
             @input="handleLeftSearch"
             style="width: 100%"
@@ -72,10 +72,10 @@
             </div>
           </div>
           <div>
-            <el-button v-if="!modalProps.isView" plain type="primary" icon="el-icon-plus" @click="openAssignModal">新增分配任务</el-button>
-            <el-button v-if="!modalProps.isView" plain type="danger" icon="el-icon-delete" @click="handleDeletePro">删除</el-button>
+            <el-button v-if="!modalProps.isView" plain type="primary" :icon="EpPlus" @click="openAssignModal">新增分配任务</el-button>
+            <el-button v-if="!modalProps.isView" plain type="danger" :icon="EpDelete" @click="handleDeletePro">删除</el-button>
             <!-- <el-button plain type="primary" icon="el-icon-download">导出项目</el-button> -->
-            <el-button plain icon="el-icon-close" @click="closeHandle">关闭</el-button>
+            <el-button plain :icon="EpClose" @click="closeHandle">关闭</el-button>
           </div>
         </div>
 
@@ -103,7 +103,7 @@
               @change="loadRightData"
             />
           </div>
-          <el-button circle icon="el-icon-refresh" @click="loadRightData" title="刷新数据"></el-button>
+          <el-button circle :icon="EpRefresh" @click="loadRightData" title="刷新数据"></el-button>
         </div>
 
         <div class="table-flex-container">
@@ -137,6 +137,8 @@
 </template>
 
 <script setup lang="ts">
+import { Close as EpClose, Delete as EpDelete, Plus as EpPlus, Refresh as EpRefresh, Search as EpSearch } from '@element-plus/icons-vue'
+
 defineOptions({ name: "ExpertManagementModal" })
 import { ref, reactive, nextTick, defineExpose, defineEmits } from 'vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'

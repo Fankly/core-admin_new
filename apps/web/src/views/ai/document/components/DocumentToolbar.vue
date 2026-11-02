@@ -29,7 +29,7 @@
       </el-tooltip>
       <span v-if="hasPermission(EDIT_PERMISSION)" class="toolbar-dropdown">
         <el-dropdown trigger="click" :disabled="disabled" @command="handleTaskCommand">
-          <el-button type="primary" size="small" plain :disabled="disabled"> 编辑<i class="el-icon-arrow-down task-manage__icon"></i> </el-button>
+          <el-button type="primary" size="small" plain :disabled="disabled"> 编辑<el-icon class="ep-icon-arrow-down task-manage__icon"><EpArrowDown /></el-icon> </el-button>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item command="edit-task">编辑任务</el-dropdown-item>
@@ -83,6 +83,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { computed } from 'vue'
 import type { PropType } from 'vue'

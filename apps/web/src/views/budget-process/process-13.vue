@@ -8,14 +8,14 @@
         <div class="searchBox">
           <span style="margin-right: 20px">
             <span class="searchShow" v-if="searchShow == false" @click="showSearch(true)">
-              <i style="font-size: 18px" class="el-icon-arrow-down"></i>
+              <el-icon style="font-size: 18px" class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
             </span>
             <span class="searchShow" @click="showSearch(false)" v-else>
-              <i style="font-size: 18px" class="el-icon-arrow-up"></i>
+              <el-icon style="font-size: 18px" class="ep-icon-arrow-up"><EpArrowUp /></el-icon>
             </span>
           </span>
           <span class="searchShow">
-            <i style="font-size: 18px" class="el-icon-question" @click="helpHandle"></i>
+            <el-icon style="font-size: 18px" class="ep-icon-question" @click="helpHandle"><EpQuestionFilled /></el-icon>
           </span>
         </div>
       </div>
@@ -57,16 +57,16 @@
             <el-col :span="6">
               <el-form-item label="展示维度：">
                 <el-radio-group v-model="dataList.select" @change="changeCompany">
-                  <el-radio :label="0" border style="margin-right: 10px">单位</el-radio>
-                  <el-radio :label="1" border>类型</el-radio>
+                  <el-radio :value="0" border style="margin-right: 10px">单位</el-radio>
+                  <el-radio :value="1" border>类型</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
             <el-col :span="6" class="btnPostion">
               <el-form-item>
-                <el-button type="primary" icon="el-icon-search" @click="search">查 询</el-button>
-                <el-button icon="el-icon-refresh-right" @click="reset">重 置</el-button>
-                <el-button type="warning" icon="el-icon-download" @click="exportData">导 出</el-button>
+                <el-button type="primary" :icon="EpSearch" @click="search">查 询</el-button>
+                <el-button :icon="EpRefreshRight" @click="reset">重 置</el-button>
+                <el-button type="warning" :icon="EpDownload" @click="exportData">导 出</el-button>
               </el-form-item>
             </el-col>
           </el-row>
@@ -109,6 +109,16 @@
 </template>
 
 <script>
+import {
+  ArrowDown as EpArrowDown,
+  ArrowUp as EpArrowUp,
+  Download as EpDownload,
+  QuestionFilled as EpQuestionFilled,
+  RefreshRight as EpRefreshRight,
+  Search as EpSearch
+} from '@element-plus/icons-vue'
+import { markRaw as markElementIconRaw } from 'vue'
+
 import { defineComponent, reactive } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
@@ -137,6 +147,12 @@ export default defineComponent({
       showHelpMsg(url)
     }
     return reactive({
+      EpArrowDown: markElementIconRaw(EpArrowDown),
+      EpArrowUp: markElementIconRaw(EpArrowUp),
+      EpDownload: markElementIconRaw(EpDownload),
+      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+      EpRefreshRight: markElementIconRaw(EpRefreshRight),
+      EpSearch: markElementIconRaw(EpSearch),
       store,
       helpHandle,
       dataList: {

@@ -31,7 +31,7 @@
             highlight: true
           }"
           resizable
-          :loading-config="{ icon: 'el-icon-loading', text: '正在加载...' }"
+          :loading-config="{ icon: 'vxe-icon-spinner roll', text: '正在加载...' }"
           :row-config="{ height: 32 }"
           border
           stripe
@@ -140,7 +140,7 @@
           </vxe-column>
           <vxe-column headerAlign="center" align="center" :minWidth="220" field="attachName" title="变更说明附件">
             <template #default="{ row }">
-              <el-button @click="() => handleDownloadAttach(row)" type="text">{{ row['attachName'] }}</el-button>
+              <el-button @click="() => handleDownloadAttach(row)" type="primary" link>{{ row['attachName'] }}</el-button>
             </template>
           </vxe-column>
           <vxe-column headerAlign="center" align="center" :minWidth="150" field="sfztMc" title="预算释放状态"></vxe-column>

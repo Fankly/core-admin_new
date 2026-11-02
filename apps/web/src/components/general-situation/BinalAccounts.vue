@@ -17,9 +17,9 @@
             <el-row>
               <el-col>
                 <el-form-item>
-                  <label slot="label">
+                  <template #label>
                     <span style="font-size: 14px">决算送审</span>
-                  </label>
+                  </template>
                   <span style="font-size: 14px; color: blue; margin-left: 30px">
                     {{ `(45813)` }}
                   </span>
@@ -34,9 +34,9 @@
             <el-row>
               <el-col>
                 <el-form-item>
-                  <label slot="label">
+                  <template #label>
                     <span style="font-size: 14px">决算审定</span>
-                  </label>
+                  </template>
                   <span style="font-size: 14px; color: blue; margin-left: 30px">
                     {{ `(45698)` }}
                   </span>
@@ -51,9 +51,9 @@
             <el-row>
               <el-col>
                 <el-form-item>
-                  <label slot="label">
+                  <template #label>
                     <span style="font-size: 14px">暂估增资</span>
-                  </label>
+                  </template>
                   <span style="font-size: 14px; color: blue; margin-left: 30px">
                     {{ `(6549)` }}
                   </span>
@@ -68,9 +68,9 @@
             <el-row>
               <el-col>
                 <el-form-item>
-                  <label slot="label">
+                  <template #label>
                     <span style="font-size: 14px">正式增资</span>
-                  </label>
+                  </template>
                   <span style="font-size: 14px; color: blue; margin-left: 30px">
                     {{ `(7849)` }}
                   </span>

@@ -7,32 +7,32 @@
         <el-card shadow="never" class="tree-list-card">
           <div class="panel-header">
             <div class="section-title">
-              <i class="el-icon-folder-opened section-title__icon" aria-hidden="true"></i>
+              <el-icon class="ep-icon-folder-opened section-title__icon" aria-hidden="true"><EpFolderOpened /></el-icon>
               文件目录
             </div>
             <div class="panel-header__actions">
               <el-select v-model="dirStatus" size="small" class="dir-status-filter" title="按生效/失效筛选目录" @change="handleStatusChange">
                 <el-option v-for="opt in statusOptions" :key="opt.code" :label="opt.name" :value="opt.code" />
               </el-select>
-              <i
-                class="el-icon-plus section-title__icon section-title__icon--action"
+              <el-icon
+                class="ep-icon-plus section-title__icon section-title__icon--action"
                 v-permission="'ADDML'"
                 aria-hidden="true"
                 title="新增目录"
                 @click="handlePlusClick"
-              />
-              <i
-                class="el-icon-sort section-title__icon section-title__icon--action"
+><EpPlus /></el-icon>
+              <el-icon
+                class="ep-icon-sort section-title__icon section-title__icon--action"
                 aria-hidden="true"
                 title="一键展开/收起"
                 @click="handleExpandAll"
-              />
-              <i class="el-icon-refresh section-title__icon section-title__icon--action" aria-hidden="true" title="刷新" @click="handleRefreshTree" />
+><EpSort /></el-icon>
+              <el-icon class="ep-icon-refresh section-title__icon section-title__icon--action" aria-hidden="true" title="刷新" @click="handleRefreshTree"><EpRefresh /></el-icon>
             </div>
           </div>
           <div class="tree-list">
             <div v-if="treeLoadError" class="tree-error" role="alert">
-              <i class="el-icon-warning-outline tree-error__icon" aria-hidden="true"></i>
+              <el-icon class="ep-icon-warning-outline tree-error__icon" aria-hidden="true"><EpWarning /></el-icon>
               <p>{{ treeLoadError }}</p>
               <el-button size="small" type="primary" @click="retryTreeLoad">重新加载</el-button>
             </div>
@@ -50,17 +50,17 @@
             >
               <template #default="{ node, data }">
                 <span class="tree-node">
-                  <i :class="data.leaf === '1' ? 'el-icon-document' : 'el-icon-folder'" class="tree-node__icon" aria-hidden="true"></i>
+                  <el-icon :class="data.leaf === '1' ? 'ep-icon-document' : 'ep-icon-folder'" class="tree-node__icon" aria-hidden="true"><component :is="data.leaf === '1' ? EpDocument : EpFolder" /></el-icon>
                   <span class="tree-node__label" :title="node.label">{{ `${node.label}(${data.attachNum || 0})` }}</span>
                   <span class="tree-node__actions" @click.stop>
-                    <i class="el-icon-plus tree-node__action" title="新增目录" v-permission="'ADD'" @click="handleTreeNodePLUS(node, data)"></i>
-                    <i class="el-icon-edit tree-node__action" title="编辑目录" v-permission="'EDIT'" @click="handleTreeNodeEdit(node, data)"></i>
-                    <i
-                      class="el-icon-delete tree-node__action tree-node__action--danger"
+                    <el-icon class="ep-icon-plus tree-node__action" title="新增目录" v-permission="'ADD'" @click="handleTreeNodePLUS(node, data)"><EpPlus /></el-icon>
+                    <el-icon class="ep-icon-edit tree-node__action" title="编辑目录" v-permission="'EDIT'" @click="handleTreeNodeEdit(node, data)"><EpEdit /></el-icon>
+                    <el-icon
+                      class="ep-icon-delete tree-node__action tree-node__action--danger"
                       v-permission="'DELETE'"
                       title="删除目录"
                       @click="handleTreeNodeDelete(node, data)"
-                    ></i>
+><EpDelete /></el-icon>
                   </span>
                 </span>
               </template>
@@ -86,7 +86,7 @@
             <div class="detail-header__top">
               <div class="detail-header__meta">
                 <div class="section-title">
-                  <i class="el-icon-document section-title__icon" aria-hidden="true"></i>
+                  <el-icon class="ep-icon-document section-title__icon" aria-hidden="true"><EpDocument /></el-icon>
                   文件列表
                 </div>
                 <el-tag v-if="chooseNodeName" size="small" class="current-node-tag" effect="plain">
@@ -177,7 +177,7 @@
               <template #checkbox="{ row }">
                 <template v-if="row._isGroupHeader">
                   <div class="group-header-content">
-                    <i class="el-icon-arrow-right group-toggle-icon" :class="{ 'is-collapsed': row._collapsed }"></i>
+                    <el-icon class="ep-icon-arrow-right group-toggle-icon" :class="{ 'is-collapsed': row._collapsed }"><EpArrowRight /></el-icon>
                     <span class="group-label">{{ row._groupLabel }}</span>
                   </div>
                 </template>
@@ -191,7 +191,7 @@
                   v-permission="'UPLOAD'"
                   size="small"
                   status="primary"
-                  icon="el-icon-upload"
+                  icon="vxe-icon-upload"
                   @click="uploadHandle"
                   class="upload-btn pulse"
                   style="width: 120px; margin-right: 10px"
@@ -226,13 +226,13 @@
               </template>
               <template #operation="{ row }">
                 <el-tooltip content="预览文件" placement="top">
-                  <i class="el-icon-view row-action-icon" @click="handlePreview(row)"></i>
+                  <el-icon class="ep-icon-view row-action-icon" @click="handlePreview(row)"><EpView /></el-icon>
                 </el-tooltip>
                 <el-tooltip content="编辑文件" placement="top">
-                  <i class="el-icon-edit row-action-icon" @click="handleEditRemark(row)" v-permission="'EDITBZ'"></i>
+                  <el-icon class="ep-icon-edit row-action-icon" @click="handleEditRemark(row)" v-permission="'EDITBZ'"><EpEdit /></el-icon>
                 </el-tooltip>
                 <el-tooltip content="删除文件" placement="top">
-                  <i class="el-icon-delete row-action-icon row-action-icon--danger" @click="handleDeleteFile(row)" v-permission="'DELETEFILE'"></i>
+                  <el-icon class="ep-icon-delete row-action-icon row-action-icon--danger" @click="handleDeleteFile(row)" v-permission="'DELETEFILE'"><EpDelete /></el-icon>
                 </el-tooltip>
               </template>
             </vxe-grid>
@@ -260,6 +260,20 @@
 </template>
 
 <script setup lang="ts">
+import {
+  ArrowRight as EpArrowRight,
+  Delete as EpDelete,
+  Document as EpDocument,
+  Edit as EpEdit,
+  Folder as EpFolder,
+  FolderOpened as EpFolderOpened,
+  Plus as EpPlus,
+  Refresh as EpRefresh,
+  Sort as EpSort,
+  View as EpView,
+  Warning as EpWarning
+} from '@element-plus/icons-vue'
+
 defineOptions({ name: "/sys/fileShare/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, onBeforeUnmount, onActivated, ref, computed, nextTick, defineAsyncComponent, markRaw, reactive } from 'vue'
@@ -646,7 +660,7 @@ const gridOptions = reactive<VxeGridProps>({
   border: true,
   stripe: true,
   loading: false,
-  loadingConfig: { icon: 'el-icon-loading', text: '正在加载中...' },
+  loadingConfig: { icon: 'vxe-icon-spinner roll', text: '正在加载中...' },
   height: '100%',
   autoResize: true,
   showOverflow: true,

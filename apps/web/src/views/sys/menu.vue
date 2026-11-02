@@ -60,9 +60,9 @@
         <el-table-column label="操作" width="190" fixed="right" header-align="center" align="center">
           <template #default="scope">
             <div class="menu-actions">
-              <el-button type="text" size="small" @click="addHandle(scope.row)">新增</el-button>
-              <el-button type="text" size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
-              <el-button type="text" size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
+              <el-button type="primary" link size="small" @click="addHandle(scope.row)">新增</el-button>
+              <el-button type="primary" link size="small" @click="addOrUpdateHandle(scope.row.id)">修改</el-button>
+              <el-button type="primary" link size="small" @click="deleteHandle(scope.row.id)">删除</el-button>
             </div>
           </template>
         </el-table-column>

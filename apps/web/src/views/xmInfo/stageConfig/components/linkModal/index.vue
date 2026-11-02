@@ -15,7 +15,7 @@
   >
     <div class="air-modal-body air-modal-body--table">
       <div class="air-modal-tip">
-        <i class="el-icon-info air-modal-tip__icon" aria-hidden="true"></i>
+        <el-icon class="ep-icon-info air-modal-tip__icon" aria-hidden="true"><EpInfoFilled /></el-icon>
         <span class="air-modal-tip__text">
           勾选左侧步骤后点击
           <b class="air-modal-tip__count">→</b>
@@ -31,7 +31,7 @@
             <span class="link-transfer__title">未关联步骤</span>
             <el-input v-model.trim="leftKeyword" size="small" clearable placeholder="按步骤名称过滤" style="width: 180px" @input="handleLeftSearch">
               <template #prefix>
-                <i class="el-icon-search" style="color: var(--color-primary, #00706b)"></i>
+                <el-icon class="ep-icon-search" style="color: var(--color-primary, #00706b)"><EpSearch /></el-icon>
               </template>
             </el-input>
           </div>
@@ -47,10 +47,10 @@
         <!-- 中间操作按钮 -->
         <div class="link-transfer__actions">
           <el-button plain size="small" type="primary" :disabled="!leftCheckedRows.length" @click="moveToRight" title="加入已关联">
-            <i class="el-icon-right"></i>
+            <el-icon class="ep-icon-right"><EpRight /></el-icon>
           </el-button>
           <el-button plain size="small" type="primary" :disabled="!rightCheckedRows.length" @click="moveToLeft" title="移出已关联">
-            <i class="el-icon-back"></i>
+            <el-icon class="ep-icon-back"><EpBack /></el-icon>
           </el-button>
         </div>
 
@@ -63,7 +63,7 @@
             </span>
             <el-input v-model.trim="rightKeyword" size="small" clearable placeholder="按步骤名称过滤" style="width: 180px" @input="handleRightSearch">
               <template #prefix>
-                <i class="el-icon-search" style="color: var(--color-primary, #00706b)"></i>
+                <el-icon class="ep-icon-search" style="color: var(--color-primary, #00706b)"><EpSearch /></el-icon>
               </template>
             </el-input>
           </div>
@@ -92,6 +92,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { Back as EpBack, InfoFilled as EpInfoFilled, Right as EpRight, Search as EpSearch } from '@element-plus/icons-vue'
+
 import { ref, reactive, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { VxeGridProps, VxeGridListeners } from 'vxe-table'

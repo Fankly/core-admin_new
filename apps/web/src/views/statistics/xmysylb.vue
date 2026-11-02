@@ -22,7 +22,7 @@
         @search="handleSearch"
       >
         <template #drilldownName="{ row }">
-          <el-button v-if="canDrilldown(row)" type="text" class="xmysylb-drilldown-link" :disabled="loading" @click.stop="openDrilldown(row)">
+          <el-button v-if="canDrilldown(row)" type="primary" link class="xmysylb-drilldown-link" :disabled="loading" @click.stop="openDrilldown(row)">
             {{ row.name }}
           </el-button>
           <span v-else>{{ row.name }}</span>
@@ -31,7 +31,7 @@
           <div class="xmysylb-command-group">
             <el-dropdown @command="expandByLevelHandle">
               <el-button v-permission="'EXPAND'" size="small" plain type="primary">
-                一键展开 <i class="el-icon-arrow-down el-icon--right" />
+                一键展开 <el-icon class="ep-icon-arrow-down el-icon--right"><EpArrowDown /></el-icon>
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -70,6 +70,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/statistics/xmysylb" })
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useStore } from '@/store/business'
@@ -805,7 +807,7 @@ const searchColumns = reactive<ColumnProps[]>([
         clearable: true,
         filterable: true,
         disabled: projectTypeLoading,
-        popperAppendToBody: true
+        teleported: true
       }
     }
   },

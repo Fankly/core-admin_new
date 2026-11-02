@@ -4,8 +4,8 @@
     <div class="modalCss">
       <div class="modal_select">
         <el-radio-group v-model="type">
-          <el-radio :label="'1'" size="large">通过</el-radio>
-          <el-radio :label="'0'" size="large">不通过</el-radio>
+          <el-radio :value="'1'" size="large">通过</el-radio>
+          <el-radio :value="'0'" size="large">不通过</el-radio>
         </el-radio-group>
       </div>
       <div class="modal_btn">

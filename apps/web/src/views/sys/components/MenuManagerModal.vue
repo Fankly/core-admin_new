@@ -135,9 +135,9 @@ defineExpose({
           <vxe-column field="label" title="标签" :formatter="formatterLabel"></vxe-column>
           <vxe-column title="操作">
             <template #default="{ row }">
-              <el-button type="text" size="small" @click="addOrEditHandle('EDIT', row)">编 辑</el-button>
-              <el-button type="text" size="small" @click="addOrEditHandle('VIEW', row)">查 看</el-button>
-              <el-button type="text" size="small" @click="removeHandle(row)">删 除</el-button>
+              <el-button type="primary" link size="small" @click="addOrEditHandle('EDIT', row)">编 辑</el-button>
+              <el-button type="primary" link size="small" @click="addOrEditHandle('VIEW', row)">查 看</el-button>
+              <el-button type="primary" link size="small" @click="removeHandle(row)">删 除</el-button>
             </template>
           </vxe-column>
         </vxe-table>

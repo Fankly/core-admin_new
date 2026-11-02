@@ -13,7 +13,7 @@
   >
     <div class="air-modal-body air-modal-body--table">
       <div v-if="echoCount > 0" class="air-modal-tip" role="status">
-        <i class="el-icon-info air-modal-tip__icon" aria-hidden="true"></i>
+        <el-icon class="ep-icon-info air-modal-tip__icon" aria-hidden="true"><EpInfoFilled /></el-icon>
         <span class="air-modal-tip__text"
           >已回显关联项 <em class="air-modal-tip__count">{{ echoCount }}</em> 个，翻页将自动勾选；未出现在当前页的项保存时仍会保留。</span
         >
@@ -22,7 +22,7 @@
         </span>
       </div>
       <div v-else-if="isBatchEdit" class="air-modal-tip" role="status">
-        <i class="el-icon-warning-outline air-modal-tip__icon" aria-hidden="true"></i>
+        <el-icon class="ep-icon-warning-outline air-modal-tip__icon" aria-hidden="true"><EpWarning /></el-icon>
         <span class="air-modal-tip__text">批量编辑不回显已有关联，保存后将覆盖所选项目类型的配置。</span>
       </div>
       <div class="air-modal-table">
@@ -61,6 +61,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { InfoFilled as EpInfoFilled, Warning as EpWarning } from '@element-plus/icons-vue'
+
 import { markRaw, nextTick, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'

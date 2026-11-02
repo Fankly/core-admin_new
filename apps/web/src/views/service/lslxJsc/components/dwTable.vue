@@ -46,12 +46,12 @@
             <el-table-column label="一上预算编制审核" prop="ysStatusName" align="center" />
             <el-table-column label="操作" prop="ggdm" align="center">
               <template #default="{ row }">
-                <el-button type="text" size="small" @click="handleClick('VIEW', row)">
+                <el-button type="primary" link size="small" @click="handleClick('VIEW', row)">
                   明细查看
                 </el-button>
                 <el-button
                   v-if="row.ysStatus == '3'"
-                  type="text"
+                  type="primary" link
                   size="small"
                   @click="handleClick('PASS', row)"
                 >
@@ -59,7 +59,7 @@
                 </el-button>
                 <el-button
                   v-if="row.ysStatus == '3'"
-                  type="text"
+                  type="primary" link
                   size="small"
                   @click="handleClick('REJECT', row)"
                 >
@@ -75,12 +75,12 @@
             <el-table-column label="操作" prop="ggdm" align="center">
               <template #default="{ row }">
                 <div v-if="row.esStatusName">
-                  <el-button type="text" size="small" @click="handleBtn('VIEW', row)">
+                  <el-button type="primary" link size="small" @click="handleBtn('VIEW', row)">
                   明细查看
                 </el-button>
                 <el-button
                   v-if="row.esStatus == '3'"
-                  type="text"
+                  type="primary" link
                   size="small"
                   @click="handleBtn('PASS', row)"
                 >
@@ -88,7 +88,7 @@
                 </el-button>
                 <el-button
                   v-if="row.esStatus == '3'"
-                  type="text"
+                  type="primary" link
                   size="small"
                   @click="handleBtn('REJECT', row)"
                 >

@@ -129,7 +129,7 @@ defineExpose({
 }
 
 :deep(.vxe-table--render-default .vxe-body--row.row--current) {
-  .el-button--text {
+  .el-button.is-link {
     color: white;
   }
 }

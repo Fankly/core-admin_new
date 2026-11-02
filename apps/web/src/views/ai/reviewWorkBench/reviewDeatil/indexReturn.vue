@@ -22,7 +22,7 @@
           <div class="search_panel">
             <el-input clearable placeholder="输入项目编码或者名称进行过滤" @clear="handleSearch" v-model="searchParam">
               <template #append>
-                <i class="el-icon-search" @click="handleSearch" style="color: var(--color-primary, #00857c); cursor: pointer"></i>
+                <el-icon class="ep-icon-search" @click="handleSearch" style="color: var(--color-primary, #00857c); cursor: pointer"><EpSearch /></el-icon>
               </template>
             </el-input>
             <el-button size="small" v-debounce="[searchHandle, `click`, 300]" type="primary"> 高级查询 </el-button>
@@ -164,7 +164,7 @@
                 <div class="section-title">专家评审意见</div>
                 <div class="header-actions">
                   <span @click="showMoreOpinion">更多意见</span>
-                  <i class="el-icon-more el-icon--right"></i>
+                  <el-icon class="ep-icon-more el-icon--right"><EpMore /></el-icon>
                 </div>
               </div>
               <div class="expert-reviews-container">
@@ -201,6 +201,8 @@
   <review-modal ref="returnModal" :text="`是否确认退回？`" :title="'退回意见'" :label="'退回意见'" @show-modal="returnMag" />
 </template>
 <script lang="ts" setup>
+import { More as EpMore, Search as EpSearch } from '@element-plus/icons-vue'
+
 defineOptions({ name: "/ai/reviewWorkBench/reviewDeatil/indexReturn" })
 import { ref, reactive, nextTick, onMounted, computed } from 'vue'
 import otherOpinion from './components/otherOpinion.vue'

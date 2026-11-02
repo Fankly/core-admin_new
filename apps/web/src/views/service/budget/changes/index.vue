@@ -12,8 +12,7 @@
               :disabled="buttonDisabled"
             >
               <el-button :loading="buttonLoading.delete" :disabled="buttonDisabled" type="primary" plain
-                >变更申请单<i class="el-icon-arrow-down" style="margin-left: 6px"></i
-              ></el-button>
+                >变更申请单<el-icon class="ep-icon-arrow-down" style="margin-left: 6px"><EpArrowDown /></el-icon></el-button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item v-permission="'CREATE_CART'" @click="handleCreateProjectChange">创建变更申请单</el-dropdown-item>
@@ -398,7 +397,7 @@
                 height="auto"
                 max-height="100%"
                 :loading="loading"
-                :loading-config="{ icon: 'el-icon-loading', text: '正在加载...' }"
+                :loading-config="{ icon: 'vxe-icon-spinner roll', text: '正在加载...' }"
                 @cell-click="cellClickHandle"
                 @checkbox-change="checkChangeHandle"
                 @checkbox-all="checkChangeAllHandle"
@@ -665,6 +664,8 @@
 </template>
 
 <script lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 import { getParamConfig, getParamValueMulti, getProtypeYearTreeB, getPublicCodeList } from '@/api/common'
 import {
   canBeNrhy,
@@ -2088,6 +2089,7 @@ export default defineComponent({
     }
 
     return {
+      EpArrowDown,
       sfgmb,
       userInfo,
       PROJECT_ADJUSTMENT_TAB,

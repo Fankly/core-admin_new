@@ -16,7 +16,7 @@
     >
       <div class="modal_select">
         <el-radio-group v-if="options.length" v-model="type">
-          <el-radio v-for="item in options" :key="item.code" :label="item.code" size="large">{{ item.name }}</el-radio>
+          <el-radio v-for="item in options" :key="item.code" :value="item.code" size="large">{{ item.name }}</el-radio>
         </el-radio-group>
       </div>
       <template #footer>

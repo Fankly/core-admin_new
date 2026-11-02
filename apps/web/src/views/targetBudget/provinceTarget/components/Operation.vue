@@ -5,7 +5,7 @@
         <template v-if="checkPermissions(dropdown.permission)">
           <el-dropdown v-if="dropdown.type === 'dropdown'" style="margin-right: 10px" trigger="click">
             <el-button :disabled="btnDisabledStatus" type="primary" size="small" plain
-              >{{ dropdown.label }}<i class="el-icon-arrow-down" style="margin-left: 6px"></i>
+              >{{ dropdown.label }}<el-icon class="ep-icon-arrow-down" style="margin-left: 6px"><EpArrowDown /></el-icon>
             </el-button>
             <template #dropdown>
               <template v-for="dropdownChild in dropdown.children" :key="dropdownChild.permission">
@@ -53,6 +53,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import TargetBudgetVersion from '@/views/targetBudget/provinceTarget/components/TargetBudgetVersion.vue'

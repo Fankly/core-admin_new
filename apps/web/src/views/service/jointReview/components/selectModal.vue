@@ -15,8 +15,8 @@
     >
       <div class="modal_select">
         <el-radio-group v-model="type">
-          <el-radio :label="'1'" size="large">增量导入</el-radio>
-          <el-radio :label="'2'" size="large">覆盖导入</el-radio>
+          <el-radio :value="'1'" size="large">增量导入</el-radio>
+          <el-radio :value="'2'" size="large">覆盖导入</el-radio>
         </el-radio-group>
       </div>
       <div class="remark">

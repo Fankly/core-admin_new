@@ -31,10 +31,10 @@
               style="margin-right: 10px; margin-left: 10px"
             >
               <span @click="isShowSearch = !isShowSearch">
-                <i
-                  :class="isShowSearch ? 'el-icon-arrow-down' : 'el-icon-arrow-up'"
+                <el-icon
+                  :class="isShowSearch ? 'ep-icon-arrow-down' : 'ep-icon-arrow-up'"
                   style="cursor: pointer; font-size: 18px"
-                ></i>
+><component :is="isShowSearch ? EpArrowDown : EpArrowUp" /></el-icon>
               </span>
             </el-tooltip>
             <ToolbarButtons :tool-button="['help']" @help-click="getHelpMessageHandle" />
@@ -226,6 +226,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
+
 import userDialog from '@/components/select/userDialog.vue'
 import YskmSelect from '@/views/fy/standardCost/components/YskmSelect.vue'
 import DwSelect from '@/views/fy/standardCost/components/DwSelect.vue'

@@ -43,6 +43,8 @@
 </template>
 
 <script lang="tsx">
+import { EditPen as EpEditPen } from '@element-plus/icons-vue'
+import { ElIcon } from 'element-plus'
 export default {
   name: 'ReViewModal'
 }
@@ -242,7 +244,7 @@ const xmColumns = reactive<any[]>([
     label: '项目性质',
     width: '160',
     headerRender: () => {
-      return h('i', { class: 'el-icon-edit-outline' }, '项目性质')
+      return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '项目性质'])
     },
     render: ({ row }: any) => {
       return h(
@@ -269,7 +271,7 @@ const xmColumns = reactive<any[]>([
     label: '申报金额（不含税）',
     width: '180',
     headerRender: () => {
-      return h('i', { class: 'el-icon-edit-outline' }, '申报金额（不含税）')
+      return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '申报金额（不含税）'])
     },
     render: ({ row }: any) => {
       return h(ElInput, {

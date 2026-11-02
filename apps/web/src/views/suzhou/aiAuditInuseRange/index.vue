@@ -7,7 +7,7 @@
         <el-card shadow="never" class="tree-list-card">
           <div class="panel-header">
             <div class="section-title">
-              <i class="el-icon-folder-opened section-title__icon" aria-hidden="true"></i>
+              <el-icon class="ep-icon-folder-opened section-title__icon" aria-hidden="true"><EpFolderOpened /></el-icon>
               项目类型
             </div>
           </div>
@@ -15,19 +15,19 @@
             <el-input placeholder="请输入项目类型名称" v-model="searchForm" clearable @clear="handleSearchClear" @keyup.enter="handleSearchEnter">
               <template #append>
                 <button type="button" class="tree-search-button" aria-label="搜索项目类型" @click="handleSearchEnter">
-                  <i class="el-icon-search" aria-hidden="true"></i>
+                  <el-icon class="ep-icon-search" aria-hidden="true"><EpSearch /></el-icon>
                 </button>
               </template>
             </el-input>
           </div>
           <div class="tree-list" v-loading="treeLoading">
             <div v-if="treeLoadError" class="tree-error" role="alert">
-              <i class="el-icon-warning-outline tree-error__icon" aria-hidden="true"></i>
+              <el-icon class="ep-icon-warning-outline tree-error__icon" aria-hidden="true"><EpWarning /></el-icon>
               <p>{{ treeLoadError }}</p>
               <el-button size="small" type="primary" @click="retryTreeLoad">重新加载</el-button>
             </div>
             <div v-else-if="xmlxList.length === 0" class="tree-error" role="status">
-              <i class="el-icon-document tree-error__icon" aria-hidden="true"></i>
+              <el-icon class="ep-icon-document tree-error__icon" aria-hidden="true"><EpDocument /></el-icon>
               <p>{{ searchForm.trim() ? '未找到匹配的项目类型' : '暂无项目类型' }}</p>
             </div>
             <el-tree
@@ -54,7 +54,7 @@
           aria-controls="ai-audit-range-tree"
           @click="toggleLeftPanel"
         >
-          <i class="el-icon-arrow-left left-collapse-toggle__icon" :class="{ 'is-collapsed': isLeftCollapsed }" aria-hidden="true"></i>
+          <el-icon class="ep-icon-arrow-left left-collapse-toggle__icon" :class="{ 'is-collapsed': isLeftCollapsed }" aria-hidden="true"><EpArrowLeft /></el-icon>
         </button>
       </el-tooltip>
 
@@ -65,7 +65,7 @@
             <div class="detail-header__top">
               <div class="detail-header__meta">
                 <div class="section-title">
-                  <i class="el-icon-s-operation section-title__icon" aria-hidden="true"></i>
+                  <el-icon class="ep-icon-s-operation section-title__icon" aria-hidden="true"><EpOperation /></el-icon>
                   适用范围配置
                 </div>
                 <el-tag v-if="chooseNodeName" size="small" class="current-node-tag" effect="plain">
@@ -410,6 +410,15 @@
 </template>
 
 <script setup lang="ts">
+import {
+  ArrowLeft as EpArrowLeft,
+  Document as EpDocument,
+  FolderOpened as EpFolderOpened,
+  Operation as EpOperation,
+  Search as EpSearch,
+  Warning as EpWarning
+} from '@element-plus/icons-vue'
+
 defineOptions({ name: "/suzhou/aiAuditInuseRange/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, onBeforeUnmount, onActivated, ref, reactive, nextTick, watch, defineAsyncComponent, shallowRef, markRaw, h } from 'vue'

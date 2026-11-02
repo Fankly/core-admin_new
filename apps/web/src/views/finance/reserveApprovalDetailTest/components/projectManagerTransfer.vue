@@ -97,7 +97,7 @@
               <vxe-column fixed="right" v-if="!readOnly" title="操作" width="80px" align="center">
                 <template v-slot="scope">
                   <el-button
-                    type="text"
+                    type="primary" link
                     :disabled="scope.row.selected"
                     :class="scope.row.selected ? 'txt-info' : 'txt-primary'"
                     @click="addSelected(scope.row)"
@@ -136,7 +136,7 @@
               <vxe-column title="资产原值(元)" field="accumulatedPurchaseValue" min-width="130px" />
               <vxe-column fixed="right" v-if="!readOnly" title="操作" width="80px" align="center">
                 <template v-slot="scope">
-                  <el-button type="text" class="txt-danger" @click="removeSelected(scope.row)">删除</el-button>
+                  <el-button type="primary" link class="txt-danger" @click="removeSelected(scope.row)">删除</el-button>
                 </template>
               </vxe-column>
             </vxe-table>

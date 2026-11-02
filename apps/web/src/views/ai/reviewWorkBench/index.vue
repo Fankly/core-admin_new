@@ -18,7 +18,7 @@
             }"
           >
             <div class="card_column_title">
-              <i class="el-icon-document cardIcon" :style="{ color: item.canClick ? `${item.iconColor}` : `#c5cad1` }"></i>
+              <el-icon class="ep-icon-document cardIcon" :style="{ color: item.canClick ? `${item.iconColor}` : `#c5cad1` }"><EpDocument /></el-icon>
               <span :style="{ color: item.canClick ? `${item.iconColor}` : `#c1c6ce` }">{{ item.name }}</span>
               <el-tag style="margin-left: auto" v-if="!item.canClick" :type="'info'"> {{ `未授权` }} </el-tag>
               <el-tag style="margin-left: auto" v-if="item.canClick && clickTab !== index" :type="'warning'"> {{ `已授权` }} </el-tag>
@@ -40,7 +40,7 @@
             <span>{{ chooseTab?.listTitle }}</span>
             <el-input clearable v-model="textValue" @clear="handleSearch" type="text" class="search_input" :placeholder="`${chooseTab?.placeholder}`">
               <template #prefix>
-                <i class="el-icon-search" @click="handleSearch" style="color: var(--color-primary, #00857c); cursor: pointer; font-size: 18px"></i>
+                <el-icon class="ep-icon-search" @click="handleSearch" style="color: var(--color-primary, #00857c); cursor: pointer; font-size: 18px"><EpSearch /></el-icon>
               </template>
             </el-input>
           </div>
@@ -81,33 +81,33 @@
                 </div>
                 <div class="meeting_name"> {{ meeting.meetingName }} </div>
                 <div class="meeting_time">
-                  <i style="font-size: 14px" class="el-icon-timer"></i>
+                  <el-icon style="font-size: 14px" class="ep-icon-timer"><EpTimer /></el-icon>
                   <span>{{ `${meeting.startTime}~${meeting.endTime}` }} </span>
-                  <i style="margin-left: 10px" class="el-icon-user"></i>
+                  <el-icon style="margin-left: 10px" class="ep-icon-user"><EpUser /></el-icon>
                   <span>{{ `${meeting.expertCount}人` }}</span>
                 </div>
                 <div class="meeting_conut">
                   <el-tooltip effect="dark" content="项目数" placement="top">
                     <div>
-                      <i style="color: #6882ac" class="el-icon-files"></i>
+                      <el-icon style="color: #6882ac" class="ep-icon-files"><EpFiles /></el-icon>
                       <span style="color: #000; margin-left: 5px">{{ meeting.totalCount }}</span>
                     </div>
                   </el-tooltip>
                   <el-tooltip effect="dark" content="已评审" placement="top">
                     <div>
-                      <i style="color: #2c9d87" class="el-icon-circle-check"></i>
+                      <el-icon style="color: #2c9d87" class="ep-icon-circle-check"><EpCircleCheck /></el-icon>
                       <span style="color: #2c9d87; margin-left: 5px">{{ meeting.reviewedCount }}</span>
                     </div>
                   </el-tooltip>
                   <el-tooltip effect="dark" content="退回数" placement="top">
                     <div>
-                      <i style="color: #ef4754" class="el-icon-circle-close"></i>
+                      <el-icon style="color: #ef4754" class="ep-icon-circle-close"><EpCircleClose /></el-icon>
                       <span style="color: #ef4754; margin-left: 5px">{{ meeting.thCount }}</span>
                     </div>
                   </el-tooltip>
                   <el-tooltip effect="dark" content="待评审" placement="top">
                     <div>
-                      <i style="color: #f7a73e" class="el-icon-timer"></i>
+                      <el-icon style="color: #f7a73e" class="ep-icon-timer"><EpTimer /></el-icon>
                       <span style="color: #f7a73e; margin-left: 5px">{{ meeting.pendingReviewCount }}</span>
                     </div>
                   </el-tooltip>
@@ -181,6 +181,16 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle" />
 </template>
 <script lang="ts" setup>
+import {
+  CircleCheck as EpCircleCheck,
+  CircleClose as EpCircleClose,
+  Document as EpDocument,
+  Files as EpFiles,
+  Search as EpSearch,
+  Timer as EpTimer,
+  User as EpUser
+} from '@element-plus/icons-vue'
+
 defineOptions({ name: "/ai/reviewWorkBench/index" })
 import { ref, reactive, onMounted } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'

@@ -27,7 +27,7 @@
                   @change="handleFieldChange(field.prop, formData[field.prop])"
                 >
                   <template #append>
-                    <el-button :disabled="field.disabled" class="el-icon-more" @click="handleSearch" />
+                    <el-button :disabled="field.disabled" class="ep-icon-more" :icon="EpMore" @click="handleSearch" />
                   </template>
                 </el-input>
                 <el-input
@@ -102,7 +102,7 @@
                 :disabled="field.disabled"
                 @change="handleFieldChange(field.prop, formData[field.prop])"
               >
-                <el-radio v-for="option in field.options" :key="option.code" :label="option.code" :disabled="option.disabled">
+                <el-radio v-for="option in field.options" :key="option.code" :value="option.code" :disabled="option.disabled">
                   {{ option.name }}
                 </el-radio>
               </el-radio-group>
@@ -114,7 +114,7 @@
                 :disabled="field.disabled"
                 @change="handleFieldChange(field.prop, formData[field.prop])"
               >
-                <el-checkbox v-for="option in field.options" :key="option.code" :label="option.code" :disabled="option.disabled">
+                <el-checkbox v-for="option in field.options" :key="option.code" :value="option.code" :disabled="option.disabled">
                   {{ option.name }}
                 </el-checkbox>
               </el-checkbox-group>
@@ -174,7 +174,7 @@
                 :drag="field.uploadDrag || false"
                 :style-type="field.uploadStyle || 'table'"
                 :button-text="field.uploadButtonText || '点击上传'"
-                :icon="field.uploadIcon || 'el-icon-upload'"
+                :icon="field.uploadIcon"
                 :tableHeight="field.rows ? field.rows * 40 + 'px' : field.uploadTableHeight || 'auto'"
                 :show-preview="field.uploadShowPreview !== false"
                 :show-download="field.uploadShowDownload !== false"
@@ -215,6 +215,8 @@
 </template>
 
 <script lang="ts">
+import { More as EpMore } from '@element-plus/icons-vue'
+
 import { defineComponent, ref, reactive, computed, PropType, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import TreeSelect from '@/components/TreeSelect'
@@ -931,6 +933,7 @@ export default defineComponent({
     )
 
     return {
+      EpMore,
       loading,
       formRef,
       formData,

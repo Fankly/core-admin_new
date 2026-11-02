@@ -68,10 +68,10 @@
               <div class="targetBudgetMaintain-panel targetBudgetMaintain-panel--remark">
                 <div class="targetBudgetMaintain-panel__header" @click="toggleRemarkPanel">
                   <span class="targetBudgetMaintain-panel__title">
-                    <i class="el-icon-arrow-down targetBudgetMaintain-panel__arrow" :class="{ 'is-expanded': isRemarkPanelExpanded }"></i>
+                    <el-icon class="ep-icon-arrow-down targetBudgetMaintain-panel__arrow" :class="{ 'is-expanded': isRemarkPanelExpanded }"><EpArrowDown /></el-icon>
                     调整说明及附件
                   </span>
-                  <el-button type="text" size="small" @click.stop="toggleRemarkPanel">
+                  <el-button type="primary" link size="small" @click.stop="toggleRemarkPanel">
                     {{ isRemarkPanelExpanded ? '收 起' : '展 开' }}
                   </el-button>
                 </div>
@@ -102,7 +102,7 @@
                           <el-checkbox
                             v-for="item in maintainDataTypeOptions"
                             :key="item.value"
-                            :label="item.value"
+                            :value="item.value"
                             class="targetBudgetMaintain-checkbox"
                           >
                             {{ item.label }}
@@ -170,7 +170,7 @@
                     class="targetBudgetMaintain-select"
                     size="small"
                     :disabled="isProjectDetailPreArrangeDisabled(row)"
-                    :popper-append-to-body="false"
+                    :teleported="false"
                   >
                     <el-option v-for="item in projectDetailPreArrangeOptions" :key="item.value" :label="item.label" :value="item.value" />
                   </el-select>
@@ -230,6 +230,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 defineOptions({ name: "TargetBudgetmaintain" })
 import { ref } from 'vue'
 import { useTargetBudgetMaintain } from './hooks/useTargetBudgetMaintain'

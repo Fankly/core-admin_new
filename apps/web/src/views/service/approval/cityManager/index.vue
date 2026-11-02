@@ -3,7 +3,7 @@
     <div class="operation">
       <div class="operation-left">
         <el-dropdown v-for="dropdown in visibleOperationDropdowns" :key="dropdown.permission" class="operation-dropdown" trigger="click">
-          <el-button type="primary" size="small" plain> {{ dropdown.label }}<i class="el-icon-arrow-down operation-arrow"></i> </el-button>
+          <el-button type="primary" size="small" plain> {{ dropdown.label }}<el-icon class="ep-icon-arrow-down operation-arrow"><EpArrowDown /></el-icon> </el-button>
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item v-for="item in dropdown.children" :key="item.permission" @click="handleOperationClick(item.permission)">
@@ -69,7 +69,7 @@
           </template>
           <template #amountSlot="{ row, column }">{{ formatMeetingAmount(row, column.field) }}</template>
           <template #psmsSlot="{ row }">
-            <el-button type="text" @click.stop="psmsView(row)">
+            <el-button type="primary" link @click.stop="psmsView(row)">
               {{ row.psmsName || getPsmsName(row.psms) || '-' }}
             </el-button>
           </template>
@@ -110,6 +110,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
+
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
 
 defineOptions({ name: "/service/approval/cityManager/index" })

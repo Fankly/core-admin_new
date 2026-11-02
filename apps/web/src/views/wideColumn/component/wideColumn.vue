@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ArrowDown as EpArrowDown, Operation as EpOperation } from '@element-plus/icons-vue'
+
 import userDialog from '@/components/select/userDialog.vue'
 import { ElMessage } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
@@ -215,7 +217,7 @@ export default {
       <div class="operate-filter">
         <el-dropdown style="margin-right: 30px; cursor: pointer" trigger="click" :hide-on-click="false">
           <el-tooltip content="列设置" placement="top">
-            <span class="el-icon-s-operation"></span>
+            <el-icon class="ep-icon-s-operation"><EpOperation /></el-icon>
           </el-tooltip>
           <template #dropdown>
             <el-dropdown-menu style="height: 200px">
@@ -229,7 +231,7 @@ export default {
         </el-dropdown>
         <el-tooltip content="隐藏/展示查询" placement="top">
           <span style="cursor: pointer" @click="isHiddenQueryForm">
-            <i class="el-icon-arrow-down"></i>
+            <el-icon class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
           </span>
         </el-tooltip>
       </div>

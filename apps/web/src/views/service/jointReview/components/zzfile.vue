@@ -1,7 +1,7 @@
 <template>
   <div class="zzfile-trigger">
     <el-button class="material-button" size="small" type="primary" plain :aria-label="materialButtonLabel" @click="openMaterialDrawer">
-      <i class="el-icon-paperclip" aria-hidden="true"></i>
+      <el-icon class="ep-icon-paperclip" aria-hidden="true"><EpPaperclip /></el-icon>
       <span>评审佐证材料</span>
       <span v-if="materialCount" class="material-button__count">{{ materialCount }}</span>
     </el-button>
@@ -13,7 +13,7 @@
       size="560px"
       destroy-on-close
       append-to-body
-      custom-class="review-material-drawer"
+      class="review-material-drawer"
       @close="resetFilePreview"
     >
       <div class="material-drawer" v-loading="loading">
@@ -21,7 +21,7 @@
           <section v-for="group in materialGroups" :key="group.prop" class="material-group-card">
             <header class="material-group-card__header">
               <div>
-                <i class="el-icon-folder-opened" aria-hidden="true"></i>
+                <el-icon class="ep-icon-folder-opened" aria-hidden="true"><EpFolderOpened /></el-icon>
                 <span>{{ group.label }}</span>
               </div>
               <span class="material-group-card__count">{{ group.files.length }} 份</span>
@@ -32,11 +32,11 @@
               class="material-file"
               :class="{ 'is-previewing': isActivePreviewFile(file) }"
             >
-              <span class="material-file__icon" aria-hidden="true"><i class="el-icon-document"></i></span>
+              <span class="material-file__icon" aria-hidden="true"><el-icon class="ep-icon-document"><EpDocument /></el-icon></span>
               <span class="material-file__main">
                 <span class="material-file__name" :title="getReviewMaterialFileName(file)">{{ getReviewMaterialFileName(file) }}</span>
                 <span v-if="isAutoGenFile(file)" class="auto-gen-chip" :title="AUTO_GEN_TIP">
-                  <i class="el-icon-magic-stick" aria-hidden="true"></i>
+                  <el-icon class="ep-icon-magic-stick" aria-hidden="true"><EpMagicStick /></el-icon>
                   <span>自动生成</span>
                 </span>
               </span>
@@ -81,7 +81,7 @@
           <section class="material-group-card">
             <header class="material-group-card__header">
               <div>
-                <i class="el-icon-collection" aria-hidden="true"></i>
+                <el-icon class="ep-icon-collection" aria-hidden="true"><EpCollection /></el-icon>
                 <span>主要制度依据</span>
               </div>
               <span v-if="financialBasisFiles.length" class="material-group-card__count">{{ financialBasisFiles.length }} 份</span>
@@ -92,7 +92,7 @@
               class="material-file"
               :class="{ 'is-previewing': isActivePreviewFile(file) }"
             >
-              <span class="material-file__icon" aria-hidden="true"><i class="el-icon-document"></i></span>
+              <span class="material-file__icon" aria-hidden="true"><el-icon class="ep-icon-document"><EpDocument /></el-icon></span>
               <span class="material-file__main">
                 <span class="material-file__name" :title="getFinancialBasisFileName(file)">{{ getFinancialBasisFileName(file) }}</span>
                 <span class="material-file__type">{{ getFinancialBasisFileType(file) }}</span>
@@ -135,7 +135,7 @@
           <section class="material-group-card">
             <header class="material-group-card__header">
               <div>
-                <i class="el-icon-document-checked" aria-hidden="true"></i>
+                <el-icon class="ep-icon-document-checked" aria-hidden="true"><EpDocumentChecked /></el-icon>
                 <span>财务审核要点</span>
               </div>
             </header>
@@ -165,7 +165,7 @@
       size="100%"
       destroy-on-close
       append-to-body
-      custom-class="ai-audit-drawer"
+      class="ai-audit-drawer"
       @closed="approveId = ''"
     >
       <ReserveApprovalDetail v-if="approveId" :id="approveId" approval-role="jysApprovalDetail" list-key="[]" :embedded="true" />
@@ -178,6 +178,15 @@ export default {
 }
 </script>
 <script setup lang="ts">
+import {
+  Collection as EpCollection,
+  Document as EpDocument,
+  DocumentChecked as EpDocumentChecked,
+  FolderOpened as EpFolderOpened,
+  MagicStick as EpMagicStick,
+  Paperclip as EpPaperclip
+} from '@element-plus/icons-vue'
+
 import { computed, ref, defineAsyncComponent } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Download, Eye } from '@lucide/vue'

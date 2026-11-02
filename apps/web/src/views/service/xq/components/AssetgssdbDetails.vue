@@ -4,7 +4,7 @@
       <el-collapse-item name="estimate" title="物料资成本属性对比">
         <template #title>
           <div>
-            <i class="el-icon-s-grid elIconFile"></i>
+            <el-icon class="ep-icon-s-grid elIconFile"><EpGrid /></el-icon>
             <span>物料资成本属性对比</span>
             <el-tag
               :type="statusWl?.code == '3' ? 'success' : statusWl?.code == '2' ? 'warning' : 'info'"
@@ -19,7 +19,7 @@
         <div class="amount">
           <el-tooltip content="刷新" placement="top" effect="light">
             <span class="toolbar-action-icon" style="cursor: pointer; font-size: 18px" @click="refresh">
-              <i class="el-icon-refresh"></i>
+              <el-icon class="ep-icon-refresh"><EpRefresh /></el-icon>
             </span>
           </el-tooltip>
         </div>
@@ -50,7 +50,7 @@
       </el-collapse-item>
     </el-collapse>
     <div class="upload-header">
-      <div class="upload-title"><i class="el-icon-s-grid elIconFile"></i>物料资成本属性对比问题说明</div>
+      <div class="upload-title"><el-icon class="ep-icon-s-grid elIconFile"><EpGrid /></el-icon>物料资成本属性对比问题说明</div>
       <el-button v-if="opType == 'EDIT'" size="small" plain type="primary" @click="uploadHandle"> 上 传 </el-button>
     </div>
     <vxe-table
@@ -70,7 +70,7 @@
       <vxe-column field="name" title="附件名称" min-width="200">
         <template #default="{ row }">
           <div class="file-name">
-            <i class="el-icon-document" />
+            <el-icon class="ep-icon-document"><EpDocument /></el-icon>
             <span>{{ row.name }}</span>
           </div>
         </template>
@@ -78,19 +78,19 @@
       <vxe-column title="操作" width="180" align="center">
         <template #default="{ row }">
           <div class="file-actions">
-            <el-button type="text" @click="handleDownload(row)"> <i class="el-icon-download"></i> 下载 </el-button>
-            <el-button v-if="opType == 'EDIT'" type="text" @click="handleDelete(row)"> <i class="el-icon-delete"></i> 删除 </el-button>
+            <el-button type="primary" link @click="handleDownload(row)"> <el-icon class="ep-icon-download"><EpDownload /></el-icon> 下载 </el-button>
+            <el-button v-if="opType == 'EDIT'" type="primary" link @click="handleDelete(row)"> <el-icon class="ep-icon-delete"><EpDelete /></el-icon> 删除 </el-button>
           </div>
         </template>
       </vxe-column>
     </vxe-table>
     <div v-show="fileList.length === 0" class="empty-files" style="padding: 20px 0; cursor: pointer" @click="uploadHandle">
-      <i class="el-icon-upload" style="font-size: 40px"></i>
+      <el-icon class="ep-icon-upload" style="font-size: 40px"><EpUpload /></el-icon>
       <p>暂无文件，请点击添加文件</p>
     </div>
     <div class="file-group" v-for="(item, index) in otherList" :key="index">
       <div class="project-file-type">
-        <i class="el-icon-document elIconFile"></i>
+        <el-icon class="ep-icon-document elIconFile"><EpDocument /></el-icon>
         <span>{{ item.name }}</span>
         <el-tag
           v-if="item.name == '估算书'"
@@ -105,7 +105,7 @@
       <div style="display: flex; flex-wrap: wrap; gap: 10px" v-if="item.list.length > 0">
         <div class="file-list" v-for="(item2, index2) in item.list" :key="index2">
           <div class="file-name" @click="handleDownload(item2)">
-            <i class="el-icon-paperclip"></i>
+            <el-icon class="ep-icon-paperclip"><EpPaperclip /></el-icon>
             {{ item2.name }}
           </div>
         </div>
@@ -118,6 +118,16 @@
 </template>
 
 <script setup lang="ts">
+import {
+  Delete as EpDelete,
+  Document as EpDocument,
+  Download as EpDownload,
+  Grid as EpGrid,
+  Paperclip as EpPaperclip,
+  Refresh as EpRefresh,
+  Upload as EpUpload
+} from '@element-plus/icons-vue'
+
 defineOptions({ name: "AssetgssdbDetails" })
 import { onMounted, ref, nextTick, watch, onUnmounted } from 'vue'
 import { getMatAttrComp, getFjListByXmIdAndFjId, downloadAttach, getTymlywj, getWlzcbById } from '@/api/service/requirement'

@@ -74,7 +74,7 @@
                 <!-- 仅创建时可选：note 为 1 默认选中且不可取消，note 为 0 可选；修改、查看不可调整 -->
                 <el-checkbox-group v-model="modalProps.row.major" :disabled="!isCreate">
                   <template v-for="item in majorList" :key="item.code">
-                    <el-checkbox border :label="item.code" :disabled="isLockedPszy(item)">{{ item.name }}</el-checkbox>
+                    <el-checkbox border :value="item.code" :disabled="isLockedPszy(item)">{{ item.name }}</el-checkbox>
                   </template>
                 </el-checkbox-group>
               </div>

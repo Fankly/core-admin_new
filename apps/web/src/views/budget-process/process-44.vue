@@ -36,7 +36,7 @@
                 :hide-on-click="false"
               >
                 <span class="el-dropdown-link">
-                  <el-icon class="el-icon-s-operation">
+                  <el-icon class="ep-icon-s-operation">
                     <arrow-down />
                   </el-icon>
                 </span>
@@ -54,10 +54,10 @@
                 </template>
               </el-dropdown>
               <span class="searchShow" v-if="searchShow === false" @click="showSearch(true)">
-                <i class="el-icon-arrow-down"></i>
+                <el-icon class="ep-icon-arrow-down"><EpArrowDown /></el-icon>
               </span>
               <span class="searchShow" @click="showSearch(false)" v-else>
-                <i class="el-icon-arrow-up"></i>
+                <el-icon class="ep-icon-arrow-up"><EpArrowUp /></el-icon>
               </span>
               <ToolbarButtons :tool-button="['help']" @help-click="getHelpMessageHandle" />
             </div>
@@ -285,6 +285,9 @@
 </template>
 
 <script>
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
+import { markRaw as markElementIconRaw } from 'vue'
+
 import { defineComponent, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import HelpModal from '@/components/HelpModal/index.vue'
@@ -320,6 +323,8 @@ export default defineComponent({
       }
     }
     return reactive({
+      EpArrowDown: markElementIconRaw(EpArrowDown),
+      EpArrowUp: markElementIconRaw(EpArrowUp),
       store,
       dialogFormRef,
       helpModalRef,

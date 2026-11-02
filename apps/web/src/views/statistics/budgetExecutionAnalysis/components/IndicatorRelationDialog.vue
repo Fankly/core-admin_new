@@ -17,13 +17,13 @@
       <div class="toolbar">
         <span class="summary">已选 {{ selectedCodes.length }}/{{ indicatorList.length }}</span>
         <div class="actions">
-          <el-button type="text" @click="selectAllHandle">全选</el-button>
-          <el-button type="text" @click="clearSelectedHandle">清空</el-button>
+          <el-button type="primary" link @click="selectAllHandle">全选</el-button>
+          <el-button type="primary" link @click="clearSelectedHandle">清空</el-button>
         </div>
       </div>
       <div v-if="indicatorList.length" class="indicator-list">
         <el-checkbox-group v-model="selectedCodes" class="indicator-group">
-          <el-checkbox v-for="item in indicatorList" :key="item.code" :label="item.code" class="indicator-item">
+          <el-checkbox v-for="item in indicatorList" :key="item.code" :value="item.code" class="indicator-item">
             {{ item.name }}
           </el-checkbox>
         </el-checkbox-group>

@@ -44,11 +44,11 @@
         <span class="modal-footer__side"></span>
         <div v-if="items.length > 1" class="image-compare__pager">
           <el-button size="small" plain :disabled="!canPrev" aria-label="上一组图片" @click="goPrev">
-            <i class="el-icon-arrow-left"></i> 上一组
+            <el-icon class="ep-icon-arrow-left"><EpArrowLeft /></el-icon> 上一组
           </el-button>
           <span class="image-compare__count" aria-live="polite">{{ currentIndex + 1 }} / {{ items.length }}</span>
           <el-button size="small" plain :disabled="!canNext" aria-label="下一组图片" @click="goNext">
-            下一组 <i class="el-icon-arrow-right"></i>
+            下一组 <el-icon class="ep-icon-arrow-right"><EpArrowRight /></el-icon>
           </el-button>
         </div>
         <!-- 单组时保留中间占位，否则 grid 只有两列，底部关闭按钮会被挤到中间 -->
@@ -62,6 +62,8 @@
 </template>
 
 <script setup lang="ts">
+import { ArrowLeft as EpArrowLeft, ArrowRight as EpArrowRight } from '@element-plus/icons-vue'
+
 import { computed, reactive, ref, watch } from 'vue'
 import type { PropType } from 'vue'
 import app from '@/constants/app'

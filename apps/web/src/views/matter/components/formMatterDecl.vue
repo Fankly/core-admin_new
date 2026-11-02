@@ -1,5 +1,5 @@
 <template>
-  <el-dialog width="60%" @close="closeDialogHandle" :title="props.diaLogData.title" :destroy-on-close="true" :show-close="true" custom-class="decl-dialog" :close-on-press-escape="isDisabledShow" :close-on-click-modal="isDisabledShow" top="18px" v-model="isShowPage">
+  <el-dialog width="60%" @close="closeDialogHandle" :title="props.diaLogData.title" :destroy-on-close="true" :show-close="true" class="decl-dialog" :close-on-press-escape="isDisabledShow" :close-on-click-modal="isDisabledShow" top="18px" v-model="isShowPage">
     <div class="dialog-main" style="position: relative">
       <el-tabs v-model="activeName">
         <el-tab-pane label="事项储备信息" name="eventReserve">
@@ -13,7 +13,7 @@
         </el-tab-pane>
       </el-tabs>
       <div class="close-icon">
-        <i class="el-icon-close" @click="closeHandle"></i>
+        <el-icon class="ep-icon-close" @click="closeHandle"><EpClose /></el-icon>
       </div>
     </div>
     <template #footer>
@@ -32,6 +32,8 @@ export default {
 };
 </script>
 <script setup lang="ts">
+import { Close as EpClose } from '@element-plus/icons-vue'
+
 import { BaseMsgData, DialogData } from "../types/matterDecl";
 import MatterBaseMsg from "@/views/matter/components/MatterBaseMsg.vue";
 import BackLog from "@/views/matter/components/DialogBacklog.vue";

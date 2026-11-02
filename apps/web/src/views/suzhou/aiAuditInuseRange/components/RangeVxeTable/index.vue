@@ -161,7 +161,7 @@ const gridOptions = reactive<VxeGridProps>({
   stripe: props.stripe,
   loading: false,
   loadingConfig: {
-    icon: 'el-icon-loading',
+    icon: 'vxe-icon-spinner roll',
     text: '正在加载中...'
   },
   height: '100%',

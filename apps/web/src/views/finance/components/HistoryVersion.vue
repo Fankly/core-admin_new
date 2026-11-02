@@ -48,14 +48,14 @@
       </vxe-column>
       <vxe-column title="操作" width="300" fixed="right">
         <template v-slot="scope">
-          <el-button type="text" :size="defaultFormItemSize" @click="handleEdit(scope.row)"> 编辑 </el-button>
-          <el-button :disabled="scope.row.status == 2" type="text" :size="defaultFormItemSize" @click="handleRelease(scope.row)">
+          <el-button type="primary" link :size="defaultFormItemSize" @click="handleEdit(scope.row)"> 编辑 </el-button>
+          <el-button :disabled="scope.row.status == 2" type="primary" link :size="defaultFormItemSize" @click="handleRelease(scope.row)">
             发布生效
           </el-button>
-          <el-button type="text" :size="defaultFormItemSize" @click="handleScore(scope.row)"> 评分 </el-button>
+          <el-button type="primary" link :size="defaultFormItemSize" @click="handleScore(scope.row)"> 评分 </el-button>
           <el-button
             v-if="!scope.row.isDefault"
-            type="text"
+            type="primary" link
             :size="defaultFormItemSize"
             @click="handleDelete(scope.row)"
             class="text-danger"

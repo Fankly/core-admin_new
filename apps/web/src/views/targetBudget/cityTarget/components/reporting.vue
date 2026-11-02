@@ -62,7 +62,7 @@
                 </el-form-item>
               </template>
               <el-dropdown style="height: 30px; line-height: 30px" v-if="heightLimitOther.length > 0" trigger="click">
-                <div class="left_item">更多<i class="el-icon-d-arrow-right"></i></div>
+                <div class="left_item">更多<el-icon class="ep-icon-d-arrow-right"><EpDArrowRight /></el-icon></div>
                 <template #dropdown>
                   <el-dropdown-menu v-for="(item, index) in heightLimitOther" :key="index">
                     <el-dropdown-item>
@@ -156,6 +156,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+import { DArrowRight as EpDArrowRight } from '@element-plus/icons-vue'
+
 import { reactive, ref } from 'vue'
 import { summaryValue } from '@/utils/utils' //合计项目类型值
 import {
