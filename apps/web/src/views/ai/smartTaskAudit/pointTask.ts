@@ -71,7 +71,7 @@ export const createPointTaskGridOptions = (): VxeGridProps<PointTaskRow> => ({
   columnConfig: {
     resizable: true
   },
-  rowConfig: {
+  cellConfig: {
     height: 32
   },
   checkboxConfig: {

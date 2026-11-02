@@ -91,6 +91,7 @@ describe('Element Plus migration', () => {
   })
 
   it('teleports the tree dropdown and closes it after selecting a leaf', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const wrapper = mount(TreeSelect, {
       attachTo: document.body,
       props: { data: [{ value: 'a', label: '甲' }], teleported: true, filterable: true },
@@ -107,6 +108,63 @@ describe('Element Plus migration', () => {
     await flushPromises()
     expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['a'])
     expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('false')
+    expect(warn.mock.calls.flat().join(' ')).not.toContain('Invalid prop')
+  })
+
+  it('keeps an empty tree dropdown usable without registering a placeholder option', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const wrapper = mount(TreeSelect, {
+      attachTo: document.body,
+      props: { modelValue: null, data: [], teleported: true },
+      global: { plugins: [ElementPlus] }
+    })
+    wrappers.push(wrapper)
+    await wrapper.get('.el-select__wrapper').trigger('click')
+    await flushPromises()
+    expect(document.body.querySelector('.el-tree-select__tree-wrapper')).not.toBeNull()
+    expect(wrapper.get('[role="combobox"]').attributes('aria-expanded')).toBe('true')
+    expect(document.body.querySelectorAll('[role="option"]')).toHaveLength(0)
+    await wrapper.setProps({ data: [{ value: 'a', label: '甲' }] })
+    document.body.querySelector<HTMLElement>('.el-tree-node__content')?.click()
+    await flushPromises()
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['a'])
+    expect(warn.mock.calls.flat().join(' ')).not.toContain('Invalid prop')
+  })
+
+  it('selects and clears tree checkboxes with custom node keys without extra option values', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const wrapper = mount(TreeSelect, {
+      attachTo: document.body,
+      props: {
+        modelValue: [],
+        multiple: true,
+        showCheckbox: true,
+        clearable: true,
+        teleported: true,
+        nodeKey: 'middleId',
+        props: { label: 'name', children: 'children', value: 'middleId' },
+        data: [{ middleId: 'a', name: '成本性项目' }]
+      },
+      global: { plugins: [ElementPlus] }
+    })
+    wrappers.push(wrapper)
+    await wrapper.get('.el-select__wrapper').trigger('click')
+    await flushPromises()
+    expect(document.body.querySelector('.el-tree-node__label')?.textContent).toBe('成本性项目')
+    document.body.querySelector<HTMLInputElement>('.el-tree input[type="checkbox"]')?.click()
+    await flushPromises()
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([['a']])
+    await wrapper.setProps({ modelValue: ['a'] })
+    expect(wrapper.findAll('.el-select__selection .el-tag').map((tag) => tag.text())).toEqual(['成本性项目'])
+    document.body.querySelector<HTMLElement>('.el-tree-select__tree-wrapper')?.click()
+    await flushPromises()
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([['a']])
+    await wrapper.get('.el-select').trigger('mouseenter')
+    await wrapper.get('.el-select__clear').trigger('click')
+    await flushPromises()
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([[]])
+    expect(document.body.querySelector<HTMLInputElement>('.el-tree input[type="checkbox"]')?.checked).toBe(false)
+    expect(warn.mock.calls.flat().join(' ')).not.toContain('Invalid prop')
   })
 
   it('uses the configured number of visible collapsed tags', async () => {

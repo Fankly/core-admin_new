@@ -97,7 +97,9 @@ export const useRangeVxeTable = (props: Readonly<RangeVxeTableProps>, emit: Rang
     },
     rowConfig: {
       keyField: props.rowKey,
-      isHover: true,
+      isHover: true
+    },
+    cellConfig: {
       height: 32
     },
     checkboxConfig: {

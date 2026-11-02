@@ -14,14 +14,8 @@
     <template v-if="multiple || showCheckbox">
       <el-option v-for="(item, index) in selectedOptions" :key="index" :value="item.value" :label="item.label" style="display: none"></el-option>
     </template>
-    <el-option v-else-if="innerValue !== ''" :value="innerValue" :label="label" style="display: none"></el-option>
-    <el-option
-      key="tree-option"
-      :value="undefined"
-      class="tree-select-option"
-      style="height: auto; padding: 0; overflow: visible"
-      @click.stop="() => {}"
-    >
+    <el-option v-else-if="innerValue !== '' && innerValue != null" :value="innerValue" :label="label" style="display: none"></el-option>
+    <template #header>
       <div ref="treeWrapper" class="el-tree-select__tree-wrapper" role="tree" :aria-label="placeholder" tabindex="-1" :style="colorStyle">
         <div class="el-tree-select__container" ref="container">
           <div v-if="$slots.header" class="el-tree-select__header">
@@ -33,7 +27,7 @@
               v-bind="treeProps"
               :node-key="nodeKey"
               :data="data"
-              :props="props"
+              :props="props.props"
               :show-checkbox="showCheckbox"
               :default-expanded-keys="defaultExpandedKeys"
               :default-checked-keys="defaultCheckedKeys"
@@ -52,7 +46,7 @@
             v-bind="treeProps"
             :node-key="nodeKey"
             :data="data"
-            :props="props"
+            :props="props.props"
             :show-checkbox="showCheckbox"
             :default-expanded-keys="defaultExpandedKeys"
             :default-checked-keys="defaultCheckedKeys"
@@ -67,7 +61,7 @@
           <div v-if="$slots.footer" class="el-tree-select__footer"><slot name="footer"></slot>/</div>
         </div>
       </div>
-    </el-option>
+    </template>
   </el-select>
 </template>
 
@@ -80,7 +74,7 @@ defineOptions({
 })
 const props = defineProps({
   modelValue: {
-    type: [String, Number, Array, Object] as PropType<TreeSelectValue>,
+    type: [String, Number, Array, Object] as PropType<TreeSelectValue | null>,
     default: ''
   },
   data: {
@@ -284,11 +278,9 @@ const visibleChange = (visible: boolean) => {
         if (dropdownEl) {
           dropdownEl.style.minWidth = `${selectWidth}px`
           nextTick(() => {
-            const selectedItems = dropdownEl.querySelectorAll('.el-select-dropdown__item.is-selected')
-            selectedItems.forEach((item: any) => {
-              if (!item.classList.contains('tree-select-option')) {
-                item.style.display = 'none'
-              }
+            const selectedItems = dropdownEl.querySelectorAll<HTMLElement>('.el-select-dropdown__item.is-selected')
+            selectedItems.forEach((item) => {
+              item.style.display = 'none'
             })
           })
         }
@@ -613,14 +605,14 @@ defineExpose({
   padding: 0 !important;
 }
 
-.tree-select-option {
+:global(.el-tree-select__popper .el-select-dropdown__header) {
   padding: 0;
-  margin: 0;
-  display: block;
 }
 
-.el-tree-select__popper .el-select-dropdown__list {
-  width: 100%;
+/* 选项只用于回显，下拉内容由 header 插槽中的树渲染。 */
+:global(.el-tree-select__popper .el-select-dropdown__list),
+:global(.el-tree-select__popper .el-select-dropdown__empty) {
+  display: none;
 }
 
 .el-tree-select__popper .el-tree {
@@ -632,7 +624,7 @@ defineExpose({
   display: none !important;
 }
 
-.el-tree-select__popper .el-select-dropdown__item:not(.tree-select-option) {
+.el-tree-select__popper .el-select-dropdown__item {
   display: none !important;
 }
 

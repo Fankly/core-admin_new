@@ -22,7 +22,7 @@ export const createGridOptions = (): SmartTaskAuditGridOptions => ({
   columnConfig: {
     resizable: true
   },
-  rowConfig: {
+  cellConfig: {
     height: 32
   },
   checkboxConfig: {
