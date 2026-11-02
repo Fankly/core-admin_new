@@ -51,7 +51,7 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
-test('breadcrumb groups open their level instead of linking to an empty group page', async ({ page }) => {
+test('breadcrumb groups display plain text and the home link still navigates', async ({ page }) => {
   await page.goto('/#/home')
   await expect(crumbs(page).locator('[aria-current="page"]')).toHaveText('主页')
 
@@ -59,33 +59,19 @@ test('breadcrumb groups open their level instead of linking to an empty group pa
   await expect(page.frameLocator('iframe').getByRole('heading', { name: '项目页面' })).toBeVisible()
   const trail = crumbs(page)
   await expect(trail.locator('.ds-breadcrumb__list [aria-current="page"]')).toHaveText('里程碑计划编制与审批')
-  // 分组没有视图：祖先是展开按钮，不是链接
+  // 分组没有视图：祖先仅展示标题，不再提供下拉入口
+  await expect(trail.locator('.ds-breadcrumb__list .ds-breadcrumb__segment')).toHaveText(['业务平台', '项目管理', '进度跟踪与里程碑管理'])
   await expect(trail.getByRole('link', { name: '项目管理' })).toHaveCount(0)
-
-  const group = trail.getByRole('button', { name: '项目管理', exact: true })
+  await expect(trail.getByRole('button')).toHaveCount(0)
+  await expect(trail.locator('[aria-expanded], [aria-haspopup]')).toHaveCount(0)
+  const group = trail.locator('.ds-breadcrumb__list .ds-breadcrumb__segment', { hasText: '项目管理' })
   await group.click()
-  await expect(group).toHaveAttribute('aria-expanded', 'true')
-  const panel = page.getByRole('navigation', { name: '项目管理', exact: true })
-  await expect(panel).toBeVisible()
-  // 打开后焦点落在当前页所在的分支上
-  await expect(panel.getByRole('button', { name: '进度跟踪与里程碑管理' })).toBeFocused()
+  await expect(page.getByRole('navigation', { name: '项目管理', exact: true })).toHaveCount(0)
+  await expect(page).toHaveURL(/#\/iframe\/milestone$/)
 
-  // 子分组在面板内逐层点开，返回时焦点回到来处
-  await panel.getByRole('button', { name: '成本控制' }).click()
-  await expect(panel.getByRole('link', { name: '成本计划' })).toBeFocused()
-  await panel.getByRole('button', { name: '返回项目管理' }).click()
-  await expect(panel.getByRole('button', { name: '成本控制' })).toBeFocused()
-
-  // Esc 收起并把焦点还给分段
-  await page.keyboard.press('Escape')
-  await expect(panel).toBeHidden()
-  await expect(group).toBeFocused()
-
-  await group.press('Enter')
-  await panel.getByRole('link', { name: '项目组合' }).click()
-  await expect(panel).toBeHidden()
-  await expect(trail.locator('.ds-breadcrumb__list [aria-current="page"]')).toHaveText('项目组合')
-  await expect(page.getByRole('tab', { name: '项目组合', exact: true })).toBeVisible()
+  await trail.getByRole('link', { name: '主页' }).click()
+  await expect(page).toHaveURL(/#\/home$/)
+  await expect(trail.locator('[aria-current="page"]')).toHaveText('主页')
 })
 
 test('long paths fold into "…" before the current page is truncated', async ({ page }) => {
@@ -98,18 +84,16 @@ test('long paths fold into "…" before the current page is truncated', async ({
   const trail = crumbs(page)
   const current = trail.locator('.ds-breadcrumb__list [aria-current="page"]')
   await expect(current).toBeInViewport()
-  const more = trail.getByRole('button', { name: '展开已折叠的路径' })
+  const more = trail.locator('.ds-breadcrumb__list .ds-breadcrumb__more')
   await expect(more).toBeVisible()
+  await expect(more).toHaveAttribute('title', /业务平台/)
+  await expect(trail.getByRole('button')).toHaveCount(0)
   await more.click()
-  const panel = page.getByRole('navigation', { name: '页面路径' })
-  await expect(panel.getByRole('button', { name: '业务平台' })).toBeVisible()
-  await panel.getByRole('button', { name: '业务平台' }).click()
-  await panel.getByRole('link', { name: '项目查询' }).click()
-  await expect(current).toHaveText('项目查询')
+  await expect(page.getByRole('navigation', { name: '页面路径' })).toHaveCount(0)
+  await expect(current).toHaveText('里程碑计划编制与审批')
 
   await page.setViewportSize({ width: 1440, height: 800 })
-  await page.goto('/#/iframe/milestone')
-  await expect(trail.getByRole('button', { name: '展开已折叠的路径' })).toHaveCount(0)
-  await expect(trail.getByRole('button', { name: '进度跟踪与里程碑管理', exact: true })).toBeVisible()
+  await expect(more).toHaveCount(0)
+  await expect(trail.locator('.ds-breadcrumb__list .ds-breadcrumb__segment', { hasText: '进度跟踪与里程碑管理' })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 })

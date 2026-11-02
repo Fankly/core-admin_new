@@ -29,7 +29,7 @@ describe('navigation directory', () => {
   it('does not expose descendants of a hidden group', () => {
     expect(collectNavigationEntries([{ ...routes[0], meta: { isNavigationMenu: false } }])).toEqual([])
   })
-  it('resolves the breadcrumb trail with reachable siblings at every level', () => {
+  it('resolves breadcrumb titles from the menu hierarchy for absolute child paths', () => {
     const tree: RouteRecordRaw[] = [
       {
         path: '/platform',
@@ -53,15 +53,13 @@ describe('navigation directory', () => {
       }
     ]
     const trail = resolveBreadcrumb(tree, '/iframe/plan')
-    expect(trail?.ancestors.map((node) => [node.title, node.level])).toEqual([
-      ['业务平台', 1],
-      ['项目管理', 2]
-    ])
-    expect(trail?.current).toMatchObject({ title: '计划编制', level: 3 })
-    // 空分组与隐藏、无视图的入口不出现在下拉里；外链保留真实地址
-    expect(trail?.ancestors[0].children.map((node) => node.title)).toEqual(['项目管理', '外部平台'])
-    expect(trail?.ancestors[0].children[1]).toMatchObject({ external: true, href: 'https://example.com' })
-    expect(trail?.ancestors[1].children.map((node) => node.path)).toEqual(['/iframe/plan'])
+    expect(trail).toEqual({
+      ancestors: [
+        { path: '/platform', title: '业务平台' },
+        { path: '/platform/pm', title: '项目管理' }
+      ],
+      current: { path: '/iframe/plan', title: '计划编制' }
+    })
   })
   it('keeps the real position of hidden pages and ignores routes outside the menu', () => {
     expect(resolveBreadcrumb(routes, '/budget/hidden')?.ancestors.map((node) => node.title)).toEqual(['预算管理'])

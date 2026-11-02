@@ -14,17 +14,23 @@
 
       <li v-for="item in leading" :key="item.path" class="ds-breadcrumb__item">
         <ChevronRight class="ds-breadcrumb__separator" :size="14" :stroke-width="1.8" aria-hidden="true" />
-        <BreadcrumbMenu :root="item" :trail-paths="trailPaths" />
+        <span class="ds-breadcrumb__segment" :title="item.title">
+          <span class="ds-breadcrumb__text">{{ item.title }}</span>
+        </span>
       </li>
 
-      <li v-if="foldedRoot" class="ds-breadcrumb__item">
+      <li v-if="folded.length" class="ds-breadcrumb__item">
         <ChevronRight class="ds-breadcrumb__separator" :size="14" :stroke-width="1.8" aria-hidden="true" />
-        <BreadcrumbMenu :root="foldedRoot" :trail-paths="trailPaths" :folded="foldedLabel" />
+        <span class="ds-breadcrumb__segment ds-breadcrumb__more" :title="foldedLabel" :aria-label="foldedLabel">
+          <Ellipsis :size="16" :stroke-width="1.8" aria-hidden="true" />
+        </span>
       </li>
 
       <li v-for="item in trailing" :key="item.path" class="ds-breadcrumb__item">
         <ChevronRight class="ds-breadcrumb__separator" :size="14" :stroke-width="1.8" aria-hidden="true" />
-        <BreadcrumbMenu :root="item" :trail-paths="trailPaths" />
+        <span class="ds-breadcrumb__segment" :title="item.title">
+          <span class="ds-breadcrumb__text">{{ item.title }}</span>
+        </span>
       </li>
 
       <li v-if="currentTitle" class="ds-breadcrumb__item is-current">
@@ -43,7 +49,6 @@
       <span class="ds-breadcrumb__segment ds-breadcrumb__more" data-measure="more"><Ellipsis :size="16" /></span>
       <span v-for="item in ancestors" :key="item.path" class="ds-breadcrumb__segment" data-measure="ancestor">
         <span class="ds-breadcrumb__text">{{ item.title }}</span>
-        <ChevronDown class="ds-breadcrumb__caret" :size="13" />
       </span>
       <span class="ds-breadcrumb__current" data-measure="current">
         <span class="ds-breadcrumb__text">{{ currentTitle }}</span>
@@ -56,10 +61,9 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useResizeObserver } from '@vueuse/core'
-import { ChevronDown, ChevronRight, Ellipsis, House } from '@lucide/vue'
+import { ChevronRight, Ellipsis, House } from '@lucide/vue'
 import { useMenuStore } from '@/store'
 import { resolveBreadcrumb, type BreadcrumbNode } from '@/router/navigation'
-import BreadcrumbMenu from './BreadcrumbMenu.vue'
 import { fitBreadcrumb, type BreadcrumbWidths } from './breadcrumb-fit'
 
 defineOptions({ name: 'BreadcrumbTrail' })
@@ -84,21 +88,11 @@ const currentTitle = computed(() => {
   return record && record.path !== '/' ? String(record.meta.title) : ''
 })
 
-const trailPaths = computed(() => [...ancestors.value.map((item) => item.path), route.path])
-
 const fit = computed(() => fitBreadcrumb(available.value, widths.value))
 const leading = computed(() => ancestors.value.slice(0, fit.value.head))
 const trailing = computed(() => ancestors.value.slice(ancestors.value.length - fit.value.tail))
 const folded = computed(() => ancestors.value.slice(fit.value.head, ancestors.value.length - fit.value.tail))
 const foldedLabel = computed(() => folded.value.map((item) => item.title).join(' / '))
-
-/** 只折叠一层时「…」就是那一层；折叠多层时先列出这些祖先，再逐层点开。 */
-const foldedRoot = computed<BreadcrumbNode | null>(() => {
-  const nodes = folded.value
-  if (!nodes.length) return null
-  if (nodes.length === 1) return nodes[0]
-  return { path: '__folded__', title: '页面路径', level: nodes[0].level, external: false, href: '', children: nodes }
-})
 
 const readWidths = () => {
   const root = measure.value

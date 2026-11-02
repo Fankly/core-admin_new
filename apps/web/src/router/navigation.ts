@@ -46,35 +46,21 @@ export function searchNavigationEntries(entries: NavigationEntry[], query: strin
   })
 }
 
-/** 面包屑上的一个菜单节点；分组的 children 只保留可达入口。 */
+/** 面包屑展示的路径与标题。 */
 export interface BreadcrumbNode {
   path: string
   title: string
-  /** 菜单树层级，模块为 1，与侧栏层级图标一致 */
-  level: number
-  external: boolean
-  href: string
-  children: BreadcrumbNode[]
 }
 
 export interface BreadcrumbTrail {
-  /** 从模块到直接父级的分组，每段可展开查看同层入口 */
+  /** 从模块到直接父级的分组 */
   ancestors: BreadcrumbNode[]
   current: BreadcrumbNode
 }
 
-const toBreadcrumbNode = (route: RouteRecordRaw, level: number): BreadcrumbNode => ({
+const toBreadcrumbNode = (route: RouteRecordRaw): BreadcrumbNode => ({
   path: route.path,
-  title: route.meta?.title || route.path,
-  level,
-  external: Boolean(route.meta?.isNewPage),
-  href: typeof route.meta?.url === 'string' && route.meta.url ? route.meta.url : route.path,
-  children: (route.children ?? []).flatMap((child) => {
-    if (isHiddenEntry(child)) return []
-    const node = toBreadcrumbNode(child, level + 1)
-    // 子级全部不可达的分组点进去是空列表，与侧栏一样不展示
-    return child.children?.length && !node.children.length ? [] : [node]
-  })
+  title: route.meta?.title || route.path
 })
 
 const findMenuTrail = (routes: RouteRecordRaw[], path: string): RouteRecordRaw[] | null => {
@@ -89,13 +75,13 @@ const findMenuTrail = (routes: RouteRecordRaw[], path: string): RouteRecordRaw[]
 /**
  * 按服务端菜单树解析当前页的面包屑。
  *
- * 分组路由只挂 RouteHost，没有自己的视图，所以祖先不做链接，而是带出该层的可达入口；
+ * 分组路由只挂 RouteHost，没有自己的视图，所以祖先只展示标题；
  * 「系统管理」虽然不进主导航，仍按真实位置展示。不在菜单树里的页面返回 null。
  */
 export function resolveBreadcrumb(routes: RouteRecordRaw[], path: string): BreadcrumbTrail | null {
   const trail = findMenuTrail(routes, path)
   if (!trail) return null
-  const nodes = trail.map((route, index) => toBreadcrumbNode(route, index + 1))
+  const nodes = trail.map(toBreadcrumbNode)
   const current = nodes[nodes.length - 1]
   return { ancestors: nodes.slice(0, -1), current }
 }
