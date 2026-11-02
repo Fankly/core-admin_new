@@ -2,26 +2,24 @@
 // Prefer CSS custom properties from tokens.css in new code; these aliases keep
 // legacy business styles compiling while the remaining Less files are migrated.
 
-@color-primary: #0b6b62;
-@color-primary-light-1: #238378;
-@color-primary-light-4: #6ea9a2;
-@color-primary-light-7: #b9d6d2;
+// CSS aliases keep existing Less consumers in sync when the brand changes.
+@color-primary: var(--ds-jade-600);
+@color-primary-light-1: var(--el-color-primary-light-1);
+@color-primary-light-4: var(--el-color-primary-light-4);
+@color-primary-light-7: var(--el-color-primary-light-7);
+@color-success: var(--ds-success);
+@color-warning: var(--ds-warning);
+@color-danger: var(--ds-danger);
+@color-text-secondary: var(--ds-ink-secondary);
 
-@color-success: #1f7a54;
-@color-warning: #a86a1f;
-@color-danger: #b3453d;
-
-@color-text-secondary: #5d6d66;
-
-// Preserve the theme colors used by migrated business components.
-@--color-primary: #0e8b8d;
-@--color-primary-light-1: mix(#ffffff, @--color-primary, 10%);
-@--color-primary-light-4: mix(#ffffff, @--color-primary, 40%);
-@--color-primary-light-7: mix(#ffffff, @--color-primary, 70%);
-@--color-success: #67c23a;
-@--color-warning: #e6a23c;
-@--color-danger: #f56c6c;
-@--color-text-secondary: #909399;
+@--color-primary: @color-primary;
+@--color-primary-light-1: @color-primary-light-1;
+@--color-primary-light-4: @color-primary-light-4;
+@--color-primary-light-7: @color-primary-light-7;
+@--color-success: @color-success;
+@--color-warning: @color-warning;
+@--color-danger: @color-danger;
+@--color-text-secondary: @color-text-secondary;
 
 .clearfix() {
   &::after {

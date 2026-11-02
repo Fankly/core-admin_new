@@ -3,14 +3,14 @@
 /* .quick-all 是「快捷入口 · 更多」弹窗内容，transfer 到 body 后不在 .home-dashboard 内，需单独挂变量 */
 .home-dashboard,
 .quick-all {
-  --dash-teal: #0f9d8f;
-  --dash-teal-deep: #0b5e59;
-  --dash-ink: #1e293b;
-  --dash-body: #334155;
-  --dash-muted: #64748b;
-  --dash-faint: #94a3b8;
-  --dash-line: #eef2f4;
-  --dash-radius: 8px;
+  --dash-teal: var(--ds-jade-600);
+  --dash-teal-deep: var(--ds-jade-800);
+  --dash-ink: var(--ds-ink);
+  --dash-body: var(--ds-ink-regular);
+  --dash-muted: var(--ds-ink-secondary);
+  --dash-faint: var(--ds-ink-tertiary);
+  --dash-line: var(--ds-line);
+  --dash-radius: var(--ds-radius-md);
 }
 
 /* 内容区底色：左侧近白、右上方一层雾青，托住插画 */
@@ -21,10 +21,8 @@
   height: 100%;
   min-height: 0;
   overflow: auto;
-  padding: 0 14px 16px;
-  background: radial-gradient(900px 430px at 88% -6%, rgba(176, 236, 225, 0.6), rgba(176, 236, 225, 0) 66%),
-    radial-gradient(520px 260px at 4% 0%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 72%),
-    linear-gradient(180deg, #f6fdfd 0%, #f1faf9 52%, #f6fcfb 100%);
+  padding: 0 var(--ds-page-padding) var(--ds-page-padding);
+  background: radial-gradient(900px 430px at 88% -6%, var(--ds-jade-100), transparent 66%), var(--ds-paper);
 }
 
 .dash {
@@ -56,7 +54,7 @@
   opacity: 0.55;
 }
 .quick-item:disabled:hover {
-  border-color: #edf1f3;
+  border-color: var(--ds-line);
   box-shadow: none;
 }
 
@@ -75,8 +73,9 @@
   content: '';
   position: absolute;
   inset: -20% -8% 0 30%;
-  background: linear-gradient(112deg, transparent 34%, rgba(255, 255, 255, 0.62) 45%, transparent 57%),
-    linear-gradient(112deg, transparent 52%, rgba(190, 238, 229, 0.32) 66%, transparent 80%);
+  background:
+    linear-gradient(112deg, transparent 34%, rgba(255, 255, 255, 0.62) 45%, transparent 57%),
+    linear-gradient(112deg, transparent 52%, color-mix(in srgb, var(--ds-jade-200) 32%, transparent) 66%, transparent 80%);
   pointer-events: none;
 }
 .dash-hero-title {
@@ -88,7 +87,7 @@
   gap: 6px 16px;
   max-width: 58%;
   margin: 0;
-  color: #1b2b3d;
+  color: var(--ds-ink);
   font-size: clamp(26px, 2.35vw, 38px);
   font-weight: 700;
   letter-spacing: 1px;
@@ -120,10 +119,10 @@
   flex-direction: column;
   min-width: 0;
   padding: 18px 20px 16px;
-  background: #fff;
+  background: var(--ds-surface);
   border: 1px solid var(--dash-line);
   border-radius: var(--dash-radius);
-  box-shadow: 0 10px 26px -22px rgba(15, 92, 84, 0.55);
+  box-shadow: var(--ds-shadow-panel);
 }
 .dash-head {
   display: flex;
@@ -145,7 +144,7 @@
   color: var(--dash-teal);
 }
 .dash-head-icon.is-red {
-  color: #f2545b;
+  color: var(--ds-danger);
 }
 .dash-head h2 {
   margin: 0;
@@ -162,7 +161,7 @@
   margin-left: auto;
   padding: 2px 0;
   color: var(--dash-faint);
-  font-size: 12.5px;
+  font-size: var(--ds-text-md);
   background: none;
   border: 0;
 }
@@ -180,11 +179,11 @@
   height: 19px;
   margin-left: -1px;
   padding: 0 6px;
-  color: #fff;
+  color: var(--ds-surface);
   font-size: 11.5px;
   font-weight: 600;
   line-height: 1;
-  background: #f2545b;
+  background: var(--ds-danger);
   border-radius: 10px;
 }
 
@@ -220,15 +219,18 @@
   min-width: 0;
   padding: 0 12px 0 9px;
   text-align: left;
-  background: #fff;
-  border: 1px solid #edf1f3;
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-line);
   border-radius: 9px;
-  transition: border-color 0.16s, box-shadow 0.16s, background 0.16s;
+  transition:
+    border-color 0.16s,
+    box-shadow 0.16s,
+    background 0.16s;
 }
 .quick-item:hover {
-  background: #fbfefd;
-  border-color: #b9e4dc;
-  box-shadow: 0 10px 20px -14px rgba(15, 92, 84, 0.5);
+  background: var(--ds-jade-50);
+  border-color: var(--ds-jade-200);
+  box-shadow: var(--ds-shadow-raised);
 }
 .quick-icon {
   display: grid;
@@ -254,7 +256,7 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   color: var(--dash-ink);
-  font-size: 12.5px;
+  font-size: var(--ds-text-md);
   font-weight: 500;
   line-height: 1.3;
 }
@@ -267,7 +269,9 @@
   color: var(--dash-teal);
   opacity: 0;
   transform: translateX(-3px);
-  transition: opacity 0.16s, transform 0.16s;
+  transition:
+    opacity 0.16s,
+    transform 0.16s;
 }
 .quick-go .d-ico {
   width: 10px;
@@ -282,7 +286,7 @@
   min-height: 140px;
 }
 .quick-hint {
-  color: #b6c2cd;
+  color: var(--ds-ink-tertiary);
   font-size: 11.5px;
 }
 /* 「更多」弹窗：每行 3 个、行高固定，收藏多时在弹窗内滚动 */
@@ -342,7 +346,7 @@
   flex: 0 0 auto;
   height: 36px;
   min-height: 0;
-  border-bottom: 1px solid #f2f5f6;
+  border-bottom: 1px solid var(--ds-line);
 }
 .dash-list li:last-child {
   border-bottom: 0;
@@ -355,7 +359,7 @@
   min-width: 0;
   padding: 0;
   color: var(--dash-body);
-  font-size: 12.5px;
+  font-size: var(--ds-text-md);
   text-align: left;
   background: none;
   border: 0;
@@ -376,7 +380,7 @@
   flex: 0 0 24px;
   width: 24px;
   height: 26px;
-  color: #fff;
+  color: var(--ds-surface);
   font-size: 7px;
   font-weight: 700;
   letter-spacing: 0.2px;
@@ -393,20 +397,20 @@
   width: 5px;
   height: 5px;
   margin-right: 1px;
-  background: #f2545b;
+  background: var(--ds-danger);
   border-radius: 50%;
 }
 .notice-date {
   flex: 0 0 auto;
   color: var(--dash-faint);
-  font-size: 10.5px;
+  font-size: var(--ds-text-sm);
   font-variant-numeric: tabular-nums;
 }
 .dash-notice .dash-row-btn {
   gap: 6px;
 }
 .dash-notice .dash-row-text {
-  font-size: 10.5px;
+  font-size: var(--ds-text-sm);
 }
 
 /* ---------- 待办事项 ---------- */
@@ -451,7 +455,7 @@
 .todo-acts .act-divider {
   width: 1px;
   height: 11px;
-  background: #e2e8ee;
+  background: var(--ds-line);
 }
 .dash-action {
   display: inline-flex;
@@ -459,13 +463,13 @@
   gap: 2px;
   padding: 0;
   color: var(--dash-teal);
-  font-size: 12.5px;
+  font-size: var(--ds-text-md);
   font-weight: 500;
   background: none;
   border: 0;
 }
 .dash-action:hover {
-  color: #0b857a;
+  color: var(--ds-jade-700);
 }
 .dash-action .d-ico {
   width: 11px;
@@ -508,10 +512,10 @@
     font-size: 13px;
   }
   .dash-notice .dash-row-text {
-    font-size: 12.5px;
+    font-size: var(--ds-text-md);
   }
   .notice-date {
-    font-size: 12.5px;
+    font-size: var(--ds-text-md);
   }
 }
 

@@ -79,48 +79,6 @@ const handleNotice = async (): Promise<void> => {
 </template>
 
 <style scoped>
-:root {
-  --bpm-primary: #00706b;
-  --bpm-primary-hover: #005854;
-}
-
-/* vxe-modal 弹窗主题 */
-.notice-modal {
-  --vxe-font-color: #303133;
-  --vxe-font-lighten-color: #909399;
-  --vxe-modal-header-background-color: #f5f7fa;
-  --vxe-modal-body-background-color: #ffffff;
-  --vxe-modal-border-color: #ebeef5;
-}
-
-.notice-modal .vxe-modal--header {
-  background-color: #f5f7fa !important;
-  border-bottom: 1px solid #ebeef5 !important;
-  color: #303133 !important;
-}
-
-.notice-modal .vxe-modal--header-title {
-  color: #303133 !important;
-  font-weight: 600 !important;
-}
-
-.notice-modal .vxe-modal--close-btn {
-  color: #909399 !important;
-}
-
-.notice-modal .vxe-modal--close-btn:hover {
-  color: #606266 !important;
-}
-
-.notice-modal .vxe-modal--footer {
-  border-top: 1px solid #ebeef5 !important;
-  background-color: #f5f7fa !important;
-}
-
-.notice-modal .vxe-modal--body {
-  color: #303133 !important;
-}
-
 /* 弹窗主体 */
 .notice-modal-body {
   padding: 1rem;
@@ -135,13 +93,13 @@ const handleNotice = async (): Promise<void> => {
   align-items: center;
   gap: 10px;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--ds-line);
 }
 
 .notice-modal-intro-icon {
   padding: 0.5rem;
   border-radius: 0.5rem;
-  border: 1px solid rgba(0, 168, 150, 0.3);
+  border: 1px solid var(--ds-jade-200);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -156,7 +114,7 @@ const handleNotice = async (): Promise<void> => {
 
 .notice-modal-subtitle {
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--ds-ink-secondary);
   margin-top: 0.25rem;
 }
 
@@ -177,7 +135,7 @@ const handleNotice = async (): Promise<void> => {
   justify-content: space-between;
   font-size: 20px;
   font-weight: bold;
-  color: #000;
+  color: var(--ds-ink);
   letter-spacing: 1.2px;
 }
 
@@ -190,21 +148,21 @@ const handleNotice = async (): Promise<void> => {
 }
 
 .bpm-notice-tag-amber {
-  background-color: #fef3c7;
-  color: #92400e;
-  border-color: #fcd34d;
+  background-color: var(--ds-warning-soft);
+  color: var(--ds-warning);
+  border-color: var(--el-color-warning-light-7);
 }
 
 .bpm-notice-tag-blue {
-  background-color: #dbeafe;
-  color: #1e40af;
-  border-color: #93c5fd;
+  background-color: var(--ds-info-soft);
+  color: var(--ds-info);
+  border-color: var(--el-color-info-light-7);
 }
 
 .bpm-notice-tag-emerald {
-  background-color: #d1fae5;
-  color: #065f46;
-  border-color: #6ee7b7;
+  background-color: var(--ds-success-soft);
+  color: var(--ds-success);
+  border-color: var(--el-color-success-light-7);
 }
 
 /* 检修时间 & 影响模块 信息行 */
@@ -215,7 +173,7 @@ const handleNotice = async (): Promise<void> => {
   font-size: 16px;
   padding: 1rem 1.25rem;
   /* border-radius: 0.75rem;
-  border: 1px solid #f1f5f9;
+  border: 1px solid var(--ds-line);
   background-color: #f8fafc; */
   margin: 5px 0;
 }
@@ -224,23 +182,23 @@ const handleNotice = async (): Promise<void> => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #000;
+  color: var(--ds-ink);
 }
 .bpm-info-item-content {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  color: #000;
+  color: var(--ds-ink);
 }
 
 .bpm-info-label {
-  color: #0f172a;
+  color: var(--ds-ink);
   font-weight: 700;
 }
 
 .bpm-info-val {
   font-weight: 600;
-  color: #475569;
+  color: var(--ds-ink-regular);
 }
 
 /* 检修内容描述 */
@@ -251,7 +209,7 @@ const handleNotice = async (): Promise<void> => {
 }
 
 .bpm-notice-content-html {
-  color: #475569;
+  color: var(--ds-ink-regular);
   font-size: 13px;
   max-height: 55vh;
   overflow: hidden;
@@ -274,6 +232,6 @@ const handleNotice = async (): Promise<void> => {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--ds-ink-secondary);
 }
 </style>

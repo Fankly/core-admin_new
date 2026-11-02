@@ -55,34 +55,38 @@ const toggleSearch = () => {
 .tool-button {
   display: inline-flex;
   align-items: center;
-  gap: 15px;
+  gap: var(--ds-space-1);
 }
 
 .tool-button__icon {
   padding: 0;
-  border: 0;
-  background: transparent;
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius-sm);
+  background: var(--ds-surface);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: var(--ds-control-height-sm);
+  height: var(--ds-control-height-sm);
   cursor: pointer;
-  color: var(--el-text-color-secondary, #64748b);
-  font-size: 15px;
+  color: var(--ds-ink-secondary);
+  font-size: var(--ds-text-lg);
   line-height: 1;
   outline: none;
-  transition: color 0.12s ease;
+  transition:
+    color var(--ds-duration-fast) ease,
+    background-color var(--ds-duration-fast) ease;
 
   &:hover,
   &:focus-visible {
-    color: #00706b;
+    color: var(--ds-jade-700);
+    background: var(--ds-jade-50);
+    border-color: var(--ds-jade-200);
   }
 
   &:focus-visible {
-    outline: 2px solid #00706b;
+    outline: 2px solid var(--ds-jade-500);
     outline-offset: 2px;
-    border-radius: 2px;
   }
 }
 </style>

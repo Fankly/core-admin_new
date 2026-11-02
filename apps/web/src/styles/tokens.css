@@ -33,10 +33,17 @@
   --ds-surface-sunken: #f1f5f2;
   --ds-line: #e1e8e3;
   --ds-line-strong: #cfdad3;
+  --ds-line-soft: #edf2ee;
+  --ds-line-faint: #f4f7f4;
+  --ds-fill: #f2f6f3;
+  --ds-fill-light: #f6f9f7;
+  --ds-fill-faint: #fafcfa;
   --ds-ink: #17231f;
+  --ds-ink-regular: #3e4e47;
   --ds-ink-secondary: #5d6d66;
   --ds-ink-tertiary: #61716a;
   --ds-ink-inverse: #f5faf8;
+  --ds-ink-disabled: #a3b1aa;
 
   /* Functional colors. Amber is deliberately rare: attention, not decoration. */
   --ds-success: #1f7a54;
@@ -81,7 +88,7 @@
 
   --ds-radius-xs: 4px;
   --ds-radius-sm: 6px;
-  --ds-radius-md: 9px;
+  --ds-radius-md: 10px;
   --ds-radius-lg: 14px;
   --ds-radius-xl: 20px;
   --ds-radius-pill: 999px;
@@ -89,6 +96,16 @@
   --ds-shadow-panel: 0 1px 1px rgb(18 42 34 / 3%), 0 18px 38px -28px rgb(18 42 34 / 26%);
   --ds-shadow-raised: 0 1px 2px rgb(18 42 34 / 5%), 0 14px 30px -18px rgb(18 42 34 / 22%);
   --ds-shadow-popover: 0 16px 40px -14px rgb(7 28 23 / 28%), 0 2px 6px rgb(7 28 23 / 6%);
+
+  /* Density is shared by forms, toolbars and both table libraries. */
+  --ds-control-height-sm: 30px;
+  --ds-control-height: 36px;
+  --ds-control-height-lg: 42px;
+  --ds-table-row-height-sm: 40px;
+  --ds-table-row-height: 44px;
+  --ds-table-row-height-lg: 50px;
+  --ds-page-padding: 16px;
+  --ds-form-gap: 18px;
 
   --ds-header-height: 64px;
   --ds-sidebar-width: 248px;
@@ -102,66 +119,4 @@
   --ds-duration-slow: 320ms;
   --ds-duration-page: 280ms;
   --ds-motion-stagger: 25ms;
-
-  /* Element Plus mapping — components inherit the same world. */
-  --el-transition-duration: var(--ds-duration-page);
-  --el-transition-duration-fast: var(--ds-duration-fast);
-  --el-transition-function-ease-in-out-bezier: var(--ds-ease-out);
-  --el-transition-function-fast-bezier: var(--ds-ease-out);
-  --el-font-family: var(--ds-font-sans);
-  --el-font-size-base: var(--ds-text-base);
-  --el-font-size-small: var(--ds-text-md);
-  --el-text-color-primary: var(--ds-ink);
-  --el-text-color-regular: #3e4e47;
-  --el-text-color-secondary: var(--ds-ink-secondary);
-  --el-text-color-placeholder: var(--ds-ink-tertiary);
-  --el-text-color-disabled: #aebbb5;
-  --el-border-color: var(--ds-line-strong);
-  --el-border-color-light: var(--ds-line);
-  --el-border-color-lighter: #edf2ee;
-  --el-border-color-extra-light: #f4f7f4;
-  --el-fill-color: #f2f6f3;
-  --el-fill-color-light: #f6f9f7;
-  --el-fill-color-lighter: #fafcfa;
-  --el-fill-color-blank: var(--ds-surface);
-  --el-bg-color: var(--ds-surface);
-  --el-bg-color-page: var(--ds-paper);
-  --el-bg-color-overlay: var(--ds-surface);
-  --el-border-radius-base: var(--ds-radius-sm);
-  --el-border-radius-small: var(--ds-radius-xs);
-  --el-border-radius-round: var(--ds-radius-pill);
-  --el-box-shadow-light: var(--ds-shadow-raised);
-  --el-box-shadow: var(--ds-shadow-popover);
-  --el-color-primary: var(--ds-jade-600);
-  --el-color-primary-light-3: #4b948b;
-  --el-color-primary-light-5: #84b7b0;
-  --el-color-primary-light-7: #bdd8d4;
-  --el-color-primary-light-8: #d7e8e5;
-  --el-color-primary-light-9: #eef6f4;
-  --el-color-primary-dark-2: #08554e;
-  --el-color-success: var(--ds-success);
-  --el-color-warning: var(--ds-warning);
-  --el-color-danger: var(--ds-danger);
-  --el-color-error: var(--ds-danger);
-  --el-color-info: var(--ds-info);
-  --el-color-success-light-9: var(--ds-success-soft);
-  --el-color-warning-light-9: var(--ds-warning-soft);
-  --el-color-danger-light-9: var(--ds-danger-soft);
-  --el-color-info-light-9: var(--ds-info-soft);
-
-  /* Project aliases still consumed by legacy business styles. */
-  --color-primary: var(--ds-jade-600);
-  --color-primary-light: rgb(11 107 98 / 8%);
-  --vxe-primary-color: var(--ds-jade-600);
-}
-
-/* VXE styles are lazy-loaded; body-level aliases keep theme tokens authoritative. */
-body {
-  --vxe-ui-font-family: var(--ds-font-sans);
-  --vxe-ui-font-color: var(--ds-ink);
-  --vxe-ui-font-primary-color: var(--ds-jade-600);
-  --vxe-ui-font-primary-lighten-color: var(--ds-jade-500);
-  --vxe-ui-font-primary-darken-color: var(--ds-jade-700);
-  --vxe-ui-font-secondary-color: var(--ds-ink-secondary);
-  --vxe-ui-base-border-color: var(--ds-line);
 }

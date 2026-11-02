@@ -13,9 +13,9 @@
   --ds-nav-active: color-mix(in srgb, var(--ds-jade-500) 20%, transparent);
   --ds-brand-surface: var(--ds-jade-950);
   --ds-brand-text: #f8fffd;
-  --ds-header-surface: #ffffff;
-  --ds-header-text: #17231f;
-  --ds-header-muted: #5d6d66;
+  --ds-header-surface: var(--ds-surface);
+  --ds-header-text: var(--ds-ink);
+  --ds-header-muted: var(--ds-ink-secondary);
   --ds-sidebar-current-width: var(--ds-sidebar-width, 248px);
 
   display: flex;
@@ -41,23 +41,23 @@
 
 .ui-sidebar-light {
   --ds-nav-bg: #fff;
-  --ds-nav-text: #475569;
+  --ds-nav-text: var(--ds-ink-regular);
   --ds-nav-text-active: var(--ds-jade-700);
-  --ds-nav-line: #e3ecea;
-  --ds-nav-hover: rgb(0 112 107 / 5%);
-  --ds-nav-active: color-mix(in srgb, var(--ds-jade-100) 72%, #ffffff);
-  --ds-brand-surface: #ffffff;
-  --ds-brand-text: #17231f;
+  --ds-nav-line: var(--ds-line);
+  --ds-nav-hover: color-mix(in srgb, var(--ds-jade-600) 5%, transparent);
+  --ds-nav-active: color-mix(in srgb, var(--ds-jade-100) 72%, var(--ds-surface));
+  --ds-brand-surface: var(--ds-surface);
+  --ds-brand-text: var(--ds-ink);
 }
 
 .ui-topHeader-light {
-  --ds-header-surface: #ffffff;
-  --ds-header-text: #17231f;
-  --ds-header-muted: #5d6d66;
+  --ds-header-surface: var(--ds-surface);
+  --ds-header-text: var(--ds-ink);
+  --ds-header-muted: var(--ds-ink-secondary);
 }
 
 .ui-topHeader-dark {
-  --ds-header-surface: #0a2b26;
+  --ds-header-surface: var(--ds-jade-950);
   --ds-header-text: #f2faf7;
   --ds-header-muted: rgb(231 243 239 / 62%);
 }

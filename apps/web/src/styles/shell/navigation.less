@@ -258,15 +258,15 @@
 
   /* 一级业务域卡片 */
   --nav-card-bg: #fff;
-  --nav-card-border: #edf4f3;
+  --nav-card-border: var(--ds-line-soft);
   --nav-card-shadow: 0 1px 2px rgb(15 60 55 / 3%);
-  --nav-card-open-border: #d8efec;
-  --nav-card-open-shadow: 0 10px 24px -14px rgb(0 112 107 / 35%);
+  --nav-card-open-border: var(--ds-jade-200);
+  --nav-card-open-shadow: 0 10px 24px -14px color-mix(in srgb, var(--ds-jade-600) 35%, transparent);
   --nav-card-active-bg: color-mix(in srgb, var(--nav-primary) 6%, var(--nav-card-bg));
 
   --nav-search-bg: rgb(255 255 255 / 85%);
   --nav-search-focus-bg: #fff;
-  --nav-search-border: #e2eeed;
+  --nav-search-border: var(--ds-line);
   --nav-search-radius: 10px;
 }
 
@@ -280,9 +280,9 @@
   --nav-card-bg: #212c31;
   --nav-card-border: rgb(255 255 255 / 6%);
   --nav-card-shadow: none;
-  --nav-card-open-border: rgb(95 208 195 / 24%);
+  --nav-card-open-border: color-mix(in srgb, var(--ds-jade-300) 24%, transparent);
   --nav-card-open-shadow: 0 10px 24px -16px rgb(0 0 0 / 60%);
-  --nav-card-active-bg: color-mix(in srgb, #5fd0c3 11%, var(--nav-card-bg));
+  --nav-card-active-bg: color-mix(in srgb, var(--ds-jade-300) 11%, var(--nav-card-bg));
 
   --nav-search-bg: rgb(255 255 255 / 5%);
   --nav-search-focus-bg: rgb(255 255 255 / 8%);
@@ -735,7 +735,7 @@
 }
 
 .ui-sidebar-dark .ds-nav--vertical .rr-menu-favorite.is-favorite {
-  color: #5fd0c3;
+  color: var(--ds-jade-300);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -806,7 +806,7 @@
 
 .ui-topHeader-dark .ds-nav--horizontal .ds-nav__menu .el-menu-item.is-active::after,
 .ui-topHeader-primary .ds-nav--horizontal .ds-nav__menu .el-menu-item.is-active::after {
-  background: #8ee0d2;
+  background: var(--ds-jade-200);
 }
 
 .ds-nav--horizontal .ds-nav__menu .rr-sidebar-menu-entry__icon {

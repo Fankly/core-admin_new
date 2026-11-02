@@ -291,27 +291,37 @@ defineExpose({
   min-width: 0;
   min-height: 0;
   .titleMsg {
-    font-weight: bold;
-    font-size: 16px;
+    color: var(--ds-ink);
+    font-weight: 600;
+    font-size: var(--ds-text-lg);
   }
 
   .operate {
     display: flex;
     width: 100%;
-    height: 28px;
+    flex-shrink: 0;
+    min-height: var(--ds-control-height-sm);
+    gap: var(--ds-space-3);
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: var(--ds-space-4);
     min-width: 0;
-    min-height: 0;
 
     &-button {
+      display: flex;
       flex: 1;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--ds-space-2);
       min-width: 0;
       min-height: 0;
+
+      :deep(.el-button + .el-button) {
+        margin-left: 0;
+      }
     }
 
     &-filter {
-      width: 100px;
+      flex-shrink: 0;
       text-align: right;
     }
   }

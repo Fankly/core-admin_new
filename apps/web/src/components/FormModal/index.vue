@@ -172,7 +172,6 @@
   </vxe-modal>
 </template>
 
-
 <script setup lang="ts">
 import baseService from '@/service/baseService'
 import { ref, reactive, computed, watch, onBeforeUnmount } from 'vue'
@@ -634,21 +633,22 @@ defineExpose({
 .form-container {
   flex: 1;
   overflow-y: auto;
-  padding: 0 20px;
+  padding: 0 var(--ds-space-6);
 }
 
 .modal-footer {
-  text-align: center;
-  padding: 20px 0 10px;
-  border-top: 1px solid #ebeef5;
-  margin-top: 20px;
+  text-align: right;
+  padding: var(--ds-space-4) var(--ds-space-6);
+  border-top: 1px solid var(--ds-line);
+  background: var(--ds-surface-subtle);
+  margin-top: var(--ds-space-5);
 }
 
 :deep(.el-form-item) {
-  margin-bottom: 20px;
+  margin-bottom: var(--ds-form-gap);
 }
 
 :deep(.el-form-item__label) {
-  font-weight: normal;
+  font-weight: 500;
 }
 </style>

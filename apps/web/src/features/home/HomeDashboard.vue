@@ -107,7 +107,6 @@
         </header>
         <div class="todo-vxe-box">
           <vxe-table
-            :cell-config="{ height: 44 }"
             class="todo-vxe"
             border="full"
             :data="todoRows"
@@ -118,8 +117,6 @@
             show-overflow
             :column-config="{ resizable: true }"
             :row-config="{ isHover: true }"
-            :cell-style="{ color: '#475569' }"
-            :header-cell-style="{ height: '36px', backgroundColor: '#f6f8fa', color: '#64748b', fontWeight: '400' }"
           >
             <vxe-column field="workflowName" title="流程名称" width="20%" align="center" />
             <vxe-column field="bizName" title="业务名称" width="26%">
@@ -643,9 +640,9 @@ onBeforeUnmount(() => {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  border: 1px solid #e3efec;
+  border: 1px solid var(--ds-line);
   border-radius: 12px;
-  box-shadow: 0 30px 70px -32px rgba(11, 94, 89, 0.45);
+  box-shadow: var(--ds-shadow-popover);
 }
 /* 快捷入口弹窗不设固定高度：高度随收藏数量，超出时 .quick-all 内部滚动 */
 .home-quick-modal .vxe-modal--box {
@@ -671,8 +668,8 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   padding: 14px 16px 13px 20px;
-  background: linear-gradient(180deg, #ffffff, #f7fcfb);
-  border-bottom: 1px solid #eef2f4;
+  background: linear-gradient(180deg, var(--ds-surface), var(--ds-surface-subtle));
+  border-bottom: 1px solid var(--ds-line);
 }
 .home-notice-modal .vxe-modal--header-title,
 .home-quick-modal .vxe-modal--header-title,
@@ -694,13 +691,13 @@ onBeforeUnmount(() => {
   flex: 0 0 34px;
   width: 34px;
   height: 34px;
-  color: #f2545b;
-  background: #fdeceb;
+  color: var(--ds-danger);
+  background: var(--ds-danger-soft);
   border-radius: 9px;
 }
 .hnm-head-icon.is-teal {
-  color: #0f9d8f;
-  background: #ddf8f2;
+  color: var(--ds-jade-600);
+  background: var(--ds-jade-50);
 }
 .hnm-head-icon .d-ico {
   width: 19px;
@@ -713,28 +710,28 @@ onBeforeUnmount(() => {
   min-width: 0;
 }
 .hnm-title {
-  color: #1e293b;
+  color: var(--ds-ink);
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.3px;
   line-height: 1.25;
 }
 .hnm-sub {
-  color: #94a3b8;
+  color: var(--ds-ink-tertiary);
   font-size: 12px;
   line-height: 1.3;
 }
 .home-notice-modal .vxe-modal--close-btn,
 .home-quick-modal .vxe-modal--close-btn,
 .home-manual-modal .vxe-modal--close-btn {
-  color: #94a3b8;
+  color: var(--ds-ink-tertiary);
 }
 .home-notice-modal .vxe-modal--close-btn:hover {
-  color: #f2545b;
+  color: var(--ds-danger);
 }
 .home-quick-modal .vxe-modal--close-btn:hover,
 .home-manual-modal .vxe-modal--close-btn:hover {
-  color: #0f9d8f;
+  color: var(--ds-jade-600);
 }
 /* 列表区：填满固定高度内的剩余空间，内部滚动 */
 .hnm-list-wrap {
@@ -750,7 +747,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 12px;
   min-height: 180px;
-  color: #94a3b8;
+  color: var(--ds-ink-tertiary);
   font-size: 13px;
 }
 .notice-dialog-list {
@@ -767,10 +764,10 @@ onBeforeUnmount(() => {
   gap: 10px;
   width: 100%;
   padding: 12px 12px;
-  color: #334155;
+  color: var(--ds-ink-regular);
   font: inherit;
   text-align: left;
-  background: #fff;
+  background: var(--ds-surface);
   border: 1px solid transparent;
   border-radius: 9px;
   cursor: pointer;
@@ -779,17 +776,17 @@ onBeforeUnmount(() => {
     border-color 0.16s;
 }
 .notice-dialog-list button:hover {
-  background: #f6fbfa;
-  border-color: #d8efe9;
+  background: var(--ds-jade-50);
+  border-color: var(--ds-jade-200);
 }
 .notice-dialog-list button:hover .hnm-item-title {
-  color: #0f9d8f;
+  color: var(--ds-jade-600);
 }
 .notice-dialog-list button:hover .hnm-item-date {
-  color: #0f9d8f;
+  color: var(--ds-jade-600);
 }
 .notice-dialog-list button:focus-visible {
-  outline: 2px solid #0f9d8f;
+  outline: 2px solid var(--ds-jade-600);
   outline-offset: 2px;
 }
 .notice-dialog-list .notice-dot {
@@ -809,7 +806,7 @@ onBeforeUnmount(() => {
 }
 .hnm-item-date {
   flex: 0 0 auto;
-  color: #94a3b8;
+  color: var(--ds-ink-tertiary);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -818,15 +815,15 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   padding: 10px 16px 14px;
-  background: #fbfdfd;
-  border-top: 1px solid #eef2f4;
+  background: var(--ds-surface-subtle);
+  border-top: 1px solid var(--ds-line);
 }
 .home-notice-modal .el-pager li.active {
-  color: #fff;
-  background: #0f9d8f;
+  color: var(--ds-surface);
+  background: var(--ds-jade-600);
 }
 .hnm-all-shown {
-  color: #94a3b8;
+  color: var(--ds-ink-tertiary);
   font-size: 12px;
 }
 /* 用户手册弹窗：底部左侧数量、右侧批量下载 */
@@ -835,8 +832,8 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px 14px;
-  background: #fbfdfd;
-  border-top: 1px solid #eef2f4;
+  background: var(--ds-surface-subtle);
+  border-top: 1px solid var(--ds-line);
 }
 .home-manual-modal .hmm-foot {
   display: flex;
@@ -849,18 +846,18 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   padding: 0;
-  color: #0f9d8f;
-  font-size: 12.5px;
+  color: var(--ds-jade-600);
+  font-size: var(--ds-text-md);
   font-weight: 500;
   background: none;
   border: 0;
   cursor: pointer;
 }
 .home-manual-modal .dash-action:hover {
-  color: #0b857a;
+  color: var(--ds-jade-700);
 }
 .home-manual-modal .dash-action:disabled {
-  color: #cbd5e1;
+  color: var(--ds-line-strong);
   cursor: not-allowed;
 }
 /* 弹窗内的文件类型标签沿用卡片配色，需在全局块补齐 */
@@ -870,7 +867,7 @@ onBeforeUnmount(() => {
   flex: 0 0 30px;
   width: 30px;
   height: 32px;
-  color: #fff;
+  color: var(--ds-surface);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.2px;
@@ -884,10 +881,10 @@ onBeforeUnmount(() => {
 }
 /* 首页待办表格：沿用 vxe-table，但按首页卡片视觉微调 */
 .home-dashboard .todo-vxe {
-  --vxe-table-border-color: #ebeef5;
-  --vxe-table-row-hover-background-color: #fafdfc;
-  --vxe-table-row-hover-current-background-color: #fafdfc;
-  font-size: 12.5px;
+  --vxe-ui-table-border-color: var(--ds-line);
+  --vxe-ui-table-row-hover-background-color: var(--ds-jade-50);
+  --vxe-ui-table-row-hover-current-background-color: var(--ds-jade-50);
+  font-size: var(--ds-text-md);
 }
 .home-dashboard .todo-vxe .vxe-table--main-wrapper,
 .home-dashboard .todo-vxe .vxe-table--header-wrapper {

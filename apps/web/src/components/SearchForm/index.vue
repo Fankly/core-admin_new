@@ -17,7 +17,7 @@
           </el-form-item>
         </GridItem>
         <GridItem suffix>
-          <div class="operation" style="text-align: right; margin-bottom: 10px">
+          <div class="operation">
             <el-button size="small" type="primary" native-type="submit">查询</el-button>
             <el-button size="small" @click="reset">重置</el-button>
             <el-button v-if="showCollapse" size="small" text :aria-expanded="!collapsed" @click="collapsed = !collapsed">{{
@@ -85,3 +85,36 @@ const showCollapse = computed(() => {
   )
 })
 </script>
+
+<style scoped lang="less">
+.table-search {
+  flex-shrink: 0;
+  padding: var(--ds-space-4) var(--ds-space-4) 0;
+  margin-bottom: var(--ds-space-4);
+  background: var(--ds-surface-subtle);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-radius-md);
+
+  :deep(.el-form-item) {
+    margin-bottom: var(--ds-space-4);
+  }
+
+  :deep(.el-form-item__content > *) {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .operation {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--ds-space-2);
+    margin-bottom: var(--ds-space-4);
+
+    .el-button + .el-button {
+      margin-left: 0;
+    }
+  }
+}
+</style>

@@ -186,7 +186,8 @@
           <el-button type="primary" plain size="small" @click="gzlImport">工作量导入</el-button>
         </div>
         <vxe-table
-          :cell-config="{ height: 32 }" :column-config="{ resizable: true }"
+          :cell-config="{ height: 32 }"
+          :column-config="{ resizable: true }"
           keep-source
           :edit-config="{
             trigger: 'click',
@@ -255,7 +256,6 @@
   <ImportExcel ref="importRef" />
 </template>
 
-
 <script setup lang="ts">
 import baseService from '@/service/baseService'
 import { ref, reactive, computed, watch, onBeforeUnmount, nextTick } from 'vue'
@@ -267,7 +267,7 @@ defineOptions({
   name: 'FormTableModal'
 })
 
- //导入组件
+//导入组件
 
 export interface FormField {
   prop: string
@@ -842,31 +842,32 @@ defineExpose({
 .form-container {
   flex: 0 0 420px;
   min-height: 0;
-  padding: 0 20px;
+  padding: 0 var(--ds-space-6);
   overflow: auto;
 }
 
 .modal-footer {
-  text-align: center;
-  padding: 20px 0 10px;
-  border-top: 1px solid #ebeef5;
-  margin-top: 20px;
+  text-align: right;
+  padding: var(--ds-space-4) var(--ds-space-6);
+  border-top: 1px solid var(--ds-line);
+  background: var(--ds-surface-subtle);
+  margin-top: var(--ds-space-5);
 }
 .table {
   flex: 1;
   min-height: 0;
-  padding: 0 20px;
+  padding: 0 var(--ds-space-6);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 :deep(.el-form-item) {
-  margin-bottom: 20px;
+  margin-bottom: var(--ds-form-gap);
 }
 
 :deep(.el-form-item__label) {
-  font-weight: normal;
+  font-weight: 500;
 }
 
 .form-item-label--multiline {
@@ -881,10 +882,10 @@ defineExpose({
 .section-title {
   font-size: 14px;
   font-weight: 600;
-  color: #303133;
+  color: var(--ds-ink);
   margin-bottom: 10px;
   padding-left: 8px;
-  border-left: 2px solid var(--color-primary, #00857c);
+  border-left: 2px solid var(--ds-jade-600);
   line-height: 1.2;
 }
 </style>

@@ -1,0 +1,127 @@
+/* Resolve aliases on body: runtime theme colors live here, and teleported
+   dialogs inherit the same values. Lazy vendor :root rules cannot win. */
+body {
+  /* Element Plus mapping — components inherit the same world. */
+  --el-transition-duration: var(--ds-duration-page);
+  --el-transition-duration-fast: var(--ds-duration-fast);
+  --el-transition-function-ease-in-out-bezier: var(--ds-ease-out);
+  --el-transition-function-fast-bezier: var(--ds-ease-out);
+  --el-font-family: var(--ds-font-sans);
+  --el-font-size-base: var(--ds-text-base);
+  --el-font-size-small: var(--ds-text-md);
+  --el-text-color-primary: var(--ds-ink);
+  --el-text-color-regular: var(--ds-ink-regular);
+  --el-text-color-secondary: var(--ds-ink-secondary);
+  --el-text-color-placeholder: var(--ds-ink-tertiary);
+  --el-text-color-disabled: var(--ds-ink-disabled);
+  --el-border-color: var(--ds-line-strong);
+  --el-border: 1px solid var(--ds-line-strong);
+  --el-border-color-light: var(--ds-line);
+  --el-border-color-lighter: var(--ds-line-soft);
+  --el-border-color-extra-light: var(--ds-line-faint);
+  --el-fill-color: var(--ds-fill);
+  --el-fill-color-light: var(--ds-fill-light);
+  --el-fill-color-lighter: var(--ds-fill-faint);
+  --el-fill-color-blank: var(--ds-surface);
+  --el-bg-color: var(--ds-surface);
+  --el-bg-color-page: var(--ds-paper);
+  --el-bg-color-overlay: var(--ds-surface);
+  --el-border-radius-base: var(--ds-radius-sm);
+  --el-border-radius-small: var(--ds-radius-xs);
+  --el-border-radius-round: var(--ds-radius-pill);
+  --el-box-shadow-light: var(--ds-shadow-raised);
+  --el-box-shadow: var(--ds-shadow-popover);
+  --el-component-size-small: var(--ds-control-height-sm);
+  --el-component-size: var(--ds-control-height);
+  --el-component-size-large: var(--ds-control-height-lg);
+  --el-disabled-bg-color: var(--ds-surface-sunken);
+  --el-disabled-text-color: var(--ds-ink-disabled);
+  --el-disabled-border-color: var(--ds-line);
+  --el-mask-color: rgb(255 255 255 / 88%);
+  --el-overlay-color: rgb(23 35 31 / 45%);
+  --el-overlay-color-light: rgb(23 35 31 / 32%);
+  --el-overlay-color-lighter: rgb(23 35 31 / 24%);
+
+  // Complete semantic ramps prevent vendor green/red from leaking into hover,
+  // plain buttons, tags and alerts. All shades follow the token's base color.
+  .palette(@name, @source) {
+    --el-color-@{name}: var(@source);
+    each(range(9), {
+      @white: (@value * 10%);
+      --el-color-@{name}-light-@{value}: color-mix(in srgb, var(@source), white @white);
+    });
+    --el-color-@{name}-dark-2: color-mix(in srgb, var(@source), black 20%);
+  }
+  .palette(primary, --ds-jade-600);
+  .palette(success, --ds-success);
+  .palette(warning, --ds-warning);
+  .palette(danger, --ds-danger);
+  .palette(error, --ds-danger);
+  .palette(info, --ds-info);
+  --el-color-success-light-9: var(--ds-success-soft);
+  --el-color-warning-light-9: var(--ds-warning-soft);
+  --el-color-danger-light-9: var(--ds-danger-soft);
+  --el-color-error-light-9: var(--ds-danger-soft);
+  --el-color-info-light-9: var(--ds-info-soft);
+
+  --color-primary: var(--ds-jade-600);
+  --color-primary-light: var(--ds-jade-50);
+  --vxe-primary-color: var(--ds-jade-600);
+  --vxe-primary-lighten-color: var(--ds-jade-500);
+  --vxe-primary-darken-color: var(--ds-jade-700);
+  --vxe-ui-font-family: var(--ds-font-sans);
+  --vxe-ui-font-color: var(--ds-ink-regular);
+  --vxe-ui-font-secondary-color: var(--ds-ink-secondary);
+  --vxe-ui-font-lighten-color: var(--ds-ink-tertiary);
+  --vxe-ui-font-placeholder-color: var(--ds-ink-tertiary);
+  --vxe-ui-font-disabled-color: var(--ds-ink-disabled);
+  --vxe-ui-font-primary-color: var(--ds-jade-600);
+  --vxe-ui-font-primary-lighten-color: var(--ds-jade-500);
+  --vxe-ui-font-primary-darken-color: var(--ds-jade-700);
+  --vxe-ui-font-primary-disabled-color: var(--ds-jade-300);
+  --vxe-ui-font-primary-tinge-color: var(--ds-jade-50);
+  --vxe-ui-font-size-default: var(--ds-text-base);
+  --vxe-ui-font-size-medium: var(--ds-text-base);
+  --vxe-ui-font-size-small: var(--ds-text-md);
+  --vxe-ui-font-size-mini: var(--ds-text-sm);
+  --vxe-ui-layout-background-color: var(--ds-surface);
+  --vxe-ui-base-border-color: var(--ds-line);
+  --vxe-ui-base-border-radius: var(--ds-radius-sm);
+  --vxe-ui-base-hover-background-color: var(--ds-jade-50);
+  --vxe-ui-base-active-background-color: var(--ds-jade-100);
+  --vxe-ui-base-popup-border-color: var(--ds-line);
+  --vxe-ui-base-popup-box-shadow: var(--ds-shadow-popover);
+  --vxe-ui-input-border-color: var(--ds-line-strong);
+  --vxe-ui-input-disabled-background-color: var(--ds-surface-sunken);
+  --vxe-ui-table-border-color: var(--ds-line);
+  --vxe-ui-table-border-radius: var(--ds-radius-md);
+  --vxe-ui-table-header-background-color: var(--ds-surface-subtle);
+  --vxe-ui-table-header-font-color: var(--ds-ink-secondary);
+  --vxe-ui-table-footer-background-color: var(--ds-surface-subtle);
+  --vxe-ui-table-footer-font-color: var(--ds-ink);
+  --vxe-ui-table-row-striped-background-color: var(--ds-surface-subtle);
+  --vxe-ui-table-row-hover-background-color: var(--ds-jade-50);
+  --vxe-ui-table-row-hover-striped-background-color: var(--ds-jade-50);
+  --vxe-ui-table-row-current-background-color: var(--ds-jade-100);
+  --vxe-ui-table-row-hover-current-background-color: var(--ds-jade-100);
+  --vxe-ui-table-row-checkbox-checked-background-color: var(--ds-jade-50);
+  --vxe-ui-table-row-hover-checkbox-checked-background-color: var(--ds-jade-100);
+  --vxe-ui-table-row-radio-checked-background-color: var(--ds-jade-50);
+  --vxe-ui-table-row-hover-radio-checked-background-color: var(--ds-jade-100);
+  --vxe-ui-table-row-height-default: var(--ds-table-row-height);
+  --vxe-ui-table-row-height-medium: var(--ds-table-row-height);
+  --vxe-ui-table-row-height-small: var(--ds-table-row-height-sm);
+  --vxe-ui-table-row-height-mini: var(--ds-table-row-height-sm);
+  --vxe-ui-table-row-height-large: var(--ds-table-row-height-lg);
+  --vxe-ui-modal-header-background-color: var(--ds-surface-subtle);
+  --vxe-ui-drawer-header-background-color: var(--ds-surface-subtle);
+  --vxe-ui-form-title-background-color: var(--ds-surface-subtle);
+  --vxe-ui-form-border-color: var(--ds-line);
+
+  @controls: input, button, select, date-picker, number-input;
+  each(@controls, {
+    --vxe-ui-@{value}-height-default: var(--ds-control-height);
+    --vxe-ui-@{value}-height-medium: var(--ds-control-height);
+    --vxe-ui-@{value}-height-small: var(--ds-control-height-sm);
+  });
+}

@@ -39,6 +39,24 @@ Color strategy: **Restrained.** Neutral paper and ink carry most of the surface;
 
 The brand color remains user-configurable. Runtime theme colors are written to Element Plus' `--el-color-primary` family and to the project aliases by `utils/theme.ts`; layout choices are still expressed through `ui-sidebar-*` and `ui-topHeader-*` classes, now mapped onto shell tokens.
 
+## Global style configuration
+
+全局视觉参数集中在 `src/styles/tokens.css`。配色、字号、间距、圆角、阴影与控件密度都从这里读取；新增业务样式使用语义变量，不再复制具体色值。
+
+| 配置 | 默认值 | 使用范围 |
+| --- | --- | --- |
+| `--ds-control-height-sm / --ds-control-height / --ds-control-height-lg` | 30 / 36 / 42px | Element Plus 按钮、输入、选择器及 VXE 控件 |
+| `--ds-table-row-height-sm / --ds-table-row-height / --ds-table-row-height-lg` | 40 / 44 / 50px | 表格行高；显式业务行高仍优先 |
+| `--ds-page-padding` | 16px | 公共业务卡片与首页内距 |
+| `--ds-form-gap` | 18px | 表单项间距 |
+| `--ds-radius-sm / --ds-radius-md / --ds-radius-lg` | 6 / 10 / 14px | 控件 / 查询面板 / 工作区与弹窗 |
+
+`src/styles/index.less` 是唯一全局样式入口。`library-tokens.less` 将设计变量映射到 Element Plus、VXE 及旧版变量；`element.less` 管理组件外观；`workspace.less` 管理公共内容布局；`shell/` 管理外壳。库变量在 `body` 上解析，既跟随运行时品牌色，也覆盖延迟加载的 VXE 默认主题，并自然传递给挂载在 body 的弹窗和下拉框。
+
+右上角「界面设置 → 品牌色」继续负责用户偏好；默认品牌色在 `constants/config.ts` 中配置。`utils/theme.ts` 在运行时生成品牌色阶。成功、警告、危险等语义色保持各自含义，完整的浅色及深色阶由 `library-tokens.less` 自动派生。旧版 Less 的 `@color-primary` / `@--color-primary` 已改为运行时 CSS 变量别名，因此旧组件也能同步换色；这些别名不能再传入 Less 的 `mix` / `fade`，新样式使用 `color-mix()` 或已有色阶。
+
+`SearchForm`、`ProTable`、`ToolbarButtons`、`FormModal` 与 `FormTableModal` 统一查询带、工具按钮、表单内距和页脚。首页沿用原有布局与插画，文字、操作、底色及列表弹窗接入统一变量。位图插画、业务状态色以及业务页面显式配置的尺寸不通过通配覆盖强行改写；后续页面接入时应删除局部重复主题定义。
+
 ## Typography
 
 One family: the platform UI sans stack (`PingFang SC`, `Noto Sans SC`, `Microsoft YaHei`, then system sans). It is a working interface, not an editorial surface.

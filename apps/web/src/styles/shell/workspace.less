@@ -70,8 +70,8 @@ body.ds-sidebar-resizing * {
 }
 
 .ds-admin__main {
-  --ds-workspace-gap: 6px;
-  --ds-workspace-bg: #f1faf9;
+  --ds-workspace-gap: var(--ds-space-3);
+  --ds-workspace-bg: var(--ds-paper);
 
   display: flex;
   flex: 1;
@@ -90,14 +90,14 @@ body.ds-sidebar-resizing * {
   overflow: hidden;
   background: var(--ds-surface);
   border: 1px solid var(--ds-line);
-  border-radius: var(--ds-radius-sm);
-  box-shadow: 0 1px 3px rgb(18 42 34 / 4%);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-panel);
 }
 
 .ds-workspace > .ds-tabs {
-  height: 36px;
+  height: var(--ds-tabs-height);
   padding: 3px var(--ds-workspace-gap);
-  background: var(--ds-workspace-bg);
+  background: var(--ds-surface-subtle);
 }
 
 .ds-workspace__viewport {

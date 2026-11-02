@@ -623,7 +623,7 @@ const emit = defineEmits<{
   (event: 'select-rule', rule: ReviewRule): void
   (event: 'toggle-hide-pass'): void
   (event: 'rerun-rule', rule: ReviewRule): void
-  (event: 'rerun-ruleNew', rule: ReviewRule): void
+  (event: 'rerun-rule-new', rule: ReviewRule): void
   (event: 'rerun-point', detailId: string): void
   (event: 'preview-attach', file: TXmAttach, trigger?: HTMLElement | null): void
   (event: 'reload-rules'): void

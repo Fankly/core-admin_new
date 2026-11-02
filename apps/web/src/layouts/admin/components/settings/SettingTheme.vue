@@ -112,13 +112,13 @@ const colorValue = computed(() => String(preferences.config[EThemeSetting.ThemeC
 .ds-theme-preview--sidebar-dark {
   gap: 4px;
   align-items: flex-start;
-  background: #f6f9f7;
+  background: var(--ds-surface-subtle);
 
   &::before {
     width: 28%;
     height: 100%;
     content: '';
-    background: #082a25;
+    background: var(--ds-jade-950);
     border-radius: 2px;
   }
 
@@ -142,7 +142,7 @@ const colorValue = computed(() => String(preferences.config[EThemeSetting.ThemeC
     width: 28%;
     height: 100%;
     content: '';
-    background: #eef4f0;
+    background: var(--ds-surface-sunken);
     border: 1px solid var(--ds-line);
     border-radius: 2px;
   }
@@ -160,7 +160,7 @@ const colorValue = computed(() => String(preferences.config[EThemeSetting.ThemeC
 }
 
 .ds-theme-preview--header-light {
-  background: #fff;
+  background: var(--ds-surface);
   border-bottom-color: var(--ds-line);
 
   &::before {
@@ -170,13 +170,13 @@ const colorValue = computed(() => String(preferences.config[EThemeSetting.ThemeC
     left: 0;
     height: 12px;
     content: '';
-    background: #fff;
+    background: var(--ds-surface);
     border-bottom: 1px solid var(--ds-line);
   }
 }
 
 .ds-theme-preview--header-dark {
-  background: #f6f9f7;
+  background: var(--ds-surface-subtle);
 
   &::before {
     position: absolute;
@@ -185,12 +185,12 @@ const colorValue = computed(() => String(preferences.config[EThemeSetting.ThemeC
     left: 0;
     height: 12px;
     content: '';
-    background: #0a2b26;
+    background: var(--ds-jade-950);
   }
 }
 
 .ds-theme-preview--header-primary {
-  background: #f6f9f7;
+  background: var(--ds-surface-subtle);
 
   &::before {
     position: absolute;
