@@ -5,10 +5,17 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import { getCurrentUser, getNavigationMenus } from '@/api/system/session'
 import baseRoutes from '@/router/base'
 import { registerDynamicRoute } from '@/router/dynamic'
+import { setupRouterGuards } from '@/router/guards'
+import * as viewRegistry from '@/router/view-registry'
+import { isUnmatchedRoute } from '@/router/workspace'
+import { CacheToken, Permissions } from '@/constants/cacheKey'
+import { setCache } from '@/utils/cache'
 import { useMenuStore, useSessionStore } from '@/store'
 import { createWorkspace } from './workspace'
 
 vi.mock('@/api/system/session', () => ({ getCurrentUser: vi.fn(), getNavigationMenus: vi.fn() }))
+vi.mock('nprogress', () => ({ default: { configure: vi.fn(), start: vi.fn(), done: vi.fn() } }))
+vi.mock('@/views/login.vue', () => ({ default: { render: () => null } }))
 
 function deferred() {
   let resolve!: () => void
@@ -27,6 +34,7 @@ function setup(loadPlugins = vi.fn(() => Promise.resolve())) {
 }
 
 beforeEach(() => {
+  sessionStorage.clear()
   vi.mocked(getNavigationMenus).mockReset().mockResolvedValue({ code: 0, success: true, msg: '', data: [] })
   vi.mocked(getCurrentUser)
     .mockReset()
@@ -49,7 +57,7 @@ describe('workspace lifecycle', () => {
     expect(loadPlugins).toHaveBeenCalledOnce()
   })
 
-  it('removes deep links and fallback routes and restores static routes on logout', async () => {
+  it('removes deep links and restores static routes including the startup fallback on logout', async () => {
     const { router, workspace, menu, session } = setup()
     const staticCount = router.getRoutes().length
     await workspace.initialize(router.resolve('/home'))
@@ -61,6 +69,7 @@ describe('workspace lifecycle', () => {
     expect(router.hasRoute('/temporary-detail')).toBe(false)
     expect(router.hasRoute('/home')).toBe(true)
     expect(router.resolve('/login').matched).toHaveLength(1)
+    expect(isUnmatchedRoute(router.resolve('/temporary-detail'))).toBe(true)
     expect(menu.isLoaded).toBe(false)
     expect(session.isLogin).toBe(false)
     expect(workspace.isReady).toBe(false)
@@ -68,8 +77,8 @@ describe('workspace lifecycle', () => {
 
   it('keeps every deep link requested during one shared initialization', async () => {
     const { router, workspace } = setup()
-    const first = workspace.initialize({ path: '/first-detail', matched: [] })
-    const second = workspace.initialize({ path: '/second-detail', matched: [] })
+    const first = workspace.initialize(router.resolve('/first-detail'))
+    const second = workspace.initialize(router.resolve('/second-detail'))
     expect(first).toBe(second)
     await first
     expect(router.hasRoute('/first-detail')).toBe(true)
@@ -86,7 +95,7 @@ describe('workspace lifecycle', () => {
         meta: { id: 'menu-id', title: '服务端详情', keepAlive: false }
       }
     ])
-    await workspace.initialize({ path: '/menu-detail', matched: [] })
+    await workspace.initialize(router.resolve('/menu-detail'))
     expect(router.resolve('/menu-detail').meta).toMatchObject({ id: 'menu-id', title: '服务端详情', keepAlive: false })
   })
 
@@ -137,5 +146,67 @@ describe('workspace lifecycle', () => {
     expect(workspace.isReady).toBe(true)
     expect(getNavigationMenus).toHaveBeenCalledTimes(2)
     expect(loadPlugins).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('startup deep-link navigation', () => {
+  const path = '/service/overview/index'
+  const Page = { render: () => null }
+
+  function setupNavigation(authenticated = true) {
+    const context = setup()
+    if (authenticated) {
+      setCache(CacheToken, { token: 'test-token' }, true)
+      setCache(Permissions, true, true)
+    }
+    setupRouterGuards(context.router, context.workspace)
+    return context
+  }
+
+  it('waits for menus and resolves the original path, query and hash without a router warning', async () => {
+    const { router, menu } = setupNavigation()
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(menu, 'init').mockResolvedValue([{ path, name: path, component: Page, meta: { title: '服务端总览', id: 'overview-menu' } }])
+    await router.push(`${path}?year=2026#summary`)
+    expect(router.currentRoute.value.fullPath).toBe(`${path}?year=2026#summary`)
+    expect(router.currentRoute.value.meta).toMatchObject({ title: '服务端总览', id: 'overview-menu' })
+    expect(isUnmatchedRoute(router.currentRoute.value)).toBe(false)
+    expect(warning).not.toHaveBeenCalled()
+  })
+
+  it('registers a local deep-link view that is absent from the server menus', async () => {
+    const { router } = setupNavigation()
+    vi.spyOn(viewRegistry, 'resolveViewComponent').mockReturnValue(() => Promise.resolve(Page))
+    await router.push(path)
+    expect(router.currentRoute.value.path).toBe(path)
+    expect(router.currentRoute.value.name).toBe(path)
+    expect(isUnmatchedRoute(router.currentRoute.value)).toBe(false)
+  })
+
+  it('redirects missing views to 404 on startup and after initialization', async () => {
+    const { router, workspace } = setupNavigation()
+    await router.push('/missing-startup-view')
+    expect(workspace.isReady).toBe(true)
+    expect(router.currentRoute.value.fullPath).toBe('/error?to=404')
+    await router.push('/missing-later-view')
+    expect(router.currentRoute.value.fullPath).toBe('/error?to=404')
+  })
+
+  it('still sends unauthenticated deep links to login', async () => {
+    const { router, workspace } = setupNavigation(false)
+    await router.push(path)
+    expect(router.currentRoute.value.path).toBe('/login')
+    expect(workspace.isReady).toBe(false)
+    expect(getNavigationMenus).not.toHaveBeenCalled()
+  })
+
+  it('registers standalone pop pages while keeping their query and hash', async () => {
+    const { router, loadPlugins } = setupNavigation(false)
+    vi.spyOn(viewRegistry, 'resolveViewComponent').mockReturnValue(() => Promise.resolve(Page))
+    await router.push(`${path}?pop=true#summary`)
+    expect(router.currentRoute.value.fullPath).toBe(`${path}?pop=true#summary`)
+    expect(router.currentRoute.value.name).toBe(path)
+    expect(loadPlugins).toHaveBeenCalled()
+    expect(getNavigationMenus).not.toHaveBeenCalled()
   })
 })

@@ -1,7 +1,8 @@
 import type { Pinia } from 'pinia'
 import type { Router } from 'vue-router'
 import type { WorkspaceController, WorkspaceTarget } from '@/router/workspace'
-import baseRoutes, { errorRoute } from '@/router/base'
+import baseRoutes from '@/router/base'
+import { isUnmatchedRoute } from '@/router/workspace'
 import { registerDynamicRoute } from '@/router/dynamic'
 import { getBaseRouteToMeta, registerToRouter } from '@/utils/router'
 import { useContextStore, useMenuStore, useSessionStore, useShellStore, useTabsStore } from '@/store'
@@ -17,7 +18,7 @@ export function createWorkspace(router: Router, pinia: Pinia, loadPlugins: () =>
   const pendingPaths = new Set<string>()
 
   function restoreBaseRoutes() {
-    // 菜单路由、穿透页和兜底路由都属于会话，不能只删除 menu.routes。
+    // 菜单路由和穿透页都属于会话；重置时恢复基础路由及首次匹配兜底。
     router.clearRoutes()
     registerToRouter(router, baseRoutes)
     router.options.routes = baseRoutes
@@ -25,14 +26,14 @@ export function createWorkspace(router: Router, pinia: Pinia, loadPlugins: () =>
 
   function initialize(to: WorkspaceTarget): Promise<void> {
     if (ready) return Promise.resolve()
-    if (!to.matched.length) pendingPaths.add(to.path)
+    if (isUnmatchedRoute(to)) pendingPaths.add(to.path)
     if (pending) return pending
     const currentGeneration = generation
     const operation = Promise.all([menu.init(), loadPlugins()])
       .then(([serverRoutes]) => {
         if (currentGeneration !== generation) throw new DOMException('工作区已重置', 'AbortError')
-        registerToRouter(router, [...serverRoutes, ...errorRoute])
-        router.options.routes = [...baseRoutes, ...serverRoutes, ...errorRoute]
+        registerToRouter(router, serverRoutes)
+        router.options.routes = [...baseRoutes, ...serverRoutes]
         menu.mergeMeta(getBaseRouteToMeta(baseRoutes))
         // 初始化期间可能切换深链；保留每次导航目标，且不覆盖菜单刚注册的 meta。
         for (const path of pendingPaths) {

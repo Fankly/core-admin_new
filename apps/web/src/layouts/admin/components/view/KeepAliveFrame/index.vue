@@ -57,11 +57,15 @@ watch(
 <template>
   <template v-for="[fullPath, Comp] in compList" :key="fullPath">
     <div v-show="fullPath === props.currRoute.fullPath" class="ds-keepalive-frame">
-      <slot :fullPath="fullPath" :Comp="Comp" :frameInfo="{ frameSrc: currRoute.meta?.frameSrc, fullPath }" />
+      <slot :fullPath="fullPath" :Comp="Comp" :viewProps="{ frameInfo: { frameSrc: currRoute.meta?.frameSrc, fullPath } }" />
     </div>
   </template>
   <div v-show="!keep" class="ds-keepalive-normal">
-    <slot :Comp="normalComp" :fullPath="props.currRoute.fullPath" :frameInfo="{ fullPath: props.currRoute.fullPath }" />
+    <slot
+      :Comp="normalComp"
+      :fullPath="props.currRoute.fullPath"
+      :viewProps="props.currRoute.meta.isIframe ? { frameInfo: { fullPath: props.currRoute.fullPath } } : {}"
+    />
   </div>
 </template>
 

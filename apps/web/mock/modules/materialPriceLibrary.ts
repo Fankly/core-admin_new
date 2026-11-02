@@ -826,5 +826,3 @@ Mock.mock(/gss\/exportGssMat(\?.*)?$/, 'post', async (options: MockOptions) => {
     fileName: '历史项目申报价格.xlsx'
   })
 })
-
-console.log('[Mock] materialPriceLibrary module loaded')

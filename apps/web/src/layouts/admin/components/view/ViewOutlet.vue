@@ -5,11 +5,11 @@
         <router-view v-if="isShowView">
           <template #default="{ Component, route: currentRoute }">
             <KeepAliveFrame :curr-comp="Component" :curr-route="currentRoute">
-              <template #default="{ Comp, fullPath, frameInfo }">
+              <template #default="{ Comp, fullPath, viewProps }">
                 <keep-alive v-if="enabledKeepAlive" :include="cachedNames">
-                  <component v-if="Comp" :is="resolveCachedView(fullPath)" :key="fullPath" :view="Comp" :frame-info="frameInfo" />
+                  <component v-if="Comp" :is="resolveCachedView(fullPath)" :key="fullPath" :view="Comp" v-bind="viewProps" />
                 </keep-alive>
-                <component v-else-if="Comp" :is="Comp" :key="fullPath" :frame-info="frameInfo" />
+                <component v-else-if="Comp" :is="Comp" :key="fullPath" v-bind="viewProps" />
               </template>
             </KeepAliveFrame>
           </template>

@@ -1,5 +1,6 @@
 import type { Router } from 'vue-router'
 import type { WorkspaceController } from '../workspace'
+import { isUnmatchedRoute } from '../workspace'
 import NProgress from 'nprogress'
 import { ElMessage } from 'element-plus'
 import { registerDynamicRoute } from '../dynamic'
@@ -80,6 +81,7 @@ export function setupRouterGuards(router: Router, workspace: WorkspaceController
     // 已完成初始化：后续导航只做权限/标签页处理。
     if (workspace.isReady) {
       if (!token || !permission) return '/login'
+      if (isUnmatchedRoute(to)) return { path: '/error', query: { to: 404 }, replace: true }
       if (to.name === 'error') return true
       if (!isWorkflow) {
         session.markLogin(true)
@@ -113,7 +115,7 @@ export function setupRouterGuards(router: Router, workspace: WorkspaceController
     // 新窗口打开的内页：登录态由主窗口共享，这里只负责注册路由。
     if (isPop) {
       await workspace.prepareStandalone()
-      if (!to.matched.length) {
+      if (isUnmatchedRoute(to)) {
         registerDynamicRoute(router, { path: to.path })
         shell.markReady()
         shell.markRendered()
