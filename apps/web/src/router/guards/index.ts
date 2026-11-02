@@ -1,14 +1,12 @@
-import type { RouteLocationNormalized, RouteRecordRaw, Router } from 'vue-router'
+import type { Router } from 'vue-router'
+import type { WorkspaceController } from '../workspace'
 import NProgress from 'nprogress'
 import { ElMessage } from 'element-plus'
-import baseRoutes, { errorRoute } from '../base'
-import { registerDynamicRoute, registerDynamicToRouterAndNext } from '../dynamic'
+import { registerDynamicRoute } from '../dynamic'
 import { isWorkflowStandalone } from '../layout'
-import { getBaseRouteToMeta, registerToRouter, resetRoute } from '@/utils/router'
 import { getPermissions, getToken } from '@/utils/cache'
-import { useContextStore, useMenuStore, useSessionStore, useShellStore, useTabsStore } from '@/store'
+import { useMenuStore, useSessionStore, useShellStore, useTabsStore } from '@/store'
 import type { MenuMeta } from '@/types/domain'
-import { loadWorkspacePlugins } from '@/app/plugins'
 
 NProgress.configure({ showSpinner: false })
 
@@ -21,7 +19,7 @@ let documentDomainApplied = false
 function applyDocumentDomain(domainName?: string) {
   if (documentDomainApplied) return
   const domain = domainName || 'sgcc.com.cn'
-  if (!window.location.hostname.endsWith(domain) || window.location.hostname === domain) return
+  if (!window.location.hostname.endsWith(`.${domain}`) || window.location.hostname === domain) return
   documentDomainApplied = true
   try {
     // eslint-disable-next-line @typescript-eslint/no-deprecated -- 旧系统跨子域 iframe 依赖该 API
@@ -29,30 +27,9 @@ function applyDocumentDomain(domainName?: string) {
   } catch {
     ElMessage({
       type: 'warning',
-      dangerouslyUseHTMLString: true,
-      message: `修改域名出错,请使用域名访问,否则部分功能无法正常使用!<br>设置域名:${domain}`
+      message: `修改域名出错,请使用域名访问,否则部分功能无法正常使用! 设置域名:${domain}`
     })
   }
-}
-
-/** 首次进入时加载菜单、注册动态路由，并标记应用就绪。 */
-async function bootstrapApplication(router: Router, to: RouteLocationNormalized) {
-  const menu = useMenuStore()
-  const shell = useShellStore()
-  const session = useSessionStore()
-
-  const [serverRoutes] = await Promise.all([menu.init(), loadWorkspacePlugins()])
-  const mergedRoutes: RouteRecordRaw[] = [...baseRoutes, ...serverRoutes, ...errorRoute]
-  router.options.routes = mergedRoutes
-  registerToRouter(router, [...serverRoutes, ...errorRoute])
-  menu.mergeMeta(getBaseRouteToMeta(baseRoutes))
-
-  // 首次直接命中的深链可能不在菜单里，但视图文件存在：实时补注册。
-  if (!to.matched.length) registerDynamicRoute(router, { path: to.path })
-
-  session.markLogin(true)
-  shell.markReady()
-  shell.markRendered()
 }
 
 /**
@@ -61,7 +38,7 @@ async function bootstrapApplication(router: Router, to: RouteLocationNormalized)
  * 拆成“菜单信息同步 → 新窗口拦截 → 登录/初始化 → 放行”四段，
  * 不再在一个函数里用嵌套 if 处理 workflow / pop / 动态注册。
  */
-export function setupRouterGuards(router: Router) {
+export function setupRouterGuards(router: Router, workspace: WorkspaceController) {
   router.beforeEach(async (to) => {
     const menu = useMenuStore()
     const tabs = useTabsStore()
@@ -78,11 +55,7 @@ export function setupRouterGuards(router: Router) {
     const isWorkflow = isWorkflowStandalone(to.path)
 
     if (to.path === '/login') {
-      resetRoute(router, menu.routes)
-      menu.reset()
-      tabs.reset()
-      useContextStore().reset()
-      session.logout()
+      workspace.reset()
       shell.setRouteLoading(false)
       shell.markReady()
       shell.markRendered()
@@ -105,7 +78,7 @@ export function setupRouterGuards(router: Router) {
     applyDocumentDomain(session.user.domainName)
 
     // 已完成初始化：后续导航只做权限/标签页处理。
-    if (menu.routes.length) {
+    if (workspace.isReady) {
       if (!token || !permission) return '/login'
       if (to.name === 'error') return true
       if (!isWorkflow) {
@@ -119,19 +92,15 @@ export function setupRouterGuards(router: Router) {
       return true
     }
 
-    // 流程页不依赖主框架初始化，可直接放行。
-    if (isWorkflow) {
-      await Promise.all([menu.init(), loadWorkspacePlugins()])
-      return true
-    }
-
-    if (token && permission) {
+    // 流程页保持原有独立访问契约，也复用同一套初始化和失败恢复。
+    if (isWorkflow || (token && permission)) {
       try {
-        await bootstrapApplication(router, to)
-        return { ...to, replace: true }
+        await workspace.initialize(to)
+        if (isWorkflow) return true
+        return { path: to.path, query: to.query, hash: to.hash, replace: true }
       } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return false
         console.error('[router] workspace bootstrap failed', error)
-        menu.reset()
         shell.markReady()
         shell.markRendered()
         shell.setRouteLoading(false)
@@ -143,12 +112,12 @@ export function setupRouterGuards(router: Router) {
 
     // 新窗口打开的内页：登录态由主窗口共享，这里只负责注册路由。
     if (isPop) {
-      await loadWorkspacePlugins()
+      await workspace.prepareStandalone()
       if (!to.matched.length) {
-        registerDynamicToRouterAndNext(router, { path: to.path, query: to.query })
+        registerDynamicRoute(router, { path: to.path })
         shell.markReady()
         shell.markRendered()
-        return to.fullPath
+        return { path: to.path, query: to.query, hash: to.hash, replace: true }
       }
       shell.markReady()
       shell.markRendered()

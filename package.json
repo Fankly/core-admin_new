@@ -22,7 +22,9 @@
     "format": "prettier --write \"**/*.{vue,ts,tsx,js,mjs,less,json,md}\" --ignore-path .gitignore",
     "test": "pnpm -r --parallel test",
     "e2e": "pnpm --filter budget-process e2e",
-    "clean": "pnpm -r exec rm -rf dist node_modules && rm -rf node_modules"
+    "clean": "pnpm -r exec rm -rf dist node_modules && rm -rf node_modules",
+    "check:architecture": "pnpm --filter budget-process check:architecture",
+    "verify": "pnpm check:architecture && pnpm lint:check && pnpm typecheck && pnpm test && pnpm build"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

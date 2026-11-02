@@ -58,6 +58,20 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
+test('an empty menu completes startup and remains ready across navigation', async ({ page }) => {
+  let menuRequests = 0
+  await page.route('**/api/sys/menu/nav*', async (route) => {
+    menuRequests += 1
+    await route.fulfill({ json: { code: 0, success: true, msg: '', data: [] } })
+  })
+  await openDashboard(page)
+  await page.goto('/#/baseHome')
+  await expect(page.getByRole('heading', { name: '工作台', exact: true })).toBeVisible()
+  await page.goto('/#/home')
+  await expect(dashboardHeading(page)).toBeVisible()
+  expect(menuRequests).toBe(1)
+})
+
 test('workbench filters unavailable menus and keeps its title visible', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))

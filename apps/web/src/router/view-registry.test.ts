@@ -15,11 +15,17 @@ describe('view registry', () => {
 
   it('resolves migrated menus, workflow forms and drill-down pages', () => {
     for (const path of [
-      '/service/overview/index', '/service/budget/budgeting/index',
-      '/service/jointReview/main', '/ai/smartTaskAudit/index',
-      '/statistics/budgetExecutionAnalysis/yszxylb', '/goalValue/versionDetail',
-      '/finance/dashboard/index', '/workflow/xm/workflowDealNew',
-      '/toDo/suzhou/taskMaterial/index', '/budget-process/process_28_1'
-    ]) expect(resolveViewComponent(path), path).toBeTypeOf('function')
+      '/service/overview/index',
+      '/service/budget/budgeting/index',
+      '/service/jointReview/main',
+      '/ai/smartTaskAudit/index',
+      '/statistics/budgetExecutionAnalysis/yszxylb',
+      '/goalValue/versionDetail',
+      '/finance/dashboard/index',
+      '/workflow/xm/workflowDealNew',
+      '/toDo/suzhou/taskMaterial/index',
+      '/budget-process/process_28_1'
+    ])
+      expect(resolveViewComponent(path), path).toBeTypeOf('function')
   })
 })

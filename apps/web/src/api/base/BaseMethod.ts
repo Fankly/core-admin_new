@@ -1,17 +1,13 @@
 import baseService from '@/service/baseService'
 import { IHttpResponse, IObject } from '@/types/interface'
 import type { Method } from 'axios'
-import { useShellStore } from '@/store'
+import { startRequestLoading } from '@/service/request-loading'
 
 export type RequestParams = Record<string, any>
 export type RequestData = Record<string, any>
 export type ServiceKey = 'budget' | 'otherOperatingCose' | 'fullProcess' | 'project' | 'targetBudget' | 'zgsExpense'
 
 export class BaseMethod {
-  // 惰性取 store：本文件在模块顶层被实例化，而 pinia 要到 main.ts 里 app.use(pinia) 之后才可用
-  private get store() {
-    return useShellStore()
-  }
   protected service?: ServiceKey
 
   constructor(service?: ServiceKey) {
@@ -61,12 +57,7 @@ export class BaseMethod {
    * @param showLoading 全屏loading开关,默认开启
    */
   public async download(url: string, params?: IObject, fileName?: string, method: Method = 'get', showLoading = true): Promise<void> {
-    if (showLoading) this.store.showLoading()
-    try {
-      await baseService.download(url, params, fileName, method, this.getOtherParams())
-    } finally {
-      if (showLoading) this.store.hideLoading()
-    }
+    return this.requestWithLoading(() => baseService.download(url, params, fileName, method, this.getOtherParams()), 'DOWNLOAD', url, showLoading)
   }
 
   public async exportFile(url: string, params?: IObject, headers?: IObject, showLoading = true): Promise<IHttpResponse> {
@@ -82,14 +73,14 @@ export class BaseMethod {
   }
 
   public async requestWithLoading<T>(fn: () => Promise<T>, method: string, url: string, showLoading: boolean): Promise<T> {
-    if (showLoading) this.store.showLoading()
+    const stopLoading = showLoading ? startRequestLoading() : undefined
     try {
       return await fn()
     } catch (err) {
       this.handleError(err, method, url)
       throw err
     } finally {
-      if (showLoading) this.store.hideLoading()
+      stopLoading?.()
     }
   }
 

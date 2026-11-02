@@ -5,7 +5,10 @@ import router from '@/router'
 import baseService from '@/service/baseService'
 import { usePreferencesStore } from '@/store'
 import { installDirectives } from '@/directives'
-import { installUiPlugins } from './plugins'
+import { installUiPlugins, loadWorkspacePlugins } from './plugins'
+import { setupRouterGuards } from '@/router/guards'
+import { createWorkspace } from './workspace'
+import { installRequestEffects } from './request-effects'
 
 // 全局副作用样式与图标注册集中在这里，业务组件不再各自 import 全局资源。
 // Vendor CSS loads first so the design tokens can own the final cascade.
@@ -38,6 +41,9 @@ export function bootstrapApp() {
   usePreferencesStore(pinia).applyTheme()
   installDirectives(app)
   installUiPlugins(app)
+  const disposeRequestEffects = installRequestEffects(router, pinia)
+  app.onUnmount(disposeRequestEffects)
+  setupRouterGuards(router, createWorkspace(router, pinia, loadWorkspacePlugins))
   app.use(router)
   app.mount('#app')
 }

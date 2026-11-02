@@ -2,9 +2,9 @@
 
 项目过程管控平台前端。pnpm workspace monorepo，业务应用是 Vue 3 + Vite + Element Plus + Pinia 的管理后台，源码位于 `apps/web/src`。
 
-这是**骨架仓库**：登录、外壳、路由、权限、表格封装、设计系统与接口层范式都已就位。`views/` 现在只做路由适配，实际页面放在 `features/`（auth / workbench / errors / embed）；业务域页面仍待补充。
+当前仓库已包含完整业务页面。登录、首页、工作台等框架页面采用 `views/` 适配到 `features/`；既有业务模块仍位于 `views/`，保留服务端菜单路径。新增业务优先采用 `features/<domain>/` + 薄视图入口，不批量搬动已有业务目录。2026-11 的 Smart Admin 架构参考与验证结果见 `docs/smart-admin-refactor.md`。
 
-视觉与设计规则见 `apps/web/DESIGN.md`，产品事实见 `apps/web/PRODUCT.md`。同名的 `/Users/fan/developer/core-admin` 是体量大得多的完整仓库（约 1700 文件、`views` 下按业务域分 1300+ 文件）；两者不要混淆，codegraph 索引默认指向那一个，查本仓库要显式传 `projectPath`。
+视觉与设计规则见 `apps/web/DESIGN.md`，产品事实见 `apps/web/PRODUCT.md`。同名的 `/Users/fan/developer/core-admin` 是体量大得多的完整仓库（约 1700 文件、`views` 下按业务域分 1300+ 文件）；两者不要混淆，使用 codegraph 时显式传当前仓库的 `projectPath`，避免读到另一个 checkout。
 
 ## 仓库结构
 
@@ -28,6 +28,7 @@ pnpm build         # = build:prod，production 模式
 pnpm build:sit     # / pnpm build:uat
 pnpm lint          # 递归跑所有包的 lint（eslint --fix）
 pnpm typecheck     # 递归跑 vue-tsc --noEmit
+pnpm check:architecture # 导入完整性、架构边界及规则自测
 pnpm test          # Vitest，真实 HTTP / 组件 / store 回归
 pnpm e2e           # Playwright，桌面交互回归
 ```
@@ -37,6 +38,8 @@ pnpm e2e           # Playwright，桌面交互回归
 `pnpm test` 使用 `apps/web/vitest.config.ts`。HTTP 用例启动本地服务并发送真实请求，运行环境必须允许监听回环地址。`pnpm e2e` 使用 `apps/web/playwright.config.ts` 和本机 Chrome，可启动或复用 8001 端口的 dev server。用例在 `apps/web/e2e/`，只拦截 `/api/` HTTP 和测试 iframe，不拦截 Vite 源码模块。浏览器用例覆盖外壳交互与故障恢复，不能替代真实业务接口联调。改动后执行 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build`；涉及外壳交互时补跑 `pnpm e2e` 并走查受影响页面。
 
 ## 质量门禁与 lint 债务
+
+当前全量检查存在历史业务债务；2026-11-02 对照修改前源码确认 763 条 TypeScript 错误的位置与错误码一致。不要把 2026-10 骨架验收结果当作当前全仓状态，不通过放宽类型或扩大 suppression 掩盖这些问题。
 
 `apps/web/eslint-suppressions.json` 是**历史 lint 债务基线**（strictTypeChecked 迁移中尚未清零的 `any`/unsafe 规则）。ESLint 会自动读取它：
 
@@ -70,28 +73,29 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 
 以下均相对 `apps/web/`：
 
-| 目录 | 职责 |
-| --- | --- |
-| `src/app/` | 应用启动：`bootstrap.ts` 组装 pinia / 指令 / 初始 UI；`plugins.ts` 注册 Element Plus / 异步图表；`workspace-plugins.ts` 延迟注册 VXE / Excel 导出 |
-| `src/layouts/` | 外壳：`admin/`（masthead / route rail / tabs / settings / keep-alive）、`fullscreen/`、`RouteHost` |
-| `src/views/` | **路由适配层**：保持菜单路径约定，薄封装到 `features/`；静态页与 error 也在此 |
-| `src/features/` | 业务实现：auth / workbench / errors / embed；新增业务域在此建目录 |
-| `src/design-system/` | 跨业务基础组件（BrandMark、PageHeader、EmptyState、NavigationLink） |
-| `src/styles/` | 全局样式唯一入口；`shell.less` 汇总 `shell/` 中按职责拆分的外壳样式 |
-| `src/api/` | 按业务域划分的接口定义 |
-| `src/components/` | 既有跨业务公共组件（ProTable / SearchForm / base…） |
-| `src/directives/` | 全局指令，一个指令一个文件，副作用成对清理 |
-| `src/hooks/` | 通用组合式函数（useTable、usePermission、useView…） |
-| `src/service/` | `baseService.ts` CRUD 封装；`http/` 是 axios 客户端、错误归一与请求身份计算 |
-| `src/utils/` | 纯函数工具；`utils/http.ts` 只是请求层的兼容 re-export |
-| `src/store/` | 按领域拆分的 Pinia store，统一从 `store/index.ts` 导出 |
-| `src/router/` | 静态路由 / 守卫 / 视图映射 / 实时注册；`navigation.ts` 统一可用入口与搜索规则 |
-| `src/constants/` | 枚举、缓存 key、默认配置 |
-| `src/types/` | 全局类型：`domain.ts` 领域模型、`router.d.ts` 路由 meta 增强、`vue.d.ts` 全局属性 |
+| 目录                 | 职责                                                                                                                 |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `src/app/`           | 应用组装：bootstrap 安装依赖；workspace 管理菜单/插件/路由生命周期；request-effects 连接请求与登录跳转、并发 loading |
+| `src/config/`        | 运行时配置、HTTP 和长任务超时；`constants/app.ts` 保留兼容导出                                                       |
+| `src/layouts/`       | 外壳：`admin/`（masthead / route rail / tabs / settings / keep-alive）、`fullscreen/`、`RouteHost`                   |
+| `src/views/`         | 保持菜单路径约定；既有业务原位保留，框架页和新增页面薄封装到 `features/`                                             |
+| `src/features/`      | 业务实现：auth / workbench / errors / embed；新增业务域在此建目录                                                    |
+| `src/design-system/` | 跨业务基础组件（BrandMark、PageHeader、EmptyState、NavigationLink）                                                  |
+| `src/styles/`        | 全局样式唯一入口；`shell.less` 汇总 `shell/` 中按职责拆分的外壳样式                                                  |
+| `src/api/`           | 按业务域划分的接口定义                                                                                               |
+| `src/components/`    | 既有跨业务公共组件（ProTable / SearchForm / base…）                                                                  |
+| `src/directives/`    | 全局指令，一个指令一个文件，副作用成对清理                                                                           |
+| `src/hooks/`         | 通用组合式函数（useTable、usePermission、useView…）                                                                  |
+| `src/service/`       | `baseService.ts` CRUD 封装；`http/` 是 axios 客户端、错误归一与请求身份计算                                          |
+| `src/utils/`         | 纯函数工具；`utils/http.ts` 只是请求层的兼容 re-export                                                               |
+| `src/store/`         | 按领域拆分的 Pinia store，统一从 `store/index.ts` 导出                                                               |
+| `src/router/`        | 静态路由 / 守卫 / 视图映射 / 实时注册；`navigation.ts` 统一可用入口与搜索规则                                        |
+| `src/constants/`     | 枚举、缓存 key、默认配置                                                                                             |
+| `src/types/`         | 全局类型：`domain.ts` 领域模型、`router.d.ts` 路由 meta 增强、`vue.d.ts` 全局属性                                    |
 
 ## 关键机制
 
-**路由是服务端菜单驱动的。** `useMenuStore().init()` 拉菜单 + 用户信息，与 `router/base.ts` 合并后注册。视图组件按路径约定匹配：`router/view-registry.ts` 的 `toSysViewComponentPath` 把 `path` 转成 `/src/views{path}.vue`，通过 `import.meta.glob('/src/views/**/*.vue')` 查表。glob 是 Vite root 相对路径，root 即 `apps/web`，monorepo 下无需改写。新增页面通常不用手写路由，但**文件路径必须和菜单 url 对应**（`_` 会替换成 `-`）。`views/` 文件只做路由适配，业务实现落在 `features/`；需要被服务端菜单命中的路径必须保留适配文件。hash 模式。
+**路由是服务端菜单驱动的。** `useMenuStore().init()` 拉菜单 + 用户信息，与 `router/base.ts` 合并后注册。视图组件按路径约定匹配：`router/view-registry.ts` 的 `toSysViewComponentPath` 把 `path` 转成 `/src/views{path}.vue`，通过 `import.meta.glob('/src/views/**/*.vue')` 查表。glob 是 Vite root 相对路径，root 即 `apps/web`，monorepo 下无需改写。新增页面通常不用手写路由，但**文件路径必须和菜单 url 对应**（`_` 会替换成 `-`）。新增 `views/` 文件只做路由适配，业务实现落在 `features/`；需要被服务端菜单命中的路径必须保留适配文件。hash 模式。
 
 **路由守卫是管线，不是巨型 if。** `router/guards/index.ts` 按「菜单信息同步 → 新窗口拦截 → 登录/初始化 → 放行」组织；`router/layout.ts` 的 `resolveLayoutMode` 把外壳选择（page / fullscreen / standalone）抽成纯函数并有单测。全屏页优先用路由 `meta.layout = 'fullscreen'`，不要再往 `App.vue` 里加路径判断。
 
@@ -100,6 +104,8 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 **「系统管理」在头像下拉里。** 菜单名称匹配「系统管理」的分组不参与主导航渲染（`toValidRoutes` 统一过滤），统一由顶栏头像下拉承载（`utils/menu.ts` + `header/UserMenuPanel.vue`）；路由本身仍正常注册，深链可直达。下拉图标与侧栏共用 `navigation/nav-level-icon.ts` 和 `shell/navigation.less` 的 `--nav-icon-*`，同一层级图形、图标框、配色完全一致。
 
 **仅提供桌面布局。** 不按窄屏切换移动抽屉或隐藏侧栏。垂直导航固定使用手风琴：同级目录互斥展开，当前分支的父级保持展开。纵向侧栏的图标由层级决定（L1 层叠 / L2 文件夹 / L3 文件 / L4 及更深圆点），每级缩进固定 14px；横向导航（顶部 / 混合）仍显示服务端配置的图标。侧栏顶部工具行（`SideNav.vue`）提供菜单过滤、只看收藏、收起全部：过滤只裁剪渲染树并在结束时还原展开快照，收藏态统一读 `useFavoritesStore`。
+
+**工作区由 `app/workspace.ts` 管理。** `router/index.ts` 只创建实例，bootstrap 注入工作区控制器并安装守卫；显式 ready 状态支持空菜单。退出时恢复完整基础路由表，清除临时详情页和兜底路由，在途旧初始化不能恢复会话。
 
 **工作区依赖按进入时机加载。** 登录阶段不加载 VXE / Excel 导出栈；守卫与异步 AdminLayout 共用 `loadWorkspacePlugins()`，确保注册完成后再渲染外壳。平台状态只在抽屉打开时请求。进入 `/login` 清动态菜单路由、标签页和会话；初始化失败页的重试回到 `/home`，重新请求菜单，而不是刷新 `/error`。
 
@@ -112,9 +118,9 @@ Tailwind v4，CSS-first 配置，**没有 tailwind.config.js**。全部配置在
 - `usePreferencesStore`：主题、导航布局、标签页开关；写入即持久化并应用主题色。
 - `useContextStore`：遗留业务穿透参数（`xxGlobalInfo` 等），与框架状态隔离。
 
-**全局事件总线已移除。** 原 `mitt` 的 tab / 主题 / loading 通知全部改为 store action。页面组件不要再引入事件总线；跨层通信用 props / provide-inject / store。
+**框架状态使用 store。** tab / 主题 / loading 通知使用 store action；业务中仍有 `utils/emits.ts` 的历史事件总线，不再扩大使用。页面组件不要再引入事件总线；跨层通信用 props / provide-inject / store。
 
-**接口层。** `src/api/**` 从 `@/service/baseService` 导入。`baseService` 自动加 Base64 签名头（random / timeStamp / sign），默认超时 3600000ms。返回包默认 `any` 以兼容历史 api；新接口应写 `baseService.get<MyData>(...)` 并用 `ServiceResult<T>`。极少数直接返回数组的接口用 `baseService.raw<T>(...)`。 `service/http/client.ts` 只对 GET/HEAD/OPTIONS 合并并发请求（写请求永不合并），所有失败归一为 `ApiError`（`status` / `code` / `url`），401 统一清 token 并跳登录。
+**接口层。** `src/api/**` 从 `@/service/baseService` 导入。`baseService` 自动加 Base64 签名头（random / timeStamp / sign），默认超时 3600000ms。返回包默认 `any` 以兼容历史 api；新接口应写 `baseService.get<MyData>(...)` 并用 `ServiceResult<T>`。极少数直接返回数组的接口用 `baseService.raw<T>(...)`。 `service/http/transport.ts` 提供独立 HTTP 工厂，只合并 GET/HEAD/OPTIONS（写请求永不合并）；`client.ts` 配置默认实例和 token。所有失败归一为 `ApiError`，401 清缓存后由 `app/request-effects.ts` 跳登录。`api/`、`service/`、`config/` 不得反向依赖路由、store 或界面组件，接口类型归属对应 API 域；`BaseMethod` 的 loading 通过应用注入且按并发请求计数。
 
 **权限有两套入口。** `UserRoleSelector` 的父级通过 `CurrentUserRoleInjectionKey` 提供 `Ref<UserRole>`；组件通过默认插槽承载页面，并向后代提供 `PermissionInjectionKey`。`usePermission` 优先消费该上下文，没有则自己拉。角色和按钮接口统一放在 `api/permission`。缓存页失活后，迟到响应仅更新本页缓存，不覆盖当前页全局权限。按钮级权限用 `v-permission`（实现见 `src/directives/permission.ts`）或 `utils/utils.ts` 的 `checkPermission`。
 

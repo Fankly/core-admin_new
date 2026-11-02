@@ -47,7 +47,11 @@ beforeAll(async () => {
   if (!address || typeof address === 'string') throw new Error('HTTP server did not bind a TCP port')
   baseUrl = `http://127.0.0.1:${address.port}`
   Object.assign(window, { SITE_CONFIG: { apiURL: baseUrl } })
-  setActivePinia(createPinia())
+  const pinia = createPinia()
+  setActivePinia(pinia)
+  const router = (await import('@/router')).default
+  const { installRequestEffects } = await import('@/app/request-effects')
+  installRequestEffects(router, pinia)
   baseService = (await import('./baseService')).default
   http = (await import('@/utils/http')).default
 })

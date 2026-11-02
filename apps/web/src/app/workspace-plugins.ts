@@ -28,5 +28,7 @@ export function installWorkspacePlugins(app: App) {
     ...dictionaries
   })
   app.mixin(globalMixin)
-  emits.on('isMainPageRole', (value) => useShellStore().setMainPageRole(Boolean(value)))
+  emits.on('isMainPageRole', (value) => {
+    useShellStore().setMainPageRole(Boolean(value))
+  })
 }

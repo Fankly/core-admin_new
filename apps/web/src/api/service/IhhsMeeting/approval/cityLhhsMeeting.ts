@@ -1,5 +1,5 @@
 import baseService from '@/service/baseService'
-import { MeetingList } from '@/views/service/approval/cityLhhsMeeting/interface'
+import type { CityMeetingList as MeetingList } from '@/api/service/IhhsMeeting/types'
 
 interface Result {
   code: number

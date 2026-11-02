@@ -25,7 +25,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "check:architecture": "node --test scripts/architecture.test.mjs && node scripts/check-business-imports.mjs && node scripts/check-architecture.mjs"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",

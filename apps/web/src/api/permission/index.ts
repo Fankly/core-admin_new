@@ -1,5 +1,5 @@
 import baseService from '@/service/baseService'
-import type { UserInfo } from '@/components/UserRoleSelector/interface'
+import type { UserInfo } from './types'
 
 interface Result {
   code: number

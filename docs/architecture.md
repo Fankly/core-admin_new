@@ -1,6 +1,8 @@
 # 前端架构说明
 
-> 本轮重构（2026-10）在上一版“骨架重构”的基础上，完成三件事：
+> 最新架构增量与实际验证结果见 [Smart Admin 重构记录](./smart-admin-refactor.md)。当前已有大量业务页面，本文中 2026-10 的测试数量与全绿结果仅为历史记录。
+>
+> 历史重构（2026-10）在上一版“骨架重构”的基础上，完成三件事：
 >
 > 1. 把**路由入口、业务实现、外壳、设计系统**拆成明确层级；
 > 2. 用一套可执行的设计 token 与 **Governance Line** 外壳替换旧后台视觉；
@@ -39,12 +41,12 @@ utils/ constants/ types/     纯函数与类型
 
 约束：
 
-- `views/` 是路由适配层，**不再承载业务状态**。文件保持薄，只 import 对应的 feature 页面。
+- 新增 `views/` 页面使用薄路由适配器，业务实现放在 `features/`；已经迁入的业务页面保留原有 `views/` 路径和实现，按模块演进。
 - `features/` 按业务域组织（auth / workbench / errors / embed），后续新增业务域在 `features/<domain>/` 下放页面、局部组件与 composable。
 - `layouts/` 只处理外壳，不写业务判断；外壳状态通过 store 暴露。
 - `styles/` 是全局样式的唯一入口。业务组件局部样式仍用 `<style scoped>`。
 - `design-system/` 存放跨业务的基础组件（BrandMark、PageHeader、EmptyState、NavigationLink），不依赖业务。
-- `utils/` 不反向依赖 store 或组件。
+- 新增纯函数放在 `utils/`；该目录目前仍包含历史 UI/路由适配工具，不应视为全部无副作用。API、请求层、配置层的直接依赖边界由架构检查强制执行。
 - `api/` 只负责路径与返回类型，不写 UI 状态。
 
 ## 3. 新目录结构
@@ -103,7 +105,8 @@ src/
 ├── api/                        按业务域拆分
 ├── router/                     静态路由 + guards + view registry + navigation
 ├── utils/                      纯函数
-├── constants/                  枚举、缓存 key、默认配置
+├── config/                     运行时配置、请求超时
+├── constants/                  枚举、缓存 key、兼容配置导出
 └── types/                      全局类型
 ```
 
@@ -207,13 +210,14 @@ vendor CSS → tokens.css → tailwind.css → styles/index.less → driver.less
 
 - tabs 与导航的外壳选择仍是纯状态机，组件只渲染；
 - `App.vue` 只选择 page / fullscreen / standalone，不再包含路径 if；
-- 全局事件总线仍不存在，跨层用 props / provide-inject / store。
+- 框架状态通过 props / provide-inject / store 通信；业务中仍存在历史 `utils/emits.ts`，新代码不扩展它。
 
 ## 7. 请求层
 
 保持上一轮设计：
 
-- `service/http/client.ts` 只在 GET/HEAD/OPTIONS 合并并发；
+- `service/http/transport.ts` 提供独立请求实例，只在 GET/HEAD/OPTIONS 合并并发；
+- `client.ts` 连接默认配置和缓存，`app/request-effects.ts` 注入登录跳转与全屏 loading；
 - 调用瞬间固定 token；401 清缓存并跳登录；
 - 失败统一为 `ApiError`；
 - `baseService` 保留签名头与 3600000ms 超时；

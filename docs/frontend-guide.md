@@ -2,7 +2,7 @@
 
 > 本规范基于 [ocxers/frontend-guide](https://github.com/ocxers/frontend-guide) 整理的前端编码规范参考体系,结合本仓库 (pnpm workspace monorepo,Vue 3 + Vite + Element Plus + Pinia)的既有约定裁剪而成。
 >
-> 一句话原则:**与既有代码保持一致,优先服从仓库里已经跑通的范式,而不是个人偏好。** 规范与 ESLint / Prettier 冲突时,以工具链配置为准,并同步修改本文档。2026-10 重构后的分层、store、路由、请求层设计见 [`architecture.md`](./architecture.md)。
+> 一句话原则:**与既有代码保持一致,优先服从仓库里已经跑通的范式,而不是个人偏好。** 规范与 ESLint / Prettier 冲突时,以工具链配置为准,并同步修改本文档。最新 Smart Admin 架构边界与验证见 [`smart-admin-refactor.md`](./smart-admin-refactor.md)；既有分层、store、路由、请求层设计见 [`architecture.md`](./architecture.md)。
 
 ## 参考基准
 
@@ -52,7 +52,7 @@ E2E 应复用 `pnpm dev` 服务。若 8001 正在运行 `pnpm mock`,页面内的
 | -------------------- | ------------------------------------------------------- | ------------------------ |
 | `src/app/`           | 应用组装、第三方插件注册                                | 业务逻辑、页面状态       |
 | `src/layouts/`       | 外壳布局:admin / fullscreen / RouteHost                 | 业务页面                 |
-| `src/views/`         | 路由适配层,路径必须与菜单 url 对应;薄封装到 `features/` | 业务实现、页面状态       |
+| `src/views/`         | 菜单 URL 入口与既有业务页面；新页面薄封装到 `features/` | 新增业务继续堆入路由入口 |
 | `src/api/`           | 按业务域拆分的接口定义                                  | 业务判断、UI 状态        |
 | `src/features/`      | 按业务域组织的页面与局部逻辑                            | 框架级状态、全局样式     |
 | `src/design-system/` | 跨业务基础组件与设计系统入口                            | 业务数据、接口调用       |
@@ -264,7 +264,7 @@ import SvgIcon from '@/components/base/svg-icon'
 ## 5. 路由与页面
 
 - 路由是**服务端菜单驱动**的,不要手写业务路由注册。
-- 视图组件按路径约定匹配:路由 `path` 经 `router/view-registry.ts` 的 `toSysViewComponentPath` 转成 `/src/views{path}.vue`,由 `import.meta.glob('/src/views/**/*.vue')` 查表。`views/` 文件只做路由适配,业务实现放在 `features/<domain>/`。
+- 视图组件按路径约定匹配:路由 `path` 经 `router/view-registry.ts` 的 `toSysViewComponentPath` 转成 `/src/views{path}.vue`,由 `import.meta.glob('/src/views/**/*.vue')` 查表。新增 `views/` 文件只做路由适配,业务实现放在 `features/<domain>/`。
 - 因此**新增页面的文件路径必须与菜单 url 对应**,注意 `_` 会被替换为 `-`。
 - hash 模式(`createWebHashHistory`)。
 - 守卫拆在 `router/guards/index.ts`,写成"返回值即导航结果"的新式写法(vue-router 5 已弃用 `next()`):`return true` 放行、`return false` 取消、`return '/path'` 重定向。
@@ -279,7 +279,11 @@ import SvgIcon from '@/components/base/svg-icon'
 
 ## 6. 网络请求
 
-- 所有请求经 `src/service/baseService`,底层是 `src/service/http/client.ts`。自动附加签名头(random / timeStamp / sign),默认超时 `3600000ms`。
+- `api/`、`service/`、`config/` 不导入 app、router、store、组件、hooks 或 UI 库；共享接口类型放到 `api/<domain>/types.ts`。类型导入也遵守目录边界，组件可以 re-export 旧类型路径以兼容调用方。
+- `app/request-effects.ts` 在 Pinia 安装后、路由启动前连接 401 导航和 loading；`BaseMethod` 不自行读取 store。并发请求全部结束后才关闭全屏 loading。
+- `pnpm check:architecture` 同时检查静态导入、动态 import、类型导入、re-export、相对路径与别名；新增代码不得绕过这个检查。
+
+- 所有请求经 `src/service/baseService`；`service/http/transport.ts` 负责独立传输实例，`client.ts` 连接配置和缓存。自动附加签名头(random / timeStamp / sign),默认超时 `3600000ms`。
 - **只有 GET/HEAD/OPTIONS 会合并并发请求**;写请求永不合并,避免两次提交被吞掉。
 - 所有失败统一为 `ApiError`(`status` / `code` / `url` / `cause`),业务层不再兼容裸字符串。
 - `FormData` 交给请求层处理 multipart boundary,不要设置 JSON 请求头。查询参数用 `baseService.get(path, params)`,避免直接插值拼接导致 `&`、`#` 等字符改变请求含义。

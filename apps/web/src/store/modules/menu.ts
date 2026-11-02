@@ -2,8 +2,8 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { RouteRecordRaw } from 'vue-router'
 import type { IServerMenus } from '@/types/interface'
-import type { MenuMeta, UserProfile } from '@/types/domain'
-import baseService from '@/service/baseService'
+import type { MenuMeta } from '@/types/domain'
+import { getNavigationMenus, getCurrentUser } from '@/api/system/session'
 import { getSysRouteMap } from '@/router/view-registry'
 import { mergeServerRoute } from '@/utils/router'
 import { collectNavigationEntries } from '@/router/navigation'
@@ -21,7 +21,7 @@ export const useMenuStore = defineStore('menu', () => {
   const routeToMeta = ref<Record<string, MenuMeta>>({})
   const menuMsg = ref<MenuMeta>({})
 
-  const isLoaded = computed(() => routes.value.length > 0)
+  const isLoaded = ref(false)
   const navigationEntries = computed(() => collectNavigationEntries(routes.value))
 
   let pending: Promise<RouteRecordRaw[]> | null = null
@@ -33,10 +33,7 @@ export const useMenuStore = defineStore('menu', () => {
     const currentGeneration = generation
     const operation = (async () => {
       const session = useSessionStore()
-      const [menuResponse, userResponse] = await Promise.all([
-        baseService.get<IServerMenus[]>('/sys/menu/nav'),
-        baseService.get<Partial<UserProfile>>('/sys/getUserInfo')
-      ])
+      const [menuResponse, userResponse] = await Promise.all([getNavigationMenus(), getCurrentUser()])
 
       if (currentGeneration !== generation) throw new Error('工作区已重置，请重新载入')
 
@@ -52,6 +49,7 @@ export const useMenuStore = defineStore('menu', () => {
       menus.value = serverMenus
       routes.value = serverRoutes
       routeToMeta.value = routeMeta
+      isLoaded.value = true
       return serverRoutes
     })()
     pending = operation
@@ -70,6 +68,7 @@ export const useMenuStore = defineStore('menu', () => {
 
   function setRoutes(payload: RouteRecordRaw[]) {
     routes.value = payload
+    isLoaded.value = true
   }
 
   function setMenuMessage(payload: MenuMeta) {
@@ -84,6 +83,7 @@ export const useMenuStore = defineStore('menu', () => {
 
   function reset() {
     generation += 1
+    isLoaded.value = false
     menus.value = []
     routes.value = []
     routeToMeta.value = {}

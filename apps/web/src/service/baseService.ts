@@ -1,7 +1,8 @@
 import type { Method, ResponseType } from 'axios'
 import { Base64 } from 'js-base64'
 import type { IObject } from '@/types/interface'
-import request from '@/service/http/client'
+import request from '@/service/http'
+import appConfig from '@/config/app'
 import type { ApiResponse } from '@/service/http/types'
 
 interface Signature {
@@ -17,7 +18,7 @@ interface OtherParams {
 /** 业务接口默认返回包。具体 data 形状由各 api 文件用泛型声明。 */
 export type ServiceResult<T = unknown> = ApiResponse<T>
 
-const REQUEST_TIMEOUT = 3600000
+const REQUEST_TIMEOUT = appConfig.serviceTimeout
 
 // 历史 api 大量未声明泛型；默认 any 保持兼容，新接口请显式传 T。
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
