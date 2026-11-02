@@ -97,14 +97,10 @@
   </div>
   <ImportExcel ref="importRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/service/lslxJsc/components/flowAudit'
-}
-</script>
+
 
 <script setup lang="ts">
-import { reactive, ref, defineProps, defineExpose, defineEmits } from 'vue'
+import { reactive, ref } from 'vue'
 import {
   getTableDataForYs,
   getDynamicColumnForYs,
@@ -119,9 +115,16 @@ import {
 } from '@/api/lslxJsc/index'
 import { ElMessage, ElNotification, ElMessageBox } from 'element-plus'
 import { formatValue } from '@/utils/utils'
-import ImportExcel from '@/components/ImportExcel/indexNew.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexNew.vue'
 import { apiExportHandle, vxeExportHandle } from '@/utils/export'
-import middleCont from '@/components/modalTitle/middleCont.vue' //表格组件
+import middleCont from '@/components/modalTitle/middleCont.vue'
+defineOptions({
+  name: '/service/lslxJsc/components/flowAudit'
+})
+
+ //导入组件
+
+ //表格组件
 
 //接收父组件传参
 const props = defineProps({
@@ -136,7 +139,6 @@ const dialogFormRef = ref()
 const importRef = ref<any>()
 const userInfo = ref()
 const viewMethod = ref<string>('1')
-
 const pageInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -144,14 +146,12 @@ const pageInfo = reactive<{
   loading: false,
   isShowPage: false
 })
-
 const count = ref(0)
 const isShowModel = ref(false)
 const closeHandle = () => {
   viewMethod.value = '1'
   isShowModel.value = false
 }
-
 const tableInfo = reactive<any>({
   tableData: [],
   columns: [],
@@ -171,8 +171,7 @@ const tableInfo = reactive<any>({
         dwId: props.formData?.dwId
       }
       return new Promise((resolve: any) => {
-        let Api =
-          props.formData?.modelTitle == '一上上报审核' ? getTableDataForYs : getTableDataForEs
+        let Api = props.formData?.modelTitle == '一上上报审核' ? getTableDataForYs : getTableDataForEs
         Api(params).then((res: any) => {
           if (res.success) {
             count.value--
@@ -222,7 +221,6 @@ const tableInfo = reactive<any>({
     }
   }
 })
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -313,13 +311,14 @@ const newData = async () => {
   await getDataList()
   await threeLevel()
 }
-
 const getDataList = async () => {
-  const api: any =
-    props.formData?.modelTitle == '一上上报审核' ? getTableDataForYs : getTableDataForEs
+  const api: any = props.formData?.modelTitle == '一上上报审核' ? getTableDataForYs : getTableDataForEs
   pageInfo.loading = true
   tableInfo.tableData.length = 0
-  let res = await api({ ...props.formData, viewMethod: viewMethod.value })
+  let res = await api({
+    ...props.formData,
+    viewMethod: viewMethod.value
+  })
   if (res.success) {
     tableInfo.tableData = res.data
     pageInfo.loading = false
@@ -330,8 +329,7 @@ const getDataList = async () => {
 }
 //获取表头
 const getHeaderData = async (params: any) => {
-  const api: any =
-    props.formData?.modelTitle == '一上上报审核' ? getDynamicColumnForYs : getDynamicColumnForEs
+  const api: any = props.formData?.modelTitle == '一上上报审核' ? getDynamicColumnForYs : getDynamicColumnForEs
   let res = await api(params)
   if (res.success) {
     tableInfo.columns = res.data.filter((item: any) => item.visible)
@@ -376,7 +374,6 @@ const handlerClickBtn = (val: any) => {
       console.log(error)
     })
 }
-
 defineExpose({
   isShowModel,
   getHeaderData,

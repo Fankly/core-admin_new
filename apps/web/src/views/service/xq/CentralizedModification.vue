@@ -6,11 +6,7 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/xq/CentralizedModification'
-}
-</script>
+
 <script setup lang="ts">
 import { getAppMenu } from '@/api/menu/menuConfig'
 import HelpModal from '@/components/HelpModal/index.vue'
@@ -23,6 +19,9 @@ import { MenuConfig } from '@/views/service/xq/interface'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
+defineOptions({
+  name: '/service/xq/CentralizedModification'
+})
 
 const route = useRoute()
 const store = useStore()
@@ -35,30 +34,27 @@ const isShowPage = ref(false)
 const userLever = ref('')
 const operationBtn = ref<MenuConfig[]>([])
 const searchBtn = ref<MenuConfig[]>([])
-
 const loading = computed(() => workbenchRef.value?.loading || false)
-
 const { startGuide } = useGuide({
   moduleKey: 'CentralizedModification',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 const reloadWorkbench = async () => {
   await nextTick()
   await workbenchRef.value?.reload()
   startGuide()
 }
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfo.value.specialorgid}`)
@@ -86,10 +82,8 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 onMounted(async () => {
   const isRoel = await useUser()
-
   if (isRoel && route.params.formJsc) {
     const xqGlobalInfo = store.getters.getXqGlobalInfo
     isShowPage.value = true
@@ -113,7 +107,6 @@ onMounted(async () => {
     await userDialogRef.value.getUser()
   }
 })
-
 defineExpose({
   isShowModal,
   loading

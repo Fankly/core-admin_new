@@ -38,14 +38,12 @@
   </Teleport>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AepModalShell'
-}
-</script>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+defineOptions({
+  name: 'AepModalShell'
+})
 
 const props = withDefaults(
   defineProps<{
@@ -75,12 +73,10 @@ const props = withDefaults(
     fullscreen: false
   }
 )
-
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'toggle-fullscreen'): void
 }>()
-
 const panelStyle = computed(() => ({
   width: props.fullscreen ? '100vw' : props.width,
   height: props.fullscreen ? '100vh' : props.height

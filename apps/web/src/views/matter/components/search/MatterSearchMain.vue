@@ -1,6 +1,6 @@
 <template>
   <div class="form">
-    <el-form label-position="right" label-width="120px" v-model="formData">
+    <el-form label-position="right" label-width="120px" :model="formData">
       <el-row :gutter="24">
         <el-col :span="6">
           <el-form-item label="项目类型：">
@@ -118,17 +118,11 @@
   <SearchDetailView :params="modalParams" ref="searchDetailViewRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: 'MatterSearchMain'
-}
-</script>
 
 <script setup lang="ts">
 import TreeSelect from '@/components/select/TreeSelect.vue'
 import SearchDetailView from '@/views/matter/components/search/SearchDetailView.vue'
-
-import { onMounted, defineExpose, reactive, ref, defineProps, watch, defineEmits } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { exportDataAll, exportData, getDataAll, Params, Result } from '@/api/matter/search/index'
 import { getProTypeTreeNode } from '@/api/process'
 import { ElMessage } from 'element-plus'
@@ -136,6 +130,9 @@ import { getYearData, getYjdwNew, getEjdwByYjdw, getGkbmInProvince, getPublicCod
 import { UserInfo } from '../../interface'
 import { VxeGridListeners, VxeGridProps } from 'vxe-table'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({
+  name: 'MatterSearchMain'
+})
 
 interface Column {
   columnKey: string
@@ -149,12 +146,10 @@ interface Column {
   visible: boolean
   align: string
 }
-
 interface InitInfo {
   userInfo: UserInfo
   isShowPage: boolean
 }
-
 interface Props {
   initInfo: InitInfo
   searchApi: (params: Params) => Promise<Result>
@@ -162,43 +157,33 @@ interface Props {
   fileName: string
   name: string
 }
-
 interface NdList {
   yearName: string
   yearCode: string
 }
-
 interface SearchData {
   name: string
   code: string
 }
-
 const modalParams = ref({})
-
 const props = defineProps<Props>()
-
 const emits = defineEmits(['isDisable', 'isExport', 'isLoad'])
-
 const tableRef = ref()
 const proTypeRef = ref()
 const searchDetailViewRef = ref()
-
 const page = reactive({
   total: 0,
   limit: 10,
   page: 1,
   current: '1'
 })
-
 const formData = reactive<Partial<Params>>({})
-
 const treeProps = reactive({
   projectTypeProps: {
     children: 'children',
     label: 'name'
   }
 })
-
 const selectData = reactive<{
   yjdwListData: SearchData[]
   ejdwListData: SearchData[]
@@ -218,9 +203,7 @@ const selectData = reactive<{
   zsfsList: [],
   zdtxList: []
 })
-
 const loading = ref(false)
-
 const gridOptions = reactive<any>({
   border: true,
   columnConfig: {
@@ -244,7 +227,6 @@ const gridOptions = reactive<any>({
     useStyle: true
   }
 })
-
 const getExportData = (newArr: any[], data: any[]) => {
   data.forEach((item) => {
     newArr.push({
@@ -257,26 +239,22 @@ const getExportData = (newArr: any[], data: any[]) => {
   })
   return newArr
 }
-
 const clearDataHandle = () => {
   if (formData.zdtxs && formData.zdtxs.length !== 0) formData.zdtxs.length = 0
   if (formData.xmlxs && formData.xmlxs.length !== 0) formData.xmlxs.length = 0
   selectData.zdtxList.length = 0
 }
-
 const getProjectTypeHandle = (value: string[]) => {
   formData.xmlxs = value
   if (formData.zdtxs && formData.zdtxs.length !== 0) formData.zdtxs.length = 0
   selectData.zdtxList.length = 0
   getZdtxListData(value)
 }
-
 const changeNdDataHandle = async () => {
   // 清空
   proTypeRef.value.selectChange()
   await getProjectData()
 }
-
 const changeYjdwDataHandle = async (val: string) => {
   formData.ejdw = ''
   selectData.ejdwListData.length = 0
@@ -367,7 +345,9 @@ const getProGkbmData = async () => {
 // 获取展示维度和展示方式
 const getOtherSearchData = async () => {
   let codes = ['MATTER_ZSFS', 'XMLB_YSLY']
-  let res = await getPublicCodeList({ codes })
+  let res = await getPublicCodeList({
+    codes
+  })
   if (res.success && res.data) {
     selectData.zsfsList = res.data[codes[0]]
     selectData.tjwdList = res.data[codes[1]]
@@ -375,12 +355,10 @@ const getOtherSearchData = async () => {
     formData.tjwd?.push(selectData.zsfsList[0].code)
   }
 }
-
 const clickSearchHandle = async () => {
   await searchHandle()
   if (tableRef.value && formData.zsfs === '1') tableRef.value.setAllTreeExpand(true)
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -448,7 +426,6 @@ const getDynamicColumnData = async () => {
     })
   }
 }
-
 const setColumnType = (item: Column, column: any, zsfs: string) => {
   if (zsfs === '1') {
     if (item.columnKey === 'dwName') {
@@ -462,7 +439,6 @@ const setColumnType = (item: Column, column: any, zsfs: string) => {
           gridOptions.loading = true
           let api = props.searchApi
           if (!api) return
-
           let params: any = {
             dwId: props.initInfo.userInfo.specialorgid,
             pid: row.id,
@@ -536,13 +512,18 @@ const pageExportHandle = async () => {
       const nameCol = worksheet.getColumn('A')
       const newArr: any[] = []
       getExportData(newArr, data)
-      nameCol.eachCell({ includeEmpty: false }, (cell: any, cellNumber: number) => {
-        if (cell.address !== 'A1') {
-          if (newArr[cellNumber - 2].cj > 1) {
-            cell.value = '    '.repeat(newArr[cellNumber - 2].cj - 1) + newArr[cellNumber - 2].name
+      nameCol.eachCell(
+        {
+          includeEmpty: false
+        },
+        (cell: any, cellNumber: number) => {
+          if (cell.address !== 'A1') {
+            if (newArr[cellNumber - 2].cj > 1) {
+              cell.value = '    '.repeat(newArr[cellNumber - 2].cj - 1) + newArr[cellNumber - 2].name
+            }
           }
         }
-      })
+      )
       gridOptions.loading = false
     }
   }
@@ -561,7 +542,6 @@ const formatterColumns = (item: any, column: any) => {
     }
   }
 }
-
 const rowspanMethod = ({ row, _rowIndex, column, visibleData }: any) => {
   let field: string[] = []
   let value = ''
@@ -578,7 +558,10 @@ const rowspanMethod = ({ row, _rowIndex, column, visibleData }: any) => {
     const prevRow = visibleData[_rowIndex - 1]
     let nextRow = visibleData[_rowIndex + 1]
     if (prevRow && prevRow[value] === cellValue) {
-      return { rowspan: 0, colspan: 0 }
+      return {
+        rowspan: 0,
+        colspan: 0
+      }
     } else {
       let countRowspan = 1
       while (nextRow && nextRow[value] === cellValue) {
@@ -622,7 +605,6 @@ const getDetailMsgHandle = async () => {
     $modal.isShowModal = true
   }
 }
-
 const exportApiHandle = async (flag: string) => {
   let params: any = {
     dwId: props.initInfo.userInfo.org_id
@@ -651,7 +633,6 @@ const exportApiHandle = async (flag: string) => {
     gridOptions.loading = false
   })
 }
-
 const expandAllTree = async (data: any, $table: any) => {
   data.forEach(async (row: any) => {
     if (row.leaf) {
@@ -662,7 +643,6 @@ const expandAllTree = async (data: any, $table: any) => {
     }
   })
 }
-
 const pageExportData = () => {
   let params: any = {
     dwId: props.initInfo.userInfo.org_id
@@ -687,7 +667,6 @@ const pageExportData = () => {
     gridOptions.loading = false
   })
 }
-
 const gridEvents = reactive<VxeGridListeners<any>>({
   cellMenu({ row }) {
     const $grid = tableRef.value
@@ -696,7 +675,6 @@ const gridEvents = reactive<VxeGridListeners<any>>({
     }
   }
 })
-
 watch(
   () => gridOptions.data,
   () => {
@@ -705,7 +683,6 @@ watch(
     }
   }
 )
-
 watch(
   () => formData.zsfs,
   (newVal) => {
@@ -713,14 +690,12 @@ watch(
     emits('isExport', newVal !== '4')
   }
 )
-
 watch(
   () => gridOptions.loading,
   (newVal) => {
     emits('isLoad', newVal)
   }
 )
-
 onMounted(async () => {
   loading.value = true
   await getNdData()
@@ -732,7 +707,6 @@ onMounted(async () => {
   if (tableRef.value && formData.zsfs === '1') tableRef.value.setAllTreeExpand(true)
   loading.value = false
 })
-
 defineExpose({
   expandHandle,
   getDetailMsgHandle,

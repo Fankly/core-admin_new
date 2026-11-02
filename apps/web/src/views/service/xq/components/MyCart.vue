@@ -16,14 +16,13 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'MyCart'
-}
-</script>
+
 <script setup lang="ts">
 import RequirementCartWorkbench from '@/views/service/xq/components/RequirementCartWorkbench.vue'
 import { nextTick, ref } from 'vue'
+defineOptions({
+  name: 'MyCart'
+})
 
 const props = defineProps({
   userInfo: {
@@ -31,15 +30,12 @@ const props = defineProps({
     required: true
   }
 })
-
 const isShowModal = ref(false)
 const workbenchRef = ref<InstanceType<typeof RequirementCartWorkbench>>()
-
 const showHandle = async () => {
   await nextTick()
   await workbenchRef.value?.reload()
 }
-
 defineExpose({
   isShowModal
 })

@@ -193,7 +193,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/goalValue/targetBatchSplit/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
@@ -213,6 +212,7 @@ import { decrypt } from '@/utils/crypto'
 import baseService from '@/service/baseService'
 import { getMenuMessage } from '@/api/process'
 import VXETable from 'vxe-table'
+defineOptions({ name: "/goalValue/targetBatchSplit/index" })
 
 interface Params {
   cjr: string

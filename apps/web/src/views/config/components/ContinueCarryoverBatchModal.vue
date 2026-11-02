@@ -43,13 +43,13 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ContinueCarryoverModal" })
-// 父组件传过来的参数
 import { reactive, ref } from 'vue'
 import { RowVo } from '../ContinueCarryover.vue'
 import { batchUpdateData } from '@/api/config/continueCarryover'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
+defineOptions({ name: "ContinueCarryoverModal" })
+// 父组件传过来的参数
 
 const emit = defineEmits(['refresh'])
 const loading = ref(false)

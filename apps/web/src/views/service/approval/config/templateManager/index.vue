@@ -134,8 +134,6 @@
 
 <script setup lang="ts">
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/service/approval/config/templateManager/index" })
 import { computed, onMounted, provide, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Download, FileSpreadsheet, FileText, Inbox, LayoutList, Loader2, Plus, Trash2 } from '@lucide/vue'
@@ -150,6 +148,7 @@ import {
 } from '@/api/service/approval/config/templateManager'
 import type { TemplateManagerFile, TemplatePspcType } from '@/api/service/approval/config/templateManager'
 import { VXETable } from 'vxe-table'
+defineOptions({ name: "/service/approval/config/templateManager/index" })
 
 interface BatchType {
   code: TemplatePspcType

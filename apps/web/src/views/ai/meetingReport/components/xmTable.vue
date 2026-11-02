@@ -43,17 +43,16 @@
   </div>
   <review-modal ref="returnModal" :title="'退回意见'" :label="'退回意见'" @show-modal="returnMag"></review-modal>
 </template>
-<script lang="ts">
-export default {
-  name: 'projectTable'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive, h, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getDynamicColumn, getTableData, exportData, leaderReviewThForCityLhhs } from '@/api/ai/reviewWorkBench'
 import { apiExportHandle } from '@/utils/export'
 import reviewModal from '@/components/yssxTable/reviewModal.vue'
+defineOptions({
+  name: 'projectTable'
+})
 
 const isShowModel = ref<boolean>(false)
 const meetingId = ref<string>('')
@@ -69,28 +68,40 @@ const pagination = reactive({
 const closeHandle = () => {
   isShowModel.value = false
 }
-
 const initParamLists = async (param: any) => {
   meetingId.value = param?.meetingId
-  useInfo.value = { ...param }
+  useInfo.value = {
+    ...param
+  }
   isShowModel.value = true
-  const res: any = await getDynamicColumn({ meetingId: meetingId.value })
+  const res: any = await getDynamicColumn({
+    meetingId: meetingId.value
+  })
   if (!res.success) return ElMessage.error(res.msg)
-  gridOptions.columns = [{ type: 'checkbox', width: 50 }, ...res.data]
+  gridOptions.columns = [
+    {
+      type: 'checkbox',
+      width: 50
+    },
+    ...res.data
+  ]
   await getPageList()
 }
-
 const getPageList = async () => {
   gridOptions.data.length = 0
-
-  const data: any = await getTableData({ meetingId: meetingId.value, page: pagination.page, limit: pagination.limit })
+  const data: any = await getTableData({
+    meetingId: meetingId.value,
+    page: pagination.page,
+    limit: pagination.limit
+  })
   if (!data.success) return ElMessage.error(data.msg)
   gridOptions.data = data.data.records
   pagination.total = data.data.total
 }
-
 const exportHandle = () => {
-  const params = { meetingId: meetingId.value }
+  const params = {
+    meetingId: meetingId.value
+  }
   const fileName = '项目明细'
   apiExportHandle(params, fileName, exportData)
 }
@@ -102,20 +113,17 @@ const cellClickHandle = async ({ row, column }: any) => {
 const gridEvent = {
   cellClick: cellClickHandle
 }
-
 const handleChangeSizeChange = async (val: number) => {
   if (val <= 0) return
   pagination.limit = val
   pagination.page = 1
   getPageList()
 }
-
 const handleChangeCurrentChange = async (val: number) => {
   if (val <= 0) return
   pagination.page = val
   getPageList()
 }
-
 const rejectHandle = () => {
   const $table = gridRef.value
   const records = $table.getCheckboxRecords() || []
@@ -141,12 +149,14 @@ const returnMag = async (val: any) => {
   ElMessage.success('退回成功！')
   returnModal.value?.closeHandle()
 }
-
 const gridOptions = reactive<any>({
   stripe: true,
   border: true,
   loading: false,
-  checkboxConfig: { trigger: 'row', highlight: true },
+  checkboxConfig: {
+    trigger: 'row',
+    highlight: true
+  },
   headerAlign: 'center',
   align: 'center',
   height: '100%',

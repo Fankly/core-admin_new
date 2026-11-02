@@ -86,11 +86,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'maintModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -98,6 +93,9 @@ import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { getPublicData } from '@/api/common'
 import zbpc from '@/views/lyg/project/proInfoAdd/components/zbpc/index.vue'
+defineOptions({
+  name: 'maintModal'
+})
 
 /** 公共代码项 */
 interface CodeItem {
@@ -110,17 +108,19 @@ interface ModalParams {
   type: string
   searchParams: Record<string, any>
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
 const modalTitle = ref('')
 const zbpcModalRef = ref()
-
 const serviceBidList = ref<CodeItem[]>([])
 const materialBidList = ref<CodeItem[]>([])
 const jsfsList = ref<CodeItem[]>([])
@@ -143,7 +143,6 @@ const handleClose = () => {
 const handleSave = () => {
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -155,11 +154,12 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
       ElMessage.success('保存成功！')
-      emit('searchHandle', { ...searchParams.value })
+      emit('searchHandle', {
+        ...searchParams.value
+      })
       handleClose()
     } catch (e) {
       ElMessage.error((e as Error).message)
@@ -168,15 +168,15 @@ const handleSave = () => {
     }
   })
 }
-
 const handleSearch = (type: any) => {
   const params = {
     type: type,
     modalTitle: type == '2' ? '服务招标批次' : '物资招标批次'
   }
-  zbpcModalRef.value.acceptParams({ ...params })
+  zbpcModalRef.value.acceptParams({
+    ...params
+  })
 }
-
 const handlePcType = (val: any) => {
   if (val) {
     if (val.type == '2') {
@@ -211,6 +211,7 @@ const acceptParams = (params: ModalParams) => {
   isShowModal.value = true
   fetchOptions()
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>

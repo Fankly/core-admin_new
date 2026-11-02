@@ -10,9 +10,9 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/lyg/project/cqwqdhtxms/index" })
 import CqxmBaseTable from '../components/CqxmBaseTable.vue'
 import { getCqwqdhtXmmxPage, exportCqwqdhtXmmx } from '@/api/lyg/index'
+defineOptions({ name: "/lyg/project/cqwqdhtxms/index" })
 
 const extraColumns = [
   { prop: 'firstWinBidDate', label: '项目中标日期', width: 150 },

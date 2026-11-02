@@ -1,9 +1,5 @@
 <!-- 需求库管理 -->
-<script lang="ts">
-export default {
-  name: '/service/xq/RequirementGL'
-}
-</script>
+
 <script setup lang="ts">
 import { getPublicData } from '@/api/common'
 import { getAppMenu } from '@/api/menu/menuConfig'
@@ -22,11 +18,14 @@ import baseService from '@/service/baseService'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
 import { Configs, MenuConfig } from '@/views/service/xq/interface'
 import { ElMessage } from 'element-plus'
-import { computed, defineExpose, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
 import { VxeGridProps, VXETable } from 'vxe-table'
 import { freezeColumns } from '@/utils/utils'
+defineOptions({
+  name: '/service/xq/RequirementGL'
+})
 
 interface RowVo {
   id: string
@@ -46,7 +45,6 @@ interface RowVo {
   cjr: string
   lyxt_name: string
 }
-
 const route = useRoute()
 const formRef = ref()
 const isShowModal = ref(false)
@@ -80,20 +78,16 @@ const userInfo = ref<{
 const store = useStore()
 const userInfOther = ref<any>()
 const title = '高级设置'
-
 const operationBtn = ref<MenuConfig[]>([])
 const searchBtn = ref<MenuConfig[]>([])
 const userDialogRef = ref()
-
 const defaultValueProp = ref<any>({})
-
 const { startGuide } = useGuide({
   moduleKey: 'RequirementGL',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 const searchData = ref<{
   [key: string]: any
 }>({})
@@ -102,13 +96,10 @@ const page = {
   limit: 20,
   page: 1
 }
-
 const spanComp = computed(() =>
   linkLength.value % 4 === 0 ? 24 : linkLength.value % 4 === 1 ? 18 : linkLength.value % 4 === 2 ? 12 : linkLength.value % 4 === 3 ? 6 : 24
 )
-
 const isShowPage = ref(false)
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchDataHandle()
@@ -118,13 +109,11 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchDataHandle()
 }
-
 const processData = reactive({
   isShowDialog: false,
   compName: null,
   id: ''
 })
-
 const processHandle = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -132,7 +121,6 @@ const processHandle = () => {
     useProcess(records, processData)
   }
 }
-
 const exportHandle = () => {
   loading.value = true
   const params = {
@@ -158,7 +146,6 @@ const exportHandle = () => {
     loading.value = false
   })
 }
-
 const handleFieldChange = async (prop: string, value: any, column: Configs) => {
   if (prop === 'yjdw') {
     if (value) {
@@ -180,7 +167,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
       }
     }
   }
-
   if (prop === 'yjfl') {
     if (value) {
       const findEjflData: any = dynamciSearch.value.find((search) => search.code === 'ejfl')
@@ -205,7 +191,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
       }
     }
   }
-
   if (prop === 'ejfl') {
     if (value) {
       const findData: any = dynamciSearch.value.find((search) => search.code === 'sjfl')
@@ -227,7 +212,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
     }
   }
 }
-
 const searchDataHandle = async () => {
   loading.value = true
   const getPageData = await getXqlrPage({
@@ -246,7 +230,6 @@ const searchDataHandle = async () => {
     loading.value = false
   }
 }
-
 const initParamsData = async (method: any, params: any): Promise<any[]> => {
   const res = await baseService.post(method, params)
   if (res.success) {
@@ -256,7 +239,6 @@ const initParamsData = async (method: any, params: any): Promise<any[]> => {
     return []
   }
 }
-
 const viewHandle = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -269,7 +251,6 @@ const viewHandle = () => {
     editPageRef.value.isShowModal = true
   }
 }
-
 const resetHandle = () => {
   dynamciSearch.value.forEach((item) => {
     if (item.dependOnColumn) {
@@ -296,7 +277,6 @@ const resetHandle = () => {
   }
   searchDataHandle()
 }
-
 const searchConfigHandle = async () => {
   loading.value = true
   const searchResData = await getDynamicSearchColumn({
@@ -340,7 +320,11 @@ const searchConfigHandle = async () => {
         filterable: true,
         multiple: item.multiple,
         options: [],
-        treeProps: { children: 'children', label: 'name', value: 'id' }
+        treeProps: {
+          children: 'children',
+          label: 'name',
+          value: 'id'
+        }
       }
     })
     for (const item of customData) {
@@ -366,7 +350,6 @@ const searchConfigHandle = async () => {
         }
       }
     }
-
     if (ggdms.length > 0) {
       const initData = await initParamsData('/commonCode/getCommonCode', {
         bmId: userInfo.value.deptId || '',
@@ -384,7 +367,6 @@ const searchConfigHandle = async () => {
     loading.value = false
   }
 }
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   columnConfig: {
@@ -400,7 +382,6 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   },
   columns: []
 })
-
 const getDynamicTable = async () => {
   const res = await getDynamicTableByUser({
     searchCode: searchCode.value
@@ -425,7 +406,6 @@ const getDynamicTable = async () => {
     freezeColumns(gridOptions.columns as any, 2)
   }
 }
-
 const showHandle = async () => {
   await searchConfigHandle()
   await getDynamicTable()
@@ -436,7 +416,9 @@ const showHandle = async () => {
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfOther.value = { ...userDialogRef.value.userMsg }
+    userInfOther.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfOther.value.specialorgid}`)
@@ -466,16 +448,13 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 const xmjdList = ref<any>([])
-
 const getPublicCode = async () => {
   const res = await getPublicData('ZLYS_XMJD')
   if (res.success && res.data) {
     xmjdList.value = res.data
   }
 }
-
 onMounted(async () => {
   getPublicCode()
   const isRoel = await useUser()
@@ -502,28 +481,22 @@ onMounted(async () => {
     await userDialogRef.value.getUser()
   }
 })
-
 const showModalHandle = () => {
   searchConfigHandle()
   getDynamicTable()
 }
-
 const settingHandle = () => {
   dynamicReportsRef.value.isShowDrawer = true
 }
-
 const cellClickHandle = async ({ row, column }: any) => {
   if (column.type === 'checkbox') return
   await gridRef.value.clearCheckboxRow()
   gridRef.value.setCheckboxRow(row, true)
 }
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const ids = ref([])
-
 const reSendBtnHandle = async () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -542,8 +515,14 @@ const reSendBtnHandle = async () => {
       })
       if (type === 'confirm') {
         loading.value = true
-        const res = await getXqkglth({ ids: ids.value, dwId: userInfOther.value.org_id, bmId: userInfo.value.deptId })
-        let thRes = await saveOrUpdateTXmThxxb({ list: thList })
+        const res = await getXqkglth({
+          ids: ids.value,
+          dwId: userInfOther.value.org_id,
+          bmId: userInfo.value.deptId
+        })
+        let thRes = await saveOrUpdateTXmThxxb({
+          list: thList
+        })
         console.log(thRes)
         if (res.success) {
           ElMessage.success('退回成功！')
@@ -560,7 +539,6 @@ const reSendBtnHandle = async () => {
     }
   }
 }
-
 defineExpose({
   isShowModal,
   loading

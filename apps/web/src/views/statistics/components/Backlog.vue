@@ -31,113 +31,109 @@
   </div>
 </template>
 
-<script lang="tsx">
-export default {
-  name: "BackLog"
-};
-</script>
+
 <script setup lang="tsx">
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
-
-import proTable from "@/components/ProTable/index.vue";
-import { ColumnProps } from "@/components/ProTable/interface";
-import { onMounted, reactive, ref, toRef, defineProps } from "vue";
-import { downloadAttach, getAttach } from "@/api/matter/yssxMatter";
-import emits from "@/utils/emits";
-import { getParamValue } from "@/api/common";
-import { RowVo, DetailParams } from "../interface";
+import proTable from '@/components/ProTable/index.vue'
+import { ColumnProps } from '@/components/ProTable/interface'
+import { onMounted, reactive, ref, toRef } from 'vue'
+import { downloadAttach, getAttach } from '@/api/matter/yssxMatter'
+import emits from '@/utils/emits'
+import { getParamValue } from '@/api/common'
+import { RowVo, DetailParams } from '../interface'
+defineOptions({
+  name: 'BackLog'
+})
 
 interface Props {
-  detailParams: RowVo & DetailParams;
+  detailParams: RowVo & DetailParams
 }
-
-const props = defineProps<Props>();
-
-const backLogRef = ref();
-
-const loading = ref(false);
-const isShowSearch = ref(false);
-const isShowTable = ref(false);
-
-const previewUrl = ref("");
-
-const selectedData = toRef(props, "detailParams");
-
-const uploadId = ref("");
-
-const fileSize = ref("50");
-
-emits.on("getMatterChangeMsg", (val) => {
-  uploadId.value = val.matterBaseMsg.id;
-  backLogRef.value?.search();
-});
-
+const props = defineProps<Props>()
+const backLogRef = ref()
+const loading = ref(false)
+const isShowSearch = ref(false)
+const isShowTable = ref(false)
+const previewUrl = ref('')
+const selectedData = toRef(props, 'detailParams')
+const uploadId = ref('')
+const fileSize = ref('50')
+emits.on('getMatterChangeMsg', (val) => {
+  uploadId.value = val.matterBaseMsg.id
+  backLogRef.value?.search()
+})
 onMounted(async () => {
-  const res = await getParamValue("QMYS_GROUP", "YSSX_WJDX");
+  const res = await getParamValue('QMYS_GROUP', 'YSSX_WJDX')
   if (res.success && res.data) {
-    fileSize.value = res.data;
+    fileSize.value = res.data
   }
-});
-
+})
 const getFjTableHandle = (params: any) => {
-  loading.value = true;
-  let yssxbm = selectedData.value.yssxbm;
-  uploadId.value = yssxbm;
-  return getAttach(yssxbm, "2");
-};
-
-const uploadTableData = ref();
-
+  loading.value = true
+  let yssxbm = selectedData.value.yssxbm
+  uploadId.value = yssxbm
+  return getAttach(yssxbm, '2')
+}
+const uploadTableData = ref()
 const dataCallBackHandle = (data: any[]) => {
   if (data.length !== 0) {
-    previewHandle(data[0]);
+    previewHandle(data[0])
   } else {
-    previewUrl.value = "";
+    previewUrl.value = ''
   }
-  uploadTableData.value = data;
-  loading.value = false;
-  return data;
-};
-
+  uploadTableData.value = data
+  loading.value = false
+  return data
+}
 const downloadUploadHandle = async (params: any) => {
-  loading.value = true;
-  let res = await downloadAttach(params.uuid);
-  const blob: any = res;
-  let dom = document.createElement("a");
-  let url = window.URL.createObjectURL(blob);
-  dom.href = url;
+  loading.value = true
+  let res = await downloadAttach(params.uuid)
+  const blob: any = res
+  let dom = document.createElement('a')
+  let url = window.URL.createObjectURL(blob)
+  dom.href = url
   // 获取文件名
-  let filename = res.headers["content-disposition"].split(";")[1].split("=")[1];
-  dom.download = `${decodeURI(decodeURI(filename))}`;
-  document.body.appendChild(dom);
-  dom.click();
-  document.body.removeChild(dom);
-  window.URL.revokeObjectURL(url);
-  loading.value = false;
-};
-
+  let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
+  dom.download = `${decodeURI(decodeURI(filename))}`
+  document.body.appendChild(dom)
+  dom.click()
+  document.body.removeChild(dom)
+  window.URL.revokeObjectURL(url)
+  loading.value = false
+}
 const fjColumns = reactive<ColumnProps<any>[]>([
-  { type: "index", label: "序号" },
   {
-    prop: "fjmc",
-    label: "附件名称",
+    type: 'index',
+    label: '序号'
+  },
+  {
+    prop: 'fjmc',
+    label: '附件名称',
     render: (scope) => {
       return (
         <el-button type="primary" link onClick={() => downloadUploadHandle(scope.row)}>
           {scope.row.fjmc}
         </el-button>
-      );
+      )
     }
   },
-  { prop: "filesize", label: "附件大小" },
-  { prop: "opreation", label: "操作" }
-]);
-
+  {
+    prop: 'filesize',
+    label: '附件大小'
+  },
+  {
+    prop: 'opreation',
+    label: '操作'
+  }
+])
 const previewHandle = async (params: any) => {
-  let res = await downloadAttach(params.uuid);
-  let url = window.URL.createObjectURL(new Blob([res], { type: "application/pdf" }));
-  previewUrl.value = url + "#toolbar=0";
-};
+  let res = await downloadAttach(params.uuid)
+  let url = window.URL.createObjectURL(
+    new Blob([res], {
+      type: 'application/pdf'
+    })
+  )
+  previewUrl.value = url + '#toolbar=0'
+}
 </script>
 
 <style lang="less" scoped>

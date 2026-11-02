@@ -53,7 +53,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/lyg/projectProcessWarning/ownGkbm/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -62,6 +61,7 @@ import ProTable from '@/components/ProTablePage/index.vue'
 import maintModal from '@/views/lyg/projectProcessWarning/ownGkbm/components/maintModal/index.vue'
 import { sgbmConfigPage, sgbmConfigRemove, sgbmConfigCopy } from '@/api/lyg/index'
 import copyConfig from '@/components/copyConfig/index.vue'
+defineOptions({ name: "/lyg/projectProcessWarning/ownGkbm/index" })
 
 // ========== 类型定义 ==========
 

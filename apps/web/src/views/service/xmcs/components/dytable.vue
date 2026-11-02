@@ -190,14 +190,9 @@
     </template>
   </vxe-modal>
 </template>
-<script lang="ts">
-export default {
-  name: 'dytable'
-}
-</script>
+
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, Document as EpDocument, Folder as EpFolder, Search as EpSearch } from '@element-plus/icons-vue'
-
 import { computed, nextTick, reactive, ref } from 'vue'
 import FormTableModal, { FormField } from '@/components/FormTableModal'
 import VXETable from 'vxe-table'
@@ -208,6 +203,9 @@ import { queryDir, query as queryStandardCost, queryIdsByDirIdAndZybm, queryDirP
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import { ReMultipleText } from '@/components/ReMultipleText'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({
+  name: 'dytable'
+})
 
 interface Props {
   tableData: any[]
@@ -253,7 +251,9 @@ const formFields = ref<FormField[]>([
     apiConfig: {
       method: 'get',
       url: 'commonCode/getData',
-      params: { code: 'GY_SF' },
+      params: {
+        code: 'GY_SF'
+      },
       valueField: 'code',
       labelField: 'name'
     },
@@ -267,7 +267,9 @@ const formFields = ref<FormField[]>([
     apiConfig: {
       method: 'get',
       url: 'commonCode/getData',
-      params: { code: 'NUMSOURCE_COM' },
+      params: {
+        code: 'NUMSOURCE_COM'
+      },
       valueField: 'code',
       labelField: 'name'
     },
@@ -344,8 +346,14 @@ let zymcClickTimer: ReturnType<typeof setTimeout> | null = null
 const ZYMC_DBLCLICK_DELAY = 250
 // 打开选择器时缓存弹窗表单数据，确认作业名称后即可读取各专业调整单价做预警校验
 const standardModalFormData = ref<Record<string, any> | null>(null)
-const standardTreeProps = { children: 'children', label: 'dirName' }
-const standardQuery = reactive({ zybm: '', zymc: '' })
+const standardTreeProps = {
+  children: 'children',
+  label: 'dirName'
+}
+const standardQuery = reactive({
+  zybm: '',
+  zymc: ''
+})
 const getStandardRowKey = (row: any) => `${row?.dirId ?? ''}::${row?.zybm ?? ''}`
 // 已选作业名称（按 dirId::zybm 去重），用于顶部提示展示与清空操作
 const selectedStandardNames = computed(() => {
@@ -366,7 +374,6 @@ const standardSplitConfig = reactive<ContextProps>({
   defaultPercent: 24,
   split: 'vertical'
 })
-
 const formatMoneyDecimal = (value: any) => {
   if (value === null || typeof value === 'undefined' || value === '') return ''
   const normalizedValue = typeof value === 'string' ? value.replace(/,/g, '').trim() : value
@@ -374,9 +381,7 @@ const formatMoneyDecimal = (value: any) => {
   const numberValue = Number(normalizedValue)
   return Number.isFinite(numberValue) ? numberValue.toFixed(2) : value
 }
-
 const moneyFormatter = ({ cellValue }: any) => formatMoneyDecimal(cellValue)
-
 const parseMoneyValue = (value: any) => {
   if (value === null || typeof value === 'undefined' || value === '') return null
   const normalizedValue = typeof value === 'string' ? value.replace(/,/g, '').trim() : value
@@ -384,15 +389,12 @@ const parseMoneyValue = (value: any) => {
   const numberValue = Number(normalizedValue)
   return Number.isFinite(numberValue) ? numberValue : null
 }
-
 const WARNING_TAG = '各专业调整参考价高于国网标准'
-
 const isAdjustPriceExceedStandard = (data: any) => {
   const adjustPrice = parseMoneyValue(data?.gzytzdj)
   const gridStandardPrice = parseMoneyValue(data?.gwbzjg)
   return adjustPrice !== null && gridStandardPrice !== null && adjustPrice > gridStandardPrice
 }
-
 const cellStyle = ({ row, column }: any) => {
   if (column.title == '作业名称') {
     return {
@@ -401,17 +403,14 @@ const cellStyle = ({ row, column }: any) => {
     }
   }
 }
-
 const cellClick = async ({ row, column }: any) => {
   if (column.title != '作业名称') return
   getDirDetail(row.zymc)
 }
-
 const showDirDetail = async (value: any) => {
   if (!value) return ElMessage.warning('请维护作业名称后再点击！')
   getDirDetail(value)
 }
-
 const handleZymcClick = (setFieldValue: (field: string, value: any) => void, modalFormData: Record<string, any>) => {
   if (zymcClickTimer) {
     clearTimeout(zymcClickTimer)
@@ -424,29 +423,90 @@ const handleZymcClick = (setFieldValue: (field: string, value: any) => void, mod
     openStandardSelector(setFieldValue, modalFormData)
   }, ZYMC_DBLCLICK_DELAY)
 }
-
 const getDirDetail = async (zymc: string) => {
   const params = {
     zymc: zymc || ''
   }
-  const res: any = await queryDirPathByName({ ...params })
+  const res: any = await queryDirPathByName({
+    ...params
+  })
   if (!res.success) return ElMessage.error(res.msg)
-  await VXETable.modal.confirm(`${res.data || '暂未找到目录！'}`, '作业名称目录路径', { status: undefined })
+  await VXETable.modal.confirm(`${res.data || '暂未找到目录！'}`, '作业名称目录路径', {
+    status: undefined
+  })
 }
-
 const columns = reactive<any>([
-  { field: 'sheetname', title: '动因', width: 120, fixed: 'left' },
-  { field: 'gzljnr', title: '工作量及内容', width: 160 },
-  { field: 'dw', title: '单位', width: 220 },
-  { field: 'sszq', title: '实施周期', width: 160 },
-  { field: 'sfxjName', title: '是否询价', width: 140 },
-  { field: 'gzllyyjName', title: '工作量来源依据', width: 160 },
-  { field: 'fourzerosixwcsjg', title: '406号文方法\n(单位 :元)', width: 200, align: 'right', formatter: moneyFormatter },
-  { field: 'decsjg', title: '检修定额方法\n(单位 :元)', width: 200, align: 'right', formatter: moneyFormatter },
-  { field: 'lscbpjz', title: '历史成本(单位 :元)\n(单位 :元)', width: 180, align: 'right', formatter: moneyFormatter },
-  { field: 'bjjg', title: '比较结果', width: 160 },
-  { field: 'zzywcbbz', title: '最终运维参考价\n(单位 :元)', width: 180, align: 'right', formatter: moneyFormatter },
-  { field: 'gzytzdj', title: '各专业调整参考价\n(单位 :元)', width: 180, align: 'right', formatter: moneyFormatter },
+  {
+    field: 'sheetname',
+    title: '动因',
+    width: 120,
+    fixed: 'left'
+  },
+  {
+    field: 'gzljnr',
+    title: '工作量及内容',
+    width: 160
+  },
+  {
+    field: 'dw',
+    title: '单位',
+    width: 220
+  },
+  {
+    field: 'sszq',
+    title: '实施周期',
+    width: 160
+  },
+  {
+    field: 'sfxjName',
+    title: '是否询价',
+    width: 140
+  },
+  {
+    field: 'gzllyyjName',
+    title: '工作量来源依据',
+    width: 160
+  },
+  {
+    field: 'fourzerosixwcsjg',
+    title: '406号文方法\n(单位 :元)',
+    width: 200,
+    align: 'right',
+    formatter: moneyFormatter
+  },
+  {
+    field: 'decsjg',
+    title: '检修定额方法\n(单位 :元)',
+    width: 200,
+    align: 'right',
+    formatter: moneyFormatter
+  },
+  {
+    field: 'lscbpjz',
+    title: '历史成本(单位 :元)\n(单位 :元)',
+    width: 180,
+    align: 'right',
+    formatter: moneyFormatter
+  },
+  {
+    field: 'bjjg',
+    title: '比较结果',
+    width: 160
+  },
+  {
+    field: 'zzywcbbz',
+    title: '最终运维参考价\n(单位 :元)',
+    width: 180,
+    align: 'right',
+    formatter: moneyFormatter
+  },
+  {
+    field: 'gzytzdj',
+    title: '各专业调整参考价\n(单位 :元)',
+    width: 180,
+    align: 'right',
+    formatter: moneyFormatter
+  },
   {
     field: 'gwbzjg',
     title: '国网标准\n(单位 :元)',
@@ -457,11 +517,22 @@ const columns = reactive<any>([
       return formatNumValue(row.gwbzjg.toString(), 2)
     }
   },
-  { field: 'zymc', title: '作业名称', width: 180 },
-  { field: 'dyyj', title: '预警', width: 160 },
-  { field: 'dyBz', title: '备注', width: 120 }
+  {
+    field: 'zymc',
+    title: '作业名称',
+    width: 180
+  },
+  {
+    field: 'dyyj',
+    title: '预警',
+    width: 160
+  },
+  {
+    field: 'dyBz',
+    title: '备注',
+    width: 120
+  }
 ])
-
 const standardGridOptions = reactive<any>({
   border: true,
   stripe: true,
@@ -472,41 +543,118 @@ const standardGridOptions = reactive<any>({
   showHeaderOverflow: true,
   height: '100%',
   size: 'mini',
-  rowConfig: { height: 32 },
-  columnConfig: { resizable: true },
-  checkboxConfig: { trigger: 'row', highlight: true },
+  rowConfig: {
+    height: 32
+  },
+  columnConfig: {
+    resizable: true
+  },
+  checkboxConfig: {
+    trigger: 'row',
+    highlight: true
+  },
   data: [],
   columns: [
-    { type: 'checkbox', width: 50, fixed: 'left' },
-    { field: 'zybm', title: '作业编码', width: 140, fixed: 'left', slots: { default: 'mlcjbm' } },
-    { field: 'zymc', title: '作业名称', minWidth: 160, fixed: 'left', slots: { default: 'mlcjmc' } },
-    { field: 'zynrms', title: '作业内容描述', minWidth: 200 },
-    { field: 'dydj', title: '电压等级', width: 100 },
-    { field: 'rl', title: '容量(KVA)', width: 100 },
-    { field: 'sbdw', title: '设备单位', width: 100 },
-    { field: 'rcjbm', title: '人材机编码', width: 140 },
-    { field: 'rcjmc', title: '人材机名称', minWidth: 160 },
-    { field: 'dw', title: '单位', width: 80 },
-    { field: 'dj', title: '单价\n(单位 :元)', width: 100, align: 'right', formatter: ({ row }: any) => formatMoneyDecimal(row.dj) },
-    { field: 'sl', title: '数量', width: 100, align: 'right' },
-    { field: 'je', title: '金额\n(单位 :元)', width: 120, align: 'right', formatter: ({ row }: any) => formatMoneyDecimal(row.je) },
-    { field: 'sortNo', title: '排序', width: 80 },
-    { field: 'remark', title: '备注', minWidth: 160 }
+    {
+      type: 'checkbox',
+      width: 50,
+      fixed: 'left'
+    },
+    {
+      field: 'zybm',
+      title: '作业编码',
+      width: 140,
+      fixed: 'left',
+      slots: {
+        default: 'mlcjbm'
+      }
+    },
+    {
+      field: 'zymc',
+      title: '作业名称',
+      minWidth: 160,
+      fixed: 'left',
+      slots: {
+        default: 'mlcjmc'
+      }
+    },
+    {
+      field: 'zynrms',
+      title: '作业内容描述',
+      minWidth: 200
+    },
+    {
+      field: 'dydj',
+      title: '电压等级',
+      width: 100
+    },
+    {
+      field: 'rl',
+      title: '容量(KVA)',
+      width: 100
+    },
+    {
+      field: 'sbdw',
+      title: '设备单位',
+      width: 100
+    },
+    {
+      field: 'rcjbm',
+      title: '人材机编码',
+      width: 140
+    },
+    {
+      field: 'rcjmc',
+      title: '人材机名称',
+      minWidth: 160
+    },
+    {
+      field: 'dw',
+      title: '单位',
+      width: 80
+    },
+    {
+      field: 'dj',
+      title: '单价\n(单位 :元)',
+      width: 100,
+      align: 'right',
+      formatter: ({ row }: any) => formatMoneyDecimal(row.dj)
+    },
+    {
+      field: 'sl',
+      title: '数量',
+      width: 100,
+      align: 'right'
+    },
+    {
+      field: 'je',
+      title: '金额\n(单位 :元)',
+      width: 120,
+      align: 'right',
+      formatter: ({ row }: any) => formatMoneyDecimal(row.je)
+    },
+    {
+      field: 'sortNo',
+      title: '排序',
+      width: 80
+    },
+    {
+      field: 'remark',
+      title: '备注',
+      minWidth: 160
+    }
   ]
 })
-
 const getStandardRoleParams = () => ({
   dwId: props.userInfo?.dwId || '',
   bmId: props.userInfo?.deptId || props.userInfo?.bmId || '',
   roleId: props.userInfo?.roleId || ''
 })
-
 const formatStandardMoneyFields = (row: any) => ({
   ...row,
   dj: formatMoneyDecimal(row?.dj),
   je: formatMoneyDecimal(row?.je)
 })
-
 const getStandardTreeData = async () => {
   standardSelectorLoading.value = true
   try {
@@ -519,7 +667,6 @@ const getStandardTreeData = async () => {
     standardSelectorLoading.value = false
   }
 }
-
 const loadStandardDetail = async () => {
   if (!standardCurrentNode.value) {
     standardGridOptions.data = []
@@ -553,7 +700,6 @@ const loadStandardDetail = async () => {
     if (requestId === standardDetailRequestId) standardGridOptions.loading = false
   }
 }
-
 const doOpenStandardSelector = async () => {
   standardSelectorVisible.value = true
   standardPage.currentPage = 1
@@ -568,7 +714,6 @@ const doOpenStandardSelector = async () => {
   await nextTick()
   standardTreeRef.value?.filter(standardFilterText.value)
 }
-
 const openStandardSelector = async (setFieldValue: (field: string, value: any) => void, modalFormData: Record<string, any>) => {
   standardFieldSetter.value = setFieldValue
   standardModalFormData.value = modalFormData
@@ -577,26 +722,21 @@ const openStandardSelector = async (setFieldValue: (field: string, value: any) =
   }
   await doOpenStandardSelector()
 }
-
 const closeStandardSelector = () => {
   standardSelectorVisible.value = false
 }
-
 const clearStandardCost = (setFieldValue: (field: string, value: any) => void) => {
   setFieldValue('zydetailid', [])
   setFieldValue('zymc', '')
   setFieldValue('gwbzjg', '')
 }
-
 const filterStandardTree = (val: string) => {
   standardTreeRef.value?.filter(val)
 }
-
 const filterStandardTreeNode = (value: string, data: any) => {
   if (!value) return true
   return (data.dirName || '').indexOf(value) !== -1
 }
-
 const handleStandardNodeClick = (data: any) => {
   // 支持跨末级节点同时选中：切换目录时保留已累积的勾选状态（以 dirId::zybm 复合键存储），
   // 重新加载明细后由 restoreStandardCheckbox 回显属于该目录的勾选
@@ -606,7 +746,6 @@ const handleStandardNodeClick = (data: any) => {
   standardQuery.zymc = ''
   loadStandardDetail()
 }
-
 const restoreStandardCheckbox = () => {
   const $table = standardGridRef.value
   if (!$table) return
@@ -617,19 +756,16 @@ const restoreStandardCheckbox = () => {
   )
   if (rows.length > 0) $table.setCheckboxRow(rows, true)
 }
-
 const handleStandardSearch = () => {
   standardPage.currentPage = 1
   loadStandardDetail()
 }
-
 const resetStandardSearch = () => {
   standardQuery.zybm = ''
   standardQuery.zymc = ''
   standardPage.currentPage = 1
   loadStandardDetail()
 }
-
 const handleStandardCheckboxChange = (params: any) => {
   const { row, checked } = params || {}
   const $table = standardGridRef.value
@@ -668,24 +804,20 @@ const handleStandardCheckboxChange = (params: any) => {
     }
   }
 }
-
 const handleStandardSizeChange = (val: number) => {
   standardPage.pageSize = val
   standardPage.currentPage = 1
   loadStandardDetail()
 }
-
 const handleStandardCurrentChange = (val: number) => {
   standardPage.currentPage = val
   loadStandardDetail()
 }
-
 const clearStandardSelection = () => {
   selectedStandardKeySet.value.clear()
   selectedStandardKeyRowMap.value.clear()
   standardGridRef.value?.clearCheckboxRow?.()
 }
-
 const confirmStandardSelector = async () => {
   const selectedRows = [...selectedStandardKeyRowMap.value.values()]
   if (selectedRows.length === 0) return ElMessage.warning('请选择作业标准成本数据')
@@ -703,9 +835,7 @@ const confirmStandardSelector = async () => {
     if (!list.includes(zybm)) list.push(zybm)
     groups.set(dirId, list)
   })
-
   if (groups.size === 0) return ElMessage.warning('所选数据缺少目录或作业编码，无法查询明细')
-
   standardSelectorLoading.value = true
   try {
     const mergedIds: any[] = []
@@ -714,7 +844,6 @@ const confirmStandardSelector = async () => {
     const results = await Promise.all([...groups.entries()].map(([dirId, zybmList]) => queryIdsByDirIdAndZybm(dirId, zybmList)))
     const failed = results.find((res: any) => !res?.success)
     if (failed) return ElMessage.error(failed.msg || '查询作业标准成本明细失败')
-
     results.forEach((res: any) => {
       const data = res?.data
       if (!data) return
@@ -729,13 +858,15 @@ const confirmStandardSelector = async () => {
       const je = parseMoneyValue(data.je)
       if (je !== null) amountTotal += je
     })
-
     const gwbzjg = formatMoneyDecimal(amountTotal) || ''
     setter('zydetailid', mergedIds)
     setter('zymc', [...zymcSet].join(','))
     setter('gwbzjg', gwbzjg)
     // 选完作业名称即校验：各专业调整参考价高于国网标准则填充预警，否则清空残留预警
-    const priceExceeded = isAdjustPriceExceedStandard({ gzytzdj: standardModalFormData.value?.gzytzdj, gwbzjg })
+    const priceExceeded = isAdjustPriceExceedStandard({
+      gzytzdj: standardModalFormData.value?.gzytzdj,
+      gwbzjg
+    })
     setter('dyyj', priceExceeded ? WARNING_TAG : '')
     if (priceExceeded) ElMessage.warning(WARNING_TAG)
     standardSelectorVisible.value = false
@@ -762,8 +893,18 @@ const openModal = async (modeFlag: 'add' | 'edit' | 'view', row?: any[]) => {
   const selectData = $table.getCheckboxRecords()
   if (selectData.length != 1 && modeFlag != 'add') return ElMessage.warning('请选择一条数据')
   gzljnrList.value = mode.value != 'add' ? selectData[0].gzljnrList : []
-  formData.value = mode.value != 'add' ? { ...selectData[0] } : { xmid: props.xmid }
-  formModalRef.value?.open({ gzljnrList: gzljnrList.value, dyid: formData.value?.dyId })
+  formData.value =
+    mode.value != 'add'
+      ? {
+          ...selectData[0]
+        }
+      : {
+          xmid: props.xmid
+        }
+  formModalRef.value?.open({
+    gzljnrList: gzljnrList.value,
+    dyid: formData.value?.dyId
+  })
 }
 const handleDelDy = async () => {
   const $table = vxeTableRef.value
@@ -776,10 +917,14 @@ const handleDelDy = async () => {
   if (type === 'confirm') {
     try {
       const params = selectData.map((item: any) => item.dyId)
-      const res = await deleteDyHandler({ ids: params })
+      const res = await deleteDyHandler({
+        ids: params
+      })
       if (!res.success) return ElMessage.error(res.msg)
       ElMessage.success('删除成功!')
-      emit('saveDy', { ...formData.value })
+      emit('saveDy', {
+        ...formData.value
+      })
     } catch (error) {
       ElMessage.error((error as Error).message || '删除失败!')
     }
@@ -790,7 +935,6 @@ const handleDelDy = async () => {
 const handleSave = async (data: any) => {
   // 预警在选择作业名称时已校验并写入表单，这里直接取用
   const dyyj = data.dyyj || ''
-
   const type = await VXETable.modal.confirm('是否确定保存？', '提示', {
     status: 'warning'
   })
@@ -822,10 +966,16 @@ const handleSave = async (data: any) => {
   }
   if (type === 'confirm') {
     try {
-      const res = await saveOrUpdateHandler([{ ...params }])
+      const res = await saveOrUpdateHandler([
+        {
+          ...params
+        }
+      ])
       if (!res.success) return ElMessage.error(res.msg)
       ElMessage.success('保存成功!')
-      emit('saveDy', { ...formData.value })
+      emit('saveDy', {
+        ...formData.value
+      })
     } catch (error) {
       ElMessage.error((error as Error).message || '保存失败!')
     } finally {

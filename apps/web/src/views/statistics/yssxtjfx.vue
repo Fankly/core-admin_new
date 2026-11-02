@@ -33,11 +33,6 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/statistics/yssxtjfx'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -49,12 +44,14 @@ import { EChartsOption } from 'echarts'
 import { formatValue } from '@/utils/utils'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
+defineOptions({
+  name: '/statistics/yssxtjfx'
+})
 
 interface SelectData {
   bmid: string
   value: number
 }
-
 interface PublicCode {
   name: string
   code: string
@@ -63,24 +60,20 @@ interface NdData {
   yearName: string
   yearCode: string
 }
-
 interface RowVo {
   bmId: string
   bmName: string
   je: number
 }
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const yssxDetailRef = ref()
-
 const tabsMsg = reactive({
   name: '1'
 })
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const publicCodes = reactive<{
   YSSXTJFS: PublicCode[]
   ndList: NdData[]
@@ -95,7 +88,6 @@ const publicCodes = reactive<{
     }
   ]
 })
-
 const getPublicCodes = async () => {
   const ndDataList = await getYearData()
   publicCodes.ndList = ndDataList.data
@@ -105,24 +97,19 @@ const getPublicCodes = async () => {
     publicCodes.YSSXTJFS = res.data
   }
 }
-
 const initParam = reactive({
   nd: '',
   dwId: '',
   je: '1'
 })
-
 const detailParams = ref()
-
 const theme = ref('')
 const autoresize = ref(true)
-
 const barLoadingOptions = reactive({
   text: 'Loading…',
   color: '#4ea397',
   maskColor: 'rgba(255, 255, 255, 0.4)'
 })
-
 const bar = reactive<EChartsOption>({
   tooltip: {
     trigger: 'axis',
@@ -148,19 +135,15 @@ const bar = reactive<EChartsOption>({
   yAxis: {},
   series: []
 })
-
 const handleTabClick = () => {
   getBarData()
 }
-
 const changeNdDataHandle = () => {
   getBarData()
 }
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
   initParam.dwId = userDialogRef.value.userMsg.org_id
@@ -187,7 +170,6 @@ const getBarData = async () => {
       bmid: item.bmId
     }))
     let barName = res.data.bmLists.map((item: RowVo) => item.bmName)
-
     bar.graphic = [
       {
         type: 'text',
@@ -207,7 +189,11 @@ const getBarData = async () => {
         color: '#5b9bd5'
       }
     }
-    bar.yAxis = { type: 'value', name: '万元', max: adjustedMax }
+    bar.yAxis = {
+      type: 'value',
+      name: '万元',
+      max: adjustedMax
+    }
     bar.series = {
       data: barData,
       type: 'bar',
@@ -233,7 +219,6 @@ const getBarData = async () => {
     }
   }
 }
-
 const clickBarHandle = (params: any) => {
   let tjfs = tabsMsg.name.split('-').concat()
   let data: SelectData = params.data
@@ -244,17 +229,14 @@ const clickBarHandle = (params: any) => {
   }
   yssxDetailRef.value.isShowModal = true
 }
-
 const formatterData = (cellValue: string) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   return formatValue(cellValue.toString())
 }
-
 const initParams = () => {
   getPublicCodes()
   userDialogRef.value.getUser()
 }
-
 onMounted(() => {
   initParams()
 })

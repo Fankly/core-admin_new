@@ -42,91 +42,86 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { CaretBottom as EpCaretBottom, CaretTop as EpCaretTop } from '@element-plus/icons-vue'
-
-export default {
-  setup() {
-    return { EpCaretBottom, EpCaretTop }
+import { reactive, toRef, toRefs } from 'vue'
+defineOptions({
+  name: 'DashboardContainer'
+})
+const componentProps = defineProps({
+  overflowAuto: {
+    type: Boolean,
+    default: false
   },
-  components: {},
-  props: {
-    overflowAuto: {
-      type: Boolean,
-      default: false
-    },
-    switchIcon: {
-      type: Boolean,
-      default: false
-    },
-    title: {
-      type: String,
-      default: ''
-    },
-    subTitle: {
-      type: String,
-      default: ''
-    },
-    bodyStyle: {
-      type: Object,
-      default: () => {}
-    },
-    headerStyle: {
-      type: Object,
-      default: () => {}
-    },
-    icon: {
-      type: String,
-      default: undefined
-    },
-    rectangularIcon: {
-      type: Boolean,
-      default: false
-    },
-    circleIcon: {
-      type: Boolean,
-      default: false
-    },
-    isSvgIcon: {
-      type: Boolean
-    },
-    extraTitle: {
-      type: String,
-      default: undefined
-    },
-    loading: {
-      type: Boolean,
-      default: false
-    },
-    emptyStyle: {
-      type: [String, Object],
-      default: undefined
-    },
-    empty: {
-      type: Boolean,
-      default: false
-    },
-    auto: {
-      type: Boolean,
-      default: true
-    },
-    type: {
-      type: String,
-      default: null
-    }
+  switchIcon: {
+    type: Boolean,
+    default: false
   },
-  name: 'DashboardContainer',
-  data() {
-    return {
-      itemShow: true
-    }
+  title: {
+    type: String,
+    default: ''
   },
-  created() {},
-  mounted() {},
-  methods: {},
-  computed: {},
-  watch: {}
-}
+  subTitle: {
+    type: String,
+    default: ''
+  },
+  bodyStyle: {
+    type: Object,
+    default: () => {}
+  },
+  headerStyle: {
+    type: Object,
+    default: () => {}
+  },
+  icon: {
+    type: String,
+    default: undefined
+  },
+  rectangularIcon: {
+    type: Boolean,
+    default: false
+  },
+  circleIcon: {
+    type: Boolean,
+    default: false
+  },
+  isSvgIcon: {
+    type: Boolean
+  },
+  extraTitle: {
+    type: String,
+    default: undefined
+  },
+  loading: {
+    type: Boolean,
+    default: false
+  },
+  emptyStyle: {
+    type: [String, Object],
+    default: undefined
+  },
+  empty: {
+    type: Boolean,
+    default: false
+  },
+  auto: {
+    type: Boolean,
+    default: true
+  },
+  type: {
+    type: String,
+    default: null
+  }
+})
+const componentData = reactive({
+  itemShow: true
+})
+const itemShow = toRef(componentData, 'itemShow')
+defineExpose({
+  EpCaretBottom,
+  EpCaretTop,
+  ...toRefs(componentData)
+})
 </script>
 <style lang="less" scoped>
 .dashboardContainer {

@@ -166,7 +166,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/service/jointReview/offlineReview/reviewAnalysis" })
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -187,6 +186,7 @@ import {
 } from './hooks/lhhsPivot'
 import type { DimCodeMap, DrillColumn, PivotBodyRow, PivotFieldItem, PivotQuery, PivotTable } from './hooks/lhhsPivot'
 import { IObject } from '@/types/interface'
+defineOptions({ name: "/service/jointReview/offlineReview/reviewAnalysis" })
 
 // --- 类型定义 ---
 type ZoneKey = 'rowDimensions' | 'columnDimensions' | 'valueMetrics' | 'filters'

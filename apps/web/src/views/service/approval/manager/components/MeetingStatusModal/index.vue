@@ -28,9 +28,9 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "MeetingStatusModal" })
 import { reactive, ref, nextTick } from 'vue'
 import { ElForm } from 'element-plus'
+defineOptions({ name: "MeetingStatusModal" })
 
 interface StatusOption {
   code: string

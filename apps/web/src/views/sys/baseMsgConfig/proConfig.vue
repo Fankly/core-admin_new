@@ -72,11 +72,7 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/sys/baseMsgConfig/proConfig'
-}
-</script>
+
 <script setup lang="ts">
 import { getBizOrgTree, getGkbmByProtypeId, getSubProtypeTree, xmxlConfigSave } from '@/api/common'
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
@@ -88,11 +84,13 @@ import userDialog from '@/components/select/userDialog.vue'
 import ImportData from '@/views/sys/baseMsgConfig/components/ImportData.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
+defineOptions({
+  name: '/sys/baseMsgConfig/proConfig'
+})
 
 interface PageConfig extends ContextProps {
   loading: boolean
 }
-
 interface GkbmData {
   id: string
   parentId: string
@@ -100,33 +98,27 @@ interface GkbmData {
   leaf: boolean
   leafString: string
 }
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const xmlxRef = ref()
 const gkbmRef = ref()
 const importDataRef = ref()
-
 onMounted(() => {
   selectRolesHandle()
 })
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const pageConfig = reactive<PageConfig>({
   loading: true,
   minPercent: 20,
   defaultPercent: 20,
   split: 'vertical'
 })
-
 const userMsg = reactive({
   specialOrgId: '',
   isShowPage: false
 })
-
 const pageData = reactive<any>({
   filterXmlxData: '',
   treeProps: {
@@ -140,12 +132,10 @@ const pageData = reactive<any>({
   protypeId: -1,
   deptDatas: []
 })
-
 const selectRolesHandle = () => {
   pageConfig.loading = true
   userDialogRef.value.getUser()
 }
-
 const getRoleHandle = () => {
   pageConfig.loading = false
   userMsg.specialOrgId = userDialogRef.value.specialorgid
@@ -155,22 +145,18 @@ const getRoleHandle = () => {
     getXmlxData()
   }
 }
-
 const changeInputValueHandle = (val: string) => {
   xmlxRef.value.filter(val)
 }
-
 const blurHandle = (val: any) => {
   if (val.target.value && val.target.value === 'xmlvsetongdao') {
     importDataRef.value.isShowModal = true
   }
 }
-
 const getNameDataHandle = (value: string, data: any) => {
   if (!value) return true
   return data.name.indexOf(value) !== -1
 }
-
 const loadNode = async (node: any, resolve: any) => {
   let id = node.level === 0 ? '-1' : node.data.id
   let res = await getBizOrgTree(id, userMsg.specialOrgId)
@@ -181,12 +167,10 @@ const loadNode = async (node: any, resolve: any) => {
     resolve([])
   }
 }
-
 const getCheckedDataHandle = (data: GkbmData, checked: boolean, indeterminate: boolean) => {
   let node = gkbmRef.value.getNode(data.id)
   expandTreeNodeHandle(node)
 }
-
 const expandTreeNodeHandle = (node: any) => {
   if (node.checked && !node.expanded && !node.isLeaf) {
     node.expand(function () {
@@ -200,7 +184,6 @@ const expandTreeNodeHandle = (node: any) => {
     })
   }
 }
-
 const getXmlxData = async () => {
   let res = await getSubProtypeTree()
   if (res.success) {
@@ -209,7 +192,6 @@ const getXmlxData = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getClickxmlxDataHandle = async (data: any) => {
   if (data.leaf && data.children.length === 0) {
     let allNodes = gkbmRef.value.store.nodesMap
@@ -226,7 +208,6 @@ const getClickxmlxDataHandle = async (data: any) => {
   let res = await setDefaultBmData(middleId)
   pageData.deptDatas = res
 }
-
 const setDefaultBmData = async (middleId: number): Promise<string[]> => {
   let res = await getGkbmByProtypeId(middleId)
   if (res.success) {
@@ -244,7 +225,6 @@ const setDefaultBmData = async (middleId: number): Promise<string[]> => {
     return []
   }
 }
-
 const saveHandle = async () => {
   if (pageData.protypeId === -1) {
     ElMessage.warning('请选择项目类型末级节点!')

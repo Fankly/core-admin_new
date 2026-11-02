@@ -29,15 +29,16 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "selectModal" })
-import { ref, defineProps, defineEmits, defineExpose } from 'vue'
+import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: 'selectModal'
+})
 
 interface PublicCodeOption {
   code: string
   name: string
 }
-
 interface propsVo {
   title: string
   label: string

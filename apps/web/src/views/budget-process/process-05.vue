@@ -296,7 +296,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -305,9 +305,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import allProjectType from '@/components/select/allProjectType.vue'
@@ -315,356 +313,394 @@ import affiliatedUnit from '@/components/select/affiliatedUnit.vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { showHelpMsg } from '@/utils/message'
-export default defineComponent({
-  name: '/budget-process/process-05',
-  components: {
-    affiliatedUnit,
-    userDialog,
-    allProjectType
+import { useRouter } from 'vue-router'
+defineOptions({
+  name: '/budget-process/process-05'
+})
+const router = useRouter()
+const typeRef = useTemplateRef('type')
+const companyRef = useTemplateRef('company')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  helpHandle,
+  store,
+  example: [],
+  dataList: {
+    select: 0,
+    month: new Date()
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+  segment: [
+    {
+      value: 'Bidding',
+      label: '招投标',
+      checked: true
+    },
+    {
+      value: 'contract',
+      label: '合同签订',
+      checked: true
+    },
+    {
+      value: 'implementation',
+      label: '项目实施',
+      checked: true
+    },
+    {
+      value: 'audit',
+      label: '项目审计',
+      checked: true
+    },
+    {
+      value: 'settlement',
+      label: '结算与资金支付',
+      checked: true
+    },
+    {
+      value: 'finalAccounts',
+      label: '决算与增资',
+      checked: true
+    },
+    {
+      value: 'close',
+      label: '项目关闭',
+      checked: true
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      helpHandle,
-      store,
-      example: [],
-      dataList: {
-        select: 0,
-        month: new Date()
-      },
-      segment: [
-        {
-          value: 'Bidding',
-          label: '招投标',
-          checked: true
-        },
-        {
-          value: 'contract',
-          label: '合同签订',
-          checked: true
-        },
-        {
-          value: 'implementation',
-          label: '项目实施',
-          checked: true
-        },
-        {
-          value: 'audit',
-          label: '项目审计',
-          checked: true
-        },
-        {
-          value: 'settlement',
-          label: '结算与资金支付',
-          checked: true
-        },
-        {
-          value: 'finalAccounts',
-          label: '决算与增资',
-          checked: true
-        },
-        {
-          value: 'close',
-          label: '项目关闭',
-          checked: true
+  ],
+  segmentIds: [],
+  columnObj: {},
+  searchShow: true,
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  loading: false,
+  remarks: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const example = toRef(setupState, 'example')
+const dataList = toRef(setupState, 'dataList')
+const segment = toRef(setupState, 'segment')
+const segmentIds = toRef(setupState, 'segmentIds')
+const columnObj = toRef(setupState, 'columnObj')
+const searchShow = toRef(setupState, 'searchShow')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const loading = toRef(setupState, 'loading')
+const remarks = toRef(setupState, 'remarks')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 40 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 40 + 'px'
+  }
+}
+function loadData() {
+  setupState.loading = true
+  if (setupState.dataList.month) {
+    const params = {
+      qkjxmlxbms: [],
+      qkjejdws: [],
+      zyear: '',
+      zmonth: '',
+      wd: setupState.dataList.select,
+      specialorgid: setupState.specialorgid
+    }
+    if (typeRef.value.selectList.length > 0) {
+      params.qkjxmlxbms = typeRef.value.selectList
+    } else {
+      params.qkjxmlxbms = typeRef.value.allId
+    }
+    if (companyRef.value.selectList.length > 0) {
+      params.qkjejdws = companyRef.value.selectList
+    } else {
+      params.qkjejdws = companyRef.value.allId
+    }
+    if (setupState.dataList.month != '') {
+      let time = new Date(setupState.dataList.month)
+      let zyear = time.getFullYear()
+      let zmonth = time.getMonth() + 1
+      params.zyear = JSON.stringify(zyear)
+      params.zmonth = JSON.stringify(zmonth)
+    }
+    if (setupState.remarks == false) {
+      baseService.post('/process/process05/', params).then((res) => {
+        if (res.success == true) {
+          setupState.loading = false
+          setupState.example = res.data
+        } else {
+          setupState.loading = false
+          ElMessage({
+            type: 'error',
+            message: res.msg
+          })
         }
-      ],
-      segmentIds: [],
-      columnObj: {},
-      searchShow: true,
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      loading: false,
-      remarks: false,
-      userCode: '',
-      userId: '',
-      specialorgid: ''
+      })
+    } else {
+      setupState.example = []
+      remarksbtn()
+      baseService.post('/process/process05/', params).then((res) => {
+        if (res.success == true) {
+          setupState.loading = false
+          // this.example = res.data;
+          res.data.forEach((item) => {
+            item.auditSwitch = false
+            setupState.example.push(item)
+          })
+        } else {
+          setupState.loading = false
+          ElMessage({
+            type: 'error',
+            message: res.msg
+          })
+        }
+      })
+    }
+  } else {
+    setupState.loading = false
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
     })
-  },
-  created() {
-    this.handleColumn()
-  },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-  },
-  methods: {
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 40 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 40 + 'px'
-      }
-    },
-    loadData() {
-      this.loading = true
-      if (this.dataList.month) {
-        const params = {
-          qkjxmlxbms: [],
-          qkjejdws: [],
-          zyear: '',
-          zmonth: '',
-          wd: this.dataList.select,
-          specialorgid: this.specialorgid
-        }
-
-        if (this.$refs.type.selectList.length > 0) {
-          params.qkjxmlxbms = this.$refs.type.selectList
-        } else {
-          params.qkjxmlxbms = this.$refs.type.allId
-        }
-
-        if (this.$refs.company.selectList.length > 0) {
-          params.qkjejdws = this.$refs.company.selectList
-        } else {
-          params.qkjejdws = this.$refs.company.allId
-        }
-
-        if (this.dataList.month != '') {
-          let time = new Date(this.dataList.month)
-          let zyear = time.getFullYear()
-          let zmonth = time.getMonth() + 1
-          params.zyear = JSON.stringify(zyear)
-          params.zmonth = JSON.stringify(zmonth)
-        }
-        if (this.remarks == false) {
-          baseService.post('/process/process05/', params).then((res) => {
-            if (res.success == true) {
-              this.loading = false
-              this.example = res.data
-            } else {
-              this.loading = false
-              ElMessage({
-                type: 'error',
-                message: res.msg
-              })
-            }
-          })
-        } else {
-          this.example = []
-          this.remarksbtn()
-          baseService.post('/process/process05/', params).then((res) => {
-            if (res.success == true) {
-              this.loading = false
-              // this.example = res.data;
-              res.data.forEach((item) => {
-                item.auditSwitch = false
-                this.example.push(item)
-              })
-            } else {
-              this.loading = false
-              ElMessage({
-                type: 'error',
-                message: res.msg
-              })
-            }
-          })
-        }
-      } else {
-        this.loading = false
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-    exportBtn() {
-      this.loading = true
-      if (this.dataList.month) {
-        const params = {
-          qkjxmlxbms: [],
-          qkjejdws: [],
-          zyear: '',
-          zmonth: '',
-          wd: this.dataList.select,
-          specialorgid: this.specialorgid
-        }
-
-        if (this.$refs.type.selectList.length > 0) {
-          params.qkjxmlxbms = this.$refs.type.selectList
-        } else {
-          params.qkjxmlxbms = this.$refs.type.allId
-        }
-
-        if (this.$refs.company.selectList.length > 0) {
-          params.qkjejdws = this.$refs.company.selectList
-        } else {
-          params.qkjejdws = this.$refs.company.allId
-        }
-
-        if (this.dataList.month != '') {
-          let time = new Date(this.dataList.month)
-          let zyear = time.getFullYear()
-          let zmonth = time.getMonth() + 1
-          params.zyear = JSON.stringify(zyear)
-          params.zmonth = JSON.stringify(zmonth)
-        }
-        baseService.export('/process/process05/export', params).then((res) => {
-          this.loading = false
-          const blob = res
-          let dom = document.createElement('a')
-          let url = window.URL.createObjectURL(blob)
-          dom.href = url
-          dom.download = '预算全过程规范性监控总览.xlsx'
-          document.body.appendChild(dom)
-          dom.click()
-          document.body.removeChild(dom)
-          window.URL.revokeObjectURL(url)
-        })
-      } else {
-        this.loading = false
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-    //搜索按钮
-    search() {
-      this.loadData()
-    },
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.segmentIds.push(item.value)
-        this.columnObj[item.value] = item.checked
-      })
-    },
-
-    //稽核规则开关
-    remarksbtn() {
-      if (this.remarks) {
-        let name = {
-          auditSwitch: true,
-          name: '稽核规则（计算公式）',
-          dataMap: {
-            ysmbz: ''
-          },
-          jh_ztbcylje: '招投标差异率=（招标金额-中标金额）/招标金额，统计差异率超10%的招标金额与中标金额差额绝对值的合计数',
-          jh_htqdgfxje: '合同签订规范性=服务入账日期-对应服务合同签订日期，统计<0天的入账金额合计数；仅指服务合同',
-          jh_htlygfxje: '合同履约规范性=财务支出（含税）-对应合同金额，统计>0万元，差额合计值；仅指项目化物资和服务',
-          jh_wzzlztbsje: '物资整领整退：通过项目定义+物资唯一码，汇总出库、退库数量，如果数量相等，则为整出整退。',
-          jh_wztklys: '物资退库率=物资累计退库金额/（物资累计领用金额+物资累计退库金额）',
-          jh_wzcqgceje: '物资超欠供差额=审定结果材料费-入账材料费（含税领料金额）；同一项目多次送审的，取合计数',
-          jh_ndystzlje: '预算调整率=（当前预算金额-年初预算下达金额）/年初预算下达金额；',
-          jh_ndystzcsys: '当年预算调整次数 ',
-          jh_sjhjlje: '审计核减率=（累计送审金额-累计审定金额）/累计送审金额；同一项目多次送审，取合计数',
-          jh_sbfwrzhlxje: '首笔服务入账合理性=实际开工日期-首笔服务类财务支出日期',
-          jh_zjzfjeje: '资金支付规范性=资金支付金额-对应合同金额，涉及多个合同的，统计合计值；仅项目服务',
-          jh_skdwyzxje: '合同供应商=实际收款单位，统计不一致支付金额合计值',
-          jh_zgzzhlxje: '暂估增资合理性=设备购置支出-累计暂估增资金额',
-          jh_zjgcfsje: '在建工程余额 ',
-          jh_xmgbs: '根据前7个环节，判断是否展示此项目：前7个环节都规范，不展示'
-        }
-        let calculation = {
-          auditSwitch: true,
-          dataMap: {
-            ysmbz: ''
-          },
-          name: '判断标准',
-          jh_ztbcylje: '差异率绝对值≥10%',
-          jh_htqdgfxje: '<0天',
-          jh_htlygfxje: '>0万元',
-          jh_wzzlztbsje: '出库=退库',
-          jh_wztklys: '退库率≥20%（暂定）',
-          jh_wzcqgceje: '≠0',
-          jh_ndystzlje: '预算调整率绝对值≥15%（暂定）',
-          jh_ndystzcsys: '>3次（暂定）',
-          jh_sjhjlje: '≥10%（暂定）',
-          jh_sbfwrzhlxje: '>0天',
-          jh_zjzfjeje: '>0万元',
-          jh_skdwyzxje: '不一致',
-          jh_zgzzhlxje: '>0万元',
-          jh_zjgcfsje: '<0万元',
-          jh_xmgbs: ''
-        }
-        let judge = {
-          auditSwitch: true,
-          dataMap: {
-            ysmbz: ''
-          },
-          name: '判断条件',
-          jh_ztbcylje: '项目数量+差额绝对值合计',
-          jh_htqdgfxje: '项目数量+入账金额合计数',
-          jh_htlygfxje: '项目数量+差额',
-          jh_wzzlztbsje: '项目数量+整领整退金额（整领部分的合计金额）',
-          jh_wztklys: '项目数量+当年预算',
-          jh_wzcqgceje: '项目数量+超欠供绝对值合计',
-          jh_ndystzlje: '项目数量+调整金额',
-          jh_ndystzcsys: '项目数量+当年预算',
-          jh_sjhjlje: '项目数量+核减金额',
-          jh_sbfwrzhlxje: '项目数量+服务入账金额',
-          jh_zjzfjeje: '项目数量+差额合计数',
-          jh_skdwyzxje: '项目数量+资金支付金额',
-          jh_zgzzhlxje: '项目数量+差额',
-          jh_zjgcfsje: '项目数量+在建工程余额 ',
-          jh_xmgbs: '已关闭项目数量'
-        }
-        this.example.unshift(judge)
-        this.example.unshift(calculation)
-        this.example.unshift(name)
-      } else {
-        this.example.splice(0, 3)
-      }
-    },
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked
-        }
-      }
-    },
-
-    //重置按钮
-    reset() {
-      this.dataList.month = new Date()
-      this.dataList.select = 0
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.example = []
-      this.loadData()
-    },
-
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    goProcess06Detail(row) {
-      this.$router.push({
-        path: '/budget-process/process-06',
-        query: {
-          id: row.id,
-          zbx: 'JH_WZZLZTBS=0',
-          wd: this.dataList.select,
-          specialorgid: this.specialorgid
-        }
-      })
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
+  }
+}
+function exportBtn() {
+  setupState.loading = true
+  if (setupState.dataList.month) {
+    const params = {
+      qkjxmlxbms: [],
+      qkjejdws: [],
+      zyear: '',
+      zmonth: '',
+      wd: setupState.dataList.select,
+      specialorgid: setupState.specialorgid
+    }
+    if (typeRef.value.selectList.length > 0) {
+      params.qkjxmlxbms = typeRef.value.selectList
+    } else {
+      params.qkjxmlxbms = typeRef.value.allId
+    }
+    if (companyRef.value.selectList.length > 0) {
+      params.qkjejdws = companyRef.value.selectList
+    } else {
+      params.qkjejdws = companyRef.value.allId
+    }
+    if (setupState.dataList.month != '') {
+      let time = new Date(setupState.dataList.month)
+      let zyear = time.getFullYear()
+      let zmonth = time.getMonth() + 1
+      params.zyear = JSON.stringify(zyear)
+      params.zmonth = JSON.stringify(zmonth)
+    }
+    baseService.export('/process/process05/export', params).then((res) => {
+      setupState.loading = false
+      const blob = res
+      let dom = document.createElement('a')
+      let url = window.URL.createObjectURL(blob)
+      dom.href = url
+      dom.download = '预算全过程规范性监控总览.xlsx'
+      document.body.appendChild(dom)
+      dom.click()
+      document.body.removeChild(dom)
+      window.URL.revokeObjectURL(url)
+    })
+  } else {
+    setupState.loading = false
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
+    })
+  }
+}
+//搜索按钮
+function search() {
+  loadData()
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.segmentIds.push(item.value)
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+//稽核规则开关
+function remarksbtn() {
+  if (setupState.remarks) {
+    let name = {
+      auditSwitch: true,
+      name: '稽核规则（计算公式）',
+      dataMap: {
+        ysmbz: ''
+      },
+      jh_ztbcylje: '招投标差异率=（招标金额-中标金额）/招标金额，统计差异率超10%的招标金额与中标金额差额绝对值的合计数',
+      jh_htqdgfxje: '合同签订规范性=服务入账日期-对应服务合同签订日期，统计<0天的入账金额合计数；仅指服务合同',
+      jh_htlygfxje: '合同履约规范性=财务支出（含税）-对应合同金额，统计>0万元，差额合计值；仅指项目化物资和服务',
+      jh_wzzlztbsje: '物资整领整退：通过项目定义+物资唯一码，汇总出库、退库数量，如果数量相等，则为整出整退。',
+      jh_wztklys: '物资退库率=物资累计退库金额/（物资累计领用金额+物资累计退库金额）',
+      jh_wzcqgceje: '物资超欠供差额=审定结果材料费-入账材料费（含税领料金额）；同一项目多次送审的，取合计数',
+      jh_ndystzlje: '预算调整率=（当前预算金额-年初预算下达金额）/年初预算下达金额；',
+      jh_ndystzcsys: '当年预算调整次数 ',
+      jh_sjhjlje: '审计核减率=（累计送审金额-累计审定金额）/累计送审金额；同一项目多次送审，取合计数',
+      jh_sbfwrzhlxje: '首笔服务入账合理性=实际开工日期-首笔服务类财务支出日期',
+      jh_zjzfjeje: '资金支付规范性=资金支付金额-对应合同金额，涉及多个合同的，统计合计值；仅项目服务',
+      jh_skdwyzxje: '合同供应商=实际收款单位，统计不一致支付金额合计值',
+      jh_zgzzhlxje: '暂估增资合理性=设备购置支出-累计暂估增资金额',
+      jh_zjgcfsje: '在建工程余额 ',
+      jh_xmgbs: '根据前7个环节，判断是否展示此项目：前7个环节都规范，不展示'
+    }
+    let calculation = {
+      auditSwitch: true,
+      dataMap: {
+        ysmbz: ''
+      },
+      name: '判断标准',
+      jh_ztbcylje: '差异率绝对值≥10%',
+      jh_htqdgfxje: '<0天',
+      jh_htlygfxje: '>0万元',
+      jh_wzzlztbsje: '出库=退库',
+      jh_wztklys: '退库率≥20%（暂定）',
+      jh_wzcqgceje: '≠0',
+      jh_ndystzlje: '预算调整率绝对值≥15%（暂定）',
+      jh_ndystzcsys: '>3次（暂定）',
+      jh_sjhjlje: '≥10%（暂定）',
+      jh_sbfwrzhlxje: '>0天',
+      jh_zjzfjeje: '>0万元',
+      jh_skdwyzxje: '不一致',
+      jh_zgzzhlxje: '>0万元',
+      jh_zjgcfsje: '<0万元',
+      jh_xmgbs: ''
+    }
+    let judge = {
+      auditSwitch: true,
+      dataMap: {
+        ysmbz: ''
+      },
+      name: '判断条件',
+      jh_ztbcylje: '项目数量+差额绝对值合计',
+      jh_htqdgfxje: '项目数量+入账金额合计数',
+      jh_htlygfxje: '项目数量+差额',
+      jh_wzzlztbsje: '项目数量+整领整退金额（整领部分的合计金额）',
+      jh_wztklys: '项目数量+当年预算',
+      jh_wzcqgceje: '项目数量+超欠供绝对值合计',
+      jh_ndystzlje: '项目数量+调整金额',
+      jh_ndystzcsys: '项目数量+当年预算',
+      jh_sjhjlje: '项目数量+核减金额',
+      jh_sbfwrzhlxje: '项目数量+服务入账金额',
+      jh_zjzfjeje: '项目数量+差额合计数',
+      jh_skdwyzxje: '项目数量+资金支付金额',
+      jh_zgzzhlxje: '项目数量+差额',
+      jh_zjgcfsje: '项目数量+在建工程余额 ',
+      jh_xmgbs: '已关闭项目数量'
+    }
+    setupState.example.unshift(judge)
+    setupState.example.unshift(calculation)
+    setupState.example.unshift(name)
+  } else {
+    setupState.example.splice(0, 3)
+  }
+}
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
     }
   }
+}
+//重置按钮
+function reset() {
+  setupState.dataList.month = new Date()
+  setupState.dataList.select = 0
+  typeRef.value.clear()
+  companyRef.value.clear()
+  setupState.example = []
+  loadData()
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+function goProcess06Detail(row) {
+  router.push({
+    path: '/budget-process/process-06',
+    query: {
+      id: row.id,
+      zbx: 'JH_WZZLZTBS=0',
+      wd: setupState.dataList.select,
+      specialorgid: setupState.specialorgid
+    }
+  })
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+})
+;(() => {
+  handleColumn()
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  helpHandle,
+  store,
+  example,
+  dataList,
+  segment,
+  segmentIds,
+  columnObj,
+  searchShow,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  loading,
+  remarks,
+  userCode,
+  userId,
+  specialorgid,
+  setTableHeight,
+  loadData,
+  exportBtn,
+  search,
+  handleColumn,
+  remarksbtn,
+  listShow,
+  reset,
+  showSearch,
+  goProcess06Detail,
+  loadCompany
 })
 </script>
 

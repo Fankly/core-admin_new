@@ -54,11 +54,7 @@
   </div>
   <ReViewModal ref="reviewRef" :title="modalTitle" :isView="isView" :form-data="paramsData" />
 </template>
-<script lang="ts">
-export default {
-  name: '/workflow/lslx/workflowDealZgkbmYs'
-}
-</script>
+
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
@@ -70,6 +66,9 @@ import ReViewModal from '@/views/service/lslxJsc/ysysszytb/components/ReViewModa
 import { zgkbmFinishWf, zgkbmReject } from '@/api/workflow/lslx/index'
 import { useStore } from '@/store/business'
 import { loadUserWfInfo } from '@/api/workflow'
+defineOptions({
+  name: '/workflow/lslx/workflowDealZgkbmYs'
+})
 
 interface wfDataVo {
   ZGKBM_ID: string
@@ -78,7 +77,6 @@ interface wfDataVo {
   VERSION_NAME: string
   VERSION_NO: string
 }
-
 interface paramsDataVo {
   versionId: string
   zgkbmId: string
@@ -109,7 +107,6 @@ const tableRef = ref()
 const isView = ref<boolean>(false)
 const modalTitle = ref<string>('拟出库项目维护')
 const paramsData = ref<any>({})
-
 const pageInfo = reactive<{
   loading: boolean
 }>({
@@ -117,7 +114,6 @@ const pageInfo = reactive<{
 })
 const allAmount = ref<any>('')
 const count = ref(0)
-
 const tableInfo = reactive<any>({
   border: true,
   tableData: [],
@@ -171,21 +167,21 @@ const getQueryString = (name: string): string => {
     params.forEach((value, k) => acc.set(k, value))
     return acc
   }, new Map())
-
   if (window.location.hash.includes('?')) {
     const hashQuery = window.location.hash.split('?')[1]
     new URLSearchParams(hashQuery).forEach((value, k) => allParams.set(k, value))
   }
   return allParams.get(name)
 }
-
 onMounted(() => {
   const workItemId = getQueryString('workItemId')
   loadUserWfInfo(workItemId).then((res: any) => {
     if (res.success) {
       let data = res.data
       userInfo.value = data.user
-      wfDataString.value = { ...data.wfData }
+      wfDataString.value = {
+        ...data.wfData
+      }
       workItemIdString.value = workItemId
       wfInstIdString.value = data.wfInstId
       wfCodeString.value = data.wfCode
@@ -216,7 +212,10 @@ const handlerClickBtn = (val: any) => {
     .then(async (val: any) => {
       pageInfo.loading = true
       if (wfCodeString.value == 'ZGKBM_YSSHLC') {
-        const res: any = await api({ ...params, spyj: val.value })
+        const res: any = await api({
+          ...params,
+          spyj: val.value
+        })
         if (res && res.success) {
           try {
             window.parent.Appframe.closePopWindow(window)
@@ -250,7 +249,6 @@ const handleCellClick = ({ row, column }: any) => {
     reviewRef.value.acceptParams()
   }
 }
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -292,7 +290,6 @@ const hanldeNck = (type: any, val: any) => {
 const newData = async () => {
   await getDataList()
 }
-
 const getDataList = async () => {
   tableInfo.loading = true
   const api: any = getTableDataForZgkbmYs

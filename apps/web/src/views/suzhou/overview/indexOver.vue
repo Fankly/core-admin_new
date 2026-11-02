@@ -7,10 +7,10 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle" />
 </template>
 <script setup lang="ts">
-defineOptions({ name: "/lyg/projectProcessWarning/warning/index" })
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+defineOptions({ name: "/lyg/projectProcessWarning/warning/index" })
 
 const loading = ref(false)
 const isShowPage = ref(false) //未选择角色前不展示页面

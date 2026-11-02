@@ -52,11 +52,11 @@
 
 <script setup lang="ts">
 import { Grid as EpGrid, Refresh as EpRefresh } from '@element-plus/icons-vue'
-
-defineOptions({ name: "AssetDdqdDetails" })
 import { onMounted, ref, nextTick, watch, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getDdPageByXmId } from '@/api/xmInfo/dispatchIntegrationList'
+defineOptions({ name: "AssetDdqdDetails" })
+
 interface Props {
   selectData: any
   globalParams: any

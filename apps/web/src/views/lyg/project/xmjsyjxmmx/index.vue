@@ -10,10 +10,10 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/lyg/project/xmjsyjxmmx/index" })
 import CqxmBaseTable from '../components/CqxmBaseTable.vue'
 import { getCqwjssXmmxPage, exportCqwjssXmmx } from '@/api/lyg/index'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({ name: "/lyg/project/xmjsyjxmmx/index" })
 
 // 物资领用占比渲染：保留两位小数 + %
 const renderPercent = (raw: any) => {

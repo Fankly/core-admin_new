@@ -20,15 +20,11 @@
     </div>
   </div>
 </template>
-<script lang="tsx">
-export default {
-  name: '/service/detailQueryReport/components/table'
-}
-</script>
+
 <script setup lang="tsx">
 import { ElNotification, ElMessage } from 'element-plus'
-import { onMounted, ref, reactive, defineExpose, defineEmits, defineProps } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import { onMounted, ref, reactive } from 'vue'
+import proTable from '@/components/ProTable/index.vue'
 import {
   erpXhDetailPage,
   erpXhDetailExport,
@@ -40,12 +36,20 @@ import {
   fyfjDetailExportByBm,
   fyfjDetailPageByDwph,
   fyfjDetailExportByDwph
-} from '@/api/service/detailQueryReport/index' //公共代码
+} from '@/api/service/detailQueryReport/index'
+defineOptions({
+  name: '/service/detailQueryReport/components/table'
+})
 
-const props = defineProps<{ columnsTable: any[]; tableType: string; fileName: string }>()
+ //表格组件
+ //公共代码
 
+const props = defineProps<{
+  columnsTable: any[]
+  tableType: string
+  fileName: string
+}>()
 const emits = defineEmits(['reset'])
-
 const loading = ref<boolean>(false)
 const type = ref<string>('')
 const proTableRef = ref() //按项目类型ref
@@ -64,7 +68,9 @@ const resetHandle = () => {
   loading.value = true
   proTableRef.value?.clearSelection()
   if (props.tableType) {
-    emits('reset', { type: 'RESET' })
+    emits('reset', {
+      type: 'RESET'
+    })
   }
 }
 
@@ -75,12 +81,12 @@ const handlerBtn = (selectedList: any) => {
     props.tableType == '2'
       ? xmcbzyDetailExport
       : props.tableType == '3'
-      ? fyfjDetailExportByDw
-      : props.tableType == '4'
-      ? fyfjDetailExportByBm
-      : props.tableType == '5'
-      ? fyfjDetailExportByDwph
-      : erpXhDetailExport
+        ? fyfjDetailExportByDw
+        : props.tableType == '4'
+          ? fyfjDetailExportByBm
+          : props.tableType == '5'
+            ? fyfjDetailExportByDwph
+            : erpXhDetailExport
   ElNotification({
     title: '温馨提示',
     message: '如果数据庞大会导致下载缓慢哦，请您耐心等待！',
@@ -112,12 +118,12 @@ const pageMeeting = (params: any) => {
     props.tableType == '2'
       ? xmcbzyDetailPage
       : props.tableType == '3'
-      ? fyfjDetailPageByDw
-      : props.tableType == '4'
-      ? fyfjDetailPageByBm
-      : props.tableType == '5'
-      ? fyfjDetailPageByDwph
-      : erpXhDetailPage
+        ? fyfjDetailPageByDw
+        : props.tableType == '4'
+          ? fyfjDetailPageByBm
+          : props.tableType == '5'
+            ? fyfjDetailPageByDwph
+            : erpXhDetailPage
   parmasData.value = {}
   if (props.tableType == '2') {
     if (params.yd && !params.nd) {
@@ -155,7 +161,6 @@ const pageList = (val: any) => {
   } else {
     ElMessage.error('请重试！')
   }
-
   return val
 }
 defineExpose({

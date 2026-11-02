@@ -37,50 +37,40 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/statistics/budgetExecutionAnalysis/components/ConfigHeader'
-}
-</script>
 
 <script setup lang="ts">
-import { computed, defineEmits, defineExpose, defineProps, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { getPublicCodeList, getYearData } from '@/api/common'
 import { ElMessage } from 'element-plus'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import copyStatConfig from '@/views/statistics/components/copyStatConfig.vue'
+defineOptions({
+  name: '/statistics/budgetExecutionAnalysis/components/ConfigHeader'
+})
 
 interface Props {
   showPage: boolean
   busiType: string
 }
-
 interface YearData {
   yearCode: string
   yearName: string
 }
-
 interface CodeData {
   code: string
   name: string
 }
-
 const copyStatConfigRef = ref()
 const helpModalRef = ref()
-
 const emits = defineEmits(['changeNd', 'changeBusiType', 'addData', 'deleteData', 'indicatorRelation'])
-
 const props = defineProps<Props>()
-
 const isShowPage = computed(() => props.showPage)
 const actionDisabled = computed(() => !props.busiType)
-
 const formData = reactive({
   nd: '',
   busiType: ''
 })
-
 const pageInfo = reactive<{
   ndDataList: YearData[]
   busiTypeList: CodeData[]
@@ -88,13 +78,11 @@ const pageInfo = reactive<{
   ndDataList: [],
   busiTypeList: []
 })
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) {
     helpModalRef.value.showModal = true
   }
 }
-
 const getYearDataList = async () => {
   try {
     let res = await getYearData()
@@ -109,7 +97,6 @@ const getYearDataList = async () => {
     ElMessage.error('年度数据加载失败，请稍后重试')
   }
 }
-
 const getBusiTypeList = async () => {
   try {
     const res = await getPublicCodeList({
@@ -126,57 +113,47 @@ const getBusiTypeList = async () => {
     ElMessage.error('展示维度加载失败，请稍后重试')
   }
 }
-
 const initDefaultValue = () => {
   formData.nd = new Date().getFullYear().toString()
 }
-
 const copyHandle = () => {
   if (actionDisabled.value) return
   if (copyStatConfigRef.value) {
     copyStatConfigRef.value.showModal = true
   }
 }
-
 const addOrEditDataHandle = (flag: string) => {
   if (actionDisabled.value) return
   emits('addData', flag)
 }
-
 const delDataHandle = () => {
   if (actionDisabled.value) return
   emits('deleteData')
 }
-
 const indicatorRelationHandle = () => {
   if (actionDisabled.value) return
   emits('indicatorRelation')
 }
-
 watch(
   () => formData.nd,
   (newVal) => {
     emits('changeNd', newVal)
   }
 )
-
 watch(
   () => formData.busiType,
   (newVal) => {
     emits('changeBusiType', newVal)
   }
 )
-
 const initParams = async () => {
   await Promise.all([getYearDataList(), getBusiTypeList()])
   initDefaultValue()
 }
-
 defineExpose({
   pageInfo,
   formData
 })
-
 onMounted(initParams)
 </script>
 

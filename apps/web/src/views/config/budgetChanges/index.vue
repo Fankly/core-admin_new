@@ -35,7 +35,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/config/budgetChanges/index" })
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import HelpModal from '@/components/HelpModal/index.vue'
 import userDialog from '@/components/select/userDialog.vue'
@@ -48,6 +47,7 @@ import BudgetChangesBatchModal from '@/views/config/budgetChanges/components/Bud
 import BudgetChangesModal from '@/views/config/budgetChanges/components/BudgetChangesModal.vue'
 import { VXETable } from 'vxe-table'
 import { checkSameProperty } from '@/utils/utils'
+defineOptions({ name: "/config/budgetChanges/index" })
 
 interface RowVO {
   protypeName: string

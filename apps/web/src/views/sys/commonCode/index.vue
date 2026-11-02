@@ -111,17 +111,19 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/sys/commonCode/index'
-}
-</script>
+
 <script setup lang="ts">
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
+import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, nextTick } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { pageCode, saveCode, updateCode, deleteCode, treeCode } from '@/api/sys/comcode'
+defineOptions({
+  name: '/sys/commonCode/index'
+})
+ //权限弹框
+
+ //表格组件
 
 const chooseNode = ref('') //节点id
 const parentId = ref('')
@@ -143,12 +145,10 @@ const dialogFormRef = ref('')
 const rmarkData = ref<any>({})
 const ruleFormRef = ref()
 const proTableRef = ref()
-
 const defaultProps = {
   children: 'children',
   label: 'name'
 }
-
 const pageList = ref([])
 onMounted(async () => {
   await userDialogRef.value.getUser()
@@ -176,7 +176,6 @@ const pageListData = (val: any) => {
   loading.value = false
   return val
 }
-
 const filterTreeData = (val: string, data: any) => {
   if (!val) return true
   return data.name.indexOf(val) !== -1
@@ -197,13 +196,13 @@ const addMsgHandle = () => {
   rmarkData.value.comCode = chooseNode.value || ''
   rmarkData.value.parentId = parentId.value || ''
   rmarkData.value.recState = 1 // 默认状态为启用
-  ;(dialogType.type = 'add'), (dialogType.isShow = true)
+  ;((dialogType.type = 'add'), (dialogType.isShow = true))
 }
 //编辑
 const editMsgHandle = (selectedList: any) => {
   dialogType.title = `编辑`
   rmarkData.value = selectedList[0]
-  ;(dialogType.type = 'edit'), (dialogType.isShow = true)
+  ;((dialogType.type = 'edit'), (dialogType.isShow = true))
 }
 
 // 删除
@@ -251,19 +250,26 @@ const pushMsgHandle = () => {
     }).then((res: any) => {
       if (res.success) {
         loading.value = false
-        ElMessage({ type: 'success', message: '保存成功' })
+        ElMessage({
+          type: 'success',
+          message: '保存成功'
+        })
         closeHandle()
       } else {
         loading.value = false
-        ElMessage({ type: 'error', message: res.msg })
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
       }
     })
   })
 }
-
 const initParamLists = async () => {
   // 获取公共代码
-  const publicCodeList = await treeCode({ comCode: '' })
+  const publicCodeList = await treeCode({
+    comCode: ''
+  })
   if (publicCodeList.success && publicCodeList.data.length !== 0) {
     pageList.value = publicCodeList.data
   }
@@ -274,14 +280,15 @@ const initParamLists = async () => {
     }
   })
 }
-
 const userInfo = ref<any>()
 
 // 选择角色
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       await initParamLists()
@@ -290,7 +297,6 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 const closeHandle = () => {
   ruleFormRef.value.resetFields()
   proTableRef.value?.getTableList()
@@ -310,14 +316,45 @@ const handerClickTable = async (val: any) => {
   })
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { prop: 'dispOrder', label: '序号', width: '50' },
-  { prop: 'name', label: '名称', width: '180' },
-  { prop: 'code', label: '编码', width: '180' },
-  { prop: 'recStateName', label: '状态', width: '80' },
-  { prop: 'recTypeName', label: '类型', width: '80' },
-  { prop: 'comCode', label: '父级分类', width: '150' },
-  { prop: 'note', label: '描述', width: '180' }
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    prop: 'dispOrder',
+    label: '序号',
+    width: '50'
+  },
+  {
+    prop: 'name',
+    label: '名称',
+    width: '180'
+  },
+  {
+    prop: 'code',
+    label: '编码',
+    width: '180'
+  },
+  {
+    prop: 'recStateName',
+    label: '状态',
+    width: '80'
+  },
+  {
+    prop: 'recTypeName',
+    label: '类型',
+    width: '80'
+  },
+  {
+    prop: 'comCode',
+    label: '父级分类',
+    width: '150'
+  },
+  {
+    prop: 'note',
+    label: '描述',
+    width: '180'
+  }
 ])
 </script>
 

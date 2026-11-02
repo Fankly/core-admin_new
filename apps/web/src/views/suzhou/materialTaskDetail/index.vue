@@ -25,7 +25,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/suzhou/materialTaskDetail/index" })
 import { ref } from 'vue'
 import MaterialPage from '@/views/suzhou/common/components/MaterialPage.vue'
 import MaterialTaskDetailToolbar from '@/views/suzhou/materialTaskDetail/modules/materialTaskDetailToolbar.vue'
@@ -34,6 +33,7 @@ import MaterialFilePreview from '@/views/suzhou/materialTaskDetail/modules/mater
 import { getFileItems, type MaterialFileItem } from '@/views/suzhou/materialTaskDetail/utils/filePreview'
 import { MATERIAL_TASK_DETAIL_PAGE_CONFIG } from '@/views/suzhou/materialTaskDetail/config'
 import type { MaterialTaskDetailRow } from '@/views/suzhou/common/types/material'
+defineOptions({ name: "/suzhou/materialTaskDetail/index" })
 
 const filePreviewRef = ref<InstanceType<typeof MaterialFilePreview>>()
 

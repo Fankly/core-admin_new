@@ -161,7 +161,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/workflow/suzhou/taskMaterial" })
 import { computed, reactive, ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
@@ -180,10 +179,13 @@ import { cleanQueryParams, getRoleQueryParams } from '@/views/suzhou/common/util
 import { useStore } from '@/store/business'
 import { getPublicCodesList } from '@/api/common'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import MaterialTaskLog from '@/views/suzhou/materialTask/modules/materialTaskLog.vue'
 import { useRouter } from 'vue-router'
 import { notify } from '@/api/workflow'
+defineOptions({ name: "/workflow/suzhou/taskMaterial" })
+
+ //导入组件
 
 const statusOptions = ref<Array<{ code: string; name: string }>>([])
 const ppOptions = ref<Array<{ code: string; name: string }>>([

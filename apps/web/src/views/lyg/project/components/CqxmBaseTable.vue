@@ -31,22 +31,23 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "CqxmBaseTable" })
 import { onMounted, ref, reactive, nextTick, h } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import ProTable from '@/components/ProTablePage/index.vue'
 import { apiExportHandle } from '@/utils/export'
 import { useStore } from '@/store/business'
 import { getPublicData } from '@/api/common'
-import { getSubProtypeTreeByXmlx } from '@/api/lyg/index'
+import { getSubProtypeTreeByXmlx, submit, changeSfqxyj } from '@/api/lyg/index'
 import { getSgbm } from '@/api/service/requirement'
 import ElTreeSelect from '@/components/ElTreeSelect/index'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { getEjdwList, getYjdwList } from '@/api/ai/smartTaskAudit'
 import { VXETable } from 'vxe-table'
 import { ElMessage } from 'element-plus'
-import { submit, changeSfqxyj } from '@/api/lyg/index'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({
+  name: 'CqxmBaseTable'
+})
 
 // ========== Props ==========
 const props = withDefaults(
@@ -72,7 +73,6 @@ const loading = ref(false)
 const userInfo = ref<any>()
 const store = useStore()
 const xmxxParams = ref()
-
 const yjdwList = ref<any[]>([])
 const ejdwList = ref<any[]>([])
 const gkbmList = ref<any[]>([])
@@ -93,24 +93,20 @@ const resetHandle = () => {
   gkbmList.value.length = 0
   proTableRef.value?.clearSelection()
 }
-
 const updateTable = () => {
   proTableRef.value?.clearSelection()
   proTableRef.value?.getTableList()
 }
-
 const handleClickRow = (row: any) => {
   nextTick(() => {
     proTableRef.value?.clearSelection()
     proTableRef.value?.element.toggleRowSelection(row)
   })
 }
-
 const callBackHandle = (data: any) => {
   loading.value = false
   return data
 }
-
 const getPageList = (param: any) => {
   loading.value = true
   xmxxParams.value = {
@@ -122,14 +118,18 @@ const getPageList = (param: any) => {
     roleCode: userInfo.value.code
   }
   xmxxParams.value.pspidList = param.pspid ? param.pspid.split(',') : []
-  return props.pageApi({ ...xmxxParams.value })
+  return props.pageApi({
+    ...xmxxParams.value
+  })
 }
 
 // ========== 角色权限 ==========
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value?.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       initParamLists()
       isShowPage.value = true
@@ -141,7 +141,13 @@ const getRoleHandle = async () => {
 
 // 导出
 const handleExport = () => {
-  apiExportHandle({ ...xmxxParams.value }, props.exportFileName, props.exportApi)
+  apiExportHandle(
+    {
+      ...xmxxParams.value
+    },
+    props.exportFileName,
+    props.exportApi
+  )
 }
 
 //取消预警OR恢复预警
@@ -157,7 +163,9 @@ const handleEarly = async (selectedList: any, isTry: string, text: string) => {
     xmIdList: ids,
     sfqxyj: isTry
   }
-  const res: any = await changeSfqxyj({ ...params })
+  const res: any = await changeSfqxyj({
+    ...params
+  })
   if (!res.success) return ElMessage.error(res.msg)
   ElMessage.success(`${text}成功`)
   updateTable()
@@ -175,7 +183,9 @@ const handleSend = async (selectedList: any) => {
     yjBizCode: props.submitApi,
     xmIdList: ids
   }
-  const res: any = await submit({ ...params })
+  const res: any = await submit({
+    ...params
+  })
   if (!res.success) return ElMessage.error(res.msg)
   if (res.data) {
     let msg = res.data.replace(/\n/g, '<br/>')
@@ -189,30 +199,31 @@ const handleSend = async (selectedList: any) => {
     ElMessage.warning('项目流转中、没有责任人或不需要流程审核，请核查！')
   }
 }
-
 const initParamLists = async () => {
   yjdwList.value.length = 0
-  let res: any = await getYjdwList({ bmId: userInfo.value.specialorgid, dwId: userInfo.value.org_id })
+  let res: any = await getYjdwList({
+    bmId: userInfo.value.specialorgid,
+    dwId: userInfo.value.org_id
+  })
   if (res.success && res.data.length !== 0) {
     yjdwList.value.push(...res.data)
   }
   await getProtypeData('CB')
 }
-
 const getProtypeData = async (val: any) => {
   projectTypeList.value.length = 0
-  let xmlx = await getSubProtypeTreeByXmlx({ xmlx: val })
+  let xmlx = await getSubProtypeTreeByXmlx({
+    xmlx: val
+  })
   if (xmlx.success && xmlx.data.length !== 0) {
     projectTypeList.value.push(...xmlx.data)
   }
 }
-
 const selectXmlx = async (val: any) => {
   const params = proTableRef.value?.searchParam
   params.qkjxmlxbmList = []
   await getProtypeData(val)
 }
-
 const selectChange = async (val: any) => {
   const params = proTableRef.value?.searchParam
   params.qkjejdw = ''
@@ -225,12 +236,16 @@ const selectChange = async (val: any) => {
     dwId: userInfo.value.org_id,
     parentCode: val
   }
-  getEjdwList({ ...param }).then((res: any) => {
+  getEjdwList({
+    ...param
+  }).then((res: any) => {
     if (res.success && res.data.length !== 0) {
       ejdwList.value.push(...res.data)
     }
   })
-  let gkbm: any = await getSgbm({ ...param })
+  let gkbm: any = await getSgbm({
+    ...param
+  })
   if (gkbm.success && gkbm.data.length !== 0) {
     gkbmList.value.push(...gkbm.data)
   }
@@ -240,17 +255,29 @@ const selectChange = async (val: any) => {
 onMounted(async () => {
   await userDialogRef.value?.getUser()
 })
-
 const tableColumns = reactive<any[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'zyear',
     label: '年度',
     width: 80,
-    search: { el: 'select', order: 5 },
+    search: {
+      el: 'select',
+      order: 5
+    },
     enum: () => getPublicData('NDCX'),
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'pspid',
@@ -265,14 +292,32 @@ const tableColumns = reactive<any[]>([
       }
     }
   },
-  { prop: 'post1', label: '项目名称', width: 350, search: { el: 'input', order: 8 } },
+  {
+    prop: 'post1',
+    label: '项目名称',
+    width: 350,
+    search: {
+      el: 'input',
+      order: 8
+    }
+  },
   {
     prop: 'xmlx',
     label: '项目大类',
     width: 80,
-    search: { el: 'select', order: 3, defaultValue: 'CB', props: { onChange: selectXmlx } },
+    search: {
+      el: 'select',
+      order: 3,
+      defaultValue: 'CB',
+      props: {
+        onChange: selectXmlx
+      }
+    },
     enum: () => getPublicData('LYG_ZBXM_ZCBLX_COM'),
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   },
   {
@@ -303,9 +348,18 @@ const tableColumns = reactive<any[]>([
     prop: 'qkjyjdw',
     label: '一级单位',
     width: 150,
-    search: { el: 'select', props: { onChange: selectChange }, order: 1 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: selectChange
+      },
+      order: 1
+    },
     enum: yjdwList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.qkjyjdw
     }
@@ -314,9 +368,19 @@ const tableColumns = reactive<any[]>([
     prop: 'qkjejdwList',
     label: '二级单位',
     width: 150,
-    search: { el: 'select', order: 2, props: { multiple: true, collapseTags: true } },
+    search: {
+      el: 'select',
+      order: 2,
+      props: {
+        multiple: true,
+        collapseTags: true
+      }
+    },
     enum: ejdwList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.qkjejdw
     }
@@ -325,33 +389,87 @@ const tableColumns = reactive<any[]>([
     prop: 'qkjgkbmList',
     label: '项目归口部门',
     width: 150,
-    search: { el: 'select', order: 4, props: { multiple: true, collapseTags: true } },
+    search: {
+      el: 'select',
+      order: 4,
+      props: {
+        multiple: true,
+        collapseTags: true
+      }
+    },
     enum: gkbmList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.qkjgkbm
     }
   },
-  { prop: 'projectManagerName', label: '责任人', width: 150, search: { el: 'input', order: 6 } },
-  { prop: 'directorName', label: '责任主任', width: 150 },
-  { prop: 'projectProgress', label: '项目阶段', width: 150 },
+  {
+    prop: 'projectManagerName',
+    label: '责任人',
+    width: 150,
+    search: {
+      el: 'input',
+      order: 6
+    }
+  },
+  {
+    prop: 'directorName',
+    label: '责任主任',
+    width: 150
+  },
+  {
+    prop: 'projectProgress',
+    label: '项目阶段',
+    width: 150
+  },
   ...(props.extraColumns && props.extraColumns.length ? props.extraColumns : []),
-  { prop: 'cqts', label: '超期天数', width: 120 },
-  { prop: 'yjlx', label: '预警类型', width: 150 },
+  {
+    prop: 'cqts',
+    label: '超期天数',
+    width: 120
+  },
+  {
+    prop: 'yjlx',
+    label: '预警类型',
+    width: 150
+  },
   {
     prop: 'sfqxyj',
     label: '是否预警',
     width: 120,
-    search: { el: 'select', order: 7 },
+    search: {
+      el: 'select',
+      order: 7
+    },
     enum: () => getPublicData('GY_SF'),
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.sfqxyj
     }
   },
-  { prop: 'yjfqsj', label: '预警发起时间', width: 150 },
-  { prop: 'yjlcwcsj', label: '预警流程完成时间', width: 150 },
-  { prop: 'reason', label: '原因说明', width: 200, align: 'left', headerAlign: 'center' }
+  {
+    prop: 'yjfqsj',
+    label: '预警发起时间',
+    width: 150
+  },
+  {
+    prop: 'yjlcwcsj',
+    label: '预警流程完成时间',
+    width: 150
+  },
+  {
+    prop: 'reason',
+    label: '原因说明',
+    width: 200,
+    align: 'left',
+    headerAlign: 'center'
+  }
 ])
 
 // // 提交工作流

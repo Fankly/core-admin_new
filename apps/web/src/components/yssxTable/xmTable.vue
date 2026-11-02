@@ -35,23 +35,24 @@
     :flag="'VIEW'"
   />
 </template>
-<script lang="ts">
-export default {
-  name: 'xmTable'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { ElMessage } from 'element-plus'
 import { apiExportHandle } from '@/utils/export'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
+defineOptions({
+  name: 'xmTable'
+})
+
+ //表格组件
 
 interface propsVo {
   getTableApi: (params: any) => Promise<any>
   exportApi: (params: any) => Promise<any>
   columns: any[]
-  apiType:string
+  apiType: string
 }
 const props = defineProps<propsVo>()
 // 子组件
@@ -65,7 +66,10 @@ const userInfo = ref<any>() // 用户角色
 // 列表查询
 const pageMeeting = (params: any) => {
   loading.value = true
-  params = { ...params, ...formData.value }
+  params = {
+    ...params,
+    ...formData.value
+  }
   return props.getTableApi(params)
 }
 // 数据回调
@@ -89,7 +93,9 @@ const handleInfom = (val: any) => {
 const handleExport = (val: any) => {
   try {
     loading.value = true
-    const params = { ...formData.value }
+    const params = {
+      ...formData.value
+    }
     const fileName = '项目明细表'
     apiExportHandle(params, fileName, props.exportApi)
     loading.value = false
@@ -99,7 +105,6 @@ const handleExport = (val: any) => {
     ElMessage.error(error.message)
   }
 }
-
 defineExpose({
   proTableRef,
   formData

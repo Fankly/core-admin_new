@@ -57,6 +57,9 @@ import { reactive, ref, toRef } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getWfTracking } from '@/api/workflow'
 import { Result } from '@/api/matter/search'
+defineOptions({
+  name: 'workflowMeeting'
+})
 
 interface Props {
   isShowDialog: boolean
@@ -64,7 +67,6 @@ interface Props {
   meetingId: string
   searchApi: (params: any) => Promise<Result>
 }
-
 const props = withDefaults(defineProps<Props>(), {
   isShowDialog: false,
   isShowLog: true,
@@ -72,12 +74,10 @@ const props = withDefaults(defineProps<Props>(), {
   searchApi: getLcllByCityLhhsPsbg
 })
 const emit = defineEmits(['closeDialog'])
-
 const processTab = ref('process')
 const meetingId = toRef(props, 'meetingId')
 const isShow = toRef(props, 'isShowDialog')
 const loading = ref(false)
-
 const publicData = reactive<any>({
   sHResult: [
     {
@@ -98,27 +98,66 @@ const publicData = reactive<any>({
     }
   ]
 })
-
 const columns = reactive<ColumnProps<any>[]>([
-  { type: 'selection', width: 80 },
-  { prop: 'flowName', label: '操作阶段', width: '180' },
-  { prop: 'auditStatusName', label: '审核状态', width: '120' },
-  { prop: 'nodename', label: '步骤名称', width: '180' },
-  { prop: 'creator', label: '提交操作人', width: '120' },
-  { prop: 'createDep', label: '提交人部门', width: '220' },
-  { prop: 'auditor', label: '审批处理人', width: '120' },
-  { prop: 'auditDep', label: '审批部门', width: '220' },
-  { prop: 'auditTime', label: '操作时间', width: '160' },
+  {
+    type: 'selection',
+    width: 80
+  },
+  {
+    prop: 'flowName',
+    label: '操作阶段',
+    width: '180'
+  },
+  {
+    prop: 'auditStatusName',
+    label: '审核状态',
+    width: '120'
+  },
+  {
+    prop: 'nodename',
+    label: '步骤名称',
+    width: '180'
+  },
+  {
+    prop: 'creator',
+    label: '提交操作人',
+    width: '120'
+  },
+  {
+    prop: 'createDep',
+    label: '提交人部门',
+    width: '220'
+  },
+  {
+    prop: 'auditor',
+    label: '审批处理人',
+    width: '120'
+  },
+  {
+    prop: 'auditDep',
+    label: '审批部门',
+    width: '220'
+  },
+  {
+    prop: 'auditTime',
+    label: '操作时间',
+    width: '160'
+  },
   {
     prop: 'spjg',
     label: '审核结果',
     width: '120',
     enum: publicData.sHResult,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
-  { prop: 'spyj', label: '审核意见' }
+  {
+    prop: 'spyj',
+    label: '审核意见'
+  }
 ])
-
 const getPageList = (params: any) => {
   console.log(params, 'params')
   loading.value = true
@@ -126,12 +165,10 @@ const getPageList = (params: any) => {
   newParams.meetingId = meetingId.value
   return props.searchApi(newParams)
 }
-
 const dataCallBack = (data: any[]) => {
   loading.value = false
   return data || []
 }
-
 const workflowProcessHandle = (list: any[]) => {
   if (list.length !== 1) {
     ElMessage.warning('请选择一条数据进行查看！')
@@ -145,18 +182,12 @@ const workflowProcessHandle = (list: any[]) => {
     }
   })
 }
-
 const closeDialogHandle = () => {
   processTab.value = 'process'
   emit('closeDialog', false)
 }
 </script>
 
-<script lang="ts">
-export default {
-  name: 'workflowMeeting'
-}
-</script>
 
 <style scoped lang="less">
 .container {

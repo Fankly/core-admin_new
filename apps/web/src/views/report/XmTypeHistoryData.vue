@@ -63,11 +63,6 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/report/XmTypeHistoryData'
-}
-</script>
 
 <script setup lang="ts">
 import Grid from '@/components/Grid/index.vue'
@@ -80,6 +75,9 @@ import { getSubProtypeTree, getYearData } from '@/api/common'
 import { ElMessage } from 'element-plus'
 import { exportData, getImportTemplate, getXmTypeHistoryPage, importData } from '@/api/report'
 import ImportExcel from '@/components/ImportExcel/index.vue'
+defineOptions({
+  name: '/report/XmTypeHistoryData'
+})
 
 const userDialogRef = ref()
 const helpModalRef = ref()
@@ -88,27 +86,22 @@ const userInfo = ref<any>()
 const dwId = ref('')
 const ndList = ref<any>([])
 const xmlxTreeData = ref([])
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const searchForm = reactive({
   nd: '',
   proType: []
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1,
   current: '1'
 })
-
 const gridOptions = reactive<any>({
   border: true,
   stripe: true,
@@ -147,17 +140,17 @@ const gridOptions = reactive<any>({
   ],
   data: []
 })
-
 const getRoleHandle = async () => {
   dwId.value = userDialogRef.value.userMsg.org_id
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   if (isQuery) {
     pageInfo.isShowPage = true
     await searchHandle()
   }
 }
-
 const importHandle = async () => {
   let params = {
     title: '历史项目项目类型表-',
@@ -173,7 +166,6 @@ const importHandle = async () => {
   }
   importRef.value.acceptParams(params)
 }
-
 const exportHandle = async () => {
   gridOptions.loading = true
   let proType = ''
@@ -204,7 +196,6 @@ const exportHandle = async () => {
     gridOptions.loading = false
   })
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -214,7 +205,6 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchHandle()
 }
-
 const searchHandle = async () => {
   gridOptions.loading = true
   let proType = ''
@@ -236,13 +226,11 @@ const searchHandle = async () => {
     gridOptions.loading = false
   }
 }
-
 const resetHandle = () => {
   searchForm.nd = new Date().getFullYear().toString()
   searchForm.proType.length = 0
   searchHandle()
 }
-
 const initParams = async () => {
   const xmlxRes = await getSubProtypeTree()
   if (xmlxRes.success) {
@@ -273,7 +261,6 @@ const initParams = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 onMounted(initParams)
 </script>
 

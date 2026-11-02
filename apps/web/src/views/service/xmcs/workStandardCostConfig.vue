@@ -137,21 +137,28 @@
 
 <script setup lang="ts">
 import { Document as EpDocument, Folder as EpFolder, FolderOpened as EpFolderOpened, Search as EpSearch } from '@element-plus/icons-vue'
-
-import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/service/xmcs/workStandardCostConfig" })
+import { CurrentUserRoleInjectionKey, PermissionContext, PermissionInjectionKey, UserRole } from '@/components/UserRoleSelector/interface'
 import { computed, onBeforeUnmount, onMounted, provide, reactive, ref, watchEffect } from 'vue'
 import { ElMessage, ElMessageBox, ElTree } from 'element-plus'
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
-import { PermissionContext, PermissionInjectionKey, UserRole } from '@/components/UserRoleSelector/interface'
 import zyDirModal from '@/views/service/xmcs/components/zyDirModal.vue'
 import zyDetailModal from '@/views/service/xmcs/components/zyDetailModal.vue'
 import ImportExcel from '@/components/ImportExcel/index.vue'
 import { ReMultipleText } from '@/components/ReMultipleText'
 import { apiExportHandle } from '@/utils/export'
-import { queryDir, deleteDir, query, deleteHandler, getImportTemplate, importExcel, exportExcel } from '@/api/service/xmcs/workStandardCostConfig'
+import {
+  queryDir,
+  deleteDir,
+  query,
+  deleteHandler,
+  getImportTemplate,
+  importExcel,
+  exportExcel
+} from '@/api/service/xmcs/workStandardCostConfig'
+defineOptions({
+  name: '/service/xmcs/workStandardCostConfig'
+})
 
 const loading = ref(false)
 const treeRef = ref<InstanceType<typeof ElTree>>()
@@ -174,26 +181,24 @@ const currentUserRole = ref<UserRole>({
   specialOrgCode: '',
   spRoleId: ''
 })
-
-const treeProps = { children: 'children', label: 'dirName' }
-
+const treeProps = {
+  children: 'children',
+  label: 'dirName'
+}
 const userMsg = reactive({
   isShowPage: false
 })
-
 const pageConfig = reactive<ContextProps>({
   minPercent: 16,
   maxPercent: 32,
   defaultPercent: 20,
   split: 'vertical'
 })
-
 const page = reactive({
   currentPage: 1,
   pageSize: 20,
   total: 0
 })
-
 const detailQuery = reactive({
   zybm: '',
   zymc: ''
@@ -209,11 +214,9 @@ const isLeafDirSelected = computed(() => {
 const permissions = computed(() => userRoleSelectorRef.value?.permissions || [])
 const hasSelected = computed(() => checkedRows.value.length > 0)
 const hasOneSelected = computed(() => checkedRows.value.length === 1)
-
 let filterTimer: number | undefined
 // 组件卸载标志，阻止卸载后的异步回调更新状态
 let cancelled = false
-
 const gridOptions = reactive<any>({
   border: true,
   stripe: true,
@@ -224,48 +227,121 @@ const gridOptions = reactive<any>({
   showHeaderOverflow: true,
   height: '100%',
   size: 'mini',
-  rowConfig: { height: 32 },
-  columnConfig: { resizable: true },
-  checkboxConfig: { trigger: 'row', highlight: true },
+  rowConfig: {
+    height: 32
+  },
+  columnConfig: {
+    resizable: true
+  },
+  checkboxConfig: {
+    trigger: 'row',
+    highlight: true
+  },
   data: [],
   columns: [
-    { type: 'checkbox', width: 50, fixed: 'left' },
-    { field: 'zybm', title: '作业编码', width: 140, fixed: 'left', slots: { default: 'mlcjbm' } },
-    { field: 'zymc', title: '作业名称', minWidth: 160, fixed: 'left', slots: { default: 'mlcjmc' } },
-    { field: 'zynrms', title: '作业内容描述', minWidth: 200 },
-    { field: 'dydj', title: '电压等级', width: 100 },
-    { field: 'rl', title: '容量(KVA)', width: 100 },
-    { field: 'sbdw', title: '设备单位', width: 100 },
-    { field: 'rcjbm', title: '人材机编码', width: 140 },
-    { field: 'rcjmc', title: '人材机名称', minWidth: 160 },
-    { field: 'dw', title: '单位', width: 80 },
-    { field: 'dj', title: '单价(元)', width: 100, align: 'right' },
-    { field: 'sl', title: '数量', width: 100, align: 'right' },
-    { field: 'je', title: '金额(元)', width: 120, align: 'right' },
-    { field: 'sortNo', title: '排序', width: 80 },
-    { field: 'remark', title: '备注', minWidth: 160 }
+    {
+      type: 'checkbox',
+      width: 50,
+      fixed: 'left'
+    },
+    {
+      field: 'zybm',
+      title: '作业编码',
+      width: 140,
+      fixed: 'left',
+      slots: {
+        default: 'mlcjbm'
+      }
+    },
+    {
+      field: 'zymc',
+      title: '作业名称',
+      minWidth: 160,
+      fixed: 'left',
+      slots: {
+        default: 'mlcjmc'
+      }
+    },
+    {
+      field: 'zynrms',
+      title: '作业内容描述',
+      minWidth: 200
+    },
+    {
+      field: 'dydj',
+      title: '电压等级',
+      width: 100
+    },
+    {
+      field: 'rl',
+      title: '容量(KVA)',
+      width: 100
+    },
+    {
+      field: 'sbdw',
+      title: '设备单位',
+      width: 100
+    },
+    {
+      field: 'rcjbm',
+      title: '人材机编码',
+      width: 140
+    },
+    {
+      field: 'rcjmc',
+      title: '人材机名称',
+      minWidth: 160
+    },
+    {
+      field: 'dw',
+      title: '单位',
+      width: 80
+    },
+    {
+      field: 'dj',
+      title: '单价(元)',
+      width: 100,
+      align: 'right'
+    },
+    {
+      field: 'sl',
+      title: '数量',
+      width: 100,
+      align: 'right'
+    },
+    {
+      field: 'je',
+      title: '金额(元)',
+      width: 120,
+      align: 'right'
+    },
+    {
+      field: 'sortNo',
+      title: '排序',
+      width: 80
+    },
+    {
+      field: 'remark',
+      title: '备注',
+      minWidth: 160
+    }
   ]
 })
-
 const handleCheckboxChange = ({ records }: any) => {
   checkedRows.value = records
 }
-
 const getRoleParams = () => ({
   dwId: currentUserRole.value.dwId,
   bmId: currentUserRole.value.bmId,
   roleId: currentUserRole.value.roleId
 })
-
 const hasPermission = (permission: string) => permissions.value.includes(permission)
-
 const getDetailParams = () => ({
   dirId: currentNode.value.id,
   ...getRoleParams(),
   zybm: detailQuery.zybm.trim(),
   zymc: detailQuery.zymc.trim()
 })
-
 const getTreeData = async () => {
   loading.value = true
   try {
@@ -284,7 +360,6 @@ const getTreeData = async () => {
     if (!cancelled) loading.value = false
   }
 }
-
 const changeFilterHandle = (val: string) => {
   if (filterTimer) window.clearTimeout(filterTimer)
   filterTimer = window.setTimeout(() => {
@@ -294,7 +369,6 @@ const changeFilterHandle = (val: string) => {
     filterTimer = undefined
   }, 200)
 }
-
 const filterNodeHandle = (value: string, data: any) => {
   if (!value) return true
   return (data.dirName || '').indexOf(value) !== -1
@@ -310,7 +384,6 @@ const syncCurrentNodeAfterFilter = (val: string) => {
   gridOptions.data = []
   page.total = 0
 }
-
 const handleNodeClick = (data: any) => {
   currentNode.value = data
   checkedRows.value = []
@@ -320,20 +393,17 @@ const handleNodeClick = (data: any) => {
   page.currentPage = 1
   loadDetail()
 }
-
 const handleDetailSearch = () => {
   if (!currentNode.value) return ElMessage.warning('请选择目录！')
   page.currentPage = 1
   loadDetail()
 }
-
 const resetDetailSearch = () => {
   detailQuery.zybm = ''
   detailQuery.zymc = ''
   page.currentPage = 1
   loadDetail()
 }
-
 const loadDetail = async () => {
   if (!currentNode.value) {
     gridOptions.data = []
@@ -358,13 +428,11 @@ const loadDetail = async () => {
     if (!cancelled) gridOptions.loading = false
   }
 }
-
 const handleSizeChange = (val: number) => {
   page.pageSize = val
   page.currentPage = 1
   loadDetail()
 }
-
 const handleCurrentChange = (val: number) => {
   page.currentPage = val
   loadDetail()
@@ -392,7 +460,6 @@ const handleDirBtn = (type: string) => {
     nodeLevel: parent ? parent.nodeLevel + 1 : 1
   })
 }
-
 const handleDirRemove = () => {
   if (!currentNode.value) return ElMessage.warning('请选择目录！')
   const children = currentNode.value.children || []
@@ -405,7 +472,12 @@ const handleDirRemove = () => {
   })
     .then(async () => {
       // 删除前探测目录下是否仍有明细数据，避免级联删除或产生孤儿数据
-      const probe: any = await query({ ...getRoleParams(), dirId, page: 1, limit: 1 })
+      const probe: any = await query({
+        ...getRoleParams(),
+        dirId,
+        page: 1,
+        limit: 1
+      })
       if (probe.success) {
         const probeTotal = Array.isArray(probe.data) ? probe.data.length : Number(probe.data?.total || 0)
         if (probeTotal > 0) return ElMessage.warning('该目录下存在作业明细，不能删除！')
@@ -432,11 +504,10 @@ const handleDetailBtn = (type: string) => {
   detailModalRef.value.acceptParams({
     type,
     // 编辑/查看使用行数据原 dirId，避免切换目录竞态导致归属被覆盖
-    dirId: type === '新增' ? currentNode.value.id : checkedRows.value[0]?.dirId ?? currentNode.value.id,
+    dirId: type === '新增' ? currentNode.value.id : (checkedRows.value[0]?.dirId ?? currentNode.value.id),
     row: type === '新增' ? undefined : checkedRows.value[0]
   })
 }
-
 const handleDetailRemove = () => {
   if (checkedRows.value.length === 0) return ElMessage.warning('请选择数据！')
   ElMessageBox.confirm('删除后不能恢复，确定删除？', '提示', {
@@ -491,7 +562,6 @@ const handleExport = async () => {
     loading.value = false
   }
 }
-
 const getRoleHandle = async () => {
   const canRender = userRoleSelectorRef.value?.canRender
   if (canRender) {
@@ -499,7 +569,6 @@ const getRoleHandle = async () => {
     await getTreeData()
   }
 }
-
 provide(CurrentUserRoleInjectionKey, currentUserRole)
 // 提供响应式权限上下文：通过 watchEffect 同步子组件 ref 的值，
 // inject 方访问 permissions/isLoading 即可建立响应式依赖
@@ -512,11 +581,9 @@ watchEffect(() => {
   permissionContext.isLoading = userRoleSelectorRef.value?.loading || false
 })
 provide(PermissionInjectionKey, permissionContext)
-
 onMounted(() => {
   userRoleSelectorRef.value?.getUser()
 })
-
 onBeforeUnmount(() => {
   cancelled = true
   if (filterTimer) window.clearTimeout(filterTimer)

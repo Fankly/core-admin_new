@@ -134,7 +134,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -143,9 +143,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, nextTick, reactive as reactiveLocal, toRefs, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import projectType from '@/components/select/projectType.vue'
@@ -157,354 +155,408 @@ import Sortable from 'sortablejs'
 import { showHelpMsg } from '@/utils/message'
 import { getConfigDetail } from '@/api/menu/menuConfig'
 import { getMaxLength } from '@/utils/utils'
-
-export default defineComponent({
-  name: '/budget-process/process-11',
-  components: {
-    projectType,
-    affiliatedUnit,
-    copyTextBox,
-    userDialog
+import { useRouter } from 'vue-router'
+defineOptions({
+  name: '/budget-process/process-11'
+})
+const router = useRouter()
+const cgsqhRef = useTemplateRef('cgsqh')
+const cgddhRef = useTemplateRef('cgddh')
+const jfhtbhkjRef = useTemplateRef('jfhtbhkj')
+const typeRef = useTemplateRef('type')
+const companyRef = useTemplateRef('company')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  tableKey: 0,
+  store,
+  helpHandle,
+  remarks: false,
+  example: [],
+  dataList: {
+    tmtmc1: '',
+    sbMonth: '',
+    zbMonth: ''
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+  searchShow: true,
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
+  },
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  tableMsg: [],
+  dropCol: [
+    {
+      label: '采购申请号',
+      prop: 'banfn'
+    },
+    {
+      label: '采购申请行项目号',
+      prop: 'bnfpo'
+    },
+    {
+      label: '合同类型(ECP)',
+      prop: 'con_type'
+    },
+    {
+      label: 'ERP框架协议号',
+      prop: 'zebeln'
+    },
+    {
+      label: '采购订单号',
+      prop: 'ebeln'
+    },
+    {
+      label: '采购订单行项目号',
+      prop: 'ebelp'
+    },
+    {
+      label: '经法合同编号',
+      prop: 'zhtbh'
+    },
+    {
+      label: '经法合同名称',
+      prop: 'zhtmc1'
+    },
+    {
+      label: '项目类型',
+      prop: 'zprxmlx'
+    },
+    {
+      label: '一级单位',
+      prop: 'qkjyjdw_name'
+    },
+    {
+      label: '二级单位',
+      prop: 'qkjejdw_name'
+    },
+    {
+      label: '需求上报日期',
+      prop: 'zhzsj'
+    },
+    {
+      label: '中标日期',
+      prop: 'zzbsj'
+    },
+    {
+      label: '招标金额',
+      prop: 'zbje'
+    },
+    {
+      label: '中标金额 ',
+      prop: 'zhszj'
+    },
+    {
+      label: '合同金额',
+      prop: 'zhtje'
+    },
+    {
+      label: '执行协议金额',
+      prop: 'zzxhtje'
+    },
+    {
+      label: '服务确认金额',
+      prop: 'zzxhtqrje'
+    },
+    {
+      label: '服务确认金额（不含税）',
+      prop: 'zhtrzzje'
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      tableKey: 0,
-      store,
-      helpHandle,
-      remarks: false,
-      example: [],
-      dataList: {
-        tmtmc1: '',
-        sbMonth: '',
-        zbMonth: ''
-      },
-      searchShow: true,
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      tableMsg: [],
-      dropCol: [
-        {
-          label: '采购申请号',
-          prop: 'banfn'
-        },
-        {
-          label: '采购申请行项目号',
-          prop: 'bnfpo'
-        },
-        {
-          label: '合同类型(ECP)',
-          prop: 'con_type'
-        },
-        {
-          label: 'ERP框架协议号',
-          prop: 'zebeln'
-        },
-        {
-          label: '采购订单号',
-          prop: 'ebeln'
-        },
-        {
-          label: '采购订单行项目号',
-          prop: 'ebelp'
-        },
-        {
-          label: '经法合同编号',
-          prop: 'zhtbh'
-        },
-        {
-          label: '经法合同名称',
-          prop: 'zhtmc1'
-        },
-        {
-          label: '项目类型',
-          prop: 'zprxmlx'
-        },
-        {
-          label: '一级单位',
-          prop: 'qkjyjdw_name'
-        },
-        {
-          label: '二级单位',
-          prop: 'qkjejdw_name'
-        },
-        {
-          label: '需求上报日期',
-          prop: 'zhzsj'
-        },
-        {
-          label: '中标日期',
-          prop: 'zzbsj'
-        },
-        {
-          label: '招标金额',
-          prop: 'zbje'
-        },
-        {
-          label: '中标金额 ',
-          prop: 'zhszj'
-        },
-        {
-          label: '合同金额',
-          prop: 'zhtje'
-        },
-        {
-          label: '执行协议金额',
-          prop: 'zzxhtje'
-        },
-        {
-          label: '服务确认金额',
-          prop: 'zzxhtqrje'
-        },
-        {
-          label: '服务确认金额（不含税）',
-          prop: 'zhtrzzje'
-        }
-      ]
+  ]
+})
+const tableKey = toRef(setupState, 'tableKey')
+const remarks = toRef(setupState, 'remarks')
+const example = toRef(setupState, 'example')
+const dataList = toRef(setupState, 'dataList')
+const searchShow = toRef(setupState, 'searchShow')
+const page = toRef(setupState, 'page')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const tableMsg = toRef(setupState, 'tableMsg')
+const dropCol = toRef(setupState, 'dropCol')
+const componentData = reactiveLocal({})
+componentData.sortable = undefined
+const sortable = toRef(componentData, 'sortable')
+function compTableWidth() {
+  const tableData = setupState.example
+  setupState.dropCol = setupState.dropCol.map((value) => {
+    const arr = tableData.map((item) => {
+      return item[value.prop]
     })
-  },
-  mounted() {
-    this.tableKey = 0
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-    this.compTableWidth()
-  },
-  methods: {
-    compTableWidth() {
-      const tableData = this.example
-      this.dropCol = this.dropCol.map((value) => {
-        const arr = tableData.map((item) => {
-          return item[value.prop]
-        })
-        arr.push(value.label)
-        let width = getMaxLength(arr)
-        if (value.prop === 'zhtmc1') {
-          value.width = 320
-        } else {
-          value.width = Math.round(width + 20)
-        }
-        return value
-      })
-    },
-    remarksbtn(val) {
-      if (val) {
-        getConfigDetail(this.store.getters.getMenuMsg.url).then((res) => {
-          if (res.success) {
-            if (res.data) {
-              this.tableMsg = res.data
-            }
-          } else {
-            ElMessage.error(res.msg)
-          }
-        })
-      }
-      this.loadData()
-    },
-    columnDrop() {
-      const wrapperTr = document.getElementById('crTable').querySelector('.el-table__header-wrapper tr')
-      const _this = this
-      this.sortable = Sortable.create(wrapperTr, {
-        animation: 180,
-        delay: 0,
-        draggable: '.dropTableColumn',
-        onEnd: (evt) => {
-          const oldItem = _this.dropCol[evt.oldIndex]
-          _this.dropCol.splice(evt.oldIndex, 1)
-          _this.dropCol.splice(evt.newIndex, 0, oldItem)
-          _this.tableKey += 1
-          this.$nextTick(() => {
-            this.columnDrop()
-          })
-        }
-      })
-    },
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 80 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 80 + 'px'
-      }
-    },
-    loadData() {
-      this.loading = true
-      const params = {
-        banfns: [],
-        ebelns: [],
-        szhzsj: '',
-        ezhzsj: '',
-        zhtbhs: [],
-        zprxmlxs: [],
-        szzbsj: '',
-        ezzbsj: '',
-        zhtmc1: this.dataList.tmtmc1,
-        qkjejdws: [],
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-
-      params.ebelns = this.$refs.cgsqh.newArr //采购申请号
-      params.banfns = this.$refs.cgddh.array //采购订单号
-      //需求上报日期
-      if (this.dataList.sbMonth) {
-        params.szhzsj = this.dataList.sbMonth[0]
-        params.ezhzsj = this.dataList.sbMonth[1]
-      }
-      params.zhtbhs = this.$refs.jfhtbhkj.array //经法合同编号
-      params.zprxmlxs = this.$refs.type.selectList //项目类型
-      //中标日期
-      if (this.dataList.zbMonth) {
-        params.szzbsj = this.dataList.zbMonth[0]
-        params.ezzbsj = this.dataList.zbMonth[1]
-      }
-      params.qkjejdws = this.$refs.company.selectList //所属单位
-
-      baseService.post('/process/process11/', params).then((res) => {
-        if (res.success == true) {
-          this.loading = false
-          this.example = res.data.records
-          if (this.remarks) {
-            this.example.unshift(...this.tableMsg)
-          }
-          this.page.total = res.data.total
-          this.compTableWidth()
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    exportBtn() {
-      this.loading = true
-      const params = {
-        banfns: [],
-        ebelns: [],
-        szhzsj: '',
-        ezhzsj: '',
-        zhtbhs: [],
-        zprxmlxs: [],
-        szzbsj: '',
-        ezzbsj: '',
-        zhtmc1: this.dataList.tmtmc1,
-        qkjejdws: [],
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-
-      params.ebelns = this.$refs.cgsqh.newArr //采购申请号
-      params.banfns = this.$refs.cgddh.array //采购订单号
-      //需求上报日期
-      if (this.dataList.sbMonth) {
-        params.szhzsj = this.dataList.sbMonth[0]
-        params.ezhzsj = this.dataList.sbMonth[1]
-      }
-      params.zhtbhs = this.$refs.jfhtbhkj.array //经法合同编号
-      params.zprxmlxs = this.$refs.type.selectList //项目类型
-      //中标日期
-      if (this.dataList.zbMonth) {
-        params.szzbsj = this.dataList.zbMonth[0]
-        params.ezzbsj = this.dataList.zbMonth[1]
-      }
-      params.qkjejdws = this.$refs.company.selectList //所属单位
-
-      baseService.export('/process/process11/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '通用服务执行明细表.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-    clickJump(row) {
-      if (row.zhtbh) {
-        this.$router.push({
-          path: '/budget-process/process-12',
-          query: { banfn: row.banfn, bnfpo: row.bnfpo, specialorgid: this.specialorgid }
-        })
-      }
-    },
-    // 分页控件当前页修改事件
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    // 分页控件请求数量修改事件
-    limitChangeHandle(currentLimitNum) {
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-
-    //查询按钮
-    search() {
-      this.loadData()
-    },
-
-    //重置按钮
-    reset() {
-      this.remarks = false
-      this.dataList.tmtmc1 = ''
-      this.dataList.sbMonth = ''
-      this.dataList.zbMonth = ''
-      this.$refs.cgsqh.clear()
-      this.$refs.cgddh.clear()
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.$refs.jfhtbhkj.clear()
-      this.example = []
-      this.page.total = 0
-      this.page.limit = 10
-      this.page.page = 1
-      this.page.current = '1'
-      this.loadData()
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
-      this.columnDrop()
+    arr.push(value.label)
+    let width = getMaxLength(arr)
+    if (value.prop === 'zhtmc1') {
+      value.width = 320
+    } else {
+      value.width = Math.round(width + 20)
     }
+    return value
+  })
+}
+function remarksbtn(val) {
+  if (val) {
+    getConfigDetail(setupState.store.getters.getMenuMsg.url).then((res) => {
+      if (res.success) {
+        if (res.data) {
+          setupState.tableMsg = res.data
+        }
+      } else {
+        ElMessage.error(res.msg)
+      }
+    })
   }
+  loadData()
+}
+function columnDrop() {
+  const wrapperTr = document.getElementById('crTable').querySelector('.el-table__header-wrapper tr')
+  componentData.sortable = Sortable.create(wrapperTr, {
+    animation: 180,
+    delay: 0,
+    draggable: '.dropTableColumn',
+    onEnd: (evt) => {
+      const oldItem = setupState.dropCol[evt.oldIndex]
+      setupState.dropCol.splice(evt.oldIndex, 1)
+      setupState.dropCol.splice(evt.newIndex, 0, oldItem)
+      setupState.tableKey += 1
+      nextTick(() => {
+        columnDrop()
+      })
+    }
+  })
+}
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 80 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 80 + 'px'
+  }
+}
+function loadData() {
+  setupState.loading = true
+  const params = {
+    banfns: [],
+    ebelns: [],
+    szhzsj: '',
+    ezhzsj: '',
+    zhtbhs: [],
+    zprxmlxs: [],
+    szzbsj: '',
+    ezzbsj: '',
+    zhtmc1: setupState.dataList.tmtmc1,
+    qkjejdws: [],
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+  params.ebelns = cgsqhRef.value.newArr //采购申请号
+  params.banfns = cgddhRef.value.array //采购订单号
+  //需求上报日期
+  if (setupState.dataList.sbMonth) {
+    params.szhzsj = setupState.dataList.sbMonth[0]
+    params.ezhzsj = setupState.dataList.sbMonth[1]
+  }
+  params.zhtbhs = jfhtbhkjRef.value.array //经法合同编号
+  params.zprxmlxs = typeRef.value.selectList //项目类型
+  //中标日期
+  if (setupState.dataList.zbMonth) {
+    params.szzbsj = setupState.dataList.zbMonth[0]
+    params.ezzbsj = setupState.dataList.zbMonth[1]
+  }
+  params.qkjejdws = companyRef.value.selectList //所属单位
+
+  baseService.post('/process/process11/', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example = res.data.records
+      if (setupState.remarks) {
+        setupState.example.unshift(...setupState.tableMsg)
+      }
+      setupState.page.total = res.data.total
+      compTableWidth()
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function exportBtn() {
+  setupState.loading = true
+  const params = {
+    banfns: [],
+    ebelns: [],
+    szhzsj: '',
+    ezhzsj: '',
+    zhtbhs: [],
+    zprxmlxs: [],
+    szzbsj: '',
+    ezzbsj: '',
+    zhtmc1: setupState.dataList.tmtmc1,
+    qkjejdws: [],
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+  params.ebelns = cgsqhRef.value.newArr //采购申请号
+  params.banfns = cgddhRef.value.array //采购订单号
+  //需求上报日期
+  if (setupState.dataList.sbMonth) {
+    params.szhzsj = setupState.dataList.sbMonth[0]
+    params.ezhzsj = setupState.dataList.sbMonth[1]
+  }
+  params.zhtbhs = jfhtbhkjRef.value.array //经法合同编号
+  params.zprxmlxs = typeRef.value.selectList //项目类型
+  //中标日期
+  if (setupState.dataList.zbMonth) {
+    params.szzbsj = setupState.dataList.zbMonth[0]
+    params.ezzbsj = setupState.dataList.zbMonth[1]
+  }
+  params.qkjejdws = companyRef.value.selectList //所属单位
+
+  baseService.export('/process/process11/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '通用服务执行明细表.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+function clickJump(row) {
+  if (row.zhtbh) {
+    router.push({
+      path: '/budget-process/process-12',
+      query: {
+        banfn: row.banfn,
+        bnfpo: row.bnfpo,
+        specialorgid: setupState.specialorgid
+      }
+    })
+  }
+}
+// 分页控件当前页修改事件
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+//查询按钮
+function search() {
+  loadData()
+}
+//重置按钮
+function reset() {
+  setupState.remarks = false
+  setupState.dataList.tmtmc1 = ''
+  setupState.dataList.sbMonth = ''
+  setupState.dataList.zbMonth = ''
+  cgsqhRef.value.clear()
+  cgddhRef.value.clear()
+  typeRef.value.clear()
+  companyRef.value.clear()
+  jfhtbhkjRef.value.clear()
+  setupState.example = []
+  setupState.page.total = 0
+  setupState.page.limit = 10
+  setupState.page.page = 1
+  setupState.page.current = '1'
+  loadData()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+  columnDrop()
+}
+onMounted(() => {
+  setupState.tableKey = 0
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+  compTableWidth()
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  tableKey,
+  store,
+  helpHandle,
+  remarks,
+  example,
+  dataList,
+  searchShow,
+  page,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  tableMsg,
+  dropCol,
+  compTableWidth,
+  remarksbtn,
+  columnDrop,
+  setTableHeight,
+  loadData,
+  exportBtn,
+  clickJump,
+  pageChangeHandle,
+  limitChangeHandle,
+  showSearch,
+  search,
+  reset,
+  loadCompany,
+  ...toRefs(componentData)
 })
 </script>
 

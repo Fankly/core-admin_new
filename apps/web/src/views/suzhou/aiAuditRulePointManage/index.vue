@@ -227,7 +227,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/suzhou/aiAuditRulePointManage/index" })
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -242,15 +241,18 @@ import promptModal from './components/promptModal/index.vue'
 import detailModal from './components/detailModal/index.vue'
 import relateProtType from './components/relateProtType/index.vue'
 import budgetItemModal from './components/budgetItemModal/index.vue'
-// import auditPointModal from './components/auditPointModal/index.vue'
 import auditPointListModal from './components/auditPointListModal/index.vue'
 import itemListModal from './components/itemListModal/index.vue'
 import unpassListModal from './components/unpassListModal/index.vue'
-// import { changeStatus } from '@/api/suzhou/aiAuditRuleManage'
 import { importRule, exportRule, exportRuleMonitoring, getRuleMonitoringPage, removeRule, changeStatus } from '@/api/suzhou/aiAuditRulePoint'
 import ImportExcel from '@/components/ImportExcel/index.vue'
 import { apiExportHandle } from '@/utils/export'
 import { getPublicData } from '@/api/common'
+defineOptions({ name: "/suzhou/aiAuditRulePointManage/index" })
+
+// import auditPointModal from './components/auditPointModal/index.vue'
+
+// import { changeStatus } from '@/api/suzhou/aiAuditRuleManage'
 
 interface SelectedRow {
   ruleId: string

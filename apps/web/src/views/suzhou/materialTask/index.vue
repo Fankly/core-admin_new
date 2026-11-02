@@ -10,7 +10,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/suzhou/materialTask/index" })
 import { ref } from 'vue'
 import MaterialPage from '@/views/suzhou/common/components/MaterialPage.vue'
 import MaterialTaskToolbar from '@/views/suzhou/materialTask/modules/materialTaskToolbar.vue'
@@ -19,6 +18,7 @@ import MaterialTaskDetailModal from '@/views/suzhou/materialTask/modules/materia
 import { MATERIAL_TASK_PAGE_CONFIG } from '@/views/suzhou/materialTask/config'
 import type { MaterialTaskRow } from '@/views/suzhou/common/types/material'
 import { ElMessage } from 'element-plus'
+defineOptions({ name: "/suzhou/materialTask/index" })
 
 const detailModalRef = ref<InstanceType<typeof MaterialTaskDetailModal>>()
 

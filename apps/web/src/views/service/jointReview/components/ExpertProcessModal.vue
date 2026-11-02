@@ -191,11 +191,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'ExpertProcessModal'
-}
-</script>
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
@@ -205,6 +200,9 @@ import type { ExpertProcessParams, ExpertProcessRow, ExpertProcessThroughParams 
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { apiExportHandle } from '@/utils/export'
 import { useStore } from '@/store/business'
+defineOptions({
+  name: 'ExpertProcessModal'
+})
 
 interface ModalProps {
   /** 会议信息 */
@@ -220,7 +218,6 @@ interface ModalProps {
     roleId: string
   }>
 }
-
 const store = useStore()
 const processTableRef = ref()
 const throughTableRef = ref()
@@ -232,32 +229,26 @@ const throughVisible = ref(false)
 const throughTitle = ref('项目明细')
 const tableData = ref<ExpertProcessRow[]>([])
 const throughTableData = ref<ExpertProcessRow[]>([])
-
 type CountField = 'totalNum' | 'ypsxmNum' | 'thdpsxmNum' | 'dpsxmNum'
 
 /** 数量穿透开关：开启数量链接、项目明细查询与导出 */
 const ENABLE_COUNT_THROUGH = true
-
 const searchForm = reactive({
   expertAccount: ''
 })
-
 const throughSearchForm = reactive({
   xmbms: ''
 })
-
 const page = reactive({
   page: 1,
   limit: 20,
   total: 0
 })
-
 const throughPage = reactive({
   page: 1,
   limit: 20,
   total: 0
 })
-
 const throughContext = ref<{
   expertId: string
   expertName: string
@@ -286,19 +277,16 @@ const normalizeXmbms = (value: unknown): string[] => {
     .map((item) => item.trim())
     .filter(Boolean)
 }
-
 const modalProps = ref<ModalProps>({
   row: {},
   userInfo: {}
 })
-
 const CT_TYPE_LABEL: Record<string, string> = {
   totalNum: '评审项目总数量',
   ypsxmNum: '已评审项目数量',
   thdpsxmNum: '退回待入会项目统计',
   dpsxmNum: '待评审项目数量'
 }
-
 const buildBaseParams = (): ExpertProcessParams => {
   const user = modalProps.value.userInfo || {}
   const meeting = modalProps.value.row || {}
@@ -324,13 +312,16 @@ const isCountClickable = (value: unknown) => {
   if (value === undefined || value === null || value === '') return false
   return !Number.isNaN(Number(value))
 }
-
 const formatRate = (value: unknown) => {
   if (value === undefined || value === null || value === '') return '-'
   return String(value).includes('%') ? String(value) : `${value}%`
 }
-
-const normalizePageResult = (val: unknown): { records: ExpertProcessRow[]; total: number } => {
+const normalizePageResult = (
+  val: unknown
+): {
+  records: ExpertProcessRow[]
+  total: number
+} => {
   if (Array.isArray(val)) {
     return {
       records: val as ExpertProcessRow[],
@@ -357,7 +348,6 @@ const normalizePageResult = (val: unknown): { records: ExpertProcessRow[]; total
     total: 0
   }
 }
-
 const getPageList = async () => {
   if (!modalProps.value.row?.meetingId) return
   loading.value = true
@@ -386,29 +376,24 @@ const getPageList = async () => {
     loading.value = false
   }
 }
-
 const searchHandle = () => {
   page.page = 1
   getPageList()
 }
-
 const resetSearch = () => {
   searchForm.expertAccount = ''
   page.page = 1
   getPageList()
 }
-
 const limitChangeHandle = (limit: number) => {
   page.limit = limit
   page.page = 1
   getPageList()
 }
-
 const pageChangeHandle = (current: number) => {
   page.page = current
   getPageList()
 }
-
 const openThrough = (row: ExpertProcessRow, ctType: CountField) => {
   // 0 也可穿透；仅空值不进入
   if (!isCountClickable(row[ctType])) {
@@ -440,7 +425,6 @@ const openThrough = (row: ExpertProcessRow, ctType: CountField) => {
   throughVisible.value = true
   getThroughPageList()
 }
-
 const buildThroughParams = (): ExpertProcessThroughParams => {
   // 有查询条件时用搜索的 xmbms；否则沿用行上带出的 xmbms（string[]）
   const searchXmbms = normalizeXmbms(throughSearchForm.xmbms)
@@ -459,7 +443,6 @@ const buildThroughParams = (): ExpertProcessThroughParams => {
     limit: String(throughPage.limit)
   }
 }
-
 const getThroughPageList = async () => {
   if (!throughContext.value.meetingId) {
     ElMessage.warning('缺少会议ID，无法穿透')
@@ -486,24 +469,20 @@ const getThroughPageList = async () => {
     throughLoading.value = false
   }
 }
-
 const throughSearchHandle = () => {
   throughPage.page = 1
   getThroughPageList()
 }
-
 const throughResetSearch = () => {
   throughSearchForm.xmbms = ''
   throughPage.page = 1
   getThroughPageList()
 }
-
 const throughLimitChangeHandle = (limit: number) => {
   throughPage.limit = limit
   throughPage.page = 1
   getThroughPageList()
 }
-
 const throughPageChangeHandle = (current: number) => {
   throughPage.page = current
   getThroughPageList()
@@ -533,7 +512,6 @@ const exportHandle = async () => {
     exportLoading.value = false
   }
 }
-
 const closeHandle = () => {
   loading.value = false
   tableData.value = []
@@ -541,7 +519,6 @@ const closeHandle = () => {
   page.total = 0
   searchForm.expertAccount = ''
 }
-
 const closeThroughHandle = () => {
   throughLoading.value = false
   throughTableData.value = []
@@ -557,15 +534,18 @@ const closeThroughHandle = () => {
     xmbms: []
   }
 }
-
 const acceptParams = (params: ModalProps) => {
   if (!params?.row?.meetingId) {
     ElMessage.warning('请选择一条会议数据')
     return
   }
   modalProps.value = {
-    row: { ...params.row },
-    userInfo: { ...(params.userInfo || {}) }
+    row: {
+      ...params.row
+    },
+    userInfo: {
+      ...(params.userInfo || {})
+    }
   }
   searchForm.expertAccount = ''
   page.page = 1
@@ -575,7 +555,6 @@ const acceptParams = (params: ModalProps) => {
   modalVisible.value = true
   getPageList()
 }
-
 defineExpose({
   acceptParams
 })

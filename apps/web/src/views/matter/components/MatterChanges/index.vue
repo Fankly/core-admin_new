@@ -211,69 +211,55 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "MatterChanges"
-};
-</script>
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
-
-import { computed, defineProps, defineEmits, defineExpose, onMounted, reactive, ref, toRefs, toRef } from "vue";
-import { BaseMsgData, List, MsgData } from "@/views/matter/types/matterDecl";
-import { getEjdwList } from "@/api/matter";
-import { ElMessage } from "element-plus";
-import { getCsByBm, getGkbmByEjdw, getSsdw, getYslxct, getZjly } from "@/api/matter/yssxMatter";
-import { Decimal } from "decimal.js";
-import { getProtypeTreeByGkbm, getPublicData } from "@/api/common";
-import { getFyxxByYssxId, saveData, getSqdh, getFyxxById, getSqdxxById } from "@/api/matter/matterAdjust";
-import emits from "@/utils/emits";
+import { computed, onMounted, reactive, ref, toRefs, toRef } from 'vue'
+import { BaseMsgData, List, MsgData } from '@/views/matter/types/matterDecl'
+import { getEjdwList } from '@/api/matter'
+import { ElMessage } from 'element-plus'
+import { getCsByBm, getGkbmByEjdw, getSsdw, getYslxct, getZjly } from '@/api/matter/yssxMatter'
+import { Decimal } from 'decimal.js'
+import { getProtypeTreeByGkbm, getPublicData } from '@/api/common'
+import { getFyxxByYssxId, saveData, getSqdh, getFyxxById, getSqdxxById } from '@/api/matter/matterAdjust'
+import emits from '@/utils/emits'
+defineOptions({
+  name: 'MatterChanges'
+})
 
 interface BGNR {
-  name: string;
-  code: string;
+  name: string
+  code: string
 }
-
 interface Props {
-  baseMsgData: BaseMsgData;
+  baseMsgData: BaseMsgData
 }
-
-const props = defineProps<Props>();
-const tableHide = computed(() => !!unitTableData.value);
-
-const baseMsgDatas = toRef(props, "baseMsgData");
-
-const isDisabled = computed(() => props.baseMsgData.operationFlag === "VIEW");
-
+const props = defineProps<Props>()
+const tableHide = computed(() => !!unitTableData.value)
+const baseMsgDatas = toRef(props, 'baseMsgData')
+const isDisabled = computed(() => props.baseMsgData.operationFlag === 'VIEW')
 onMounted(() => {
-  if (props.baseMsgData.operationFlag === "ADD") {
-    getBgsqdhData();
+  if (props.baseMsgData.operationFlag === 'ADD') {
+    getBgsqdhData()
   }
-  getYslxctData(props.baseMsgData.selectedData.middleId, props.baseMsgData.selectedData.zgkbmId);
-  getBgyyData();
-  matterBaseMsg.zyssxbm = selectedData.yssxbm;
-  editMsgShow();
-});
-
-const isShowSearch = ref(false);
-const isShowTable = ref(false);
-const isShowOutbound = ref(false);
-
+  getYslxctData(props.baseMsgData.selectedData.middleId, props.baseMsgData.selectedData.zgkbmId)
+  getBgyyData()
+  matterBaseMsg.zyssxbm = selectedData.yssxbm
+  editMsgShow()
+})
+const isShowSearch = ref(false)
+const isShowTable = ref(false)
+const isShowOutbound = ref(false)
 const emit = defineEmits<{
-  (e: "closeDialog", flag: boolean): void;
-}>();
-
-const unitTableData = ref([]);
-const formRef = ref();
-const loading = ref(false);
-
-const selectedData = reactive(toRefs(props.baseMsgData.selectedData));
-
+  (e: 'closeDialog', flag: boolean): void
+}>()
+const unitTableData = ref([])
+const formRef = ref()
+const loading = ref(false)
+const selectedData = reactive(toRefs(props.baseMsgData.selectedData))
 const closeDialogHandle = () => {
-  emit("closeDialog", false);
-};
-
+  emit('closeDialog', false)
+}
 const getAllProTypeList: any = (list: any[]) => {
   return list.map((item: any) => {
     // 如果没有children属性
@@ -282,362 +268,345 @@ const getAllProTypeList: any = (list: any[]) => {
         value: item.middleId,
         name: item.name,
         id: item.id
-      };
+      }
     }
     return {
       value: item.middleId,
       name: item.name,
       id: item.id,
       children: item.children ? getAllProTypeList(item.children) : []
-    };
-  });
-};
+    }
+  })
+}
 
 // 获取项目类型
 const getProjectData = async (gkbmId: string) => {
-  loading.value = true;
-  let res = await getProtypeTreeByGkbm(gkbmId);
+  loading.value = true
+  let res = await getProtypeTreeByGkbm(gkbmId)
   if (res.success) {
-    projectTypeListData.value = res.data;
-    loading.value = false;
+    projectTypeListData.value = res.data
+    loading.value = false
   } else {
-    loading.value = false;
+    loading.value = false
     ElMessage({
-      type: "error",
+      type: 'error',
       message: res.msg
-    });
+    })
   }
-};
-
+}
 const editMsgShow = async () => {
   let yjdwList = await getEjdwList({
     parentId: selectedData.yjdw,
     specialorgid: props.baseMsgData.specialOrgId
-  });
-  let [gkbmList, zjly] = await Promise.all([getGkbmByEjdw(selectedData.ejdw), getZjly(selectedData.ejdw)]);
-  gkbmListData.value.push(...gkbmList.data);
-  zjlyData.value = zjly.data;
-  matterBaseMsg.zjly = zjly.data.code;
-  ejdwListData.value.push(...yjdwList.data);
-  getGkbmXzHandle(selectedData.zgkbmId);
-  loading.value = true;
-  matterBaseMsg.id = selectedData.id;
-  matterBaseMsg.zyssxmc = selectedData.yssxmc;
-  matterBaseMsg.yjdw = selectedData.yjdw;
-  matterBaseMsg.ejdw = selectedData.ejdw;
-  matterBaseMsg.xmlx = selectedData.xmlx;
-  matterBaseMsg.yslxctId = selectedData.yslxctId;
-  matterBaseMsg.isYap = selectedData.isYap;
-  matterBaseMsg.zgkbmId = selectedData.zgkbmId;
-  matterBaseMsg.remark = selectedData.remark;
-  matterBaseMsg.sxys = selectedData.sxys;
-  matterChangeMsg.value.bgje = selectedData.sxys;
-  matterBaseMsg.csId = selectedData.csId;
-  matterBaseMsg.nd = selectedData.nd;
-  matterBaseMsg.middleId = selectedData.middleId;
-  matterBaseMsg.xmlxList = selectedData.middleId;
-  if (props.baseMsgData.operationFlag === "ADD") {
-    let ssdwTable = await getFyxxByYssxId(selectedData.yssxId);
-    unitTableData.value = ssdwTable.data;
+  })
+  let [gkbmList, zjly] = await Promise.all([getGkbmByEjdw(selectedData.ejdw), getZjly(selectedData.ejdw)])
+  gkbmListData.value.push(...gkbmList.data)
+  zjlyData.value = zjly.data
+  matterBaseMsg.zjly = zjly.data.code
+  ejdwListData.value.push(...yjdwList.data)
+  getGkbmXzHandle(selectedData.zgkbmId)
+  loading.value = true
+  matterBaseMsg.id = selectedData.id
+  matterBaseMsg.zyssxmc = selectedData.yssxmc
+  matterBaseMsg.yjdw = selectedData.yjdw
+  matterBaseMsg.ejdw = selectedData.ejdw
+  matterBaseMsg.xmlx = selectedData.xmlx
+  matterBaseMsg.yslxctId = selectedData.yslxctId
+  matterBaseMsg.isYap = selectedData.isYap
+  matterBaseMsg.zgkbmId = selectedData.zgkbmId
+  matterBaseMsg.remark = selectedData.remark
+  matterBaseMsg.sxys = selectedData.sxys
+  matterChangeMsg.value.bgje = selectedData.sxys
+  matterBaseMsg.csId = selectedData.csId
+  matterBaseMsg.nd = selectedData.nd
+  matterBaseMsg.middleId = selectedData.middleId
+  matterBaseMsg.xmlxList = selectedData.middleId
+  if (props.baseMsgData.operationFlag === 'ADD') {
+    let ssdwTable = await getFyxxByYssxId(selectedData.yssxId)
+    unitTableData.value = ssdwTable.data
   } else {
-    let [fyxx, sqdxx] = await Promise.all([getFyxxById(selectedData.id), getSqdxxById(selectedData.id)]);
+    let [fyxx, sqdxx] = await Promise.all([getFyxxById(selectedData.id), getSqdxxById(selectedData.id)])
     if (fyxx.success && sqdxx.success) {
-      unitTableData.value = fyxx.data;
-      matterChangeMsg.value.bgsj = sqdxx.data.bgsj;
-      matterChangeMsg.value.bgsqdh = sqdxx.data.bgsqdh;
-      matterChangeMsg.value.bgr = sqdxx.data.bgr;
-      matterChangeMsg.value.bgyy = sqdxx.data.bgyy;
-      matterChangeMsg.value.id = sqdxx.data.id;
-      matterChangeMsg.value.bgnr = sqdxx.data.bgnr;
+      unitTableData.value = fyxx.data
+      matterChangeMsg.value.bgsj = sqdxx.data.bgsj
+      matterChangeMsg.value.bgsqdh = sqdxx.data.bgsqdh
+      matterChangeMsg.value.bgr = sqdxx.data.bgr
+      matterChangeMsg.value.bgyy = sqdxx.data.bgyy
+      matterChangeMsg.value.id = sqdxx.data.id
+      matterChangeMsg.value.bgnr = sqdxx.data.bgnr
     }
-    unitTableData.value = fyxx.data;
+    unitTableData.value = fyxx.data
   }
-  loading.value = false;
-};
-
-const projectTypeListData = ref<any>();
-
-const bgnrList = ref<BGNR[]>([]);
-
+  loading.value = false
+}
+const projectTypeListData = ref<any>()
+const bgnrList = ref<BGNR[]>([])
 const matterChangeMsg = ref({
-  id: "",
-  bgje: "",
-  bgnr: "",
-  bgsqdh: "",
-  bgyy: "",
-  bgr: "",
-  bgsj: ""
-});
-
+  id: '',
+  bgje: '',
+  bgnr: '',
+  bgsqdh: '',
+  bgyy: '',
+  bgr: '',
+  bgsj: ''
+})
 const matterBaseMsg = reactive({
-  id: "",
-  zyssxbm: "",
-  zyssxmc: "",
-  zjly: "",
-  yjdw: "",
-  ejdw: "",
-  xmlxList: "",
-  xmlx: "",
-  yslxctId: "",
-  isYap: "0",
-  zgkbmId: "",
-  csId: "",
-  nd: "",
-  sxys: "",
-  remark: "",
-  zgkbmXz: "",
-  xmbbm: "",
-  middleId: ""
-});
-
-const ejdwListData: any = ref([]);
-const gkbmListData: any = ref([]);
-const yslxctData: any = ref([]);
-const csDataList: any = ref([]);
+  id: '',
+  zyssxbm: '',
+  zyssxmc: '',
+  zjly: '',
+  yjdw: '',
+  ejdw: '',
+  xmlxList: '',
+  xmlx: '',
+  yslxctId: '',
+  isYap: '0',
+  zgkbmId: '',
+  csId: '',
+  nd: '',
+  sxys: '',
+  remark: '',
+  zgkbmXz: '',
+  xmbbm: '',
+  middleId: ''
+})
+const ejdwListData: any = ref([])
+const gkbmListData: any = ref([])
+const yslxctData: any = ref([])
+const csDataList: any = ref([])
 const zjlyData = ref<MsgData>({
-  code: "",
-  name: ""
-});
-
+  code: '',
+  name: ''
+})
 const selectYjdwHandle = async (val: string) => {
-  ejdwListData.value.length = 0;
-  matterBaseMsg.ejdw = "";
-  gkbmListData.value.length = 0;
-  matterBaseMsg.zgkbmId = "";
-  csDataList.value.length = 0;
-  matterBaseMsg.csId = "";
-  matterBaseMsg.zjly = "";
-  unitTableData.value.length = 0;
-  loading.value = true;
+  ejdwListData.value.length = 0
+  matterBaseMsg.ejdw = ''
+  gkbmListData.value.length = 0
+  matterBaseMsg.zgkbmId = ''
+  csDataList.value.length = 0
+  matterBaseMsg.csId = ''
+  matterBaseMsg.zjly = ''
+  unitTableData.value.length = 0
+  loading.value = true
   if (val) {
     let res = await getEjdwList({
       parentId: val,
       specialorgid: props.baseMsgData.specialOrgId
-    });
+    })
     if (res.success) {
-      ejdwListData.value.push(...res.data);
-      loading.value = false;
+      ejdwListData.value.push(...res.data)
+      loading.value = false
     } else {
       ElMessage({
-        type: "error",
+        type: 'error',
         message: res.msg
-      });
-      loading.value = false;
+      })
+      loading.value = false
     }
   } else {
-    loading.value = false;
+    loading.value = false
   }
-};
-
+}
 const selectEjdwHandle = async (val: string) => {
-  loading.value = true;
-  gkbmListData.value.length = 0;
-  matterBaseMsg.zgkbmId = "";
-  matterBaseMsg.zjly = "";
-  csDataList.value.length = 0;
-  matterBaseMsg.csId = "";
-  unitTableData.value.length = 0;
+  loading.value = true
+  gkbmListData.value.length = 0
+  matterBaseMsg.zgkbmId = ''
+  matterBaseMsg.zjly = ''
+  csDataList.value.length = 0
+  matterBaseMsg.csId = ''
+  unitTableData.value.length = 0
   if (val) {
     let ssdwTable = await getSsdw({
       ejdw: val,
       specialorgid: props.baseMsgData.specialOrgId
-    });
-    unitTableData.value = ssdwTable.data;
-    let [gkbmList, zjly] = await Promise.all([getGkbmByEjdw(val), getZjly(val)]);
+    })
+    unitTableData.value = ssdwTable.data
+    let [gkbmList, zjly] = await Promise.all([getGkbmByEjdw(val), getZjly(val)])
     if (gkbmList.success && zjly.success) {
-      gkbmListData.value.push(...gkbmList.data);
-      zjlyData.value = zjly.data;
-      matterBaseMsg.zjly = zjly.data.code;
+      gkbmListData.value.push(...gkbmList.data)
+      zjlyData.value = zjly.data
+      matterBaseMsg.zjly = zjly.data.code
     } else {
       ElMessage({
-        type: "error",
-        message: "请求错误,请重新再试"
-      });
+        type: 'error',
+        message: '请求错误,请重新再试'
+      })
     }
-    loading.value = false;
+    loading.value = false
   } else {
-    loading.value = false;
+    loading.value = false
   }
-};
-
+}
 const getBgyyData = async () => {
-  loading.value = true;
-  let res = await getPublicData("ZLYS_YSSXBGNR");
+  loading.value = true
+  let res = await getPublicData('ZLYS_YSSXBGNR')
   if (res.success) {
-    bgnrList.value = res.data;
-    matterChangeMsg.value.bgnr = res.data[0].code;
+    bgnrList.value = res.data
+    matterChangeMsg.value.bgnr = res.data[0].code
   } else {
     ElMessage({
-      type: "error",
+      type: 'error',
       message: res.msg
-    });
+    })
   }
-  loading.value = false;
-};
-
+  loading.value = false
+}
 const getBgsqdhData = async () => {
-  loading.value = true;
-  let res = await getSqdh();
+  loading.value = true
+  let res = await getSqdh()
   if (res.success) {
-    matterChangeMsg.value.bgsqdh = res.data;
+    matterChangeMsg.value.bgsqdh = res.data
   } else {
     ElMessage({
-      type: "error",
+      type: 'error',
       message: res.msg
-    });
+    })
   }
-  loading.value = false;
-};
-
+  loading.value = false
+}
 const getYslxctData = async (middleId: string, gkbmId: string) => {
   if (!middleId || !gkbmId) {
-    return;
+    return
   }
-  loading.value = true;
-  let res = await getYslxct(gkbmId, middleId);
+  loading.value = true
+  let res = await getYslxct(gkbmId, middleId)
   if (res.success) {
     yslxctData.value = res.data.map((item: any) => {
       return {
         value: item.id,
         label: item.ctmc
-      };
-    });
-    loading.value = false;
+      }
+    })
+    loading.value = false
   } else {
     ElMessage({
-      type: "error",
+      type: 'error',
       message: res.msg
-    });
-    loading.value = false;
+    })
+    loading.value = false
   }
-};
-
+}
 const focusHandle = (event: any) => {
-  if (event.target.value === "-") event.target.value = "";
-};
-
+  if (event.target.value === '-') event.target.value = ''
+}
 const blurHandle = ({ row }: List) => {
-  if (matterBaseMsg.zjly === "0" && (row.tzhys < row.yfjje || row.tzhys < row.ylxje)) {
-    ElMessage.warning("调整后费用安排不超过已分解金额和已立项金额!");
-    row.tzhys = "";
-    row.tzys = "";
-    return;
+  if (matterBaseMsg.zjly === '0' && (row.tzhys < row.yfjje || row.tzhys < row.ylxje)) {
+    ElMessage.warning('调整后费用安排不超过已分解金额和已立项金额!')
+    row.tzhys = ''
+    row.tzys = ''
+    return
   }
-
-  if (matterBaseMsg.zjly !== "0" && row.tzhys < row.ylxje) {
-    ElMessage.warning("调整后费用安排不超过已立项金额!");
-    row.tzhys = "";
-    row.tzys = "";
-    return;
+  if (matterBaseMsg.zjly !== '0' && row.tzhys < row.ylxje) {
+    ElMessage.warning('调整后费用安排不超过已立项金额!')
+    row.tzhys = ''
+    row.tzys = ''
+    return
   }
-};
-
+}
 const inputChange = (event: any, { row }: List) => {
-  event.target.value = "" + event.target.value;
+  event.target.value = '' + event.target.value
   event.target.value =
     event.target.value
-      .replace(/[^\d^.-]+/g, "") // 包括负号的匹配
-      .replace(/^0+(\d)/, "$1")
-      .replace(/^\./, "0.")
-      .match(/^[-]?\d{0,12}(?:\.\d{0,6})?/)[0] || "";
-
-  let num1 = event.target.value ? event.target.value : "0";
-  let num2 = row.dqys ? row.dqys : "0";
-  row.tzys = Decimal.sub(parseFloat(num1), parseFloat(num2)).toString();
-};
-
+      .replace(/[^\d^.-]+/g, '') // 包括负号的匹配
+      .replace(/^0+(\d)/, '$1')
+      .replace(/^\./, '0.')
+      .match(/^[-]?\d{0,12}(?:\.\d{0,6})?/)[0] || ''
+  let num1 = event.target.value ? event.target.value : '0'
+  let num2 = row.dqys ? row.dqys : '0'
+  row.tzys = Decimal.sub(parseFloat(num1), parseFloat(num2)).toString()
+}
 const getGkbmXzHandle = async (val: string) => {
-  getProjectData(val);
-  if (matterBaseMsg.zjly === "0") {
-    loading.value = true;
-    matterBaseMsg.csId = "";
-    let res = await getCsByBm(val);
+  getProjectData(val)
+  if (matterBaseMsg.zjly === '0') {
+    loading.value = true
+    matterBaseMsg.csId = ''
+    let res = await getCsByBm(val)
     if (res.success) {
-      csDataList.value = res.data;
-      loading.value = false;
+      csDataList.value = res.data
+      loading.value = false
     } else {
       ElMessage({
-        type: "error",
+        type: 'error',
         message: res.msg
-      });
-      loading.value = false;
+      })
+      loading.value = false
     }
   }
-  let data: MsgData = gkbmListData.value.filter((item: MsgData) => item.code === val);
-  matterBaseMsg.zgkbmXz = data.unicode as string;
-};
-
+  let data: MsgData = gkbmListData.value.filter((item: MsgData) => item.code === val)
+  matterBaseMsg.zgkbmXz = data.unicode as string
+}
 const getSummaries = (params: any) => {
-  const { columns, data } = params;
-  const sums: any = [];
+  const { columns, data } = params
+  const sums: any = []
   columns.forEach((column: any, index: any) => {
     if (index === 0) {
-      sums[index] = "合计";
-      return;
+      sums[index] = '合计'
+      return
     }
-    const values = data.map((item: any) => item[column.property]);
-    if (!values.every((value: any) => isNaN(value) && value !== "")) {
+    const values = data.map((item: any) => item[column.property])
+    if (!values.every((value: any) => isNaN(value) && value !== '')) {
       sums[index] = values.reduce((prev: any, curr: any) => {
-        let value = curr;
+        let value = curr
         if (!isNaN(value)) {
-          if (!value) value = 0;
-          return Decimal.add(prev, value).toString();
+          if (!value) value = 0
+          return Decimal.add(prev, value).toString()
         } else {
-          return prev;
+          return prev
         }
-      }, 0);
-      sums[index] += "";
+      }, 0)
+      sums[index] += ''
     } else {
-      sums[index] = "";
+      sums[index] = ''
     }
-  });
-  matterChangeMsg.value.bgje = sums[2];
-  return sums;
-};
-
+  })
+  matterChangeMsg.value.bgje = sums[2]
+  return sums
+}
 const getXmlxHandle = (val: any[]) => {
-  const newVal = [...val];
-  matterBaseMsg.xmlx = newVal.pop();
-};
-
+  const newVal = [...val]
+  matterBaseMsg.xmlx = newVal.pop()
+}
 const submitHandle = async () => {
-  loading.value = true;
+  loading.value = true
   let params = {
     ...matterChangeMsg.value,
     childs: unitTableData.value,
     yssxId: props.baseMsgData.selectedData.yssxId
-  };
-  let res = await saveData(params);
+  }
+  let res = await saveData(params)
   if (res.success) {
     if (!matterChangeMsg.value.id) {
-      matterChangeMsg.value.id = res.data;
-      let [fyxx, sqdxx] = await Promise.all([getFyxxById(res.data), getSqdxxById(res.data)]);
+      matterChangeMsg.value.id = res.data
+      let [fyxx, sqdxx] = await Promise.all([getFyxxById(res.data), getSqdxxById(res.data)])
       if (fyxx.success && sqdxx.success) {
-        unitTableData.value = fyxx.data;
-        matterChangeMsg.value.bgsj = sqdxx.data.bgsj;
-        matterChangeMsg.value.bgr = sqdxx.data.bgr;
+        unitTableData.value = fyxx.data
+        matterChangeMsg.value.bgsj = sqdxx.data.bgsj
+        matterChangeMsg.value.bgr = sqdxx.data.bgr
       } else {
-        ElMessage.error("保存失败!");
+        ElMessage.error('保存失败!')
       }
     }
-    emits.emit("getMatterChangeMsg", {
+    emits.emit('getMatterChangeMsg', {
       matterBaseMsg: matterChangeMsg.value
-    });
-    ElMessage.success("保存成功!");
+    })
+    ElMessage.success('保存成功!')
     // 更新页面
-    loading.value = false;
+    loading.value = false
   } else {
-    let msg = res.msg.includes("|") ? res.msg.split("|").join("<br/>") : res.msg;
+    let msg = res.msg.includes('|') ? res.msg.split('|').join('<br/>') : res.msg
     ElMessage({
-      type: "error",
+      type: 'error',
       dangerouslyUseHTMLString: true,
       message: msg
-    });
-    loading.value = false;
+    })
+    loading.value = false
   }
-};
-
-defineExpose({ matterBaseMsg, submitHandle, closeDialogHandle });
+}
+defineExpose({
+  matterBaseMsg,
+  submitHandle,
+  closeDialogHandle
+})
 </script>
 
 <style scoped lang="less">

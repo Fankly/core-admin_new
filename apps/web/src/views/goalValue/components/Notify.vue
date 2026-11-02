@@ -1,24 +1,21 @@
-<script lang="ts">
-export default {
-  name: 'Notify'
-}
-</script>
-<script lang="ts" setup>
-import { reactive, ref, watch, defineProps, defineEmits } from 'vue'
+
+<script setup lang="ts">
+import { reactive, ref, watch } from 'vue'
 import { getEjdwList, getYjdwList } from '@/api/matter'
 import { ElMessage } from 'element-plus'
 import { searchUser } from '@/api/goalValue/versionDetail'
 import { notifyVersion } from '@/api/goalValue/version'
 import VXETable from 'vxe-table'
+defineOptions({
+  name: 'Notify'
+})
 
 const dialogVisible = ref(false)
 const yjdwListData = ref<any[]>([])
 const ejdwListData = ref<any[]>([])
 const tableData = ref<any[]>([])
 const loading = ref<boolean>(false)
-
 const emit = defineEmits(['update:visible'])
-
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -35,7 +32,6 @@ const props = defineProps({
     required: true
   }
 })
-
 const searchForm = reactive<{
   yjdw: string
   ejdw: string
@@ -45,11 +41,9 @@ const searchForm = reactive<{
   userId: [],
   ejdw: ''
 })
-
 const showHandle = () => {
   getYjdwEnum()
 }
-
 const getYjdwEnum = async () => {
   if (props.specialOrgId) {
     let res: any = await getYjdwList(props.specialOrgId)
@@ -63,7 +57,6 @@ const getYjdwEnum = async () => {
     }
   }
 }
-
 const changeYjdwHandle = async (val: string) => {
   tableData.value.length = 0
   ejdwListData.value.length = 0
@@ -89,7 +82,6 @@ const changeYjdwHandle = async (val: string) => {
     loading.value = false
   }
 }
-
 const changeEjdwHandle = async () => {
   loading.value = true
   searchForm.userId.length = 0
@@ -108,7 +100,6 @@ const changeEjdwHandle = async () => {
     loading.value = false
   }
 }
-
 const closeHandle = () => {
   dialogVisible.value = false
   searchForm.userId.length = 0
@@ -116,7 +107,6 @@ const closeHandle = () => {
   searchForm.ejdw = ''
   emit('update:visible', false)
 }
-
 const sendHandle = async () => {
   if (searchForm.userId && searchForm.userId.length === 0) {
     ElMessage.warning('请选择待办接收人!')
@@ -138,7 +128,6 @@ const sendHandle = async () => {
     }
   }
 }
-
 watch(
   () => props.visible,
   (val: boolean) => {

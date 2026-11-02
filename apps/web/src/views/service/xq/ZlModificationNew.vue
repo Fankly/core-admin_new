@@ -118,11 +118,7 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/xq/ZlModificationNew'
-}
-</script>
+
 <script setup lang="ts">
 import {
   deleteXm,
@@ -149,16 +145,18 @@ import Matter from '@/views/service/xq/components/Matter.vue'
 import QueryProTypeModal from '@/views/service/xq/components/QueryProTypeModal.vue'
 import { Configs } from '@/views/service/xq/interface'
 import { ElMessage } from 'element-plus'
-import { computed, defineExpose, onMounted, reactive, ref, shallowRef, watch } from 'vue'
+import { computed, onMounted, reactive, ref, shallowRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
 import VXETable, { VxeGridProps } from 'vxe-table'
-
 import { getZlxqFlag } from '@/api/service/zlxqszy'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { useUser } from '@/hooks/useUser'
 import { useGuide } from '@/hooks/useGuide'
 import { getLabel } from '@/utils'
+defineOptions({
+  name: '/service/xq/ZlModificationNew'
+})
 
 interface RowVo {
   id: string
@@ -204,34 +202,28 @@ const title = '高级设置'
 const orderParams = ref<any>({})
 const wfCode = ref()
 const lubmCodeData = shallowRef<Array<any>>([])
-
 const { startGuide } = useGuide({
   moduleKey: 'CentralizedModification',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 const spanComp = computed(() =>
   linkLength.value % 4 === 0 ? 24 : linkLength.value % 4 === 1 ? 18 : linkLength.value % 4 === 2 ? 12 : linkLength.value % 4 === 3 ? 6 : 24
 )
-
 const processData = reactive({
   isShowDialog: false,
   compName: null,
   id: ''
 })
-
 const searchData = ref<{
   [key: string]: any
 }>({})
-
 const page = {
   total: 0,
   limit: 20,
   page: 1
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchDataHandle()
@@ -241,7 +233,6 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchDataHandle()
 }
-
 const handleFieldChange = async (prop: string, value: any, column: Configs) => {
   if (prop === 'yjdw') {
     if (value) {
@@ -263,7 +254,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
       }
     }
   }
-
   if (prop === 'yjfl') {
     if (value) {
       const findEjflData: any = dynamciSearch.value.find((search) => search.code === 'ejfl')
@@ -288,7 +278,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
       }
     }
   }
-
   if (prop === 'ejfl') {
     if (value) {
       const findData: any = dynamciSearch.value.find((search) => search.code === 'sjfl')
@@ -331,11 +320,9 @@ const searchDataHandle = async () => {
     loading.value = false
   }
 }
-
 const settingHandle = () => {
   dynamicReportsRef.value.isShowDrawer = true
 }
-
 const searchConfigHandle = async () => {
   loading.value = true
   const searchResData = await getDynamicSearchColumn({
@@ -371,7 +358,11 @@ const searchConfigHandle = async () => {
         filterable: true,
         multiple: item.multiple,
         options: [],
-        treeProps: { children: 'children', label: 'name', value: 'id' }
+        treeProps: {
+          children: 'children',
+          label: 'name',
+          value: 'id'
+        }
       }
     })
     for (const item of customData) {
@@ -397,7 +388,6 @@ const searchConfigHandle = async () => {
         }
       }
     }
-
     if (ggdms.length > 0) {
       const initData = await initParamsData('/commonCode/getCommonCode', {
         bmId: userInfo.value.deptId || '',
@@ -415,7 +405,6 @@ const searchConfigHandle = async () => {
     loading.value = false
   }
 }
-
 const initParamsData = async (method: any, params: any): Promise<any[]> => {
   const res = await baseService.post(method, params)
   if (res.success) {
@@ -425,7 +414,6 @@ const initParamsData = async (method: any, params: any): Promise<any[]> => {
     return []
   }
 }
-
 const editHandle = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -443,7 +431,6 @@ const editHandle = () => {
     editPageRef.value.isShowModal = true
   }
 }
-
 const deleteHandle = async () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -470,11 +457,9 @@ const deleteHandle = async () => {
     }
   }
 }
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const submitWorkflowHandle = async () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -569,7 +554,6 @@ const submitWorkflowHandle = async () => {
     }
   }
 }
-
 const resetHandle = () => {
   for (let valueKey in searchDatas.value) {
     let data = searchDatas.value[valueKey]
@@ -581,19 +565,19 @@ const resetHandle = () => {
   }
   searchDataHandle()
 }
-
 const wfParam = ref<WFParam>({
   XMIDS: '',
   FQZZ: '',
   CTBM: '',
   FQBM: ''
 })
-
 const userDialogRef = ref()
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfo.value.specialorgid}`)
@@ -621,39 +605,51 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 const getZlDwpzData = async (deptId: any) => {
   const zlDwpzData = await getZlDwpz(deptId)
   if (zlDwpzData.success) {
     orderParams.value = {
-      SX: zlDwpzData.data.sx, // 属性
-      SFZYDW: zlDwpzData.data.sfzydw, // 是否主业单位
-      SFSGS: zlDwpzData.data.sfsgs, // 是否市公司
-      SFWZBM: zlDwpzData.data.sfwzbm, // 是否物资部门
-      SFSJCY: zlDwpzData.data.sfsjcy, // 是否市公司产业单位
-      SFBGS: zlDwpzData.data.sfbgs, // 是否办公室
-      CITYCY: zlDwpzData.data.citycy, // 市产业
-      COUNTYCY: zlDwpzData.data.countycy, // 县产业
-      COUNTYGD: zlDwpzData.data.countygd, // 县供电
-      CITYGD: zlDwpzData.data.citygd, // 市供电
+      SX: zlDwpzData.data.sx,
+      // 属性
+      SFZYDW: zlDwpzData.data.sfzydw,
+      // 是否主业单位
+      SFSGS: zlDwpzData.data.sfsgs,
+      // 是否市公司
+      SFWZBM: zlDwpzData.data.sfwzbm,
+      // 是否物资部门
+      SFSJCY: zlDwpzData.data.sfsjcy,
+      // 是否市公司产业单位
+      SFBGS: zlDwpzData.data.sfbgs,
+      // 是否办公室
+      CITYCY: zlDwpzData.data.citycy,
+      // 市产业
+      COUNTYCY: zlDwpzData.data.countycy,
+      // 县产业
+      COUNTYGD: zlDwpzData.data.countygd,
+      // 县供电
+      CITYGD: zlDwpzData.data.citygd,
+      // 市供电
       PROYWBM: zlDwpzData.data.provinceCybId,
-      SGS_CYDW_AUDIT: zlDwpzData.data.sgsCydwAudit, // 是否需要市级产业单位审核
-      XGS_GDDW_AUDIT: zlDwpzData.data.xgsGddwAudit, // 是否需要县级供电单位审核
-      SGS_GDDW_AUDIT: zlDwpzData.data.sgsGddwAudit, // 是否需要市级供电单位审核
-      FQBM_UNICODE: zlDwpzData.data.bmUnicode, // 发起部门性质
-      FQDWSX: zlDwpzData.data.sx, // 发起单位产业单位属性
+      SGS_CYDW_AUDIT: zlDwpzData.data.sgsCydwAudit,
+      // 是否需要市级产业单位审核
+      XGS_GDDW_AUDIT: zlDwpzData.data.xgsGddwAudit,
+      // 是否需要县级供电单位审核
+      SGS_GDDW_AUDIT: zlDwpzData.data.sgsGddwAudit,
+      // 是否需要市级供电单位审核
+      FQBM_UNICODE: zlDwpzData.data.bmUnicode,
+      // 发起部门性质
+      FQDWSX: zlDwpzData.data.sx,
+      // 发起单位产业单位属性
       FQDWID: zlDwpzData.data.dwId // 发起单位ID
     }
   }
 }
-
 const submitZlxqshWorkflowHandle = (submitListIds: any, getDataRes: any, ctbm: string) => {
   const wfUserInfo: WFUserInfo = {
     userId: store.getters.getUserMsg.id,
     spOrgId: userInfo.value.deptId || '',
     spRoleId: userInfo.value.spRoleId || ''
   }
-
   wfParam.value.XMIDS = submitListIds
   wfParam.value.FQZZ = userInfo.value.fqzzFlag //市县 CITY OR COUNTY
   wfParam.value.FQBM = userInfo.value.specialorgcode === 'BM_CWZC' ? 'CWB' : 'YWB' //CWB
@@ -684,7 +680,6 @@ const submitZlxqshWorkflowHandle = (submitListIds: any, getDataRes: any, ctbm: s
   loading.value = true
   submitWorkflow(store.getters.getUserMsg.systemCode, wfCode.value, '', wfUserInfo, wfParam.value, {}, submitWFCallback)
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
   loading.value = true
   let spfrom = {
@@ -712,7 +707,6 @@ const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
     })
   }
 }
-
 const exportHandle = () => {
   loading.value = true
   const params = {
@@ -739,7 +733,6 @@ const exportHandle = () => {
     loading.value = false
   })
 }
-
 const processHandle = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -747,7 +740,6 @@ const processHandle = () => {
     useProcess(records, processData)
   }
 }
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   columnConfig: {
@@ -764,11 +756,12 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   columns: [],
   rowStyle: ({ row, rowIndex }: any) => {
     if (['Q01', 'Q02'].includes(row['zt'])) {
-      return { color: 'red' }
+      return {
+        color: 'red'
+      }
     }
   }
 })
-
 const getDynamicTable = async () => {
   const res = await getDynamicTableByUser({
     searchCode: searchCode.value,
@@ -796,14 +789,12 @@ const getDynamicTable = async () => {
     })
   }
 }
-
 const showHandle = async () => {
   await getDynamicTable()
   await searchDataHandle()
   await searchConfigHandle()
   startGuide()
 }
-
 const cellClickHandle = async (row: any, flag: string) => {
   const compRef = gridRef
   await compRef.value.clearCheckboxRow()
@@ -824,7 +815,6 @@ const getPublicCode = async () => {
     ElMessage.error(error.message)
   }
 }
-
 watch(
   () => store.getters.getZlGlobalInfo,
   (newVal) => {
@@ -836,7 +826,6 @@ watch(
     deep: true
   }
 )
-
 onMounted(async () => {
   getPublicCode()
   const isRoel = await useUser('getZlGlobalInfo')
@@ -851,7 +840,6 @@ onMounted(async () => {
     await userDialogRef.value.getUser()
   }
 })
-
 defineExpose({
   isShowModal,
   loading

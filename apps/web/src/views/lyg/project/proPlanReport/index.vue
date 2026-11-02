@@ -25,7 +25,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/lyg/project/proPlanReport/index" })
 import { onMounted, ref, reactive, nextTick, h, toRefs } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import ProTable from '@/components/ProTablePage/index.vue'
@@ -40,6 +39,7 @@ import { formatNumValue } from '@/utils/utils'
 import ElTreeSelect from '@/components/ElTreeSelect/index'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { getEjdwList, getYjdwList } from '@/api/ai/smartTaskAudit'
+defineOptions({ name: "/lyg/project/proPlanReport/index" })
 
 // ========== 响应式状态 ==========
 const userDialogRef = ref()

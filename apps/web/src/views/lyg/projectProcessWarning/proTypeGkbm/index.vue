@@ -44,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/lyg/projectProcessWarning/proTypeGkbm/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -52,6 +51,7 @@ import { VXETable } from 'vxe-table'
 import ProTable from '@/components/ProTablePage/index.vue'
 import maintModal from '@/views/lyg/projectProcessWarning/proTypeGkbm/components/maintModal/index.vue'
 import { configPage, configRemove } from '@/api/lyg/index'
+defineOptions({ name: "/lyg/projectProcessWarning/proTypeGkbm/index" })
 
 // ========== 类型定义 ==========
 

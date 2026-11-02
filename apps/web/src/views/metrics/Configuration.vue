@@ -124,13 +124,9 @@
   <ndCopy ref="ndCpoyRef" @handler-copy="handlerCopy" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/metrics/Configuration'
-}
-</script>
+
 <script setup lang="ts">
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { onMounted, ref, reactive, nextTick, computed } from 'vue'
 import { ElMessage, ElMessageBox, ElInput } from 'element-plus'
 import {
@@ -148,6 +144,10 @@ import { useRoute } from 'vue-router'
 import chooseTree from '@/components/select/chooseTree.vue'
 import tableBtn from '@/views/metrics/components/tableBtn.vue'
 import ndCopy from '@/views/metrics/components/ndCopy.vue'
+defineOptions({
+  name: '/metrics/Configuration'
+})
+ //表格组件
 
 const route = useRoute()
 const chooseNode = ref<any>({}) //节点id
@@ -166,12 +166,24 @@ const modalParams = reactive<any>({
 })
 const rmarkData = ref<any>({}) //FROM表单
 const isRecState = ref<any>([
-  { code: '1', name: '启用' },
-  { code: '0', name: '停用' }
+  {
+    code: '1',
+    name: '启用'
+  },
+  {
+    code: '0',
+    name: '停用'
+  }
 ])
 const isShow = ref<any>([
-  { code: '1', name: '是' },
-  { code: '0', name: '否' }
+  {
+    code: '1',
+    name: '是'
+  },
+  {
+    code: '0',
+    name: '否'
+  }
 ])
 const tjfs = ref<any[]>([])
 const rules = reactive<any>({
@@ -230,11 +242,9 @@ const defaultExpandKeys = computed(() => {
   })
   return keys
 })
-
 onMounted(async () => {
   await initParamLists()
 })
-
 const handlerClick = async (val: any) => {
   if (['EDIT', 'DELETE'].includes(val) && proTableRef.value?.selectedList.length != 1) {
     return ElMessage.warning('请选择一条数据')
@@ -267,7 +277,9 @@ const handlerClick = async (val: any) => {
       type: 'warning'
     })
       .then(async () => {
-        let res: any = await batchDeleteConfig({ configIds: proTableRef.value?.selectedList[0].configId })
+        let res: any = await batchDeleteConfig({
+          configIds: proTableRef.value?.selectedList[0].configId
+        })
         if (res.success) {
           ElMessage.success('删除成功！')
           await menuData()
@@ -302,7 +314,9 @@ const handlerCopy = async (val: any) => {
 
 // 获取选择的单位
 const dataDetail = async () => {
-  let res: any = await getDataDetail({ configId: proTableRef.value?.selectedList[0].configId })
+  let res: any = await getDataDetail({
+    configId: proTableRef.value?.selectedList[0].configId
+  })
   if (res.success) {
     rmarkData.value.dataDetails = res.data
     proDataRef.value?.clearSelection()
@@ -358,8 +372,15 @@ const closeHandle = () => {
   modalParams.isShow = false
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'configName',
     label: '名称'
@@ -420,8 +441,15 @@ const tableColumns = reactive<any>([
   }
 ])
 const DWColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'dwName',
     label: '单位名称'
@@ -450,7 +478,9 @@ const handlerBtn = async (val: any, selectedList: any) => {
       .then(async () => {
         if (selectedList[0].detailId) {
           const detailIds: any = selectedList.map((item: any) => item.detailId).join(',')
-          let res: any = await deleteDataDetail({ detailIds: detailIds })
+          let res: any = await deleteDataDetail({
+            detailIds: detailIds
+          })
           if (res.success) {
             ElMessage.success('删除成功！')
             await dataDetail()

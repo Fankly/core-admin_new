@@ -9,173 +9,152 @@
   <FormDialog @clear-data="clearDataHandle" :editData="editData" :operationFlag="operationFlag" @updateTable="updateTableHandle" :treeParams="treeParams" :dialogData="dialogData" ref="formDialogRef" :initParams="initParams"></FormDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: "/metrics/configData/budgetStatisticsConfig"
-};
-</script>
 
 <script setup lang="ts">
-import Header from "@/views/metrics/components/Header.vue";
-import TreeTable from "@/views/metrics/components/TreeTable.vue";
-import MainTable from "@/views/metrics/components/MainTable.vue";
-import FormDialog from "@/views/metrics/components/FormDialog.vue";
-import { nextTick, onMounted, reactive, ref } from "vue";
-import { ElMessage } from "element-plus";
-import { batchDeleteConfig } from "@/api/statistics/budgetStatisticsConfig";
-import { VXETable } from "vxe-table";
-import { useRoute } from "vue-router";
+import Header from '@/views/metrics/components/Header.vue'
+import TreeTable from '@/views/metrics/components/TreeTable.vue'
+import MainTable from '@/views/metrics/components/MainTable.vue'
+import FormDialog from '@/views/metrics/components/FormDialog.vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import { batchDeleteConfig } from '@/api/statistics/budgetStatisticsConfig'
+import { VXETable } from 'vxe-table'
+import { useRoute } from 'vue-router'
+defineOptions({
+  name: '/metrics/configData/budgetStatisticsConfig'
+})
 
 export type InitParams = {
-  nd: string;
-  busiType: string;
-};
-
-const route = useRoute();
-const formDialogRef = ref();
-const treeTableRef = ref();
-const mainTableRef = ref();
-const operationFlag = ref("");
-
-const treeParams = ref<any>(null);
-const mainTableData = ref<any>([]);
-
-const editData = ref("");
-
+  nd: string
+  busiType: string
+}
+const route = useRoute()
+const formDialogRef = ref()
+const treeTableRef = ref()
+const mainTableRef = ref()
+const operationFlag = ref('')
+const treeParams = ref<any>(null)
+const mainTableData = ref<any>([])
+const editData = ref('')
 const dialogData = reactive({
-  title: ""
-});
-
+  title: ''
+})
 const pageInfo = reactive({
   isShowPage: true
-});
-
+})
 const initParams = reactive<InitParams>({
-  nd: "",
+  nd: '',
   busiType: route.query.busiType
-});
-
+})
 const deleteDataHandle = async () => {
-  const $table = mainTableRef.value.mainTableRef;
+  const $table = mainTableRef.value.mainTableRef
   if ($table) {
-    const records = $table.getCheckboxRecords();
+    const records = $table.getCheckboxRecords()
     if (records.length === 0) {
-      ElMessage.warning("请选择一条数据进行删除！");
-      return;
+      ElMessage.warning('请选择一条数据进行删除！')
+      return
     }
-    let index = records.findIndex((item: any) => item.recState === "1");
-
+    let index = records.findIndex((item: any) => item.recState === '1')
     if (index !== -1) {
-      ElMessage.warning("存在启用状态的数据,无法删除！");
-      return;
+      ElMessage.warning('存在启用状态的数据,无法删除！')
+      return
     }
-    const configIds = records.map((item: any) => item.configId).join(",");
-    const type = await VXETable.modal.confirm("是否确定删除？", "提示", {
-      status: "warning"
-    });
-    if (type === "confirm") {
-      mainTableRef.value.mainLoading = true;
-      let res = await batchDeleteConfig(configIds);
+    const configIds = records.map((item: any) => item.configId).join(',')
+    const type = await VXETable.modal.confirm('是否确定删除？', '提示', {
+      status: 'warning'
+    })
+    if (type === 'confirm') {
+      mainTableRef.value.mainLoading = true
+      let res = await batchDeleteConfig(configIds)
       if (res.success) {
-        ElMessage.success("删除成功！");
-        await updateTableHandle();
-        mainTableRef.value.mainLoading = false;
+        ElMessage.success('删除成功！')
+        await updateTableHandle()
+        mainTableRef.value.mainLoading = false
         // 更新数据
       } else {
-        ElMessage.error(res.msg);
-        mainTableRef.value.mainLoading = false;
+        ElMessage.error(res.msg)
+        mainTableRef.value.mainLoading = false
       }
     }
   }
-};
+}
 
 // 新增
 const addOrEditDataHandle = (flag: string) => {
-  sessionStorage.setItem("GkBmYsZxFx", "YsZxFx");
-  dialogData.title = flag === "ADD" ? "新增-预算统计配置" : "编辑-预算统计配置";
-  if (flag === "EDIT") {
-    const $table = mainTableRef.value.mainTableRef;
+  sessionStorage.setItem('GkBmYsZxFx', 'YsZxFx')
+  dialogData.title = flag === 'ADD' ? '新增-预算统计配置' : '编辑-预算统计配置'
+  if (flag === 'EDIT') {
+    const $table = mainTableRef.value.mainTableRef
     if ($table) {
-      const records = $table.getCheckboxRecords();
+      const records = $table.getCheckboxRecords()
       if (records.length !== 1) {
-        ElMessage.warning("请选择一条数据进行编辑！");
-        return;
+        ElMessage.warning('请选择一条数据进行编辑！')
+        return
       }
-      editData.value = records[0];
+      editData.value = records[0]
     }
   }
-  operationFlag.value = flag;
-  formDialogRef.value.showModal = true;
-};
-
-
-
+  operationFlag.value = flag
+  formDialogRef.value.showModal = true
+}
 const changeNdHandle = async (val: string) => {
-  initParams.nd = val;
-  treeParams.value = null;
-  const $table = treeTableRef.value;
+  initParams.nd = val
+  treeParams.value = null
+  const $table = treeTableRef.value
   if ($table) {
-    $table.expandData();
+    $table.expandData()
     // 更新右边数据
-    await $table.getTableData(val);
+    await $table.getTableData(val)
   }
-};
-
+}
 const treeTableChangeHandle = (val: any) => {
-  treeParams.value = val;
-};
-
+  treeParams.value = val
+}
 const mainTableDataHandle = (val: any[]) => {
-  mainTableRef.value.mainLoading = true;
-  mainTableData.value = val;
-  mainTableRef.value.mainLoading = false;
-};
-
+  mainTableRef.value.mainLoading = true
+  mainTableData.value = val
+  mainTableRef.value.mainLoading = false
+}
 const updateTableHandle = async () => {
   // 更新树形表格和右边表格
-  const $table = treeTableRef.value;
+  const $table = treeTableRef.value
   if ($table) {
-    const $treeTable = $table.treeRef;
-    let curData = $treeTable.getCurrentRecord();
-    await treeTableRef.value.getTreeTable();
-    let dataList = treeTableRef.value.treeData;
-    let selectId = curData.id;
-    await expandAndSelectNode(dataList, selectId, $treeTable);
+    const $treeTable = $table.treeRef
+    let curData = $treeTable.getCurrentRecord()
+    await treeTableRef.value.getTreeTable()
+    let dataList = treeTableRef.value.treeData
+    let selectId = curData.id
+    await expandAndSelectNode(dataList, selectId, $treeTable)
     // 更新右边数据
-    await $table.getTableData(selectId);
+    await $table.getTableData(selectId)
   }
-};
-
+}
 const findPath = (data: any[], targetId: string, path: any[] = []) => {
   for (const item of data) {
     if (item.id === targetId) {
-      return [...path, item];
+      return [...path, item]
     }
     if (item.children && item.children.length) {
-      const found: any = findPath(item.children, targetId, [...path, item]);
-      if (found) return found;
+      const found: any = findPath(item.children, targetId, [...path, item])
+      if (found) return found
     }
   }
-  return null;
-};
-
+  return null
+}
 const expandAndSelectNode = async (dataList: any[], targetId: string, treeTableRef: any) => {
-  const path = findPath(dataList, targetId);
+  const path = findPath(dataList, targetId)
   if (path) {
     path.forEach((node: any) => {
-      treeTableRef.setTreeExpand(node, true);
-    });
-    await nextTick();
-    const targetNode = path[path.length - 1];
-    treeTableRef.setCurrentRow(targetNode);
+      treeTableRef.setTreeExpand(node, true)
+    })
+    await nextTick()
+    const targetNode = path[path.length - 1]
+    treeTableRef.setCurrentRow(targetNode)
   }
-};
-
+}
 const clearDataHandle = () => {
-  editData.value = "";
-};
-
-
+  editData.value = ''
+}
 </script>
 
 <style scoped lang="less">

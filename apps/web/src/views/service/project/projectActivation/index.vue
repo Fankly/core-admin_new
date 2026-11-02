@@ -227,9 +227,7 @@
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Operation as EpOperation } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/service/project/projectActivation/index" })
-import UserDialog from '@/components/select/userDialog.vue' //登陆权限
+import UserDialog from '@/components/select/userDialog.vue'
 import ColSetting from '@/views/service/project/projectActivation/components/ColSetting.vue'
 import OperationModal from '@/views/service/project/projectActivation/components/OperationModal.vue'
 import HistoryModal from '@/views/service/project/projectActivation/components/HistoryModal.vue'
@@ -245,6 +243,8 @@ import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import { SearchForm } from '@/views/service/project/projectActivation/interface'
 import { getPageData, exportPageData } from '@/api/service/xmgbdk'
 import { ElMessage } from 'element-plus'
+defineOptions({ name: "/service/project/projectActivation/index" })
+ //登陆权限
 
 const helpModalRef = ref<InstanceType<typeof HelpModal>>()
 const userDialogRef = ref<InstanceType<typeof UserDialog>>()

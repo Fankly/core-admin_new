@@ -10,16 +10,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineExpose, defineProps, reactive } from "vue";
-import { getIndicatorDynamicColumn, getIndicatorsDataListByDw } from "@/api/report";
-
+import { ref, reactive } from 'vue'
+import { getIndicatorDynamicColumn, getIndicatorsDataListByDw } from '@/api/report'
 interface Props {
-  clickTableData: any;
+  clickTableData: any
 }
-
-const props = defineProps<Props>();
-const gridRef = ref();
-
+const props = defineProps<Props>()
+const gridRef = ref()
 const gridOptions = reactive<any>({
   border: true,
   stripe: true,
@@ -27,8 +24,8 @@ const gridOptions = reactive<any>({
   columnConfig: {
     resizable: true
   },
-  align: "center",
-  headerAlign: "center",
+  align: 'center',
+  headerAlign: 'center',
   showOverflow: true,
   showHeaderOverflow: true,
   rowConfig: {
@@ -36,26 +33,23 @@ const gridOptions = reactive<any>({
   },
   columns: [],
   data: []
-});
-
+})
 const exportHandle = () => {
-  const $table = gridRef.value;
+  const $table = gridRef.value
   if ($table) {
     $table.exportData({
-      sheetName: "成本性项目三率报表-按单位-进度指标",
-      type: "xlsx",
-      filename: "成本性项目三率报表-按单位-进度指标",
+      sheetName: '成本性项目三率报表-按单位-进度指标',
+      type: 'xlsx',
+      filename: '成本性项目三率报表-按单位-进度指标',
       useStyle: true
-    });
+    })
   }
-};
-
-const isShowModal = ref(false);
-
+}
+const isShowModal = ref(false)
 const showHandle = async () => {
-  let indicators = "";
+  let indicators = ''
   if (props.clickTableData.indicators && props.clickTableData.indicators.length !== 0) {
-    indicators = props.clickTableData.indicators.join(",");
+    indicators = props.clickTableData.indicators.join(',')
   }
   const resColumn = await getIndicatorDynamicColumn({
     dwId: props.clickTableData.dwId,
@@ -64,9 +58,9 @@ const showHandle = async () => {
     itemId: props.clickTableData.itemId,
     proType: props.clickTableData.proType,
     startDate: props.clickTableData.startDate
-  });
+  })
   if (resColumn.success) {
-    gridOptions.columns = resColumn.data;
+    gridOptions.columns = resColumn.data
   }
   const res = await getIndicatorsDataListByDw({
     dwId: props.clickTableData.dwId,
@@ -75,15 +69,14 @@ const showHandle = async () => {
     itemId: props.clickTableData.itemId,
     proType: props.clickTableData.proType,
     startDate: props.clickTableData.startDate
-  });
+  })
   if (res.success) {
-    gridOptions.data = res.data;
+    gridOptions.data = res.data
   }
-};
-
+}
 defineExpose({
   isShowModal
-});
+})
 </script>
 
 <style scoped>

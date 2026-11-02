@@ -42,20 +42,13 @@
   <CentralizedModification ref="editPageRef" :userInfo="userInfo" :formData="selectData" :flag="'VIEW'" />
 </template>
 
-<script lang="tsx">
-import { EditPen as EpEditPen } from '@element-plus/icons-vue'
-import { ElIcon } from 'element-plus'
-export default {
-  name: 'ReViewModal'
-}
-</script>
 
 <script setup lang="tsx">
-import { ref, reactive } from 'vue'
+import { EditPen as EpEditPen } from '@element-plus/icons-vue'
+import { ElIcon, ElMessage, ElInput, ElSelect, ElOption } from 'element-plus'
+import { ref, reactive, h } from 'vue'
 import { removeZgkbmNckXm, exportLinkedNckXmInfoForZgkbmYs, pageLinkedNckXmInfoForZgkbmYs, updateZgkbmNckXm } from '@/api/lslxJsc/szyBmApi'
 import { formatNumValue } from '@/utils/utils'
-import { ElMessage, ElInput, ElSelect, ElOption } from 'element-plus'
-import { h } from 'vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import ProTable from '@/components/ProTable/index.vue'
 import { getCommonCodeByParentCode, getSubProtypeTree, getYjdwFromCm, getPublicData } from '@/api/common'
@@ -64,21 +57,21 @@ import PendingTrialModal from '@/views/service/lslxJsc/ysysszytb/components/Pend
 import { VXETable } from 'vxe-table'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
 import { apiExportHandle } from '@/utils/export'
+defineOptions({
+  name: 'ReViewModal'
+})
 
 interface ModalProps {
   title: string
   isView: boolean
   formData: any
 }
-
 const props = defineProps<ModalProps>()
 const emit = defineEmits(['getClose'])
-
 const proTableRef = ref()
 const pendingTrialModalRef = ref()
 const oldData = ref<any[]>([])
 const newData = ref<any[]>([])
-
 const selectData = ref<any>({}) //弹窗参数
 const editPageRef = ref() //弹窗元素
 const userInfo = ref<any>() // 用户角色
@@ -89,15 +82,12 @@ const projectTypeList: any = ref([])
 const ndDataList: any = ref([])
 const xmxzList = ref<any[]>([])
 const searchData = ref<any>({})
-
 const rowClick = (row: any) => {
   clearSelectRow()
   proTableRef.value?.element.toggleRowSelection(row)
 }
-
 const loading = ref(false)
 const modalVisible = ref(false)
-
 const closeHandle = () => {
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
@@ -106,7 +96,6 @@ const closeHandle = () => {
   xmxzList.value.length = 0
   emit('getClose', true)
 }
-
 const getYjdwEnum = async () => {
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
@@ -127,7 +116,6 @@ const getYjdwEnum = async () => {
     xmxzList.value.push(...root.data)
   }
 }
-
 const clearSelect = () => {
   ejdwListData.value.length = 0
   proTableRef.value?.clearSelection()
@@ -137,11 +125,9 @@ const clearSelectRaw = () => {
   ejdwListData.value.length = 0
   proTableRef.value?.clearSelection()
 }
-
 const clearSelectRow = () => {
   proTableRef.value?.clearSelection()
 }
-
 const changeEjdwEnum = async (val: string) => {
   ejdwListData.value.length = 0
   proTableRef.value.searchParam.ejdw = ''
@@ -158,7 +144,6 @@ const changeEjdwEnum = async (val: string) => {
   } else {
   }
 }
-
 const proTypeProps = {
   label: 'name',
   children: 'children',
@@ -178,10 +163,16 @@ const getProjectData = () => {
     }
   })
 }
-
 const xmColumns = reactive<any[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'versionNo',
     label: '版本编号',
@@ -219,7 +210,9 @@ const xmColumns = reactive<any[]>([
     search: {
       order: 4,
       render: (scope: any) => {
-        return <ElTreeSelect clearable data={projectTypeList.value} props={proTypeProps} nodeKey={'middleId'} modelValue={scope.modelValue} />
+        return (
+          <ElTreeSelect clearable data={projectTypeList.value} props={proTypeProps} nodeKey={'middleId'} modelValue={scope.modelValue} />
+        )
       }
     },
     render: ({ row }: any) => {
@@ -229,9 +222,15 @@ const xmColumns = reactive<any[]>([
   {
     prop: 'jhssnd',
     label: '计划实施年份',
-    search: { el: 'select', order: 4 },
+    search: {
+      el: 'select',
+      order: 4
+    },
     enum: ndDataList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     width: '120',
     render: ({ row }: any) => {
       const value = row.jhssnd
@@ -244,7 +243,12 @@ const xmColumns = reactive<any[]>([
     label: '项目性质',
     width: '160',
     headerRender: () => {
-      return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '项目性质'])
+      return h('span', [
+        h(ElIcon, null, {
+          default: () => h(EpEditPen)
+        }),
+        '项目性质'
+      ])
     },
     render: ({ row }: any) => {
       return h(
@@ -253,7 +257,10 @@ const xmColumns = reactive<any[]>([
           disabled: row.jhssnd == props.formData.nd || !props.isView,
           modelValue: row.xmxz,
           'onUpdate:modelValue': (val: any) => (row.xmxz = val),
-          inputStyle: { border: '1px solid #fff;', textAlign: 'center' }
+          inputStyle: {
+            border: '1px solid #fff;',
+            textAlign: 'center'
+          }
         },
         () =>
           xmxzList.value.map((option) =>
@@ -271,7 +278,12 @@ const xmColumns = reactive<any[]>([
     label: '申报金额（不含税）',
     width: '180',
     headerRender: () => {
-      return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '申报金额（不含税）'])
+      return h('span', [
+        h(ElIcon, null, {
+          default: () => h(EpEditPen)
+        }),
+        '申报金额（不含税）'
+      ])
     },
     render: ({ row }: any) => {
       return h(ElInput, {
@@ -286,7 +298,10 @@ const xmColumns = reactive<any[]>([
             ElMessage.warning('申报金额不小于零且小于等于项目总金额')
           }
         },
-        inputStyle: { border: '1px solid #fff;', textAlign: 'right' }
+        inputStyle: {
+          border: '1px solid #fff;',
+          textAlign: 'right'
+        }
       })
     }
   },
@@ -306,9 +321,18 @@ const xmColumns = reactive<any[]>([
     prop: 'yjdw',
     label: '一级单位',
     width: '180',
-    search: { el: 'select', props: { onChange: changeEjdwEnum }, order: 2 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: changeEjdwEnum
+      },
+      order: 2
+    },
     enum: yjdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.yjdw
     }
@@ -317,9 +341,15 @@ const xmColumns = reactive<any[]>([
     prop: 'ejdw',
     label: '二级单位',
     width: '180',
-    search: { el: 'select', order: 3 },
+    search: {
+      el: 'select',
+      order: 3
+    },
     enum: ejdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.ejdw
     }
@@ -393,7 +423,6 @@ const handleSaveProject = async () => {
     }
   }
 }
-
 const handleAddPendingTrial = (title: string) => {
   const params = {
     title,
@@ -401,13 +430,11 @@ const handleAddPendingTrial = (title: string) => {
   }
   pendingTrialModalRef.value?.acceptParams(params)
 }
-
 const handleProView = (selectedList: any[]) => {
   selectData.value.id = selectedList[0].xmId
   selectData.value.xmlx = selectedList[0].proType
   editPageRef.value.isShowModal = true
 }
-
 const handleDeleteData = async (selectedList: any[]) => {
   const type = await VXETable.modal.confirm('确认删除选择的项目？', '温馨提示', {
     status: 'warning'
@@ -432,7 +459,6 @@ const handleDeleteData = async (selectedList: any[]) => {
     }
   }
 }
-
 const handleExport = () => {
   try {
     const params = {
@@ -446,15 +472,18 @@ const handleExport = () => {
     ElMessage.error(error.message)
   }
 }
-
 const getPageList = (params: any) => {
   loading.value = true
-  params = { ...props?.formData, ...params }
+  params = {
+    ...props?.formData,
+    ...params
+  }
   params['xmbmList'] = params['xmbm'] ? params['xmbm'].split(',') : []
-  searchData.value = { ...params }
+  searchData.value = {
+    ...params
+  }
   return pageLinkedNckXmInfoForZgkbmYs(params)
 }
-
 const callBackHandle = (val: any) => {
   if (val && val.records) {
     loading.value = false
@@ -463,13 +492,11 @@ const callBackHandle = (val: any) => {
     return val
   }
 }
-
 const acceptParams = () => {
   getYjdwEnum()
   getProjectData()
   modalVisible.value = true
 }
-
 defineExpose({
   acceptParams
 })

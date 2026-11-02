@@ -2,22 +2,20 @@
   <RenderColumn v-bind="column" />
 </template>
 
-<script lang="tsx">
-export default {
-  name: 'TableColumn'
-}
-</script>
+
 <script setup lang="tsx">
 import { EnumMapInjectionKey } from '@/components/ProTable/interface'
-
 import { inject, ref, useSlots } from 'vue'
 import { ColumnProps, RenderScope, HeaderRenderScope } from '@/components/ProTablesource/interface'
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from '@/utils'
+defineOptions({
+  name: 'TableColumn'
+})
 
-defineProps<{ column: ColumnProps }>()
-
+defineProps<{
+  column: ColumnProps
+}>()
 const slots = useSlots()
-
 const enumMap = inject(EnumMapInjectionKey, ref(new Map()))
 
 // 字段来源说明行显示状态
@@ -34,12 +32,15 @@ const renderCellData = (item: ColumnProps, scope: RenderScope<any>) => {
 const getTagType = (item: ColumnProps, scope: RenderScope<any>) => {
   return filterEnum(handleRowAccordingToProp(scope.row, item.prop!), enumMap.value.get(item.prop), item.fieldNames, 'tag') || 'primary'
 }
-
 const RenderTableColumn = (item: ColumnProps) => {
   return (
     <>
       {item.isShow && (
-        <el-table-column {...item} align={item.align ?? 'center'} showOverflowTooltip={item.showOverflowTooltip ?? item.prop !== 'operation'}>
+        <el-table-column
+          {...item}
+          align={item.align ?? 'center'}
+          showOverflowTooltip={item.showOverflowTooltip ?? item.prop !== 'operation'}
+        >
           {{
             default: (scope: RenderScope<any>) => {
               if (item._children) return item._children.map((child) => RenderColumn(child))
@@ -70,7 +71,6 @@ const RenderTableColumn = (item: ColumnProps) => {
     </>
   )
 }
-
 const RenderColumn = (item: ColumnProps) => {
   return RenderTableColumn(item)
 }

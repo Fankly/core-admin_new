@@ -6,23 +6,25 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle" />
   <reporting ref="reportTable" @loadCompany="getRoleHandle" :formData="formData" :title="'预计结余-上报'" />
 </template>
-<script lang="ts">
-export default {
-  name: '/service/balanceReporting/balanceCity'
-}
-</script>
+
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import userDialog from '@/components/select/userDialog.vue' //登陆权限
-import viewTable from '@/views/service/balanceReporting/components/table.vue' //表格组件
-import reporting from '@/views/service/balanceReporting/components/reporting.vue' //表格组件
+import userDialog from '@/components/select/userDialog.vue'
+import viewTable from '@/views/service/balanceReporting/components/table.vue'
+import reporting from '@/views/service/balanceReporting/components/reporting.vue'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/service/balanceReporting/balanceCity'
+})
+
+ //登陆权限
+ //表格组件
+ //表格组件
 
 const userDialogRef = ref()
 const reportTable = ref()
 const tableRef = ref()
-
 const pageInfo = reactive({
   loading: false,
   isShowPage: false
@@ -35,7 +37,9 @@ onMounted(() => {
 })
 const getRoleHandle = () => {
   pageInfo.loading = false
-  const userInfo = { ...userDialogRef.value?.userMsg }
+  const userInfo = {
+    ...userDialogRef.value?.userMsg
+  }
   const isQuery = userDialogRef.value?.isQuery
   if (isQuery) {
     specialorgid.value = userInfo.org_id
@@ -55,7 +59,6 @@ const clickBtn = (val: any) => {
   try {
     const selectedVersion = getSelectedVersion(val)
     if (!selectedVersion?.versionId) return
-
     formData.value = {
       versionId: selectedVersion.versionId,
       specialorgid: specialorgid.value,
@@ -66,7 +69,6 @@ const clickBtn = (val: any) => {
       versionFlag: selectedVersion.versionFlag
     }
     if (!reportTable.value) return
-
     reportTable.value.isShowModel = true
     reportTable.value.getHeaderData?.({
       versionId: selectedVersion.versionId,

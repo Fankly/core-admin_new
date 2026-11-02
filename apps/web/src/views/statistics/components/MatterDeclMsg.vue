@@ -138,97 +138,87 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "MatterDeclMsg"
-};
-</script>
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
-
-import { getChildData } from "@/api/matter/yssxMatter";
-import { getYssxDetailByCity } from "@/api/statistics/yssxtjfx";
-import { Decimal } from "decimal.js";
-import { ElMessage } from "element-plus";
-import { ref, defineProps, toRef, watch } from "vue";
-import { DetailParams, RowVo } from "../interface";
+import { getChildData } from '@/api/matter/yssxMatter'
+import { getYssxDetailByCity } from '@/api/statistics/yssxtjfx'
+import { Decimal } from 'decimal.js'
+import { ElMessage } from 'element-plus'
+import { ref, toRef, watch } from 'vue'
+import { DetailParams, RowVo } from '../interface'
+defineOptions({
+  name: 'MatterDeclMsg'
+})
 
 interface Props {
-  detailParams: RowVo & DetailParams;
+  detailParams: RowVo & DetailParams
 }
-
-const props = defineProps<Props>();
-
-const isShowSearch = ref(false);
-const isShowTable = ref(false);
-const isShowOutbound = ref(false);
-const totalSum = ref(0);
-
-const unitTableData = ref([]);
-
-const matterBaseMsg = toRef(props, "detailParams");
-
+const props = defineProps<Props>()
+const isShowSearch = ref(false)
+const isShowTable = ref(false)
+const isShowOutbound = ref(false)
+const totalSum = ref(0)
+const unitTableData = ref([])
+const matterBaseMsg = toRef(props, 'detailParams')
 const getSummaries = (params: any) => {
-  const { columns, data } = params;
-  const sums: any = [];
+  const { columns, data } = params
+  const sums: any = []
   columns.forEach((column: any, index: any) => {
     if (index === 0) {
-      sums[index] = "合计";
-      return;
+      sums[index] = '合计'
+      return
     }
     if (data) {
-      const values = data.map((item: any) => item[column.property]);
-      if (column.property === "fjYs") {
-        if (!values.every((value: any) => isNaN(value) && value !== "")) {
+      const values = data.map((item: any) => item[column.property])
+      if (column.property === 'fjYs') {
+        if (!values.every((value: any) => isNaN(value) && value !== '')) {
           sums[index] = values.reduce((prev: any, curr: any) => {
-            let value = curr;
+            let value = curr
             if (!isNaN(value)) {
-              if (!value) value = 0;
-              return Decimal.add(prev, value);
+              if (!value) value = 0
+              return Decimal.add(prev, value)
             } else {
-              return prev;
+              return prev
             }
-          }, 0);
-          totalSum.value = sums[index];
-          sums[index] += " （万元）";
+          }, 0)
+          totalSum.value = sums[index]
+          sums[index] += ' （万元）'
         } else {
-          sums[index] = "";
+          sums[index] = ''
         }
       }
     }
-  });
-  return sums;
-};
-
+  })
+  return sums
+}
 const getTableData = async () => {
-  let res = null;
+  let res = null
   if (props.detailParams.isCity) {
-    res = await getYssxDetailByCity(matterBaseMsg.value.id);
+    res = await getYssxDetailByCity(matterBaseMsg.value.id)
   } else {
     res = await getChildData({
       id: matterBaseMsg.value.id,
       yssxId: matterBaseMsg.value.yssxId,
       jd: 2,
       specialorgid: matterBaseMsg.value.dwId
-    });
+    })
   }
   if (res.success) {
-    unitTableData.value = res.data;
+    unitTableData.value = res.data
   } else {
-    ElMessage.error(res.msg);
+    ElMessage.error(res.msg)
   }
-};
-
+}
 watch(
   () => matterBaseMsg.value.id,
   () => {
-    getTableData();
+    getTableData()
   },
   {
     immediate: true
   }
-);
+)
 </script>
 
 <style scoped lang="less">

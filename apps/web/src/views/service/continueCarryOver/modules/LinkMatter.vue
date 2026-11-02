@@ -64,8 +64,8 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "SqckConfirmTypeModal" })
 import { useLinkMatter } from './hooks/useLinkMatter'
+defineOptions({ name: "SqckConfirmTypeModal" })
 
 const {
   formRef,

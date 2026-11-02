@@ -1,120 +1,111 @@
-<script lang="ts">
-export default {
-  name: "/service/xq/main"
-};
-</script>
+
 
 <script setup lang="ts">
 import { Document as EpDocument, Search as EpSearch } from '@element-plus/icons-vue'
+import { getAppMenu } from '@/api/menu/menuConfig'
+import { getVal } from '@/api/service/expertinformation'
+import SvgIcon from '@/components/base/svg-icon/index'
+import userDialog from '@/components/select/userDialog.vue'
+import baseService from '@/service/baseService'
+import { MenuConfig } from '@/views/service/xq/interface'
+import { computed, onMounted, reactive, ref } from 'vue'
+import VChart from 'vue-echarts'
+import { useRouter } from 'vue-router'
+import { useStore } from '@/store/business'
+defineOptions({
+  name: '/service/xq/main'
+})
 
-import { getAppMenu } from "@/api/menu/menuConfig";
-import { getVal } from "@/api/service/expertinformation";
-import SvgIcon from "@/components/base/svg-icon/index";
-import userDialog from "@/components/select/userDialog.vue";
-import baseService from "@/service/baseService";
-import { MenuConfig } from "@/views/service/xq/interface";
-import { computed, onMounted, reactive, ref } from "vue";
-import VChart from "vue-echarts";
-import { useRouter } from "vue-router";
-import { useStore } from '@/store/business';
-const userDialogRef = ref();
-const userInfo = ref();
-const isShowPage = ref(false);
-const router = useRouter();
-const store = useStore();
-const flag = ref("");
+const userDialogRef = ref()
+const userInfo = ref()
+const isShowPage = ref(false)
+const router = useRouter()
+const store = useStore()
+const flag = ref('')
 const typeTotal = reactive({
   finishVal: 0,
   enterVal: 0,
   processVal: 0,
   draftVal: 0,
   rejectVal: 0
-});
+})
 const handelGetVal = async () => {
-  let res = await getVal();
+  let res = await getVal()
   if (res.success) {
-    typeTotal.finishVal = res.data.finishVal;
-    typeTotal.enterVal = res.data.enterVal;
-    typeTotal.processVal = res.data.processVal;
-    typeTotal.draftVal = res.data.draftVal;
-    typeTotal.rejectVal = res.data.rejectVal;
+    typeTotal.finishVal = res.data.finishVal
+    typeTotal.enterVal = res.data.enterVal
+    typeTotal.processVal = res.data.processVal
+    typeTotal.draftVal = res.data.draftVal
+    typeTotal.rejectVal = res.data.rejectVal
   }
-};
-
+}
 const searchData = reactive({
-  yjdw: "",
-  ejdw: "",
-  center: ""
-});
-
-const operationBtn = ref<MenuConfig[]>([]);
-const searchBtn = ref<MenuConfig[]>([]);
-
-const maxVisibleItems = 3;
-
+  yjdw: '',
+  ejdw: '',
+  center: ''
+})
+const operationBtn = ref<MenuConfig[]>([])
+const searchBtn = ref<MenuConfig[]>([])
+const maxVisibleItems = 3
 const visibleOperationBtn = computed(() => {
   if (operationBtn.value.length <= 4) {
-    return operationBtn.value;
+    return operationBtn.value
   }
-  return operationBtn.value.slice(0, maxVisibleItems);
-});
-
+  return operationBtn.value.slice(0, maxVisibleItems)
+})
 const hiddenOperationBtn = computed(() => {
   if (operationBtn.value.length <= 4) {
-    return [];
+    return []
   }
-  return operationBtn.value.slice(maxVisibleItems);
-});
-
+  return operationBtn.value.slice(maxVisibleItems)
+})
 const visibleSearchBtn = computed(() => {
   if (searchBtn.value.length <= 4) {
-    return searchBtn.value;
+    return searchBtn.value
   }
-  return searchBtn.value.slice(0, maxVisibleItems);
-});
-
+  return searchBtn.value.slice(0, maxVisibleItems)
+})
 const hiddenSearchBtn = computed(() => {
   if (searchBtn.value.length <= 4) {
-    return [];
+    return []
   }
-  return searchBtn.value.slice(maxVisibleItems);
-});
-
+  return searchBtn.value.slice(maxVisibleItems)
+})
 const showMoreOperationBtn = computed(() => {
-  return operationBtn.value.length > 4;
-});
-
+  return operationBtn.value.length > 4
+})
 const showMoreSearchBtn = computed(() => {
-  return searchBtn.value.length > 4;
-});
-
-const popoverVisible = ref(false);
-
+  return searchBtn.value.length > 4
+})
+const popoverVisible = ref(false)
 const handleRequired = async (MenuMsg: any) => {
-  let res = await baseService.get(`/sysMenu/getButtonList?menuCode=${MenuMsg.outsideMenu}&spRoleId=${userInfo.value.id}`);
+  let res = await baseService.get(`/sysMenu/getButtonList?menuCode=${MenuMsg.outsideMenu}&spRoleId=${userInfo.value.id}`)
   if (res.success) {
     if (res.success) {
-      store.commit("setPermissions", res.data);
+      store.commit('setPermissions', res.data)
     }
   }
-  popoverVisible.value = false;
+  popoverVisible.value = false
   router.push({
     name: MenuMsg.url,
-    params: { formJsc: "1" }
-  });
-};
-
+    params: {
+      formJsc: '1'
+    }
+  })
+}
 const getRoleHandle = async () => {
   try {
-    const isQuery = userDialogRef.value.isQuery;
-    userInfo.value = { ...userDialogRef.value.userMsg };
+    const isQuery = userDialogRef.value.isQuery
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
-      isShowPage.value = true;
-      const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfo.value.specialorgid}`);
+      isShowPage.value = true
+      const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfo.value.specialorgid}`)
       if (flagData.success && flagData.data) {
-        flag.value = flagData.data;
-        await handelGetVal();
-        store.commit("setXqGlobalInfo", {
+        flag.value = flagData.data
+        await handelGetVal()
+        store.commit('setXqGlobalInfo', {
           deptId: userInfo.value.specialorgid,
           deptName: userInfo.value.specialorgname,
           dwId: userInfo.value.org_id,
@@ -124,45 +115,44 @@ const getRoleHandle = async () => {
           spRoleId: userInfo.value.id,
           specialorgcode: userInfo.value.specialorgcode,
           fqzzFlag: flag.value
-        });
+        })
       }
     }
   } catch (e) {
-    console.error(e);
+    console.error(e)
   }
-};
-
+}
 const dwOBarOptions = reactive<any>({
   tooltip: {
-    trigger: "axis",
+    trigger: 'axis',
     axisPointer: {
-      type: "shadow"
+      type: 'shadow'
     }
   },
   grid: {
-    left: "5%",
-    right: "5%",
-    bottom: "5%",
-    top: "15%",
+    left: '5%',
+    right: '5%',
+    bottom: '5%',
+    top: '15%',
     containLabel: true
   },
   legend: {
-    data: ["草稿", "审核中", "已完成"],
+    data: ['草稿', '审核中', '已完成'],
     top: 0,
     right: 20,
     textStyle: {
-      color: "#6a6866"
+      color: '#6a6866'
     },
     itemWidth: 12,
     itemHeight: 10
   },
   xAxis: {
-    type: "category",
-    data: ["南京", "扬州", "苏州", "盐城", "常州", "泰州", "无锡", "徐州"],
+    type: 'category',
+    data: ['南京', '扬州', '苏州', '盐城', '常州', '泰州', '无锡', '徐州'],
     axisLine: {
       show: false,
       lineStyle: {
-        color: "#6a6866"
+        color: '#6a6866'
       }
     },
     axisTick: {
@@ -170,74 +160,73 @@ const dwOBarOptions = reactive<any>({
     },
     axisLabel: {
       textStyle: {
-        fontFamily: "Microsoft YaHei"
+        fontFamily: 'Microsoft YaHei'
       }
     }
   },
   yAxis: {
-    name: "单位:个",
+    name: '单位:个',
     nameTextStyle: {
-      color: "#9eaabb",
+      color: '#9eaabb',
       fontSize: 12
     },
-    type: "value",
+    type: 'value',
     axisLine: {
       show: false,
       lineStyle: {
-        color: "#939aa3"
+        color: '#939aa3'
       }
     },
     splitLine: {
       show: true,
       lineStyle: {
-        color: "#efefef"
+        color: '#efefef'
       }
     }
   },
   series: [
     {
-      name: "草稿",
-      type: "bar",
-      barWidth: "10%",
+      name: '草稿',
+      type: 'bar',
+      barWidth: '10%',
       itemStyle: {
-        color: "#01b998",
+        color: '#01b998',
         borderRadius: [12, 12, 0, 0]
       },
       data: [60, 64, 45, 42, 45, 14, 45, 14]
     },
     {
-      name: "审核中",
-      type: "bar",
-      barWidth: "10%",
+      name: '审核中',
+      type: 'bar',
+      barWidth: '10%',
       itemStyle: {
-        color: "#3ba9fd",
+        color: '#3ba9fd',
         borderRadius: [12, 12, 0, 0]
       },
       data: [80, 12, 60, 20, 40, 64, 54, 45]
     },
     {
-      name: "已完成",
-      type: "bar",
-      barWidth: "10%",
+      name: '已完成',
+      type: 'bar',
+      barWidth: '10%',
       itemStyle: {
-        color: "#f4a05d",
+        color: '#f4a05d',
         borderRadius: [12, 12, 0, 0]
       },
       data: [48, 12, 45, 12, 42, 42, 12, 75]
     }
   ]
-});
-
+})
 const cbBarOptions = reactive<any>({
   grid: {
-    left: "5%",
-    right: "5%",
-    bottom: "5%",
-    top: "15%",
+    left: '5%',
+    right: '5%',
+    bottom: '5%',
+    top: '15%',
     containLabel: true
   },
   xAxis: {
-    type: "value",
+    type: 'value',
     axisLine: {
       show: true
     },
@@ -246,13 +235,13 @@ const cbBarOptions = reactive<any>({
     }
   },
   yAxis: {
-    name: "单位:个",
+    name: '单位:个',
     nameTextStyle: {
-      color: "#9eaabb",
+      color: '#9eaabb',
       fontSize: 12
     },
-    type: "category",
-    data: ["发展部", "科技部", "配网部", "设备部", "营销部"],
+    type: 'category',
+    data: ['发展部', '科技部', '配网部', '设备部', '营销部'],
     axisLine: {
       show: true
     },
@@ -265,96 +254,103 @@ const cbBarOptions = reactive<any>({
   },
   series: [
     {
-      type: "bar",
+      type: 'bar',
       data: [50, 60, 70, 80, 90],
-      barWidth: "30%",
+      barWidth: '30%',
       showBackground: true,
-      barGap: "-100%",
+      barGap: '-100%',
       backgroundStyle: {
-        color: "rgba(243,243,243,1)"
+        color: 'rgba(243,243,243,1)'
       },
       itemStyle: {
-        color: "#1abc9c",
+        color: '#1abc9c',
         borderRadius: [0, 12, 12, 0]
       },
       label: {
         show: true,
-        position: "right",
+        position: 'right',
         fontSize: 14
       }
     }
   ]
-});
-
+})
 const pieOptions = reactive<any>({
   grid: {
-    left: "5%",
-    right: "5%",
-    bottom: "5%",
-    top: "15%",
+    left: '5%',
+    right: '5%',
+    bottom: '5%',
+    top: '15%',
     containLabel: true
   },
   tooltip: {
-    trigger: "item",
-    formatter: "{b}: {c} ({d}%)"
+    trigger: 'item',
+    formatter: '{b}: {c} ({d}%)'
   },
   series: [
     {
-      name: "项目状态",
-      type: "pie",
-      radius: "70%",
+      name: '项目状态',
+      type: 'pie',
+      radius: '70%',
       itemStyle: {
         borderRadius: 0
       },
       label: {
-        formatter: "{b}\n{d}%"
+        formatter: '{b}\n{d}%'
       },
       data: [
-        { value: 50, name: "已立项" },
-        { value: 30, name: "已储备" },
-        { value: 20, name: "未处理" }
+        {
+          value: 50,
+          name: '已立项'
+        },
+        {
+          value: 30,
+          name: '已储备'
+        },
+        {
+          value: 20,
+          name: '未处理'
+        }
       ],
       emphasis: {
         itemStyle: {
           shadowBlur: 10,
           shadowOffsetX: 0,
-          shadowColor: "rgba(0,0,0,0.5)"
+          shadowColor: 'rgba(0,0,0,0.5)'
         }
       }
     }
   ],
-  color: ["#01b998", "#3ba9fd", "#f4a05d"]
-});
-
+  color: ['#01b998', '#3ba9fd', '#f4a05d']
+})
 const lineOptions = reactive<any>({
   grid: {
-    left: "5%",
-    right: "5%",
-    bottom: "5%",
-    top: "15%",
+    left: '5%',
+    right: '5%',
+    bottom: '5%',
+    top: '15%',
     containLabel: true
   },
   xAxis: [
     {
-      type: "category",
+      type: 'category',
       boundaryGap: false,
-      data: ["主修设备大修", "配网运维检修", "研究开发", "低压台区维修", "调度常规运维"]
+      data: ['主修设备大修', '配网运维检修', '研究开发', '低压台区维修', '调度常规运维']
     }
   ],
   yAxis: [
     {
-      type: "value"
+      type: 'value'
     }
   ],
   series: {
-    type: "line",
+    type: 'line',
     smooth: true,
     itemStyle: {
-      color: "#01b998"
+      color: '#01b998'
     },
     areaStyle: {
       color: {
-        type: "linear",
+        type: 'linear',
         x: 0,
         y: 0,
         x2: 0,
@@ -362,34 +358,33 @@ const lineOptions = reactive<any>({
         colorStops: [
           {
             offset: 0,
-            color: "rgba(0, 112, 107,1)"
+            color: 'rgba(0, 112, 107,1)'
           },
           {
             offset: 1,
-            color: "rgba(255,255,255,1)"
+            color: 'rgba(255,255,255,1)'
           }
         ]
       }
     },
     data: [60, 90, 60, 50, 90]
   }
-});
-
+})
 onMounted(async () => {
   const operationRes = await getAppMenu({
-    appNo: "XQK",
-    label: "1"
-  });
+    appNo: 'XQK',
+    label: '1'
+  })
   const searchRes = await getAppMenu({
-    appNo: "XQK",
-    label: "2"
-  });
+    appNo: 'XQK',
+    label: '2'
+  })
   if (operationRes.success && searchRes.success) {
-    operationBtn.value = operationRes.data;
-    searchBtn.value = searchRes.data;
+    operationBtn.value = operationRes.data
+    searchBtn.value = searchRes.data
   }
-  await userDialogRef.value.getUser();
-});
+  await userDialogRef.value.getUser()
+})
 </script>
 
 <template>

@@ -86,32 +86,29 @@
     :formData="formData"
   />
 </template>
-<script lang="ts">
-export default {
-  name: '/lslxJsc/components/dwTable'
-}
-</script>
+
 <script setup lang="ts">
-import { reactive, ref, defineEmits, defineExpose } from 'vue'
+import { reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getPublicData } from '@/api/common' //公共代码
-import {
-  getZgkbmCollectionProgress,
-  passForZgkbmYs,
-  rejectForZgkbmYs
-} from '@/api/lslxJsc/szyBmApi'
-import zyReporting from '@/views/service/lslxJsc/ysysszyhd/components/zyReporting.vue' //上报组件
+import { getPublicData } from '@/api/common'
+import { getZgkbmCollectionProgress, passForZgkbmYs, rejectForZgkbmYs } from '@/api/lslxJsc/szyBmApi'
+import zyReporting from '@/views/service/lslxJsc/ysysszyhd/components/zyReporting.vue'
+defineOptions({
+  name: '/lslxJsc/components/dwTable'
+})
+
+ //公共代码
+
+ //上报组件
 
 const ZyReportTable = ref()
 const isShow = ref<boolean>(false)
-
 const dialogFormRef = ref()
 const formData = ref<any>({})
 const userInfo = ref()
 const pageData = ref<any>([])
 const isShowModel = ref(false)
 const emits = defineEmits(['pushPage'])
-
 const dwInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -119,11 +116,9 @@ const dwInfo = reactive<{
   loading: false,
   isShowPage: false
 })
-
 const closeHandle = () => {
   emits('pushPage', true)
 }
-
 const pushPage = (val: any) => {
   if (val) {
     ZyReportTable.value.isShowModel = false
@@ -150,7 +145,6 @@ const pageMeeting = async (val: any) => {
     }
   }
 }
-
 const getPass = (val: any) => {
   if (val) {
     pageMeeting(formData.value.versionId)
@@ -200,14 +194,15 @@ const handleClick = (type: any, row: any) => {
       nd: formData.value.nd,
       title: `${row.zgkbmName}-上报明细`
     }
-    formData.value = { ...params }
+    formData.value = {
+      ...params
+    }
     isShow.value = row.ysStatus == '3'
     ZyReportTable.value.userInfo = userInfo.value
     ZyReportTable.value.isShowModel = true
     ZyReportTable.value.getHeaderData(formData.value)
   }
 }
-
 defineExpose({
   isShowModel,
   closeHandle,

@@ -273,21 +273,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import { use } from "echarts/core";
-import { PictorialBarChart } from "echarts/charts";
-import { CanvasRenderer } from "echarts/renderers";
-import { BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart } from "echarts/charts";
-import { GridComponent, PolarComponent, GeoComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent, DatasetComponent, ToolboxComponent, DataZoomComponent } from "echarts/components";
-import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, defineComponent } from "vue";
-import { setup } from "xe-utils/ctor";
-import userDialog from "@/components/select/userDialog.vue";
-import baseService from "@/service/baseService";
-import { ElMessage } from "element-plus";
-import { useStore } from '@/store/business';
-
-use([
+<script setup lang="ts">
+import './overview1.module'
+import { use } from 'echarts/core'
+import {
   PictorialBarChart,
   BarChart,
   LineChart,
@@ -296,7 +285,10 @@ use([
   RadarChart,
   ScatterChart,
   EffectScatterChart,
-  LinesChart,
+  LinesChart
+} from 'echarts/charts'
+import { CanvasRenderer } from 'echarts/renderers'
+import {
   GridComponent,
   PolarComponent,
   GeoComponent,
@@ -305,578 +297,658 @@ use([
   TitleComponent,
   VisualMapComponent,
   DatasetComponent,
-  CanvasRenderer,
   ToolboxComponent,
   DataZoomComponent
-]);
-export default defineComponent({
-  name: "/budget-process/04-monitor/overview",
-  components: {
-    VChart,
-    userDialog
+} from 'echarts/components'
+import VChart, { THEME_KEY } from 'vue-echarts'
+import { ref, proxyRefs, toRef, provide, useTemplateRef } from 'vue'
+import { setup } from 'xe-utils/ctor'
+import userDialog from '@/components/select/userDialog.vue'
+import baseService from '@/service/baseService'
+import { ElMessage } from 'element-plus'
+import { useStore } from '@/store/business'
+defineOptions({
+  name: '/budget-process/04-monitor/overview'
+})
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const loading = ref(false)
+const userCode = ref()
+const userId = ref()
+const specialorgid = ref()
+const checked = ref(false)
+const checked2 = ref(false)
+const onChange = (value) => {
+  checked.value = value
+}
+const onChange2 = (value) => {
+  checked2.value = value
+}
+const list = ref([
+  {
+    name: '立项及时性',
+    value: 42
   },
-
-  provide: {
-    [THEME_KEY]: "westeros"
+  {
+    name: '招投标及时性',
+    value: 255
   },
-  setup() {
-    const store = useStore();
-    const loading = ref(false);
-    const userCode = ref();
-    const userId = ref();
-    const specialorgid = ref();
-    const checked = ref(false);
-    const checked2 = ref(false);
-    const onChange = (value) => {
-      checked.value = value;
-    };
-    const onChange2 = (value) => {
-      checked2.value = value;
-    };
-    const list = ref([
-      {
-        name: "立项及时性",
-        value: 42
-      },
-      {
-        name: "招投标及时性",
-        value: 255
-      },
-      {
-        name: "中标结果下达及时性",
-        value: 50
-      },
-      {
-        name: "合同签订及时性",
-        value: 213
-      },
-      {
-        name: "开工及时性",
-        value: 225
-      },
-      {
-        name: "物质到货及时性",
-        value: 135
-      },
-      {
-        name: "物资领用及时性",
-        value: 174
-      },
-      {
-        name: "竣工及时性",
-        value: 146
-      },
-      {
-        name: "送审及时性",
-        value: 152
-      },
-      {
-        name: "审计及时性",
-        value: 210
-      },
-      {
-        name: "资金支付及时性",
-        value: 145
-      },
-      {
-        name: "决算送审及时性",
-        value: 220
-      },
-      {
-        name: "决算审计及时性",
-        value: 70
-      },
-      {
-        name: "暂估转资及时性",
-        value: 96
-      },
-      {
-        name: "正式转资及时性",
-        value: 196
-      },
-      {
-        name: "关闭及时性",
-        value: 210
+  {
+    name: '中标结果下达及时性',
+    value: 50
+  },
+  {
+    name: '合同签订及时性',
+    value: 213
+  },
+  {
+    name: '开工及时性',
+    value: 225
+  },
+  {
+    name: '物质到货及时性',
+    value: 135
+  },
+  {
+    name: '物资领用及时性',
+    value: 174
+  },
+  {
+    name: '竣工及时性',
+    value: 146
+  },
+  {
+    name: '送审及时性',
+    value: 152
+  },
+  {
+    name: '审计及时性',
+    value: 210
+  },
+  {
+    name: '资金支付及时性',
+    value: 145
+  },
+  {
+    name: '决算送审及时性',
+    value: 220
+  },
+  {
+    name: '决算审计及时性',
+    value: 70
+  },
+  {
+    name: '暂估转资及时性',
+    value: 96
+  },
+  {
+    name: '正式转资及时性',
+    value: 196
+  },
+  {
+    name: '关闭及时性',
+    value: 210
+  }
+])
+const bar = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      crossStyle: {
+        color: '#999'
       }
-    ]);
-
-    const bar = ref({
+    }
+  },
+  legend: {
+    data: ['立项个数', '预算金额']
+  },
+  xAxis: [
+    {
+      type: 'category',
+      data: [
+        '基建',
+        '技改',
+        '小型基建',
+        '大修',
+        '科技',
+        '营销',
+        '信息',
+        '管理咨询',
+        '教育培训',
+        '工程项目',
+        '股权投资',
+        '专项成本',
+        '专项资金',
+        '固定资产零星购置'
+      ],
+      axisPointer: {
+        type: 'shadow'
+      },
+      axisLabel: {
+        interval: 0,
+        rotate: 50
+      }
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value',
+      name: '万元',
+      min: 0,
+      max: 1500,
+      interval: 500,
+      axisLabel: {
+        formatter: '{value} '
+      }
+    },
+    {
+      type: 'value',
+      name: '个',
+      min: 0,
+      max: 150,
+      interval: 50,
+      axisLabel: {
+        formatter: '{value}'
+      }
+    }
+  ],
+  series: [
+    {
+      name: '立项个数',
+      type: 'bar',
+      itemStyle: {
+        color: '#65c89a'
+      },
       tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "cross",
-          crossStyle: {
-            color: "#999"
-          }
+        valueFormatter: function (value) {
+          return value + ' 个'
         }
       },
-
-      legend: {
-        data: ["立项个数", "预算金额"]
+      data: [216, 163, 1020, 590, 346, 126.3, 246.5, 162.2, 176.3, 263, 368, 464, 635, 769]
+    },
+    {
+      name: '预算金额',
+      type: 'bar',
+      itemStyle: {
+        color: '#ffa115'
       },
-      xAxis: [
-        {
-          type: "category",
-          data: ["基建", "技改", "小型基建", "大修", "科技", "营销", "信息", "管理咨询", "教育培训", "工程项目", "股权投资", "专项成本", "专项资金", "固定资产零星购置"],
-          axisPointer: {
-            type: "shadow"
-          },
-          axisLabel: {
-            interval: 0,
-            rotate: 50
-          }
+      tooltip: {
+        valueFormatter: function (value) {
+          return value + ' 万元'
         }
-      ],
-      yAxis: [
+      },
+      data: [254.2, 1065.5, 863.4, 854.2, 1025.4, 1425.4, 175.6, 182.2, 452, 765, 432, 123, 345, 569]
+    }
+  ]
+})
+const bt = ref({
+  tooltip: {
+    trigger: 'item',
+    formatter: '{a} <br/>{b}: {c} ({d}%)'
+  },
+  legend: {
+    top: '5%',
+    left: 'center'
+  },
+  color: ['#65c89a', '#4fa8a4', '#ffa115'],
+  title: {
+    text: '项目预算组织',
+    left: 'center',
+    top: '45%',
+    textStyle: {
+      textAlign: 'center',
+      fill: '#333',
+      fontSize: 18,
+      fontWeight: 700
+    }
+  },
+  series: [
+    {
+      name: '项目预算组织',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
+      label: {
+        show: false,
+        position: 'center'
+      },
+      data: [
         {
-          type: "value",
-          name: "万元",
-          min: 0,
-          max: 1500,
-          interval: 500,
-          axisLabel: {
-            formatter: "{value} "
-          }
+          value: 13,
+          name: '地市公司'
         },
         {
-          type: "value",
-          name: "个",
-          min: 0,
-          max: 150,
-          interval: 50,
-          axisLabel: {
-            formatter: "{value}"
-          }
-        }
-      ],
-      series: [
-        {
-          name: "立项个数",
-          type: "bar",
-          itemStyle: {
-            color: "#65c89a"
-          },
-          tooltip: {
-            valueFormatter: function (value) {
-              return value + " 个";
-            }
-          },
-          data: [216, 163, 1020, 590, 346, 126.3, 246.5, 162.2, 176.3, 263, 368, 464, 635, 769]
+          value: 9,
+          name: '直属单位'
         },
         {
-          name: "预算金额",
-          type: "bar",
-          itemStyle: {
-            color: "#ffa115"
-          },
-          tooltip: {
-            valueFormatter: function (value) {
-              return value + " 万元";
-            }
-          },
-          data: [254.2, 1065.5, 863.4, 854.2, 1025.4, 1425.4, 175.6, 182.2, 452, 765, 432, 123, 345, 569]
+          value: 2,
+          name: '省公司本部'
         }
       ]
-    });
-
-    const bt = ref({
-      tooltip: {
-        trigger: "item",
-        formatter: "{a} <br/>{b}: {c} ({d}%)"
-      },
-      legend: {
-        top: "5%",
-        left: "center"
-      },
-      color: ["#65c89a", "#4fa8a4", "#ffa115"],
-      title: {
-        text: "项目预算组织",
-        left: "center",
-        top: "45%",
-        textStyle: {
-          textAlign: "center",
-          fill: "#333",
-          fontSize: 18,
-          fontWeight: 700
+    }
+  ]
+})
+const zz = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    }
+  },
+  xAxis: {
+    type: 'category',
+    data: ['资本性', '成本性']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      data: [120, 200],
+      type: 'bar',
+      barWidth: '20%',
+      itemStyle: {
+        color: '#65c89a'
+      }
+    }
+  ]
+})
+const sqt1 = ref({
+  series: [
+    {
+      type: 'liquidFill',
+      //水位图
+      radius: '90%',
+      //显示比例
+      center: ['50%', '50%'],
+      //中心点
+      amplitude: 10,
+      //水波振幅
+      data: [0.5],
+      // data个数代表波浪数
+      // color: ["#23cc72"], color: {
+      itemStyle: {
+        normal: {
+          // 水波渐变色
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              {
+                offset: 0,
+                color: '#65c89a'
+              },
+              {
+                offset: 1,
+                color: '#f7fffb'
+              }
+            ],
+            globalCoord: false
+          },
+          shadowBlur: 0,
+          shadowColor: 'white'
         }
       },
-      series: [
-        {
-          name: "项目预算组织",
-          type: "pie",
-          radius: ["40%", "70%"],
-          avoidLabelOverlap: false,
-          label: {
-            show: false,
-            position: "center"
-          },
-          data: [
-            { value: 13, name: "地市公司" },
-            { value: 9, name: "直属单位" },
-            { value: 2, name: "省公司本部" }
+      backgroundStyle: {
+        borderWidth: 0,
+        //外边框
+        borderColor: '#ffffff',
+        //边框颜色
+        color: '#f2f2f2' //边框内部填充部分颜色
+      },
+      label: {
+        //标签设置
+        normal: {
+          position: ['50%', '70%'],
+          formatter: '50%',
+          //显示文本,
+          textStyle: {
+            fontSize: '30px',
+            //文本字号,
+            color: '#fff'
+          }
+        }
+      },
+      outline: {
+        show: true,
+        //最外层边框显示控制
+        itemStyle: {
+          color: 'none',
+          borderColor: '#3e9f99',
+          borderWidth: 5,
+          shadowBlur: 20,
+          shadowColor: 'none'
+        }
+      }
+    }
+  ]
+})
+const zz1 = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    },
+    formatter: function (params) {
+      return params[0].name + ':' + params[0].value + '个'
+    }
+  },
+  grid: {
+    containLabel: true,
+    left: 10,
+    top: 0,
+    right: 50,
+    bottom: 0
+  },
+  xAxis: {
+    splitLine: {
+      show: false
+    },
+    axisLabel: {
+      show: true
+    },
+    axisTick: {
+      show: false
+    },
+    axisLine: {
+      show: false
+    }
+  },
+  yAxis: [
+    {
+      inverse: true,
+      axisLine: {
+        show: false
+      },
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        margin: 10,
+        textStyle: {
+          fontSize: 14,
+          color: '#ccc'
+        }
+      },
+      data: [
+        '立项及时性',
+        '招投标及时性',
+        '中标结果下达及时性',
+        '合同签订及时性',
+        '开工及时性',
+        '物质到货及时性',
+        '物资领用及时性',
+        '竣工及时性',
+        '送审及时性',
+        '审计及时性',
+        '资金支付及时性',
+        '决算送审及时性',
+        '决算审计及时性',
+        '暂估转资及时性',
+        '正式转资及时性',
+        '关闭及时性'
+      ]
+    }
+  ],
+  series: [
+    {
+      //内
+      type: 'bar',
+      barWidth: '10',
+      legendHoverLink: false,
+      symbolRepeat: true,
+      silent: true,
+      itemStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 1,
+          y2: 0,
+          colorStops: [
+            {
+              offset: 0,
+              color: '#65c89a' // 0% 处的颜色
+            },
+            {
+              offset: 1,
+              color: '#65c89a' // 100% 处的颜色
+            }
           ]
         }
-      ]
-    });
-
-    const zz = ref({
-      tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "shadow"
+      },
+      data: list,
+      z: 1,
+      animationEasing: 'elasticOut'
+    },
+    {
+      // 背景
+      type: 'pictorialBar',
+      animationDuration: 0,
+      symbolRepeat: 'fixed',
+      symbolMargin: '20%',
+      symbol: 'roundRect',
+      symbolSize: [6, 10],
+      itemStyle: {
+        normal: {
+          color: '#f4f9f9'
         }
       },
-      xAxis: {
-        type: "category",
-        data: ["资本性", "成本性"]
+      data: list,
+      z: 0,
+      animationEasing: 'elasticOut'
+    },
+    {
+      //分隔
+      type: 'pictorialBar',
+      itemStyle: {
+        color: '#f4f9f9'
       },
-      yAxis: {
-        type: "value"
-      },
-      series: [
-        {
-          data: [120, 200],
-          type: "bar",
-          barWidth: "20%",
-          itemStyle: {
-            color: "#65c89a"
-          }
-        }
-      ]
-    });
-
-    const sqt1 = ref({
-      series: [
-        {
-          type: "liquidFill", //水位图
-          radius: "90%", //显示比例
-          center: ["50%", "50%"], //中心点
-          amplitude: 10, //水波振幅
-          data: [0.5], // data个数代表波浪数
-          // color: ["#23cc72"], color: {
-          itemStyle: {
-            normal: {
-              // 水波渐变色
-              color: {
-                type: "linear",
-                x: 0,
-                y: 0,
-                x2: 0,
-                y2: 1,
-                colorStops: [
-                  {
-                    offset: 0,
-                    color: "#65c89a"
-                  },
-                  {
-                    offset: 1,
-                    color: "#f7fffb"
-                  }
-                ],
-                globalCoord: false
-              },
-              shadowBlur: 0,
-              shadowColor: "white"
-            }
-          },
-          backgroundStyle: {
-            borderWidth: 0, //外边框
-            borderColor: "#ffffff", //边框颜色
-            color: "#f2f2f2" //边框内部填充部分颜色
-          },
-          label: {
-            //标签设置
-            normal: {
-              position: ["50%", "70%"],
-              formatter: "50%", //显示文本,
-              textStyle: {
-                fontSize: "30px", //文本字号,
-                color: "#fff"
-              }
-            }
-          },
-          outline: {
-            show: true, //最外层边框显示控制
-            itemStyle: {
-              color: "none",
-              borderColor: "#3e9f99",
-              borderWidth: 5,
-              shadowBlur: 20,
-              shadowColor: "none"
-            }
-          }
-        }
-      ]
-    });
-
-    const zz1 = ref({
-      tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "shadow"
-        },
-        formatter: function (params) {
-          return params[0].name + ":" + params[0].value + "个";
-        }
-      },
-      grid: {
-        containLabel: true,
-        left: 10,
-        top: 0,
-        right: 50,
-        bottom: 0
-      },
-      xAxis: {
-        splitLine: {
-          show: false
-        },
-        axisLabel: {
-          show: true
-        },
-        axisTick: {
-          show: false
-        },
-        axisLine: {
-          show: false
-        }
-      },
-      yAxis: [
-        {
-          inverse: true,
-          axisLine: {
-            show: false
-          },
-          axisTick: {
-            show: false
-          },
-          axisLabel: {
-            margin: 10,
-            textStyle: {
-              fontSize: 14,
-              color: "#ccc"
-            }
-          },
-          data: ["立项及时性", "招投标及时性", "中标结果下达及时性", "合同签订及时性", "开工及时性", "物质到货及时性", "物资领用及时性", "竣工及时性", "送审及时性", "审计及时性", "资金支付及时性", "决算送审及时性", "决算审计及时性", "暂估转资及时性", "正式转资及时性", "关闭及时性"]
-        }
-      ],
-      series: [
-        {
-          //内
-          type: "bar",
-          barWidth: "10",
-          legendHoverLink: false,
-          symbolRepeat: true,
-          silent: true,
-          itemStyle: {
-            color: {
-              type: "linear",
-              x: 0,
-              y: 0,
-              x2: 1,
-              y2: 0,
-              colorStops: [
-                {
-                  offset: 0,
-                  color: "#65c89a" // 0% 处的颜色
-                },
-                {
-                  offset: 1,
-                  color: "#65c89a" // 100% 处的颜色
-                }
-              ]
-            }
-          },
-          data: list,
-          z: 1,
-          animationEasing: "elasticOut"
-        },
-        {
-          // 背景
-          type: "pictorialBar",
-          animationDuration: 0,
-          symbolRepeat: "fixed",
-          symbolMargin: "20%",
-          symbol: "roundRect",
-          symbolSize: [6, 10],
-          itemStyle: {
-            normal: {
-              color: "#f4f9f9"
-            }
-          },
-          data: list,
-          z: 0,
-          animationEasing: "elasticOut"
-        },
-        {
-          //分隔
-          type: "pictorialBar",
-          itemStyle: {
-            color: "#f4f9f9"
-          },
-          symbolRepeat: "fixed",
-          symbolMargin: 2,
-          symbol: "rect",
-          symbolClip: true,
-          symbolSize: [3, 10],
-          symbolPosition: "start",
-          data: list,
-          z: 2,
-          animationEasing: "elasticOut"
-        }
-      ]
-    });
-
-    const zz2 = ref({
-      tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "shadow"
-        },
-        formatter: function (params) {
-          return params[0].name + ":" + params[0].value + "个";
-        }
-      },
-      grid: {
-        containLabel: true,
-        left: 10,
-        top: 0,
-        right: 50,
-        bottom: 0
-      },
-      xAxis: {
-        splitLine: {
-          show: false
-        },
-        axisLabel: {
-          show: true
-        },
-        axisTick: {
-          show: false
-        },
-        axisLine: {
-          show: false
-        }
-      },
-      yAxis: [
-        {
-          inverse: true,
-          axisLine: {
-            show: false
-          },
-          axisTick: {
-            show: false
-          },
-          axisLabel: {
-            margin: 10,
-            textStyle: {
-              fontSize: 14,
-              color: "#ccc"
-            }
-          },
-          data: ["立项规范性", "招投标差额", "合同签订规范性", "合同履约规范性", "合同领用规范性", "物资整领整退", "物资退库率", "物资超欠供差额", "预算调整金额", "预算调整次数", "审计核减金额", "服务入账规范性", "资金支付规范性", "收款单位一致性", "暂估增资合理性", "在建工程余额"]
-        }
-      ],
-      series: [
-        {
-          //内
-          type: "bar",
-          barWidth: "10",
-          legendHoverLink: false,
-          symbolRepeat: true,
-          silent: true,
-          itemStyle: {
-            color: {
-              type: "linear",
-              x: 0,
-              y: 0,
-              x2: 1,
-              y2: 0,
-              colorStops: [
-                {
-                  offset: 0,
-                  color: "#ff9f41" // 0% 处的颜色
-                },
-                {
-                  offset: 1,
-                  color: "#ff9f41" // 100% 处的颜色
-                }
-              ]
-            }
-          },
-          data: list,
-          z: 1,
-          animationEasing: "elasticOut"
-        },
-        {
-          // 背景
-          type: "pictorialBar",
-          animationDuration: 0,
-          symbolRepeat: "fixed",
-          symbolMargin: "20%",
-          symbol: "roundRect",
-          symbolSize: [6, 10],
-          itemStyle: {
-            normal: {
-              color: "#f4f9f9"
-            }
-          },
-          data: list,
-          z: 0,
-          animationEasing: "elasticOut"
-        },
-        {
-          //分隔
-          type: "pictorialBar",
-          itemStyle: {
-            color: "#f4f9f9"
-          },
-          symbolRepeat: "fixed",
-          symbolMargin: 2,
-          symbol: "rect",
-          symbolClip: true,
-          symbolSize: [3, 10],
-          symbolPosition: "start",
-          data: list,
-          z: 2,
-          animationEasing: "elasticOut"
-        }
-      ]
-    });
-
-    return {
-      theme: "",
-      bar,
-      bt,
-      zz,
-      sqt1,
-      zz1,
-      zz2,
-      barLoadingOptions: {
-        text: "Loading…",
-        color: "#4ea397",
-        maskColor: "rgba(255, 255, 255, 0.4)"
-      },
-      autoResize: true,
-      loading,
-      userCode,
-      userId,
-      specialorgid,
-      store,
-      onChange,
-      onChange2,
-      checked,
-      checked2,
-      list
-    };
-  },
-
-  methods: {
-    loadCompany() {
-      this.loading = false;
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid);
+      symbolRepeat: 'fixed',
+      symbolMargin: 2,
+      symbol: 'rect',
+      symbolClip: true,
+      symbolSize: [3, 10],
+      symbolPosition: 'start',
+      data: list,
+      z: 2,
+      animationEasing: 'elasticOut'
     }
-  }
-});
+  ]
+})
+const zz2 = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    },
+    formatter: function (params) {
+      return params[0].name + ':' + params[0].value + '个'
+    }
+  },
+  grid: {
+    containLabel: true,
+    left: 10,
+    top: 0,
+    right: 50,
+    bottom: 0
+  },
+  xAxis: {
+    splitLine: {
+      show: false
+    },
+    axisLabel: {
+      show: true
+    },
+    axisTick: {
+      show: false
+    },
+    axisLine: {
+      show: false
+    }
+  },
+  yAxis: [
+    {
+      inverse: true,
+      axisLine: {
+        show: false
+      },
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        margin: 10,
+        textStyle: {
+          fontSize: 14,
+          color: '#ccc'
+        }
+      },
+      data: [
+        '立项规范性',
+        '招投标差额',
+        '合同签订规范性',
+        '合同履约规范性',
+        '合同领用规范性',
+        '物资整领整退',
+        '物资退库率',
+        '物资超欠供差额',
+        '预算调整金额',
+        '预算调整次数',
+        '审计核减金额',
+        '服务入账规范性',
+        '资金支付规范性',
+        '收款单位一致性',
+        '暂估增资合理性',
+        '在建工程余额'
+      ]
+    }
+  ],
+  series: [
+    {
+      //内
+      type: 'bar',
+      barWidth: '10',
+      legendHoverLink: false,
+      symbolRepeat: true,
+      silent: true,
+      itemStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 1,
+          y2: 0,
+          colorStops: [
+            {
+              offset: 0,
+              color: '#ff9f41' // 0% 处的颜色
+            },
+            {
+              offset: 1,
+              color: '#ff9f41' // 100% 处的颜色
+            }
+          ]
+        }
+      },
+      data: list,
+      z: 1,
+      animationEasing: 'elasticOut'
+    },
+    {
+      // 背景
+      type: 'pictorialBar',
+      animationDuration: 0,
+      symbolRepeat: 'fixed',
+      symbolMargin: '20%',
+      symbol: 'roundRect',
+      symbolSize: [6, 10],
+      itemStyle: {
+        normal: {
+          color: '#f4f9f9'
+        }
+      },
+      data: list,
+      z: 0,
+      animationEasing: 'elasticOut'
+    },
+    {
+      //分隔
+      type: 'pictorialBar',
+      itemStyle: {
+        color: '#f4f9f9'
+      },
+      symbolRepeat: 'fixed',
+      symbolMargin: 2,
+      symbol: 'rect',
+      symbolClip: true,
+      symbolSize: [3, 10],
+      symbolPosition: 'start',
+      data: list,
+      z: 2,
+      animationEasing: 'elasticOut'
+    }
+  ]
+})
+const setupState = proxyRefs({
+  theme: '',
+  bar,
+  bt,
+  zz,
+  sqt1,
+  zz1,
+  zz2,
+  barLoadingOptions: {
+    text: 'Loading…',
+    color: '#4ea397',
+    maskColor: 'rgba(255, 255, 255, 0.4)'
+  },
+  autoResize: true,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  store,
+  onChange,
+  onChange2,
+  checked,
+  checked2,
+  list
+})
+const theme = toRef(setupState, 'theme')
+const barLoadingOptions = toRef(setupState, 'barLoadingOptions')
+const autoResize = toRef(setupState, 'autoResize')
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+}
+provide(THEME_KEY, 'westeros')
+defineExpose({
+  theme,
+  bar,
+  bt,
+  zz,
+  sqt1,
+  zz1,
+  zz2,
+  barLoadingOptions,
+  autoResize,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  store,
+  onChange,
+  onChange2,
+  checked,
+  checked2,
+  list,
+  loadCompany
+})
 </script>
 
 <style lang="less" scoped>
@@ -1096,5 +1168,4 @@ export default defineComponent({
   }
 }
 </style>
-
 

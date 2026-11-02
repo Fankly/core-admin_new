@@ -71,7 +71,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/service/jointReview/offlineReview/index" })
 import { nextTick, onMounted, reactive, ref, h, defineAsyncComponent } from 'vue'
 import { pageSjtcMeetingInfo } from '@/api/service/IhhsMeeting/offlineReview'
 import { getPublicData, getGkbmInProvince } from '@/api/common'
@@ -88,6 +87,7 @@ import { encrypt } from '@/utils/crypto'
 import { useReviewModeCode } from '@/hooks/useReviewModeCode'
 import ExpertProcessModal from '@/views/service/jointReview/components/ExpertProcessModal.vue'
 import ReviewAnalysisModal from './components/ReviewAnalysisModal.vue'
+defineOptions({ name: "/service/jointReview/offlineReview/index" })
 
 const ExpertManagementModal = defineAsyncComponent(
   () => import('@/views/service/approval/provinceLhhsMeeting/components/expertManagementModal/index.vue')

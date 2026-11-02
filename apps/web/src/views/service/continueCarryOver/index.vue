@@ -637,8 +637,6 @@
 
 <script lang="ts" setup>
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Operation as EpOperation } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/service/continueCarryOver/index" })
 import LinkMatter from '@/views/service/continueCarryOver/modules/LinkMatter.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
 import Grid from '@/components/Grid/index.vue'
@@ -662,7 +660,10 @@ import ColSetting from '@/views/service/project/projectActivation/components/Col
 import ImportExcel from '@/components/ImportExcel/index.vue'
 import { getImportTemplate, importPageData } from '@/api/service/continueCarryOver'
 import Decimal from 'decimal.js'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
+defineOptions({ name: "/service/continueCarryOver/index" })
+
+ //公共代码
 
 const orderRef = ref<InstanceType<typeof Order>>()
 const importRef = ref<InstanceType<typeof ImportExcel>>()

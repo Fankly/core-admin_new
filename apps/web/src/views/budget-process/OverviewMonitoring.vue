@@ -1,12 +1,7 @@
-<script lang="ts">
-export default {
-  name: '/budget-process/OverviewMonitoring'
-}
-</script>
+
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, Operation as EpOperation, QuestionFilled as EpQuestionFilled } from '@element-plus/icons-vue'
-
 import userDialog from '@/components/select/userDialog.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
@@ -14,23 +9,18 @@ import { useStore } from '@/store/business'
 import TreeSelect from '@/components/select/TreeSelect.vue'
 import { useRouter } from 'vue-router'
 import { CellStyle, QueryForm } from '@/views/budget-process/types/process-46'
-import {
-  getProTypeTreeNode,
-  searchDataNew,
-  exportDataNew,
-  getRateConfig,
-  updateRateConfig
-} from '@/api/process'
+import { getProTypeTreeNode, searchDataNew, exportDataNew, getRateConfig, updateRateConfig } from '@/api/process'
 import { cloneDeep } from 'lodash'
 import { Decimal } from 'decimal.js'
+defineOptions({
+  name: '/budget-process/OverviewMonitoring'
+})
 
 onMounted(() => {
   initData()
 })
-
 const store = useStore()
 const router = useRouter()
-
 const isShowPage = ref(false)
 const loading = ref(true)
 const specialOrgId = ref('')
@@ -58,7 +48,6 @@ const rateChangeColorHandle = ({ row, column, rowIndex, columnIndex }: CellStyle
   const cellStyle: any = {
     color: '#000'
   }
-
   if (row.gll <= rateRange.value[0].zsbfb) {
     cellStyle.backgroundColor = 'rgba(215, 215, 215, 0.8)'
   } else if (row.gll > rateRange.value[0].zsbfb && row.gll < rateRange.value[1].zsbfb) {
@@ -72,7 +61,6 @@ const rateChangeColorHandle = ({ row, column, rowIndex, columnIndex }: CellStyle
     return cellStyle
   }
 }
-
 const getRateConfigHandle = () => {
   loading.value = true
   getRateConfig().then((res: any) => {
@@ -89,7 +77,6 @@ const getRateConfigHandle = () => {
     }
   })
 }
-
 const dialogHandle = (flag: string) => {
   visibleDialog.value = false
   if (flag === '1') {
@@ -268,7 +255,6 @@ const page = reactive({
   limit: 20,
   total: 0
 })
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -344,7 +330,6 @@ const detailedQueryHandle = () => {
   }
   // 获取yssxIds
   const yssxIds = multipleSelection.value.map((item: any) => item.yssxId)
-
   store.commit('setProParams', {
     yssxIds: yssxIds,
     nd: queryForm.nd,
@@ -395,7 +380,6 @@ const resetHandle = () => {
   proTypeRef.value.clearSelect()
   searchHandle()
 }
-
 const selectRolesHandle = () => {
   loading.value = true
   userDialogRef.value.getUser()
@@ -413,7 +397,6 @@ const getRoleHandle = () => {
 
 // 对话框显示隐藏
 const visibleDialog = ref(false)
-
 const rateAdjustmentHandle = () => {
   visibleDialog.value = !visibleDialog.value
 }
@@ -433,7 +416,6 @@ const isHiddenQueryForm = () => {
   isHiddenQuery.value = !isHiddenQuery.value
   mainRef.value.style.height = isHiddenQuery.value ? 'calc(100% - 16px)' : 'calc(100% - 54px)'
 }
-
 const iptBlur = (row: any, event: any) => {
   // 根据row.id在哪个位置，判断位置之后的值是否比当前值大,后面的值比当前值大，提示错误，如果先输入后面的值，再输入前面的值，同样提示错误
   const index = rateRangeList.value.findIndex((item: any) => item.id === row.id)
@@ -472,7 +454,6 @@ const getHelpMessageHandle = () => {
     }
   )
 }
-
 const clearDataHandle = () => {
   queryForm.xmlx.length = 0
 }

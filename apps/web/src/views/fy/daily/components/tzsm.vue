@@ -12,50 +12,40 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "tzsm"
-};
-</script>
 
 <script setup lang="ts">
-import { ElMessage } from "element-plus";
-import { reactive, toRef, defineExpose, withDefaults, defineEmits, defineProps } from "vue";
+import { ElMessage } from 'element-plus'
+import { reactive, toRef } from 'vue'
+defineOptions({
+  name: 'tzsm'
+})
 
 interface Props {
-  isShow: boolean;
+  isShow: boolean
 }
-
-const props = withDefaults(defineProps<Props>(), {});
-
-const emit = defineEmits(["closeModal", "release"]);
-
-const isShowPage = toRef(props, "isShow");
-
+const props = withDefaults(defineProps<Props>(), {})
+const emit = defineEmits(['closeModal', 'release'])
+const isShowPage = toRef(props, 'isShow')
 const form = reactive({
-  tzsm: ""
-});
-
+  tzsm: ''
+})
 const detailHandle = () => {
   if (!form.tzsm) {
-    ElMessage.warning("请输入调整说明！");
-    return;
+    ElMessage.warning('请输入调整说明！')
+    return
   }
-  emit("release", form.tzsm);
-};
-
+  emit('release', form.tzsm)
+}
 const closeHandle = () => {
-  clearValue();
-  emit("closeModal", !isShowPage.value);
-};
-
+  clearValue()
+  emit('closeModal', !isShowPage.value)
+}
 const clearValue = () => {
-  form.tzsm = "";
-};
-
+  form.tzsm = ''
+}
 defineExpose({
   clearValue
-});
+})
 </script>
 
 <style scoped lang="less">

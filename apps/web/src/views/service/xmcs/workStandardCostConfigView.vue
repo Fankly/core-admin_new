@@ -77,23 +77,21 @@
 
 <script setup lang="ts">
 import { Document as EpDocument, Folder as EpFolder, FolderOpened as EpFolderOpened } from '@element-plus/icons-vue'
-
-import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/service/xmcs/workStandardCostConfigView" })
+import { CurrentUserRoleInjectionKey, PermissionContext, PermissionInjectionKey, UserRole } from '@/components/UserRoleSelector/interface'
 import { computed, onBeforeUnmount, onMounted, provide, reactive, ref, watchEffect } from 'vue'
 import { ElMessage, ElTree } from 'element-plus'
 import { getParamValueMulti } from '@/api/common'
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
-import { PermissionContext, PermissionInjectionKey, UserRole } from '@/components/UserRoleSelector/interface'
 import { apiExportHandle } from '@/utils/export'
 import { queryDir, query, exportExcel } from '@/api/service/xmcs/workStandardCostConfig'
+defineOptions({
+  name: '/service/xmcs/workStandardCostConfigView'
+})
 
 /** 导出文件名默认值；可通过系统参数 ZYBZCB_EXPORT_FILENAME 覆盖 */
 const DEFAULT_EXPORT_FILE_NAME = '作业标准成本明细'
 const EXPORT_FILE_NAME_PARAM = 'ZYBZCB_EXPORT_FILENAME'
-
 const loading = ref(false)
 const exportFileName = ref(DEFAULT_EXPORT_FILE_NAME)
 const treeRef = ref<InstanceType<typeof ElTree>>()
@@ -111,37 +109,33 @@ const currentUserRole = ref<UserRole>({
   specialOrgCode: '',
   spRoleId: ''
 })
-
-const treeProps = { children: 'children', label: 'dirName' }
-
+const treeProps = {
+  children: 'children',
+  label: 'dirName'
+}
 const userMsg = reactive({
   isShowPage: false
 })
-
 const pageConfig = reactive<ContextProps>({
   minPercent: 16,
   maxPercent: 32,
   defaultPercent: 20,
   split: 'vertical'
 })
-
 const page = reactive({
   currentPage: 1,
   pageSize: 20,
   total: 0
 })
-
 const detailQuery = reactive({
   zymc: ''
 })
-
 const isDirSelected = computed(() => !!currentNode.value)
 
 // 组件卸载标志，阻止卸载后的异步回调更新状态
 let cancelled = false
 // 明细查询请求序号，丢弃过期响应，避免快速切换目录时表格错配
 let detailRequestId = 0
-
 const gridOptions = reactive<any>({
   border: true,
   stripe: true,
@@ -152,39 +146,101 @@ const gridOptions = reactive<any>({
   showHeaderOverflow: true,
   height: '100%',
   size: 'mini',
-  rowConfig: { height: 32 },
-  columnConfig: { resizable: true },
+  rowConfig: {
+    height: 32
+  },
+  columnConfig: {
+    resizable: true
+  },
   data: [],
   columns: [
-    { field: 'zybm', title: '作业编码', width: 140, fixed: 'left' },
-    { field: 'zymc', title: '作业名称', minWidth: 160, fixed: 'left' },
-    { field: 'zynrms', title: '作业内容描述', minWidth: 200 },
-    { field: 'dydj', title: '电压等级', width: 100 },
-    { field: 'rl', title: '容量(KVA)', width: 100 },
-    { field: 'sbdw', title: '设备单位', width: 100 },
-    { field: 'rcjbm', title: '人材机编码', width: 140 },
-    { field: 'rcjmc', title: '人材机名称', minWidth: 160 },
-    { field: 'dw', title: '单位', width: 80 },
-    { field: 'dj', title: '单价(元)', width: 100, align: 'right' },
-    { field: 'sl', title: '数量', width: 100, align: 'right' },
-    { field: 'je', title: '金额(元)', width: 120, align: 'right' },
-    { field: 'sortNo', title: '排序', width: 80 },
-    { field: 'remark', title: '备注', minWidth: 160 }
+    {
+      field: 'zybm',
+      title: '作业编码',
+      width: 140,
+      fixed: 'left'
+    },
+    {
+      field: 'zymc',
+      title: '作业名称',
+      minWidth: 160,
+      fixed: 'left'
+    },
+    {
+      field: 'zynrms',
+      title: '作业内容描述',
+      minWidth: 200
+    },
+    {
+      field: 'dydj',
+      title: '电压等级',
+      width: 100
+    },
+    {
+      field: 'rl',
+      title: '容量(KVA)',
+      width: 100
+    },
+    {
+      field: 'sbdw',
+      title: '设备单位',
+      width: 100
+    },
+    {
+      field: 'rcjbm',
+      title: '人材机编码',
+      width: 140
+    },
+    {
+      field: 'rcjmc',
+      title: '人材机名称',
+      minWidth: 160
+    },
+    {
+      field: 'dw',
+      title: '单位',
+      width: 80
+    },
+    {
+      field: 'dj',
+      title: '单价(元)',
+      width: 100,
+      align: 'right'
+    },
+    {
+      field: 'sl',
+      title: '数量',
+      width: 100,
+      align: 'right'
+    },
+    {
+      field: 'je',
+      title: '金额(元)',
+      width: 120,
+      align: 'right'
+    },
+    {
+      field: 'sortNo',
+      title: '排序',
+      width: 80
+    },
+    {
+      field: 'remark',
+      title: '备注',
+      minWidth: 160
+    }
   ]
 })
-
 const getRoleParams = () => ({
   dwId: currentUserRole.value.dwId,
   bmId: currentUserRole.value.bmId,
   roleId: currentUserRole.value.roleId
 })
-
 const getDetailParams = () => ({
   dirId: currentNode.value.id,
   ...getRoleParams(),
   zymc: detailQuery.zymc.trim()
 })
-
 const getTreeData = async () => {
   loading.value = true
   try {
@@ -202,7 +258,6 @@ const getTreeData = async () => {
     if (!cancelled) loading.value = false
   }
 }
-
 const handleNodeClick = (data: any) => {
   currentNode.value = data
   // 切换目录时清空查询条件，避免条件误带到其他目录
@@ -210,20 +265,17 @@ const handleNodeClick = (data: any) => {
   page.currentPage = 1
   loadDetail()
 }
-
 const handleDetailSearch = () => {
   if (!currentNode.value) return ElMessage.warning('请选择目录！')
   page.currentPage = 1
   loadDetail()
 }
-
 const resetDetailSearch = () => {
   if (!currentNode.value) return ElMessage.warning('请选择目录！')
   detailQuery.zymc = ''
   page.currentPage = 1
   loadDetail()
 }
-
 const loadDetail = async () => {
   if (!currentNode.value) {
     gridOptions.data = []
@@ -248,13 +300,11 @@ const loadDetail = async () => {
     if (!cancelled && requestId === detailRequestId) gridOptions.loading = false
   }
 }
-
 const handleSizeChange = (val: number) => {
   page.pageSize = val
   page.currentPage = 1
   loadDetail()
 }
-
 const handleCurrentChange = (val: number) => {
   page.currentPage = val
   loadDetail()
@@ -278,12 +328,13 @@ const handleExport = async () => {
   loading.value = true
   try {
     // useResponseFileName: false，确保系统参数配置的文件名生效，不被响应头覆盖
-    await apiExportHandle(getDetailParams(), exportFileName.value, exportExcel, { useResponseFileName: false })
+    await apiExportHandle(getDetailParams(), exportFileName.value, exportExcel, {
+      useResponseFileName: false
+    })
   } finally {
     loading.value = false
   }
 }
-
 const getRoleHandle = async () => {
   const canRender = userRoleSelectorRef.value?.canRender
   if (canRender) {
@@ -291,7 +342,6 @@ const getRoleHandle = async () => {
     await Promise.all([getTreeData(), loadExportFileName()])
   }
 }
-
 provide(CurrentUserRoleInjectionKey, currentUserRole)
 const permissionContext = reactive<PermissionContext>({
   permissions: [],
@@ -302,11 +352,9 @@ watchEffect(() => {
   permissionContext.isLoading = userRoleSelectorRef.value?.loading || false
 })
 provide(PermissionInjectionKey, permissionContext)
-
 onMounted(() => {
   userRoleSelectorRef.value?.getUser()
 })
-
 onBeforeUnmount(() => {
   cancelled = true
 })

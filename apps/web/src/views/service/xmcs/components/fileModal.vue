@@ -44,19 +44,17 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'dytable'
-}
-</script>
+
 <script setup lang="ts">
 import { Delete as EpDelete, Document as EpDocument, Download as EpDownload } from '@element-plus/icons-vue'
-
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { uploadZxcsAttach, deleteZxcsAttach } from '@/api/service/xmcs/index'
 import VXETable from 'vxe-table'
 import { downloadAttach } from '@/api/service/IhhsMeeting/approval/proviceIhhsMeeting'
+defineOptions({
+  name: 'dytable'
+})
 
 interface Props {
   fileList: any[]
@@ -96,7 +94,9 @@ const handleDelete = async (file: any) => {
     ids: [file.id],
     uuid: file.uuid
   }
-  let res = await deleteZxcsAttach({ ...params })
+  let res = await deleteZxcsAttach({
+    ...params
+  })
   if (!res.success) return ElMessage.error(res.msg)
   ElMessage.success('附件已删除')
   emit('saveFile', fileType.value)
@@ -111,7 +111,9 @@ const uploadHandle = async () => {
   try {
     const $table = vxeTableRef.value
     const types = ['gif', 'jpg', 'jpeg', 'png', 'wps', 'et', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'pdf', 'zip', 'tar', 'ofd']
-    const { files } = await $table.readFile({ multiple: true })
+    const { files } = await $table.readFile({
+      multiple: true
+    })
     const records = Array.from(files).map((file: any) => {
       if (types) {
         const ns = file.name.split('.')
@@ -130,7 +132,12 @@ const uploadHandle = async () => {
     }
     const attachNames = records.map(({ name }: any) => name)
     loading.value = true
-    const res = await uploadZxcsAttach({ excelFormData: formData, xmIds: props.xmid, attachNames: attachNames, attachType: fileType.value })
+    const res = await uploadZxcsAttach({
+      excelFormData: formData,
+      xmIds: props.xmid,
+      attachNames: attachNames,
+      attachType: fileType.value
+    })
     if (!res.success) throw new Error(res.msg)
     // 刷新页面,调用查询接口
     ElMessage.success('附件上传成功')

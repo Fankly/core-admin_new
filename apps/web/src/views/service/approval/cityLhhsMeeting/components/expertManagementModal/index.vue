@@ -138,22 +138,26 @@
 
 <script setup lang="ts">
 import { Close as EpClose, Delete as EpDelete, Plus as EpPlus, Refresh as EpRefresh, Search as EpSearch } from '@element-plus/icons-vue'
-
-defineOptions({ name: "ExpertManagementModal" })
-import { ref, reactive, nextTick, defineExpose, defineEmits } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { VxeColumnPropTypes, VxeGridInstance, VxeGridProps, VXETable } from 'vxe-table'
 import { ElMessage } from 'element-plus'
-import { getYnrhszjListNum, getYfpxx, deleteExpertProject as defaultDeleteExpertProject } from '@/api/service/IhhsMeeting/approval/cityLhhsMeeting'
+import {
+  getYnrhszjListNum,
+  getYfpxx,
+  deleteExpertProject as defaultDeleteExpertProject
+} from '@/api/service/IhhsMeeting/approval/cityLhhsMeeting'
 import { getPublicData } from '@/api/common'
 import { buildRoleRequestParams } from '@/views/service/approval/cityLhhsMeeting/utils/roleParams'
 import { CITY_PSZY_PUBLIC_CODE, MeetingMajor, resolveMajorPszyList } from '@/views/service/approval/cityLhhsMeeting/utils/pszy'
+defineOptions({
+  name: 'ExpertManagementModal'
+})
 
 interface AssignmentApis {
   deleteExpertProject?: (params: any) => Promise<any>
   psfgData?: (params: any) => Promise<any>
 }
-
 interface ModalProps extends MeetingMajor {
   title?: string
   isView: boolean
@@ -165,16 +169,13 @@ interface ModalProps extends MeetingMajor {
   taskAssignmentModalRef?: any
   assignmentApis?: AssignmentApis
 }
-
 interface ExpertTabItem {
   code: string
   name: string
   expertCount: number
   [key: string]: any
 }
-
 const emit = defineEmits(['clearSelect'])
-
 const modalVisible = ref(false)
 const modalProps = ref<ModalProps>({
   meetingId: '',
@@ -186,9 +187,7 @@ const modalProps = ref<ModalProps>({
 })
 const rightLoading = ref(false)
 const loading = ref(false)
-
 const getModalRoleRequestParams = () => buildRoleRequestParams(modalProps.value)
-
 const leftSearchName = ref('')
 const rightSearchKeyword = ref('')
 const rightProjectCode = ref('')
@@ -200,25 +199,24 @@ const leftGridRef = ref<VxeGridInstance>()
 const rightGridRef = ref<VxeGridInstance>()
 const allLeftExperts = ref<any[]>([])
 const rightSelection = ref([])
-
 const leftPage = reactive({
   total: 0
 })
-
 const rightPage = reactive({
   currentPage: 1,
   pageSize: 20,
   total: 0
 })
-
 const TAB_PUBLIC_CODE = CITY_PSZY_PUBLIC_CODE
-
 const centerConfig: {
   resizable: VxeColumnPropTypes.Resizable
   align: VxeColumnPropTypes.Align
   headerAlign: VxeColumnPropTypes.HeaderAlign
-} = { align: 'center', headerAlign: 'center', resizable: true }
-
+} = {
+  align: 'center',
+  headerAlign: 'center',
+  resizable: true
+}
 const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number): T => {
   let timeoutId: ReturnType<typeof setTimeout>
   return ((...args: Parameters<T>) => {
@@ -226,19 +224,27 @@ const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number): T =>
     timeoutId = setTimeout(() => fn(...args), delay)
   }) as T
 }
-
 const leftGridOptions = reactive<VxeGridProps<any>>({
   border: 'inner',
   height: 'auto',
   size: 'mini',
   stripe: true,
   loading: false,
-  rowConfig: { isCurrent: true, isHover: true },
+  rowConfig: {
+    isCurrent: true,
+    isHover: true
+  },
   columnConfig: {
     resizable: true
   },
   columns: [
-    { field: 'expertName', align: 'center', title: '专家姓名', width: 90, sortable: true },
+    {
+      field: 'expertName',
+      align: 'center',
+      title: '专家姓名',
+      width: 90,
+      sortable: true
+    },
     {
       field: 'majorName',
       title: '专家专业',
@@ -265,7 +271,6 @@ const leftGridOptions = reactive<VxeGridProps<any>>({
   ],
   data: []
 })
-
 const rightGridOptions = reactive<VxeGridProps<any>>({
   border: true,
   height: 'auto',
@@ -273,13 +278,26 @@ const rightGridOptions = reactive<VxeGridProps<any>>({
   stripe: false,
   showHeaderOverflow: true,
   showOverflow: true,
-  checkboxConfig: { trigger: 'row', highlight: true, range: true },
-  rowConfig: { isCurrent: true, isHover: true, height: 32 },
+  checkboxConfig: {
+    trigger: 'row',
+    highlight: true,
+    range: true
+  },
+  rowConfig: {
+    isCurrent: true,
+    isHover: true,
+    height: 32
+  },
   columnConfig: {
     resizable: true
   },
   columns: [
-    { type: 'checkbox', width: 50, fixed: 'left', ...centerConfig },
+    {
+      type: 'checkbox',
+      width: 50,
+      fixed: 'left',
+      ...centerConfig
+    },
     {
       field: 'xmbm',
       title: '项目编码',
@@ -329,7 +347,6 @@ const rightGridOptions = reactive<VxeGridProps<any>>({
   ],
   data: []
 })
-
 const getTabList = async () => {
   tabList.value.length = 0
   const res = await getPublicData(TAB_PUBLIC_CODE)
@@ -346,17 +363,14 @@ const getTabList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const resolveExpertCount = (data: unknown) => {
   if (Array.isArray(data)) return data.length
   const count = Number(data)
   return Number.isFinite(count) ? count : 0
 }
-
 const loadTabExpertCounts = async (tabs: ExpertTabItem[] = tabList.value) => {
   const meetingId = modalProps.value.meetingId
   if (!meetingId || tabs.length === 0) return
-
   const currentRequestId = ++tabCountRequestId
   const responses = await Promise.allSettled(
     tabs.map((item) =>
@@ -367,9 +381,7 @@ const loadTabExpertCounts = async (tabs: ExpertTabItem[] = tabList.value) => {
       })
     )
   )
-
   if (currentRequestId !== tabCountRequestId) return
-
   let hasError = false
   tabList.value = tabs.map((item, index) => {
     const response = responses[index]
@@ -385,7 +397,6 @@ const loadTabExpertCounts = async (tabs: ExpertTabItem[] = tabList.value) => {
       expertCount: resolveExpertCount(response.value.data)
     }
   })
-
   if (hasError) {
     ElMessage.warning('部分评审专业人数加载失败')
   }
@@ -413,7 +424,6 @@ const loadLeftData = async () => {
     leftGridOptions.loading = false
   }
 }
-
 const applyLeftFilter = () => {
   const keyword = leftSearchName.value.trim()
   if (!keyword) {
@@ -428,13 +438,11 @@ const applyLeftFilter = () => {
   })
   leftGridOptions.data = filtered
 }
-
 const handleTabClick = (tabCode: string) => {
   if (activeTab.value === tabCode) return
   activeTab.value = tabCode
   handleTabChange()
 }
-
 const handleTabChange = () => {
   currentExpert.value = null
   rightSelection.value = []
@@ -489,7 +497,6 @@ const handleRightPageChange = (val: number) => {
   rightPage.currentPage = val
   loadRightData()
 }
-
 const handleRightSizeChange = (val: number) => {
   rightPage.pageSize = val
   rightPage.currentPage = 1
@@ -602,7 +609,6 @@ const isRoleSearch = async () => {
   currentExpert.value = row
   await loadRightData()
 }
-
 defineExpose({
   isRoleSearch,
   acceptParams

@@ -135,11 +135,9 @@
 
 <script setup lang="ts">
 import { Upload as EpUpload } from '@element-plus/icons-vue'
-
-defineOptions({ name: "EditModal" })
 import { ref, reactive, nextTick, computed } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { submitWorkflow, WFParam, WFUserInfo } from '@/hooks/useWorkflow'
 import { useStore } from '@/store/business'
 import { updateXjjzInfo, deleteAttach, uploadAttach, download } from '@/api/service/xjjz/index'
@@ -148,6 +146,9 @@ import baseService from '@/service/baseService'
 import VXETable from 'vxe-table'
 import { checkBeforeSubmit } from '@/api/service/continueCarryOver'
 import { getBqshFlag } from "@/api/service/requirement";
+defineOptions({ name: "EditModal" })
+
+ //表格组件
 
 interface propsVo {
   publicParams: any

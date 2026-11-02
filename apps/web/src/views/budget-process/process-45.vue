@@ -208,15 +208,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
 
-export default defineComponent({
-  name: '/budget-process/process-45'
-})
-</script>
-
-<script lang="ts" setup>
+<script setup lang="ts">
 import newTerm from '@/components/newTerm/index.vue'
 import Split from '@/components/Split/index.vue'
 import userDialog from '@/components/select/userDialog.vue'
@@ -224,8 +217,10 @@ import TreeSelect from '@/components/select/TreeSelect.vue'
 import baseService from '@/service/baseService'
 import copyTextBox from '@/components/select/copyTextBox.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
-import { h } from 'vue'
+import { onMounted, reactive, ref, h } from 'vue'
+defineOptions({
+  name: '/budget-process/process-45'
+})
 
 interface DefaultProps {
   defaultProps: {
@@ -241,7 +236,6 @@ interface DefaultProps {
     label: string
   }
 }
-
 interface TreeData {
   id: string
   label: string
@@ -249,7 +243,6 @@ interface TreeData {
   zyssxbm?: string
   children?: Array<TreeData>
 }
-
 const isShow: any = ref(false)
 const xmbmRef = ref()
 const tableRef = ref()
@@ -281,7 +274,6 @@ const historyColumns = ref([
     columnName: '修改后预算事项名称'
   }
 ])
-
 let treeTableData: any = ref([])
 const defaultProps: DefaultProps = reactive({
   defaultProps: {
@@ -419,17 +411,14 @@ onMounted(() => {
   getProjectTypeData()
   getUnitData()
 })
-
 const initData = () => {
   userDialogRef.value.getUser()
 }
-
 const searchTreeAndTableHandle = (value: string) => {
   searchData.ND = value
   getTreeData()
   searchHandle()
 }
-
 const clearDataHandle = () => {
   if (formData.xmlx && Array.isArray(formData.xmlx)) {
     formData.xmlx.length = 0
@@ -437,7 +426,6 @@ const clearDataHandle = () => {
     formData.xmlx = ''
   }
 }
-
 const renderHeaderMethods = ({ column }: any) => {
   return h('span', [h('span', column.label)])
 }
@@ -453,12 +441,10 @@ const toggleSelection = (rows: any) => {
     tableRef.value.clearSelection()
   }
 }
-
 interface TreeParams {
   specialorgid: string
   nd: string
 }
-
 const getTreeData = () => {
   loading.value = true
   const params: TreeParams = {
@@ -532,12 +518,10 @@ const getProjectTypeData = () => {
 const getProjectType = (value: any) => {
   formData.xmlx = value
 }
-
 interface UnitValue {
   level: number
   objCode: never
 }
-
 const getChangeUnitData = (value: any) => {
   // 设置一级单位和二级单位清空
   formData.yjdw = []
@@ -599,7 +583,6 @@ const historyHandle = () => {
     return
   }
   isHistory.value = true
-
   baseService.post(`process43/getHistory?xmid=${multipleSelection.value[0].xmid}`).then((res) => {
     if (res.success) {
       historyData.value = res.data
@@ -656,7 +639,6 @@ const exportSxHandle = () => {
       dom.click()
       document.body.removeChild(dom)
       window.URL.revokeObjectURL(url)
-
       loading.value = false
     })
 }
@@ -740,24 +722,28 @@ const deleteHandle = () => {
     .then(() => {
       loading.value = true
       let xmIds = multipleSelection.value.map((item: any) => item.xmid)
-      baseService.post('process43/delete', { ids: xmIds }).then((res) => {
-        if (res.success) {
-          loading.value = false
-          ElMessage({
-            type: 'success',
-            message: '删除成功'
-          })
-          // 树刷新
-          getTreeData()
-          searchHandle()
-        } else {
-          loading.value = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
+      baseService
+        .post('process43/delete', {
+          ids: xmIds
+        })
+        .then((res) => {
+          if (res.success) {
+            loading.value = false
+            ElMessage({
+              type: 'success',
+              message: '删除成功'
+            })
+            // 树刷新
+            getTreeData()
+            searchHandle()
+          } else {
+            loading.value = false
+            ElMessage({
+              type: 'error',
+              message: res.msg
+            })
+          }
+        })
     })
     .catch(() => {
       loading.value = false

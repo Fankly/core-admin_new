@@ -244,11 +244,6 @@
   <ImportExcel ref="importRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/fy/annually/report/city'
-}
-</script>
 
 <script setup lang="ts">
 import FyHeader from '@/views/fy/components/Header.vue'
@@ -280,6 +275,9 @@ import { startNdCityReportWf } from '@/api/workflow/fy'
 import { formatValue } from '@/utils/utils'
 import { containsNd } from '@/api/fy/common'
 import { getWfTracking } from '@/api/workflow'
+defineOptions({
+  name: '/fy/annually/report/city'
+})
 
 const userDialogRef = ref()
 const treeTableRef = ref()
@@ -288,33 +286,25 @@ const headerRef = ref()
 const importRef = ref()
 const toolbarOneRef = ref()
 const toolbarTwoRef = ref()
-
 const store = useStore()
-
 const userMsg = reactive<any>({
   userData: '',
   dwName: '',
   isShowPage: false
 })
-
 const pageMsg = reactive<any>({
   pageData: ''
 })
-
 const tabMsg = reactive({
   name: '1',
   busiId: ''
 })
-
 const uploadMsg = reactive({
   isShowModal: false
 })
-
 const tableLoading = ref(false)
 const isHidenTab = ref(false)
-
 const isWfId = computed(() => pageMsg.pageData && !pageMsg.pageData.wfId)
-
 watch(
   () => pageMsg.pageData,
   (newValue) => {
@@ -326,26 +316,21 @@ watch(
     deep: true
   }
 )
-
 const isDisabled = computed(() => {
   return !pageMsg.pageData.dwDetailId || pageMsg.pageData.sdzt === '1' || pageMsg.pageData.sbzt === '2' || tableLoading.value
 })
-
 const isSbDisabled = computed(() => {
   return !pageMsg.pageData.dwDetailId || pageMsg.pageData.sdzt === '1' || pageMsg.pageData.sbzt === '2' || tableLoading.value
 })
-
 const activeCellMethod = ({ row }: any) => {
   return row.id && !row.leaf
 }
-
 const headerCellStyle = () => {
   return {
     padding: '8px 0',
     lineHeight: '16px'
   }
 }
-
 const tableMsg = reactive<TableMsg>({
   rowConfig: {
     height: 32
@@ -389,13 +374,11 @@ const tableMsg = reactive<TableMsg>({
     }
   }
 })
-
 const getTabNameHandle = ({ props }: any) => {
   tabMsg.name = props.name
   getTableData()
   linkTable()
 }
-
 const evil = (fn: any) => {
   try {
     return new Function('return ' + fn)()
@@ -403,7 +386,6 @@ const evil = (fn: any) => {
     return 0
   }
 }
-
 const sumhandle = async (row: any, event: any, key: string) => {
   let val = event.target?.value
   if (key !== 'sbje') {
@@ -427,7 +409,6 @@ const sumhandle = async (row: any, event: any, key: string) => {
   const tableData = Number(tabMsg.name) === 1 ? tableMsg.tableData : tableMsg.ndData
   getGroupSummary(tableData, config, 'sbje', Number(tableMsg.xsws), 'leaf', 'id')
 }
-
 const escalationHandle = () => {
   const $table = tabMsg.name === '1' ? treeTableRef.value : treendTableRef.value
   let msg = ''
@@ -477,7 +458,6 @@ const escalationHandle = () => {
     }
   })
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: any) => {
   const list: any[] = JSON.parse(wfData).WorkFlowDataList.WorkFlowData
   let obj: any = {}
@@ -505,7 +485,6 @@ const submitWFCallback = async (nextPersonAndPath: string, wfData: any) => {
     ElMessage.error(res.msg)
   }
 }
-
 const saveHandle = async () => {
   const $table = tabMsg.name === '1' ? treeTableRef.value : treendTableRef.value
   if ($table) {
@@ -547,7 +526,6 @@ const saveHandle = async () => {
     }
   }
 }
-
 const importHandle = async () => {
   let newParmas = {
     kmlx: tabMsg.name,
@@ -600,13 +578,11 @@ const exportHandle = () => {
     tableLoading.value = false
   })
 }
-
 const isClickHeader = (columns: any, field: string) => {
   let columnsData = columns.filter((item: any) => item.eidt)
   let column = columnsData.find((item: any) => item.columnKey === field)
   return !!column
 }
-
 const cellStyle = ({ row, column }: any) => {
   if (tableMsg.editConfig && !tableMsg.editConfig.enabled) {
     return {
@@ -620,7 +596,6 @@ const cellStyle = ({ row, column }: any) => {
       backgroundColor: 'rgba(232, 234, 236,0.5)'
     }
   }
-
   if (!row.id || row.leaf) {
     return {
       cursor: 'auto',
@@ -628,7 +603,6 @@ const cellStyle = ({ row, column }: any) => {
     }
   }
 }
-
 const openTodoTaskDesc = () => {
   if (pageMsg.pageData.wfId) {
     const winWidth = screen.width
@@ -646,22 +620,18 @@ const openTodoTaskDesc = () => {
     })
   }
 }
-
 const changeNdHandle = (val: string) => {
   tableMsg.nd = val
   getTableData()
 }
-
 const changeXswsHandle = (val: string) => {
   tableMsg.xsws = val
   getTableData()
 }
-
 const uploadHandle = async () => {
   uploadMsg.isShowModal = true
   tabMsg.busiId = pageMsg.pageData.dwDetailId
 }
-
 const formatterHandle = ({ column, cellValue }: any) => {
   if (column.field === 'cnx' || column.field === 'name' || column.field === 'sbsm') {
     return cellValue
@@ -669,7 +639,6 @@ const formatterHandle = ({ column, cellValue }: any) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   return formatValue(cellValue, Number(tableMsg.xsws))
 }
-
 const inputSxysHandle = (event: any, flag: any) => {
   event.target.value = '' + event.target.value
   if (flag) {
@@ -693,9 +662,10 @@ const isHideTab = async (dwId: string) => {
     isHidenTab.value = res.data
   }
 }
-
 const getRoleHandle = async () => {
-  userMsg.userData = { ...userDialogRef.value.userMsg }
+  userMsg.userData = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   isHideTab(userMsg.userData.org_id)
   tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString()
@@ -706,7 +676,6 @@ const getRoleHandle = async () => {
     linkTable()
   }
 }
-
 const linkTable = () => {
   const $table = tabMsg.name === '1' ? treeTableRef.value : treendTableRef.value
   const $toolBar = tabMsg.name === '1' ? toolbarOneRef.value : toolbarTwoRef.value
@@ -714,17 +683,16 @@ const linkTable = () => {
     $table.connect($toolBar)
   }
 }
-
 const getCurData = async () => {
   let res = await getCurrentPageData(tabMsg.name, tableMsg.nd, userMsg.userData.org_id)
-  pageMsg.pageData = { ...res.data }
+  pageMsg.pageData = {
+    ...res.data
+  }
   userMsg.dwName = res.data.dwName
 }
-
 const initData = async () => {
   userDialogRef.value.getUser()
 }
-
 const getTableData = async () => {
   tableLoading.value = true
   clearTableData()
@@ -746,13 +714,11 @@ const getTableData = async () => {
   }
   tableLoading.value = false
 }
-
 const clearTableData = () => {
   if (tableMsg.columns && tableMsg.columns.length > 0) tableMsg.columns.length = 0
   if (tableMsg.tableData) tableMsg.tableData.length = 0
   if (tableMsg.ndData) tableMsg.ndData.length = 0
 }
-
 onMounted(() => {
   initData()
 })

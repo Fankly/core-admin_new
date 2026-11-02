@@ -278,215 +278,186 @@
   <AddOrEditModal @sendData="insertTableData" ref="addOrEditModalRef"></AddOrEditModal>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { Result } from '@/api/mbz'
 import { getSbzcInfoByXmId } from '@/api/service/requirement'
 import GridItem from '@/components/Grid/components/GridItem.vue'
 import Grid from '@/components/Grid/index.vue'
 import AddOrEditModal from '@/views/service/xq/components/operation/AddOrEditModal.vue'
 import { ElMessage } from 'element-plus'
-import { defineComponent, onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import VXETable from 'vxe-table'
 import { RowVo } from './operation/interface'
-
-export default defineComponent({
-  props: {
-    selectData: Object,
-    globalParams: Object,
-    opType: {
-      type: String,
-      default: 'VIEW'
-    }
+defineOptions({
+  name: 'AssetDetails'
+})
+const props = defineProps({
+  selectData: Object,
+  globalParams: Object,
+  opType: {
+    type: String,
+    default: 'VIEW'
+  }
+})
+const emit = defineEmits(['searched'])
+const formData = ref<{
+  pmsDytqCode: string
+  pmsPdbyqName: string
+  pmsDytqName: string
+  pmsDyxlCode: string
+  pmsDyxlName: string
+  pmsGzdx: string
+  pmsZyxlCode: string
+  pmsYjwl: string
+  pmsYjfl: string
+  pmsEjfl: string
+  pmsXmlb: string
+  pmsWtyp: string
+  pmsWtms: string
+  pmsBdzName: string
+  pmsZyxlName: string
+}>({
+  pmsDytqCode: '',
+  pmsPdbyqName: '',
+  pmsDytqName: '',
+  pmsDyxlCode: '',
+  pmsDyxlName: '',
+  pmsGzdx: '',
+  pmsZyxlCode: '',
+  pmsYjwl: '',
+  pmsYjfl: '',
+  pmsEjfl: '',
+  pmsXmlb: '',
+  pmsWtyp: '',
+  pmsWtms: '',
+  pmsBdzName: '',
+  pmsZyxlName: ''
+})
+const addOrEditModalRef = ref<InstanceType<typeof AddOrEditModal>>()
+const isList = reactive([
+  {
+    value: '1',
+    label: '是'
   },
-  components: {
-    Grid,
-    GridItem,
-    AddOrEditModal
-  },
-  emits: ['searched'],
-  name: 'AssetDetails',
-  setup(props, { expose, emit }) {
-    const formData = ref<{
-      pmsDytqCode: string
-      pmsPdbyqName: string
-      pmsDytqName: string
-      pmsDyxlCode: string
-      pmsDyxlName: string
-      pmsGzdx: string
-      pmsZyxlCode: string
-      pmsYjwl: string
-      pmsYjfl: string
-      pmsEjfl: string
-      pmsXmlb: string
-      pmsWtyp: string
-      pmsWtms: string
-      pmsBdzName: string
-      pmsZyxlName: string
-    }>({
-      pmsDytqCode: '',
-      pmsPdbyqName: '',
-      pmsDytqName: '',
-      pmsDyxlCode: '',
-      pmsDyxlName: '',
-      pmsGzdx: '',
-      pmsZyxlCode: '',
-      pmsYjwl: '',
-      pmsYjfl: '',
-      pmsEjfl: '',
-      pmsXmlb: '',
-      pmsWtyp: '',
-      pmsWtms: '',
-      pmsBdzName: '',
-      pmsZyxlName: ''
+  {
+    value: '0',
+    label: '否'
+  }
+])
+const xmId = ref('')
+const loading = ref(false)
+
+// 自定义组件标识
+const ISCUSTOMCOPONENT = true
+const tableData = ref<RowVo[]>([])
+const vxeTableRef = ref()
+const view = reactive({
+  amount: 0,
+  dnys: 0,
+  rate: 0
+})
+const formatUser = (value: string) => {
+  if (value === '1') {
+    return '是'
+  }
+  if (value === '0') {
+    return '否'
+  }
+  return ''
+}
+const handleAddData = () => {
+  addOrEditModalRef.value?.acceptParams({
+    title: '设备资产信息-新增',
+    opType: 'ADD'
+  })
+}
+const handleDeleteData = async () => {
+  const $table = vxeTableRef.value
+  if ($table) {
+    const records = $table.getCheckboxRecords()
+    if (records.length === 0) {
+      ElMessage.warning('请选择一条或多条数据进行删除!')
+      return
+    }
+    const type = await VXETable.modal.confirm('是否确认删除？', '温馨提示', {
+      status: 'warning'
     })
-    const addOrEditModalRef = ref<InstanceType<typeof AddOrEditModal>>()
-    const isList = reactive([
-      {
-        value: '1',
-        label: '是'
-      },
-      {
-        value: '0',
-        label: '否'
-      }
-    ])
-
-    const xmId = ref('')
-    const loading = ref(false)
-
-    // 自定义组件标识
-    const ISCUSTOMCOPONENT = true
-
-    const tableData = ref<RowVo[]>([])
-    const vxeTableRef = ref()
-    const view = reactive({
-      amount: 0,
-      dnys: 0,
-      rate: 0
-    })
-
-    const formatUser = (value: string) => {
-      if (value === '1') {
-        return '是'
-      }
-      if (value === '0') {
-        return '否'
-      }
-      return ''
-    }
-    const handleAddData = () => {
-      addOrEditModalRef.value?.acceptParams({
-        title: '设备资产信息-新增',
-        opType: 'ADD'
-      })
-    }
-    const handleDeleteData = async () => {
-      const $table = vxeTableRef.value
-      if ($table) {
-        const records = $table.getCheckboxRecords()
-        if (records.length === 0) {
-          ElMessage.warning('请选择一条或多条数据进行删除!')
-          return
-        }
-        const type = await VXETable.modal.confirm('是否确认删除？', '温馨提示', {
-          status: 'warning'
-        })
-        if (type === 'confirm') {
-          $table.removeCheckboxRow()
-        }
-      }
-    }
-    const handleSearchData = async (initial = false) => {
-      try {
-        loading.value = true
-        const res = await getSbzcInfoByXmId(xmId.value)
-        if (res.success && res.data) {
-          view.dnys = res.data.dnys
-          view.amount = res.data.amount
-          view.rate = res.data.rate
-          if (res.data.sbzcs) {
-            tableData.value = res.data.sbzcs
-          } else {
-            tableData.value = []
-          }
-          if (res.data.lineStation) {
-            formData.value = res.data.lineStation
-          }
-        } else {
-          throw new Error(res.msg)
-        }
-      } catch (error: any) {
-        ElMessage.error(error.message)
-      } finally {
-        loading.value = false
-        emit('searched', { initial })
-      }
-    }
-
-    const insertTableData = async (res: Result) => {
-      if (res.data) {
-        // 获取表格中所有数据
-        const $table = vxeTableRef.value
-        if ($table) {
-          const { tableData } = $table.getTableData()
-          const isSome = tableData.some((item: RowVo) => item.equipcode === res.data.equipcode)
-          if (isSome) {
-            ElMessage.error('已存在相同设备资产数据，请勿重复添加！')
-            return
-          }
-          ElMessage.success('确认成功')
-          if (addOrEditModalRef.value) addOrEditModalRef.value.handleCloseModal()
-          await $table.insertAt(res.data, -1)
-        }
-      } else {
-        if (res.msg !== 'success') ElMessage.error(res.msg)
-        else ElMessage.error('请重新再试!')
-      }
-    }
-
-    onMounted(() => {
-      if (props.globalParams) {
-        xmId.value = props.globalParams.ID
-        handleSearchData(true)
-      }
-    })
-
-    // 获取表格中数据-自定义组件必须实现方法
-    const getFormData = () => {
-      const $table = vxeTableRef.value
-      if ($table) {
-        const { tableData } = $table.getTableData()
-        return {
-          sbInfos: tableData
-        }
-      }
-      return {
-        sbInfos: []
-      }
-    }
-
-    expose({
-      getFormData,
-      ISCUSTOMCOPONENT
-    })
-
-    return {
-      ISCUSTOMCOPONENT,
-      view,
-      loading,
-      tableData,
-      getFormData,
-      insertTableData,
-      isList,
-      formatUser,
-      formData,
-      handleDeleteData,
-      handleSearchData,
-      handleAddData,
-      addOrEditModalRef,
-      vxeTableRef
+    if (type === 'confirm') {
+      $table.removeCheckboxRow()
     }
   }
+}
+const handleSearchData = async (initial = false) => {
+  try {
+    loading.value = true
+    const res = await getSbzcInfoByXmId(xmId.value)
+    if (res.success && res.data) {
+      view.dnys = res.data.dnys
+      view.amount = res.data.amount
+      view.rate = res.data.rate
+      if (res.data.sbzcs) {
+        tableData.value = res.data.sbzcs
+      } else {
+        tableData.value = []
+      }
+      if (res.data.lineStation) {
+        formData.value = res.data.lineStation
+      }
+    } else {
+      throw new Error(res.msg)
+    }
+  } catch (error: any) {
+    ElMessage.error(error.message)
+  } finally {
+    loading.value = false
+    emit('searched', {
+      initial
+    })
+  }
+}
+const insertTableData = async (res: Result) => {
+  if (res.data) {
+    // 获取表格中所有数据
+    const $table = vxeTableRef.value
+    if ($table) {
+      const { tableData } = $table.getTableData()
+      const isSome = tableData.some((item: RowVo) => item.equipcode === res.data.equipcode)
+      if (isSome) {
+        ElMessage.error('已存在相同设备资产数据，请勿重复添加！')
+        return
+      }
+      ElMessage.success('确认成功')
+      if (addOrEditModalRef.value) addOrEditModalRef.value.handleCloseModal()
+      await $table.insertAt(res.data, -1)
+    }
+  } else {
+    if (res.msg !== 'success') ElMessage.error(res.msg)
+    else ElMessage.error('请重新再试!')
+  }
+}
+onMounted(() => {
+  if (props.globalParams) {
+    xmId.value = props.globalParams.ID
+    handleSearchData(true)
+  }
+})
+
+// 获取表格中数据-自定义组件必须实现方法
+const getFormData = () => {
+  const $table = vxeTableRef.value
+  if ($table) {
+    const { tableData } = $table.getTableData()
+    return {
+      sbInfos: tableData
+    }
+  }
+  return {
+    sbInfos: []
+  }
+}
+defineExpose({
+  getFormData,
+  ISCUSTOMCOPONENT
 })
 </script>
 

@@ -15,46 +15,35 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: 'Header'
-}
-</script>
 
 <script setup lang="ts">
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
-import { ref, computed, defineEmits, defineExpose, defineProps, withDefaults } from 'vue'
+import { ref, computed } from 'vue'
+defineOptions({
+  name: 'Header'
+})
 
 interface Props {
   helpMessage: string
 }
-
 const emits = defineEmits(['pageExportData', 'exportApiData', 'onDetailView', 'expandData'])
-
 const props = withDefaults(defineProps<Props>(), {
   helpMessage: ''
 })
-
 const isDisabled = ref(false)
 const helpModalRef = ref()
 const isLoaded = ref(false)
 const isExported = ref(false)
-
 const disabled = computed(() => isLoaded.value || isDisabled.value)
-
 const disabledExport = computed(() => isLoaded.value || isExported.value)
-
 const isLoading = computed(() => isLoaded.value)
-
 const pageExportHandle = () => {
   emits('pageExportData')
 }
-
 const exportHandle = (flag: string) => {
   emits('exportApiData', flag)
 }
-
 const DetailViewHandle = () => {
   emits('onDetailView')
 }
@@ -68,7 +57,6 @@ const expandHandle = async () => {
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 defineExpose({
   isDisabled,
   isLoaded,

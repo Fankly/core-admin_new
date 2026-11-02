@@ -136,7 +136,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -145,9 +145,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, nextTick, reactive as reactiveLocal, toRefs, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import projectType from '@/components/select/projectType.vue'
@@ -159,394 +157,449 @@ import Sortable from 'sortablejs'
 import { showHelpMsg } from '@/utils/message'
 import { getConfigDetail } from '@/api/menu/menuConfig'
 import { getMaxLength } from '@/utils/utils'
-
-export default defineComponent({
-  name: '/budget-process/process-08',
-  components: {
-    projectType,
-    affiliatedUnit,
-    copyTextBox,
-    userDialog
-  },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+import { useRouter } from 'vue-router'
+defineOptions({
+  name: '/budget-process/process-08'
+})
+const router = useRouter()
+const caigouRef = useTemplateRef('caigou')
+const htbhsRef = useTemplateRef('htbhs')
+const ebelnsRef = useTemplateRef('ebelns')
+const typeRef = useTemplateRef('type')
+const companyRef = useTemplateRef('company')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  tableMsg: [],
+  remarks: false,
+  helpHandle,
+  store,
+  tableKey: 0,
+  example: [],
+  dropCol: [
+    {
+      label: '采购申请号',
+      prop: 'banfn'
+    },
+    {
+      label: '采购申请行项目号',
+      prop: 'bnfpo'
+    },
+    {
+      label: '采购订单号',
+      prop: 'ebeln'
+    },
+    {
+      label: '采购订单行项目号',
+      prop: 'ebelp'
+    },
+    {
+      label: '合同属性',
+      prop: 'zhtsx'
+    },
+    {
+      label: '经法合同编码',
+      prop: 'htbh'
+    },
+    {
+      label: '经法合同名称',
+      prop: 'zhtmc'
+    },
+    {
+      label: '合同行项目号',
+      prop: 'hthxm'
+    },
+    {
+      label: '计划批次号',
+      prop: 'zzbpc'
+    },
+    {
+      label: '计划批次名称',
+      prop: 'zzbpcmc'
+    },
+    {
+      label: '项目类型',
+      prop: 'zprxmlx'
+    },
+    {
+      label: '一级单位',
+      prop: 'qkjyjdw_name'
+    },
+    {
+      label: '二级单位',
+      prop: 'qkjejdw_name'
+    },
+    {
+      label: '需求上报日期',
+      prop: 'zhzsj'
+    },
+    {
+      label: '中标日期',
+      prop: 'zdate'
+    },
+    {
+      label: '招标金额 ',
+      prop: 'preis'
+    },
+    {
+      label: '中标金额',
+      prop: 'zhszj'
+    },
+    {
+      label: '合同金额',
+      prop: 'htje'
+    },
+    {
+      label: '物资到货金额',
+      prop: 'zwzdhje'
+    },
+    {
+      label: '物资领用金额',
+      prop: 'zwzlyje'
+    },
+    {
+      label: '物资领用金额（不含税）',
+      prop: 'zwzlyje_bhs'
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      tableMsg: [],
-      remarks: false,
-      helpHandle,
-      store,
-      tableKey: 0,
-      example: [],
-      dropCol: [
-        {
-          label: '采购申请号',
-          prop: 'banfn'
-        },
-        {
-          label: '采购申请行项目号',
-          prop: 'bnfpo'
-        },
-        {
-          label: '采购订单号',
-          prop: 'ebeln'
-        },
-        {
-          label: '采购订单行项目号',
-          prop: 'ebelp'
-        },
-        {
-          label: '合同属性',
-          prop: 'zhtsx'
-        },
-        {
-          label: '经法合同编码',
-          prop: 'htbh'
-        },
-        {
-          label: '经法合同名称',
-          prop: 'zhtmc'
-        },
-        {
-          label: '合同行项目号',
-          prop: 'hthxm'
-        },
-        {
-          label: '计划批次号',
-          prop: 'zzbpc'
-        },
-        {
-          label: '计划批次名称',
-          prop: 'zzbpcmc'
-        },
-        {
-          label: '项目类型',
-          prop: 'zprxmlx'
-        },
-        {
-          label: '一级单位',
-          prop: 'qkjyjdw_name'
-        },
-        {
-          label: '二级单位',
-          prop: 'qkjejdw_name'
-        },
-        {
-          label: '需求上报日期',
-          prop: 'zhzsj'
-        },
-        {
-          label: '中标日期',
-          prop: 'zdate'
-        },
-        {
-          label: '招标金额 ',
-          prop: 'preis'
-        },
-        {
-          label: '中标金额',
-          prop: 'zhszj'
-        },
-        {
-          label: '合同金额',
-          prop: 'htje'
-        },
-        {
-          label: '物资到货金额',
-          prop: 'zwzdhje'
-        },
-        {
-          label: '物资领用金额',
-          prop: 'zwzlyje'
-        },
-        {
-          label: '物资领用金额（不含税）',
-          prop: 'zwzlyje_bhs'
-        }
-      ],
-      dataList: {
-        sbMonth: '',
-        zbMonth: '',
-        banfn: '',
-        bnfpo: '',
-        htmc: ''
-      },
-      fn: [],
-      po: [],
-
-      //搜索区域显示与隐藏
-      searchShow: true,
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      page: {
-        total: 0,
-        limit: 50,
-        page: 1,
-        current: '1'
-      },
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: ''
+  ],
+  dataList: {
+    sbMonth: '',
+    zbMonth: '',
+    banfn: '',
+    bnfpo: '',
+    htmc: ''
+  },
+  fn: [],
+  po: [],
+  //搜索区域显示与隐藏
+  searchShow: true,
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  page: {
+    total: 0,
+    limit: 50,
+    page: 1,
+    current: '1'
+  },
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const tableMsg = toRef(setupState, 'tableMsg')
+const remarks = toRef(setupState, 'remarks')
+const tableKey = toRef(setupState, 'tableKey')
+const example = toRef(setupState, 'example')
+const dropCol = toRef(setupState, 'dropCol')
+const dataList = toRef(setupState, 'dataList')
+const fn = toRef(setupState, 'fn')
+const po = toRef(setupState, 'po')
+const searchShow = toRef(setupState, 'searchShow')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const page = toRef(setupState, 'page')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const componentData = reactiveLocal({})
+componentData.sortable = undefined
+const sortable = toRef(componentData, 'sortable')
+function compTableWidth() {
+  const tableData = setupState.example
+  setupState.dropCol = setupState.dropCol.map((value) => {
+    const arr = tableData.map((item) => {
+      return item[value.prop]
     })
-  },
-  mounted() {
-    this.tableKey = 0
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser()
-    this.compTableWidth()
-  },
-  methods: {
-    compTableWidth() {
-      const tableData = this.example
-      this.dropCol = this.dropCol.map((value) => {
-        const arr = tableData.map((item) => {
-          return item[value.prop]
-        })
-        arr.push(value.label)
-        let width = getMaxLength(arr)
-        if (value.prop === 'zzbpcmc' || value.prop === 'zhtmc') {
-          value.width = 320
-        } else {
-          value.width = Math.round(width + 20)
-        }
-        return value
-      })
-    },
-    remarksbtn(val) {
-      if (val) {
-        getConfigDetail(this.store.getters.getMenuMsg.url).then((res) => {
-          if (res.success) {
-            if (res.data) {
-              this.tableMsg = res.data
-            }
-          } else {
-            ElMessage.error(res.msg)
-          }
-        })
-      }
-      this.loadData()
-    },
-    columnDrop() {
-      const wrapperTr = document.getElementById('crTable').querySelector('.el-table__header-wrapper tr')
-      const _this = this
-      this.sortable = Sortable.create(wrapperTr, {
-        animation: 180,
-        delay: 0,
-        draggable: '.dropTableColumn',
-        onEnd: (evt) => {
-          const oldItem = _this.dropCol[evt.oldIndex]
-          _this.dropCol.splice(evt.oldIndex, 1)
-          _this.dropCol.splice(evt.newIndex, 0, oldItem)
-          _this.tableKey += 1
-          this.$nextTick(() => {
-            this.columnDrop()
-          })
-        }
-      })
-    },
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 80 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 80 + 'px'
-      }
-    },
-    loadData() {
-      this.loading = true
-      const params = {
-        banfns: [],
-        // bnfpos: [],
-        qkjejdws: [],
-        zprxmlxs: [],
-        // zzbpc: this.dataList.zzbpc,
-        szhzsj: '',
-        ezhzsj: '',
-        szdate: '',
-        ezdate: '',
-        htmc: this.dataList.htmc,
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-      //采购申请号
-      params.banfns = this.$refs.caigou.newArr
-      // 采购合同编号
-      params.htbhs = this.$refs.htbhs.array
-      // 采购订单号
-      params.ebelns = this.$refs.ebelns.array
-      //采购申请项目行
-      // params.bnfpos = this.$refs.xmh.array;
-      //项目类型
-      params.zprxmlxs = this.$refs.type.selectList
-      //单位
-      params.qkjejdws = this.$refs.company.selectList
-
-      //需求上报日期
-      if (this.dataList.sbMonth) {
-        params.szhzsj = this.dataList.sbMonth[0]
-        params.ezhzsj = this.dataList.sbMonth[1]
-      }
-      //需求中标日期
-      if (this.dataList.zbMonth) {
-        params.szdate = this.dataList.zbMonth[0]
-        params.ezdate = this.dataList.zbMonth[1]
-      }
-
-      baseService.post('/process/process08/', params).then((res) => {
-        if (res.success == true) {
-          this.loading = false
-          this.example = res.data.records
-          if (this.remarks) {
-            this.example.unshift(...this.tableMsg)
-          }
-          this.compTableWidth()
-          this.page.total = res.data.total
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-
-    exportBtn() {
-      this.loading = true
-      const params = {
-        banfns: [],
-        // bnfpos: [],
-        qkjejdws: [],
-        zprxmlxs: [],
-        htmc: this.dataList.htmc,
-        // zzbpc: this.dataList.zzbpc,
-        szhzsj: '',
-        ezhzsj: '',
-        szdate: '',
-        ezdate: '',
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-      //采购申请号
-      params.banfns = this.$refs.caigou.newArr
-      //采购申请项目行
-      // params.bnfpos = this.$refs.xmh.array;
-      //项目类型
-      params.zprxmlxs = this.$refs.type.selectList
-      //单位
-      params.qkjejdws = this.$refs.company.selectList
-      // 采购合同编号
-      params.htbhs = this.$refs.htbhs.array
-      // 采购订单号
-      params.ebelns = this.$refs.ebelns.array
-      //采购申请项目行
-      //项目类型
-      // if (this.$refs.type.selectList.length > 0) {
-      //   params.zprxmlxs = this.$refs.type.selectList;
-      // } else {
-      //   params.zprxmlxs = this.$refs.type.allId;
-      // }
-      // //单位
-      // if (this.$refs.company.selectList.length > 0) {
-      //   params.qkjejdws = this.$refs.company.selectList;
-      // } else {
-      //   params.qkjejdws = this.$refs.company.allId;
-      // }
-      //需求上报日期
-      if (this.dataList.sbMonth) {
-        params.szhzsj = this.dataList.sbMonth[0]
-        params.ezhzsj = this.dataList.sbMonth[1]
-      }
-      //需求中标日期
-      if (this.dataList.zbMonth) {
-        params.szdate = this.dataList.zbMonth[0]
-        params.ezdate = this.dataList.zbMonth[1]
-      }
-
-      baseService.export('/process/process08/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '通用物资执行明细表.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-    // 分页控件当前页修改事件
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    // 分页控件请求数量修改事件
-    limitChangeHandle(currentLimitNum) {
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-    //搜索按钮
-    search() {
-      this.loadData()
-    },
-
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-
-    //重置按钮
-    reset() {
-      this.remarks = false
-      this.dataList.sbMonth = []
-      this.dataList.zbMonth = []
-      // this.dataList.zzbpc = "";
-      this.dataList.banfn = ''
-      this.dataList.bnfpo = ''
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.$refs.caigou.clear()
-      this.$refs.htbhs.clear()
-      this.$refs.ebelns.clear()
-      this.dataList.htmc = ''
-      // this.$refs.xmh.clear();
-      this.example = []
-      this.search()
-    },
-
-    //页面穿透
-    clickJump(row) {
-      this.$router.push({
-        path: './process-09',
-        query: { banfn: row.banfn, specialorgid: this.specialorgid }
-      })
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
-      this.columnDrop()
+    arr.push(value.label)
+    let width = getMaxLength(arr)
+    if (value.prop === 'zzbpcmc' || value.prop === 'zhtmc') {
+      value.width = 320
+    } else {
+      value.width = Math.round(width + 20)
     }
+    return value
+  })
+}
+function remarksbtn(val) {
+  if (val) {
+    getConfigDetail(setupState.store.getters.getMenuMsg.url).then((res) => {
+      if (res.success) {
+        if (res.data) {
+          setupState.tableMsg = res.data
+        }
+      } else {
+        ElMessage.error(res.msg)
+      }
+    })
   }
+  loadData()
+}
+function columnDrop() {
+  const wrapperTr = document.getElementById('crTable').querySelector('.el-table__header-wrapper tr')
+  componentData.sortable = Sortable.create(wrapperTr, {
+    animation: 180,
+    delay: 0,
+    draggable: '.dropTableColumn',
+    onEnd: (evt) => {
+      const oldItem = setupState.dropCol[evt.oldIndex]
+      setupState.dropCol.splice(evt.oldIndex, 1)
+      setupState.dropCol.splice(evt.newIndex, 0, oldItem)
+      setupState.tableKey += 1
+      nextTick(() => {
+        columnDrop()
+      })
+    }
+  })
+}
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 80 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 80 + 'px'
+  }
+}
+function loadData() {
+  setupState.loading = true
+  const params = {
+    banfns: [],
+    // bnfpos: [],
+    qkjejdws: [],
+    zprxmlxs: [],
+    // zzbpc: this.dataList.zzbpc,
+    szhzsj: '',
+    ezhzsj: '',
+    szdate: '',
+    ezdate: '',
+    htmc: setupState.dataList.htmc,
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+  //采购申请号
+  params.banfns = caigouRef.value.newArr
+  // 采购合同编号
+  params.htbhs = htbhsRef.value.array
+  // 采购订单号
+  params.ebelns = ebelnsRef.value.array
+  //采购申请项目行
+  // params.bnfpos = this.$refs.xmh.array;
+  //项目类型
+  params.zprxmlxs = typeRef.value.selectList
+  //单位
+  params.qkjejdws = companyRef.value.selectList
+
+  //需求上报日期
+  if (setupState.dataList.sbMonth) {
+    params.szhzsj = setupState.dataList.sbMonth[0]
+    params.ezhzsj = setupState.dataList.sbMonth[1]
+  }
+  //需求中标日期
+  if (setupState.dataList.zbMonth) {
+    params.szdate = setupState.dataList.zbMonth[0]
+    params.ezdate = setupState.dataList.zbMonth[1]
+  }
+  baseService.post('/process/process08/', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example = res.data.records
+      if (setupState.remarks) {
+        setupState.example.unshift(...setupState.tableMsg)
+      }
+      compTableWidth()
+      setupState.page.total = res.data.total
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function exportBtn() {
+  setupState.loading = true
+  const params = {
+    banfns: [],
+    // bnfpos: [],
+    qkjejdws: [],
+    zprxmlxs: [],
+    htmc: setupState.dataList.htmc,
+    // zzbpc: this.dataList.zzbpc,
+    szhzsj: '',
+    ezhzsj: '',
+    szdate: '',
+    ezdate: '',
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+  //采购申请号
+  params.banfns = caigouRef.value.newArr
+  //采购申请项目行
+  // params.bnfpos = this.$refs.xmh.array;
+  //项目类型
+  params.zprxmlxs = typeRef.value.selectList
+  //单位
+  params.qkjejdws = companyRef.value.selectList
+  // 采购合同编号
+  params.htbhs = htbhsRef.value.array
+  // 采购订单号
+  params.ebelns = ebelnsRef.value.array
+  //采购申请项目行
+  //项目类型
+  // if (this.$refs.type.selectList.length > 0) {
+  //   params.zprxmlxs = this.$refs.type.selectList;
+  // } else {
+  //   params.zprxmlxs = this.$refs.type.allId;
+  // }
+  // //单位
+  // if (this.$refs.company.selectList.length > 0) {
+  //   params.qkjejdws = this.$refs.company.selectList;
+  // } else {
+  //   params.qkjejdws = this.$refs.company.allId;
+  // }
+  //需求上报日期
+  if (setupState.dataList.sbMonth) {
+    params.szhzsj = setupState.dataList.sbMonth[0]
+    params.ezhzsj = setupState.dataList.sbMonth[1]
+  }
+  //需求中标日期
+  if (setupState.dataList.zbMonth) {
+    params.szdate = setupState.dataList.zbMonth[0]
+    params.ezdate = setupState.dataList.zbMonth[1]
+  }
+  baseService.export('/process/process08/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '通用物资执行明细表.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+// 分页控件当前页修改事件
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+//搜索按钮
+function search() {
+  loadData()
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+//重置按钮
+function reset() {
+  setupState.remarks = false
+  setupState.dataList.sbMonth = []
+  setupState.dataList.zbMonth = []
+  // this.dataList.zzbpc = "";
+  setupState.dataList.banfn = ''
+  setupState.dataList.bnfpo = ''
+  typeRef.value.clear()
+  companyRef.value.clear()
+  caigouRef.value.clear()
+  htbhsRef.value.clear()
+  ebelnsRef.value.clear()
+  setupState.dataList.htmc = ''
+  // this.$refs.xmh.clear();
+  setupState.example = []
+  search()
+}
+//页面穿透
+function clickJump(row) {
+  router.push({
+    path: './process-09',
+    query: {
+      banfn: row.banfn,
+      specialorgid: setupState.specialorgid
+    }
+  })
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+  columnDrop()
+}
+onMounted(() => {
+  setupState.tableKey = 0
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser()
+  compTableWidth()
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  tableMsg,
+  remarks,
+  helpHandle,
+  store,
+  tableKey,
+  example,
+  dropCol,
+  dataList,
+  fn,
+  po,
+  searchShow,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  page,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  compTableWidth,
+  remarksbtn,
+  columnDrop,
+  setTableHeight,
+  loadData,
+  exportBtn,
+  pageChangeHandle,
+  limitChangeHandle,
+  search,
+  showSearch,
+  reset,
+  clickJump,
+  loadCompany,
+  ...toRefs(componentData)
 })
 </script>
 

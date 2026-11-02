@@ -115,7 +115,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -124,9 +124,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import copyTextBox from '@/components/select/copyTextBox.vue'
@@ -136,205 +134,238 @@ import userDialog from '@/components/select/userDialog.vue'
 import Centralized from '@/components/select/Centralized.vue'
 import { useStore } from '@/store/business'
 import { showHelpMsg } from '@/utils/message'
-
-export default defineComponent({
-  name: '/budget-process/process-25',
-  components: {
-    projectType,
-    affiliatedUnit,
-    copyTextBox,
-    userDialog,
-    Centralized
+defineOptions({
+  name: '/budget-process/process-25'
+})
+const userDialogRef = useTemplateRef('userDialog')
+const companyRef = useTemplateRef('company')
+const gkbmRef = useTemplateRef('gkbm')
+const xmbmRef = useTemplateRef('xmbm')
+const typeRef = useTemplateRef('type')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  helpHandle,
+  example: [],
+  searchShow: true,
+  dataList: {
+    name: '',
+    xmb: '',
+    month: new Date()
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
-    }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      helpHandle,
-      example: [],
-      searchShow: true,
-      dataList: {
-        name: '',
-        xmb: '',
-        month: new Date()
-      },
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: ''
-    })
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-  },
-  methods: {
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 80 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 80 + 'px'
-      }
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
-      this.$refs.gkbm.getProjectType(this.specialorgid)
-    },
-    loadData() {
-      this.loading = true
-      const params = {
-        pspids: [],
-        post1: this.dataList.name,
-        qkjxmlxbms: [],
-        qkjejdws: [],
-        zyear: '',
-        zmonth: '',
-        qkjxmb: this.dataList.xmb,
-        gkbms: [],
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-      //项目编码
-      params.pspids = this.$refs.xmbm.array
-      if (this.$refs.type.selectList.length > 0) {
-        params.qkjxmlxbms = this.$refs.type.selectList
-      } else {
-        params.qkjxmlxbms = this.$refs.type.allId
-      }
-
-      if (this.$refs.company.selectList.length > 0) {
-        params.qkjejdws = this.$refs.company.selectList
-      } else {
-        params.qkjejdws = this.$refs.company.allId
-      }
-      //归口部门
-      params.gkbms = this.$refs.gkbm.selectList
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      baseService.post('/process/process25/', params).then((res) => {
-        if (res.success == true) {
-          this.loading = false
-          this.example = res.data.records
-          this.page.total = res.data.total
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-
-    //导出按钮
-    async exportBtn() {
-      this.loading = true
-      const params = {
-        pspids: [],
-        post1: this.dataList.name,
-        qkjxmlxbms: [],
-        qkjejdws: [],
-        zyear: '',
-        zmonth: '',
-        qkjxmb: this.dataList.xmb,
-        gkbms: [],
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-      //项目编码
-      params.pspids = this.$refs.xmbm.array
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type.selectList
-      //单位
-      params.qkjejdws = this.$refs.company.selectList
-      //归口部门
-      params.gkbms = this.$refs.gkbm.selectList
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      await baseService.export('/process/process25/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '项目储备与立项稽核.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-    // 分页控件当前页修改事件
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    // 分页控件请求数量修改事件
-    limitChangeHandle(currentLimitNum) {
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-    //搜索按钮
-    search() {
-      this.loadData()
-    },
-
-    //重置按钮
-    reset() {
-      this.dataList.name = ''
-      this.dataList.month = new Date()
-      this.dataList.xmb = ''
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.$refs.xmbm.clear()
-      this.$refs.gkbm.clear()
-      this.example = []
-      this.loadData()
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    }
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const example = toRef(setupState, 'example')
+const searchShow = toRef(setupState, 'searchShow')
+const dataList = toRef(setupState, 'dataList')
+const page = toRef(setupState, 'page')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 80 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 80 + 'px'
   }
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+  gkbmRef.value.getProjectType(setupState.specialorgid)
+}
+function loadData() {
+  setupState.loading = true
+  const params = {
+    pspids: [],
+    post1: setupState.dataList.name,
+    qkjxmlxbms: [],
+    qkjejdws: [],
+    zyear: '',
+    zmonth: '',
+    qkjxmb: setupState.dataList.xmb,
+    gkbms: [],
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+  //项目编码
+  params.pspids = xmbmRef.value.array
+  if (typeRef.value.selectList.length > 0) {
+    params.qkjxmlxbms = typeRef.value.selectList
+  } else {
+    params.qkjxmlxbms = typeRef.value.allId
+  }
+  if (companyRef.value.selectList.length > 0) {
+    params.qkjejdws = companyRef.value.selectList
+  } else {
+    params.qkjejdws = companyRef.value.allId
+  }
+  //归口部门
+  params.gkbms = gkbmRef.value.selectList
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  baseService.post('/process/process25/', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example = res.data.records
+      setupState.page.total = res.data.total
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+//导出按钮
+async function exportBtn() {
+  setupState.loading = true
+  const params = {
+    pspids: [],
+    post1: setupState.dataList.name,
+    qkjxmlxbms: [],
+    qkjejdws: [],
+    zyear: '',
+    zmonth: '',
+    qkjxmb: setupState.dataList.xmb,
+    gkbms: [],
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+  //项目编码
+  params.pspids = xmbmRef.value.array
+  //项目类型
+  params.qkjxmlxbms = typeRef.value.selectList
+  //单位
+  params.qkjejdws = companyRef.value.selectList
+  //归口部门
+  params.gkbms = gkbmRef.value.selectList
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  await baseService.export('/process/process25/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '项目储备与立项稽核.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+// 分页控件当前页修改事件
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+//搜索按钮
+function search() {
+  loadData()
+}
+//重置按钮
+function reset() {
+  setupState.dataList.name = ''
+  setupState.dataList.month = new Date()
+  setupState.dataList.xmb = ''
+  typeRef.value.clear()
+  companyRef.value.clear()
+  xmbmRef.value.clear()
+  gkbmRef.value.clear()
+  setupState.example = []
+  loadData()
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  helpHandle,
+  example,
+  searchShow,
+  dataList,
+  page,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  setTableHeight,
+  loadCompany,
+  loadData,
+  exportBtn,
+  pageChangeHandle,
+  limitChangeHandle,
+  search,
+  reset,
+  showSearch
 })
 </script>
 

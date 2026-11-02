@@ -105,8 +105,6 @@
 
 <script setup lang="ts">
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/xmInfo/annualKeyTask/index" })
 import { nextTick, onMounted, provide, reactive, ref, unref } from 'vue'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
@@ -125,6 +123,7 @@ import { createAnnualKeyTaskTableColumns } from './tableColumns'
 import AnnualKeyTaskFormDialog from './components/AnnualKeyTaskFormDialog.vue'
 import AnnualKeyTaskSearch from './components/AnnualKeyTaskSearch.vue'
 import AnnualKeyTaskToolbar from './components/AnnualKeyTaskToolbar.vue'
+defineOptions({ name: "/xmInfo/annualKeyTask/index" })
 
 const props = withDefaults(
   defineProps<{

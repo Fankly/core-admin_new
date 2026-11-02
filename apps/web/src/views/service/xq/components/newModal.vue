@@ -333,29 +333,21 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
 import { More as EpMore } from '@element-plus/icons-vue'
-
-import { ref, defineProps, defineEmits, defineExpose } from 'vue'
+import { ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getEjdwData, getBm } from '@/api/service/expertinformation'
 import formTable from '@/views/service/xq/components/formTable.vue'
 import baseService from '@/service/baseService'
-import {
-  checkCsSave,
-  csParamSave
-} from '@/api/service/requirement'
-
+import { checkCsSave, csParamSave } from '@/api/service/requirement'
 interface OptionItem {
   code: string | number
   name: string
   id?: string | number
   [key: string]: any
 }
-
 const formTableRef = ref()
 
 //接收父组件传参
@@ -544,7 +536,7 @@ const rules = ref<any>({
       pattern: /(^[1][2-9]$)|(^[2-9][0-9]$)|(^[1][0-9][0-9]$)|(^[2][0-9][0-9]$)|(^[3][0][0]$)/,
       message: '只允许输入大于等于12且小于等于300的整数'
     }
-  ],
+  ]
 })
 const ruleFormRef = ref()
 const dialogFormRef = ref()
@@ -563,7 +555,6 @@ const selectChange = async (val: any) => {
   rmarkData.value.ejdw = ''
   rmarkData.value.deptId = ''
   levelThree.value.length = 0
-
   rmarkData.value.wbsCode = '' // 项目编码
   rmarkData.value.wbsName = '' // 项目名称
   // let res: any = await getEjdwData(val.id)
@@ -601,27 +592,25 @@ const saveHandler = () => {
   ruleFormRef.value.validate(async (valid: any) => {
     if (!valid) return
     if (formTableRef.value.formObj.list.length == 0) {
-      ElMessage.warning('请添加“租金计划”！');
-      return;
+      ElMessage.warning('请添加“租金计划”！')
+      return
     }
 
     // 校验租金计划是否都必填
     await formTableRef.value.formValidate()
     if (!formTableRef.value.validateStatus) return
-
-    const newObj = judgementIsExistSameValue(formTableRef.value.formObj.list);
-	  if (newObj.state) {
-      ElMessage.error('同一批次的“付款时间”不能存在相同的时间！');
-      return;
+    const newObj = judgementIsExistSameValue(formTableRef.value.formObj.list)
+    if (newObj.state) {
+      ElMessage.error('同一批次的“付款时间”不能存在相同的时间！')
+      return
     }
-
     const dataList: any = await checkCsSave({
       HTBM: rmarkData.value.code,
       HTID: props.htID
-    });
+    })
     if (dataList.checkFlag) {
-      ElMessage.warning(dataList.msg);
-      return;
+      ElMessage.warning(dataList.msg)
+      return
     } else {
       const paramData: any = await csParamSave({
         ...rmarkData.value,
@@ -630,15 +619,15 @@ const saveHandler = () => {
         id: props.htID,
         state: '0',
         type: props.dialogState === 'add' ? '0' : props.dialogState == 'edit' ? '1' : '2'
-      });
+      })
       if (paramData.success) {
         if (paramData.data.id) {
           emit('updateHtId', paramData.data.id)
         }
         if (!isTipsState.value) {
-          isTipsState.value = true; 
+          isTipsState.value = true
           emit('showModal', '0')
-          ElMessage.success('保存成功，请确认是否已提交至损益测算参数库，否则将影响损益预测！');
+          ElMessage.success('保存成功，请确认是否已提交至损益测算参数库，否则将影响损益预测！')
         } else {
           emit('showModal', '1')
           ElMessage.success('保存成功！')
@@ -655,27 +644,25 @@ const submitHandler = () => {
   ruleFormRef.value.validate(async (valid: any) => {
     if (!valid) return
     if (formTableRef.value.formObj.list.length == 0) {
-      ElMessage.warning('请添加“租金计划”！');
-      return;
+      ElMessage.warning('请添加“租金计划”！')
+      return
     }
 
     // 校验租金计划是否都必填
     await formTableRef.value.formValidate()
     if (!formTableRef.value.validateStatus) return
-
-    const newObj = judgementIsExistSameValue(formTableRef.value.formObj.list);
-	  if (newObj.state) {
-      ElMessage.error('同一批次的“付款时间”不能存在相同的时间！');
-      return;
+    const newObj = judgementIsExistSameValue(formTableRef.value.formObj.list)
+    if (newObj.state) {
+      ElMessage.error('同一批次的“付款时间”不能存在相同的时间！')
+      return
     }
-
     const dataList: any = await checkCsSave({
       HTBM: rmarkData.value.code,
       HTID: props.htID
-    });
+    })
     if (dataList.checkFlag) {
-      ElMessage.warning(dataList.msg);
-      return;
+      ElMessage.warning(dataList.msg)
+      return
     } else {
       const paramData: any = await csParamSave({
         ...rmarkData.value,
@@ -684,7 +671,7 @@ const submitHandler = () => {
         id: props.htID,
         state: '1',
         type: props.dialogState === 'add' ? '0' : props.dialogState == 'edit' ? '1' : '2'
-      });
+      })
       if (paramData.success) {
         ElMessage.success('保存成功！')
         emit('showModal', '1')
@@ -705,14 +692,13 @@ const closeHandle = () => {
 // 合同签订日期 onchange 事件
 const htqdrqrChange = () => {
   if (rmarkData.value.crtSigningDate && new Date(rmarkData.value.crtSigningDate).getTime() >= new Date('2025-06-01').getTime()) {
-    rules.value.wbsCode[0].required = true;
-    rules.value.wbsName[0].required = true;
+    rules.value.wbsCode[0].required = true
+    rules.value.wbsName[0].required = true
   } else {
-    rules.value.wbsCode[0].required = false;
-    ruleFormRef.value.clearValidate('wbsCode');
-
-    rules.value.wbsName[0].required = false;
-    ruleFormRef.value.clearValidate('wbsName');
+    rules.value.wbsCode[0].required = false
+    ruleFormRef.value.clearValidate('wbsCode')
+    rules.value.wbsName[0].required = false
+    ruleFormRef.value.clearValidate('wbsName')
   }
 }
 
@@ -720,30 +706,30 @@ const htqdrqrChange = () => {
 const datePickerChange = (val: any) => {
   if (val === 'startDate') {
     if (rmarkData.value.endDate && new Date(rmarkData.value.startDate).getTime() >= new Date(rmarkData.value.endDate).getTime()) {
-      ElMessage.warning("租赁期实际开始日不得大于等于租赁期实际结束日！");
-      rmarkData.value.startDate = '';
+      ElMessage.warning('租赁期实际开始日不得大于等于租赁期实际结束日！')
+      rmarkData.value.startDate = ''
     }
     if (rmarkData.value.fpqz === '0') {
       // 判断是否分批起租为 否 时
       for (var i = 0; i < formTableRef.value.formObj.list.length; i++) {
-        formTableRef.value.formObj.list[i].startDate = rmarkData.value.startDate;
+        formTableRef.value.formObj.list[i].startDate = rmarkData.value.startDate
       }
     }
-  } else if (val === 'endDate'){
+  } else if (val === 'endDate') {
     if (rmarkData.value.startDate && new Date(rmarkData.value.endDate).getTime() <= new Date(rmarkData.value.startDate).getTime()) {
-      ElMessage.warning("租赁期实际结束日不得小于等于租赁期实际开始日！");
-      rmarkData.value.endDate = '';
+      ElMessage.warning('租赁期实际结束日不得小于等于租赁期实际开始日！')
+      rmarkData.value.endDate = ''
     }
     if (rmarkData.value.fpqz === '0') {
       // 判断是否分批起租为 否 时
       for (var i = 0; i < formTableRef.value.formObj.list.length; i++) {
-        formTableRef.value.formObj.list[i].endDate = rmarkData.value.endDate;
+        formTableRef.value.formObj.list[i].endDate = rmarkData.value.endDate
       }
     }
   }
   if (rmarkData.value.startDate && rmarkData.value.endDate) {
-    var newVal = calculateMonthDifference();
-    rmarkData.value.leaseMonth = newVal;
+    var newVal = calculateMonthDifference()
+    rmarkData.value.leaseMonth = newVal
   }
 }
 
@@ -752,144 +738,143 @@ const sffpqzChange = (val: any) => {
   if (val === '0') {
     // 判断是否分批起租为 否 时
     for (var i = 0; i < formTableRef.value.formObj.list.length; i++) {
-      formTableRef.value.formObj.list[i].pcNo = '第一批次';
-      formTableRef.value.formObj.list[i].startDate = rmarkData.value.startDate;
-      formTableRef.value.formObj.list[i].endDate = rmarkData.value.endDate;
+      formTableRef.value.formObj.list[i].pcNo = '第一批次'
+      formTableRef.value.formObj.list[i].startDate = rmarkData.value.startDate
+      formTableRef.value.formObj.list[i].endDate = rmarkData.value.endDate
     }
-    formTableRef.value.isDisabled = true;
+    formTableRef.value.isDisabled = true
   } else {
-    formTableRef.value.isDisabled = false;
+    formTableRef.value.isDisabled = false
   }
 }
 
 // 是否留购 anchange 事件
 const sflgChange = (val: any) => {
-  rmarkData.value.zlzcsyksynx = '';
+  rmarkData.value.zlzcsyksynx = ''
   if (val === 'N') {
     // 判断是否留购为 否 时
-    rules.value.zlzcsyksynx[0].required = false;
-    ruleFormRef.value.clearValidate('zlzcsyksynx');
+    rules.value.zlzcsyksynx[0].required = false
+    ruleFormRef.value.clearValidate('zlzcsyksynx')
   } else {
-    rules.value.zlzcsyksynx[0].required = true;
+    rules.value.zlzcsyksynx[0].required = true
   }
 }
 
 // 计算两个时间之间相差的月份
 const calculateMonthDifference = () => {
-  var start = new Date(rmarkData.value.startDate);
-  var end = new Date(rmarkData.value.endDate);
+  var start = new Date(rmarkData.value.startDate)
+  var end = new Date(rmarkData.value.endDate)
   // 获取年
-  var startYear = start.getFullYear();
-  var endYear = end.getFullYear();
+  var startYear = start.getFullYear()
+  var endYear = end.getFullYear()
   // 获取月
-  var startMouth = start.getMonth() + 1;
-  var endMouth = end.getMonth() + 1;
+  var startMouth = start.getMonth() + 1
+  var endMouth = end.getMonth() + 1
   // 获取日
-  var startDay = start.getDate() + 1;
-  var endDay = end.getDate() + 1;
+  var startDay = start.getDate() + 1
+  var endDay = end.getDate() + 1
   // 相差年份月份
-  var diffYear = endYear - startYear;
+  var diffYear = endYear - startYear
   // 获取当前月天数
-  var startDays = getDays(startMouth, startYear);
-  var endDays = getDays(endMouth, endYear);
-  var diffSartMouth = (startDays - startDay) / startDays;
-  var diffEndMouth = endDay / endDays;
-  var diffMouth = diffSartMouth + diffEndMouth + (12 - startMouth - 1) + endMouth + (diffYear - 1) * 12;
-  diffMouth = diffMouth == 0 ? 1 : diffMouth;
-  return Math.ceil(diffMouth);
+  var startDays = getDays(startMouth, startYear)
+  var endDays = getDays(endMouth, endYear)
+  var diffSartMouth = (startDays - startDay) / startDays
+  var diffEndMouth = endDay / endDays
+  var diffMouth = diffSartMouth + diffEndMouth + (12 - startMouth - 1) + endMouth + (diffYear - 1) * 12
+  diffMouth = diffMouth == 0 ? 1 : diffMouth
+  return Math.ceil(diffMouth)
 }
 
 // 判断同一批次付款时间是否存在相同的时间
 const judgementIsExistSameValue = (arrList: []) => {
-	if (arrList && arrList.length < 2) {
-		return {
-			state: false
-		};
-	}
-  var obj: any = {};
-  for (var i = 0; i < arrList.length; i ++) {
-    var items: any = arrList[i];
+  if (arrList && arrList.length < 2) {
+    return {
+      state: false
+    }
+  }
+  var obj: any = {}
+  for (var i = 0; i < arrList.length; i++) {
+    var items: any = arrList[i]
     if (obj[items.pcNo] && obj[items.pcNo].length > 0) {
-      obj[items.pcNo].push(items.payDate);
+      obj[items.pcNo].push(items.payDate)
     } else {
-      obj[items.pcNo] = new Array(items.payDate);
+      obj[items.pcNo] = new Array(items.payDate)
     }
   }
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
       if (obj[key].length > 1) {
-        var fksjArr = obj[key];
+        var fksjArr = obj[key]
         if (new Set(fksjArr).size !== fksjArr.length) {
           return {
             pcName: key,
             date: obj[key],
             state: true
-          };
+          }
         }
       }
     }
   }
-	return {
-		state: false
-	};
-};
+  return {
+    state: false
+  }
+}
 
 // 根据租金计划里的“支付不含税总租金”和“税率”动态计算基本信息里的“含税总租金（单位元）”和“不含税总租金（单位元）”值
 const dynamicComputation = (obj: any) => {
-  var items = formTableRef.value.formObj.list;
-  var totalRentTax: any = '';
-  var totalRentNottax: any = '';
-  for (var i = 0; i < items.length; i ++) {
-    var item = items[i];
+  var items = formTableRef.value.formObj.list
+  var totalRentTax: any = ''
+  var totalRentNottax: any = ''
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i]
     if (obj && obj.index == i) {
       if (obj.payAmountNottax !== '') {
-        totalRentNottax = parseFloat((Number(totalRentNottax) + Number(obj.payAmountNottax)).toFixed(2));
+        totalRentNottax = parseFloat((Number(totalRentNottax) + Number(obj.payAmountNottax)).toFixed(2))
       }
       if (obj.payAmountNottax !== '' && obj.taxRate !== '') {
-        totalRentTax = parseFloat((Number(totalRentTax) + Number(obj.payAmountNottax) * (1 + Number(obj.taxRate) / 100)).toFixed(2));
+        totalRentTax = parseFloat((Number(totalRentTax) + Number(obj.payAmountNottax) * (1 + Number(obj.taxRate) / 100)).toFixed(2))
       }
     } else {
       if (item.payAmountNottax !== '') {
-        totalRentNottax = parseFloat((Number(totalRentNottax) + Number(item.payAmountNottax)).toFixed(2));
+        totalRentNottax = parseFloat((Number(totalRentNottax) + Number(item.payAmountNottax)).toFixed(2))
       }
       if (item.payAmountNottax !== '' && item.taxRate !== '') {
-        totalRentTax = parseFloat((Number(totalRentTax) + Number(item.payAmountNottax) * (1 + Number(item.taxRate) / 100)).toFixed(2));
+        totalRentTax = parseFloat((Number(totalRentTax) + Number(item.payAmountNottax) * (1 + Number(item.taxRate) / 100)).toFixed(2))
       }
     }
   }
-  rmarkData.value.totalRentNottax = totalRentNottax;
-  rmarkData.value.totalRentTax = totalRentTax;
+  rmarkData.value.totalRentNottax = totalRentNottax
+  rmarkData.value.totalRentTax = totalRentTax
 }
 
 // 更新数据
 const updateData = () => {
-  rmarkData.value.totalRentNottax = '';
-  rmarkData.value.totalRentTax = '';
+  rmarkData.value.totalRentNottax = ''
+  rmarkData.value.totalRentTax = ''
 }
 
 // 获取某月份的天数
 const getDays = (mouth: any, year: any) => {
-  var days = 30;
+  var days = 30
   if (mouth == 2) {
-    days = year % 4 === 0 ? 29 : 28;
-  } else if (mouth == 1 || mouth == 3 || mouth == 5 || mouth == 7 || mouth == 8 || mouth== 10 || mouth == 12) {
-    days = 31;
+    days = year % 4 === 0 ? 29 : 28
+  } else if (mouth == 1 || mouth == 3 || mouth == 5 || mouth == 7 || mouth == 8 || mouth == 10 || mouth == 12) {
+    days = 31
   }
-  return days;
+  return days
 }
-
 const getDate = (value: any) => {
-  var nowDate = value ? new Date(value) : new Date();
-  var y = nowDate.getFullYear();
-  var m: any = nowDate.getMonth() + 1;
-  var d: any = nowDate.getDate();
+  var nowDate = value ? new Date(value) : new Date()
+  var y = nowDate.getFullYear()
+  var m: any = nowDate.getMonth() + 1
+  var d: any = nowDate.getDate()
   if (m < 10) {
     m = '0' + m
   }
   if (d < 10) {
     d = '0' + d
   }
-  return y + '-' + m + '-' + d;
+  return y + '-' + m + '-' + d
 }
 
 // 打开弹窗

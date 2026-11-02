@@ -22,51 +22,42 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/statistics/components/Header'
-}
-</script>
+
 <script setup lang="ts">
-import { onMounted, reactive, defineExpose, defineEmits, watch, defineProps, computed, ref } from 'vue'
+import { onMounted, reactive, watch, computed, ref } from 'vue'
 import { getYearData } from '@/api/common'
 import { ElMessage } from 'element-plus'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import copyStatConfig from '@/views/statistics/components/copyStatConfig.vue'
+defineOptions({
+  name: '/statistics/components/Header'
+})
 
 interface Props {
   showPage: boolean
   busiType: string
 }
-
 interface List {
   yearCode: string
   yearName: string
 }
 const copyStatConfigRef = ref()
 const helpModalRef = ref()
-
 const emits = defineEmits(['changeNd', 'addData', 'deleteData'])
-
 const props = defineProps<Props>()
-
 const isShowPage = computed(() => props.showPage)
-
 const formData = reactive({
   nd: ''
 })
-
 const pageInfo = reactive<{
   [key: string]: List[]
 }>({
   ndDataList: []
 })
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const getYearDataList = async () => {
   let res = await getYearData()
   if (res.success) {
@@ -76,35 +67,28 @@ const getYearDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const copyHandle = () => {
   copyStatConfigRef.value.showModal = true
 }
-
 const addOrEditDataHandle = (flag: string) => {
   emits('addData', flag)
 }
-
 const delDataHandle = () => {
   emits('deleteData')
 }
-
 watch(
   () => formData.nd,
   (newVal) => {
     emits('changeNd', newVal)
   }
 )
-
 const initParams = () => {
   getYearDataList()
 }
-
 defineExpose({
   pageInfo,
   formData
 })
-
 onMounted(initParams)
 </script>
 

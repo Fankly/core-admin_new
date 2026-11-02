@@ -54,15 +54,11 @@
   </div>
   <chooseTree ref="treeModalRef" @choose-data="saveTree" />
 </template>
-<script lang="ts">
-import { EditPen as EpEditPen } from '@element-plus/icons-vue'
-import { ElIcon } from 'element-plus'
-export default {}
-</script>
+
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, defineExpose, reactive, nextTick } from 'vue'
-import { ElMessageBox, ElMessage, ElInput } from 'element-plus'
-import { h } from 'vue'
+import { EditPen as EpEditPen } from '@element-plus/icons-vue'
+import { ElIcon, ElMessageBox, ElMessage, ElInput } from 'element-plus'
+import { ref, reactive, nextTick, h } from 'vue'
 import proTable from '@/components/ProTable/index.vue' //表格组件
 import { ColumnProps } from '@/components/ProTable/interface'
 import chooseTree from '@/components/select/chooseTree.vue'
@@ -86,7 +82,11 @@ const dataList = ref<[]>([]) //单位数据
 const oldlist = ref<any>([]) //单位数据深拷贝
 const pageMeeting = async () => {
   if (versionStatus.value && props.tableApi) {
-    const params = { versionId: versionStatus.value?.versionId, page: 1, limit: 100 }
+    const params = {
+      versionId: versionStatus.value?.versionId,
+      page: 1,
+      limit: 100
+    }
     let res: any = await props.tableApi(params)
     if (res.success) {
       res.data.records.forEach((item: any) => {
@@ -104,8 +104,14 @@ const pageMeeting = async () => {
 const saveTree = async (val: any) => {
   const params =
     btnName.value == '选择下发单位'
-      ? { versionId: versionStatus.value?.versionId, dwIdList: val }
-      : { versionId: versionStatus.value?.versionId, zgkbmIdList: val }
+      ? {
+          versionId: versionStatus.value?.versionId,
+          dwIdList: val
+        }
+      : {
+          versionId: versionStatus.value?.versionId,
+          zgkbmIdList: val
+        }
   let res: any = await props.saveApi(params)
   if (res.success) {
     ElMessage.success('添加成功！')
@@ -142,12 +148,11 @@ const handlerBtn = async (val: any, selectedList: any) => {
       }
       treeModalRef.value.showAll = btnName.value == '选择下发省专业部门'
       treeModalRef.value.treeDataList = res.data
-      if(btnName=='选择下发单位'){
+      if (btnName == '选择下发单位') {
         treeModalRef.value.checkedKeys = dataList.value.map((item: any) => item.dwId)
-      }else{
+      } else {
         treeModalRef.value.checkedKeys = dataList.value.map((item: any) => item.zgkbmId)
       }
- 
       treeModalRef.value.treeModal = true
     } else {
       ElMessage.error(res.msg)
@@ -173,8 +178,7 @@ const handlerBtn = async (val: any, selectedList: any) => {
       })
   } else {
     const changeData = dataList.value.filter(
-      (item: any, index: any) =>
-        item.id == oldlist.value[index].id && item.dispOrder != oldlist.value[index].dispOrder
+      (item: any, index: any) => item.id == oldlist.value[index].id && item.dispOrder != oldlist.value[index].dispOrder
     )
     if (changeData.length == 0) {
       return ElMessage.warning('当前没有修改的数据')
@@ -194,34 +198,77 @@ const closeHandle = () => {
 }
 // 列表项
 const tableColumns = reactive<ColumnProps<any>[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'versionNo', label: '版本编号', width: '130' },
-  { prop: 'versionName', label: '版本名称', width: '200' },
-  { prop: 'dwName', label: '单位名称' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'versionNo',
+    label: '版本编号',
+    width: '130'
+  },
+  {
+    prop: 'versionName',
+    label: '版本名称',
+    width: '200'
+  },
+  {
+    prop: 'dwName',
+    label: '单位名称'
+  },
   {
     prop: 'dispOrder',
     label: '显示顺序',
     width: '120',
     headerRender: () => {
-      return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '显示顺序'])
+      return h('span', [
+        h(ElIcon, null, {
+          default: () => h(EpEditPen)
+        }),
+        '显示顺序'
+      ])
     },
     render: ({ row }: any) => {
       return h(ElInput, {
         modelValue: row.dispOrder,
         'onUpdate:modelValue': (val: any) => (row.dispOrder = val),
-        inputStyle: { border: '1px solid #fff;', textAlign: 'center' }
+        inputStyle: {
+          border: '1px solid #fff;',
+          textAlign: 'center'
+        }
       })
     }
   }
 ])
-
 const ZgkbmColumns = reactive<ColumnProps<any>[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'versionNo', label: '版本编号', width: '130' },
-  { prop: 'versionName', label: '版本名称', width: '200' },
-  { prop: 'zgkbmName', label: '省专业部门名称' }
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'versionNo',
+    label: '版本编号',
+    width: '130'
+  },
+  {
+    prop: 'versionName',
+    label: '版本名称',
+    width: '200'
+  },
+  {
+    prop: 'zgkbmName',
+    label: '省专业部门名称'
+  }
 ])
 // 子组件暴露方法到父组件
 defineExpose({

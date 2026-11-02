@@ -290,32 +290,38 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'MatterBasicOperation'
-}
-</script>
+
 <script setup lang="ts">
 import { CircleClose as EpCircleClose, More as EpMore } from '@element-plus/icons-vue'
-
-import { ref, defineExpose, defineEmits, defineProps, reactive, watch, nextTick } from 'vue'
+import { ref, reactive, watch, nextTick } from 'vue'
 import { getYESJFL, saveMatterBasicData, SaveYssxMsg } from '@/api/matter/matterBasic'
-import { getGkbmInProvince, getProtypeTreeByGkbm, getPublicCodeList, getPublicData, pageCommonCode, getGkcsByGkbm, getXmbArr } from '@/api/common'
+import {
+  getGkbmInProvince,
+  getProtypeTreeByGkbm,
+  getPublicCodeList,
+  getPublicData,
+  pageCommonCode,
+  getGkcsByGkbm,
+  getXmbArr
+} from '@/api/common'
 import { ElMessage } from 'element-plus'
 import ElTreeSelect from '@/components/ElTreeSelect'
 import { getYslxct } from '@/api/matter/yssxMatter'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
+defineOptions({
+  name: 'MatterBasicOperation'
+})
+
+ //表格组件
 
 interface MatterBasicMsg {
   title: string
   opType: string
 }
-
 interface Props {
   matterBasicMsg: MatterBasicMsg
   selectedData: any
 }
-
 interface RowVO {
   code: string
   name: string
@@ -324,22 +330,15 @@ interface RowVO {
   unicode: any
   [key: string]: number | string
 }
-
 const props = defineProps<Props>()
-
 const emit = defineEmits(['saveData'])
-
 const xmlxRef = ref()
 const formRef = ref()
-
 const isShowModal = ref(false)
 const loading = ref(false)
-
 const checkCodes = ref<any>([])
-
 const isShowTable = ref<boolean>(false)
 const proTableRef = ref()
-
 const isShowXmbTable = ref<boolean>(false)
 const xmbTableRef = ref()
 // 预算包：formData.xmbbm 存编号（传后端），xmbmcText 存名称（仅展示），都是逗号拼接
@@ -348,7 +347,6 @@ const clearXmbHandle = () => {
   formData.xmbbm = ''
   xmbmcText.value = ''
 }
-
 const formData = reactive<SaveYssxMsg>({
   ejfl: '',
   remark: '',
@@ -376,7 +374,6 @@ const formData = reactive<SaveYssxMsg>({
   sfjjcl: '',
   xmbbm: ''
 })
-
 const searchList = reactive({
   zyssxbmList: [],
   projectTypeList: [],
@@ -433,7 +430,6 @@ const validateIsDispatch = (rule: any, value: any, callback: any) => {
     value ? callback(new Error('没有选择三级分类不能选择是否调度端')) : callback()
   }
 }
-
 const validateAqscfylx = (rule: any, value: any, callback: any) => {
   if (formData.sfaqsc === '0' && !value) {
     callback(new Error('请选择安全生产费用类型'))
@@ -441,28 +437,120 @@ const validateAqscfylx = (rule: any, value: any, callback: any) => {
     callback()
   }
 }
-
 const rulesForm = reactive({
-  zyssxbm: [{ required: true, message: '请输入预算事项编码', trigger: ['blur'] }],
-  zyssxmc: [{ required: true, message: '请输入预算事项名称', trigger: ['blur'] }],
-  nd: [{ required: true, message: '请输入年度', trigger: ['change'] }],
-  zgkbmId: [{ required: true, message: '请选择省归口部门', trigger: ['change'] }],
-  xmlx: [{ required: true, message: '请选择项目类别', trigger: ['change'] }],
-  yslxctId: [{ required: true, message: '请选择预算事项词条', trigger: ['change'] }],
-  yjfl: [{ required: true, message: '请选择一级分类', trigger: ['change'] }],
-  ejfl: [{ required: true, message: '请选择二级分类', trigger: ['change'] }],
+  zyssxbm: [
+    {
+      required: true,
+      message: '请输入预算事项编码',
+      trigger: ['blur']
+    }
+  ],
+  zyssxmc: [
+    {
+      required: true,
+      message: '请输入预算事项名称',
+      trigger: ['blur']
+    }
+  ],
+  nd: [
+    {
+      required: true,
+      message: '请输入年度',
+      trigger: ['change']
+    }
+  ],
+  zgkbmId: [
+    {
+      required: true,
+      message: '请选择省归口部门',
+      trigger: ['change']
+    }
+  ],
+  xmlx: [
+    {
+      required: true,
+      message: '请选择项目类别',
+      trigger: ['change']
+    }
+  ],
+  yslxctId: [
+    {
+      required: true,
+      message: '请选择预算事项词条',
+      trigger: ['change']
+    }
+  ],
+  yjfl: [
+    {
+      required: true,
+      message: '请选择一级分类',
+      trigger: ['change']
+    }
+  ],
+  ejfl: [
+    {
+      required: true,
+      message: '请选择二级分类',
+      trigger: ['change']
+    }
+  ],
   // sfaqsc: [{ required: true, message: "请选择是否安全生产", trigger: ["change"] }],
-  status: [{ required: true, message: '请选择启用状态', trigger: ['change'] }],
-  ysly: [{ required: true, message: '请选择预算来源', trigger: ['change'] }],
+  status: [
+    {
+      required: true,
+      message: '请选择启用状态',
+      trigger: ['change']
+    }
+  ],
+  ysly: [
+    {
+      required: true,
+      message: '请选择预算来源',
+      trigger: ['change']
+    }
+  ],
   // zyfjftrtjfw: [{ required: true, message: "请选择研发投入统计范围", trigger: ["change"] }],
-  sfxmlr: [{ required: true, message: '请选择是否允许需求录入', trigger: ['change'] }],
-  sfxylhhs: [{ required: true, message: '请选择是否需要省级会审', trigger: ['change'] }],
-  isGjPspfwj: [{ required: true, message: '请选择是否挂接评审及批复资料', trigger: ['change'] }],
-  sfjjcl: [{ required: true, message: '请选择是否授权地市处理', trigger: ['change'] }],
-  isDispatch: [{ validator: validateIsDispatch, trigger: 'change' }],
-  aqscfylx: [{ validator: validateAqscfylx, trigger: 'change' }]
+  sfxmlr: [
+    {
+      required: true,
+      message: '请选择是否允许需求录入',
+      trigger: ['change']
+    }
+  ],
+  sfxylhhs: [
+    {
+      required: true,
+      message: '请选择是否需要省级会审',
+      trigger: ['change']
+    }
+  ],
+  isGjPspfwj: [
+    {
+      required: true,
+      message: '请选择是否挂接评审及批复资料',
+      trigger: ['change']
+    }
+  ],
+  sfjjcl: [
+    {
+      required: true,
+      message: '请选择是否授权地市处理',
+      trigger: ['change']
+    }
+  ],
+  isDispatch: [
+    {
+      validator: validateIsDispatch,
+      trigger: 'change'
+    }
+  ],
+  aqscfylx: [
+    {
+      validator: validateAqscfylx,
+      trigger: 'change'
+    }
+  ]
 })
-
 const changeGkbmDataHandle = (val: string) => {
   if (!val) return
   searchList.projectTypeList.length = 0
@@ -488,7 +576,6 @@ const getGkcsListData = async (gkbmId: string) => {
     })
   }
 }
-
 const changeXmlxHandle = async (val: string) => {
   clearableHandle('XMLX')
   if (val) {
@@ -496,14 +583,12 @@ const changeXmlxHandle = async (val: string) => {
     getYslxctData(formData.zgkbmId, val)
   }
 }
-
 const getYslxctData = async (zgkbmId: string, protypeId: string) => {
   const yssxListData = await getYslxct(zgkbmId, protypeId)
   if (yssxListData.success) {
     searchList.yslxctList = yssxListData.data
   }
 }
-
 const getProtypeTreeByGkbmData = async (gkbmId: string) => {
   const res = await getProtypeTreeByGkbm(gkbmId)
   if (res.success) {
@@ -515,7 +600,6 @@ const getProtypeTreeByGkbmData = async (gkbmId: string) => {
     })
   }
 }
-
 const clearableHandle = (flag: string) => {
   if (flag === 'XMLX') {
     formData.yjfl = ''
@@ -540,7 +624,6 @@ const clearableHandle = (flag: string) => {
     searchList.sjflList.length = 0
   }
 }
-
 const getPublicDataList = async () => {
   try {
     const res = await getPublicCodeList({
@@ -556,7 +639,6 @@ const getPublicDataList = async () => {
     ElMessage.error(e.toString())
   }
 }
-
 const showHandle = () => {
   getPublicDataList()
   // getYssxbmData();
@@ -607,7 +689,6 @@ const showHandle = () => {
     // formData.zyssxbm = generaterYssxBm(10);
   }
 }
-
 const closeHandle = () => {
   searchList.yjflList.length = 0
   searchList.ejflList.length = 0
@@ -623,7 +704,6 @@ const closeHandle = () => {
   formData.id = ''
   isShowModal.value = false
 }
-
 const saveHandle = async () => {
   formRef.value.validate(async (valid: any) => {
     if (valid) {
@@ -684,7 +764,6 @@ const getProGkbmData = async () => {
     })
   }
 }
-
 const getClassifyDataList = async (searchDataCode: string, xmlxId: string, parentCode?: string) => {
   let parent = ''
   if (parentCode) {
@@ -702,12 +781,10 @@ const getClassifyDataList = async (searchDataCode: string, xmlxId: string, paren
     })
   }
 }
-
 const changeYjflDataHandle = (val: string) => {
   clearableHandle('EJFL')
   if (val) getClassifyDataList('EJFL', formData.xmlx, formData.yjfl)
 }
-
 const changeEjflDataHandle = (val: string) => {
   clearableHandle('SJFL')
   if (val) getClassifyDataList('SJFL', formData.xmlx, formData.ejfl)
@@ -745,7 +822,10 @@ const pageList = (val: any) => {
 }
 // 列表查询
 const pageMeeting = (params: any) => {
-  params = { ...params, comCode: 'YSSX_COM' }
+  params = {
+    ...params,
+    comCode: 'YSSX_COM'
+  }
   return pageCommonCode(params)
 }
 
@@ -753,24 +833,36 @@ const pageMeeting = (params: any) => {
 const columnStyle = ({ row, column, rowIndex, columnIndex }: any) => {
   return 'cursor: pointer;'
 }
-
 const runTask = async (row: any, column: any) => {
   proTableRef.value?.clearSelection()
   proTableRef.value?.element.toggleRowSelection(row)
 }
-
 const tableColumns = reactive<any>([
-  { type: 'selection', label: '序号', width: '50' },
-  { type: 'index', label: '序号', width: '50' },
+  {
+    type: 'selection',
+    label: '序号',
+    width: '50'
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: '50'
+  },
   {
     prop: 'code',
     label: '预算事项编码',
-    search: { el: 'input', order: 1 }
+    search: {
+      el: 'input',
+      order: 1
+    }
   },
   {
     prop: 'name',
     label: '预算事项名称',
-    search: { el: 'input', order: 2 }
+    search: {
+      el: 'input',
+      order: 2
+    }
   }
 ])
 
@@ -796,7 +888,14 @@ const fetchXmbList = async () => {
   const protypeNode = findProtypeNodeById(searchList.projectTypeList, formData.xmlx)
   const xmlxCode = protypeNode?.code || ''
   // 其余条件不用，与 process-42 等调用方一致传空串
-  const res = await getXmbArr({ year: formData.nd, xmlx: xmlxCode, xmblx: '', xmxz: '', sjfl: '', xmbid: '' })
+  const res = await getXmbArr({
+    year: formData.nd,
+    xmlx: xmlxCode,
+    xmblx: '',
+    xmxz: '',
+    sjfl: '',
+    xmbid: ''
+  })
   if (!res.success) {
     ElMessage.error(res.msg)
     return []
@@ -846,7 +945,9 @@ const getXmbTableData = async (params: any) => {
   const code = (params.code || '').trim()
   const name = (params.name || '').trim()
   const list = await fetchXmbList()
-  return { data: list.filter((item: any) => (!code || String(item.code).includes(code)) && (!name || String(item.name).includes(name))) }
+  return {
+    data: list.filter((item: any) => (!code || String(item.code).includes(code)) && (!name || String(item.name).includes(name)))
+  }
 }
 // 点击行切换勾选（勾选框列自身已处理，避免重复切换）
 const selectXmbRow = (row: any, column: any) => {
@@ -861,26 +962,41 @@ watch(
     const codes = xmbPendingCodes
     xmbPendingCodes = []
     nextTick(() => {
-      rows.filter((row: any) => codes.includes(String(row.code))).forEach((row: any) => xmbTableRef.value?.element.toggleRowSelection(row, true))
+      rows
+        .filter((row: any) => codes.includes(String(row.code)))
+        .forEach((row: any) => xmbTableRef.value?.element.toggleRowSelection(row, true))
     })
   }
 )
-
 const xmbTableColumns = reactive<any>([
-  { type: 'selection', label: '序号', width: '50' },
-  { type: 'index', label: '序号', width: '50' },
+  {
+    type: 'selection',
+    label: '序号',
+    width: '50'
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: '50'
+  },
   {
     prop: 'code',
     label: '预算包编号',
-    search: { el: 'input', order: 1, width: '120' }
+    search: {
+      el: 'input',
+      order: 1,
+      width: '120'
+    }
   },
   {
     prop: 'name',
     label: '预算包名称',
-    search: { el: 'input', order: 2 }
+    search: {
+      el: 'input',
+      order: 2
+    }
   }
 ])
-
 watch(
   () => formData.sfaqsc,
   (newVal) => {
@@ -889,7 +1005,6 @@ watch(
     }
   }
 )
-
 defineExpose({
   isShowModal
 })

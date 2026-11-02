@@ -251,14 +251,13 @@
 
 <script setup lang="ts">
 import { Grid as EpGrid } from '@element-plus/icons-vue'
-
-defineOptions({ name: "AssetYfZwjxDetails" })
 import { onMounted, ref, nextTick, watch, onUnmounted, reactive } from 'vue'
 import { getRepairByXmid } from '@/api/service/requirement'
 import { ElMessage } from 'element-plus'
 import { formatSingleValue, getPublicCodeMap } from '@/utils/tableFormatter'
 import { calclateTableSum, formatValueOrDefault } from '@/utils/utils'
 import { IObject } from '@/types/interface'
+defineOptions({ name: "AssetYfZwjxDetails" })
 
 interface Props {
   selectData: any

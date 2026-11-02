@@ -1,107 +1,96 @@
-<script lang="ts">
-export default {
-  name: "MenuManagerModal"
-};
-</script>
+
 
 <script setup lang="ts">
-import AddOrEditMenuModal from "@/views/sys/components/AddOrEditMenuModal.vue";
-import { ref, defineExpose, reactive, defineProps } from "vue";
-import VXETable from "vxe-table";
-import { appMenuDelete, getAppMenuListPageData } from "@/api/sys/appManager";
-import { ElMessage } from "element-plus";
+import AddOrEditMenuModal from '@/views/sys/components/AddOrEditMenuModal.vue'
+import { ref, reactive } from 'vue'
+import VXETable from 'vxe-table'
+import { appMenuDelete, getAppMenuListPageData } from '@/api/sys/appManager'
+import { ElMessage } from 'element-plus'
+defineOptions({
+  name: 'MenuManagerModal'
+})
 
 const props = defineProps({
   selectData: {
     type: Object as any,
     default: null
   }
-});
-const addOrEditMenuModalRef = ref();
-const isShowModal = ref(false);
-const loading = ref(false);
-
-const tableData = ref([]);
-
+})
+const addOrEditMenuModalRef = ref()
+const isShowModal = ref(false)
+const loading = ref(false)
+const tableData = ref([])
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1
-});
-
+})
 const addOrEditModalMenuData = reactive({
-  title: "",
+  title: '',
   selectData: null,
-  flag: ""
-});
-
+  flag: ''
+})
 const showHandle = () => {
-  getTableData();
-};
-
+  getTableData()
+}
 const getTableData = async () => {
-  loading.value = true;
+  loading.value = true
   let params = {
     page: page.page,
     limit: page.limit,
     appId: props.selectData.appId
-  };
-  const res = await getAppMenuListPageData(params);
-  if (res.success) {
-    tableData.value = res.data.records;
-    page.total = res.data.total;
-    loading.value = false;
-  } else {
-    ElMessage.error(res.msg);
-    loading.value = false;
   }
-};
-
+  const res = await getAppMenuListPageData(params)
+  if (res.success) {
+    tableData.value = res.data.records
+    page.total = res.data.total
+    loading.value = false
+  } else {
+    ElMessage.error(res.msg)
+    loading.value = false
+  }
+}
 const removeHandle = async (row: any) => {
-  if (!row) return;
-  const type = await VXETable.modal.confirm("是否确定删除？", "提示", {
-    status: "warning"
-  });
-  if (type === "confirm") {
-    const res = await appMenuDelete(row.id);
+  if (!row) return
+  const type = await VXETable.modal.confirm('是否确定删除？', '提示', {
+    status: 'warning'
+  })
+  if (type === 'confirm') {
+    const res = await appMenuDelete(row.id)
     if (res.success) {
-      ElMessage.success("删除成功");
-      await getTableData();
+      ElMessage.success('删除成功')
+      await getTableData()
     } else {
-      ElMessage.error(res.msg);
+      ElMessage.error(res.msg)
     }
   }
-};
-
+}
 const addOrEditHandle = (flag: string, row?: any) => {
-  addOrEditMenuModalRef.value.isShowModal = true;
-  addOrEditModalMenuData.flag = flag;
-  addOrEditModalMenuData.title = flag === "ADD" ? "新增" : flag === "EDIT" ? "编辑" : "查看";
-  if (flag !== "ADD" && row) {
-    addOrEditModalMenuData.selectData = row;
+  addOrEditMenuModalRef.value.isShowModal = true
+  addOrEditModalMenuData.flag = flag
+  addOrEditModalMenuData.title = flag === 'ADD' ? '新增' : flag === 'EDIT' ? '编辑' : '查看'
+  if (flag !== 'ADD' && row) {
+    addOrEditModalMenuData.selectData = row
   }
-};
-
+}
 const pageChangeHandle = (currentPageNum: number) => {
-  page.page = currentPageNum;
-  getTableData();
-};
+  page.page = currentPageNum
+  getTableData()
+}
 const limitChangeHandle = (currentLimitNum: number) => {
-  page.page = 1;
-  page.limit = currentLimitNum;
-  getTableData();
-};
-
+  page.page = 1
+  page.limit = currentLimitNum
+  getTableData()
+}
 const formatterLabel = ({ cellValue }) => {
-  if (typeof cellValue === "string") {
-    return cellValue === "1" ? "操作" : "查询";
+  if (typeof cellValue === 'string') {
+    return cellValue === '1' ? '操作' : '查询'
   }
-  return cellValue;
-};
-
+  return cellValue
+}
 defineExpose({
   isShowModal
-});
+})
 </script>
 
 <template>

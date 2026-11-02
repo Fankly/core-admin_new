@@ -200,15 +200,13 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { computed, defineComponent, onMounted, ref, shallowRef } from 'vue'
+import { computed, onMounted, ref, shallowRef } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
-
 import DynamicForm from '@/components/DynamicForm/index.vue'
 import userDialog from '@/components/select/userDialog.vue'
-
 import { checkByStep, getGkbmInProvince, getGmb, getSgbm, getXmbm, getXqlrNum } from '@/api/service/requirement'
 import { BusinessType, useRequirementForm } from '@/composables/useRequirementForm'
 import { useTableOperations } from '@/composables/useTableOperations'
@@ -216,522 +214,506 @@ import { useWorkflowSubmit, WfCode } from '@/composables/useWorkflowSubmit'
 import { useUser } from '@/hooks/useUser'
 import baseService from '@/service/baseService'
 import { MenuConfig } from '@/views/service/xq/interface'
-
-export default defineComponent({
-  name: 'RequirementFormBase',
-  components: {
-    DynamicForm,
-    userDialog
+defineOptions({
+  name: 'RequirementFormBase'
+})
+const props = defineProps({
+  wfCode: {
+    type: String as () => WfCode,
+    default: 'WF_NEWCBXQSHLC'
   },
-  props: {
-    wfCode: {
-      type: String as () => WfCode,
-      default: 'WF_NEWCBXQSHLC'
-    },
-    businessType: {
-      type: String as () => BusinessType,
-      required: true,
-      validator: (value: string) => ['sfxqlr', 'sfgmblr', 'sfzl'].includes(value)
-    },
-    cartModalComponent: {
-      type: String,
-      default: 'MyCart'
-    }
+  businessType: {
+    type: String as () => BusinessType,
+    required: true,
+    validator: (value: string) => ['sfxqlr', 'sfgmblr', 'sfzl'].includes(value)
   },
-  setup(props) {
-    const route = useRoute()
-    const store = useStore()
+  cartModalComponent: {
+    type: String,
+    default: 'MyCart'
+  }
+})
+const route = useRoute()
+const store = useStore()
 
-    // Composables
-    const { formConfigs, globalParams, stepIds, steps, isChange, getFormDatas, resetFormConfigs, clearFieldValue, setValue } = useRequirementForm(
-      props.businessType
+// Composables
+const { formConfigs, globalParams, stepIds, steps, isChange, getFormDatas, resetFormConfigs, clearFieldValue, setValue } =
+  useRequirementForm(props.businessType)
+const {
+  loading: tableLoading,
+  yskmTableRef,
+  yssxTableRef,
+  page,
+  searchData,
+  provinceData,
+  ysly,
+  provinceDataList,
+  protypeTreeDataList,
+  yssxDataList,
+  cellStyle,
+  getProTypeData,
+  handleCurrentChange: handleCurrentChangeBase,
+  handleChangeProvinceData,
+  handleChangeYsly,
+  pageChangeHandle,
+  limitChangeHandle,
+  searchYssxHandle,
+  resetHandle,
+  loadTreeData,
+  setUserInfo
+} = useTableOperations(props.businessType)
+const { loading: workflowLoading, notifyNumber, submitForm, resetWorkflow, saveInfo } = useWorkflowSubmit(props.wfCode)
+
+// Refs
+const activeStep = ref(1)
+const formRefs = shallowRef<Array<any>>([])
+const isShowPage = ref(false)
+const myCartRef = ref()
+const userDialogRef = ref()
+const operationBtn = shallowRef<MenuConfig[]>([])
+const searchBtn = shallowRef<MenuConfig[]>([])
+const userInfOther = ref<any>()
+const dynamicCartComponent = shallowRef<any>(null)
+// 步骤切换进行中标记，防止重复点击导致跳步
+const stepChanging = ref(false)
+// 步骤切换序列号：每次进入 nextStep 自增，异步返回后比对，防止「慢请求/被中断的旧流程」在返回后把步骤又推走
+let stepSequence = 0
+let xmbmRequestSequence = 0
+let yjdwRequestSequence = 0
+
+// 分步后端校验的兜底超时：baseService 默认超时 1 小时，请求悬挂时按钮会长期禁用，这里加一层软超时兜底
+const CHECK_STEP_TIMEOUT = 60 * 1000
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('校验超时，请重试')), ms)
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (error) => {
+        clearTimeout(timer)
+        reject(error)
+      }
     )
+  })
+}
+const componentMap: any = {
+  MyCart: () => import('@/views/service/xq/components/MyCart.vue'),
+  ZlMyCart: () => import('@/views/service/xq/components/ZlMyCart.vue')
+}
+const userInfo = ref<{
+  deptId: string
+  deptName: string
+  dwId: string
+  dwName: string
+  roleCode: string
+  spRoleId: string
+  specialorgcode: string
+  roleId: string
+  fqzzFlag: string
+}>({
+  deptId: '',
+  deptName: '',
+  dwId: '',
+  dwName: '',
+  roleCode: '',
+  spRoleId: '',
+  specialorgcode: '',
+  fqzzFlag: '',
+  roleId: ''
+})
 
-    const {
-      loading: tableLoading,
-      yskmTableRef,
-      yssxTableRef,
-      page,
-      searchData,
-      provinceData,
-      ysly,
-      provinceDataList,
-      protypeTreeDataList,
-      yssxDataList,
-      cellStyle,
-      getProTypeData,
-      handleCurrentChange: handleCurrentChangeBase,
-      handleChangeProvinceData,
-      handleChangeYsly,
-      pageChangeHandle,
-      limitChangeHandle,
-      searchYssxHandle,
-      resetHandle,
-      loadTreeData,
-      setUserInfo
-    } = useTableOperations(props.businessType)
+// Computed
+const loading = computed(() => tableLoading.value || workflowLoading.value)
+const isDisabled = computed(() => loading.value || stepChanging.value)
+const dynamicUploadSelectData = computed(() => ({
+  ...globalParams.value,
+  xmlx: globalParams.value.xmlx || globalParams.value.protypeId || ''
+}))
 
-    const { loading: workflowLoading, notifyNumber, submitForm, resetWorkflow, saveInfo } = useWorkflowSubmit(props.wfCode)
-
-    // Refs
-    const activeStep = ref(1)
-    const formRefs = shallowRef<Array<any>>([])
-    const isShowPage = ref(false)
-    const myCartRef = ref()
-    const userDialogRef = ref()
-    const operationBtn = shallowRef<MenuConfig[]>([])
-    const searchBtn = shallowRef<MenuConfig[]>([])
-    const userInfOther = ref<any>()
-    const dynamicCartComponent = shallowRef<any>(null)
-    // 步骤切换进行中标记，防止重复点击导致跳步
-    const stepChanging = ref(false)
-    // 步骤切换序列号：每次进入 nextStep 自增，异步返回后比对，防止「慢请求/被中断的旧流程」在返回后把步骤又推走
-    let stepSequence = 0
-    let xmbmRequestSequence = 0
-    let yjdwRequestSequence = 0
-
-    // 分步后端校验的兜底超时：baseService 默认超时 1 小时，请求悬挂时按钮会长期禁用，这里加一层软超时兜底
-    const CHECK_STEP_TIMEOUT = 60 * 1000
-    function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-      return new Promise<T>((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error('校验超时，请重试')), ms)
-        promise.then(
-          (value) => {
-            clearTimeout(timer)
-            resolve(value)
-          },
-          (error) => {
-            clearTimeout(timer)
-            reject(error)
+// Methods
+const setFormRef = (index: any) => (el: any) => {
+  if (el) {
+    formRefs.value[index] = el
+  }
+}
+const handleChangeProvinceDataWrapper = (val: string) => {
+  handleChangeProvinceData(val, userInfo.value)
+}
+const handleChangeYslyWrapper = (val: string) => {
+  handleChangeYsly(val, userInfo.value)
+}
+const handleCurrentChange = () => {
+  handleCurrentChangeBase(userInfo.value)
+}
+const prevStep = () => {
+  if (activeStep.value > 1) {
+    // 打断进行中的下一步流程（作废其序列号），并解除切换锁，保证「返回上一步」永远可点、可退
+    stepSequence++
+    stepChanging.value = false
+    activeStep.value--
+  }
+}
+const nextStep = async () => {
+  if (stepChanging.value) return
+  stepChanging.value = true
+  const sequence = ++stepSequence
+  const stillCurrent = () => sequence === stepSequence
+  try {
+    if (activeStep.value === 1) {
+      const $table = yssxTableRef.value
+      if ($table) {
+        const currRow = $table.getRadioRecord()
+        if (!currRow) {
+          ElMessage.warning('请选择一条预算事项数据进行操作!')
+          return
+        }
+        xmbmRequestSequence++
+        yjdwRequestSequence++
+        const success = await getFormDatas(currRow.id, currRow.xmlx, userInfo.value)
+        if (stillCurrent() && success) {
+          activeStep.value++
+        }
+      }
+    } else {
+      if (activeStep.value <= formRefs.value.length) {
+        const currentForm = formRefs.value[activeStep.value - 2]
+        if (!currentForm) {
+          activeStep.value++
+        } else {
+          // 1) 前端表单校验：失败提示「请填写完毕」
+          try {
+            if (currentForm.ISCUSTOMCOPONENT) {
+              if (currentForm.formEl) await currentForm.formEl.validate()
+              const data = currentForm.getFormData()
+              for (const key in data) {
+                globalParams.value[key] = data[key]
+              }
+            } else {
+              if (currentForm.validate) await currentForm.validate()
+            }
+          } catch (error: any) {
+            if (stillCurrent()) ElMessage.error('请填写完毕后,再点击下一步!')
+            return
           }
-        )
-      })
-    }
-
-    const componentMap: any = {
-      MyCart: () => import('@/views/service/xq/components/MyCart.vue'),
-      ZlMyCart: () => import('@/views/service/xq/components/ZlMyCart.vue')
-    }
-
-    const userInfo = ref<{
-      deptId: string
-      deptName: string
-      dwId: string
-      dwName: string
-      roleCode: string
-      spRoleId: string
-      specialorgcode: string
-      roleId: string
-      fqzzFlag: string
-    }>({
-      deptId: '',
-      deptName: '',
-      dwId: '',
-      dwName: '',
-      roleCode: '',
-      spRoleId: '',
-      specialorgcode: '',
-      fqzzFlag: '',
-      roleId: ''
-    })
-
-    // Computed
-    const loading = computed(() => tableLoading.value || workflowLoading.value)
-    const isDisabled = computed(() => loading.value || stepChanging.value)
-    const dynamicUploadSelectData = computed(() => ({
-      ...globalParams.value,
-      xmlx: globalParams.value.xmlx || globalParams.value.protypeId || ''
-    }))
-
-    // Methods
-    const setFormRef = (index: any) => (el: any) => {
-      if (el) {
-        formRefs.value[index] = el
-      }
-    }
-
-    const handleChangeProvinceDataWrapper = (val: string) => {
-      handleChangeProvinceData(val, userInfo.value)
-    }
-
-    const handleChangeYslyWrapper = (val: string) => {
-      handleChangeYsly(val, userInfo.value)
-    }
-
-    const handleCurrentChange = () => {
-      handleCurrentChangeBase(userInfo.value)
-    }
-
-    const prevStep = () => {
-      if (activeStep.value > 1) {
-        // 打断进行中的下一步流程（作废其序列号），并解除切换锁，保证「返回上一步」永远可点、可退
-        stepSequence++
-        stepChanging.value = false
-        activeStep.value--
-      }
-    }
-
-    const nextStep = async () => {
-      if (stepChanging.value) return
-      stepChanging.value = true
-      const sequence = ++stepSequence
-      const stillCurrent = () => sequence === stepSequence
-      try {
-        if (activeStep.value === 1) {
-          const $table = yssxTableRef.value
-          if ($table) {
-            const currRow = $table.getRadioRecord()
-            if (!currRow) {
-              ElMessage.warning('请选择一条预算事项数据进行操作!')
+          if (!stillCurrent()) return
+          // 2) 后端分步校验（带超时兜底，避免请求悬挂导致按钮长期禁用）
+          try {
+            const res = await withTimeout(
+              checkByStep({
+                datas: globalParams.value,
+                stepId: steps.value[activeStep.value - 1].stepId
+              }),
+              CHECK_STEP_TIMEOUT
+            )
+            if (!stillCurrent()) return
+            if (!res.success) {
+              ElMessage.error(res.msg)
               return
             }
-            xmbmRequestSequence++
-            yjdwRequestSequence++
-            const success = await getFormDatas(currRow.id, currRow.xmlx, userInfo.value)
-            if (stillCurrent() && success) {
-              activeStep.value++
-            }
-          }
-        } else {
-          if (activeStep.value <= formRefs.value.length) {
-            const currentForm = formRefs.value[activeStep.value - 2]
-            if (!currentForm) {
-              activeStep.value++
-            } else {
-              // 1) 前端表单校验：失败提示「请填写完毕」
-              try {
-                if (currentForm.ISCUSTOMCOPONENT) {
-                  if (currentForm.formEl) await currentForm.formEl.validate()
-                  const data = currentForm.getFormData()
-                  for (const key in data) {
-                    globalParams.value[key] = data[key]
-                  }
-                } else {
-                  if (currentForm.validate) await currentForm.validate()
-                }
-              } catch (error: any) {
-                if (stillCurrent()) ElMessage.error('请填写完毕后,再点击下一步!')
-                return
-              }
-              if (!stillCurrent()) return
-              // 2) 后端分步校验（带超时兜底，避免请求悬挂导致按钮长期禁用）
-              try {
-                const res = await withTimeout(
-                  checkByStep({
-                    datas: globalParams.value,
-                    stepId: steps.value[activeStep.value - 1].stepId
-                  }),
-                  CHECK_STEP_TIMEOUT
-                )
-                if (!stillCurrent()) return
-                if (!res.success) {
-                  ElMessage.error(res.msg)
-                  return
-                }
-                activeStep.value++
-              } catch (error: any) {
-                if (stillCurrent()) ElMessage.error(error?.message || '校验失败，请重试')
-                return
-              }
-            }
-          }
-        }
-      } catch (error: any) {
-        console.error(error)
-        if (stillCurrent()) ElMessage.error(error.toString())
-      } finally {
-        // 只有仍是当前流程才解锁：若已被 prevStep/closeHandle 或更新的点击接管，交给对方管理，避免误改
-        if (stillCurrent()) {
-          stepChanging.value = false
-        }
-      }
-    }
-
-    const submitFormWrapper = async (flag: 'SUBMIT' | 'SAVE') => {
-      const sfzl = props.cartModalComponent !== 'MyCart' ? '1' : '0'
-      for (let i = 0; i < formRefs.value.length; i++) {
-        const form = formRefs.value[i]
-        if (form.getFormData && form.ISCUSTOMCOPONENT) {
-          const data = form.getFormData()
-          for (const key in data) {
-            globalParams.value[key] = data[key]
+            activeStep.value++
+          } catch (error: any) {
+            if (stillCurrent()) ElMessage.error(error?.message || '校验失败，请重试')
+            return
           }
         }
       }
-      flag === 'SUBMIT'
-        ? await submitForm(globalParams.value, userInfo.value, sfzl, closeHandle)
-        : await saveInfo(globalParams.value, userInfo.value, sfzl, closeHandle)
     }
-
-    const showHandle = async () => {
-      try {
-        tableLoading.value = true
-        formRefs.value.forEach((form) => {
-          if (form?.getFormData) form.getFormData()
-        })
-
-        const res = await getGkbmInProvince()
-        const xqlrNum = await getXqlrNum({
-          sfzl: props.cartModalComponent !== 'MyCart' ? '1' : '0',
-          bmId: userInfo.value?.deptId || '',
-          dwId: userInfo.value?.dwId || ''
-        })
-
-        if (xqlrNum.success) {
-          notifyNumber.value = xqlrNum.data
-        }
-
-        if (res.data && res.success) {
-          provinceDataList.value = res.data
-        }
-
-        getProTypeData('', userInfo.value)
-      } catch (error) {
-        console.error(error)
-      } finally {
-        tableLoading.value = false
-      }
-    }
-
-    const closeHandle = () => {
-      xmbmRequestSequence++
-      yjdwRequestSequence++
-      // 作废进行中的步骤流程并解锁，避免关闭/重开后残留的切换锁把按钮禁死
-      stepSequence++
+  } catch (error: any) {
+    console.error(error)
+    if (stillCurrent()) ElMessage.error(error.toString())
+  } finally {
+    // 只有仍是当前流程才解锁：若已被 prevStep/closeHandle 或更新的点击接管，交给对方管理，避免误改
+    if (stillCurrent()) {
       stepChanging.value = false
-      activeStep.value = 1
-      formRefs.value.forEach((form) => {
-        if (form?.getFormData) {
-          const formData = form.getFormData()
-          if (formData.yssxId !== undefined) {
-            form.setFieldValue('yssxId', '')
-          }
-        }
-      })
-      resetWorkflow()
-      formRefs.value = []
-      resetFormConfigs()
-    }
-
-    const handleFieldChange = async (event: any, index: number) => {
-      const { prop, value, formData } = event
-      globalParams.value[prop] = value
-
-      const hasLocalDependency = (targetProp: string, sourceProp: string) => {
-        const currentFields = formConfigs.value[index]?.fields || []
-        return currentFields.some(
-          (field: any) =>
-            field.prop === targetProp &&
-            Array.isArray(field.dependencies) &&
-            field.dependencies.includes(sourceProp) &&
-            (field.dyff || field.loadOptions)
-        )
-      }
-
-      if (prop === 'EJDW') {
-        const requestSequence = ++xmbmRequestSequence
-        const hasLocalXmbmDependency = hasLocalDependency('XMBM', 'EJDW')
-
-        if (!hasLocalXmbmDependency) {
-          try {
-            const xmbmData: any = value ? await getXmbm(formData) : { success: true, data: '' }
-            if (requestSequence !== xmbmRequestSequence) return
-            if (!xmbmData.success) {
-              throw new Error(xmbmData.msg || '获取项目编码失败')
-            }
-            formRefs.value.forEach((form) => {
-              if (form?.getFormData && form.getFormData().XMBM !== undefined) {
-                form.setFieldValue('XMBM', xmbmData.data ?? '')
-              }
-            })
-          } catch (error: any) {
-            if (requestSequence !== xmbmRequestSequence) return
-            console.error('加载项目编码失败:', error)
-            ElMessage.error(`加载项目编码失败：${error?.message || '未知错误'}，请重新选择后重试`)
-          }
-        }
-      }
-
-      if (prop === 'YJDW') {
-        const requestSequence = ++yjdwRequestSequence
-        const needsCtbmBridge = !hasLocalDependency('CTBM', 'YJDW')
-        const needsGmbBridge = !hasLocalDependency('GMB_ID', 'YJDW')
-        if (needsCtbmBridge || needsGmbBridge) {
-          try {
-            const gkbmRequest: Promise<any> = needsCtbmBridge && value ? getSgbm(formData) : Promise.resolve({ success: true, data: [] })
-            const gmbRequest: Promise<any> =
-              needsGmbBridge && value
-                ? getGmb({
-                    ...globalParams.value,
-                    dwId: userInfo.value?.dwId || '',
-                    bmId: userInfo.value?.deptId || ''
-                  })
-                : Promise.resolve({ success: true, data: [] })
-            const [gkbmData, gmbData] = await Promise.all([gkbmRequest, gmbRequest])
-            if (requestSequence !== yjdwRequestSequence) return
-            if (!gkbmData.success) throw new Error(gkbmData.msg || '获取市归口部门失败')
-            if (!gmbData.success) throw new Error(gmbData.msg || '获取归口部门失败')
-
-            formRefs.value.forEach((form) => {
-              if (!form?.getFormData) return
-              const currentFormData = form.getFormData()
-              if (needsCtbmBridge && currentFormData.CTBM !== undefined) {
-                form.updateField('CTBM', { options: gkbmData.data || [] })
-                form.setFieldValue('CTBM', '')
-              }
-              if (needsGmbBridge && currentFormData.GMB_ID !== undefined) {
-                form.updateField('GMB_ID', { options: gmbData.data || [] })
-                form.setFieldValue('GMB_ID', '')
-              }
-            })
-          } catch (error: any) {
-            if (requestSequence !== yjdwRequestSequence) return
-            console.error('加载归口部门联动数据失败:', error)
-            ElMessage.error(`加载归口部门联动数据失败：${error?.message || '未知错误'}，请重新选择后重试`)
-          }
-        }
-      }
-
-      if ((prop === 'SJFL' && value) || prop === 'IS_DISPATCH') {
-        const params: any = {
-          SJFL: globalParams.value['SJFL']
-        }
-
-        if (prop === 'IS_DISPATCH' && value) {
-          params['IS_DISPATCH'] = value
-        }
-        const dydjData = await baseService.post('/xmAttributeConfig/getDydj', params)
-        formRefs.value.forEach((form) => {
-          if (form?.getFormData && form.getFormData().DYDJ !== undefined) {
-            form.updateField('DYDJ', { options: dydjData.data })
-          }
-        })
-      }
-    }
-
-    const handleShopping = async () => {
-      if (!dynamicCartComponent.value) {
-        await loadCartComponent()
-      }
-      if (myCartRef.value) myCartRef.value.isShowModal = true
-    }
-
-    const loadCartComponent = async () => {
-      const componentName: string = props.cartModalComponent
-      const componentLoader = componentMap[componentName]
-      if (componentLoader) {
-        try {
-          const component = await componentLoader()
-
-          dynamicCartComponent.value = component.default || component
-        } catch (error) {
-          console.error(`${componentName}组件加载失败`, error)
-          if (componentName !== 'MyCart') {
-            const defaultComponent = await componentMap.MyCart()
-            dynamicCartComponent.value = defaultComponent.default || defaultComponent
-          }
-        }
-      }
-    }
-
-    const getRoleHandle = async () => {
-      try {
-        const isQuery = userDialogRef.value.isQuery
-        userInfOther.value = { ...userDialogRef.value.userMsg }
-        if (isQuery) {
-          isShowPage.value = true
-          const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfOther.value.specialorgid}`)
-          if (flagData.success && flagData.data) {
-            showHandle()
-            const userInfoOthers = {
-              deptId: userInfOther.value.specialorgid,
-              deptName: userInfOther.value.specialorgname,
-              dwId: userInfOther.value.org_id,
-              dwName: userInfOther.value.org_name,
-              roleId: userInfOther.value.role_id,
-              roleCode: userInfOther.value.code,
-              spRoleId: userInfOther.value.id,
-              specialorgcode: userInfOther.value.specialorgcode,
-              fqzzFlag: flagData.data
-            }
-            userInfo.value = userInfoOthers
-            setUserInfo(userInfOther as any)
-            if (props.businessType === 'sfzl') store.commit('setZlGlobalInfo', userInfoOthers)
-            else store.commit('setXqGlobalInfo', userInfoOthers)
-          }
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
-    onMounted(async () => {
-      const str = props.businessType === 'sfzl' ? 'getZlGlobalInfo' : 'getXqGlobalInfo'
-      const isRole = await useUser(str)
-      if (isRole && route.params.formJsc) {
-        let xqGlobalInfo = null
-        if (props.businessType === 'sfzl') xqGlobalInfo = store.getters.getZlGlobalInfo
-        else xqGlobalInfo = store.getters.getXqGlobalInfo
-        isShowPage.value = true
-        userInfo.value = {
-          ...(xqGlobalInfo as any)
-        }
-        setUserInfo(userInfo.value)
-        await showHandle()
-      } else {
-        await userDialogRef.value.getUser()
-      }
-    })
-
-    return {
-      dynamicCartComponent,
-      searchYssxHandle,
-      pageChangeHandle,
-      limitChangeHandle,
-      page,
-      resetHandle,
-      searchData,
-      handleChangeProvinceDataWrapper,
-      handleChangeYslyWrapper,
-      handleCurrentChange,
-      yssxDataList,
-      yskmTableRef,
-      yssxTableRef,
-      cellStyle,
-      protypeTreeDataList,
-      provinceData,
-      ysly,
-      provinceDataList,
-      isDisabled,
-      stepChanging,
-      isShowPage,
-      notifyNumber,
-      steps,
-      loading,
-      activeStep,
-      handleFieldChange,
-      formConfigs,
-      setFormRef,
-      prevStep,
-      nextStep,
-      submitFormWrapper,
-      handleShopping,
-      showHandle,
-      globalParams,
-      isChange,
-      setValue,
-      clearFieldValue,
-      closeHandle,
-      userInfo,
-      myCartRef,
-      getRoleHandle,
-      operationBtn,
-      searchBtn,
-      userDialogRef,
-      dynamicUploadSelectData,
-      loadTreeData
     }
   }
+}
+const submitFormWrapper = async (flag: 'SUBMIT' | 'SAVE') => {
+  const sfzl = props.cartModalComponent !== 'MyCart' ? '1' : '0'
+  for (let i = 0; i < formRefs.value.length; i++) {
+    const form = formRefs.value[i]
+    if (form.getFormData && form.ISCUSTOMCOPONENT) {
+      const data = form.getFormData()
+      for (const key in data) {
+        globalParams.value[key] = data[key]
+      }
+    }
+  }
+  flag === 'SUBMIT'
+    ? await submitForm(globalParams.value, userInfo.value, sfzl, closeHandle)
+    : await saveInfo(globalParams.value, userInfo.value, sfzl, closeHandle)
+}
+const showHandle = async () => {
+  try {
+    tableLoading.value = true
+    formRefs.value.forEach((form) => {
+      if (form?.getFormData) form.getFormData()
+    })
+    const res = await getGkbmInProvince()
+    const xqlrNum = await getXqlrNum({
+      sfzl: props.cartModalComponent !== 'MyCart' ? '1' : '0',
+      bmId: userInfo.value?.deptId || '',
+      dwId: userInfo.value?.dwId || ''
+    })
+    if (xqlrNum.success) {
+      notifyNumber.value = xqlrNum.data
+    }
+    if (res.data && res.success) {
+      provinceDataList.value = res.data
+    }
+    getProTypeData('', userInfo.value)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    tableLoading.value = false
+  }
+}
+const closeHandle = () => {
+  xmbmRequestSequence++
+  yjdwRequestSequence++
+  // 作废进行中的步骤流程并解锁，避免关闭/重开后残留的切换锁把按钮禁死
+  stepSequence++
+  stepChanging.value = false
+  activeStep.value = 1
+  formRefs.value.forEach((form) => {
+    if (form?.getFormData) {
+      const formData = form.getFormData()
+      if (formData.yssxId !== undefined) {
+        form.setFieldValue('yssxId', '')
+      }
+    }
+  })
+  resetWorkflow()
+  formRefs.value = []
+  resetFormConfigs()
+}
+const handleFieldChange = async (event: any, index: number) => {
+  const { prop, value, formData } = event
+  globalParams.value[prop] = value
+  const hasLocalDependency = (targetProp: string, sourceProp: string) => {
+    const currentFields = formConfigs.value[index]?.fields || []
+    return currentFields.some(
+      (field: any) =>
+        field.prop === targetProp &&
+        Array.isArray(field.dependencies) &&
+        field.dependencies.includes(sourceProp) &&
+        (field.dyff || field.loadOptions)
+    )
+  }
+  if (prop === 'EJDW') {
+    const requestSequence = ++xmbmRequestSequence
+    const hasLocalXmbmDependency = hasLocalDependency('XMBM', 'EJDW')
+    if (!hasLocalXmbmDependency) {
+      try {
+        const xmbmData: any = value
+          ? await getXmbm(formData)
+          : {
+              success: true,
+              data: ''
+            }
+        if (requestSequence !== xmbmRequestSequence) return
+        if (!xmbmData.success) {
+          throw new Error(xmbmData.msg || '获取项目编码失败')
+        }
+        formRefs.value.forEach((form) => {
+          if (form?.getFormData && form.getFormData().XMBM !== undefined) {
+            form.setFieldValue('XMBM', xmbmData.data ?? '')
+          }
+        })
+      } catch (error: any) {
+        if (requestSequence !== xmbmRequestSequence) return
+        console.error('加载项目编码失败:', error)
+        ElMessage.error(`加载项目编码失败：${error?.message || '未知错误'}，请重新选择后重试`)
+      }
+    }
+  }
+  if (prop === 'YJDW') {
+    const requestSequence = ++yjdwRequestSequence
+    const needsCtbmBridge = !hasLocalDependency('CTBM', 'YJDW')
+    const needsGmbBridge = !hasLocalDependency('GMB_ID', 'YJDW')
+    if (needsCtbmBridge || needsGmbBridge) {
+      try {
+        const gkbmRequest: Promise<any> =
+          needsCtbmBridge && value
+            ? getSgbm(formData)
+            : Promise.resolve({
+                success: true,
+                data: []
+              })
+        const gmbRequest: Promise<any> =
+          needsGmbBridge && value
+            ? getGmb({
+                ...globalParams.value,
+                dwId: userInfo.value?.dwId || '',
+                bmId: userInfo.value?.deptId || ''
+              })
+            : Promise.resolve({
+                success: true,
+                data: []
+              })
+        const [gkbmData, gmbData] = await Promise.all([gkbmRequest, gmbRequest])
+        if (requestSequence !== yjdwRequestSequence) return
+        if (!gkbmData.success) throw new Error(gkbmData.msg || '获取市归口部门失败')
+        if (!gmbData.success) throw new Error(gmbData.msg || '获取归口部门失败')
+        formRefs.value.forEach((form) => {
+          if (!form?.getFormData) return
+          const currentFormData = form.getFormData()
+          if (needsCtbmBridge && currentFormData.CTBM !== undefined) {
+            form.updateField('CTBM', {
+              options: gkbmData.data || []
+            })
+            form.setFieldValue('CTBM', '')
+          }
+          if (needsGmbBridge && currentFormData.GMB_ID !== undefined) {
+            form.updateField('GMB_ID', {
+              options: gmbData.data || []
+            })
+            form.setFieldValue('GMB_ID', '')
+          }
+        })
+      } catch (error: any) {
+        if (requestSequence !== yjdwRequestSequence) return
+        console.error('加载归口部门联动数据失败:', error)
+        ElMessage.error(`加载归口部门联动数据失败：${error?.message || '未知错误'}，请重新选择后重试`)
+      }
+    }
+  }
+  if ((prop === 'SJFL' && value) || prop === 'IS_DISPATCH') {
+    const params: any = {
+      SJFL: globalParams.value.SJFL
+    }
+    if (prop === 'IS_DISPATCH' && value) {
+      params.IS_DISPATCH = value
+    }
+    const dydjData = await baseService.post('/xmAttributeConfig/getDydj', params)
+    formRefs.value.forEach((form) => {
+      if (form?.getFormData && form.getFormData().DYDJ !== undefined) {
+        form.updateField('DYDJ', {
+          options: dydjData.data
+        })
+      }
+    })
+  }
+}
+const handleShopping = async () => {
+  if (!dynamicCartComponent.value) {
+    await loadCartComponent()
+  }
+  if (myCartRef.value) myCartRef.value.isShowModal = true
+}
+const loadCartComponent = async () => {
+  const componentName: string = props.cartModalComponent
+  const componentLoader = componentMap[componentName]
+  if (componentLoader) {
+    try {
+      const component = await componentLoader()
+      dynamicCartComponent.value = component.default || component
+    } catch (error) {
+      console.error(`${componentName}组件加载失败`, error)
+      if (componentName !== 'MyCart') {
+        const defaultComponent = await componentMap.MyCart()
+        dynamicCartComponent.value = defaultComponent.default || defaultComponent
+      }
+    }
+  }
+}
+const getRoleHandle = async () => {
+  try {
+    const isQuery = userDialogRef.value.isQuery
+    userInfOther.value = {
+      ...userDialogRef.value.userMsg
+    }
+    if (isQuery) {
+      isShowPage.value = true
+      const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfOther.value.specialorgid}`)
+      if (flagData.success && flagData.data) {
+        showHandle()
+        const userInfoOthers = {
+          deptId: userInfOther.value.specialorgid,
+          deptName: userInfOther.value.specialorgname,
+          dwId: userInfOther.value.org_id,
+          dwName: userInfOther.value.org_name,
+          roleId: userInfOther.value.role_id,
+          roleCode: userInfOther.value.code,
+          spRoleId: userInfOther.value.id,
+          specialorgcode: userInfOther.value.specialorgcode,
+          fqzzFlag: flagData.data
+        }
+        userInfo.value = userInfoOthers
+        setUserInfo(userInfOther as any)
+        if (props.businessType === 'sfzl') store.commit('setZlGlobalInfo', userInfoOthers)
+        else store.commit('setXqGlobalInfo', userInfoOthers)
+      }
+    }
+  } catch (e) {
+    console.error(e)
+  }
+}
+onMounted(async () => {
+  const str = props.businessType === 'sfzl' ? 'getZlGlobalInfo' : 'getXqGlobalInfo'
+  const isRole = await useUser(str)
+  if (isRole && route.params.formJsc) {
+    let xqGlobalInfo = null
+    if (props.businessType === 'sfzl') xqGlobalInfo = store.getters.getZlGlobalInfo
+    else xqGlobalInfo = store.getters.getXqGlobalInfo
+    isShowPage.value = true
+    userInfo.value = {
+      ...(xqGlobalInfo as any)
+    }
+    setUserInfo(userInfo.value)
+    await showHandle()
+  } else {
+    await userDialogRef.value.getUser()
+  }
+})
+defineExpose({
+  dynamicCartComponent,
+  searchYssxHandle,
+  pageChangeHandle,
+  limitChangeHandle,
+  page,
+  resetHandle,
+  searchData,
+  handleChangeProvinceDataWrapper,
+  handleChangeYslyWrapper,
+  handleCurrentChange,
+  yssxDataList,
+  yskmTableRef,
+  yssxTableRef,
+  cellStyle,
+  protypeTreeDataList,
+  provinceData,
+  ysly,
+  provinceDataList,
+  isDisabled,
+  stepChanging,
+  isShowPage,
+  notifyNumber,
+  steps,
+  loading,
+  activeStep,
+  handleFieldChange,
+  formConfigs,
+  setFormRef,
+  prevStep,
+  nextStep,
+  submitFormWrapper,
+  handleShopping,
+  showHandle,
+  globalParams,
+  isChange,
+  setValue,
+  clearFieldValue,
+  closeHandle,
+  userInfo,
+  myCartRef,
+  getRoleHandle,
+  operationBtn,
+  searchBtn,
+  userDialogRef,
+  dynamicUploadSelectData,
+  loadTreeData
 })
 </script>
 

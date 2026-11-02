@@ -32,32 +32,27 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
-import type { ProcessStep } from "../types";
-
+import type { ProcessStep } from '../types'
 interface Props {
-  step: ProcessStep;
+  step: ProcessStep
 }
-
-defineProps<Props>();
-
+defineProps<Props>()
 const getMarkerClass = (status: string) => {
   const classMap = {
-    "1": "completed",
-    "2": "current",
-    "3": "pending"
-  };
-  return classMap[status as keyof typeof classMap] || "pending";
-};
-
+    '1': 'completed',
+    '2': 'current',
+    '3': 'pending'
+  }
+  return classMap[status as keyof typeof classMap] || 'pending'
+}
 const getStatusClass = (status: string) => {
   const classMap = {
-    "1": "completed",
-    "2": "current",
-    "3": "pending"
-  };
-  return classMap[status as keyof typeof classMap] || "pending";
-};
+    '1': 'completed',
+    '2': 'current',
+    '3': 'pending'
+  }
+  return classMap[status as keyof typeof classMap] || 'pending'
+}
 </script>
 
 <style scoped>

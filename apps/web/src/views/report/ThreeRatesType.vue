@@ -180,19 +180,12 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/report/ThreeRatesType'
-}
-</script>
 
 <script setup lang="ts">
 import { QuestionFilled as EpQuestionFilled } from '@element-plus/icons-vue'
-
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
 import userDialog from '@/components/select/userDialog.vue'
-
 import { onMounted, reactive, ref, watch } from 'vue'
 import { getDynamicColumn, getProTypeTree, getStatData, SearchForm } from '@/api/report'
 import TreeSelect from '@/components/select/TreeSelect.vue'
@@ -200,6 +193,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getPublicCodeList } from '@/api/common'
 import DwTreeSelect from '@/views/report/components/DwTreeSelect.vue'
 import ProcessModal from '@/views/report/components/processModal.vue'
+defineOptions({
+  name: '/report/ThreeRatesType'
+})
 
 const userDialogRef = ref()
 const processModalRef = ref()
@@ -210,7 +206,6 @@ const userInfo = ref<any>()
 const clickTableData = ref<any>()
 const dwId = ref('')
 const isShowHelpMsg = ref(false)
-
 const searchForm = reactive<SearchForm>({
   currentUserDwId: '',
   endDate: '',
@@ -219,19 +214,15 @@ const searchForm = reactive<SearchForm>({
   indicatorList: ['fjl', 'lxl', 'wcl'],
   xmlxIdList: []
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const xmlxTreeData = ref([])
 const zbxDataList = ref<any>([])
-
 const projectTypeProps = {
   children: 'children',
   label: 'name'
 }
-
 const gridOptions = reactive<any>({
   border: true,
   stripe: true,
@@ -260,22 +251,21 @@ const gridOptions = reactive<any>({
   columns: [],
   data: []
 })
-
 const exportHandle = () => {
   const $table = gridRef.value
   if ($table) {
     $table.exportData(gridOptions.exportConfig)
   }
 }
-
 const getHelpMessageHandle = () => {
   isShowHelpMsg.value = true
 }
-
 const getRoleHandle = async () => {
   searchForm.currentUserDwId = userDialogRef.value.userMsg.org_id
   dwId.value = userDialogRef.value.userMsg.org_id
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   if (isQuery) {
     pageInfo.isShowPage = true
@@ -283,7 +273,6 @@ const getRoleHandle = async () => {
     await getDynamicColumnHeader()
   }
 }
-
 const startTimeHandle = (val: string) => {
   if (searchForm.endDate) {
     const endtTime = new Date(searchForm.endDate)
@@ -301,7 +290,6 @@ const startTimeHandle = (val: string) => {
     }
   }
 }
-
 const disabledEndMonth = (time: Date) => {
   if (!searchForm.startDate) return false
   const startTime = new Date(searchForm.startDate)
@@ -312,7 +300,6 @@ const disabledEndMonth = (time: Date) => {
   const monthDiff = (currentYear - startYear) * 12 + (currentMonth - startMonth)
   return currentYear !== startYear || monthDiff < 0
 }
-
 const searchData = () => {
   if (searchForm.indicatorList.length === 0) {
     ElMessage.error('指标项不能为空!')
@@ -321,7 +308,6 @@ const searchData = () => {
   searchHandle()
   getDynamicColumnHeader()
 }
-
 const searchHandle = async () => {
   gridOptions.loading = true
   const res = await getStatData({
@@ -335,7 +321,6 @@ const searchHandle = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getDynamicColumnHeader = async () => {
   gridOptions.loading = true
   const res = await getDynamicColumn({
@@ -348,7 +333,6 @@ const getDynamicColumnHeader = async () => {
     gridOptions.loading = false
   }
 }
-
 const resetHandle = () => {
   const year = new Date().getFullYear().toString()
   const curMonth = new Date().getMonth() + 1
@@ -369,7 +353,6 @@ const resetHandle = () => {
   searchHandle()
   getDynamicColumnHeader()
 }
-
 watch(
   () => searchForm.startDate,
   (newVal) => {
@@ -377,10 +360,7 @@ watch(
       const startTime = new Date(newVal)
       const year = startTime.getFullYear().toString()
       const endTime = new Date(searchForm.endDate)
-      if (
-        endTime.getFullYear() !== startTime.getFullYear() ||
-        endTime.getMonth() < startTime.getMonth()
-      ) {
+      if (endTime.getFullYear() !== startTime.getFullYear() || endTime.getMonth() < startTime.getMonth()) {
         const curMonth = startTime.getMonth() + 1
         if (curMonth === 12) {
           searchForm.endDate = year + '-' + curMonth.toString().padStart(2, '0')
@@ -391,7 +371,6 @@ watch(
     }
   }
 )
-
 const handleCellClick = ({ row }: any) => {
   processModalRef.value.isShowModal = true
   clickTableData.value = {
@@ -399,15 +378,12 @@ const handleCellClick = ({ row }: any) => {
     ...row
   }
 }
-
 const getProjectType = (value: any) => {
   searchForm.xmlxIdList = value
 }
-
 const clearDataHandle = () => {
   searchForm.xmlxIdList.length = 0
 }
-
 const initParams = async () => {
   await userDialogRef.value.getUser()
   const year = new Date().getFullYear().toString()
@@ -426,7 +402,6 @@ const initParams = async () => {
     xmlxTreeData.value = xmlxRes.data
   }
 }
-
 onMounted(initParams)
 </script>
 

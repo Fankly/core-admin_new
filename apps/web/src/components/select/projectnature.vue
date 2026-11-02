@@ -4,34 +4,35 @@
   </el-select>
 </template>
 
-<script>
-import { defineComponent, reactive } from "vue";
-import { ElMessage } from "element-plus";
-export default defineComponent({
-  setup() {
-    return reactive({
-      value: "",
-      options: [
-        {
-          value: "新建",
-          label: "新建"
-        },
-        {
-          value: "续建",
-          label: "续建"
-        },
-        {
-          value: "结转",
-          label: "结转"
-        }
-      ]
-    });
-  },
-  methods: {
-    clear() {
-      this.value = "";
+<script setup>
+import { reactive, toRef } from 'vue'
+import { ElMessage } from 'element-plus'
+const setupState = reactive({
+  value: '',
+  options: [
+    {
+      value: '新建',
+      label: '新建'
+    },
+    {
+      value: '续建',
+      label: '续建'
+    },
+    {
+      value: '结转',
+      label: '结转'
     }
-  }
-});
+  ]
+})
+const value = toRef(setupState, 'value')
+const options = toRef(setupState, 'options')
+function clear() {
+  setupState.value = ''
+}
+defineExpose({
+  value,
+  options,
+  clear
+})
 </script>
 <style lang="less" scoped></style>

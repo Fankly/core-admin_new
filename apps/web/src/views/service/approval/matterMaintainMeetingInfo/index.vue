@@ -17,7 +17,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/service/approval/matterMaintainMeetingInfo/index" })
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import ExcelJS from 'exceljs'
@@ -26,6 +25,7 @@ import type { VxeGridProps } from 'vxe-table'
 import { getMatterMeetingReviewInfoList } from '@/api/service/approval/matterMaintainMeetingInfo'
 import { formatNumValue } from '@/utils/utils'
 import { useReviewModeCode } from '@/hooks/useReviewModeCode'
+defineOptions({ name: "/service/approval/matterMaintainMeetingInfo/index" })
 
 type CellValue = string | number | boolean | null | undefined
 type Align = 'left' | 'center' | 'right'

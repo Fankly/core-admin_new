@@ -38,12 +38,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "DeptModal" })
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getSysOrgByCurrentUser } from '@/api/common'
 import VXETable from 'vxe-table'
 import { editZybm } from '@/api/sys/proCategory'
+defineOptions({ name: "DeptModal" })
 
 interface AcceptParams {
   ids: string[]

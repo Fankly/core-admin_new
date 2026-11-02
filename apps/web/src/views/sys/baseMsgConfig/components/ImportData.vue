@@ -23,114 +23,107 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "/sys/baseMsgConfig/components/ImportData"
-};
-</script>
+
 <script setup lang="ts">
-import { batchUpdateData, getBatchOperationTemplate } from "@/api/fy/common/utils";
-import { ElMessage } from "element-plus";
-import { ref, reactive, defineExpose } from "vue";
+import { batchUpdateData, getBatchOperationTemplate } from '@/api/fy/common/utils'
+import { ElMessage } from 'element-plus'
+import { ref, reactive } from 'vue'
+defineOptions({
+  name: '/sys/baseMsgConfig/components/ImportData'
+})
 
 interface ExcelParameterProps {
-  title: string; // 标题
-  specialorgid: string; // 特殊组织id
-  fileSize?: number; // 上传文件的大小
-  fileType?: File.ExcelMimeType[]; // 上传文件的类型
+  title: string // 标题
+  specialorgid: string // 特殊组织id
+  fileSize?: number // 上传文件的大小
+  fileType?: File.ExcelMimeType[] // 上传文件的类型
 }
-
-const uploadRef = ref();
-const isShowModal = ref(false);
+const uploadRef = ref()
+const isShowModal = ref(false)
 
 // 最大文件上传数
-const excelLimit = ref(1);
-
+const excelLimit = ref(1)
 const formData = reactive({
-  tabName: "",
-  sysParamCode: ""
-});
-
+  tabName: '',
+  sysParamCode: ''
+})
 const parameter = ref<ExcelParameterProps>({
-  title: "",
+  title: '',
   fileSize: 5,
-  specialorgid: "",
-  fileType: ["application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
-});
-
+  specialorgid: '',
+  fileType: ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+})
 const closeHandle = () => {
-  formData.tabName = "";
-  formData.sysParamCode = "";
+  formData.tabName = ''
+  formData.sysParamCode = ''
   if (uploadRef.value && uploadRef.value.clearFiles) {
-    uploadRef.value.clearFiles();
+    uploadRef.value.clearFiles()
   }
-};
-
+}
 const downloadHandle = async () => {
-  let res = await getBatchOperationTemplate(formData.sysParamCode, formData.tabName);
-  const blob = res;
-  let dom = document.createElement("a");
-  let url = window.URL.createObjectURL(blob);
-  dom.href = url;
+  let res = await getBatchOperationTemplate(formData.sysParamCode, formData.tabName)
+  const blob = res
+  let dom = document.createElement('a')
+  let url = window.URL.createObjectURL(blob)
+  dom.href = url
   // 获取文件名
-  let filename = res.headers["content-disposition"].split(";")[1].split("=")[1];
-  dom.download = `${decodeURI(decodeURI(filename))}`;
-  document.body.appendChild(dom);
-  dom.click();
-  document.body.removeChild(dom);
-  window.URL.revokeObjectURL(url);
-};
+  let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
+  dom.download = `${decodeURI(decodeURI(filename))}`
+  document.body.appendChild(dom)
+  dom.click()
+  document.body.removeChild(dom)
+  window.URL.revokeObjectURL(url)
+}
 
 // 文件上传
 const uploadExcel = async (param: any) => {
-  let excelFormData = new FormData();
-  excelFormData.append("file", param.file);
+  let excelFormData = new FormData()
+  excelFormData.append('file', param.file)
   const res = await batchUpdateData({
     ...formData,
     excelFormData
-  });
+  })
   if (res.success) {
     ElMessage({
-      type: "success",
+      type: 'success',
       message: `上传${parameter.value.title}成功！`
-    });
+    })
   } else {
     ElMessage({
-      type: "error",
+      type: 'error',
       message: `${res.msg}，请您重新上传！`
-    });
+    })
     // 清空上传失败的文件
     if (uploadRef.value && uploadRef.value.clearFiles) {
-      uploadRef.value.clearFiles();
+      uploadRef.value.clearFiles()
     }
   }
-};
+}
 
 /**
  * @description 文件上传之前判断
  * @param file 上传的文件
  * */
 const beforeExcelUpload = (file: any) => {
-  const isExcel = parameter.value.fileType?.includes(file.type as File.ExcelMimeType);
+  const isExcel = parameter.value.fileType?.includes(file.type as File.ExcelMimeType)
   if (!isExcel)
     ElMessage({
-      message: "上传文件只能是 xls / xlsx 格式！",
-      type: "warning"
-    });
-  return isExcel;
-};
+      message: '上传文件只能是 xls / xlsx 格式！',
+      type: 'warning'
+    })
+  return isExcel
+}
 
 // 文件数超出提示
 const handleExceed = () => {
   ElMessage({
-    message: "最多只能上传一个文件！",
-    type: "warning"
-  });
-};
-
+    message: '最多只能上传一个文件！',
+    type: 'warning'
+  })
+}
 defineExpose({
   isShowModal
-});
+})
 </script>
 
 <style scoped lang="less">

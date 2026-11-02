@@ -5,12 +5,12 @@
         <el-row>
           <el-col :span="6">
             <el-form-item label="项目类型：">
-              <el-cascader :props="props1" clearable :options="projects" @change="handleChange" />
+              <el-cascader :props="props1" clearable :options="projects" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="所属单位：">
-              <el-cascader :props="props1" clearable :options="options" @change="handleChange" />
+              <el-cascader :props="props1" clearable :options="options" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
@@ -55,9 +55,9 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import './QualityMonitoring.module'
 import { Download as EpDownload, RefreshRight as EpRefreshRight, Search as EpSearch } from '@element-plus/icons-vue'
-
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart } from 'echarts/charts'
@@ -74,280 +74,260 @@ import {
   DataZoomComponent
 } from 'echarts/components'
 import VChart, { THEME_KEY } from 'vue-echarts'
-import { ref, defineComponent } from 'vue'
+import { ref, provide } from 'vue'
 import { setup } from 'xe-utils/ctor'
-use([
-  BarChart,
-  LineChart,
-  PieChart,
-  MapChart,
-  RadarChart,
-  ScatterChart,
-  EffectScatterChart,
-  LinesChart,
-  GridComponent,
-  PolarComponent,
-  GeoComponent,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent,
-  VisualMapComponent,
-  DatasetComponent,
-  CanvasRenderer,
-  ToolboxComponent,
-  DataZoomComponent
-])
-export default defineComponent({
-  components: {
-    VChart
-  },
-  provide: {
-    [THEME_KEY]: 'westeros'
-  },
-  setup() {
-    const bar = ref({
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'cross',
-          crossStyle: {
-            color: '#999'
-          }
-        }
-      },
-      legend: {
-        data: ['项目金额', '项目数量']
-      },
-      xAxis: [
-        {
-          type: 'category',
-          data: ['储备立项', '招投标', '合同签订', '项目实施', '项目审计', '结算支付', '决算增资', '项目关闭'],
-          axisPointer: {
-            type: 'shadow'
-          }
-        }
-      ],
-      yAxis: [
-        {
-          type: 'value',
-          name: '万元',
-          min: 0,
-          max: 150,
-          interval: 30,
-          axisLabel: {
-            formatter: '{value}.00'
-          }
-        },
-        {
-          type: 'value',
-          min: 30,
-          max: 70,
-          interval: 10,
-          axisLabel: {
-            formatter: '{value}.00%'
-          }
-        }
-      ],
-      series: [
-        {
-          name: '项目金额',
-          type: 'bar',
-          tooltip: {
-            valueFormatter: function (value) {
-              return value
-            }
-          },
-          data: [70, 56, 86, 72, 65, 99, 92, 64]
-        },
-        {
-          name: '项目数量',
-          type: 'line',
-          yAxisIndex: 1,
-          tooltip: {
-            valueFormatter: function (value) {
-              return value
-            }
-          },
-          data: [56, 45, 57, 48, 65, 46, 53, 45]
-        }
-      ]
-    })
-    return {
-      EpDownload,
-      EpRefreshRight,
-      EpSearch,
-      value: '',
-      value2: '',
-      dataList: {},
-      props1: {
-        checkStrictly: true,
-        multiple: true
-      },
-      bar,
-      barLoadingOptions: {
-        text: 'Loading…',
-        color: '#4ea397',
-        maskColor: 'rgba(255, 255, 255, 0.4)'
-      },
-      theme: '',
-      autoResize: true,
+const activeName = ref('first')
 
-      company: [
-        {
-          projectType: '全省合计'
-        },
-
-        {
-          projectType: '南京供电公司'
-        },
-        {
-          projectType: '无锡供电公司'
-        },
-        {
-          projectType: '苏州供电公司'
-        },
-        {
-          projectType: '常州供电公司'
-        },
-        {
-          projectType: '盐城供电公司'
-        },
-        {
-          projectType: '宿迁供电公司'
-        },
-        {
-          projectType: '淮安供电公司'
-        },
-        {
-          projectType: '徐州供电公司'
-        },
-        {
-          projectType: '连云港供电公司'
-        },
-        {
-          projectType: '泰州供电公司'
-        }
-      ],
-      options: [
-        {
-          value: '南京供电公司',
-          label: '南京供电公司',
-          children: [
-            {
-              value: '南京供电公司本部',
-              label: '南京供电公司本部',
-              children: [
-                {
-                  value: '采购部',
-                  label: '采购部'
-                },
-                {
-                  value: '管理部',
-                  label: '管理部'
-                },
-                {
-                  value: '生产部',
-                  label: '生产部'
-                }
-              ]
-            },
-            {
-              value: '江宁区供电分公司',
-              label: '江宁区供电分公司',
-              children: [
-                {
-                  value: '采购部',
-                  label: '采购部'
-                },
-                {
-                  value: '管理部',
-                  label: '管理部'
-                },
-                {
-                  value: '生产部',
-                  label: '生产部'
-                }
-              ]
-            }
-          ]
-        },
-        {
-          value: '无锡供电公司',
-          label: '无锡供电公司'
-        },
-        {
-          value: '苏州供电公司',
-          label: '苏州供电公司'
-        },
-        {
-          value: '常州供电公司',
-          label: '常州供电公司'
-        },
-        {
-          value: '盐城供电公司',
-          label: '盐城供电公司'
-        },
-        {
-          value: '宿迁供电公司',
-          label: '宿迁供电公司'
-        },
-        {
-          value: '淮安供电公司',
-          label: '淮安供电公司'
-        },
-        {
-          value: '徐州供电公司',
-          label: '徐州供电公司'
-        },
-        {
-          value: '连云港供电公司',
-          label: '连云港供电公司'
-        },
-        {
-          value: '泰州供电公司',
-          label: '泰州供电公司'
-        }
-      ],
-      projects: [
-        {
-          value: '资本项目',
-          label: '资本项目',
-          children: [
-            {
-              value: '大中型基建',
-              label: '大中型基建'
-            },
-            {
-              value: '配网建设改造',
-              label: '配网建设改造'
-            },
-            {
-              value: '独立二次',
-              label: '独立二次'
-            },
-            {
-              value: '生产技改',
-              label: '生产技改'
-            },
-            {
-              value: '生产辅助技改',
-              label: '生产辅助技改'
-            }
-          ]
-        },
-        {
-          value: '成本项目',
-          label: '成本项目',
-          children: [
-            {
-              value: '生产修理',
-              label: '生产修理'
-            }
-          ]
-        }
-      ]
+const bar = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      crossStyle: {
+        color: '#999'
+      }
     }
+  },
+  legend: {
+    data: ['项目金额', '项目数量']
+  },
+  xAxis: [
+    {
+      type: 'category',
+      data: ['储备立项', '招投标', '合同签订', '项目实施', '项目审计', '结算支付', '决算增资', '项目关闭'],
+      axisPointer: {
+        type: 'shadow'
+      }
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value',
+      name: '万元',
+      min: 0,
+      max: 150,
+      interval: 30,
+      axisLabel: {
+        formatter: '{value}.00'
+      }
+    },
+    {
+      type: 'value',
+      min: 30,
+      max: 70,
+      interval: 10,
+      axisLabel: {
+        formatter: '{value}.00%'
+      }
+    }
+  ],
+  series: [
+    {
+      name: '项目金额',
+      type: 'bar',
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
+        }
+      },
+      data: [70, 56, 86, 72, 65, 99, 92, 64]
+    },
+    {
+      name: '项目数量',
+      type: 'line',
+      yAxisIndex: 1,
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
+        }
+      },
+      data: [56, 45, 57, 48, 65, 46, 53, 45]
+    }
+  ]
+})
+const value = ref('')
+const value2 = ref('')
+const dataList = ref({})
+const props1 = ref({
+  checkStrictly: true,
+  multiple: true
+})
+const barLoadingOptions = ref({
+  text: 'Loading…',
+  color: '#4ea397',
+  maskColor: 'rgba(255, 255, 255, 0.4)'
+})
+const theme = ref('')
+const autoResize = ref(true)
+const company = ref([
+  {
+    projectType: '全省合计'
+  },
+  {
+    projectType: '南京供电公司'
+  },
+  {
+    projectType: '无锡供电公司'
+  },
+  {
+    projectType: '苏州供电公司'
+  },
+  {
+    projectType: '常州供电公司'
+  },
+  {
+    projectType: '盐城供电公司'
+  },
+  {
+    projectType: '宿迁供电公司'
+  },
+  {
+    projectType: '淮安供电公司'
+  },
+  {
+    projectType: '徐州供电公司'
+  },
+  {
+    projectType: '连云港供电公司'
+  },
+  {
+    projectType: '泰州供电公司'
   }
+])
+const options = ref([
+  {
+    value: '南京供电公司',
+    label: '南京供电公司',
+    children: [
+      {
+        value: '南京供电公司本部',
+        label: '南京供电公司本部',
+        children: [
+          {
+            value: '采购部',
+            label: '采购部'
+          },
+          {
+            value: '管理部',
+            label: '管理部'
+          },
+          {
+            value: '生产部',
+            label: '生产部'
+          }
+        ]
+      },
+      {
+        value: '江宁区供电分公司',
+        label: '江宁区供电分公司',
+        children: [
+          {
+            value: '采购部',
+            label: '采购部'
+          },
+          {
+            value: '管理部',
+            label: '管理部'
+          },
+          {
+            value: '生产部',
+            label: '生产部'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    value: '无锡供电公司',
+    label: '无锡供电公司'
+  },
+  {
+    value: '苏州供电公司',
+    label: '苏州供电公司'
+  },
+  {
+    value: '常州供电公司',
+    label: '常州供电公司'
+  },
+  {
+    value: '盐城供电公司',
+    label: '盐城供电公司'
+  },
+  {
+    value: '宿迁供电公司',
+    label: '宿迁供电公司'
+  },
+  {
+    value: '淮安供电公司',
+    label: '淮安供电公司'
+  },
+  {
+    value: '徐州供电公司',
+    label: '徐州供电公司'
+  },
+  {
+    value: '连云港供电公司',
+    label: '连云港供电公司'
+  },
+  {
+    value: '泰州供电公司',
+    label: '泰州供电公司'
+  }
+])
+const projects = ref([
+  {
+    value: '资本项目',
+    label: '资本项目',
+    children: [
+      {
+        value: '大中型基建',
+        label: '大中型基建'
+      },
+      {
+        value: '配网建设改造',
+        label: '配网建设改造'
+      },
+      {
+        value: '独立二次',
+        label: '独立二次'
+      },
+      {
+        value: '生产技改',
+        label: '生产技改'
+      },
+      {
+        value: '生产辅助技改',
+        label: '生产辅助技改'
+      }
+    ]
+  },
+  {
+    value: '成本项目',
+    label: '成本项目',
+    children: [
+      {
+        value: '生产修理',
+        label: '生产修理'
+      }
+    ]
+  }
+])
+provide(THEME_KEY, 'westeros')
+defineExpose({
+  EpDownload,
+  EpRefreshRight,
+  EpSearch,
+  value,
+  value2,
+  dataList,
+  props1,
+  bar,
+  barLoadingOptions,
+  theme,
+  autoResize,
+  company,
+  options,
+  projects
 })
 </script>
 

@@ -24,123 +24,120 @@
     </el-row>
   </div>
 </template>
-<script>
-export default {
-  components: {},
-  props: {
-    bodyWapperStyle: {
-      type: Object,
-      default: () => {}
-    },
-    onCancel: {
-      type: Function,
-      default: () => {}
-    },
-    onSubmit: {
-      type: Function,
-      default: () => {}
-    },
-    submitLabel: {
-      type: String,
-      default: '提交'
-    },
-    cancelLabel: {
-      type: String,
-      default: '取消'
-    },
-    buttonLoading: {
-      type: Boolean,
-      default: false
-    },
-    disabledScroll: {
-      type: Boolean,
-      default: false
-    },
-    readOnly: {
-      type: Boolean,
-      default: false
-    },
-    disabledSubmit: {
-      type: Boolean,
-      default: false
-    },
-    bodyClass: {
-      type: Object,
-      default: () => ({})
-    },
-    bodyStyle: {
-      type: Object,
-      default: () => ({})
-    },
-    disabledOverflowX: {
-      type: Boolean,
-      default: true
-    },
-    appendButtons: {
-      type: Array,
-      default: () => []
-    },
-    hiddenButton: {
-      type: Boolean
-    },
-    hiddenCancel: {
-      type: Boolean
-    },
-    cancelLoading: {
-      type: Boolean
-    },
-    submitLoading: {
-      type: Boolean
-    }
+<script setup>
+import { reactive, toRefs, computed, useTemplateRef } from 'vue'
+defineOptions({
+  name: 'dialogContainer'
+})
+const componentProps = defineProps({
+  bodyWapperStyle: {
+    type: Object,
+    default: () => {}
   },
-  name: 'dialogContainer',
-  data() {
-    return {}
+  onCancel: {
+    type: Function,
+    default: () => {}
   },
-  created() {},
-  mounted() {},
-  methods: {
-    scrollToBottom() {
-      this.$refs.scrollbarRef.scrollToBottom()
-    }
+  onSubmit: {
+    type: Function,
+    default: () => {}
   },
-  computed: {
-    defaultButtons() {
-      return [
-        {
-          key: 'cancel',
-          show: !this.hiddenCancel,
-          label: this.cancelLabel || '取消',
-          attrs: {
-            plain: true,
-            loading: this.cancelLoading
-          },
-          events: {
-            click: () => {
-              this.onCancel(false)
-            }
-          }
-        },
-        {
-          key: 'submit',
-          label: this.submitLabel || '确定',
-          attrs: {
-            disabled: this.disabledSubmit,
-            type: 'primary',
-            loading: this.submitLoading
-          },
-          events: {
-            click: () => {
-              this.onSubmit()
-            }
-          }
-        },
-        ...this.appendButtons
-      ]
-    }
+  submitLabel: {
+    type: String,
+    default: '提交'
   },
-  watch: {}
+  cancelLabel: {
+    type: String,
+    default: '取消'
+  },
+  buttonLoading: {
+    type: Boolean,
+    default: false
+  },
+  disabledScroll: {
+    type: Boolean,
+    default: false
+  },
+  readOnly: {
+    type: Boolean,
+    default: false
+  },
+  disabledSubmit: {
+    type: Boolean,
+    default: false
+  },
+  bodyClass: {
+    type: Object,
+    default: () => ({})
+  },
+  bodyStyle: {
+    type: Object,
+    default: () => ({})
+  },
+  disabledOverflowX: {
+    type: Boolean,
+    default: true
+  },
+  appendButtons: {
+    type: Array,
+    default: () => []
+  },
+  hiddenButton: {
+    type: Boolean
+  },
+  hiddenCancel: {
+    type: Boolean
+  },
+  cancelLoading: {
+    type: Boolean
+  },
+  submitLoading: {
+    type: Boolean
+  }
+})
+const scrollbarRefRef = useTemplateRef('scrollbarRef')
+const componentData = reactive({})
+function scrollToBottom() {
+  scrollbarRefRef.value.scrollToBottom()
 }
+const defaultButtons = computed(() => {
+  return [
+    {
+      key: 'cancel',
+      show: !componentProps.hiddenCancel,
+      label: componentProps.cancelLabel || '取消',
+      attrs: {
+        plain: true,
+        loading: componentProps.cancelLoading
+      },
+      events: {
+        click: () => {
+          componentProps.onCancel(false)
+        }
+      }
+    },
+    {
+      key: 'submit',
+      label: componentProps.submitLabel || '确定',
+      attrs: {
+        disabled: componentProps.disabledSubmit,
+        type: 'primary',
+        loading: componentProps.submitLoading
+      },
+      events: {
+        click: () => {
+          componentProps.onSubmit()
+        }
+      }
+    },
+    ...componentProps.appendButtons
+  ]
+})
+defineExpose({
+  scrollToBottom,
+  ...toRefs(componentData),
+  defaultButtons
+})
 </script>
 <style lang="less" scoped>
 .dialogContainer {

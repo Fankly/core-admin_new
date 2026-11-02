@@ -45,7 +45,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "reViewProModal" })
 import { ref, reactive } from 'vue'
 import {
   deleteYnrxmWhenPsz,
@@ -64,6 +63,7 @@ import ElTreeSelect from '@/components/ElTreeSelect/index'
 import PendingTrialProModal from '@/views/service/approval/provinceLhhsMeeting/components/PendingTrialModal/pendingTrialProModal.vue'
 import { VXETable } from 'vxe-table'
 import { downloadExportBlob } from '@/views/service/approval/provinceLhhsMeeting/utils/download'
+defineOptions({ name: "reViewProModal" })
 
 interface ModalProps {
   title: string

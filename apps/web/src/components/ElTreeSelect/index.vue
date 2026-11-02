@@ -71,555 +71,491 @@
   </el-select>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, computed, watch, nextTick, onMounted } from 'vue'
+<script setup lang="ts">
+import type { TreeSelectValue } from './index.module'
+import { ref, computed, watch, nextTick, onMounted, useSlots } from 'vue'
 import type { PropType } from 'vue'
-
-type TreeSelectValue = string | number | Record<string, any> | Array<string | number | Record<string, any>>
-
-export default defineComponent({
-  name: 'ElTreeSelect',
-  props: {
-    modelValue: {
-      type: [String, Number, Array, Object] as PropType<TreeSelectValue>,
-      default: ''
-    },
-    data: {
-      type: Array,
-      default: () => []
-    },
-    props: {
-      type: Object,
-      default: () => ({
-        children: 'children',
-        label: 'label',
-        value: 'value'
-      })
-    },
-    nodeKey: {
-      type: String,
-      default: 'value'
-    },
-    multiple: {
-      type: Boolean,
-      default: false
-    },
-    showCheckbox: {
-      type: Boolean,
-      default: false
-    },
-    clearable: {
-      type: Boolean,
-      default: false
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    placeholder: {
-      type: String,
-      default: '请选择'
-    },
-    filterable: {
-      type: Boolean,
-      default: false
-    },
-    allowCreate: {
-      type: Boolean,
-      default: false
-    },
-    defaultExpandedKeys: {
-      type: Array,
-      default: () => []
-    },
-    defaultCheckedKeys: {
-      type: Array,
-      default: () => []
-    },
-    popperClass: {
-      type: String,
-      default: ''
-    },
-    height: {
-      type: Number,
-      default: 300
-    },
-    virtualTree: {
-      type: Boolean,
-      default: false
-    },
-    expandOnClickNode: {
-      type: Boolean,
-      default: true
-    },
-    checkOnClickNode: {
-      type: Boolean,
-      default: true
-    },
-    collapseTags: {
-      type: Boolean,
-      default: false
-    },
-    collapseTagsLimit: {
-      type: Number,
-      default: 1
-    },
-    collapseTagsToolTip: {
-      type: Boolean,
-      default: false
-    },
-    /** 多选标签被移除时是否同时清空全部选中项。 */
-    clearAllOnRemoveTag: {
-      type: Boolean,
-      default: false
-    },
-    teleported: {
-      type: Boolean,
-      default: false
-    },
-    themeColor: {
-      type: String,
-      default: '#00706b'
-    },
-    showAllCheckedNodes: {
-      type: Boolean,
-      default: false
-    }
+defineOptions({
+  name: 'ElTreeSelect'
+})
+const props = defineProps({
+  modelValue: {
+    type: [String, Number, Array, Object] as PropType<TreeSelectValue>,
+    default: ''
   },
-  emits: ['update:modelValue', 'change', 'clear', 'node-click', 'check'],
-  setup(props, { emit, slots, expose }) {
-    const select = ref()
-    const tree = ref()
-    const scrollbar = ref()
-    const container = ref()
-    const treeWrapper = ref<HTMLElement>()
-    const keyword = ref('')
-
-    const preventReopen = ref(false)
-    const selectedLabelMap = ref(new Map<string, string>())
-
-    const innerValue = computed<any>({
-      get() {
-        return props.modelValue
-      },
-      set(val) {
-        emit('update:modelValue', val)
-      }
+  data: {
+    type: Array,
+    default: () => []
+  },
+  props: {
+    type: Object,
+    default: () => ({
+      children: 'children',
+      label: 'label',
+      value: 'value'
     })
-
-    const label = ref('')
-
-    const selectedOptions = computed(() => {
-      if (!Array.isArray(innerValue.value) || innerValue.value.length === 0) {
-        return []
-      }
-      return innerValue.value
-        .filter((val) => val !== undefined && val !== null)
-        .map((val) => {
-          const node = findNodeByValue(props.data, val)
-          return {
-            value: val,
-            label: node?.[props.props.label] || selectedLabelMap.value.get(String(val)) || val
-          }
-        })
-    })
-
-    const selectProps = computed(() => {
-      const result = {
-        clearable: props.clearable,
-        disabled: props.disabled,
-        placeholder: props.placeholder,
-        filterable: props.filterable,
-        'allow-create': props.allowCreate,
-        multiple: props.multiple || props.showCheckbox,
-        'collapse-tags': props.collapseTags,
-        'collapse-tags-tooltip': props.collapseTagsToolTip,
-        'max-collapse-tags': props.collapseTagsLimit,
-        'reserve-keyword': true,
-        'automatic-dropdown': false,
-        'popper-options': {
-          modifiers: [
-            {
-              name: 'computeStyles',
-              options: {
-                gpuAcceleration: false
-              }
-            }
-          ]
-        }
-      }
-      return result
-    })
-
-    const treeProps = computed(() => {
-      return {}
-    })
-
-    const colorStyle = computed(() => {
+  },
+  nodeKey: {
+    type: String,
+    default: 'value'
+  },
+  multiple: {
+    type: Boolean,
+    default: false
+  },
+  showCheckbox: {
+    type: Boolean,
+    default: false
+  },
+  clearable: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  placeholder: {
+    type: String,
+    default: '请选择'
+  },
+  filterable: {
+    type: Boolean,
+    default: false
+  },
+  allowCreate: {
+    type: Boolean,
+    default: false
+  },
+  defaultExpandedKeys: {
+    type: Array,
+    default: () => []
+  },
+  defaultCheckedKeys: {
+    type: Array,
+    default: () => []
+  },
+  popperClass: {
+    type: String,
+    default: ''
+  },
+  height: {
+    type: Number,
+    default: 300
+  },
+  virtualTree: {
+    type: Boolean,
+    default: false
+  },
+  expandOnClickNode: {
+    type: Boolean,
+    default: true
+  },
+  checkOnClickNode: {
+    type: Boolean,
+    default: true
+  },
+  collapseTags: {
+    type: Boolean,
+    default: false
+  },
+  collapseTagsLimit: {
+    type: Number,
+    default: 1
+  },
+  collapseTagsToolTip: {
+    type: Boolean,
+    default: false
+  },
+  /** 多选标签被移除时是否同时清空全部选中项。 */
+  clearAllOnRemoveTag: {
+    type: Boolean,
+    default: false
+  },
+  teleported: {
+    type: Boolean,
+    default: false
+  },
+  themeColor: {
+    type: String,
+    default: '#00706b'
+  },
+  showAllCheckedNodes: {
+    type: Boolean,
+    default: false
+  }
+})
+const emit = defineEmits(['update:modelValue', 'change', 'clear', 'node-click', 'check'])
+const slots = useSlots()
+const select = ref()
+const tree = ref()
+const scrollbar = ref()
+const container = ref()
+const treeWrapper = ref<HTMLElement>()
+const keyword = ref('')
+const preventReopen = ref(false)
+const selectedLabelMap = ref(new Map<string, string>())
+const innerValue = computed<any>({
+  get() {
+    return props.modelValue
+  },
+  set(val) {
+    emit('update:modelValue', val)
+  }
+})
+const label = ref('')
+const selectedOptions = computed(() => {
+  if (!Array.isArray(innerValue.value) || innerValue.value.length === 0) {
+    return []
+  }
+  return innerValue.value
+    .filter((val) => val !== undefined && val !== null)
+    .map((val) => {
+      const node = findNodeByValue(props.data, val)
       return {
-        '--node-selected-color': props.themeColor
+        value: val,
+        label: node?.[props.props.label] || selectedLabelMap.value.get(String(val)) || val
       }
     })
-
-    const filterMethod = (val: string) => {
-      keyword.value = val
-      if (tree.value) {
-        tree.value.filter(val)
-      }
-      return true
-    }
-
-    const filterNode = (value: string, data: any) => {
-      if (!value) return true
-      const label: string = data[props.props.label] || ''
-      return label.toString().toLowerCase().includes(value.toLowerCase())
-    }
-
-    const visibleChange = (visible: boolean) => {
-      if (visible && preventReopen.value) {
-        preventReopen.value = false
-
-        if (select.value) {
-          select.value.blur()
-        }
-
-        setTimeout(() => {
-          preventReopen.value = false
-        }, 200)
-        return
-      }
-
-      if (visible) {
-        nextTick(() => {
-          setTreeSelected()
-          if (select.value && select.value.$el) {
-            const selectWidth = select.value.$el.getBoundingClientRect().width
-            const dropdownEl = treeWrapper.value?.closest<HTMLElement>('.el-tree-select__popper')
-            if (dropdownEl) {
-              dropdownEl.style.minWidth = `${selectWidth}px`
-
-              nextTick(() => {
-                const selectedItems = dropdownEl.querySelectorAll('.el-select-dropdown__item.is-selected')
-                selectedItems.forEach((item: any) => {
-                  if (!item.classList.contains('tree-select-option')) {
-                    item.style.display = 'none'
-                  }
-                })
-              })
-            }
-
-            if (treeWrapper.value) {
-              treeWrapper.value.setAttribute('tabindex', '0')
-              treeWrapper.value.focus()
-            }
+})
+const selectProps = computed(() => {
+  const result = {
+    clearable: props.clearable,
+    disabled: props.disabled,
+    placeholder: props.placeholder,
+    filterable: props.filterable,
+    'allow-create': props.allowCreate,
+    multiple: props.multiple || props.showCheckbox,
+    'collapse-tags': props.collapseTags,
+    'collapse-tags-tooltip': props.collapseTagsToolTip,
+    'max-collapse-tags': props.collapseTagsLimit,
+    'reserve-keyword': true,
+    'automatic-dropdown': false,
+    'popper-options': {
+      modifiers: [
+        {
+          name: 'computeStyles',
+          options: {
+            gpuAcceleration: false
           }
-        })
-      } else {
-        keyword.value = ''
-        if (tree.value) {
-          tree.value.filter('')
         }
-
-        nextTick(() => {
-          const activeElement = document.activeElement
-          if (treeWrapper.value) {
-            treeWrapper.value.setAttribute('tabindex', '0')
-            const focusableElements = treeWrapper.value.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
-            focusableElements.forEach((el: any) => {
-              el.setAttribute('tabindex', '-1')
+      ]
+    }
+  }
+  return result
+})
+const treeProps = computed(() => {
+  return {}
+})
+const colorStyle = computed(() => {
+  return {
+    '--node-selected-color': props.themeColor
+  }
+})
+const filterMethod = (val: string) => {
+  keyword.value = val
+  if (tree.value) {
+    tree.value.filter(val)
+  }
+  return true
+}
+const filterNode = (value: string, data: any) => {
+  if (!value) return true
+  const label: string = data[props.props.label] || ''
+  return label.toString().toLowerCase().includes(value.toLowerCase())
+}
+const visibleChange = (visible: boolean) => {
+  if (visible && preventReopen.value) {
+    preventReopen.value = false
+    if (select.value) {
+      select.value.blur()
+    }
+    setTimeout(() => {
+      preventReopen.value = false
+    }, 200)
+    return
+  }
+  if (visible) {
+    nextTick(() => {
+      setTreeSelected()
+      if (select.value && select.value.$el) {
+        const selectWidth = select.value.$el.getBoundingClientRect().width
+        const dropdownEl = treeWrapper.value?.closest<HTMLElement>('.el-tree-select__popper')
+        if (dropdownEl) {
+          dropdownEl.style.minWidth = `${selectWidth}px`
+          nextTick(() => {
+            const selectedItems = dropdownEl.querySelectorAll('.el-select-dropdown__item.is-selected')
+            selectedItems.forEach((item: any) => {
+              if (!item.classList.contains('tree-select-option')) {
+                item.style.display = 'none'
+              }
             })
-
-            if (treeWrapper.value.contains(activeElement)) {
-              select.value.focus()
-            }
-          }
-        })
-      }
-    }
-
-    const setTreeSelected = () => {
-      if (!tree.value) return
-      if (props.showCheckbox) {
-        if (Array.isArray(innerValue.value) && innerValue.value.length > 0) {
-          const filteredValues = innerValue.value.filter((val) => val !== undefined && val !== null)
-          tree.value.setCheckedKeys(filteredValues)
-        } else {
-          tree.value.setCheckedKeys([])
+          })
         }
-      } else {
-        if (innerValue.value) {
-          tree.value.setCurrentKey(innerValue.value)
-        } else {
-          tree.value.setCurrentKey(null)
+        if (treeWrapper.value) {
+          treeWrapper.value.setAttribute('tabindex', '0')
+          treeWrapper.value.focus()
         }
       }
+    })
+  } else {
+    keyword.value = ''
+    if (tree.value) {
+      tree.value.filter('')
     }
-
-    const handleNodeClick = (data: any, node: any, _component: unknown, event?: MouseEvent) => {
-      if (props.showCheckbox) return
-      if (!node.isLeaf && node.childNodes && node.childNodes.length > 0) return
-      const value = data[props.nodeKey]
-      innerValue.value = value
-      label.value = data[props.props.label]
-      emit('change', value, data)
-      emit('node-click', data, node)
-
-      if (event) {
-        event.stopPropagation()
-        event.preventDefault()
-      }
-      preventReopen.value = true
-
-      if (props.filterable && keyword.value) {
-        keyword.value = ''
-        tree.value?.filter('')
-      }
-      select.value?.blur()
-      nextTick(() => {
-        preventReopen.value = false
-      })
-    }
-
-    const handleCheckChange = (data: any, checked: any) => {
-      if (!props.showCheckbox) return
-      if (tree.value) {
-        const checkedNodes = props.showAllCheckedNodes ? tree.value.getCheckedNodes(false) : tree.value.getCheckedNodes(true)
-
-        checkedNodes.forEach((node: any) => {
-          const key = node[props.nodeKey]
-          const nodeLabel = node[props.props.label]
-          if (key !== undefined && key !== null && nodeLabel) selectedLabelMap.value.set(String(key), String(nodeLabel))
-        })
-
-        const values = checkedNodes.map((node: any) => node[props.nodeKey]).filter((value: any) => value !== undefined && value !== null)
-        innerValue.value = values
-
-        const labels = checkedNodes
-          .filter((node: any) => node[props.nodeKey] !== undefined && node[props.nodeKey] !== null)
-          .map((node: any) => node[props.props.label])
-
-        label.value = labels.join(',')
-
-        emit(
-          'change',
-          values,
-          checkedNodes.filter((node: any) => node[props.nodeKey] !== undefined && node[props.nodeKey] !== null)
+    nextTick(() => {
+      const activeElement = document.activeElement
+      if (treeWrapper.value) {
+        treeWrapper.value.setAttribute('tabindex', '0')
+        const focusableElements = treeWrapper.value.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         )
-        emit('check', data, checked)
-      }
-    }
-
-    const clearSelected = () => {
-      innerValue.value = props.multiple || props.showCheckbox ? [] : ''
-      label.value = ''
-      selectedLabelMap.value.clear()
-
-      if (tree.value) {
-        if (props.showCheckbox) {
-          tree.value.setCheckedKeys([])
-        } else {
-          tree.value.setCurrentKey(null)
+        focusableElements.forEach((el: any) => {
+          el.setAttribute('tabindex', '-1')
+        })
+        if (treeWrapper.value.contains(activeElement)) {
+          select.value.focus()
         }
       }
-
-      emit('clear')
+    })
+  }
+}
+const setTreeSelected = () => {
+  if (!tree.value) return
+  if (props.showCheckbox) {
+    if (Array.isArray(innerValue.value) && innerValue.value.length > 0) {
+      const filteredValues = innerValue.value.filter((val) => val !== undefined && val !== null)
+      tree.value.setCheckedKeys(filteredValues)
+    } else {
+      tree.value.setCheckedKeys([])
     }
-
-    const removeTag = (tag: any) => {
-      if (props.clearAllOnRemoveTag) {
-        clearSelected()
-        emit('change', [], [])
-        return
+  } else {
+    if (innerValue.value) {
+      tree.value.setCurrentKey(innerValue.value)
+    } else {
+      tree.value.setCurrentKey(null)
+    }
+  }
+}
+const handleNodeClick = (data: any, node: any, _component: unknown, event?: MouseEvent) => {
+  if (props.showCheckbox) return
+  if (!node.isLeaf && node.childNodes && node.childNodes.length > 0) return
+  const value = data[props.nodeKey]
+  innerValue.value = value
+  label.value = data[props.props.label]
+  emit('change', value, data)
+  emit('node-click', data, node)
+  if (event) {
+    event.stopPropagation()
+    event.preventDefault()
+  }
+  preventReopen.value = true
+  if (props.filterable && keyword.value) {
+    keyword.value = ''
+    tree.value?.filter('')
+  }
+  select.value?.blur()
+  nextTick(() => {
+    preventReopen.value = false
+  })
+}
+const handleCheckChange = (data: any, checked: any) => {
+  if (!props.showCheckbox) return
+  if (tree.value) {
+    const checkedNodes = props.showAllCheckedNodes ? tree.value.getCheckedNodes(false) : tree.value.getCheckedNodes(true)
+    checkedNodes.forEach((node: any) => {
+      const key = node[props.nodeKey]
+      const nodeLabel = node[props.props.label]
+      if (key !== undefined && key !== null && nodeLabel) selectedLabelMap.value.set(String(key), String(nodeLabel))
+    })
+    const values = checkedNodes.map((node: any) => node[props.nodeKey]).filter((value: any) => value !== undefined && value !== null)
+    innerValue.value = values
+    const labels = checkedNodes
+      .filter((node: any) => node[props.nodeKey] !== undefined && node[props.nodeKey] !== null)
+      .map((node: any) => node[props.props.label])
+    label.value = labels.join(',')
+    emit(
+      'change',
+      values,
+      checkedNodes.filter((node: any) => node[props.nodeKey] !== undefined && node[props.nodeKey] !== null)
+    )
+    emit('check', data, checked)
+  }
+}
+const clearSelected = () => {
+  innerValue.value = props.multiple || props.showCheckbox ? [] : ''
+  label.value = ''
+  selectedLabelMap.value.clear()
+  if (tree.value) {
+    if (props.showCheckbox) {
+      tree.value.setCheckedKeys([])
+    } else {
+      tree.value.setCurrentKey(null)
+    }
+  }
+  emit('clear')
+}
+const removeTag = (tag: any) => {
+  if (props.clearAllOnRemoveTag) {
+    clearSelected()
+    emit('change', [], [])
+    return
+  }
+  const values = innerValue.value.filter((value: any) => value !== tag)
+  innerValue.value = values
+  selectedLabelMap.value.delete(String(tag))
+  if (tree.value && props.showCheckbox) tree.value.setCheckedKeys(values)
+  emit(
+    'change',
+    values,
+    values.map((value: any) => findNodeByValue(props.data, value))
+  )
+}
+const findNodeByValue = (data: any, value: any) => {
+  if (!data || !data.length) return null
+  for (let i = 0; i < data.length; i++) {
+    const node = data[i]
+    if (node[props.nodeKey].toString() === value.toString()) {
+      return node
+    }
+    if (node[props.props.children] && node[props.props.children].length) {
+      const found: any = findNodeByValue(node[props.props.children], value)
+      if (found) return found
+    }
+  }
+  return null
+}
+const updateSelected = async () => {
+  if (!props.data || !props.data.length) return
+  if (props.multiple || props.showCheckbox) {
+    if (Array.isArray(innerValue.value) && innerValue.value.length > 0) {
+      const validValues = innerValue.value.filter((val) => val !== undefined && val !== null)
+      const labels = []
+      for (const val of validValues) {
+        const node = findNodeByValue(props.data, val)
+        if (node) {
+          const nodeLabel = node[props.props.label]
+          labels.push(nodeLabel)
+          selectedLabelMap.value.set(String(val), String(nodeLabel))
+        }
       }
-      const values = innerValue.value.filter((value: any) => value !== tag)
-      innerValue.value = values
-      selectedLabelMap.value.delete(String(tag))
-      if (tree.value && props.showCheckbox) tree.value.setCheckedKeys(values)
-      emit(
-        'change',
-        values,
-        values.map((value: any) => findNodeByValue(props.data, value))
+      label.value = labels.join(', ')
+      if (validValues.length !== innerValue.value.length) {
+        innerValue.value = validValues
+      }
+    } else {
+      label.value = ''
+    }
+  } else {
+    if (innerValue.value === undefined || innerValue.value === null) {
+      label.value = ''
+      innerValue.value = ''
+    } else {
+      const node = findNodeByValue(props.data, innerValue.value)
+      label.value = node ? node[props.props.label] : ''
+    }
+  }
+  await nextTick()
+  setTreeSelected()
+}
+watch(keyword, (newValue) => {
+  if (newValue === '' && tree.value) {
+    tree.value.filter('')
+  }
+})
+watch(
+  () => props.modelValue,
+  () => {
+    updateSelected()
+  },
+  {
+    immediate: true
+  }
+)
+onMounted(() => {
+  updateSelected()
+  if (select.value && select.value.$el) {
+    const inputEL = select.value.$el.querySelector('input')
+    if (inputEL) {
+      inputEL.addEventListener(
+        'click',
+        (e: any) => {
+          if (preventReopen.value) {
+            e.stopPropagation()
+            e.preventDefault()
+            setTimeout(() => {
+              preventReopen.value = false
+            }, 100)
+          }
+        },
+        true
       )
     }
-
-    const findNodeByValue = (data: any, value: any) => {
-      if (!data || !data.length) return null
-      for (let i = 0; i < data.length; i++) {
-        const node = data[i]
-        if (node[props.nodeKey].toString() === value.toString()) {
-          return node
-        }
-
-        if (node[props.props.children] && node[props.props.children].length) {
-          const found: any = findNodeByValue(node[props.props.children], value)
-          if (found) return found
-        }
+  }
+})
+defineExpose({
+  setCurrentKey: (key: any) => {
+    if (tree.value) {
+      tree.value.setCurrentKey(key)
+      const node = tree.value.getCurrentNode()
+      if (node) {
+        innerValue.value = node[props.nodeKey]
+        label.value = node[props.props.label]
       }
-      return null
     }
-
-    const updateSelected = async () => {
-      if (!props.data || !props.data.length) return
-      if (props.multiple || props.showCheckbox) {
-        if (Array.isArray(innerValue.value) && innerValue.value.length > 0) {
-          const validValues = innerValue.value.filter((val) => val !== undefined && val !== null)
-
-          const labels = []
-          for (const val of validValues) {
-            const node = findNodeByValue(props.data, val)
-            if (node) {
-              const nodeLabel = node[props.props.label]
-              labels.push(nodeLabel)
-              selectedLabelMap.value.set(String(val), String(nodeLabel))
-            }
-          }
-          label.value = labels.join(', ')
-
-          if (validValues.length !== innerValue.value.length) {
-            innerValue.value = validValues
-          }
-        } else {
-          label.value = ''
-        }
-      } else {
-        if (innerValue.value === undefined || innerValue.value === null) {
-          label.value = ''
-          innerValue.value = ''
-        } else {
-          const node = findNodeByValue(props.data, innerValue.value)
-          label.value = node ? node[props.props.label] : ''
-        }
-      }
-      await nextTick()
-      setTreeSelected()
+  },
+  setCheckedKeys: (keys: any) => {
+    if (tree.value && props.showCheckbox) {
+      const filteredKeys = Array.isArray(keys) ? keys.filter((key) => key !== undefined && key !== null) : keys
+      tree.value.setCheckedKeys(filteredKeys)
+      const nodes = props.showAllCheckedNodes ? tree.value.getCheckedNodes(false) : tree.value.getCheckedNodes(true)
+      const filteredNodes = nodes.filter((node: any) => node[props.nodeKey] !== undefined && node[props.nodeKey] !== null)
+      filteredNodes.forEach((node: any) => {
+        const nodeLabel = node[props.props.label]
+        if (nodeLabel) selectedLabelMap.value.set(String(node[props.nodeKey]), String(nodeLabel))
+      })
+      innerValue.value = filteredNodes.map((node: any) => node[props.nodeKey])
+      label.value = filteredNodes.map((node: any) => node[props.props.label]).join(', ')
     }
-
-    watch(keyword, (newValue) => {
-      if (newValue === '' && tree.value) {
-        tree.value.filter('')
-      }
-    })
-
-    watch(
-      () => props.modelValue,
-      () => {
-        updateSelected()
-      },
-      {
-        immediate: true
-      }
-    )
-
-    onMounted(() => {
-      updateSelected()
-
-      if (select.value && select.value.$el) {
-        const inputEL = select.value.$el.querySelector('input')
-        if (inputEL) {
-          inputEL.addEventListener(
-            'click',
-            (e: any) => {
-              if (preventReopen.value) {
-                e.stopPropagation()
-                e.preventDefault()
-                setTimeout(() => {
-                  preventReopen.value = false
-                }, 100)
-              }
-            },
-            true
-          )
-        }
-      }
-    })
-
-    expose({
-      setCurrentKey: (key: any) => {
-        if (tree.value) {
-          tree.value.setCurrentKey(key)
-          const node = tree.value.getCurrentNode()
-          if (node) {
-            innerValue.value = node[props.nodeKey]
-            label.value = node[props.props.label]
-          }
-        }
-      },
-      setCheckedKeys: (keys: any) => {
-        if (tree.value && props.showCheckbox) {
-          const filteredKeys = Array.isArray(keys) ? keys.filter((key) => key !== undefined && key !== null) : keys
-          tree.value.setCheckedKeys(filteredKeys)
-          const nodes = props.showAllCheckedNodes ? tree.value.getCheckedNodes(false) : tree.value.getCheckedNodes(true)
-          const filteredNodes = nodes.filter((node: any) => node[props.nodeKey] !== undefined && node[props.nodeKey] !== null)
-          filteredNodes.forEach((node: any) => {
-            const nodeLabel = node[props.props.label]
-            if (nodeLabel) selectedLabelMap.value.set(String(node[props.nodeKey]), String(nodeLabel))
-          })
-          innerValue.value = filteredNodes.map((node: any) => node[props.nodeKey])
-          label.value = filteredNodes.map((node: any) => node[props.props.label]).join(', ')
-        }
-      },
-      getAllCheckedNodes: () => {
-        if (tree.value && props.showCheckbox) {
-          return tree.value.getCheckedNodes(false)
-        }
-        return []
-      },
-      getCheckedKeys: () => {
-        if (tree.value && props.showCheckbox) {
-          return tree.value.getCheckedKeys()
-        }
-        return []
-      },
-      getCheckNodes: () => {
-        if (tree.value && props.showCheckbox) {
-          return tree.value.getCheckedNodes()
-        }
-        return []
-      },
-      getCurrentKey: () => {
-        if (tree.value) {
-          return tree.value.getCurrentKey()
-        }
-        return null
-      },
-      getCurrentNode: () => {
-        if (tree.value) {
-          return tree.value.getCurrentNode()
-        }
-        return null
-      },
-      filter: (val: any) => {
-        if (tree.value) {
-          return tree.value.filter(val)
-        }
-      },
-      updateKeyChildren: (key: any, val: any) => {
-        if (tree.value) {
-          tree.value.updateKeyChildren(key, val)
-        }
-      }
-    })
-
-    return {
-      select,
-      tree,
-      scrollbar,
-      container,
-      treeWrapper,
-      innerValue,
-      label,
-      selectedOptions,
-      selectProps,
-      treeProps,
-      filterMethod,
-      filterNode,
-      visibleChange,
-      handleNodeClick,
-      handleCheckChange,
-      clearSelected,
-      removeTag,
-      preventReopen,
-      colorStyle
+  },
+  getAllCheckedNodes: () => {
+    if (tree.value && props.showCheckbox) {
+      return tree.value.getCheckedNodes(false)
+    }
+    return []
+  },
+  getCheckedKeys: () => {
+    if (tree.value && props.showCheckbox) {
+      return tree.value.getCheckedKeys()
+    }
+    return []
+  },
+  getCheckNodes: () => {
+    if (tree.value && props.showCheckbox) {
+      return tree.value.getCheckedNodes()
+    }
+    return []
+  },
+  getCurrentKey: () => {
+    if (tree.value) {
+      return tree.value.getCurrentKey()
+    }
+    return null
+  },
+  getCurrentNode: () => {
+    if (tree.value) {
+      return tree.value.getCurrentNode()
+    }
+    return null
+  },
+  filter: (val: any) => {
+    if (tree.value) {
+      return tree.value.filter(val)
+    }
+  },
+  updateKeyChildren: (key: any, val: any) => {
+    if (tree.value) {
+      tree.value.updateKeyChildren(key, val)
     }
   }
 })

@@ -54,7 +54,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/ai/materialPriceLibrary/historyPriceExtSummary/index" })
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useStore } from '@/store/business'
@@ -67,6 +66,7 @@ import { apiExportHandle } from '@/utils/export'
 import { formatNumValue } from '@/utils/utils'
 import { exportExtDataNew, getPageExtNew } from '@/api/ai/materialPriceLibrary'
 import PriceDetailDialog from './PriceDetailDialog.vue'
+defineOptions({ name: "/ai/materialPriceLibrary/historyPriceExtSummary/index" })
 
 const props = defineProps<{
   sharedUserInfo?: Record<string, any>

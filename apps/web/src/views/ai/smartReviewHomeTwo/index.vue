@@ -234,13 +234,9 @@
   <DetailModal :modal="detailModal" :detail-row="detailRow" @close="closeDetailModal" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/ai/smartReviewHomeTwo/index'
-}
-</script>
 
 <script setup lang="ts">
+import './styles.css';
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, watch } from 'vue'
 import * as echarts from 'echarts'
 import type { EChartsOption } from 'echarts'
@@ -283,7 +279,9 @@ import { useSmartReviewHome } from './hooks/useSmartReviewHome'
 import type { AuditRow, RiskItem } from './hooks/useSmartReviewHome'
 import { useArtboardMotion } from './hooks/useArtboardMotion'
 import { resolveStatusClass, truncateText } from './utils'
-import './styles.css'
+defineOptions({
+  name: '/ai/smartReviewHomeTwo/index'
+})
 
 const resolveStatusIcon = (status: string) => {
   switch (resolveStatusClass(status)) {
@@ -299,7 +297,6 @@ const resolveStatusIcon = (status: string) => {
       return CircleHelp
   }
 }
-
 const {
   isShowPage,
   userRoleSelectorRef,
@@ -318,23 +315,19 @@ const {
   projectTypeRankings,
   auditRows
 } = useSmartReviewHome()
-
 const artboardRef = ref<HTMLElement | null>(null)
 const gridRef = ref<VxeGridInstance>()
 const riskChartRef = ref<HTMLElement | null>(null)
-
 let riskChart: echarts.ECharts | null = null
 let chartResizeObserver: ResizeObserver | null = null
-
-const { bootMotion } = useArtboardMotion({ artboardRef })
-
+const { bootMotion } = useArtboardMotion({
+  artboardRef
+})
 const artboardStyle = computed(() => ({
   '--srh2-bg-image': `url(${globalBackground})`
 }))
-
 const LABEL_MAX_LENGTH = 10
 const truncateLabel = (label: string) => truncateText(label, LABEL_MAX_LENGTH)
-
 const RULE_ICON_MAP: Record<string, typeof BookOpenCheck> = {
   PRICE_COMPARE: Scale,
   PROJECT_INFO: ClipboardCheck,
@@ -350,9 +343,7 @@ const RULE_ICON_MAP: Record<string, typeof BookOpenCheck> = {
   DUP_PROJECT: ScanSearch,
   QUOTE_DEVIATION: BookOpenCheck
 }
-
 const resolveRuleIcon = (code?: string) => RULE_ICON_MAP[code || ''] || BookOpenCheck
-
 const riskMode = ref<'level' | 'type'>('level')
 const activeRiskItems = computed(() => (riskMode.value === 'level' ? riskLevels.value : riskTypes.value))
 const activeRiskAria = computed(() => activeRiskItems.value.map((item) => `${item.label} ${item.percent}`).join('，'))
@@ -390,8 +381,12 @@ const buildDonutOption = (items: RiskItem[]): EChartsOption => ({
       radius: ['68%', '92%'],
       center: ['50%', '50%'],
       avoidLabelOverlap: false,
-      label: { show: false },
-      labelLine: { show: false },
+      label: {
+        show: false
+      },
+      labelLine: {
+        show: false
+      },
       animationType: 'scale',
       animationEasing: 'cubicOut',
       itemStyle: {
@@ -416,26 +411,24 @@ const buildDonutOption = (items: RiskItem[]): EChartsOption => ({
     }
   ]
 })
-
 const ensureChart = (chart: echarts.ECharts | null, element: HTMLElement | null, items: RiskItem[]) => {
   if (!element) return chart
   if (!chart) {
-    chart = echarts.init(element, undefined, { renderer: 'canvas' })
+    chart = echarts.init(element, undefined, {
+      renderer: 'canvas'
+    })
   }
   chart.setOption(buildDonutOption(items), true)
   chart.resize()
   return chart
 }
-
 const resizeCharts = () => {
   riskChart?.resize()
 }
-
 const observeCharts = () => {
   if (!chartResizeObserver) chartResizeObserver = new ResizeObserver(() => resizeCharts())
   if (riskChartRef.value) chartResizeObserver.observe(riskChartRef.value)
 }
-
 const renderCharts = async () => {
   await nextTick()
   if (!riskChartRef.value) {
@@ -452,7 +445,10 @@ const RULES_DEFAULT_COUNT = 4
 const showAllRules = ref(false)
 const sortedRules = computed(() =>
   rules.value
-    .map((rule, index) => ({ rule, index }))
+    .map((rule, index) => ({
+      rule,
+      index
+    }))
     .sort((left, right) => right.rule.value - left.rule.value || left.index - right.index)
     .map(({ rule }) => rule)
 )
@@ -483,34 +479,55 @@ const gridOptions = reactive<VxeGridProps<AuditRow>>({
     isHover: true
   },
   columns: [
-    { field: 'code', title: '项目编码', minWidth: 150 },
-    { field: 'name', title: '项目名称', minWidth: 220 },
-    { field: 'year', title: '计划实施年度', minWidth: 120 },
+    {
+      field: 'code',
+      title: '项目编码',
+      minWidth: 150
+    },
+    {
+      field: 'name',
+      title: '项目名称',
+      minWidth: 220
+    },
+    {
+      field: 'year',
+      title: '计划实施年度',
+      minWidth: 120
+    },
     {
       field: 'status',
       title: 'AI审核状态',
       minWidth: 120,
-      slots: { default: 'status_default' }
+      slots: {
+        default: 'status_default'
+      }
     },
-    { field: 'audit_time', title: 'AI审核时间', minWidth: 180 },
+    {
+      field: 'audit_time',
+      title: 'AI审核时间',
+      minWidth: 180
+    },
     {
       field: 'action',
       title: '操作',
       width: 100,
-      slots: { default: 'action_default' }
+      slots: {
+        default: 'action_default'
+      }
     }
   ],
   data: []
 })
-
 watch(
   auditRows,
   (rows) => {
     gridOptions.data = rows
   },
-  { immediate: true, deep: true }
+  {
+    immediate: true,
+    deep: true
+  }
 )
-
 const detailModal = reactive({
   visible: false,
   loading: false
@@ -522,41 +539,36 @@ const showDetail = (row: AuditRow) => {
   detailRow.value = row || ({} as AuditRow)
   detailModal.visible = true
 }
-
 const closeDetailModal = () => {
   detailModal.visible = false
 }
-
 const onViewRules = () => {
   showAllRules.value = !showAllRules.value
 }
-
 const onViewRanking = () => {
   showAllRankings.value = !showAllRankings.value
 }
-
 const handleRoleConfirmed = async () => {
   await getRoleHandle()
   await nextTick()
   await bootMotion()
   await renderCharts()
 }
-
 watch(
   [riskLevels, riskTypes, riskMode, isShowPage],
   () => {
     renderCharts()
   },
-  { deep: true }
+  {
+    deep: true
+  }
 )
-
 onBeforeUnmount(() => {
   chartResizeObserver?.disconnect()
   chartResizeObserver = null
   riskChart?.dispose()
   riskChart = null
 })
-
 onMounted(() => {
   userRoleSelectorRef.value?.getUser()
 })

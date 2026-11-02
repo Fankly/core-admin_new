@@ -1,33 +1,26 @@
-<script lang="ts">
-export default {
-  name: '/statistics/components/TreeDialog'
-}
-</script>
+
 
 <script setup lang="ts">
-import { ref, defineExpose, defineEmits, defineProps } from 'vue'
+import { ref } from 'vue'
 import { getYszxlyNodeTree, getNodeTree } from '@/api/statistics/budgetStatisticsConfig'
 import { InitParams } from '@/views/statistics/budgetStatisticsConfig.vue'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/statistics/components/TreeDialog'
+})
 
 interface Props {
   initParams: InitParams
 }
-
 const treeRef = ref()
-
 const emits = defineEmits(['getTreeData'])
-
 const props = defineProps<Props>()
-
 const showModal = ref(false)
 const treeDataList = ref<any[]>([])
-
 const closeModalHandle = () => {
   showModal.value = false
   // 清空数据
 }
-
 const detailHandle = () => {
   const nodes = treeRef.value.getCheckedNodes()
   if (nodes && nodes.length > 0) {
@@ -36,11 +29,9 @@ const detailHandle = () => {
   // 获取选择的数据
   closeModalHandle()
 }
-
 const showModalHandle = async () => {
   await getTreeData()
 }
-
 const getTreeData = async () => {
   let GkBmYsZxFx = sessionStorage.getItem('GkBmYsZxFx')
   let res =
@@ -53,7 +44,6 @@ const getTreeData = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 defineExpose({
   showModal
 })

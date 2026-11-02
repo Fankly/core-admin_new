@@ -131,8 +131,6 @@
 
 <script setup lang="tsx">
 import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/service/xmcs/adminEdit" })
 import { nextTick, onMounted, reactive, ref, h } from 'vue'
 import {
   checkProjectDyAndAttach,
@@ -152,8 +150,8 @@ import {
 import { ElMessage, ElMessageBox, ElInput } from 'element-plus'
 import userDialog from '@/components/select/userDialog.vue'
 import baseService from '@/service/baseService'
-import xmModal from '@/views/service/xmcs/components/xmModal.vue' //新增
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import xmModal from '@/views/service/xmcs/components/xmModal.vue'
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import { apiExportHandle } from '@/utils/export'
 import { useRouter, useRoute } from 'vue-router'
 import { encrypt } from '@/utils/crypto'
@@ -168,6 +166,10 @@ import selectModal from '@/components/yssxTable/selectModal.vue'
 import modalCount from './components/modalCount.vue'
 import modalAmount from './components/modalAmount.vue'
 import { VXETable } from 'vxe-table'
+defineOptions({ name: "/service/xmcs/adminEdit" })
+
+ //新增
+ //导入组件
 
 const store = useStore()
 const route = useRoute()

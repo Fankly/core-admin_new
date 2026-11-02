@@ -25,11 +25,11 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "AssetZyfcDetails" })
 import { computed, reactive, ref, watch } from 'vue'
 import { getOwnRealEstate } from '@/api/xmInfo/ownRealEstate'
 import type { OwnRealEstateRowVO } from '@/api/xmInfo/ownRealEstate'
 import { createOwnRealEstateDetailColumns } from '@/views/xmInfo/ownRealEstate/tableColumns'
+defineOptions({ name: "AssetZyfcDetails" })
 
 interface Props {
   selectData?: Record<string, any> | null

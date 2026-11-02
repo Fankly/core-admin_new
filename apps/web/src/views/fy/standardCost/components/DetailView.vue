@@ -50,56 +50,45 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "/standardCost/components/DetailView"
-};
-</script>
 
 <script setup lang="ts">
-import { CtParams, exportCtData, getctData } from "@/api/fy/search";
-import { formatNumValue } from "@/utils/utils";
-import { Decimal } from "decimal.js";
-import { ElMessage } from "element-plus";
-import { ref, defineExpose, defineProps, defineEmits, reactive, computed } from "vue";
-import { VxeTablePropTypes } from "vxe-table";
+import { CtParams, exportCtData, getctData } from '@/api/fy/search'
+import { formatNumValue } from '@/utils/utils'
+import { Decimal } from 'decimal.js'
+import { ElMessage } from 'element-plus'
+import { ref, reactive, computed } from 'vue'
+import { VxeTablePropTypes } from 'vxe-table'
+defineOptions({
+  name: '/standardCost/components/DetailView'
+})
 
 export interface Params {
-  dwId: string;
-  startTime: string;
-  endTime: string;
-  yskmName: string;
-  id: string;
-  fieldId: string | null;
+  dwId: string
+  startTime: string
+  endTime: string
+  yskmName: string
+  id: string
+  fieldId: string | null
 }
-
 interface Props {
-  initParams: Params;
+  initParams: Params
 }
-
-const props = defineProps<Props>();
-const emit = defineEmits(["showModal", "closeModal"]);
-
-const modalWidth = "70%";
-const modalHeight = 820;
-
-const dwName = ref("");
-
-const showDwName = computed(() => dwName.value);
-
-const isShowModal = ref(false);
-const loading = ref(false);
-const tableData = ref([]);
-
-const erpfsz = ref("0");
-
+const props = defineProps<Props>()
+const emit = defineEmits(['showModal', 'closeModal'])
+const modalWidth = '70%'
+const modalHeight = 820
+const dwName = ref('')
+const showDwName = computed(() => dwName.value)
+const isShowModal = ref(false)
+const loading = ref(false)
+const tableData = ref([])
+const erpfsz = ref('0')
 const page = reactive({
   total: 0,
   limit: 20,
   page: 20,
-  current: "1"
-});
-
+  current: '1'
+})
 const exportHandle = () => {
   let params: CtParams = {
     startTime: props.initParams.startTime,
@@ -109,60 +98,54 @@ const exportHandle = () => {
     fieldId: props.initParams.fieldId,
     current: page.current,
     size: page.page
-  };
+  }
   exportCtData(params).then((res: any) => {
-    loading.value = true;
-    const blob = res;
-    let dom = document.createElement("a");
-    let url = window.URL.createObjectURL(blob);
-    dom.href = url;
+    loading.value = true
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
     // 获取文件名
-    let filename = res.headers["content-disposition"].split(";")[1].split("=")[1];
-    dom.download = `${decodeURI(decodeURI(filename))}`;
-    document.body.appendChild(dom);
-    dom.click();
-    document.body.removeChild(dom);
-    window.URL.revokeObjectURL(url);
-    loading.value = false;
-  });
-};
-
+    let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
+    dom.download = `${decodeURI(decodeURI(filename))}`
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+    loading.value = false
+  })
+}
 const formatterHandle = ({ column, cellValue }: any) => {
-  if (typeof cellValue === "undefined" || cellValue === null || cellValue === "") return "-";
-  return new Decimal(cellValue).toFixed(2);
-};
-
+  if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
+  return new Decimal(cellValue).toFixed(2)
+}
 const rowStyle: VxeTablePropTypes.RowStyle<any> = ({ row }) => {
-  const gwxmbm = row.gwxmbm as string;
-  if (gwxmbm.includes("合计")) {
+  const gwxmbm = row.gwxmbm as string
+  if (gwxmbm.includes('合计')) {
     return {
       fontWeight: 700
-    };
+    }
   }
-};
-
+}
 const showHandle = () => {
-  initParams();
-  emit("showModal");
-};
-
+  initParams()
+  emit('showModal')
+}
 const closeHandle = () => {
-  isShowModal.value = false;
-  emit("closeModal");
-};
-
+  isShowModal.value = false
+  emit('closeModal')
+}
 const pageChangeHandle = (currentPageNum: number) => {
-  page.page = currentPageNum;
-  initParams();
-};
+  page.page = currentPageNum
+  initParams()
+}
 const limitChangeHandle = (currentLimitNum: number) => {
-  page.page = 1;
-  page.limit = currentLimitNum;
-  initParams();
-};
-
+  page.page = 1
+  page.limit = currentLimitNum
+  initParams()
+}
 const initParams = async () => {
-  loading.value = true;
+  loading.value = true
   let params: CtParams = {
     startTime: props.initParams.startTime,
     endTime: props.initParams.endTime,
@@ -171,23 +154,22 @@ const initParams = async () => {
     fieldId: props.initParams.fieldId,
     current: page.current,
     size: page.page
-  };
-  let res = await getctData(params);
-  if (res.success && res.data) {
-    erpfsz.value = res.data.erpfsz;
-    tableData.value = res.data.mxLists?.records;
-    page.total = res.data.mxLists.total;
-    dwName.value = res.data.searchDwName;
-    loading.value = false;
-  } else {
-    loading.value = false;
-    ElMessage.error(res.msg);
   }
-};
-
+  let res = await getctData(params)
+  if (res.success && res.data) {
+    erpfsz.value = res.data.erpfsz
+    tableData.value = res.data.mxLists?.records
+    page.total = res.data.mxLists.total
+    dwName.value = res.data.searchDwName
+    loading.value = false
+  } else {
+    loading.value = false
+    ElMessage.error(res.msg)
+  }
+}
 defineExpose({
   isShowModal
-});
+})
 </script>
 
 <style scoped lang="less">

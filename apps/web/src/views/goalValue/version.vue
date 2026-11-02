@@ -185,11 +185,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/goalValue/version'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -202,9 +197,7 @@ import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { getYearData } from '@/api/common'
 import { ElMessage } from 'element-plus'
 import { onMounted, reactive, ref, computed } from 'vue'
-
 import { delVersion, getVersionPage, Params, setYearTargetValue } from '@/api/goalValue/version'
-
 import { User, RowVo } from '@/views/goalValue/interface'
 import { formatDate, formatValue } from '@/utils/utils'
 import { VXETable } from 'vxe-table'
@@ -215,73 +208,62 @@ import { useRoute } from 'vue-router'
 import baseService from '@/service/baseService'
 import { getMenuMessage } from '@/api/process'
 import { getWjhNum } from '@/api/targetBudget/provinceTarget'
+defineOptions({
+  name: '/goalValue/version'
+})
 
 type ndList = {
   yearCode: string
   yearName: string
 }
-
 interface FormParams {
   nd: string
   ndList: ndList[]
 }
-
 interface FromSearch {
   versionName: string
   status: string
 }
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const versionDialogRef = ref()
 const vxeTableRef = ref()
 const searchFormRef = ref()
 const isRole = ref(true)
-
 const isDisabled = computed(() => pageInfo.loading)
 const route = useRoute()
-
 const formParams = reactive<FormParams>({
   nd: '',
   ndList: []
 })
-
 const formData = reactive<FromSearch>({
   versionName: '',
   status: ''
 })
-
 const pageInfo = reactive({
   loading: false,
   isShowPage: false
 })
-
 const versionDialogInfo = reactive({
   title: '',
   flag: ''
 })
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const selectedData = ref<RowVo>()
 const dialogVisible = ref(false)
 const annualTargetRow = ref<RowVo | null>(null)
-
 const annualTargetModal = reactive({
   visible: false,
   loading: false
 })
-
 const annualTargetForm = reactive({
   sfnd: ''
 })
-
 const notifyPersonSettingHandle = () => {
   dialogVisible.value = true
 }
-
 const userInfo = ref<User>({
   code: '',
   id: '',
@@ -297,14 +279,12 @@ const userInfo = ref<User>({
   systemId: '',
   systemName: ''
 })
-
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1,
   current: '1'
 })
-
 const statusList = reactive<
   {
     code: string
@@ -328,7 +308,6 @@ const statusList = reactive<
     name: '过期'
   }
 ])
-
 const yapStatus = reactive<
   {
     code: string
@@ -344,9 +323,7 @@ const yapStatus = reactive<
     name: '是'
   }
 ])
-
 const tableData = ref<RowVo[]>([])
-
 const columns = reactive<any[]>([
   {
     field: 'versionNo',
@@ -440,7 +417,6 @@ const columns = reactive<any[]>([
     width: 260
   }
 ])
-
 const formatterData = (item: any, column: any, cellValue: string) => {
   if (item.field === 'status') {
     const findValue: any = statusList.find((item: { code: string; name: string }) => item.code === cellValue)
@@ -473,7 +449,6 @@ const formatterData = (item: any, column: any, cellValue: string) => {
   }
   return cellValue
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -483,7 +458,6 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchHandle()
 }
-
 const closeDialogHandle = (val: boolean) => {
   versionDialogRef.value.versionDialogInfo.isShowVersionDialog = val
 }
@@ -500,13 +474,11 @@ const annualTargetValueHandle = () => {
   annualTargetRow.value = records[0] as RowVo
   annualTargetModal.visible = true
 }
-
 const closeAnnualTargetValueModal = () => {
   annualTargetModal.visible = false
   annualTargetForm.sfnd = ''
   annualTargetRow.value = null
 }
-
 const saveAnnualTargetValueHandle = async () => {
   if (!annualTargetForm.sfnd) {
     ElMessage.warning('请选择年度目标值！')
@@ -517,7 +489,6 @@ const saveAnnualTargetValueHandle = async () => {
     status: 'warning'
   })
   if (type !== 'confirm') return
-
   try {
     annualTargetModal.loading = true
     const res = await setYearTargetValue({
@@ -593,7 +564,6 @@ const versionCompare = () => {
     })
   }
 }
-
 const validateCityTargetValueSum = async () => {
   try {
     const res = await getWjhNum(formParams.nd)
@@ -608,7 +578,6 @@ const validateCityTargetValueSum = async () => {
     return ''
   }
 }
-
 const operationHandle = async (flag: string) => {
   versionDialogInfo.flag = flag
   if (flag === 'ADD') {
@@ -684,7 +653,6 @@ const operationHandle = async (flag: string) => {
     }
   }
 }
-
 const initParams = async () => {
   let res = await getYearData()
   if (res.success) {
@@ -694,18 +662,15 @@ const initParams = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const searchDataHandle = () => {
   searchHandle()
 }
-
 const resetHandle = () => {
   searchFormRef.value.resetFields()
   page.page = 1
   page.limit = 20
   searchHandle()
 }
-
 const searchHandle = async () => {
   pageInfo.loading = true
   tableData.value.length = 0
@@ -727,29 +692,29 @@ const searchHandle = async () => {
     pageInfo.loading = false
   }
 }
-
 const getRoleHandle = () => {
   pageInfo.loading = false
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   if (isQuery) {
     pageInfo.isShowPage = true
     searchHandle()
   }
 }
-
 const changeNdDataHandle = () => {
   searchHandle()
 }
-
 const permissions = ref<string[]>([])
-
 const initData = async () => {
   pageInfo.loading = true
   initParams()
   if (route.query && route.query.versionParams) {
     const params = JSON.parse(decrypt(route.query.versionParams as string))
-    userInfo.value = { ...params.userInfo }
+    userInfo.value = {
+      ...params.userInfo
+    }
     formParams.nd = params.nd
     pageInfo.isShowPage = true
     searchHandle()
@@ -764,11 +729,9 @@ const initData = async () => {
     userDialogRef.value.getUser()
   }
 }
-
 emits.on('onActive', (val) => {
   if (val) searchHandle()
 })
-
 onMounted(initData)
 </script>
 

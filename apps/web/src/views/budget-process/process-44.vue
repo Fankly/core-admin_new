@@ -284,11 +284,9 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script>
+<script setup>
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive, ref } from 'vue'
+import { markRaw as markElementIconRaw, reactive, ref, toRef, reactive as reactiveLocal, toRefs, onMounted, useTemplateRef } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
@@ -297,522 +295,612 @@ import { useStore } from '@/store/business'
 import baseService from '@/service/baseService'
 import { Decimal } from 'decimal.js'
 import { useGuide } from '@/hooks/useGuide'
-
-export default defineComponent({
-  name: '/budget-process/process-44',
-  components: {
-    userDialog,
-    HelpModal,
-    ToolbarButtons
+defineOptions({
+  name: '/budget-process/process-44'
+})
+const helpModalRefRef = useTemplateRef('helpModalRef')
+const multipleTableRef = useTemplateRef('multipleTable')
+const userDialogRef = useTemplateRef('userDialog')
+const contentTablesRef = useTemplateRef('contentTables')
+const store = useStore()
+const dialogFormRef = ref('')
+const helpModalRef = ref('')
+// 只能输入中文、英文、数字,可以为空
+const checkInput = (rule, value, callback) => {
+  if (value === '') {
+    callback()
+  } else {
+    const reg = /^[a-zA-Z0-9\u4e00-\u9fa5]+$/
+    if (!reg.test(value)) {
+      callback(new Error('只能输入中文、英文、数字'))
+    } else {
+      callback()
+    }
+  }
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  store,
+  dialogFormRef,
+  helpModalRef,
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-  setup() {
-    const store = useStore()
-    const dialogFormRef = ref('')
-    const helpModalRef = ref('')
-    // 只能输入中文、英文、数字,可以为空
-    const checkInput = (rule, value, callback) => {
-      if (value === '') {
-        callback()
-      } else {
-        const reg = /^[a-zA-Z0-9\u4e00-\u9fa5]+$/
-        if (!reg.test(value)) {
-          callback(new Error('只能输入中文、英文、数字'))
-        } else {
-          callback()
-        }
+  dialogTableData: [],
+  dialogTableColumns: [],
+  isShowPage: false,
+  dialogUpload: true,
+  checkInput,
+  dialogFormRules: {
+    zctmc: [
+      {
+        validator: checkInput,
+        trigger: 'blur'
+      }
+    ],
+    zgkbmmc: [
+      {
+        validator: checkInput,
+        trigger: 'blur'
+      }
+    ]
+  },
+  dialogFormVisible: false,
+  isQuery: false,
+  searchShow: true,
+  tableData: [],
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  dialogFlag: '',
+  dialogSearchData: {
+    isYapList: [],
+    xmlxList: []
+  },
+  projectTypeProps: {
+    children: 'children',
+    label: 'name'
+  },
+  dialogForm: {
+    fjLists: [],
+    zyssxbm: '',
+    zgkbmmc: '',
+    zyssxmc: '',
+    yslxct: '',
+    dnys: '',
+    is_yap: '',
+    xmlx: '',
+    remark: '',
+    cs: '',
+    nd: new Date().getFullYear().toString()
+  },
+  formData: {
+    zgkbmmc: '',
+    zyssxmc: '',
+    zscflag: '0'
+  },
+  deleteFlag: false,
+  columns: [],
+  multipleSelection: []
+})
+const page = toRef(setupState, 'page')
+const dialogTableData = toRef(setupState, 'dialogTableData')
+const dialogTableColumns = toRef(setupState, 'dialogTableColumns')
+const isShowPage = toRef(setupState, 'isShowPage')
+const dialogUpload = toRef(setupState, 'dialogUpload')
+const dialogFormRules = toRef(setupState, 'dialogFormRules')
+const dialogFormVisible = toRef(setupState, 'dialogFormVisible')
+const isQuery = toRef(setupState, 'isQuery')
+const searchShow = toRef(setupState, 'searchShow')
+const tableData = toRef(setupState, 'tableData')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const dialogFlag = toRef(setupState, 'dialogFlag')
+const dialogSearchData = toRef(setupState, 'dialogSearchData')
+const projectTypeProps = toRef(setupState, 'projectTypeProps')
+const dialogForm = toRef(setupState, 'dialogForm')
+const formData = toRef(setupState, 'formData')
+const deleteFlag = toRef(setupState, 'deleteFlag')
+const columns = toRef(setupState, 'columns')
+const multipleSelection = toRef(setupState, 'multipleSelection')
+const componentData = reactiveLocal({})
+componentData.roleCode = undefined
+const roleCode = toRef(componentData, 'roleCode')
+function focusHandle(event) {
+  if (event.target.value === '-') event.target.value = ''
+}
+function inputChange(event) {
+  event.target.value =
+    ('' + event.target.value)
+      .replace(/[^\d^.-]+/g, '') // 包括负号的匹配
+      .replace(/^0+(\d)/, '$1')
+      .replace(/^\./, '0.')
+      .match(/^[-]?\d*(\.?\d{0,6})/g)[0] || ''
+  event.target.style.background = 'green'
+  event.target.style.color = 'white'
+}
+function getHelpMessageHandle() {
+  helpModalRefRef.value.showModal = true
+}
+function formatHandle(row, column, cellValue) {
+  if (!cellValue || cellValue === '0') return '-'
+  return cellValue
+}
+function getProjectTypeData() {
+  let startDate = new Date().getFullYear()
+  if (setupState.dialogForm.nd) {
+    startDate = setupState.dialogForm.nd
+  }
+  setupState.loading = true
+  const params = {
+    parentId: '0',
+    startDate: startDate
+  }
+  baseService.post('process40/getProTypeTreeNode/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.dialogSearchData.xmlxList = resetProjectType(res.data)
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function resetProjectType(xmlxList) {
+  return xmlxList.map((item) => {
+    // 如果没有children属性
+    if (!item.children || item.children.length === 0) {
+      return {
+        value: item.id,
+        label: item.name
       }
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      store,
-      dialogFormRef,
-      helpModalRef,
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      dialogTableData: [],
-      dialogTableColumns: [],
-      isShowPage: false,
-      dialogUpload: true,
-      checkInput,
-      dialogFormRules: {
-        zctmc: [{ validator: checkInput, trigger: 'blur' }],
-        zgkbmmc: [{ validator: checkInput, trigger: 'blur' }]
-      },
-      dialogFormVisible: false,
-      isQuery: false,
-      searchShow: true,
-      tableData: [],
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      dialogFlag: '',
-      dialogSearchData: {
-        isYapList: [],
-        xmlxList: []
-      },
-      projectTypeProps: {
-        children: 'children',
-        label: 'name'
-      },
-      dialogForm: {
-        fjLists: [],
-        zyssxbm: '',
-        zgkbmmc: '',
-        zyssxmc: '',
-        yslxct: '',
-        dnys: '',
-        is_yap: '',
-        xmlx: '',
-        remark: '',
-        cs: '',
-        nd: new Date().getFullYear().toString()
-      },
-      formData: {
-        zgkbmmc: '',
-        zyssxmc: '',
-        zscflag: '0'
-      },
-      deleteFlag: false,
-      columns: [],
-      multipleSelection: []
+    return {
+      value: item.id,
+      label: item.name,
+      children: item.children ? resetProjectType(item.children) : []
+    }
+  })
+}
+function getDynamicColumn() {
+  setupState.columns = []
+  baseService.get('process42/getDynamicColumn').then((res) => {
+    if (res.success) {
+      setupState.columns = res.data
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function iptBlur(row) {
+  // 判断是“-”，设置默认值为0
+  // 求和
+  let sum = 0
+  const obj = {
+    ...row
+  }
+  for (const key in obj) {
+    if (!obj[key] || obj[key] === '-') {
+      obj[key] = 0
+    }
+    if (key !== 'id') {
+      sum = Decimal.add(sum, obj[key])
+    }
+  }
+  setupState.dialogForm.dnys = sum.toFixed(6)
+}
+// 随机生成 固定YSCT-生成10位大小写字母和数字
+function randomString(len) {
+  len = len || 10
+  var $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  var maxPos = $chars.length
+  var pwd = ''
+  for (var i = 0; i < len; i++) {
+    pwd += $chars.charAt(Math.floor(Math.random() * maxPos))
+  }
+  return 'YSCT-' + pwd
+}
+function toggleSelection(rows) {
+  if (rows) {
+    rows.forEach((row) => {
+      multipleTableRef.value.toggleRowSelection(row)
     })
-  },
-  mounted() {
-    this.$refs.userDialog.getUser()
-    this.getDynamicColumn()
-  },
-  methods: {
-    focusHandle(event) {
-      if (event.target.value === '-') event.target.value = ''
-    },
-    inputChange(event) {
-      event.target.value =
-        ('' + event.target.value)
-          .replace(/[^\d^.-]+/g, '') // 包括负号的匹配
-          .replace(/^0+(\d)/, '$1')
-          .replace(/^\./, '0.')
-          .match(/^[-]?\d*(\.?\d{0,6})/g)[0] || ''
-      event.target.style.background = 'green'
-      event.target.style.color = 'white'
-    },
-    getHelpMessageHandle() {
-      this.$refs.helpModalRef.showModal = true
-    },
-    formatHandle(row, column, cellValue) {
-      if (!cellValue || cellValue === '0') return '-'
-      return cellValue
-    },
-    getProjectTypeData() {
-      let startDate = new Date().getFullYear()
-      if (this.dialogForm.nd) {
-        startDate = this.dialogForm.nd
-      }
-      this.loading = true
-      const params = {
-        parentId: '0',
-        startDate: startDate
-      }
-      baseService.post('process40/getProTypeTreeNode/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.dialogSearchData.xmlxList = this.resetProjectType(res.data)
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
+  } else {
+    multipleTableRef.value.clearSelection()
+  }
+}
+function getIsDeleteData(flag) {
+  let hint = ''
+  if (flag) hint = flag === 'delete' ? '删除' : '恢复删除'
+  if (setupState.multipleSelection.length === 0) {
+    ElMessage({
+      type: 'warning',
+      message: '请选择要' + hint + '的数据'
+    })
+    return
+  }
+  // 根据flag判断是删除还是恢复删除，如果是删除标识，点击恢复按钮提示
+  if (flag === 'recover') {
+    const isDelete = setupState.multipleSelection.some((item) => item.zscflag === '未删除')
+    if (isDelete) {
+      ElMessage({
+        type: 'warning',
+        message: '请选择已删除的数据'
       })
-    },
-    resetProjectType(xmlxList) {
-      return xmlxList.map((item) => {
-        // 如果没有children属性
-        if (!item.children || item.children.length === 0) {
-          return {
-            value: item.id,
-            label: item.name
-          }
-        }
-        return {
-          value: item.id,
-          label: item.name,
-          children: item.children ? this.resetProjectType(item.children) : []
-        }
+      return
+    }
+  } else {
+    const isDelete = setupState.multipleSelection.some((item) => item.zscflag === '已删除')
+    if (isDelete) {
+      ElMessage({
+        type: 'warning',
+        message: '请选择未删除的数据'
       })
-    },
-    getDynamicColumn() {
-      this.columns = []
-      baseService.get('process42/getDynamicColumn').then((res) => {
-        if (res.success) {
-          this.columns = res.data
-        } else {
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    iptBlur(row) {
-      // 判断是“-”，设置默认值为0
-      // 求和
-      let sum = 0
-      const obj = { ...row }
-      for (const key in obj) {
-        if (!obj[key] || obj[key] === '-') {
-          obj[key] = 0
-        }
-        if (key !== 'id') {
-          sum = Decimal.add(sum, obj[key])
-        }
-      }
-      this.dialogForm.dnys = sum.toFixed(6)
-    },
-    // 随机生成 固定YSCT-生成10位大小写字母和数字
-    randomString(len) {
-      len = len || 10
-      var $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-      var maxPos = $chars.length
-      var pwd = ''
-      for (var i = 0; i < len; i++) {
-        pwd += $chars.charAt(Math.floor(Math.random() * maxPos))
-      }
-      return 'YSCT-' + pwd
-    },
-    toggleSelection(rows) {
-      if (rows) {
-        rows.forEach((row) => {
-          this.$refs.multipleTable.toggleRowSelection(row)
-        })
-      } else {
-        this.$refs.multipleTable.clearSelection()
-      }
-    },
-    getIsDeleteData(flag) {
-      let hint = ''
-      if (flag) hint = flag === 'delete' ? '删除' : '恢复删除'
-      if (this.multipleSelection.length === 0) {
-        ElMessage({
-          type: 'warning',
-          message: '请选择要' + hint + '的数据'
-        })
-        return
-      }
-      // 根据flag判断是删除还是恢复删除，如果是删除标识，点击恢复按钮提示
-      if (flag === 'recover') {
-        const isDelete = this.multipleSelection.some((item) => item.zscflag === '未删除')
-        if (isDelete) {
-          ElMessage({
-            type: 'warning',
-            message: '请选择已删除的数据'
-          })
-          return
-        }
-      } else {
-        const isDelete = this.multipleSelection.some((item) => item.zscflag === '已删除')
-        if (isDelete) {
-          ElMessage({
-            type: 'warning',
-            message: '请选择未删除的数据'
-          })
-          return
-        }
-      }
-      ElMessageBox.confirm('是否' + hint + '选中数据?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          baseService
-            .post(
-              `process42/updateDelStatus?id=${this.multipleSelection
-                .map((item) => item.id)
-                .join(',')}&status=${flag === 'delete' ? '1' : '0'}`
-            )
-            .then((res) => {
-              this.loading = true
-              if (res.success) {
-                this.loading = true
-                ElMessage({
-                  type: 'success',
-                  message: flag === 'delete' ? '删除成功' : '恢复成功'
-                })
-                this.loadData()
-              } else {
-                this.loading = false
-                ElMessage({
-                  type: 'error',
-                  message: res.msg
-                })
-              }
-            })
-        })
-        .catch(() => {
-          ElMessage({
-            type: 'info',
-            message: '已取消' + hint
-          })
-        })
-    },
-    handleSelectionChange(val) {
-      this.multipleSelection = val
-    },
-    changeValue(val) {
-      this.formData.zscflag = val ? '1' : '0'
-    },
-    cancelHandle() {
-      this.dialogFormVisible = false
-      for (const key in this.dialogForm) {
-        // 清空表单
-        // 如果是年度，设置为当前年
-        if (key === 'nd') {
-          this.dialogForm[key] = new Date().getFullYear().toString()
-        } else {
-          this.dialogForm[key] = ''
-        }
-      }
-    },
-    updateMsgDataHandle() {
-      this.dialogForm.fjLists = []
-      for (const key in this.dialogTableData[0]) {
-        if (key !== 'id') {
-          this.dialogForm.fjLists.push({
-            fjYs: this.dialogTableData[0][key],
-            yjdw: key
-          })
-        }
-      }
-      // 判断this.dialogForm.xmlx是数组
-      if (Array.isArray(this.dialogForm.xmlx)) {
-        this.dialogForm.xmlx = this.dialogForm.xmlx
-          ? this.dialogForm.xmlx[this.dialogForm.xmlx.length - 1].toString()
-          : ''
-      }
-      // 判断dialogForm.fjLists
-      if (this.dialogForm.fjLists) {
-        this.dialogForm.fjLists.forEach((item) => {
-          if (item.fjYs === '-') {
-            item.fjYs = '0'
-          }
-        })
-      }
-      // 判断dialogForm.dnys是否为空
-      if (!this.dialogForm.dnys) {
-        this.dialogForm.dnys = '0'
-      }
+      return
+    }
+  }
+  ElMessageBox.confirm('是否' + hint + '选中数据?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(() => {
       baseService
-        .post('process42/add', {
-          ...this.dialogForm
-        })
+        .post(
+          `process42/updateDelStatus?id=${setupState.multipleSelection.map((item) => item.id).join(',')}&status=${flag === 'delete' ? '1' : '0'}`
+        )
         .then((res) => {
+          setupState.loading = true
           if (res.success) {
+            setupState.loading = true
             ElMessage({
               type: 'success',
-              message: this.dialogFlag === 'add' ? '添加成功' : '修改成功'
+              message: flag === 'delete' ? '删除成功' : '恢复成功'
             })
-            this.dialogFormVisible = false
-            this.dialogForm = {
-              id: '',
-              ctName: '',
-              gkbmName: ''
-            }
-            this.loadData()
+            loadData()
           } else {
-            ElMessage({
-              type: 'error',
-              message: this.dialogFlag === 'add' ? '添加失败' : '修改失败'
-            })
-          }
-        })
-    },
-    async getFjDynamicColumn() {
-      this.dialogTableColumns = []
-      await baseService.get('process42/getFjDynamicColumn').then((res) => {
-        if (res.success) {
-          this.dialogTableColumns = res.data
-        } else {
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    async addNewTermHandle() {
-      this.dialogFlag = 'add'
-      this.getProjectTypeData()
-      await this.getFjDynamicColumn()
-      this.getComboData([this.dialogSearchData.isYapList], ['PRE_ARR_STATUS'])
-      this.dialogFormVisible = true
-      this.dialogTableData = []
-      let obj = {}
-      this.dialogTableColumns.forEach((item) => {
-        obj[item.columnKey] = '-'
-      })
-      this.dialogTableData.push(obj)
-      this.dialogForm.zyssxbm = this.randomString()
-    },
-    async updateMaintenancePage(row) {
-      this.dialogFlag = 'update'
-      await this.getFjDynamicColumn()
-      await this.getProjectTypeData()
-      await this.getComboData([this.dialogSearchData.isYapList], ['PRE_ARR_STATUS'])
-      this.dialogFormVisible = true
-      // 将row的值赋给dialogTableData
-      this.dialogTableData = []
-      let obj = {}
-      this.dialogTableColumns.forEach((item) => {
-        if (row[item.columnKey] === '0') obj[item.columnKey] = '-'
-        else obj[item.columnKey] = row[item.columnKey]
-      })
-      this.dialogTableData.push(obj)
-      let formObj = { ...row }
-      // 删除formObj中和obj相同的字段
-      for (const key in obj) {
-        delete formObj[key]
-      }
-      // 判断formObj[row_id]是否存在,存在则删除
-      if (formObj['row_id']) {
-        delete formObj['row_id']
-      }
-      this.dialogForm = formObj
-    },
-    getComboData(combo, values) {
-      const params = {
-        codes: values
-      }
-      baseService.post('process40/getComCodeByCode/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          combo.forEach((item, index) => {
-            item.splice(0, item.length)
-            res.data[values[index]].forEach((item) => {
-              item.value = item.code
-              item.label = item.name
-              item.disabled = false
-            })
-            item.push(...res.data[values[index]])
-          })
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    limitChangeHandle(currentLimitNum) {
-      this.page.page = 1
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.roleCode = parseInt(this.$refs.userDialog.roleCode)
-      this.isQuery = this.$refs.userDialog.isQuery
-      if (this.isQuery) {
-        this.isShowPage = true
-        const { startGuide } = useGuide({
-          moduleKey: 'process-44',
-          tragetSelector: '.toolbar-guide-icon',
-          onKnow: () => {},
-          onNoMoreRemind: () => {}
-        })
-        startGuide()
-      }
-    },
-    //项目环节
-    listShow(value, checked) {
-      this.columns.forEach((item) => {
-        if (item.columnKey === value) {
-          item.checked = checked
-        }
-      })
-    },
-    setTableHeight() {
-      if (this.searchShow) {
-        this.$refs.contentTables.style.height = 'calc(100% - 55px)'
-      } else {
-        this.$refs.contentTables.style.height = 'calc(100% - 22px)'
-      }
-    },
-    //搜索按钮
-    loadData() {
-      this.loading = true
-      this.multipleSelection = []
-      this.toggleSelection()
-      baseService
-        .post('process42/getList/', {
-          ...this.formData,
-          page: this.page.page,
-          limit: this.page.limit
-        })
-        .then((res) => {
-          if (res.success) {
-            this.loading = false
-            this.tableData = res.data.records
-            this.page.total = res.data.total
-          } else {
-            this.loading = false
+            setupState.loading = false
             ElMessage({
               type: 'error',
               message: res.msg
             })
           }
         })
-    },
-    //重置按钮
-    reset() {
-      this.formData = {
-        zgkbmmc: '',
-        zyssxmc: '',
-        zscflag: '0'
-      }
-      this.multipleSelection = []
-      this.toggleSelection()
-      this.deleteFlag = false
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    // 数据导出
-    exportData() {
-      baseService
-        .export('/process42/exportNew', {
-          ...this.formData
-        })
-        .then((res) => {
-          this.loading = false
-          const blob = res
-          let dom = document.createElement('a')
-          let url = window.URL.createObjectURL(blob)
-          dom.href = url
-          // 获取文件名
-          let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
-          dom.download = `${decodeURI(decodeURI(filename))}`
-          document.body.appendChild(dom)
-          dom.click()
-          document.body.removeChild(dom)
-          window.URL.revokeObjectURL(url)
-        })
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '已取消' + hint
+      })
+    })
+}
+function handleSelectionChange(val) {
+  setupState.multipleSelection = val
+}
+function changeValue(val) {
+  setupState.formData.zscflag = val ? '1' : '0'
+}
+function cancelHandle() {
+  setupState.dialogFormVisible = false
+  for (const key in setupState.dialogForm) {
+    // 清空表单
+    // 如果是年度，设置为当前年
+    if (key === 'nd') {
+      setupState.dialogForm[key] = new Date().getFullYear().toString()
+    } else {
+      setupState.dialogForm[key] = ''
     }
   }
+}
+function updateMsgDataHandle() {
+  setupState.dialogForm.fjLists = []
+  for (const key in setupState.dialogTableData[0]) {
+    if (key !== 'id') {
+      setupState.dialogForm.fjLists.push({
+        fjYs: setupState.dialogTableData[0][key],
+        yjdw: key
+      })
+    }
+  }
+  // 判断this.dialogForm.xmlx是数组
+  if (Array.isArray(setupState.dialogForm.xmlx)) {
+    setupState.dialogForm.xmlx = setupState.dialogForm.xmlx
+      ? setupState.dialogForm.xmlx[setupState.dialogForm.xmlx.length - 1].toString()
+      : ''
+  }
+  // 判断dialogForm.fjLists
+  if (setupState.dialogForm.fjLists) {
+    setupState.dialogForm.fjLists.forEach((item) => {
+      if (item.fjYs === '-') {
+        item.fjYs = '0'
+      }
+    })
+  }
+  // 判断dialogForm.dnys是否为空
+  if (!setupState.dialogForm.dnys) {
+    setupState.dialogForm.dnys = '0'
+  }
+  baseService
+    .post('process42/add', {
+      ...setupState.dialogForm
+    })
+    .then((res) => {
+      if (res.success) {
+        ElMessage({
+          type: 'success',
+          message: setupState.dialogFlag === 'add' ? '添加成功' : '修改成功'
+        })
+        setupState.dialogFormVisible = false
+        setupState.dialogForm = {
+          id: '',
+          ctName: '',
+          gkbmName: ''
+        }
+        loadData()
+      } else {
+        ElMessage({
+          type: 'error',
+          message: setupState.dialogFlag === 'add' ? '添加失败' : '修改失败'
+        })
+      }
+    })
+}
+async function getFjDynamicColumn() {
+  setupState.dialogTableColumns = []
+  await baseService.get('process42/getFjDynamicColumn').then((res) => {
+    if (res.success) {
+      setupState.dialogTableColumns = res.data
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+async function addNewTermHandle() {
+  setupState.dialogFlag = 'add'
+  getProjectTypeData()
+  await getFjDynamicColumn()
+  getComboData([setupState.dialogSearchData.isYapList], ['PRE_ARR_STATUS'])
+  setupState.dialogFormVisible = true
+  setupState.dialogTableData = []
+  let obj = {}
+  setupState.dialogTableColumns.forEach((item) => {
+    obj[item.columnKey] = '-'
+  })
+  setupState.dialogTableData.push(obj)
+  setupState.dialogForm.zyssxbm = randomString()
+}
+async function updateMaintenancePage(row) {
+  setupState.dialogFlag = 'update'
+  await getFjDynamicColumn()
+  await getProjectTypeData()
+  await getComboData([setupState.dialogSearchData.isYapList], ['PRE_ARR_STATUS'])
+  setupState.dialogFormVisible = true
+  // 将row的值赋给dialogTableData
+  setupState.dialogTableData = []
+  let obj = {}
+  setupState.dialogTableColumns.forEach((item) => {
+    if (row[item.columnKey] === '0') obj[item.columnKey] = '-'
+    else obj[item.columnKey] = row[item.columnKey]
+  })
+  setupState.dialogTableData.push(obj)
+  let formObj = {
+    ...row
+  }
+  // 删除formObj中和obj相同的字段
+  for (const key in obj) {
+    delete formObj[key]
+  }
+  // 判断formObj[row_id]是否存在,存在则删除
+  if (formObj.row_id) {
+    delete formObj.row_id
+  }
+  setupState.dialogForm = formObj
+}
+function getComboData(combo, values) {
+  const params = {
+    codes: values
+  }
+  baseService.post('process40/getComCodeByCode/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      combo.forEach((item, index) => {
+        item.splice(0, item.length)
+        res.data[values[index]].forEach((item) => {
+          item.value = item.code
+          item.label = item.name
+          item.disabled = false
+        })
+        item.push(...res.data[values[index]])
+      })
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.page = 1
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  componentData.roleCode = parseInt(userDialogRef.value.roleCode)
+  setupState.isQuery = userDialogRef.value.isQuery
+  if (setupState.isQuery) {
+    setupState.isShowPage = true
+    const { startGuide } = useGuide({
+      moduleKey: 'process-44',
+      tragetSelector: '.toolbar-guide-icon',
+      onKnow: () => {},
+      onNoMoreRemind: () => {}
+    })
+    startGuide()
+  }
+}
+//项目环节
+function listShow(value, checked) {
+  setupState.columns.forEach((item) => {
+    if (item.columnKey === value) {
+      item.checked = checked
+    }
+  })
+}
+function setTableHeight() {
+  if (setupState.searchShow) {
+    contentTablesRef.value.style.height = 'calc(100% - 55px)'
+  } else {
+    contentTablesRef.value.style.height = 'calc(100% - 22px)'
+  }
+}
+//搜索按钮
+function loadData() {
+  setupState.loading = true
+  setupState.multipleSelection = []
+  toggleSelection()
+  baseService
+    .post('process42/getList/', {
+      ...setupState.formData,
+      page: setupState.page.page,
+      limit: setupState.page.limit
+    })
+    .then((res) => {
+      if (res.success) {
+        setupState.loading = false
+        setupState.tableData = res.data.records
+        setupState.page.total = res.data.total
+      } else {
+        setupState.loading = false
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
+    })
+}
+//重置按钮
+function reset() {
+  setupState.formData = {
+    zgkbmmc: '',
+    zyssxmc: '',
+    zscflag: '0'
+  }
+  setupState.multipleSelection = []
+  toggleSelection()
+  setupState.deleteFlag = false
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+// 数据导出
+function exportData() {
+  baseService
+    .export('/process42/exportNew', {
+      ...setupState.formData
+    })
+    .then((res) => {
+      setupState.loading = false
+      const blob = res
+      let dom = document.createElement('a')
+      let url = window.URL.createObjectURL(blob)
+      dom.href = url
+      // 获取文件名
+      let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
+      dom.download = `${decodeURI(decodeURI(filename))}`
+      document.body.appendChild(dom)
+      dom.click()
+      document.body.removeChild(dom)
+      window.URL.revokeObjectURL(url)
+    })
+}
+onMounted(() => {
+  userDialogRef.value.getUser()
+  getDynamicColumn()
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  store,
+  dialogFormRef,
+  helpModalRef,
+  page,
+  dialogTableData,
+  dialogTableColumns,
+  isShowPage,
+  dialogUpload,
+  checkInput,
+  dialogFormRules,
+  dialogFormVisible,
+  isQuery,
+  searchShow,
+  tableData,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  dialogFlag,
+  dialogSearchData,
+  projectTypeProps,
+  dialogForm,
+  formData,
+  deleteFlag,
+  columns,
+  multipleSelection,
+  focusHandle,
+  inputChange,
+  getHelpMessageHandle,
+  formatHandle,
+  getProjectTypeData,
+  resetProjectType,
+  getDynamicColumn,
+  iptBlur,
+  randomString,
+  toggleSelection,
+  getIsDeleteData,
+  handleSelectionChange,
+  changeValue,
+  cancelHandle,
+  updateMsgDataHandle,
+  getFjDynamicColumn,
+  addNewTermHandle,
+  updateMaintenancePage,
+  getComboData,
+  pageChangeHandle,
+  limitChangeHandle,
+  loadCompany,
+  listShow,
+  setTableHeight,
+  loadData,
+  reset,
+  showSearch,
+  exportData,
+  ...toRefs(componentData)
 })
 </script>
 

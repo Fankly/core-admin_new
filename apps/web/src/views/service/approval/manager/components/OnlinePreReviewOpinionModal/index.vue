@@ -126,8 +126,6 @@
 
 <script setup lang="ts">
 import { Edit as EpEdit } from '@element-plus/icons-vue'
-
-defineOptions({ name: "OnlinePreReviewOpinionModal" })
 import { nextTick, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useStore } from '@/store/business'
@@ -135,6 +133,7 @@ import type { VxeGridInstance, VxeGridProps } from 'vxe-table'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import ImportExcel from '@/components/ImportExcel/index.vue'
 import { getXsyj, getXsyjTemplate, importXsyj, updateXsyj } from '@/api/service/approval/manager'
+defineOptions({ name: "OnlinePreReviewOpinionModal" })
 
 interface ModalProps {
   row: Record<string, any>

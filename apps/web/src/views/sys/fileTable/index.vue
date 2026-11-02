@@ -23,12 +23,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/sys/fileTable/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, nextTick, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import ProTable from '@/components/ProTablePage/index.vue'
 import { getAttachByDirectory } from '@/api/sys/fileShare'
+defineOptions({ name: "/sys/fileTable/index" })
 
 // ========== 响应式状态 ==========
 const userDialogRef = ref()

@@ -207,36 +207,49 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'SinglePointReviewModal'
-}
-</script>
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { downloadReviewAttach, getReviewDetail, initReviewInfo, saveReviewInfo, uploadReviewAttach } from '@/api/ai/manualReview'
 import type { AiAuditReviewCategoryRule, AiAuditReviewPoint, AiAuditReviewRecord } from '@/api/ai/manualReview'
-// AI 审核意见与工作台的审核结论是同一个字段，富文本渲染沿用工作台那套（HTML/Markdown + 换行处理）
 import TypewriterText from '../../smartTaskAudit/components/TypewriterText.vue'
 import { isRichAuditText } from '../../smartTaskAudit/components/auditDetailHelpers'
 import { AI_RESULT_TEXT, CODE_TO_CONCLUSION, CONCLUSION_TO_CODE, UPLOAD_ACCEPT, UPLOAD_MAX_SIZE, UPLOAD_TIP, aiToneOf } from '../data'
 import type { AiResult, ReviewConclusion, ReviewFile, ReviewPointAiInfo, SinglePointReviewParams } from '../data'
+defineOptions({
+  name: 'SinglePointReviewModal'
+})
+
+// AI 审核意见与工作台的审核结论是同一个字段，富文本渲染沿用工作台那套（HTML/Markdown + 换行处理）
 
 const emit = defineEmits<{
   (
     e: 'submit',
-    payload: { detailId: string; ruleName: string; pointName: string; conclusion: ReviewConclusion; comment: string; files: ReviewFile[] }
+    payload: {
+      detailId: string
+      ruleName: string
+      pointName: string
+      conclusion: ReviewConclusion
+      comment: string
+      files: ReviewFile[]
+    }
   ): void
   (e: 'close'): void
 }>()
-
-const CONCLUSION_OPTIONS: { value: ReviewConclusion; label: string }[] = [
-  { value: 'pass', label: '通过' },
-  { value: 'fail', label: '不通过' }
+const CONCLUSION_OPTIONS: {
+  value: ReviewConclusion
+  label: string
+}[] = [
+  {
+    value: 'pass',
+    label: '通过'
+  },
+  {
+    value: 'fail',
+    label: '不通过'
+  }
 ]
-
 const visible = ref(false)
 const initing = ref(false)
 const submitting = ref(false)
@@ -253,7 +266,6 @@ const aiInfoMap = ref<Record<string, ReviewPointAiInfo>>({})
 let loadedAiRules = new Set<string>()
 /** 宿主回调：按规则拉要点 AI 信息 */
 let loadAiInfoFromHost: ((categoryRuleId: string) => Promise<Record<string, ReviewPointAiInfo>>) | undefined
-
 const form = reactive({
   taskId: '',
   projectCode: '',
@@ -266,20 +278,19 @@ const form = reactive({
   comment: '',
   files: [] as ReviewFile[]
 })
-
 const ruleOptions = computed(() => categoryRuleList.value)
-
 const pointOptions = computed(() => {
   const rule = categoryRuleList.value.find((item) => String(item.categoryRuleId) === String(form.categoryRuleId))
   return rule?.pointList || []
 })
-
 const currentPoint = computed<AiAuditReviewPoint | null>(
   () => pointOptions.value.find((point) => String(point.detailId) === String(form.detailId)) || null
 )
 
 /** 规则名 / 要点名：提交回执与宿主都按名字用 */
-const currentRuleName = computed(() => ruleOptions.value.find((item) => String(item.categoryRuleId) === String(form.categoryRuleId))?.ruleName || '')
+const currentRuleName = computed(
+  () => ruleOptions.value.find((item) => String(item.categoryRuleId) === String(form.categoryRuleId))?.ruleName || ''
+)
 
 /** AI 结论文案与色调：优先用接口文案，拿不到时按色调兜底 */
 const aiResult = computed<AiResult>(() => aiInfoMap.value[form.detailId]?.tone || 'pending')
@@ -288,7 +299,6 @@ const aiComment = computed(() => aiInfoMap.value[form.detailId]?.comment || '')
 
 /** AI 审核意见是否富文本（后端会带 HTML 标签）：富文本走统一渲染器，纯文本照原样显示 */
 const isRichAiComment = computed(() => isRichAuditText(aiComment.value))
-
 const formatSize = (bytes: number): string => {
   if (!bytes) return '0 KB'
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`
@@ -300,7 +310,16 @@ const fillFromRecord = (record: AiAuditReviewRecord | null) => {
   form.conclusion = record ? CODE_TO_CONCLUSION[String(record.reviewConclusion)] || '' : ''
   form.comment = record?.reviewOpinion || ''
   recordId.value = record?.id != null ? String(record.id) : ''
-  form.files = record?.fileName ? [{ name: record.fileName, size: 0, uuid: record.fileUuid || '', existing: true }] : []
+  form.files = record?.fileName
+    ? [
+        {
+          name: record.fileName,
+          size: 0,
+          uuid: record.fileUuid || '',
+          existing: true
+        }
+      ]
+    : []
 }
 
 /** 按 detailId 拉该要点的已有复审记录（无记录时后端抛错，属正常情况，静默清空） */
@@ -325,7 +344,10 @@ const ensureAiInfo = async (categoryRuleId: string) => {
   aiLoading.value = true
   try {
     const info = await loadAiInfoFromHost(categoryRuleId)
-    aiInfoMap.value = { ...aiInfoMap.value, ...(info || {}) }
+    aiInfoMap.value = {
+      ...aiInfoMap.value,
+      ...(info || {})
+    }
   } catch {
     loadedAiRules.delete(categoryRuleId)
   } finally {
@@ -353,7 +375,6 @@ watch(
   () => form.detailId,
   (detailId) => void loadRecordForPoint(String(detailId))
 )
-
 const pickFiles = () => fileInputRef.value?.click()
 
 /** 选择文件：只做本地收集 + 大小校验，真正的上传在提交时进行（文档两步式：upload → save） */
@@ -366,17 +387,19 @@ const onFilesPicked = (event: Event) => {
       tooLarge.push(file.name)
       return
     }
-    form.files.push({ name: file.name, size: file.size, file })
+    form.files.push({
+      name: file.name,
+      size: file.size,
+      file
+    })
   })
   if (tooLarge.length) ElMessage.warning(`以下文件超过 20MB，未添加：${tooLarge.join('、')}`)
   // 清空 input，否则连续选同一个文件不会再触发 change
   input.value = ''
 }
-
 const removeFile = (index: number) => {
   form.files.splice(index, 1)
 }
-
 const downloadExisting = async (file: ReviewFile) => {
   if (!recordId.value) return
   try {
@@ -385,7 +408,6 @@ const downloadExisting = async (file: ReviewFile) => {
     ElMessage.error('附件下载失败')
   }
 }
-
 const handleClose = () => {
   visible.value = false
   emit('close')
@@ -408,7 +430,6 @@ const handleSubmit = async () => {
     ElMessage.warning('当前要点缺少任务明细ID，无法提交')
     return
   }
-
   submitting.value = true
   try {
     // 未上传过的文件先传，拿到 uuid 后随 save 提交
@@ -427,7 +448,6 @@ const handleSubmit = async () => {
     if (withUuid.length > 1) {
       ElMessage.warning(`复审接口目前只支持保存 1 个附件，已保留第一个：${attachment.name}`)
     }
-
     const res = await saveReviewInfo({
       detailId: form.detailId,
       reviewConclusion: form.conclusion ? CONCLUSION_TO_CODE[form.conclusion] : '',
@@ -437,7 +457,6 @@ const handleSubmit = async () => {
     })
     if (!res.success) throw new Error(res.msg || '保存失败')
     recordId.value = res.data != null ? String(res.data) : recordId.value
-
     ElMessage.success('复核信息已保存')
     emit('submit', {
       detailId: form.detailId,
@@ -462,7 +481,9 @@ const handleSubmit = async () => {
 const acceptParams = async (params: SinglePointReviewParams = {}) => {
   visible.value = true
   initing.value = true
-  aiInfoMap.value = { ...(params.aiInfo || {}) }
+  aiInfoMap.value = {
+    ...(params.aiInfo || {})
+  }
   loadedAiRules = new Set()
   loadAiInfoFromHost = params.loadAiInfo
   categoryRuleList.value = []
@@ -475,9 +496,11 @@ const acceptParams = async (params: SinglePointReviewParams = {}) => {
   form.comment = ''
   form.files = []
   recordId.value = ''
-
   try {
-    const res = await initReviewInfo({ taskId: params.taskId || undefined, detailId: params.detailId || undefined })
+    const res = await initReviewInfo({
+      taskId: params.taskId || undefined,
+      detailId: params.detailId || undefined
+    })
     if (!res.success || !res.data) throw new Error(res.msg || '复核信息初始化失败')
     const data = res.data
     categoryRuleList.value = Array.isArray(data.categoryRuleList) ? data.categoryRuleList : []
@@ -491,7 +514,9 @@ const acceptParams = async (params: SinglePointReviewParams = {}) => {
       ? fallbackRuleId
       : String(categoryRuleList.value[0]?.categoryRuleId || '')
     const points = categoryRuleList.value.find((item) => String(item.categoryRuleId) === String(form.categoryRuleId))?.pointList || []
-    form.detailId = points.some((point) => String(point.detailId) === fallbackDetailId) ? fallbackDetailId : String(points[0]?.detailId || '')
+    form.detailId = points.some((point) => String(point.detailId) === fallbackDetailId)
+      ? fallbackDetailId
+      : String(points[0]?.detailId || '')
     // init 已把默认明细的记录带回来了，直接回填；换要点时再由 watch 单独取
     fillFromRecord(data.reviewInfo || null)
     // 宿主预置了当前规则的 AI 信息就不用再回调拉一次；没预置的规则（含切换过去的）才拉
@@ -504,8 +529,9 @@ const acceptParams = async (params: SinglePointReviewParams = {}) => {
     initing.value = false
   }
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style scoped lang="less">

@@ -1,57 +1,58 @@
-<script lang="ts">
-export default {
-  name: '/goalValue/customGoalValue/components/MainTable'
-}
-</script>
+
 
 <script setup lang="ts">
-import { defineProps, reactive, ref, defineExpose, nextTick, watch } from 'vue'
+import { reactive, ref, nextTick, watch } from 'vue'
 import { VxeColumnPropTypes } from 'vxe-table'
+defineOptions({
+  name: '/goalValue/customGoalValue/components/MainTable'
+})
 
 interface Props {
   mainTableData: any[]
 }
-
 const props = defineProps<Props>()
-
 const mainTableRef = ref()
 const mainLoading = ref(false)
-
 const yesNoList = reactive([
-  { label: '是', value: '1' },
-  { label: '否', value: '0' }
+  {
+    label: '是',
+    value: '1'
+  },
+  {
+    label: '否',
+    value: '0'
+  }
 ])
-
 const recList = reactive([
-  { label: '启用', value: '1' },
-  { label: '停用', value: '0' }
+  {
+    label: '启用',
+    value: '1'
+  },
+  {
+    label: '停用',
+    value: '0'
+  }
 ])
-
 const normalizeYesNo = (value: any) => {
   if (typeof value === 'boolean') return value ? '1' : '0'
   return String(value)
 }
-
 const formatterYesNo: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
   const item = yesNoList.find((item: any) => item.value === normalizeYesNo(cellValue))
   return item ? item.label : cellValue
 }
-
 const formatterRec: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
   const item = recList.find((item: any) => item.value === String(cellValue))
   return item ? item.label : cellValue
 }
-
 const clearCheckboxSelection = async () => {
   await mainTableRef.value?.clearCheckboxRow()
 }
-
 const cellClickHandle = async ({ row, column }: any) => {
   if (column.type === 'checkbox') return
   await clearCheckboxSelection()
   await mainTableRef.value?.setCheckboxRow(row, true)
 }
-
 watch(
   () => props.mainTableData,
   async () => {
@@ -59,7 +60,6 @@ watch(
     await clearCheckboxSelection()
   }
 )
-
 defineExpose({
   mainTableRef,
   mainLoading

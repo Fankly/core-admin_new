@@ -32,10 +32,11 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "MatterModal" })
 import proTable from '@/components/ProTable/index.vue'
 import { reactive, ref } from 'vue'
 import { getPage } from '@/api/matter/matterYslxctgl'
+defineOptions({ name: "MatterModal" })
+
 const proTableRef = ref()
 const isShowTable = ref(false)
 const loading = ref(false)

@@ -210,15 +210,11 @@
   </div>
   <ImportExcel ref="importRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/lslxJsc/components/reportingyx'
-}
-</script>
+
 
 <script setup lang="ts">
-import { reactive, ref, defineProps, defineExpose, defineEmits } from 'vue'
-import { summaryValue } from '@/utils/utils' //合计项目类型值
+import { reactive, ref } from 'vue'
+import { summaryValue, formatValue } from '@/utils/utils'
 import {
   getTableDataForYx,
   getDynamicColumnForYx,
@@ -231,10 +227,16 @@ import {
 } from '@/api/lslxJsc/index'
 import { ElMessage, ElNotification, ElMessageBox } from 'element-plus'
 import { Decimal } from 'decimal.js'
-import { formatValue } from '@/utils/utils'
-import ImportExcel from '@/components/ImportExcel/indexNew.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexNew.vue'
 import { useRouter } from 'vue-router'
 import { apiExportHandle, vxeExportHandle } from '@/utils/export'
+defineOptions({
+  name: '/lslxJsc/components/reportingyx'
+})
+
+ //合计项目类型值
+
+ //导入组件
 
 //接收父组件传参
 const props = defineProps({
@@ -291,16 +293,13 @@ const pageInfo = reactive<{
   loading: true,
   isShowPage: false
 })
-
 const updateParams = reactive<any[]>([])
-
 const count = ref(0)
 const isShowModel = ref(false)
 const closeHandle = () => {
   rmarkData.viewMethod = '1'
   isShowModel.value = false
 }
-
 const tableInfo = reactive<any>({
   toolbarConfig: {
     custom: true
@@ -353,11 +352,7 @@ const tableInfo = reactive<any>({
     enabled: true,
     beforeEditMethod: function ({ column, row }: any) {
       return (
-        (row.id &&
-          !row.leaf &&
-          row.ysly == '1' &&
-          column.field != 'name' &&
-          column.title != '市域自主(万元)') ||
+        (row.id && !row.leaf && row.ysly == '1' && column.field != 'name' && column.title != '市域自主(万元)') ||
         (row.parentId == '0' && column.title == '市域自主(万元)')
       )
     }
@@ -394,16 +389,10 @@ const tableInfo = reactive<any>({
           backgroundColor: 'rgba(232, 234, 236,0.5)'
         }
       }
-      if (
-        !(
-          (row.id &&
-            !row.leaf &&
-            row.ysly == '1' &&
-            column.field != 'name' &&
-            column.title != '市域自主(万元)') ||
-          (row.parentId == '0' && column.title == '市域自主(万元)')
-        )
-      ) {
+      if (!(
+        (row.id && !row.leaf && row.ysly == '1' && column.field != 'name' && column.title != '市域自主(万元)') ||
+        (row.parentId == '0' && column.title == '市域自主(万元)')
+      )) {
         return {
           cursor: 'auto',
           backgroundColor: 'rgba(232, 234, 236,0.5)'
@@ -418,7 +407,6 @@ const nckReview = () => {
     name: '/service/lslxJsc/sjtcxmnckhdys'
   })
 }
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -465,28 +453,18 @@ const sumhandle = (row: any, key: string) => {
 // 计算一下省级统筹规模
 const getYxSjtcgm = () => {
   rmarkData.yxsjtcgm = 0
-  let gmSum = tableInfo.tableData.reduce(
-    (gmSum: number, item: any) => gmSum + Number(item['hj_yxgm']),
-    0
-  )
+  let gmSum = tableInfo.tableData.reduce((gmSum: number, item: any) => gmSum + Number(item['hj_yxgm']), 0)
   rmarkData.yxsjtcgm = Number(gmSum).toFixed(6)
   handleEnter()
 }
 // 获取编辑数据表格
 const getEditDataHandle = ({ column, row }: any) => {
-  if (
-    typeof row[column.field] == 'undefined' ||
-    row[column.field] == null ||
-    row[column.field] == ''
-  )
-    return
+  if (typeof row[column.field] == 'undefined' || row[column.field] == null || row[column.field] == '') return
   const id: string = row['id']
   const outIndex = updateParams.findIndex((item: any) => item.protypeId === id)
   if (column.title == '一下核定规模(万元)') {
     if (outIndex > -1) {
-      const index = updateParams[outIndex].dwValueList.findIndex(
-        (item: any) => item.field == column.field
-      )
+      const index = updateParams[outIndex].dwValueList.findIndex((item: any) => item.field == column.field)
       if (index > -1) {
         updateParams[outIndex].dwValueList[index].value = row[column.field]
       } else {
@@ -572,10 +550,8 @@ const saveHandle = async () => {
     ruleFormRef.value.validate((valid: any) => {
       if (!valid) return
       const hj_syzz = tableInfo.tableData[0].hj_syzz
-      if (Number(rmarkData.yxsytcgm) < Number(hj_syzz))
-        return ElMessage.warning('市域自主合计值不能大于一下市域统筹规模')
-      const text =
-        updateParams.length === 0 ? '检测到没有编辑一下规模，是否确定保存？' : '请确定要保存的内容'
+      if (Number(rmarkData.yxsytcgm) < Number(hj_syzz)) return ElMessage.warning('市域自主合计值不能大于一下市域统筹规模')
+      const text = updateParams.length === 0 ? '检测到没有编辑一下规模，是否确定保存？' : '请确定要保存的内容'
       ElMessageBox.confirm(text, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -669,9 +645,11 @@ const newData = async () => {
   await getDataList()
   const $table = tableRef.value
   threeLevel()
-  gmSumData({ versionId: props.formData?.versionId, nd: props.formData?.nd })
+  gmSumData({
+    versionId: props.formData?.versionId,
+    nd: props.formData?.nd
+  })
 }
-
 const isClickHeader = (columns: any, field: string) => {
   let columnsData = columns.filter((item: any) => item.edit)
   let column = columnsData.find((item: any) => item.field === field)
@@ -772,7 +750,6 @@ const handlePass = async () => {
       console.log(error)
     })
 }
-
 defineExpose({
   isShowModel,
   getHeaderData,

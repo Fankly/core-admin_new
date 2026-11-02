@@ -27,11 +27,6 @@
   <el-image-viewer v-if="isImageViewerShow && imageUrl" :url-list="[imageUrl]" hide-on-click-modal teleported @close="handleClose" />
 </template>
 
-<script lang="ts">
-export default {
-  name: 'previewModal'
-}
-</script>
 
 <script setup lang="ts">
 import { onBeforeUnmount, ref, shallowRef } from 'vue'
@@ -40,16 +35,16 @@ import OfficePreview from '@/components/OfficePreview/index.vue'
 import type { OfficePreviewSource } from '@/components/OfficePreview'
 import { getOfficeFileExtension } from '@/components/OfficePreview'
 import { downloadAttach } from '@/api/sys/fileShare'
+defineOptions({
+  name: 'previewModal'
+})
 
 interface PreviewParams {
   uuid: string
   attachName?: string
 }
-
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico']
-
 const isImageFile = (fileName?: string) => IMAGE_EXTS.includes(getOfficeFileExtension(fileName) || '')
-
 const isShowModal = ref(false)
 const downloading = ref(false)
 const modalTitle = ref('文件预览')
@@ -59,14 +54,12 @@ const errorMessage = ref('')
 const previewRef = ref<InstanceType<typeof OfficePreview> | null>(null)
 const isImageViewerShow = ref(false)
 const imageUrl = ref<string>('')
-
 const revokeImageUrl = () => {
   if (imageUrl.value) {
     URL.revokeObjectURL(imageUrl.value)
     imageUrl.value = ''
   }
 }
-
 const handleClose = () => {
   previewSource.value = null
   errorMessage.value = ''
@@ -75,11 +68,9 @@ const handleClose = () => {
   isImageViewerShow.value = false
   revokeImageUrl()
 }
-
 const handlePreviewError = (error: Error) => {
   errorMessage.value = error.message || '文件预览失败'
 }
-
 const acceptParams = async (params: PreviewParams) => {
   errorMessage.value = ''
   attachName.value = params.attachName || ''
@@ -92,7 +83,10 @@ const acceptParams = async (params: PreviewParams) => {
   isShowModal.value = !isImage
   downloading.value = true
   try {
-    const blob: any = await downloadAttach({ uuid: params.uuid, fileName: params.attachName || '' })
+    const blob: any = await downloadAttach({
+      uuid: params.uuid,
+      fileName: params.attachName || ''
+    })
     if (!blob || !(blob instanceof Blob)) {
       throw new Error('文件下载失败，未获取到有效内容')
     }
@@ -113,12 +107,12 @@ const acceptParams = async (params: PreviewParams) => {
     downloading.value = false
   }
 }
-
 onBeforeUnmount(() => {
   revokeImageUrl()
 })
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

@@ -24,34 +24,28 @@
 
 <script setup lang="ts">
 import { Close as EpClose } from '@element-plus/icons-vue'
-
-import BackLog from "@/views/matter/components/DialogBacklog.vue";
-import MatterChanges from "@/views/matter/components/MatterChanges/index.vue";
-import type { BaseMsgData, List } from "@/views/matter/types/matterDecl";
-import { computed, ref, toRef, defineEmits, defineProps } from "vue";
-
+import BackLog from '@/views/matter/components/DialogBacklog.vue'
+import MatterChanges from '@/views/matter/components/MatterChanges/index.vue'
+import type { BaseMsgData, List } from '@/views/matter/types/matterDecl'
+import { computed, ref, toRef } from 'vue'
 interface Props {
-  baseMsgData: BaseMsgData;
-  diaLogData: List;
+  baseMsgData: BaseMsgData
+  diaLogData: List
 }
-
-const emits = defineEmits(["closeDialog"]);
-const props = defineProps<Props>();
-const isDisabled = computed(() => props.baseMsgData.operationFlag === "VIEW");
-const matterChagnesRef = ref();
-const isShowDialog = toRef(props.diaLogData, "isShowAdjustFormDialog");
-
-const activeName = ref<string>("eventReserve");
-
+const emits = defineEmits(['closeDialog'])
+const props = defineProps<Props>()
+const isDisabled = computed(() => props.baseMsgData.operationFlag === 'VIEW')
+const matterChagnesRef = ref()
+const isShowDialog = toRef(props.diaLogData, 'isShowAdjustFormDialog')
+const activeName = ref<string>('eventReserve')
 const saveDataHandle = () => {
-  matterChagnesRef.value.submitHandle();
-};
-
+  matterChagnesRef.value.submitHandle()
+}
 const closeDialogHandle = (val: boolean) => {
-  isShowDialog.value = false;
-  activeName.value = "eventReserve";
-  emits("closeDialog", val);
-};
+  isShowDialog.value = false
+  activeName.value = 'eventReserve'
+  emits('closeDialog', val)
+}
 </script>
 
 <style lang="less">

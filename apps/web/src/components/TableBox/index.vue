@@ -58,205 +58,228 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { traverseTree } from '@/utils'
-
-export default {
-  name: 'table-box',
-  props: {
-    rowClassName: {
-      type: Function,
-      default: () => undefined
-    },
-    rowStyle: {
-      type: Function,
-      default: () => undefined
-    },
-    size: {
-      type: String,
-      default: null
-    },
-    value: {
-      type: [Object, Array]
-    },
-    hasExtend: {
-      type: Boolean,
-      default: true
-    },
-    height: {
-      type: [String, Number],
-      default: 'auto'
-    },
-    minHeight: {
-      type: [String, Number],
-      default: 0
-    },
-    maxHeight: {
-      type: [String, Number]
-    },
-    hasImageColumn: {
-      type: Boolean,
-      default: false
-    },
-    checkedMethod: {
-      type: Function,
-      default: () => {
-        return true
-      }
-    },
-    showOverflow: {
-      type: Boolean,
-      default: true
-    },
-    customConfig: {
-      type: Object,
-      default: () => ({})
-    },
-    expandConfig: {
-      type: Object,
-      default: () => undefined
-    },
-    type: {
-      type: String,
-      default: ''
+import { nextTick, reactive, toRef, toRefs, computed, watch, onMounted, useAttrs, getCurrentInstance, useTemplateRef } from 'vue'
+defineOptions({
+  name: 'table-box'
+})
+const componentProps = defineProps({
+  rowClassName: {
+    type: Function,
+    default: () => undefined
+  },
+  rowStyle: {
+    type: Function,
+    default: () => undefined
+  },
+  size: {
+    type: String,
+    default: null
+  },
+  value: {
+    type: [Object, Array]
+  },
+  hasExtend: {
+    type: Boolean,
+    default: true
+  },
+  height: {
+    type: [String, Number],
+    default: 'auto'
+  },
+  minHeight: {
+    type: [String, Number],
+    default: 0
+  },
+  maxHeight: {
+    type: [String, Number]
+  },
+  hasImageColumn: {
+    type: Boolean,
+    default: false
+  },
+  checkedMethod: {
+    type: Function,
+    default: () => {
+      return true
     }
   },
-  data() {
-    return {
-      tableKey: new Date().getTime(),
-      rowHeightStatus: 'default',
-      expandRows: []
-    }
+  showOverflow: {
+    type: Boolean,
+    default: true
   },
-  mounted() {
-    this.$nextTick(() => {
-      const $table = this.$refs.table
-      const $toolbar = this.$refs.toolbarRef
-      if ($table && $toolbar) {
-        $table.connect($toolbar)
+  customConfig: {
+    type: Object,
+    default: () => ({})
+  },
+  expandConfig: {
+    type: Object,
+    default: () => undefined
+  },
+  type: {
+    type: String,
+    default: ''
+  }
+})
+const emit = defineEmits()
+const attrs = useAttrs()
+const componentInstance = getCurrentInstance().proxy
+const tableRef = useTemplateRef('table')
+const toolbarRefRef = useTemplateRef('toolbarRef')
+const componentData = reactive({
+  tableKey: new Date().getTime(),
+  rowHeightStatus: 'default',
+  expandRows: []
+})
+const tableKey = toRef(componentData, 'tableKey')
+const rowHeightStatus = toRef(componentData, 'rowHeightStatus')
+const expandRows = toRef(componentData, 'expandRows')
+function currentChangeEvent({ row }) {
+  emit('currentChangeEvent', row)
+}
+function clearCheckboxRow() {
+  tableRef.value.clearCheckboxRow()
+}
+function onSelectChange(rows, multi) {
+  emit('input', rows)
+  emit('change', rows, multi)
+}
+function onCheckBoxChange(data) {
+  let selectRows = []
+  if (tableRef.value) {
+    selectRows = tableRef.value.getCheckboxRecords(true)
+    selectRows = selectRows.concat(tableRef.value.getCheckboxIndeterminateRecords(true))
+  }
+  onSelectChange(selectRows, true)
+  emit('checkbox-select-change', selectRows)
+}
+function onCheckAllChange(data) {
+  let selectRows = []
+  if (tableRef.value) {
+    selectRows = tableRef.value.getCheckboxRecords(true)
+    selectRows = selectRows.concat(tableRef.value.getCheckboxIndeterminateRecords(true))
+  }
+  onSelectChange(selectRows, true)
+  emit('checkbox-select-change', selectRows)
+}
+function onRadioSelectChange(data) {
+  let selectRow
+  if (tableRef.value) {
+    selectRow = tableRef.value.getRadioRecord()
+    onSelectChange(selectRow, false)
+  }
+  emit('radio-select-change', selectRow)
+}
+function setTableSelectRow() {
+  if (tableRef.value) {
+    nextTick(() => {
+      tableRef.value.clearRadioRow()
+      tableRef.value.clearCheckboxRow()
+      if (componentProps.value == null) return
+      if (Array.isArray(componentProps.value)) {
+        // 多选
+        tableRef.value.setCheckboxRow(componentProps.value)
+      } else {
+        // 单选
+        tableRef.value.setRadioRow(componentInstance.valye)
       }
     })
-  },
-  methods: {
-    currentChangeEvent({ row }) {
-      this.$emit('currentChangeEvent', row)
-    },
-    clearCheckboxRow() {
-      this.$refs.table.clearCheckboxRow()
-    },
-    onSelectChange(rows, multi) {
-      this.$emit('input', rows)
-      this.$emit('change', rows, multi)
-    },
-    onCheckBoxChange(data) {
-      let selectRows = []
-      if (this.$refs.table) {
-        selectRows = this.$refs.table.getCheckboxRecords(true)
-        selectRows = selectRows.concat(this.$refs.table.getCheckboxIndeterminateRecords(true))
-      }
-      this.onSelectChange(selectRows, true)
-      this.$emit('checkbox-select-change', selectRows)
-    },
-    onCheckAllChange(data) {
-      let selectRows = []
-      if (this.$refs.table) {
-        selectRows = this.$refs.table.getCheckboxRecords(true)
-        selectRows = selectRows.concat(this.$refs.table.getCheckboxIndeterminateRecords(true))
-      }
-      this.onSelectChange(selectRows, true)
-      this.$emit('checkbox-select-change', selectRows)
-    },
-    onRadioSelectChange(data) {
-      let selectRow
-      if (this.$refs.table) {
-        selectRow = this.$refs.table.getRadioRecord()
-        this.onSelectChange(selectRow, false)
-      }
-      this.$emit('radio-select-change', selectRow)
-    },
-    setTableSelectRow() {
-      if (this.$refs.table) {
-        this.$nextTick(() => {
-          this.$refs.table.clearRadioRow()
-          this.$refs.table.clearCheckboxRow()
-          if (this.value == null) return
-          if (Array.isArray(this.value)) {
-            // 多选
-            this.$refs.table.setCheckboxRow(this.value)
-          } else {
-            // 单选
-            this.$refs.table.setRadioRow(this.valye)
-          }
-        })
-      }
-    },
-    refresh() {
-      this.$emit('refresh')
-    },
-    getTableImpl() {
-      return this.$refs.table
-    },
-    onRowHeightToogle() {
-      if (this.rowHeightStatus === 'default') {
-        this.rowHeightStatus = 'mini'
-      } else {
-        this.rowHeightStatus = 'default'
-      }
-    },
-    onTreeExpandChange({ expanded, row }) {
-      if (this.treeRowKey != null) {
-        let id = row[this.treeRowKey]
-        if (id == null) return
-        if (expanded) {
-          if (this.expandRows.indexOf(id) === -1) this.expandRows.push(id)
-        } else {
-          this.expandRows = this.expandRows.filter((item) => item !== id)
-        }
-      }
-    },
-    cardRowStyle({ row, rowIndex }) {
-      return {
-        borderBottom: '1px solid #f0f0f0',
-        transition: 'all 0.3s ease'
-      }
-    }
-  },
-  computed: {
-    rowHeightClass() {
-      return 'row-height-' + this.rowHeightStatus + (this.hasImageColumn ? ' row-height-image' : '')
-    },
-    treeRowKey() {
-      return this.$attrs['tree-config'] ? this.$attrs['tree-config'].rowField : undefined
-    }
-  },
-  watch: {
-    value: {
-      handler() {
-        this.setTableSelectRow()
-      },
-      immediate: true
-    },
-    '$attrs.data': {
-      handler(newValue, oldValue) {
-        if (newValue === oldValue) return
-        if (this.treeRowKey != null) {
-          let nodeList = []
-          traverseTree(this.$attrs.data, (node) => nodeList.push(node), 'children')
-          let defaultExpandRows = nodeList.filter((row) => {
-            return this.expandRows.indexOf(row[this.treeRowKey]) !== -1
-          })
-          this.expandRows = defaultExpandRows.map((item) => item[this.treeRowKey])
-          if (this.$refs.table) {
-            this.$nextTick(() => {
-              this.$refs.table.setTreeExpand(defaultExpandRows, true)
-            })
-          }
-        }
-      },
-      immediate: true
+  }
+}
+function refresh() {
+  emit('refresh')
+}
+function getTableImpl() {
+  return tableRef.value
+}
+function onRowHeightToogle() {
+  if (componentData.rowHeightStatus === 'default') {
+    componentData.rowHeightStatus = 'mini'
+  } else {
+    componentData.rowHeightStatus = 'default'
+  }
+}
+function onTreeExpandChange({ expanded, row }) {
+  if (treeRowKey.value != null) {
+    let id = row[treeRowKey.value]
+    if (id == null) return
+    if (expanded) {
+      if (componentData.expandRows.indexOf(id) === -1) componentData.expandRows.push(id)
+    } else {
+      componentData.expandRows = componentData.expandRows.filter((item) => item !== id)
     }
   }
 }
+function cardRowStyle({ row, rowIndex }) {
+  return {
+    borderBottom: '1px solid #f0f0f0',
+    transition: 'all 0.3s ease'
+  }
+}
+const rowHeightClass = computed(() => {
+  return 'row-height-' + componentData.rowHeightStatus + (componentProps.hasImageColumn ? ' row-height-image' : '')
+})
+const treeRowKey = computed(() => {
+  return attrs['tree-config'] ? attrs['tree-config'].rowField : undefined
+})
+watch(
+  () => componentProps.value,
+  function () {
+    setTableSelectRow()
+  },
+  {
+    immediate: true
+  }
+)
+watch(
+  () => attrs.data,
+  function (newValue, oldValue) {
+    if (newValue === oldValue) return
+    if (treeRowKey.value != null) {
+      let nodeList = []
+      traverseTree(attrs.data, (node) => nodeList.push(node), 'children')
+      let defaultExpandRows = nodeList.filter((row) => {
+        return componentData.expandRows.indexOf(row[treeRowKey.value]) !== -1
+      })
+      componentData.expandRows = defaultExpandRows.map((item) => item[treeRowKey.value])
+      if (tableRef.value) {
+        nextTick(() => {
+          tableRef.value.setTreeExpand(defaultExpandRows, true)
+        })
+      }
+    }
+  },
+  {
+    immediate: true
+  }
+)
+onMounted(() => {
+  nextTick(() => {
+    const $table = tableRef.value
+    const $toolbar = toolbarRefRef.value
+    if ($table && $toolbar) {
+      $table.connect($toolbar)
+    }
+  })
+})
+defineExpose({
+  currentChangeEvent,
+  clearCheckboxRow,
+  onSelectChange,
+  onCheckBoxChange,
+  onCheckAllChange,
+  onRadioSelectChange,
+  setTableSelectRow,
+  refresh,
+  getTableImpl,
+  onRowHeightToogle,
+  onTreeExpandChange,
+  cardRowStyle,
+  ...toRefs(componentData),
+  rowHeightClass,
+  treeRowKey
+})
 </script>
 
 <style lang="less" scoped>

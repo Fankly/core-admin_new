@@ -103,20 +103,18 @@
     </template>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: '/lkyptzl/components/meun'
-}
-</script>
+
 <script setup lang="ts">
 import { ArrowRight as EpArrowRight } from '@element-plus/icons-vue'
-
-import { ref, defineExpose, defineEmits, defineProps, nextTick } from 'vue'
+import { ref, nextTick } from 'vue'
 import { useStore } from '@/store/business'
 import { useRouter } from 'vue-router'
 import baseService from '@/service/baseService'
 import { xmIndicatorDataPage } from '@/api/lkyptzl/index'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/lkyptzl/components/meun'
+})
 
 const props = defineProps({
   userInfo: null,
@@ -239,7 +237,6 @@ const meunList = ref<any[]>([
     loading: true
   }
 ])
-
 const handleRequired = async (operation: any) => {
   if (props.userInfo) {
     let res = await baseService.get(`/sysMenu/getButtonList?menuCode=${operation.outsideMenu}&spRoleId=${props.userInfo.id}`)
@@ -251,14 +248,15 @@ const handleRequired = async (operation: any) => {
   }
   router.push({
     name: operation.url,
-    params: { formJsc: '1' }
+    params: {
+      formJsc: '1'
+    }
   })
   meunList.value.forEach((item: any) => {
     item.showPopover = false
     item.showPopover1 = false
   })
 }
-
 const cardApi = (params: any) => {
   meunList.value.forEach(async (root: any) => {
     const apiParams = {
@@ -266,7 +264,9 @@ const cardApi = (params: any) => {
       appNo: root.code
     }
     root.loading = true
-    let res: any = await xmIndicatorDataPage({ ...apiParams })
+    let res: any = await xmIndicatorDataPage({
+      ...apiParams
+    })
     if (res.success && res.data) {
       root.loading = false
       root.ljCode = res.data.ljXmsl
@@ -289,7 +289,6 @@ const cardApi = (params: any) => {
     }
   })
 }
-
 const clickHistroy = (item: any, index: any, val: any) => {
   item.indicatorCode = val
   emits('yssxInfo', item)
@@ -298,7 +297,6 @@ const clickAppNo = (val: any, index: any) => {
   clickTab.value = index
   emits('changeAppNo', val.code)
 }
-
 defineExpose({
   meunList,
   cardApi

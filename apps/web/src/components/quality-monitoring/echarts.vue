@@ -17,175 +17,182 @@
   </div>
 </template>
 
-<script lang="ts">
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart } from "echarts/charts";
-import { GridComponent, PolarComponent, GeoComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent, DatasetComponent, ToolboxComponent, DataZoomComponent } from "echarts/components";
-import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, defineComponent } from "vue";
+<script setup lang="ts">
+import './echarts.module'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart } from 'echarts/charts'
+import {
+  GridComponent,
+  PolarComponent,
+  GeoComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent,
+  VisualMapComponent,
+  DatasetComponent,
+  ToolboxComponent,
+  DataZoomComponent
+} from 'echarts/components'
+import VChart, { THEME_KEY } from 'vue-echarts'
+import { ref, provide } from 'vue'
+const activeName = ref('first')
 
-use([BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart, GridComponent, PolarComponent, GeoComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent, DatasetComponent, CanvasRenderer, ToolboxComponent, DataZoomComponent]);
-export default defineComponent({
-  components: {
-    VChart
+const props = defineProps({
+  dataOne: Array,
+  dataTwo: Array
+})
+const barOne = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      crossStyle: {
+        color: '#999'
+      }
+    }
   },
-  provide: {
-    [THEME_KEY]: "westeros"
+  legend: {
+    data: ['项目金额', '项目数量']
   },
-  props: {
-    dataOne: Array,
-    dataTwo: Array
-  },
-  setup(props) {
-    const barOne = ref({
+  xAxis: [
+    {
+      type: 'category',
+      data: props.dataOne,
+      axisPointer: {
+        type: 'shadow'
+      }
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value',
+      name: '万元',
+      min: 0,
+      max: 150,
+      interval: 30,
+      axisLabel: {
+        formatter: '{value}.00'
+      }
+    },
+    {
+      type: 'value',
+      min: 30,
+      max: 70,
+      interval: 10,
+      axisLabel: {
+        formatter: '{value}.00%'
+      }
+    }
+  ],
+  series: [
+    {
+      name: '项目金额',
+      type: 'bar',
       tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "cross",
-          crossStyle: {
-            color: "#999"
-          }
+        valueFormatter: function (value) {
+          return value
         }
       },
-      legend: {
-        data: ["项目金额", "项目数量"]
-      },
-      xAxis: [
-        {
-          type: "category",
-          data: props.dataOne,
-          axisPointer: {
-            type: "shadow"
-          }
-        }
-      ],
-      yAxis: [
-        {
-          type: "value",
-          name: "万元",
-          min: 0,
-          max: 150,
-          interval: 30,
-          axisLabel: {
-            formatter: "{value}.00"
-          }
-        },
-        {
-          type: "value",
-          min: 30,
-          max: 70,
-          interval: 10,
-          axisLabel: {
-            formatter: "{value}.00%"
-          }
-        }
-      ],
-      series: [
-        {
-          name: "项目金额",
-          type: "bar",
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [70, 56, 86, 72, 65, 99, 92, 64]
-        },
-        {
-          name: "项目数量",
-          type: "line",
-          yAxisIndex: 1,
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [56, 45, 57, 48, 65, 46, 53, 45]
-        }
-      ]
-    });
-    const barTwo = ref({
+      data: [70, 56, 86, 72, 65, 99, 92, 64]
+    },
+    {
+      name: '项目数量',
+      type: 'line',
+      yAxisIndex: 1,
       tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "cross",
-          crossStyle: {
-            color: "#999"
-          }
+        valueFormatter: function (value) {
+          return value
         }
       },
-      legend: {
-        data: ["项目金额", "项目数量"]
+      data: [56, 45, 57, 48, 65, 46, 53, 45]
+    }
+  ]
+})
+const barTwo = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      crossStyle: {
+        color: '#999'
+      }
+    }
+  },
+  legend: {
+    data: ['项目金额', '项目数量']
+  },
+  xAxis: [
+    {
+      type: 'category',
+      data: props.dataTwo,
+      axisPointer: {
+        type: 'shadow'
+      }
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value',
+      name: '万元',
+      min: 0,
+      max: 150,
+      interval: 30,
+      axisLabel: {
+        formatter: '{value}.00'
+      }
+    },
+    {
+      type: 'value',
+      min: 30,
+      max: 70,
+      interval: 10,
+      axisLabel: {
+        formatter: '{value}.00%'
+      }
+    }
+  ],
+  series: [
+    {
+      name: '项目金额',
+      type: 'bar',
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
+        }
       },
-      xAxis: [
-        {
-          type: "category",
-          data: props.dataTwo,
-          axisPointer: {
-            type: "shadow"
-          }
+      data: [70, 56, 86, 72, 65, 99, 92, 64]
+    },
+    {
+      name: '项目数量',
+      type: 'line',
+      yAxisIndex: 1,
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
         }
-      ],
-      yAxis: [
-        {
-          type: "value",
-          name: "万元",
-          min: 0,
-          max: 150,
-          interval: 30,
-          axisLabel: {
-            formatter: "{value}.00"
-          }
-        },
-        {
-          type: "value",
-          min: 30,
-          max: 70,
-          interval: 10,
-          axisLabel: {
-            formatter: "{value}.00%"
-          }
-        }
-      ],
-      series: [
-        {
-          name: "项目金额",
-          type: "bar",
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [70, 56, 86, 72, 65, 99, 92, 64]
-        },
-        {
-          name: "项目数量",
-          type: "line",
-          yAxisIndex: 1,
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [56, 45, 57, 48, 65, 46, 53, 45]
-        }
-      ]
-    });
-    return {
-      dataList: {},
-      barOne,
-      barTwo,
-      barLoadingOptions: {
-        text: "Loading…",
-        color: "#4ea397",
-        maskColor: "rgba(255, 255, 255, 0.4)"
       },
-      theme: "",
-      autoResize: true
-    };
-  }
-});
+      data: [56, 45, 57, 48, 65, 46, 53, 45]
+    }
+  ]
+})
+const dataList = ref({})
+const barLoadingOptions = ref({
+  text: 'Loading…',
+  color: '#4ea397',
+  maskColor: 'rgba(255, 255, 255, 0.4)'
+})
+const theme = ref('')
+const autoResize = ref(true)
+provide(THEME_KEY, 'westeros')
+defineExpose({
+  dataList,
+  barOne,
+  barTwo,
+  barLoadingOptions,
+  theme,
+  autoResize
+})
 </script>
 
 <style lang="less" scoped>

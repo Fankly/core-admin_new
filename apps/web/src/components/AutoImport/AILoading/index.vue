@@ -46,25 +46,28 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'AILoading',
-  props: {
-    title: {
-      type: String,
-      default: 'AI 模型推理中'
-    },
-    subtitle: {
-      type: String,
-      default: '请稍后查看'
-    }
+<script setup>
+import { reactive, toRef, toRefs } from 'vue'
+defineOptions({
+  name: 'AILoading'
+})
+const componentProps = defineProps({
+  title: {
+    type: String,
+    default: 'AI 模型推理中'
   },
-  data() {
-    return {
-      gradientId: 'grad-' + Math.random().toString(36).substr(2, 9)
-    }
+  subtitle: {
+    type: String,
+    default: '请稍后查看'
   }
-}
+})
+const componentData = reactive({
+  gradientId: 'grad-' + Math.random().toString(36).substr(2, 9)
+})
+const gradientId = toRef(componentData, 'gradientId')
+defineExpose({
+  ...toRefs(componentData)
+})
 </script>
 
 <style scoped lang="less">

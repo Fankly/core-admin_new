@@ -73,173 +73,209 @@
   <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
 </template>
 
-<script>
+<script setup>
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, RefreshRight as EpRefreshRight, Search as EpSearch } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
-
-export default defineComponent({
-  name: '/statistics/dataStatistics',
-  components: { userDialog },
-  setup() {
-    const store = useStore()
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      ydList: [
-        {
-          value: '1',
-          label: '1月'
-        },
-        {
-          value: '2',
-          label: '2月'
-        },
-        {
-          value: '3',
-          label: '3月'
-        },
-        {
-          value: '4',
-          label: '4月'
-        },
-        {
-          value: '5',
-          label: '5月'
-        },
-        {
-          value: '6',
-          label: '6月'
-        },
-        {
-          value: '7',
-          label: '7月'
-        },
-        {
-          value: '8',
-          label: '8月'
-        },
-        {
-          value: '9',
-          label: '9月'
-        },
-        {
-          value: '10',
-          label: '10月'
-        },
-        {
-          value: '11',
-          label: '11月'
-        },
-        {
-          value: '12',
-          label: '12月'
-        }
-      ],
-      loading: false,
-      searchShow: true,
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      example: [],
-      columnObj: {},
-      segmentIds: [],
-      searchForm: {
-        nd: new Date().getFullYear().toString(),
-        yd: (new Date().getMonth() + 1).toString()
-      },
-      segment: [
-        {
-          value: 'tableName',
-          label: '表名',
-          checked: true
-        },
-        {
-          value: 'tableShortName',
-          label: '表简称',
-          checked: true
-        },
-        {
-          value: 'num',
-          label: '本地表数据量',
-          checked: true
-        },
-        {
-          value: 'hanaNum',
-          label: 'HANA数据量',
-          checked: true
-        }
-      ],
-      dialogVisible: false
-    })
+defineOptions({
+  name: '/statistics/dataStatistics'
+})
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  ydList: [
+    {
+      value: '1',
+      label: '1月'
+    },
+    {
+      value: '2',
+      label: '2月'
+    },
+    {
+      value: '3',
+      label: '3月'
+    },
+    {
+      value: '4',
+      label: '4月'
+    },
+    {
+      value: '5',
+      label: '5月'
+    },
+    {
+      value: '6',
+      label: '6月'
+    },
+    {
+      value: '7',
+      label: '7月'
+    },
+    {
+      value: '8',
+      label: '8月'
+    },
+    {
+      value: '9',
+      label: '9月'
+    },
+    {
+      value: '10',
+      label: '10月'
+    },
+    {
+      value: '11',
+      label: '11月'
+    },
+    {
+      value: '12',
+      label: '12月'
+    }
+  ],
+  loading: false,
+  searchShow: true,
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  example: [],
+  columnObj: {},
+  segmentIds: [],
+  searchForm: {
+    nd: new Date().getFullYear().toString(),
+    yd: (new Date().getMonth() + 1).toString()
   },
-  created() {
-    this.handleColumn()
-  },
-  mounted() {
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-  },
-
-  methods: {
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
+  segment: [
+    {
+      value: 'tableName',
+      label: '表名',
+      checked: true
     },
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.segmentIds.push(item.value)
-        this.columnObj[item.value] = item.checked
-      })
+    {
+      value: 'tableShortName',
+      label: '表简称',
+      checked: true
     },
-    //项目环节
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked
-        }
-      }
+    {
+      value: 'num',
+      label: '本地表数据量',
+      checked: true
     },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-    },
-    loadData() {
-      this.example = []
-      this.loading = true
-      baseService.get(`dataCount/?nd=${this.searchForm.nd}&yd=${this.searchForm.yd}`).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.example = res.data
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-
-    reset() {
-      this.searchForm.nd = new Date().getFullYear().toString()
-      this.searchForm.yd = (new Date().getMonth() + 1).toString()
-      this.loadData()
+    {
+      value: 'hanaNum',
+      label: 'HANA数据量',
+      checked: true
+    }
+  ],
+  dialogVisible: false
+})
+const ydList = toRef(setupState, 'ydList')
+const loading = toRef(setupState, 'loading')
+const searchShow = toRef(setupState, 'searchShow')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const example = toRef(setupState, 'example')
+const columnObj = toRef(setupState, 'columnObj')
+const segmentIds = toRef(setupState, 'segmentIds')
+const searchForm = toRef(setupState, 'searchForm')
+const segment = toRef(setupState, 'segment')
+const dialogVisible = toRef(setupState, 'dialogVisible')
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.segmentIds.push(item.value)
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+//项目环节
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
     }
   }
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+}
+function loadData() {
+  setupState.example = []
+  setupState.loading = true
+  baseService.get(`dataCount/?nd=${setupState.searchForm.nd}&yd=${setupState.searchForm.yd}`).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.example = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function reset() {
+  setupState.searchForm.nd = new Date().getFullYear().toString()
+  setupState.searchForm.yd = (new Date().getMonth() + 1).toString()
+  loadData()
+}
+onMounted(() => {
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+})
+;(() => {
+  handleColumn()
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  ydList,
+  loading,
+  searchShow,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  userCode,
+  userId,
+  specialorgid,
+  example,
+  columnObj,
+  segmentIds,
+  searchForm,
+  segment,
+  dialogVisible,
+  showSearch,
+  handleColumn,
+  listShow,
+  loadCompany,
+  loadData,
+  reset
 })
 </script>
 

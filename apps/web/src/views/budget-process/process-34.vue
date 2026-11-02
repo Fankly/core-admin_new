@@ -658,484 +658,551 @@
   <!-- <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog> -->
 </template>
 
-<script>
-import { defineComponent, reactive } from 'vue'
+<script setup>
+import { reactive, toRef, onMounted } from 'vue'
 import baseService from '@/service/baseService'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
 import Centralized from '@/components/select/Centralized.vue'
 import { showHelpMsg } from '@/utils/message'
-
-export default defineComponent({
-  name: '/budget-process/process-34',
-  components: {
-    userDialog,
-    Centralized
+defineOptions({
+  name: '/budget-process/process-34'
+})
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  store,
+  helpHandle,
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  heightNum: '',
+  btnHeight: '',
+  searchHeight: '',
+  tabsHeight: '',
+  tableHeight: '',
+  tabsType: '1',
+  tableData: [],
+  multipleSelection: [],
+  //分页
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
-    }
-    return reactive({
-      store,
-      helpHandle,
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      heightNum: '',
-      btnHeight: '',
-      searchHeight: '',
-      tabsHeight: '',
-      tableHeight: '',
-      tabsType: '1',
-
-      tableData: [],
-      multipleSelection: [],
-      //分页
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-
-      addDia: false,
-      addNewMultipleSelection: [],
-      bodyHeight: '',
-      title: '',
-      //创建分页
-      addnewPage: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-
-      cblrDia: false,
-      buttonState: '基本信息',
-      formValue: {},
-      essentialInformation: [],
-      professionalManagement: [],
-
-      ruleForm: {
-        title: ''
-      },
-      rules: {
-        name: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-        ]
-      },
-      upShow: false
-    })
+  addDia: false,
+  addNewMultipleSelection: [],
+  bodyHeight: '',
+  title: '',
+  //创建分页
+  addnewPage: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-
-  mounted() {
-    // this.loading = false;
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.btnHeight = document.querySelector('.operation').clientHeight
-    this.searchHeight = document.querySelector('.searchBox').clientHeight
-    this.tabsHeight = document.querySelector('.tabBox').clientHeight
-    this.setTableHeight()
+  cblrDia: false,
+  buttonState: '基本信息',
+  formValue: {},
+  essentialInformation: [],
+  professionalManagement: [],
+  ruleForm: {
+    title: ''
   },
-
-  methods: {
-    loadData() {
-      const params = {}
-      baseService.post('/cblrjsh/getTabColumns', params).then((res) => {
-        console.log(res)
-      })
-    },
-    //搜索按钮
-    search() {
-      this.loadData()
-    },
-
-    //表格tabs切换
-    tabsChange(val) {
-      this.tabsType = val
-    },
-    //设置表格高度
-    setTableHeight() {
-      this.tableHeight = this.heightNum - this.btnHeight - this.searchHeight - 90 + 'px'
-    },
-
-    //表格复选框
-    handleSelectionChange(val) {
-      this.multipleSelection = val
-    },
-
-    //分页
-    handleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-    },
-    //分页
-    handleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-    },
-
-    showBtn(val) {
-      if (val.props.label == '附件信息') {
-        this.upShow = true
-      } else {
-        this.upShow = false
+  rules: {
+    name: [
+      {
+        required: true,
+        message: '请输入活动名称',
+        trigger: 'blur'
+      },
+      {
+        min: 3,
+        max: 5,
+        message: '长度在 3 到 5 个字符',
+        trigger: 'blur'
       }
-    },
-    //创建
-    addNew() {
-      this.addDia = true
-      this.title = '预算立项辞条选择'
-    },
-
-    //创建后获取dialog的body高度
-    openHeight() {
-      let height = document.querySelector('.attribute').clientHeight
-      let title = document.querySelector('.el-dialog__header').clientHeight
-      this.bodyHeight = height - title - 160 + 'px'
-    },
-    //创建dialog关闭后清除数据
-    closeList() {
-      this.addNewMultipleSelection = []
-    },
-    //创建dialog表格复选框
-    addNewHandleSelectionChange(val) {
-      this.addNewMultipleSelection = val
-    },
-    //分页
-    addnewHandleSizeChange(val) {
-      console.log(`每页 ${val} 条`)
-      width = '100'
-    },
-    //分页
-    addnewHandleCurrentChange(val) {
-      console.log(`当前页: ${val}`)
-    },
-    //创建选择辞条确认
-    ctqr() {
-      if (this.addNewMultipleSelection.length == 0) {
-        ElMessage({
-          type: 'info',
-          message: '请选择一条数据'
-        })
-      } else if (this.addNewMultipleSelection.length > 1) {
-        ElMessage({
-          type: 'info',
-          message: '请选择一条数据'
-        })
-      } else {
-        this.cblrDia = true
-        let length = 0
-        const params = { opType: 'add', projectType: '0', entryId: '97823', ctlx: '1', xmlxId: '43424558' }
-        baseService.post('/cblrjsh/getTabColumns', params).then((res) => {
-          res.data.data.item.forEach((item) => {
-            if (item.inputType == '8') {
-              item.span = 24
-            } else if (item.inputType == '3') {
-              if (item.name == '一级单位') {
-                baseService.get(`/commonQmys/getDwComCode?code=YJDW&orgId=20000442308`).then((row) => {
-                  if (res.success) {
-                    row.data.forEach((val) => {
-                      val.value = val.yjdwCode
-                      val.label = val.yjdwName
-                    })
-                    item.options = row.data
-                  } else {
-                    ElMessage({
-                      type: 'info',
-                      message: `获取${item.name}失败`
-                    })
-                  }
-                })
-              } else if (item.name == '资产性质') {
-                baseService.get(`/commonQmys/getDictData?comCode=ZCXZ`).then((row) => {
-                  if (res.success) {
-                    row.data.forEach((val) => {
-                      val.value = val.code
-                      val.label = val.name
-                    })
-                    item.options = row.data
-                  } else {
-                    ElMessage({
-                      type: 'info',
-                      message: `获取${item.name}失败`
-                    })
-                  }
-                })
-              } else if (item.name == '实施部门') {
-                baseService.get(`/commonQmys/getDictData?comCode=GKBM`).then((row) => {
-                  if (res.success) {
-                    row.data.forEach((val) => {
-                      val.value = val.code
-                      val.label = val.name
-                    })
-                    item.options = row.data
-                  } else {
-                    ElMessage({
-                      type: 'info',
-                      message: `获取${item.name}失败`
-                    })
-                  }
-                })
-              } else if (item.name == '电压等级') {
-                baseService.get(`/commonQmys/getDydj?sjfl=${res.data.info.sjfl}`).then((row) => {
-                  if (res.success) {
-                    row.data.forEach((val) => {
-                      val.value = val.code
-                      val.label = val.name
-                    })
-                    item.options = row.data
-                  } else {
-                    ElMessage({
-                      type: 'info',
-                      message: `获取${item.name}失败`
-                    })
-                  }
-                })
-              } else if (item.name == '线路类型') {
-                baseService.get(`/commonQmys/judgeSthBySJFL?sjfl=${res.data.info.sjfl}`).then((row) => {
-                  if (row.success) {
-                    if (row.data.xllxIsRequired) {
-                      console.log('展示')
-                    } else {
-                      for (let i = 0; i < this.essentialInformation.length; i++) {
-                        if (this.essentialInformation[i].name == item.name) {
-                          this.essentialInformation.splice(i, 1)
-                        }
-                      }
-                    }
-                  } else {
-                    ElMessage({
-                      type: 'info',
-                      message: `获取${item.name}失败`
-                    })
-                  }
-                })
-              } else if (item.name == '省管部门') {
-                baseService.get(`/commonQmys/getSGBM?code=`).then((row) => {
-                  if (res.success) {
-                    row.data.forEach((val) => {
-                      val.value = val.code
-                      val.label = val.name
-                    })
-                    item.options = row.data
-                  } else {
-                    ElMessage({
-                      type: 'info',
-                      message: `获取${item.name}失败`
-                    })
-                  }
-                })
-              } else if (item.name == '是否调度端项目') {
-                let array = [
-                  {
-                    value: '0',
-                    label: '否'
-                  },
-                  {
-                    value: '1',
-                    label: '是'
-                  }
-                ]
-                item.options = array
-              } else if (item.name == '是否研发投入') {
-                let array = [
-                  {
-                    value: '0',
-                    label: '否'
-                  },
-                  {
-                    value: '1',
-                    label: '是'
-                  }
-                ]
-                item.options = array
-              }
-
-              item.span = 12
-            } else {
-              item.span = 12
-            }
-          })
-          this.formValue = res.data.info
-          for (let i = 0; i < res.data.data.item.length; i++) {
-            if (res.data.data.item[i].name == '实施内容') {
-              length = i + 1
-            }
-          }
-          for (let i = 0; i < length; i++) {
-            this.essentialInformation.push(res.data.data.item[i])
-          }
-          for (let i = length; i < res.data.data.item.length; i++) {
-            this.professionalManagement.push(res.data.data.item[i])
-          }
-        })
-      }
-    },
-    //基本信息联动获取数据
-    linkage(name, code) {
-      if (name == '一级单位') {
-        //二级单位
-        baseService.get(`/commonQmys/getDwComCode?code=EJDW&orgId=20000442308`).then((res) => {
-          if (res.success) {
-            res.data.forEach((item) => {
-              item.value = item.ejdwCode
-              item.label = item.ejdwName
-            })
-            this.essentialInformation.forEach((item) => {
-              if (item.name == '二级单位') {
-                item.options = res.data
-              }
-            })
-            this.professionalManagement.forEach((item) => {
-              if (item.name == '二级单位') {
-                item.options = res.data
-              }
-            })
-          } else {
-            ElMessage({
-              type: 'info',
-              message: `获取二级单位失败`
-            })
-          }
-        })
-
-        //市管部门
-        baseService.get(`/commonQmys/getCbzxDepts?spOrgId=${code}`).then((res) => {
-          if (res.success) {
-            res.data.forEach((item) => {
-              item.value = item.code
-              item.label = item.name
-            })
-            this.essentialInformation.forEach((item) => {
-              if (item.name == '市管部门') {
-                item.options = res.data
-              }
-            })
-            this.professionalManagement.forEach((item) => {
-              if (item.name == '市管部门') {
-                item.options = res.data
-              }
-            })
-          } else {
-            ElMessage({
-              type: 'info',
-              message: `获取市管部门失败`
-            })
-          }
-        })
-      } else if (name == '二级单位') {
-        //利润中心
-        baseService.get(`/commonQmys/getProfitCenter?spOrgId=${code}`).then((res) => {
-          if (res.success) {
-            res.data.forEach((item) => {
-              item.value = item.code
-              item.label = item.name
-            })
-            this.essentialInformation.forEach((item) => {
-              if (item.name == '利润中心') {
-                item.options = res.data
-              }
-            })
-            this.professionalManagement.forEach((item) => {
-              if (item.name == '利润中心') {
-                item.options = res.data
-              }
-            })
-          } else {
-            ElMessage({
-              type: 'info',
-              message: `获取利润中心失败`
-            })
-          }
-        })
-      } else if (name == '利润中心') {
-        //成本中心
-        baseService.get(`/commonQmys/getApplyCenterByProfitCenter?code=${code}`).then((res) => {
-          if (res.success) {
-            res.data.forEach((item) => {
-              item.value = item.code
-              item.label = item.name
-            })
-            this.essentialInformation.forEach((item) => {
-              if (item.name == '成本中心') {
-                item.options = res.data
-              }
-            })
-            this.professionalManagement.forEach((item) => {
-              if (item.name == '成本中心') {
-                item.options = res.data
-              }
-            })
-          } else {
-            ElMessage({
-              type: 'info',
-              message: `获取成本中心失败`
-            })
-          }
-        })
-      } else if (name == '成本中心') {
-        //归口部门
-        baseService.get(`/commonQmys/getGKBMByApplyCenter?applyCenterValue=${code}`).then((res) => {
-          if (res.success) {
-            res.data.forEach((item) => {
-              item.value = item.code
-              item.label = item.name
-            })
-            this.essentialInformation.forEach((item) => {
-              if (item.name == '归口部门') {
-                item.options = res.data
-              }
-            })
-            this.professionalManagement.forEach((item) => {
-              if (item.name == '归口部门') {
-                item.options = res.data
-              }
-            })
-          } else {
-            ElMessage({
-              type: 'info',
-              message: `获取归口部门失败`
-            })
-          }
-        })
-      } else if (name == '省管部门') {
-        //省管处室
-        baseService.get(`/commonQmys/getSGBM?code=${code}`).then((res) => {
-          if (res.success) {
-            res.data.forEach((item) => {
-              item.value = item.code
-              item.label = item.name
-            })
-            this.essentialInformation.forEach((item) => {
-              if (item.name == '省管处室') {
-                item.options = res.data
-              }
-            })
-            this.professionalManagement.forEach((item) => {
-              if (item.name == '省管处室') {
-                item.options = res.data
-              }
-            })
-            console.log(this.essentialInformation)
-            console.log(this.professionalManagement)
-          } else {
-            ElMessage({
-              type: 'info',
-              message: `获取省管处室失败`
-            })
-          }
-        })
-      }
-    },
-    //流程按钮切换
-    changebtn(val) {
-      this.buttonState = val
-    }
+    ]
+  },
+  upShow: false
+})
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const heightNum = toRef(setupState, 'heightNum')
+const btnHeight = toRef(setupState, 'btnHeight')
+const searchHeight = toRef(setupState, 'searchHeight')
+const tabsHeight = toRef(setupState, 'tabsHeight')
+const tableHeight = toRef(setupState, 'tableHeight')
+const tabsType = toRef(setupState, 'tabsType')
+const tableData = toRef(setupState, 'tableData')
+const multipleSelection = toRef(setupState, 'multipleSelection')
+const page = toRef(setupState, 'page')
+const addDia = toRef(setupState, 'addDia')
+const addNewMultipleSelection = toRef(setupState, 'addNewMultipleSelection')
+const bodyHeight = toRef(setupState, 'bodyHeight')
+const title = toRef(setupState, 'title')
+const addnewPage = toRef(setupState, 'addnewPage')
+const cblrDia = toRef(setupState, 'cblrDia')
+const buttonState = toRef(setupState, 'buttonState')
+const formValue = toRef(setupState, 'formValue')
+const essentialInformation = toRef(setupState, 'essentialInformation')
+const professionalManagement = toRef(setupState, 'professionalManagement')
+const ruleForm = toRef(setupState, 'ruleForm')
+const rules = toRef(setupState, 'rules')
+const upShow = toRef(setupState, 'upShow')
+function loadData() {
+  const params = {}
+  baseService.post('/cblrjsh/getTabColumns', params).then((res) => {
+    console.log(res)
+  })
+}
+//搜索按钮
+function search() {
+  loadData()
+}
+//表格tabs切换
+function tabsChange(val) {
+  setupState.tabsType = val
+}
+//设置表格高度
+function setTableHeight() {
+  setupState.tableHeight = setupState.heightNum - setupState.btnHeight - setupState.searchHeight - 90 + 'px'
+}
+//表格复选框
+function handleSelectionChange(val) {
+  setupState.multipleSelection = val
+}
+//分页
+function handleSizeChange(val) {
+  console.log(`每页 ${val} 条`)
+}
+//分页
+function handleCurrentChange(val) {
+  console.log(`当前页: ${val}`)
+}
+function showBtn(val) {
+  if (val.props.label == '附件信息') {
+    setupState.upShow = true
+  } else {
+    setupState.upShow = false
   }
+}
+//创建
+function addNew() {
+  setupState.addDia = true
+  setupState.title = '预算立项辞条选择'
+}
+//创建后获取dialog的body高度
+function openHeight() {
+  let height = document.querySelector('.attribute').clientHeight
+  let title = document.querySelector('.el-dialog__header').clientHeight
+  setupState.bodyHeight = height - title - 160 + 'px'
+}
+//创建dialog关闭后清除数据
+function closeList() {
+  setupState.addNewMultipleSelection = []
+}
+//创建dialog表格复选框
+function addNewHandleSelectionChange(val) {
+  setupState.addNewMultipleSelection = val
+}
+//分页
+function addnewHandleSizeChange(val) {
+  console.log(`每页 ${val} 条`)
+  width = '100'
+}
+//分页
+function addnewHandleCurrentChange(val) {
+  console.log(`当前页: ${val}`)
+}
+//创建选择辞条确认
+function ctqr() {
+  if (setupState.addNewMultipleSelection.length == 0) {
+    ElMessage({
+      type: 'info',
+      message: '请选择一条数据'
+    })
+  } else if (setupState.addNewMultipleSelection.length > 1) {
+    ElMessage({
+      type: 'info',
+      message: '请选择一条数据'
+    })
+  } else {
+    setupState.cblrDia = true
+    let length = 0
+    const params = {
+      opType: 'add',
+      projectType: '0',
+      entryId: '97823',
+      ctlx: '1',
+      xmlxId: '43424558'
+    }
+    baseService.post('/cblrjsh/getTabColumns', params).then((res) => {
+      res.data.data.item.forEach((item) => {
+        if (item.inputType == '8') {
+          item.span = 24
+        } else if (item.inputType == '3') {
+          if (item.name == '一级单位') {
+            baseService.get(`/commonQmys/getDwComCode?code=YJDW&orgId=20000442308`).then((row) => {
+              if (res.success) {
+                row.data.forEach((val) => {
+                  val.value = val.yjdwCode
+                  val.label = val.yjdwName
+                })
+                item.options = row.data
+              } else {
+                ElMessage({
+                  type: 'info',
+                  message: `获取${item.name}失败`
+                })
+              }
+            })
+          } else if (item.name == '资产性质') {
+            baseService.get(`/commonQmys/getDictData?comCode=ZCXZ`).then((row) => {
+              if (res.success) {
+                row.data.forEach((val) => {
+                  val.value = val.code
+                  val.label = val.name
+                })
+                item.options = row.data
+              } else {
+                ElMessage({
+                  type: 'info',
+                  message: `获取${item.name}失败`
+                })
+              }
+            })
+          } else if (item.name == '实施部门') {
+            baseService.get(`/commonQmys/getDictData?comCode=GKBM`).then((row) => {
+              if (res.success) {
+                row.data.forEach((val) => {
+                  val.value = val.code
+                  val.label = val.name
+                })
+                item.options = row.data
+              } else {
+                ElMessage({
+                  type: 'info',
+                  message: `获取${item.name}失败`
+                })
+              }
+            })
+          } else if (item.name == '电压等级') {
+            baseService.get(`/commonQmys/getDydj?sjfl=${res.data.info.sjfl}`).then((row) => {
+              if (res.success) {
+                row.data.forEach((val) => {
+                  val.value = val.code
+                  val.label = val.name
+                })
+                item.options = row.data
+              } else {
+                ElMessage({
+                  type: 'info',
+                  message: `获取${item.name}失败`
+                })
+              }
+            })
+          } else if (item.name == '线路类型') {
+            baseService.get(`/commonQmys/judgeSthBySJFL?sjfl=${res.data.info.sjfl}`).then((row) => {
+              if (row.success) {
+                if (row.data.xllxIsRequired) {
+                  console.log('展示')
+                } else {
+                  for (let i = 0; i < setupState.essentialInformation.length; i++) {
+                    if (setupState.essentialInformation[i].name == item.name) {
+                      setupState.essentialInformation.splice(i, 1)
+                    }
+                  }
+                }
+              } else {
+                ElMessage({
+                  type: 'info',
+                  message: `获取${item.name}失败`
+                })
+              }
+            })
+          } else if (item.name == '省管部门') {
+            baseService.get(`/commonQmys/getSGBM?code=`).then((row) => {
+              if (res.success) {
+                row.data.forEach((val) => {
+                  val.value = val.code
+                  val.label = val.name
+                })
+                item.options = row.data
+              } else {
+                ElMessage({
+                  type: 'info',
+                  message: `获取${item.name}失败`
+                })
+              }
+            })
+          } else if (item.name == '是否调度端项目') {
+            let array = [
+              {
+                value: '0',
+                label: '否'
+              },
+              {
+                value: '1',
+                label: '是'
+              }
+            ]
+            item.options = array
+          } else if (item.name == '是否研发投入') {
+            let array = [
+              {
+                value: '0',
+                label: '否'
+              },
+              {
+                value: '1',
+                label: '是'
+              }
+            ]
+            item.options = array
+          }
+          item.span = 12
+        } else {
+          item.span = 12
+        }
+      })
+      setupState.formValue = res.data.info
+      for (let i = 0; i < res.data.data.item.length; i++) {
+        if (res.data.data.item[i].name == '实施内容') {
+          length = i + 1
+        }
+      }
+      for (let i = 0; i < length; i++) {
+        setupState.essentialInformation.push(res.data.data.item[i])
+      }
+      for (let i = length; i < res.data.data.item.length; i++) {
+        setupState.professionalManagement.push(res.data.data.item[i])
+      }
+    })
+  }
+}
+//基本信息联动获取数据
+function linkage(name, code) {
+  if (name == '一级单位') {
+    //二级单位
+    baseService.get(`/commonQmys/getDwComCode?code=EJDW&orgId=20000442308`).then((res) => {
+      if (res.success) {
+        res.data.forEach((item) => {
+          item.value = item.ejdwCode
+          item.label = item.ejdwName
+        })
+        setupState.essentialInformation.forEach((item) => {
+          if (item.name == '二级单位') {
+            item.options = res.data
+          }
+        })
+        setupState.professionalManagement.forEach((item) => {
+          if (item.name == '二级单位') {
+            item.options = res.data
+          }
+        })
+      } else {
+        ElMessage({
+          type: 'info',
+          message: `获取二级单位失败`
+        })
+      }
+    })
+
+    //市管部门
+    baseService.get(`/commonQmys/getCbzxDepts?spOrgId=${code}`).then((res) => {
+      if (res.success) {
+        res.data.forEach((item) => {
+          item.value = item.code
+          item.label = item.name
+        })
+        setupState.essentialInformation.forEach((item) => {
+          if (item.name == '市管部门') {
+            item.options = res.data
+          }
+        })
+        setupState.professionalManagement.forEach((item) => {
+          if (item.name == '市管部门') {
+            item.options = res.data
+          }
+        })
+      } else {
+        ElMessage({
+          type: 'info',
+          message: `获取市管部门失败`
+        })
+      }
+    })
+  } else if (name == '二级单位') {
+    //利润中心
+    baseService.get(`/commonQmys/getProfitCenter?spOrgId=${code}`).then((res) => {
+      if (res.success) {
+        res.data.forEach((item) => {
+          item.value = item.code
+          item.label = item.name
+        })
+        setupState.essentialInformation.forEach((item) => {
+          if (item.name == '利润中心') {
+            item.options = res.data
+          }
+        })
+        setupState.professionalManagement.forEach((item) => {
+          if (item.name == '利润中心') {
+            item.options = res.data
+          }
+        })
+      } else {
+        ElMessage({
+          type: 'info',
+          message: `获取利润中心失败`
+        })
+      }
+    })
+  } else if (name == '利润中心') {
+    //成本中心
+    baseService.get(`/commonQmys/getApplyCenterByProfitCenter?code=${code}`).then((res) => {
+      if (res.success) {
+        res.data.forEach((item) => {
+          item.value = item.code
+          item.label = item.name
+        })
+        setupState.essentialInformation.forEach((item) => {
+          if (item.name == '成本中心') {
+            item.options = res.data
+          }
+        })
+        setupState.professionalManagement.forEach((item) => {
+          if (item.name == '成本中心') {
+            item.options = res.data
+          }
+        })
+      } else {
+        ElMessage({
+          type: 'info',
+          message: `获取成本中心失败`
+        })
+      }
+    })
+  } else if (name == '成本中心') {
+    //归口部门
+    baseService.get(`/commonQmys/getGKBMByApplyCenter?applyCenterValue=${code}`).then((res) => {
+      if (res.success) {
+        res.data.forEach((item) => {
+          item.value = item.code
+          item.label = item.name
+        })
+        setupState.essentialInformation.forEach((item) => {
+          if (item.name == '归口部门') {
+            item.options = res.data
+          }
+        })
+        setupState.professionalManagement.forEach((item) => {
+          if (item.name == '归口部门') {
+            item.options = res.data
+          }
+        })
+      } else {
+        ElMessage({
+          type: 'info',
+          message: `获取归口部门失败`
+        })
+      }
+    })
+  } else if (name == '省管部门') {
+    //省管处室
+    baseService.get(`/commonQmys/getSGBM?code=${code}`).then((res) => {
+      if (res.success) {
+        res.data.forEach((item) => {
+          item.value = item.code
+          item.label = item.name
+        })
+        setupState.essentialInformation.forEach((item) => {
+          if (item.name == '省管处室') {
+            item.options = res.data
+          }
+        })
+        setupState.professionalManagement.forEach((item) => {
+          if (item.name == '省管处室') {
+            item.options = res.data
+          }
+        })
+        console.log(setupState.essentialInformation)
+        console.log(setupState.professionalManagement)
+      } else {
+        ElMessage({
+          type: 'info',
+          message: `获取省管处室失败`
+        })
+      }
+    })
+  }
+}
+//流程按钮切换
+function changebtn(val) {
+  setupState.buttonState = val
+}
+onMounted(() => {
+  // this.loading = false;
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.btnHeight = document.querySelector('.operation').clientHeight
+  setupState.searchHeight = document.querySelector('.searchBox').clientHeight
+  setupState.tabsHeight = document.querySelector('.tabBox').clientHeight
+  setTableHeight()
+})
+defineExpose({
+  store,
+  helpHandle,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  heightNum,
+  btnHeight,
+  searchHeight,
+  tabsHeight,
+  tableHeight,
+  tabsType,
+  tableData,
+  multipleSelection,
+  page,
+  addDia,
+  addNewMultipleSelection,
+  bodyHeight,
+  title,
+  addnewPage,
+  cblrDia,
+  buttonState,
+  formValue,
+  essentialInformation,
+  professionalManagement,
+  ruleForm,
+  rules,
+  upShow,
+  loadData,
+  search,
+  tabsChange,
+  setTableHeight,
+  handleSelectionChange,
+  handleSizeChange,
+  handleCurrentChange,
+  showBtn,
+  addNew,
+  openHeight,
+  closeList,
+  addNewHandleSelectionChange,
+  addnewHandleSizeChange,
+  addnewHandleCurrentChange,
+  ctqr,
+  linkage,
+  changebtn
 })
 </script>
 

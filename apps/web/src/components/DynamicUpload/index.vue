@@ -74,367 +74,346 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Upload as EpUpload } from '@element-plus/icons-vue'
-import type { Component } from 'vue'
+<script setup lang="ts">
+import type { FileItem } from './index.module'
 import {
+  Upload as EpUpload,
   Delete as EpDelete,
   Document as EpDocument,
   Download as EpDownload,
   InfoFilled as EpInfoFilled,
   MagicStick as EpMagicStick
 } from '@element-plus/icons-vue'
-
-import { computed, defineComponent, PropType, ref, watch } from 'vue'
+import type { Component } from 'vue'
+import { computed, PropType, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import baseService from '@/service/baseService'
 import { downloadAttach } from '@/api/service/requirement'
 import VXETable from 'vxe-table'
 import { downloadStandardTemplate, loadStandardTemplateMeta, StandardTemplateMeta } from './templateDownload'
-
-interface FileItem {
-  name: string
-  url?: string
-  status: string
-  uid: string
-  uuid?: string
-  raw?: File
-  response?: any
-  sfzdsc?: string | number | null
+defineOptions({
+  name: 'DynamicUpload'
+})
+const props = defineProps({
+  modelValue: {
+    type: Array as PropType<any[]>,
+    default: () => []
+  },
+  fjTypes: {
+    type: Array,
+    default: () => []
+  },
+  title: {
+    type: String,
+    default: '批复文件'
+  },
+  limit: {
+    type: Number,
+    default: 5
+  },
+  accept: {
+    type: String,
+    default: ''
+  },
+  action: {
+    type: String,
+    default: '/api/upload'
+  },
+  tip: {
+    type: String,
+    default: ''
+  },
+  attachType: {
+    type: String,
+    default: ''
+  },
+  listType: {
+    type: String,
+    default: 'text'
+  },
+  multiple: {
+    type: Boolean,
+    default: true
+  },
+  autoUpload: {
+    type: Boolean,
+    default: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  drag: {
+    type: Boolean,
+    default: false
+  },
+  styleType: {
+    type: String,
+    default: 'table'
+  },
+  buttonText: {
+    type: String,
+    default: '点击上传'
+  },
+  icon: {
+    type: [String, Object, Function] as PropType<string | Component>,
+    default: () => EpUpload
+  },
+  tableHeight: {
+    type: [String, Number],
+    default: 'auto'
+  },
+  showPreview: {
+    type: Boolean,
+    default: false
+  },
+  showDownload: {
+    type: Boolean,
+    default: true
+  },
+  showDelete: {
+    type: Boolean,
+    default: true
+  },
+  showStatus: {
+    type: Boolean,
+    default: true
+  },
+  showActions: {
+    type: Boolean,
+    default: true
+  },
+  allData: {
+    type: Array as PropType<any[]>,
+    default: () => []
+  },
+  fjId: {
+    type: String,
+    default: '1'
+  },
+  selectData: {
+    type: Object as any,
+    default: null
+  }
+})
+const emit = defineEmits(['update:modelValue', 'change', 'success', 'error', 'exceed', 'remove'])
+const uploadRef = ref()
+const tableRef = ref()
+const fileList = ref<FileItem[]>([])
+const loading = ref(false)
+const templateMeta = ref<StandardTemplateMeta | null>(null)
+const templateDownloadLoading = ref(false)
+const showStandardTemplateDownload = computed(() => !props.disabled && Boolean(templateMeta.value))
+const emptyText = computed(() => (props.showDelete && !props.disabled ? '暂无文件，请点击上传按钮添加文件' : '暂无附件'))
+// 自动生成标识来自附件行，与分组上传组件保持一致
+const isAutoGenFile = (file: FileItem) => String(file.sfzdsc ?? '').trim() === '1'
+const loadTemplateMeta = async () => {
+  templateMeta.value = null
+  try {
+    templateMeta.value = await loadStandardTemplateMeta(props.selectData, props.fjId)
+  } catch (error) {
+    console.error(error)
+  }
+}
+const handleTemplateDownload = async () => {
+  if (!templateMeta.value) return
+  templateDownloadLoading.value = true
+  try {
+    await downloadStandardTemplate(templateMeta.value)
+  } catch (error: any) {
+    ElMessage.error(error?.message || '标准模版下载失败')
+  } finally {
+    templateDownloadLoading.value = false
+  }
 }
 
-export default defineComponent({
-  name: 'DynamicUpload',
-  props: {
-    modelValue: {
-      type: Array as PropType<any[]>,
-      default: () => []
-    },
-    fjTypes: {
-      type: Array,
-      default: () => []
-    },
-    title: {
-      type: String,
-      default: '批复文件'
-    },
-    limit: {
-      type: Number,
-      default: 5
-    },
-    accept: {
-      type: String,
-      default: ''
-    },
-    action: {
-      type: String,
-      default: '/api/upload'
-    },
-    tip: {
-      type: String,
-      default: ''
-    },
-    attachType: {
-      type: String,
-      default: ''
-    },
-    listType: {
-      type: String,
-      default: 'text'
-    },
-    multiple: {
-      type: Boolean,
-      default: true
-    },
-    autoUpload: {
-      type: Boolean,
-      default: true
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    drag: {
-      type: Boolean,
-      default: false
-    },
-    styleType: {
-      type: String,
-      default: 'table'
-    },
-    buttonText: {
-      type: String,
-      default: '点击上传'
-    },
-    icon: {
-      type: [String, Object, Function] as PropType<string | Component>,
-      default: () => EpUpload
-    },
-    tableHeight: {
-      type: [String, Number],
-      default: 'auto'
-    },
-    showPreview: {
-      type: Boolean,
-      default: false
-    },
-    showDownload: {
-      type: Boolean,
-      default: true
-    },
-    showDelete: {
-      type: Boolean,
-      default: true
-    },
-    showStatus: {
-      type: Boolean,
-      default: true
-    },
-    showActions: {
-      type: Boolean,
-      default: true
-    },
-    allData: {
-      type: Array as PropType<any[]>,
-      default: () => []
-    },
-    fjId: {
-      type: String,
-      default: '1'
-    },
-    selectData: {
-      type: Object as any,
-      default: null
-    }
-  },
-  emits: ['update:modelValue', 'change', 'success', 'error', 'exceed', 'remove'],
-  setup(props, { emit }) {
-    const uploadRef = ref()
-    const tableRef = ref()
-    const fileList = ref<FileItem[]>([])
-    const loading = ref(false)
-    const templateMeta = ref<StandardTemplateMeta | null>(null)
-    const templateDownloadLoading = ref(false)
-    const showStandardTemplateDownload = computed(() => !props.disabled && Boolean(templateMeta.value))
-    const emptyText = computed(() => (props.showDelete && !props.disabled ? '暂无文件，请点击上传按钮添加文件' : '暂无附件'))
-    // 自动生成标识来自附件行，与分组上传组件保持一致
-    const isAutoGenFile = (file: FileItem) => String(file.sfzdsc ?? '').trim() === '1'
-
-    const loadTemplateMeta = async () => {
-      templateMeta.value = null
-      try {
-        templateMeta.value = await loadStandardTemplateMeta(props.selectData, props.fjId)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-
-    const handleTemplateDownload = async () => {
-      if (!templateMeta.value) return
-
-      templateDownloadLoading.value = true
-      try {
-        await downloadStandardTemplate(templateMeta.value)
-      } catch (error: any) {
-        ElMessage.error(error?.message || '标准模版下载失败')
-      } finally {
-        templateDownloadLoading.value = false
-      }
-    }
-
-    // 移除文件回调
-    const handleRemove = async (file: any, uploadedFiles: any[]) => {
-      const type = await VXETable.modal.confirm('是否确认删除?', '提示', {
-        confirmButtonText: '是',
-        cancelButtonText: '否'
-      })
-      if (type === 'confirm') {
-        loading.value = true
-        let id = null
-        if (props.selectData && (props.selectData['id'] || props.selectData['xmid'] || props.selectData['xmId'])) {
-          id = props.selectData['id']
-            ? props.selectData['id']
-            : props.selectData['xmid']
-            ? props.selectData['xmid']
-            : props.selectData['xmId']
-            ? props.selectData['xmId']
+// 移除文件回调
+const handleRemove = async (file: any, uploadedFiles: any[]) => {
+  const type = await VXETable.modal.confirm('是否确认删除?', '提示', {
+    confirmButtonText: '是',
+    cancelButtonText: '否'
+  })
+  if (type === 'confirm') {
+    loading.value = true
+    let id = null
+    if (props.selectData && (props.selectData.id || props.selectData.xmid || props.selectData.xmId)) {
+      id = props.selectData.id
+        ? props.selectData.id
+        : props.selectData.xmid
+          ? props.selectData.xmid
+          : props.selectData.xmId
+            ? props.selectData.xmId
             : null
-        }
-        let apiUrl = id ? `/xmAttributeConfig/deleteAttach?xmId=${id}&uuid=${file.uuid}` : `/xmAttributeConfig/deleteAttach?uuid=${file.uuid}`
-
-        try {
-          const res = await baseService.post(apiUrl)
-          if (res.success) {
-            ElMessage.success('删除成功!')
-            // 从文件列表中移除
-            const index = fileList.value.findIndex((item) => item.uid === (file.uid || '') || item.name === file.name)
-            if (index !== -1) {
-              fileList.value.splice(index, 1)
-            }
-          } else {
-            throw new Error(res.msg)
-          }
-        } catch (error) {
-          const e = error as Error
-          ElMessage.error(e.message)
-        } finally {
-          loading.value = false
-          // 触发事件
-          emit('remove', file, fileList.value)
-          emit('change', fileList.value)
-        }
-      }
     }
-
-    // 删除文件
-    const handleDelete = (file: FileItem) => {
-      handleRemove(file, fileList.value)
-    }
-
-    // 下载文件
-    const handleDownload = async (file: FileItem) => {
-      if (file.uuid) {
-        try {
-          let isLhhs = ''
-          if (props.attachType) {
-            isLhhs = '1'
-          }
-          loading.value = true
-          const blob: any = await downloadAttach(file.uuid, isLhhs)
-          let dom = document.createElement('a')
-          let url = window.URL.createObjectURL(blob)
-          dom.href = url
-          // 获取文件名
-          let filename = file.name
-          dom.download = `${decodeURI(decodeURI(filename))}`
-          document.body.appendChild(dom)
-          dom.click()
-          document.body.removeChild(dom)
-          window.URL.revokeObjectURL(url)
-          loading.value = false
-        } catch (e: any) {
-          console.error(e.toString())
+    let apiUrl = id ? `/xmAttributeConfig/deleteAttach?xmId=${id}&uuid=${file.uuid}` : `/xmAttributeConfig/deleteAttach?uuid=${file.uuid}`
+    try {
+      const res = await baseService.post(apiUrl)
+      if (res.success) {
+        ElMessage.success('删除成功!')
+        // 从文件列表中移除
+        const index = fileList.value.findIndex((item) => item.uid === (file.uid || '') || item.name === file.name)
+        if (index !== -1) {
+          fileList.value.splice(index, 1)
         }
+      } else {
+        throw new Error(res.msg)
       }
-    }
-
-    const insertEvent = async (isMultiple: boolean) => {
-      if (props.disabled) return
-      const $table = tableRef.value
-      if ($table) {
-        const types = props.fjTypes
-        const { files } = await $table.readFile({ multiple: isMultiple })
-        try {
-          const records = Array.from(files).map((file: any) => {
-            if (props.fjTypes) {
-              const ns = file.name.split('.')
-              const type = ns[ns.length - 1].toLowerCase()
-              if (!types.includes(type)) throw new Error('文件只支持' + types.join(',') + '格式！')
-            }
-            return {
-              name: file.name,
-              file: file
-            }
-          })
-          getInsertEvent(records)
-        } catch (error: any) {
-          ElMessage.error(error.message)
-        }
-      }
-    }
-    const getInsertEvent = async (records: any) => {
-      const $table = tableRef.value
-      if ($table) {
-        loading.value = true
-        const data = new FormData()
-        for (const record of records) {
-          data.append('files', record.file)
-          data.append('fileNames', record.name)
-        }
-        let id = null
-        if (props.selectData && (props.selectData['id'] || props.selectData['xmid'] || props.selectData['xmId'])) {
-          id = props.selectData['id']
-            ? props.selectData['id']
-            : props.selectData['xmid']
-            ? props.selectData['xmid']
-            : props.selectData['xmId']
-            ? props.selectData['xmId']
-            : null
-        }
-
-        let apiUrl = id ? `/xmAttributeConfig/uploadAttach?xmId=${id}&fjId=${props.fjId}` : `/xmAttributeConfig/uploadAttach?fjId=${props.fjId}`
-        try {
-          if ($table) {
-            let tableData = await baseService.post(apiUrl, data)
-            if (tableData.success) {
-              ElMessage.success('上传成功')
-              const result = records.map((record: any, index: number) => ({
-                ...record,
-                uuid: tableData.data[index]
-              }))
-              fileList.value.push(...result)
-              emit(
-                'change',
-                fileList.value.map((item) => item.uuid)
-              )
-              emit(
-                'update:modelValue',
-                fileList.value.map((item) => item.uuid)
-              )
-              loading.value = false
-            } else {
-              // 清除上传文件
-              loading.value = false
-              ElMessage.error(tableData.msg)
-            }
-          }
-        } catch (error) {}
-      }
-    }
-
-    watch(
-      () => props.allData,
-      (newVal) => {
-        if (newVal) {
-          fileList.value = newVal
-        }
-      },
-      {
-        immediate: true
-      }
-    )
-
-    watch(
-      () => [props.selectData?.xmlx, props.fjId],
-      () => {
-        void loadTemplateMeta()
-      },
-      {
-        immediate: true
-      }
-    )
-
-    return {
-      EpDelete,
-      EpDocument,
-      EpDownload,
-      EpInfoFilled,
-      EpMagicStick,
-      uploadRef,
-      tableRef,
-      fileList,
-      handleTemplateDownload,
-      insertEvent,
-      handleRemove,
-      loading,
-      handleDelete,
-      handleDownload,
-      isAutoGenFile,
-      showStandardTemplateDownload,
-      templateDownloadLoading,
-      emptyText
+    } catch (error) {
+      const e = error as Error
+      ElMessage.error(e.message)
+    } finally {
+      loading.value = false
+      // 触发事件
+      emit('remove', file, fileList.value)
+      emit('change', fileList.value)
     }
   }
+}
+
+// 删除文件
+const handleDelete = (file: FileItem) => {
+  handleRemove(file, fileList.value)
+}
+
+// 下载文件
+const handleDownload = async (file: FileItem) => {
+  if (file.uuid) {
+    try {
+      let isLhhs = ''
+      if (props.attachType) {
+        isLhhs = '1'
+      }
+      loading.value = true
+      const blob: any = await downloadAttach(file.uuid, isLhhs)
+      let dom = document.createElement('a')
+      let url = window.URL.createObjectURL(blob)
+      dom.href = url
+      // 获取文件名
+      let filename = file.name
+      dom.download = `${decodeURI(decodeURI(filename))}`
+      document.body.appendChild(dom)
+      dom.click()
+      document.body.removeChild(dom)
+      window.URL.revokeObjectURL(url)
+      loading.value = false
+    } catch (e: any) {
+      console.error(e.toString())
+    }
+  }
+}
+const insertEvent = async (isMultiple: boolean) => {
+  if (props.disabled) return
+  const $table = tableRef.value
+  if ($table) {
+    const types = props.fjTypes
+    const { files } = await $table.readFile({
+      multiple: isMultiple
+    })
+    try {
+      const records = Array.from(files).map((file: any) => {
+        if (props.fjTypes) {
+          const ns = file.name.split('.')
+          const type = ns[ns.length - 1].toLowerCase()
+          if (!types.includes(type)) throw new Error('文件只支持' + types.join(',') + '格式！')
+        }
+        return {
+          name: file.name,
+          file: file
+        }
+      })
+      getInsertEvent(records)
+    } catch (error: any) {
+      ElMessage.error(error.message)
+    }
+  }
+}
+const getInsertEvent = async (records: any) => {
+  const $table = tableRef.value
+  if ($table) {
+    loading.value = true
+    const data = new FormData()
+    for (const record of records) {
+      data.append('files', record.file)
+      data.append('fileNames', record.name)
+    }
+    let id = null
+    if (props.selectData && (props.selectData.id || props.selectData.xmid || props.selectData.xmId)) {
+      id = props.selectData.id
+        ? props.selectData.id
+        : props.selectData.xmid
+          ? props.selectData.xmid
+          : props.selectData.xmId
+            ? props.selectData.xmId
+            : null
+    }
+    let apiUrl = id ? `/xmAttributeConfig/uploadAttach?xmId=${id}&fjId=${props.fjId}` : `/xmAttributeConfig/uploadAttach?fjId=${props.fjId}`
+    try {
+      if ($table) {
+        let tableData = await baseService.post(apiUrl, data)
+        if (tableData.success) {
+          ElMessage.success('上传成功')
+          const result = records.map((record: any, index: number) => ({
+            ...record,
+            uuid: tableData.data[index]
+          }))
+          fileList.value.push(...result)
+          emit(
+            'change',
+            fileList.value.map((item) => item.uuid)
+          )
+          emit(
+            'update:modelValue',
+            fileList.value.map((item) => item.uuid)
+          )
+          loading.value = false
+        } else {
+          // 清除上传文件
+          loading.value = false
+          ElMessage.error(tableData.msg)
+        }
+      }
+    } catch (error) {}
+  }
+}
+watch(
+  () => props.allData,
+  (newVal) => {
+    if (newVal) {
+      fileList.value = newVal
+    }
+  },
+  {
+    immediate: true
+  }
+)
+watch(
+  () => [props.selectData?.xmlx, props.fjId],
+  () => {
+    void loadTemplateMeta()
+  },
+  {
+    immediate: true
+  }
+)
+defineExpose({
+  EpDelete,
+  EpDocument,
+  EpDownload,
+  EpInfoFilled,
+  EpMagicStick,
+  uploadRef,
+  tableRef,
+  fileList,
+  handleTemplateDownload,
+  insertEvent,
+  handleRemove,
+  loading,
+  handleDelete,
+  handleDownload,
+  isAutoGenFile,
+  showStandardTemplateDownload,
+  templateDownloadLoading,
+  emptyText
 })
 </script>
 

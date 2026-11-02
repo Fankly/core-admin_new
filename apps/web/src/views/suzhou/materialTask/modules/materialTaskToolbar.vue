@@ -43,7 +43,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialTaskToolbar" })
 import { ElMessage } from 'element-plus'
 import type { InjectionKey, Ref } from 'vue'
 import { VXETable } from 'vxe-table'
@@ -54,6 +53,7 @@ import { CrudTableRefInjectionKey, CheckedRowsInjectionKey } from '@/views/suzho
 import { useStore } from '@/store/business'
 import { getEjdwList, getYjdwList } from '@/api/ai/smartTaskAudit'
 import { getCropLimitInfo } from '@/api/lkyptzl/index'
+defineOptions({ name: "materialTaskToolbar" })
 
 interface taskParamVo {
   taskTime: string

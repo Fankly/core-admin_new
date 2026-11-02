@@ -133,13 +133,10 @@
     </proTable>
   </div>
 </template>
-<script lang="ts">
-export default {}
-</script>
-<script setup lang="ts">
-import { ref, defineEmits, defineProps, nextTick, defineExpose, onMounted } from 'vue'
-import { ElMessage, ElNotification } from 'element-plus'
 
+<script setup lang="ts">
+import { ref, nextTick, onMounted } from 'vue'
+import { ElMessage, ElNotification } from 'element-plus'
 import proTable from '@/components/ProTable/index.vue' //表格组件
 import {
   pageMeetingInfo,
@@ -233,7 +230,6 @@ const handleUplaod = (file: any) => {
     const error = e as Error
     ElMessage.error(error.message)
   }
-
   return false
 }
 
@@ -266,7 +262,10 @@ const handleReview = async (selectedList: any[], val: any) => {
       return ElMessage.warning('所选会议包含未结束的会议,请重新选择')
     }
   }
-  emit('pageType', { value: val, selectedList: selectedList })
+  emit('pageType', {
+    value: val,
+    selectedList: selectedList
+  })
 }
 const dataList = (val: any) => {
   val.records.forEach((element: any) => {
@@ -297,7 +296,9 @@ const downloadReport = async (row: any, column: any) => {
         duration: 3000
       })
       loading.value = true
-      const blob: any = await downloadReviewReport({ ...params })
+      const blob: any = await downloadReviewReport({
+        ...params
+      })
       let dom = document.createElement('a')
       let url = window.URL.createObjectURL(blob)
       dom.href = url
@@ -338,11 +339,9 @@ const rowStyle = ({ row }: any) => {
     return 'backgroundColor:#E0F2F1' //;color:#00706b;
   }
 }
-
 onMounted(() => {
   if (props.type == 'leader') loadReviewModeOptions()
 })
-
 defineExpose({
   proTableRef
 })

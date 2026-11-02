@@ -17,172 +17,179 @@
   </div>
 </template>
 
-<script lang="ts">
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart } from "echarts/charts";
-import { GridComponent, PolarComponent, GeoComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent, DatasetComponent, ToolboxComponent, DataZoomComponent } from "echarts/components";
-import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, defineComponent } from "vue";
-import { setup } from "xe-utils/ctor";
+<script setup lang="ts">
+import './Bidding.module'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart } from 'echarts/charts'
+import {
+  GridComponent,
+  PolarComponent,
+  GeoComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent,
+  VisualMapComponent,
+  DatasetComponent,
+  ToolboxComponent,
+  DataZoomComponent
+} from 'echarts/components'
+import VChart, { THEME_KEY } from 'vue-echarts'
+import { ref, provide } from 'vue'
+import { setup } from 'xe-utils/ctor'
+const activeName = ref('first')
 
-use([BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart, GridComponent, PolarComponent, GeoComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent, DatasetComponent, CanvasRenderer, ToolboxComponent, DataZoomComponent]);
-export default defineComponent({
-  components: {
-    VChart
+const barOne = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      crossStyle: {
+        color: '#999'
+      }
+    }
   },
-  provide: {
-    [THEME_KEY]: "westeros"
+  legend: {
+    data: ['项目金额', '项目数量']
   },
-  setup() {
-    const barOne = ref({
+  xAxis: [
+    {
+      type: 'category',
+      data: ['南京', '苏州', '无锡', '常州', '镇江', '扬州', '泰州', '南通'],
+      axisPointer: {
+        type: 'shadow'
+      }
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value',
+      name: '万元',
+      min: 0,
+      max: 150,
+      interval: 30,
+      axisLabel: {
+        formatter: '{value}.00'
+      }
+    },
+    {
+      type: 'value',
+      min: 30,
+      max: 70,
+      interval: 10,
+      axisLabel: {
+        formatter: '{value}.00%'
+      }
+    }
+  ],
+  series: [
+    {
+      name: '项目金额',
+      type: 'bar',
       tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "cross",
-          crossStyle: {
-            color: "#999"
-          }
+        valueFormatter: function (value) {
+          return value
         }
       },
-      legend: {
-        data: ["项目金额", "项目数量"]
-      },
-      xAxis: [
-        {
-          type: "category",
-          data: ["南京", "苏州", "无锡", "常州", "镇江", "扬州", "泰州", "南通"],
-          axisPointer: {
-            type: "shadow"
-          }
-        }
-      ],
-      yAxis: [
-        {
-          type: "value",
-          name: "万元",
-          min: 0,
-          max: 150,
-          interval: 30,
-          axisLabel: {
-            formatter: "{value}.00"
-          }
-        },
-        {
-          type: "value",
-          min: 30,
-          max: 70,
-          interval: 10,
-          axisLabel: {
-            formatter: "{value}.00%"
-          }
-        }
-      ],
-      series: [
-        {
-          name: "项目金额",
-          type: "bar",
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [70, 56, 86, 72, 65, 99, 92, 64]
-        },
-        {
-          name: "项目数量",
-          type: "line",
-          yAxisIndex: 1,
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [56, 45, 57, 48, 65, 46, 53, 45]
-        }
-      ]
-    });
-    const barTwo = ref({
+      data: [70, 56, 86, 72, 65, 99, 92, 64]
+    },
+    {
+      name: '项目数量',
+      type: 'line',
+      yAxisIndex: 1,
       tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "cross",
-          crossStyle: {
-            color: "#999"
-          }
+        valueFormatter: function (value) {
+          return value
         }
       },
-      legend: {
-        data: ["项目金额", "项目数量"]
+      data: [56, 45, 57, 48, 65, 46, 53, 45]
+    }
+  ]
+})
+const barTwo = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      crossStyle: {
+        color: '#999'
+      }
+    }
+  },
+  legend: {
+    data: ['项目金额', '项目数量']
+  },
+  xAxis: [
+    {
+      type: 'category',
+      data: ['大中型基建', '配网资本', '新能源', '电力设备', '电力服务', '电力贸易', '电力工程', '电力设备'],
+      axisPointer: {
+        type: 'shadow'
+      }
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value',
+      name: '万元',
+      min: 0,
+      max: 150,
+      interval: 30,
+      axisLabel: {
+        formatter: '{value}.00'
+      }
+    },
+    {
+      type: 'value',
+      min: 30,
+      max: 70,
+      interval: 10,
+      axisLabel: {
+        formatter: '{value}.00%'
+      }
+    }
+  ],
+  series: [
+    {
+      name: '项目金额',
+      type: 'bar',
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
+        }
       },
-      xAxis: [
-        {
-          type: "category",
-          data: ["大中型基建", "配网资本", "新能源", "电力设备", "电力服务", "电力贸易", "电力工程", "电力设备"],
-          axisPointer: {
-            type: "shadow"
-          }
+      data: [70, 56, 86, 72, 65, 99, 92, 64]
+    },
+    {
+      name: '项目数量',
+      type: 'line',
+      yAxisIndex: 1,
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
         }
-      ],
-      yAxis: [
-        {
-          type: "value",
-          name: "万元",
-          min: 0,
-          max: 150,
-          interval: 30,
-          axisLabel: {
-            formatter: "{value}.00"
-          }
-        },
-        {
-          type: "value",
-          min: 30,
-          max: 70,
-          interval: 10,
-          axisLabel: {
-            formatter: "{value}.00%"
-          }
-        }
-      ],
-      series: [
-        {
-          name: "项目金额",
-          type: "bar",
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [70, 56, 86, 72, 65, 99, 92, 64]
-        },
-        {
-          name: "项目数量",
-          type: "line",
-          yAxisIndex: 1,
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [56, 45, 57, 48, 65, 46, 53, 45]
-        }
-      ]
-    });
-    return {
-      dataList: {},
-      barOne,
-      barTwo,
-      barLoadingOptions: {
-        text: "Loading…",
-        color: "#4ea397",
-        maskColor: "rgba(255, 255, 255, 0.4)"
       },
-      theme: "",
-      autoResize: true
-    };
-  }
-});
+      data: [56, 45, 57, 48, 65, 46, 53, 45]
+    }
+  ]
+})
+const dataList = ref({})
+const barLoadingOptions = ref({
+  text: 'Loading…',
+  color: '#4ea397',
+  maskColor: 'rgba(255, 255, 255, 0.4)'
+})
+const theme = ref('')
+const autoResize = ref(true)
+provide(THEME_KEY, 'westeros')
+defineExpose({
+  dataList,
+  barOne,
+  barTwo,
+  barLoadingOptions,
+  theme,
+  autoResize
+})
 </script>
 
 <style lang="less" scoped>

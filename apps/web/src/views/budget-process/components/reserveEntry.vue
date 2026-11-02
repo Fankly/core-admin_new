@@ -59,337 +59,348 @@
   </div>
 </template>
 
-<script lang="ts">
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart } from "echarts/charts";
-import { GridComponent, PolarComponent, GeoComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent, DatasetComponent, ToolboxComponent, DataZoomComponent } from "echarts/components";
-import VChart, { THEME_KEY } from "vue-echarts";
-import { ref, defineComponent } from "vue";
-
-use([BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart, GridComponent, PolarComponent, GeoComponent, TooltipComponent, LegendComponent, TitleComponent, VisualMapComponent, DatasetComponent, CanvasRenderer, ToolboxComponent, DataZoomComponent]);
-export default defineComponent({
-  components: {
-    VChart
+<script setup lang="ts">
+import './reserveEntry.module'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { BarChart, LineChart, PieChart, MapChart, RadarChart, ScatterChart, EffectScatterChart, LinesChart } from 'echarts/charts'
+import {
+  GridComponent,
+  PolarComponent,
+  GeoComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent,
+  VisualMapComponent,
+  DatasetComponent,
+  ToolboxComponent,
+  DataZoomComponent
+} from 'echarts/components'
+import VChart, { THEME_KEY } from 'vue-echarts'
+import { ref, provide } from 'vue'
+const barUnit = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      crossStyle: {
+        color: '#999'
+      }
+    }
   },
-  provide: {
-    [THEME_KEY]: "westeros"
+  legend: {
+    data: ['储备金额', '立项金额', '储备数量', '立项项目数']
   },
-  setup() {
-    const barUnit = ref({
+  xAxis: [
+    {
+      type: 'category',
+      data: ['苏州', '无锡', '南京', '常州', '镇江', '扬州', '泰州', '南通', '盐城', '淮安', '宿迁', '徐州'],
+      axisPointer: {
+        type: 'shadow'
+      }
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value',
+      name: '单位：万元',
+      min: 0,
+      max: 150,
+      interval: 30,
+      axisLabel: {
+        formatter: '{value}'
+      }
+    },
+    {
+      type: 'value',
+      name: '单位：个',
+      min: 0,
+      max: 60,
+      interval: 10,
+      axisLabel: {
+        formatter: '{value}'
+      }
+    }
+  ],
+  series: [
+    {
+      name: '储备金额',
+      type: 'bar',
       tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "cross",
-          crossStyle: {
-            color: "#999"
-          }
+        valueFormatter: function (value) {
+          return value
         }
       },
-      legend: {
-        data: ["储备金额", "立项金额", "储备数量", "立项项目数"]
-      },
-      xAxis: [
-        {
-          type: "category",
-          data: ["苏州", "无锡", "南京", "常州", "镇江", "扬州", "泰州", "南通", "盐城", "淮安", "宿迁", "徐州"],
-          axisPointer: {
-            type: "shadow"
-          }
-        }
-      ],
-      yAxis: [
-        {
-          type: "value",
-          name: "单位：万元",
-          min: 0,
-          max: 150,
-          interval: 30,
-          axisLabel: {
-            formatter: "{value}"
-          }
-        },
-        {
-          type: "value",
-          name: "单位：个",
-          min: 0,
-          max: 60,
-          interval: 10,
-          axisLabel: {
-            formatter: "{value}"
-          }
-        }
-      ],
-      series: [
-        {
-          name: "储备金额",
-          type: "bar",
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
-        },
-        {
-          name: "立项金额",
-          type: "bar",
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
-        },
-        {
-          name: "储备数量",
-          type: "line",
-          yAxisIndex: 1,
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
-        },
-        {
-          name: "立项项目数",
-          type: "line",
-          yAxisIndex: 1,
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [2.6, 3.9, 5.0, 12.4, 18.7, 30.7, 35.6, 37.2, 20.6, 18.8, 6.0, 2.3]
-        }
-      ]
-    });
-    const barType = ref({
+      data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+    },
+    {
+      name: '立项金额',
+      type: 'bar',
       tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "cross",
-          crossStyle: {
-            color: "#999"
-          }
+        valueFormatter: function (value) {
+          return value
         }
       },
-      legend: {
-        data: ["储备金额", "立项金额", "储备数量", "立项项目数"]
+      data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+    },
+    {
+      name: '储备数量',
+      type: 'line',
+      yAxisIndex: 1,
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
+        }
       },
-      xAxis: [
-        {
-          type: "category",
-          data: ["大中性基建", "小型基建", "配网资本", "居配", "商业建筑", "住宅建筑", "特高压", "变电站", "电缆", "电缆", "其他"],
-          axisPointer: {
-            type: "shadow"
-          }
+      data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
+    },
+    {
+      name: '立项项目数',
+      type: 'line',
+      yAxisIndex: 1,
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
         }
-      ],
-      yAxis: [
-        {
-          type: "value",
-          name: "单位：万元",
-          min: 0,
-          max: 150,
-          interval: 30,
-          axisLabel: {
-            formatter: "{value}"
-          }
-        },
-        {
-          type: "value",
-          name: "单位：个",
-          min: 0,
-          max: 60,
-          interval: 10,
-          axisLabel: {
-            formatter: "{value}"
-          }
-        }
-      ],
-      series: [
-        {
-          name: "储备金额",
-          type: "bar",
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
-        },
-        {
-          name: "立项金额",
-          type: "bar",
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
-        },
-        {
-          name: "储备数量",
-          type: "line",
-          yAxisIndex: 1,
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
-        },
-        {
-          name: "立项项目数",
-          type: "line",
-          yAxisIndex: 1,
-          tooltip: {
-            valueFormatter: function (value) {
-              return value;
-            }
-          },
-          data: [2.6, 3.9, 5.0, 12.4, 18.7, 30.7, 35.6, 37.2, 20.6, 18.8, 6.0, 2.3]
-        }
-      ]
-    });
-    return {
-      barUnit,
-      barType,
-      value: "",
-      value2: "",
-      dataList: {},
-      activeName: "first",
-      activeName1: "first",
-      barLoadingOptions: {
-        text: "Loading…",
-        color: "#4ea397",
-        maskColor: "rgba(255, 255, 255, 0.4)"
       },
-      theme: "",
-      autoResize: true,
-      options: [
-        {
-          value: "南京供电公司",
-          label: "南京供电公司",
-          children: [
-            {
-              value: "南京供电公司本部",
-              label: "南京供电公司本部",
-              children: [
-                {
-                  value: "采购部",
-                  label: "采购部"
-                },
-                {
-                  value: "管理部",
-                  label: "管理部"
-                },
-                {
-                  value: "生产部",
-                  label: "生产部"
-                }
-              ]
-            },
-            {
-              value: "江宁区供电分公司",
-              label: "江宁区供电分公司",
-              children: [
-                {
-                  value: "采购部",
-                  label: "采购部"
-                },
-                {
-                  value: "管理部",
-                  label: "管理部"
-                },
-                {
-                  value: "生产部",
-                  label: "生产部"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          value: "无锡供电公司",
-          label: "无锡供电公司"
-        },
-        {
-          value: "苏州供电公司",
-          label: "苏州供电公司"
-        },
-        {
-          value: "常州供电公司",
-          label: "常州供电公司"
-        },
-        {
-          value: "盐城供电公司",
-          label: "盐城供电公司"
-        },
-        {
-          value: "宿迁供电公司",
-          label: "宿迁供电公司"
-        },
-        {
-          value: "淮安供电公司",
-          label: "淮安供电公司"
-        },
-        {
-          value: "徐州供电公司",
-          label: "徐州供电公司"
-        },
-        {
-          value: "连云港供电公司",
-          label: "连云港供电公司"
-        },
-        {
-          value: "泰州供电公司",
-          label: "泰州供电公司"
+      data: [2.6, 3.9, 5.0, 12.4, 18.7, 30.7, 35.6, 37.2, 20.6, 18.8, 6.0, 2.3]
+    }
+  ]
+})
+const barType = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross',
+      crossStyle: {
+        color: '#999'
+      }
+    }
+  },
+  legend: {
+    data: ['储备金额', '立项金额', '储备数量', '立项项目数']
+  },
+  xAxis: [
+    {
+      type: 'category',
+      data: ['大中性基建', '小型基建', '配网资本', '居配', '商业建筑', '住宅建筑', '特高压', '变电站', '电缆', '电缆', '其他'],
+      axisPointer: {
+        type: 'shadow'
+      }
+    }
+  ],
+  yAxis: [
+    {
+      type: 'value',
+      name: '单位：万元',
+      min: 0,
+      max: 150,
+      interval: 30,
+      axisLabel: {
+        formatter: '{value}'
+      }
+    },
+    {
+      type: 'value',
+      name: '单位：个',
+      min: 0,
+      max: 60,
+      interval: 10,
+      axisLabel: {
+        formatter: '{value}'
+      }
+    }
+  ],
+  series: [
+    {
+      name: '储备金额',
+      type: 'bar',
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
         }
-      ],
-      projects: [
-        {
-          value: "资本项目",
-          label: "资本项目",
-          children: [
-            {
-              value: "大中型基建",
-              label: "大中型基建"
-            },
-            {
-              value: "配网建设改造",
-              label: "配网建设改造"
-            },
-            {
-              value: "独立二次",
-              label: "独立二次"
-            },
-            {
-              value: "生产技改",
-              label: "生产技改"
-            },
-            {
-              value: "生产辅助技改",
-              label: "生产辅助技改"
-            }
-          ]
-        },
-        {
-          value: "成本项目",
-          label: "成本项目",
-          children: [
-            {
-              value: "生产修理",
-              label: "生产修理"
-            }
-          ]
+      },
+      data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
+    },
+    {
+      name: '立项金额',
+      type: 'bar',
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
         }
-      ]
-    };
+      },
+      data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+    },
+    {
+      name: '储备数量',
+      type: 'line',
+      yAxisIndex: 1,
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
+        }
+      },
+      data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
+    },
+    {
+      name: '立项项目数',
+      type: 'line',
+      yAxisIndex: 1,
+      tooltip: {
+        valueFormatter: function (value) {
+          return value
+        }
+      },
+      data: [2.6, 3.9, 5.0, 12.4, 18.7, 30.7, 35.6, 37.2, 20.6, 18.8, 6.0, 2.3]
+    }
+  ]
+})
+const value = ref('')
+const value2 = ref('')
+const dataList = ref({})
+const activeName = ref('first')
+const activeName1 = ref('first')
+const barLoadingOptions = ref({
+  text: 'Loading…',
+  color: '#4ea397',
+  maskColor: 'rgba(255, 255, 255, 0.4)'
+})
+const theme = ref('')
+const autoResize = ref(true)
+const options = ref([
+  {
+    value: '南京供电公司',
+    label: '南京供电公司',
+    children: [
+      {
+        value: '南京供电公司本部',
+        label: '南京供电公司本部',
+        children: [
+          {
+            value: '采购部',
+            label: '采购部'
+          },
+          {
+            value: '管理部',
+            label: '管理部'
+          },
+          {
+            value: '生产部',
+            label: '生产部'
+          }
+        ]
+      },
+      {
+        value: '江宁区供电分公司',
+        label: '江宁区供电分公司',
+        children: [
+          {
+            value: '采购部',
+            label: '采购部'
+          },
+          {
+            value: '管理部',
+            label: '管理部'
+          },
+          {
+            value: '生产部',
+            label: '生产部'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    value: '无锡供电公司',
+    label: '无锡供电公司'
+  },
+  {
+    value: '苏州供电公司',
+    label: '苏州供电公司'
+  },
+  {
+    value: '常州供电公司',
+    label: '常州供电公司'
+  },
+  {
+    value: '盐城供电公司',
+    label: '盐城供电公司'
+  },
+  {
+    value: '宿迁供电公司',
+    label: '宿迁供电公司'
+  },
+  {
+    value: '淮安供电公司',
+    label: '淮安供电公司'
+  },
+  {
+    value: '徐州供电公司',
+    label: '徐州供电公司'
+  },
+  {
+    value: '连云港供电公司',
+    label: '连云港供电公司'
+  },
+  {
+    value: '泰州供电公司',
+    label: '泰州供电公司'
   }
-});
+])
+const projects = ref([
+  {
+    value: '资本项目',
+    label: '资本项目',
+    children: [
+      {
+        value: '大中型基建',
+        label: '大中型基建'
+      },
+      {
+        value: '配网建设改造',
+        label: '配网建设改造'
+      },
+      {
+        value: '独立二次',
+        label: '独立二次'
+      },
+      {
+        value: '生产技改',
+        label: '生产技改'
+      },
+      {
+        value: '生产辅助技改',
+        label: '生产辅助技改'
+      }
+    ]
+  },
+  {
+    value: '成本项目',
+    label: '成本项目',
+    children: [
+      {
+        value: '生产修理',
+        label: '生产修理'
+      }
+    ]
+  }
+])
+provide(THEME_KEY, 'westeros')
+defineExpose({
+  barUnit,
+  barType,
+  value,
+  value2,
+  dataList,
+  activeName,
+  activeName1,
+  barLoadingOptions,
+  theme,
+  autoResize,
+  options,
+  projects
+})
 </script>
 
 <style lang="less" scoped>

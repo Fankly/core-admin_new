@@ -27,34 +27,29 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'copyConfig'
-}
-</script>
+
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { defineProps, ref, defineEmits, defineExpose, reactive } from 'vue'
+import { ref, reactive } from 'vue'
+defineOptions({
+  name: 'copyConfig'
+})
 
 interface Props {
   nd: string
   busiType: string
   copyApi: (params: any) => Promise<any>
 }
-
 const props = defineProps<Props>()
 const emit = defineEmits(['close', 'copy'])
-
 const showModal = ref(false)
 const loading = ref(false)
 const modalTitle = ref('预算统计报表配置-复制')
-
 const formData = reactive({
   sourceNd: '',
   targetNd: '',
   busiType: ''
 })
-
 const saveHandle = async () => {
   if (!formData.targetNd) {
     ElMessage.warning('请先选择复制年度进行操作！')
@@ -73,13 +68,11 @@ const saveHandle = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const cancelHandle = () => {
   formData.sourceNd = ''
   formData.targetNd = ''
   closeHandle()
 }
-
 const showHandle = async () => {
   formData.sourceNd = props.nd
   formData.busiType = props.busiType
@@ -88,7 +81,6 @@ const closeHandle = () => {
   showModal.value = false
   emit('close', showModal.value)
 }
-
 defineExpose({
   showModal
 })

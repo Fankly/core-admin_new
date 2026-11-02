@@ -95,11 +95,7 @@
     :label-width="labelWidth"
   />
 </template>
-<script lang="ts">
-export default {
-  name: 'ProtableCurdModal'
-}
-</script>
+
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import ProTable from '@/components/ProTable/index.vue'
@@ -107,7 +103,18 @@ import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import FormModal, { FormField } from '@/components/FormModal'
 import { ElMessage } from 'element-plus'
 import VXETable from 'vxe-table'
-import { commonSave, commonGetInfo, commonSubmit, commonRemove, commonApprove, commonReject, commonFiled } from '@/api/deptDataVersion/index'
+import {
+  commonSave,
+  commonGetInfo,
+  commonSubmit,
+  commonRemove,
+  commonApprove,
+  commonReject,
+  commonFiled
+} from '@/api/deptDataVersion/index'
+defineOptions({
+  name: 'ProtableCurdModal'
+})
 
 interface UserInfo {
   deptId: string
@@ -119,7 +126,6 @@ interface UserInfo {
   specialorgcode: string
   roleId: string
 }
-
 interface Props {
   userInfo: UserInfo
   formFields: FormField[]
@@ -139,16 +145,13 @@ interface Props {
   nd: string //年度
   busiType: string //报表类型
 }
-
 const props = defineProps<Props>()
-
 const proTableRef = ref<any>()
 const formModalRef = ref<InstanceType<typeof FormModal>>()
 const importRef = ref<any>()
 const mode = ref<'add' | 'edit' | 'view'>('add')
 const formData = ref({})
 const isShowModal = ref<boolean>(false)
-
 const userType = ref<string>('')
 
 // loading状态
@@ -168,7 +171,10 @@ const openModal = async (modeFlag: 'add' | 'edit' | 'view', row?: any[]) => {
   } else {
     if (row) {
       if (commonGetInfo) {
-        let res = await commonGetInfo({ id: row[0].id, versionId: props.versionId })
+        let res = await commonGetInfo({
+          id: row[0].id,
+          versionId: props.versionId
+        })
         if (res.success) {
           formData.value = res.data
         } else {
@@ -197,7 +203,9 @@ const handleSave = async (data: any) => {
   if (type === 'confirm') {
     loading.value = true
     try {
-      const res = await commonSave({ ...params })
+      const res = await commonSave({
+        ...params
+      })
       if (!res.success) throw new Error(res.msg)
       ElMessage.success('保存成功!')
       clearSelect()
@@ -213,7 +221,7 @@ const handleSave = async (data: any) => {
 
 // 审批
 const approval = async (list: any) => {
-  const isDel = list.some((item: any) => item.status != '1' )
+  const isDel = list.some((item: any) => item.status != '1')
   if (isDel) {
     return ElMessage.warning('存在草稿/审核通过/审核驳回状态数据，无法审核')
   }
@@ -324,7 +332,6 @@ const callBackHandle = (val: any) => {
   loading.value = false
   return val
 }
-
 const getParams = () => {
   return proTableRef.value?.searchParam
 }
@@ -366,7 +373,11 @@ const handleExport = async () => {
   loading.value = true
   try {
     if (proTableRef.value) {
-      const params = { ...proTableRef.value.searchParam, versionId: props.versionId, busiType: props.busiType }
+      const params = {
+        ...proTableRef.value.searchParam,
+        versionId: props.versionId,
+        busiType: props.busiType
+      }
       if (!props.exportApi) return
       const res = await props.exportApi(params)
       const blob = new Blob([res])
@@ -406,7 +417,6 @@ const handleExport = async () => {
 const colseHandle = () => {
   isShowModal.value = false
 }
-
 defineExpose({
   getParams: getParams,
   isShowModal,

@@ -1,26 +1,26 @@
-<script lang="ts">
-import { cloneVNode, defineComponent, h, ref } from 'vue'
+<script setup lang="ts">
+import { cloneVNode, h, ref, useSlots } from 'vue'
 import { ElTooltip } from 'element-plus'
 
-export default defineComponent({
-  props: { content: { type: String, required: true } },
-  setup(props, { slots }) {
-    const isOverflow = ref(false)
-    const checkOverflow = (event: Event) => {
-      const trigger = event.currentTarget as HTMLElement
-      const value = trigger.querySelector('strong') || trigger
-      isOverflow.value = value.scrollWidth > value.clientWidth + 1
-    }
-    // 直接复用原触发节点，避免额外包裹层改变金额的 Flex / Grid 省略布局。
-    return () =>
-      h(
-        ElTooltip,
-        { content: props.content, disabled: !isOverflow.value, effect: 'light', placement: 'top', popperClass: 'overview-value-tooltip' },
-        { default: () => slots.default?.().map((node) => cloneVNode(node, { onMouseover: checkOverflow, onFocus: checkOverflow }, true)) }
-      )
-  }
-})
+const props = defineProps<{ content: string }>()
+const slots = useSlots()
+const isOverflow = ref(false)
+const checkOverflow = (event: Event) => {
+  const trigger = event.currentTarget as HTMLElement
+  const value = trigger.querySelector('strong') || trigger
+  isOverflow.value = value.scrollWidth > value.clientWidth + 1
+}
+// Reuse the trigger vnode so the tooltip does not change its flex/grid sizing.
+const TooltipContent = () => h(
+  ElTooltip,
+  { content: props.content, disabled: !isOverflow.value, effect: 'light', placement: 'top', popperClass: 'overview-value-tooltip' },
+  { default: () => slots.default?.().map((node) => cloneVNode(node, { onMouseover: checkOverflow, onFocus: checkOverflow }, true)) }
+)
 </script>
+
+<template>
+  <TooltipContent />
+</template>
 
 <style lang="less">
 .overview-value-tooltip.el-popper {

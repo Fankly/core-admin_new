@@ -182,7 +182,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -191,9 +191,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, watch, onMounted, getCurrentInstance, useTemplateRef } from 'vue'
 import { ElMessage } from 'element-plus'
 import baseService from '@/service/baseService'
 import projectType from '@/components/select/projectType.vue'
@@ -204,324 +202,369 @@ import projectnature from '@/components/select/projectnature.vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { showHelpMsg } from '@/utils/message'
-export default defineComponent({
-  name: '/budget-process/process-21',
-  components: {
-    projectType,
-    affiliatedUnit,
-    copyTextBox,
-    Centralized,
-    projectnature,
-    userDialog
+defineOptions({
+  name: '/budget-process/process-21'
+})
+const componentInstance = getCurrentInstance().proxy
+const xmxzRef = useTemplateRef('xmxz')
+const xmbmRef = useTemplateRef('xmbm')
+const companyRef = useTemplateRef('company')
+const gkbmRef = useTemplateRef('gkbm')
+const typeRef = useTemplateRef('type')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  helpHandle,
+  spanArr: [],
+  // 用于存放需要合并的行的个数
+  spanIndex: 0,
+  // 记录spanArr数组的下标
+  example: [],
+  searchShow: true,
+  dataList: {
+    post1: '',
+    xmb: '',
+    month: new Date(),
+    SendDate: '',
+    SettleDate: '',
+    AuditDate: ''
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
-    }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      helpHandle,
-      spanArr: [], // 用于存放需要合并的行的个数
-      spanIndex: 0, // 记录spanArr数组的下标
-      example: [],
-      searchShow: true,
-      dataList: {
-        post1: '',
-        xmb: '',
-        month: new Date(),
-        SendDate: '',
-        SettleDate: '',
-        AuditDate: ''
-      },
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: ''
-    })
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-  watch: {
-    'store.state.xmsjData.pspid': {
-      handler: function (val) {
-        if (val) {
-          this.$refs.xmbm.ids = val
-          this.$refs.xmbm.text = val
-          this.$refs.xmbm.array.push(val)
-          this.specialorgid = JSON.parse(this.store.state.xmsjData.specialorgid)
-          this.loadData()
-          // 清空vuex中的数据
-          this.store.commit('xmsjData', {})
-        }
-      }
-    },
-    deep: true
-  },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    if (this.store.state.xmsjData.pspid && this.store.state.xmsjData.specialorgid) {
-      this.$refs.xmbm.ids = this.store.state.xmsjData.pspid
-      this.$refs.xmbm.text = this.store.state.xmsjData.pspid
-      this.$refs.xmbm.array.push(this.store.state.xmsjData.pspid)
-      this.specialorgid = JSON.parse(this.store.state.xmsjData.specialorgid)
-      this.loadData()
-      // 清空vuex中的数据
-      this.store.commit('xmsjData', {})
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const spanArr = toRef(setupState, 'spanArr')
+const spanIndex = toRef(setupState, 'spanIndex')
+const example = toRef(setupState, 'example')
+const searchShow = toRef(setupState, 'searchShow')
+const dataList = toRef(setupState, 'dataList')
+const page = toRef(setupState, 'page')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 80 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 80 + 'px'
+  }
+}
+function getSpanArr(data) {
+  let len = 0
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) {
+      len += 1
+      data[i].xuhao = len
+      setupState.spanArr.push(1)
+      setupState.spanIndex = 0
     } else {
-      this.loading = true
-      this.$refs.userDialog.getUser()
-    }
-  },
-  methods: {
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 80 + 'px'
+      // 判断当前行与前一行内容是否相同
+      if (data[i].pspid === data[i - 1].pspid) {
+        setupState.spanArr[setupState.spanIndex] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
+        setupState.spanArr.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
+        len += 1
+        data[i].xuhao = len
       } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 80 + 'px'
+        len = 1
+        data[i].xuhao = len
+        setupState.spanArr.push(1) // 否则，依旧是一行
+        setupState.spanIndex = i
       }
-    },
-    getSpanArr(data) {
-      let len = 0
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) {
-          len += 1
-          data[i].xuhao = len
-          this.spanArr.push(1)
-          this.spanIndex = 0
-        } else {
-          // 判断当前行与前一行内容是否相同
-          if (data[i].pspid === data[i - 1].pspid) {
-            this.spanArr[this.spanIndex] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
-            this.spanArr.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
-            len += 1
-            data[i].xuhao = len
-          } else {
-            len = 1
-            data[i].xuhao = len
-            this.spanArr.push(1) // 否则，依旧是一行
-            this.spanIndex = i
-          }
-        }
-      }
-    },
-    objectSpanMethod({ rowIndex, columnIndex }) {
-      if (columnIndex < 11) {
-        const _row = this.spanArr[rowIndex] // 行数
-        const _col = _row > 0 ? 1 : 0 // 列数
-        return {
-          rowspan: _row,
-          colspan: _col
-        }
-      }
-    },
-    loadData() {
-      this.loading = true
-      this.spanArr = [] // 用于存放需要合并的行的个数
-      this.spanIndex = 0 // 记录spanArr数组的下标
-      const params = {
-        pspids: [],
-        zjsjd_mc: this.$refs.xmxz.value,
-        qkjejdws: [],
-        post1: this.dataList.post1,
-        sSendDate: '',
-        eSendDate: '',
-        gkbms: [],
-        qkjxmlxbms: [],
-        sSettleDate: '',
-        eSettleDate: '',
-        zyear: '',
-        zmonth: '',
-        xmb: this.dataList.xmb,
-        sAuditDate: '',
-        eAuditDate: '',
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-
-      //项目编码
-      params.pspids = this.$refs.xmbm.array
-      //所属单位
-      params.qkjejdws = this.$refs.company.selectList
-      //送审日期
-      if (this.dataList.SendDate) {
-        params.sSendDate = this.dataList.SendDate[0]
-        params.eSendDate = this.dataList.SendDate[1]
-      }
-      //归口部门
-      params.gkbms = this.$refs.gkbm.selectList
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type.selectList
-      //收审日期
-      if (this.dataList.SettleDate) {
-        params.sSettleDate = this.dataList.SettleDate[0]
-        params.eSettleDate = this.dataList.SettleDate[1]
-      }
-      //截止日期
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      //审定日期
-      if (this.dataList.AuditDate) {
-        params.sAuditDate = this.dataList.AuditDate[0]
-        params.eAuditDate = this.dataList.AuditDate[1]
-      }
-      baseService.post('/process/process21/', params).then((res) => {
-        if (res.success == true) {
-          this.loading = false
-          this.example = res.data.list
-          this.page.total = res.data.total
-          this.getSpanArr(this.example)
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    exportData() {
-      this.loading = true
-      const params = {
-        pspids: [],
-        zjsjd_mc: this.$refs.xmxz.value,
-        qkjejdws: [],
-        post1: this.dataList.post1,
-        sSendDate: '',
-        eSendDate: '',
-        gkbms: [],
-        qkjxmlxbms: [],
-        sSettleDate: '',
-        eSettleDate: '',
-        zyear: '',
-        zmonth: '',
-        xmb: this.dataList.xmb,
-        sAuditDate: '',
-        eAuditDate: '',
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-
-      //项目编码
-      params.pspids = this.$refs.xmbm.array
-      //所属单位
-      params.qkjejdws = this.$refs.company.selectList
-      //送审日期
-      if (this.dataList.SendDate) {
-        params.sSendDate = this.dataList.SendDate[0]
-        params.eSendDate = this.dataList.SendDate[1]
-      }
-      //归口部门
-      params.gkbms = this.$refs.gkbm.selectList
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type.selectList
-      //收审日期
-      if (this.dataList.SettleDate) {
-        params.sSettleDate = this.dataList.SettleDate[0]
-        params.eSettleDate = this.dataList.SettleDate[1]
-      }
-      //截止日期
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      //审定日期
-      if (this.dataList.AuditDate) {
-        params.sAuditDate = this.dataList.AuditDate[0]
-        params.eAuditDate = this.dataList.AuditDate[1]
-      }
-
-      baseService.export('/process/process21/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '项目审计环节穿透.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-    // 分页控件当前页修改事件
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    // 分页控件请求数量修改事件
-    limitChangeHandle(currentLimitNum) {
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    //查询按钮
-    search() {
-      if (this.dataList.month) {
-        this.loadData()
-      } else {
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-    //重置按钮
-    reset() {
-      this.$refs.xmbm.clear()
-      this.$refs.xmxz.clear()
-      this.$refs.company.clear()
-      this.dataList.post1 = ''
-      this.dataList.SendDate = ''
-      this.$refs.gkbm.clear()
-      this.$refs.type.clear()
-      this.dataList.SettleDate = ''
-      this.dataList.month = new Date()
-      this.dataList.xmb = ''
-      this.dataList.AuditDate = ''
-      this.example = []
-      this.search()
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
-      this.$refs.gkbm.getProjectType(this.specialorgid)
     }
   }
+}
+function objectSpanMethod({ rowIndex, columnIndex }) {
+  if (columnIndex < 11) {
+    const _row = setupState.spanArr[rowIndex] // 行数
+    const _col = _row > 0 ? 1 : 0 // 列数
+    return {
+      rowspan: _row,
+      colspan: _col
+    }
+  }
+}
+function loadData() {
+  setupState.loading = true
+  setupState.spanArr = [] // 用于存放需要合并的行的个数
+  setupState.spanIndex = 0 // 记录spanArr数组的下标
+  const params = {
+    pspids: [],
+    zjsjd_mc: xmxzRef.value.value,
+    qkjejdws: [],
+    post1: setupState.dataList.post1,
+    sSendDate: '',
+    eSendDate: '',
+    gkbms: [],
+    qkjxmlxbms: [],
+    sSettleDate: '',
+    eSettleDate: '',
+    zyear: '',
+    zmonth: '',
+    xmb: setupState.dataList.xmb,
+    sAuditDate: '',
+    eAuditDate: '',
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+
+  //项目编码
+  params.pspids = xmbmRef.value.array
+  //所属单位
+  params.qkjejdws = companyRef.value.selectList
+  //送审日期
+  if (setupState.dataList.SendDate) {
+    params.sSendDate = setupState.dataList.SendDate[0]
+    params.eSendDate = setupState.dataList.SendDate[1]
+  }
+  //归口部门
+  params.gkbms = gkbmRef.value.selectList
+  //项目类型
+  params.qkjxmlxbms = typeRef.value.selectList
+  //收审日期
+  if (setupState.dataList.SettleDate) {
+    params.sSettleDate = setupState.dataList.SettleDate[0]
+    params.eSettleDate = setupState.dataList.SettleDate[1]
+  }
+  //截止日期
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  //审定日期
+  if (setupState.dataList.AuditDate) {
+    params.sAuditDate = setupState.dataList.AuditDate[0]
+    params.eAuditDate = setupState.dataList.AuditDate[1]
+  }
+  baseService.post('/process/process21/', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example = res.data.list
+      setupState.page.total = res.data.total
+      getSpanArr(setupState.example)
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function exportData() {
+  setupState.loading = true
+  const params = {
+    pspids: [],
+    zjsjd_mc: xmxzRef.value.value,
+    qkjejdws: [],
+    post1: setupState.dataList.post1,
+    sSendDate: '',
+    eSendDate: '',
+    gkbms: [],
+    qkjxmlxbms: [],
+    sSettleDate: '',
+    eSettleDate: '',
+    zyear: '',
+    zmonth: '',
+    xmb: setupState.dataList.xmb,
+    sAuditDate: '',
+    eAuditDate: '',
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+
+  //项目编码
+  params.pspids = xmbmRef.value.array
+  //所属单位
+  params.qkjejdws = companyRef.value.selectList
+  //送审日期
+  if (setupState.dataList.SendDate) {
+    params.sSendDate = setupState.dataList.SendDate[0]
+    params.eSendDate = setupState.dataList.SendDate[1]
+  }
+  //归口部门
+  params.gkbms = gkbmRef.value.selectList
+  //项目类型
+  params.qkjxmlxbms = typeRef.value.selectList
+  //收审日期
+  if (setupState.dataList.SettleDate) {
+    params.sSettleDate = setupState.dataList.SettleDate[0]
+    params.eSettleDate = setupState.dataList.SettleDate[1]
+  }
+  //截止日期
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  //审定日期
+  if (setupState.dataList.AuditDate) {
+    params.sAuditDate = setupState.dataList.AuditDate[0]
+    params.eAuditDate = setupState.dataList.AuditDate[1]
+  }
+  baseService.export('/process/process21/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '项目审计环节穿透.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+// 分页控件当前页修改事件
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+//查询按钮
+function search() {
+  if (setupState.dataList.month) {
+    loadData()
+  } else {
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
+    })
+  }
+}
+//重置按钮
+function reset() {
+  xmbmRef.value.clear()
+  xmxzRef.value.clear()
+  companyRef.value.clear()
+  setupState.dataList.post1 = ''
+  setupState.dataList.SendDate = ''
+  gkbmRef.value.clear()
+  typeRef.value.clear()
+  setupState.dataList.SettleDate = ''
+  setupState.dataList.month = new Date()
+  setupState.dataList.xmb = ''
+  setupState.dataList.AuditDate = ''
+  setupState.example = []
+  search()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+  gkbmRef.value.getProjectType(setupState.specialorgid)
+}
+watch(
+  () => setupState.store.state.xmsjData.pspid,
+  function (val) {
+    if (val) {
+      xmbmRef.value.ids = val
+      xmbmRef.value.text = val
+      xmbmRef.value.array.push(val)
+      setupState.specialorgid = JSON.parse(setupState.store.state.xmsjData.specialorgid)
+      loadData()
+      // 清空vuex中的数据
+      setupState.store.commit('xmsjData', {})
+    }
+  },
+  {}
+)
+watch(() => componentInstance.deep, true)
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  if (setupState.store.state.xmsjData.pspid && setupState.store.state.xmsjData.specialorgid) {
+    xmbmRef.value.ids = setupState.store.state.xmsjData.pspid
+    xmbmRef.value.text = setupState.store.state.xmsjData.pspid
+    xmbmRef.value.array.push(setupState.store.state.xmsjData.pspid)
+    setupState.specialorgid = JSON.parse(setupState.store.state.xmsjData.specialorgid)
+    loadData()
+    // 清空vuex中的数据
+    setupState.store.commit('xmsjData', {})
+  } else {
+    setupState.loading = true
+    userDialogRef.value.getUser()
+  }
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  helpHandle,
+  spanArr,
+  spanIndex,
+  example,
+  searchShow,
+  dataList,
+  page,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  setTableHeight,
+  getSpanArr,
+  objectSpanMethod,
+  loadData,
+  exportData,
+  pageChangeHandle,
+  limitChangeHandle,
+  showSearch,
+  search,
+  reset,
+  loadCompany
 })
 </script>
 

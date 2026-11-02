@@ -20,24 +20,14 @@
     :flag="'VIEW'"
   />
 </template>
-<script lang="tsx">
-export default {
-  name: '/service/lslxJsc/xmnckCx'
-}
-</script>
+
 <script setup lang="tsx">
 import { onMounted, reactive, ref, nextTick } from 'vue'
-import userDialog from '@/components/select/userDialog.vue' //登陆权限
-import viewTable from '@/views/service/lslxJsc/components/table.vue' //表格组件
+import userDialog from '@/components/select/userDialog.vue'
+import viewTable from '@/views/service/lslxJsc/components/table.vue'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
-import {
-  getYjdw,
-  getEjdw,
-  getPublicData,
-  getSubProtypeTree,
-  getBizOrgTreeNoPermission
-} from '@/api/common' //公共代码
+import { getYjdw, getEjdw, getPublicData, getSubProtypeTree, getBizOrgTreeNoPermission } from '@/api/common'
 import { useStore } from '@/store/business'
 import { useRoute } from 'vue-router'
 import { useUser } from '@/hooks/useUser'
@@ -46,12 +36,19 @@ import { pageXmInfoForYs, exportXmInfoForYs, mbzlslxNckSubmit } from '@/api/lslx
 import { formatNumValue } from '@/utils/utils'
 import { apiExportHandle } from '@/utils/export'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
+defineOptions({
+  name: '/service/lslxJsc/xmnckCx'
+})
+
+ //登陆权限
+ //表格组件
+
+ //公共代码
 
 interface pageInfoVO {
   loading: boolean
   isShowPage: boolean
 }
-
 const store = useStore()
 const route = useRoute()
 const pageInfo = reactive<pageInfoVO>({
@@ -102,7 +99,6 @@ const treeProps = reactive({
     label: 'name'
   }
 })
-
 onMounted(async () => {
   var isRoel = await useUser('getLSGlobalInfo')
   pageInfo.loading = true
@@ -135,9 +131,7 @@ const clickBtn = async (val: any) => {
     if (val.label == 'PROVIEW' && val.selectedList.length != 1) {
       return ElMessage.warning('请选择一条数据')
     }
-    const isSubmit = val.selectedList.some(
-      (itme: any) => itme.lslxNckStatus == '2' || itme.lslxNckStatus == '3'
-    )
+    const isSubmit = val.selectedList.some((itme: any) => itme.lslxNckStatus == '2' || itme.lslxNckStatus == '3')
     if (isSubmit && val.label == 'PROSUBMIT') {
       return ElMessage.warning(`存在已提交或已核定的数据，无需重复提交。`)
     }
@@ -191,7 +185,6 @@ const clickBtn = async (val: any) => {
     console.log(error)
   }
 }
-
 const initParams = async () => {
   try {
     const yjdwRes = await getYjdw({
@@ -305,11 +298,21 @@ const getDwData = () => {
     }
   })
 }
-
 const tableColumns = reactive([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'lslxNckStatusName', label: '拟出库状态', width: '100' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'lslxNckStatusName',
+    label: '拟出库状态',
+    width: '100'
+  },
   {
     prop: 'xmbm',
     label: '项目编码',
@@ -325,14 +328,27 @@ const tableColumns = reactive([
     prop: 'xmmc',
     label: '项目名称',
     width: '180',
-    search: { el: 'input', order: 2,props:{maxlength:60} }
+    search: {
+      el: 'input',
+      order: 2,
+      props: {
+        maxlength: 60
+      }
+    }
   },
   {
     prop: 'jhssnd',
     label: '计划实施年份',
-    search: { el: 'select', order: 5, defaultValue: new Date().getFullYear().toString() },
+    search: {
+      el: 'select',
+      order: 5,
+      defaultValue: new Date().getFullYear().toString()
+    },
     enum: jhssndList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   },
   {
@@ -364,19 +380,49 @@ const tableColumns = reactive([
     search: {
       el: 'select',
       order: 8,
-      defaultValue: ['1','4'],
-      props: { multiple: true, collapseTags: true }
+      defaultValue: ['1', '4'],
+      props: {
+        multiple: true,
+        collapseTags: true
+      }
     },
     enum: nckStatus.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   },
-  { prop: 'sfgmb', label: '是否规模包', width: '100' },
-  { prop: 'gmbbm', label: '规模包编码', width: '120' },
-  { prop: 'gmbmc', label: '规模包名称', width: '180' },
-  { prop: 'isPack', label: '是否捆项目', width: '100' },
-  { prop: 'kypswh', label: '可研评审文号', width: '180' },
-  { prop: 'kypfwh', label: '可研批复文号', width: '180' },
+  {
+    prop: 'sfgmb',
+    label: '是否规模包',
+    width: '100'
+  },
+  {
+    prop: 'gmbbm',
+    label: '规模包编码',
+    width: '120'
+  },
+  {
+    prop: 'gmbmc',
+    label: '规模包名称',
+    width: '180'
+  },
+  {
+    prop: 'isPack',
+    label: '是否捆项目',
+    width: '100'
+  },
+  {
+    prop: 'kypswh',
+    label: '可研评审文号',
+    width: '180'
+  },
+  {
+    prop: 'kypfwh',
+    label: '可研批复文号',
+    width: '180'
+  },
   {
     prop: 'amount',
     label: '申报金额（万元）',
@@ -389,18 +435,47 @@ const tableColumns = reactive([
       return formatNumValue(value, 6)
     }
   },
-  { prop: 'proTypeName', label: '项目类型', width: '180' },
-  { prop: 'zdtx', label: '重点投向', width: '180' },
-  { prop: 'yssxmc', label: '预算事项', width: '180' },
-  { prop: 'sjfl', label: '三级分类', width: '180' },
-  { prop: 'zgkbm', label: '省归口部门', width: '180' },
+  {
+    prop: 'proTypeName',
+    label: '项目类型',
+    width: '180'
+  },
+  {
+    prop: 'zdtx',
+    label: '重点投向',
+    width: '180'
+  },
+  {
+    prop: 'yssxmc',
+    label: '预算事项',
+    width: '180'
+  },
+  {
+    prop: 'sjfl',
+    label: '三级分类',
+    width: '180'
+  },
+  {
+    prop: 'zgkbm',
+    label: '省归口部门',
+    width: '180'
+  },
   {
     prop: 'yjdw',
     label: '一级单位',
     width: '180',
-    search: { el: 'select', props: { onChange: selectChange }, order: 3 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: selectChange
+      },
+      order: 3
+    },
     enum: yjdwList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.yjdw
     }
@@ -409,17 +484,39 @@ const tableColumns = reactive([
     prop: 'ejdw',
     label: '二级单位',
     width: '180',
-    search: { el: 'select', order: 4 },
+    search: {
+      el: 'select',
+      order: 4
+    },
     enum: ejdwList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.ejdw
     }
   },
-  { prop: 'applyCenter', label: '成本中心', width: '180' },
-  { prop: 'createTime', label: '创建时间', width: '150' },
-  { prop: 'createor', label: '创建人', width: '80' },
-  { prop: 'prosource', label: '来源系统', width: '180' }
+  {
+    prop: 'applyCenter',
+    label: '成本中心',
+    width: '180'
+  },
+  {
+    prop: 'createTime',
+    label: '创建时间',
+    width: '150'
+  },
+  {
+    prop: 'createor',
+    label: '创建人',
+    width: '80'
+  },
+  {
+    prop: 'prosource',
+    label: '来源系统',
+    width: '180'
+  }
 ])
 </script>
 

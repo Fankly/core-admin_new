@@ -39,13 +39,12 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'ChangXmInfo'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive, nextTick } from 'vue'
+defineOptions({
+  name: 'ChangXmInfo'
+})
 
 const modalRef = ref()
 const isShowTable = ref<boolean>(false)
@@ -57,39 +56,103 @@ const oldProject = ref()
 const closeSxModal = () => {
   isShowTable.value = false
 }
-
 const xmInfoColunm = reactive([
-  { label: '项目编码', props: 'xmbm' },
-  { label: '项目名称', props: 'xmmc' },
-  { label: '项目类型', props: 'pro_type_name' },
-  { label: '一级单位', props: 'yjdw' },
-  { label: '二级单位', props: 'ejdw' },
-  { label: '成本中心', props: 'apply_center' },
-  { label: '申报金额（万元）', props: 'amount' },
-  { label: '计划实施年份', props: 'jhssnd' },
-  { label: '重点投向', props: 'zdtx' },
-  { label: '省归口部门', props: 'zgkbm' },
-  { label: '预算事项名称', props: 'yssxmc' },
+  {
+    label: '项目编码',
+    props: 'xmbm'
+  },
+  {
+    label: '项目名称',
+    props: 'xmmc'
+  },
+  {
+    label: '项目类型',
+    props: 'pro_type_name'
+  },
+  {
+    label: '一级单位',
+    props: 'yjdw'
+  },
+  {
+    label: '二级单位',
+    props: 'ejdw'
+  },
+  {
+    label: '成本中心',
+    props: 'apply_center'
+  },
+  {
+    label: '申报金额（万元）',
+    props: 'amount'
+  },
+  {
+    label: '计划实施年份',
+    props: 'jhssnd'
+  },
+  {
+    label: '重点投向',
+    props: 'zdtx'
+  },
+  {
+    label: '省归口部门',
+    props: 'zgkbm'
+  },
+  {
+    label: '预算事项名称',
+    props: 'yssxmc'
+  },
   // { label: '预算事项说明',props: 'yssx_remark' },
-  { label: '一级分类', props: 'yjfl' },
-  { label: '二级分类', props: 'ejfl' },
-  { label: '三级分类', props: 'sjfl' },
-  { label: '实施部门', props: 'ssbm' },
-  { label: '项目实施人', props: 'xmssr' },
-  { label: '研发投入统计范围', props: 'zyfjftrtjfw' },
+  {
+    label: '一级分类',
+    props: 'yjfl'
+  },
+  {
+    label: '二级分类',
+    props: 'ejfl'
+  },
+  {
+    label: '三级分类',
+    props: 'sjfl'
+  },
+  {
+    label: '实施部门',
+    props: 'ssbm'
+  },
+  {
+    label: '项目实施人',
+    props: 'xmssr'
+  },
+  {
+    label: '研发投入统计范围',
+    props: 'zyfjftrtjfw'
+  },
   // { label: '预期成果',props: 'zyqcg' },
-  { label: '研发投入百分比', props: 'jryftrbfb' },
+  {
+    label: '研发投入百分比',
+    props: 'jryftrbfb'
+  },
   // { label: '百分比说明',props: 'bfbjsfssm' },
-  { label: '是否安全生产', props: 'sfaqsc' },
-  { label: '安全生产费用类型', props: 'aqscfylx' },
-  { label: '线路类型', props: 'xllx' },
-  { label: '电压等级', props: 'dydj' }
+  {
+    label: '是否安全生产',
+    props: 'sfaqsc'
+  },
+  {
+    label: '安全生产费用类型',
+    props: 'aqscfylx'
+  },
+  {
+    label: '线路类型',
+    props: 'xllx'
+  },
+  {
+    label: '电压等级',
+    props: 'dydj'
+  }
   // { label: '项目实施内容',props: 'ssnr' },
   // { label: '项目建议书（数量）',props: 'fj1' },
   // { label: '可研（数量）',props: 'fj2' },
   // { label: '批复文件（数量）',props: 'fj3' },
 ])
-
 defineExpose({
   isShowTable,
   loading,

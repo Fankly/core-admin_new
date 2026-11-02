@@ -23,13 +23,13 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'modalAmount'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+defineOptions({
+  name: 'modalAmount'
+})
+
 interface rmarkDataVo {
   xmmc: string
   sheetname: string
@@ -69,7 +69,9 @@ const pushMsgHandle = async () => {
     } else {
       rmarkData.decsjg = undefined
     }
-    emit('showModal', { ...rmarkData })
+    emit('showModal', {
+      ...rmarkData
+    })
   })
 }
 // 子组件暴露方法到父组件

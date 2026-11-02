@@ -95,33 +95,30 @@
   <ImportExcel ref="importRef" />
   <HelpModal ref="helpModalRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/xmInfo/Zkzwh'
-}
-</script>
+
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
 import Log from '@/views/xmInfo/components/Log.vue'
 import ImportExcel from '@/components/ImportExcel/index.vue'
-
 import { exportData, getData, getDynamicColumn, getImportTemplate, importData, save } from '@/api/xmInfo/mbz'
-import { summaryValue } from '@/utils/utils'
-
+import { summaryValue, formatValue } from '@/utils/utils'
 import { computed, onMounted, reactive, ref } from 'vue'
 import VXETable, { VxeTablePropTypes } from 'vxe-table'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { ElMessage } from 'element-plus'
 import { Columns } from './interface'
-import { getYearData } from '@/api/common'
+import { getYearData, getPublicData } from '@/api/common'
 import { Decimal } from 'decimal.js'
-import { formatValue } from '@/utils/utils'
 import { User } from '../goalValue/interface'
 import router from '@/router'
 import { encrypt } from '@/utils/crypto'
-import { getPublicData } from '@/api/common' //公共代码
+defineOptions({
+  name: '/xmInfo/Zkzwh'
+})
+
+//公共代码
 
 interface TableInfo {
   tableData: any[]
@@ -130,7 +127,6 @@ interface TableInfo {
   editConfig: VxeTablePropTypes.EditConfig
   exportConfig: VxeTablePropTypes.ExportConfig
 }
-
 interface UpdateValue {
   dwId: string
   dwName: string
@@ -141,7 +137,6 @@ interface UpdateParam {
   id: string
   dwValues: UpdateValue[]
 }
-
 const tableRef = ref()
 const helpModalRef = ref()
 const userDialogRef = ref()
@@ -150,7 +145,6 @@ const importRef = ref()
 const tabList = ref<any[]>([])
 const isZgs = ref<any>('0')
 const disabled = computed(() => pageInfo.loading)
-
 const pageInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -165,11 +159,9 @@ const pageInfo = reactive<{
   pageFlag: false,
   ndDataList: []
 })
-
 const formData = reactive({
   nd: ''
 })
-
 const userInfo = ref<User>({
   code: '',
   id: '',
@@ -185,11 +177,8 @@ const userInfo = ref<User>({
   systemId: '',
   systemName: ''
 })
-
 const updateParams = reactive<UpdateParam[]>([])
-
 const count = ref(0)
-
 const tableInfo = reactive<TableInfo>({
   tableData: [],
   columns: [],
@@ -244,22 +233,25 @@ const tableInfo = reactive<TableInfo>({
       const nameCol = worksheet.getColumn('A')
       const newArr: any[] = []
       getExportData(newArr, tableInfo.tableData)
-      nameCol.eachCell({ includeEmpty: false }, (cell: any, cellNumber: number) => {
-        if (cell.address !== 'A1') {
-          if (newArr[cellNumber - 2].cj > 1) {
-            cell.value = '    '.repeat(newArr[cellNumber - 2].cj - 1) + newArr[cellNumber - 2].name
+      nameCol.eachCell(
+        {
+          includeEmpty: false
+        },
+        (cell: any, cellNumber: number) => {
+          if (cell.address !== 'A1') {
+            if (newArr[cellNumber - 2].cj > 1) {
+              cell.value = '    '.repeat(newArr[cellNumber - 2].cj - 1) + newArr[cellNumber - 2].name
+            }
           }
         }
-      })
+      )
       pageInfo.loading = false
     }
   }
 })
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const getExportData = (newArr: any[], data: any[]) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -278,7 +270,6 @@ const formatterData = ({ column, cellValue }: any) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   return formatValue(cellValue.toString(), 6)
 }
-
 const sumhandle = (row: any, key: string) => {
   row[key] = row[key] ? new Decimal(row[key]).toFixed(6) : '0.000000'
   const config: any = tableInfo.treeConfig
@@ -307,11 +298,16 @@ const getEditDataHandle = ({ column, row }: any) => {
     updateParams.push({
       code: code,
       id: id,
-      dwValues: [{ dwId: column.field, dwName: column.title, ysje: row[column.field] }]
+      dwValues: [
+        {
+          dwId: column.field,
+          dwName: column.title,
+          ysje: row[column.field]
+        }
+      ]
     })
   }
 }
-
 const selectNdHandle = (val: string) => {
   getDataList()
 }
@@ -368,7 +364,6 @@ const expandHandle = async () => {
     expandAllTree(tableInfo.tableData, $table)
   }
 }
-
 const expandAllTree = async (data: any[], $table: any) => {
   data.forEach(async (row) => {
     if (row.leaf) {
@@ -435,7 +430,9 @@ const editLogHandle = () => {
 const versionManageHandle = () => {
   const str = encrypt(
     JSON.stringify({
-      userInfo: { ...userInfo.value },
+      userInfo: {
+        ...userInfo.value
+      },
       nd: formData.nd
     })
   )
@@ -446,10 +443,11 @@ const versionManageHandle = () => {
     }
   })
 }
-
 const getRoleHandle = async () => {
   pageInfo.loading = false
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   // 请求数据
   let res = await getHeaderData(userInfo.value.specialorgid)
   if (!res) return
@@ -460,14 +458,12 @@ const getRoleHandle = async () => {
     pageInfo.isShowPage = true
   }
 }
-
 const isClickHeader = (columns: any, field: string) => {
   let columnsData = columns.filter((item: any) => item.eidt)
   let column = columnsData.find((item: any) => item.columnKey === field)
   if (column) return true
   return false
 }
-
 const cellStyle = ({ row, column }: any) => {
   if (tableInfo.editConfig && !tableInfo.editConfig.enabled) {
     return {
@@ -481,7 +477,6 @@ const cellStyle = ({ row, column }: any) => {
       backgroundColor: 'rgba(232, 234, 236,0.5)'
     }
   }
-
   if (!row.id || row.leaf) {
     return {
       cursor: 'auto',
@@ -489,7 +484,6 @@ const cellStyle = ({ row, column }: any) => {
     }
   }
 }
-
 const getHeaderData = async (specialOrgId: string) => {
   let res = await getDynamicColumn(specialOrgId, isZgs.value)
   if (res.success) {
@@ -501,7 +495,6 @@ const getHeaderData = async (specialOrgId: string) => {
     return false
   }
 }
-
 const getDataList = async () => {
   pageInfo.loading = true
   tableInfo.tableData.length = 0
@@ -522,7 +515,6 @@ const getDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getYearDataList = async () => {
   let res = await getYearData()
   if (res.success) {
@@ -532,7 +524,6 @@ const getYearDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const initParamLists = async () => {
   // 获取公共代码
   const res = await getPublicData('MBZ_TAB_TYPE')
@@ -541,14 +532,12 @@ const initParamLists = async () => {
     isZgs.value = res.data[0].code
   }
 }
-
 const initData = () => {
   initParamLists()
   getYearDataList()
   pageInfo.loading = true
   userDialogRef.value.getUser()
 }
-
 onMounted(initData)
 </script>
 

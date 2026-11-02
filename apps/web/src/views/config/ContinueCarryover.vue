@@ -35,7 +35,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/config/ContinueCarryover" })
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import HelpModal from '@/components/HelpModal/index.vue'
 import userDialog from '@/components/select/userDialog.vue'
@@ -47,6 +46,7 @@ import { getProtypeTreeYear } from '@/api/service/requirement'
 import ContinueCarryoverModal from '@/views/config/components/ContinueCarryoverModal.vue'
 import ContinueCarryoverBatchModal from '@/views/config/components/ContinueCarryoverBatchModal.vue'
 import { VXETable } from 'vxe-table'
+defineOptions({ name: "/config/ContinueCarryover" })
 
 interface PageConfig extends ContextProps {
   loading: boolean

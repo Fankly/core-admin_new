@@ -22,106 +22,96 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "kmfzpzAdd"
-};
-</script>
+
 <script setup lang="ts">
-import { editData, saveData } from "@/api/xmInfo/kmfzpz";
-import { ElMessage } from "element-plus";
-import { defineProps, ref, defineEmits, defineExpose, reactive } from "vue";
+import { editData, saveData } from '@/api/xmInfo/kmfzpz'
+import { ElMessage } from 'element-plus'
+import { ref, reactive } from 'vue'
+defineOptions({
+  name: 'kmfzpzAdd'
+})
 
 interface SelectData {
-  itemId: string;
-  itemName: string;
-  status: string;
-  sort: string;
+  itemId: string
+  itemName: string
+  status: string
+  sort: string
 }
-
 interface Props {
-  title: string;
-  opeartionFlag: string;
-  yskmId: string;
-  nd: string;
-  selectData: SelectData;
+  title: string
+  opeartionFlag: string
+  yskmId: string
+  nd: string
+  selectData: SelectData
 }
-
-const props = defineProps<Props>();
-const emit = defineEmits(["close", "save"]);
-
-const showModal = ref(false);
-const loading = ref(false);
-const modalTitle = ref("");
-
+const props = defineProps<Props>()
+const emit = defineEmits(['close', 'save'])
+const showModal = ref(false)
+const loading = ref(false)
+const modalTitle = ref('')
 const formData = reactive({
-  itemName: "",
-  status: "1",
-  sort: ""
-});
-
+  itemName: '',
+  status: '1',
+  sort: ''
+})
 const selectList = reactive({
   statusList: [
     {
-      label: "启用",
-      value: "1"
+      label: '启用',
+      value: '1'
     },
     {
-      label: "停用",
-      value: "0"
+      label: '停用',
+      value: '0'
     }
   ]
-});
-
+})
 const saveHandle = async () => {
   const params: any = {
     nd: props.nd,
     ...formData
-  };
-  if (Number(props.yskmId)) {
-    params.yskmId = Number(props.yskmId);
   }
-  let res: any;
-  if (props.opeartionFlag !== "add" && props.selectData.itemId) {
+  if (Number(props.yskmId)) {
+    params.yskmId = Number(props.yskmId)
+  }
+  let res: any
+  if (props.opeartionFlag !== 'add' && props.selectData.itemId) {
     res = await editData({
       ...params,
       itemId: props.selectData.itemId
-    });
+    })
   } else {
-    res = await saveData(params);
+    res = await saveData(params)
   }
   if (res.success) {
-    ElMessage.success("保存成功！");
-    emit("save", params);
-    cancelHandle();
+    ElMessage.success('保存成功！')
+    emit('save', params)
+    cancelHandle()
   } else {
-    ElMessage.error(res.msg);
+    ElMessage.error(res.msg)
   }
-};
-
+}
 const cancelHandle = () => {
-  closeHandle();
-};
-
+  closeHandle()
+}
 const showHandle = async () => {
-  modalTitle.value = props.title;
-  if (props.opeartionFlag !== "add" && props.selectData.itemId) {
-    formData.itemName = props.selectData.itemName;
-    formData.status = props.selectData.status;
-    formData.sort = props.selectData.sort;
+  modalTitle.value = props.title
+  if (props.opeartionFlag !== 'add' && props.selectData.itemId) {
+    formData.itemName = props.selectData.itemName
+    formData.status = props.selectData.status
+    formData.sort = props.selectData.sort
   }
-};
+}
 const closeHandle = () => {
-  formData.itemName = "";
-  formData.status = "1";
-  formData.sort = "";
-  showModal.value = false;
-  emit("close", showModal.value);
-};
-
+  formData.itemName = ''
+  formData.status = '1'
+  formData.sort = ''
+  showModal.value = false
+  emit('close', showModal.value)
+}
 defineExpose({
   showModal
-});
+})
 </script>
 
 <style scoped>

@@ -37,7 +37,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/xmInfo/systemManagement/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import Log from '@/views/xmInfo/components/Log.vue'
 import ImportExcel from '@/components/ImportExcel/index.vue'
@@ -47,16 +46,20 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { ElMessage } from 'element-plus'
-import { getYearData } from '@/api/common'
+import { getYearData, getPublicData } from '@/api/common'
 import router from '@/router'
 import { encrypt } from '@/utils/crypto'
-import { getPublicData } from '@/api/common' //公共代码
 import { User } from '@/views/goalValue/interface'
 import { IObject } from '@/types/interface'
 import { VxeGridListeners, VxeGridProps } from 'vxe-table'
 import { exportData, getData, getDynamicColumn } from '@/api/xmInfo/cityTargetValue'
 import { formatNumValue } from '@/utils/utils'
 import { number } from 'echarts'
+defineOptions({
+  name: '/xmInfo/systemManagement/index'
+})
+
+//公共代码
 
 const tableRef = ref()
 const ctPageRef = ref()
@@ -68,13 +71,11 @@ const tabList = ref<any[]>([])
 const isZgs = ref<any>('0')
 const disabled = computed(() => gridOptions.loading)
 const isCheck = ref<boolean>(false)
-
 const tableCellStyle = new TableCellStyle({
   structure: 'tree',
   colorFieldSuffix: '_colorCode',
   mode: 'text'
 })
-
 const pageInfo = reactive<{
   isShowPage: boolean
   pageFlag: boolean
@@ -87,7 +88,6 @@ const pageInfo = reactive<{
   pageFlag: false,
   ndDataList: []
 })
-
 const cellStyle = ({ row, column }: any) => {
   if (isCheck.value) {
     if (!(!column?.field.includes('mbz') && !column?.field.includes('propackJe'))) {
@@ -108,7 +108,6 @@ const cellStyle = ({ row, column }: any) => {
     backgroundColor: 'rgba(232, 234, 236,0.5)'
   }
 }
-
 const gridOptions = reactive<VxeGridProps<IObject>>({
   border: true,
   keepSource: true,
@@ -163,10 +162,8 @@ const gridOptions = reactive<VxeGridProps<IObject>>({
       const nameCol = worksheet.getColumn('A')
       const newArr: any[] = []
       getExportData(newArr, gridOptions.data || [])
-
       const totalRows = worksheet.rowCount
       const dataCount = newArr.length
-
       const headerRows = dataCount > 0 ? totalRows - dataCount : 1
 
       // 获取所有可见列的field
@@ -184,59 +181,76 @@ const gridOptions = reactive<VxeGridProps<IObject>>({
       const visibleFields = getAllFields(gridOptions.columns || [])
 
       // 处理name的缩进
-      nameCol.eachCell({ includeEmpty: false }, (cell: any, rowNumber: number) => {
-        if (rowNumber > headerRows) {
-          const dataIndex = rowNumber - headerRows - 1
-          if (newArr[dataIndex]) {
-            if (newArr[dataIndex].cj > 1) {
-              cell.value = '    '.repeat(newArr[dataIndex].cj - 1) + newArr[dataIndex].name
+      nameCol.eachCell(
+        {
+          includeEmpty: false
+        },
+        (cell: any, rowNumber: number) => {
+          if (rowNumber > headerRows) {
+            const dataIndex = rowNumber - headerRows - 1
+            if (newArr[dataIndex]) {
+              if (newArr[dataIndex].cj > 1) {
+                cell.value = '    '.repeat(newArr[dataIndex].cj - 1) + newArr[dataIndex].name
+              }
             }
           }
         }
-      })
+      )
 
       // 设置所有单元格的颜色
-      worksheet.eachRow({ includeEmpty: false }, (row: any, rowNumber: number) => {
-        if (rowNumber > headerRows) {
-          const dataIndex = rowNumber - headerRows - 1
-          const rowData = newArr[dataIndex]
-          if (rowData) {
-            row.eachCell({ includeEmpty: false }, (cell: any, colNumber: number) => {
-              const fieldIndex = colNumber - 1
-              if (fieldIndex < visibleFields.length) {
-                const field = visibleFields[fieldIndex]
-                const cellStyle = tableCellStyle.getCellStyle(rowData, field)
-                if (cellStyle) {
-                  if (cellStyle.color) {
-                    cell.font = {
-                      ...cell.font,
-                      color: { argb: 'FF' + cellStyle.color?.replace('#', '') },
-                      blod: cellStyle.fontWeight && cellStyle.fontWeight >= 600
-                    }
-                  }
-                  if (cellStyle.backgroundColor) {
-                    cell.fill = {
-                      type: 'pattern',
-                      pattern: 'solid',
-                      fgColor: { argb: 'FF' + cellStyle.color?.replace('#', '') }
+      worksheet.eachRow(
+        {
+          includeEmpty: false
+        },
+        (row: any, rowNumber: number) => {
+          if (rowNumber > headerRows) {
+            const dataIndex = rowNumber - headerRows - 1
+            const rowData = newArr[dataIndex]
+            if (rowData) {
+              row.eachCell(
+                {
+                  includeEmpty: false
+                },
+                (cell: any, colNumber: number) => {
+                  const fieldIndex = colNumber - 1
+                  if (fieldIndex < visibleFields.length) {
+                    const field = visibleFields[fieldIndex]
+                    const cellStyle = tableCellStyle.getCellStyle(rowData, field)
+                    if (cellStyle) {
+                      if (cellStyle.color) {
+                        cell.font = {
+                          ...cell.font,
+                          color: {
+                            argb: 'FF' + cellStyle.color?.replace('#', '')
+                          },
+                          blod: cellStyle.fontWeight && cellStyle.fontWeight >= 600
+                        }
+                      }
+                      if (cellStyle.backgroundColor) {
+                        cell.fill = {
+                          type: 'pattern',
+                          pattern: 'solid',
+                          fgColor: {
+                            argb: 'FF' + cellStyle.color?.replace('#', '')
+                          }
+                        }
+                      }
                     }
                   }
                 }
-              }
-            })
+              )
+            }
           }
         }
-      })
+      )
       gridOptions.loading = false
     }
   }
 })
-
 const formData = reactive({
   nd: ''
 })
 const ctParams = ref<any>({})
-
 const userInfo = ref<User>({
   code: '',
   id: '',
@@ -252,13 +266,10 @@ const userInfo = ref<User>({
   systemId: '',
   systemName: ''
 })
-
 const count = ref(0)
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const getExportData = (newArr: any[], data: any[]) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -270,7 +281,6 @@ const getExportData = (newArr: any[], data: any[]) => {
   })
   return newArr
 }
-
 const selectNdHandle = (val: string) => {
   getDataList()
 }
@@ -290,7 +300,6 @@ const expandHandle = async () => {
     expandAllTree(gridOptions.data || [], $table)
   }
 }
-
 const expandAllTree = async (data: any[], $table: any) => {
   data.forEach(async (row) => {
     if (row.leaf) {
@@ -337,7 +346,9 @@ const handleCheckPack = async (val: any) => {
 const versionManageHandle = () => {
   const str = encrypt(
     JSON.stringify({
-      userInfo: { ...userInfo.value },
+      userInfo: {
+        ...userInfo.value
+      },
       nd: formData.nd
     })
   )
@@ -348,10 +359,11 @@ const versionManageHandle = () => {
     }
   })
 }
-
 const getRoleHandle = async () => {
   gridOptions.loading = false
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   // 请求数据
   let res = await getHeaderData(userInfo.value.org_id)
   if (!res) return
@@ -376,7 +388,6 @@ const handleCell = ({ row, column }: any) => {
   ctPageRef.value.isShowModal = true
   ctPageRef.value.getHeaderData(column?.field.split('_')[0] || '')
 }
-
 const filterVisisble = (list = []): any[] => {
   return list
     .filter((col: IObject) => col.visible)
@@ -398,7 +409,6 @@ const filterVisisble = (list = []): any[] => {
           return cellValue
         }
       }
-
       if (item['children'] && Array.isArray(item['children']) && item['children'].length > 0) {
         return {
           ...item,
@@ -408,7 +418,6 @@ const filterVisisble = (list = []): any[] => {
       return item
     })
 }
-
 const getHeaderData = async (dwId: string) => {
   let res = await getDynamicColumn({
     dwId: dwId,
@@ -433,7 +442,6 @@ const getHeaderData = async (dwId: string) => {
     return false
   }
 }
-
 const getDataList = async () => {
   gridOptions.loading = true
   gridOptions.data = []
@@ -454,7 +462,6 @@ const getDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getYearDataList = async () => {
   let res = await getYearData()
   if (res.success) {
@@ -464,7 +471,6 @@ const getYearDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const initParamLists = async () => {
   // 获取公共代码
   const res = await getPublicData('MBZ_TAB_TYPE')
@@ -473,18 +479,15 @@ const initParamLists = async () => {
     isZgs.value = res.data[0].code
   }
 }
-
 const initData = () => {
   initParamLists()
   getYearDataList()
   gridOptions.loading = true
   userDialogRef.value.getUser()
 }
-
 const gridEvent: VxeGridListeners<IObject> = {
   cellClick: handleCell
 }
-
 onMounted(initData)
 </script>
 

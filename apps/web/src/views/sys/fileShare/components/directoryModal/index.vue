@@ -40,14 +40,12 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'directoryModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+defineOptions({
+  name: 'directoryModal'
+})
 
 interface DirectoryParams {
   id?: string
@@ -56,37 +54,39 @@ interface DirectoryParams {
   sortCode?: number
   leaf?: number
 }
-
 const emit = defineEmits<{
   (e: 'success', val: DirectoryParams): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
 const modalTitle = ref('新增目录')
-
-const formParams = ref<DirectoryParams>({ id: '', parentId: '', directoryName: '', sortCode: 0, leaf: 0 })
-
+const formParams = ref<DirectoryParams>({
+  id: '',
+  parentId: '',
+  directoryName: '',
+  sortCode: 0,
+  leaf: 0
+})
 const handleClose = () => {
   ruleFormRef.value?.resetFields()
   isShowModal.value = false
 }
-
 const handleSave = () => {
   if (loading.value) return
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
     loading.value = true
     try {
-      emit('success', { ...formParams.value })
+      emit('success', {
+        ...formParams.value
+      })
       handleClose()
     } finally {
       loading.value = false
     }
   })
 }
-
 const acceptParams = (params: Partial<DirectoryParams>) => {
   modalTitle.value = params.id ? '编辑目录' : '新增目录'
   formParams.value = {
@@ -98,8 +98,9 @@ const acceptParams = (params: Partial<DirectoryParams>) => {
   }
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

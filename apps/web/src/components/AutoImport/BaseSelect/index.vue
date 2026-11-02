@@ -20,73 +20,60 @@
   </el-select>
 </template>
 
-<script>
-export default {
+<script setup>
+import { reactive, toRef, toRefs, computed, useAttrs } from 'vue'
+defineOptions({
   name: 'base-select',
-  inheritAttrs: false,
-  props: {
-    modelValue: {
-      default: undefined
-    },
-    value: {
-      default: ''
-    }
+  inheritAttrs: false
+})
+const componentProps = defineProps({
+  modelValue: {
+    type: [String, Number, Boolean, Array, Object],
+    default: undefined
   },
-  emits: ['update:modelValue', 'input', 'change'],
-  data() {
-    return {
-      width: 0,
-      options: [],
-      defaultProps: {
-        label: 'label',
-        value: 'value',
-        disabled: 'disabled'
-      }
-    }
-  },
-  watch: {
-    // '$attrs.api': {
-    //   handler: function (value) {
-    //     if (value) {
-    //       this.getDataSource()
-    //     } else {
-    //       this.options = []
-    //     }
-    //   },
-    //   immediate: true
-    // }
-  },
-  mounted() {},
-  computed: {
-    currentValue() {
-      return this.modelValue !== undefined ? this.modelValue : this.value
-    },
-    _options() {
-      return this.$attrs.options || this.options
-    },
-    defaultPropsName() {
-      return this.$attrs.defaultProps || this.defaultProps
-    }
-  },
-  methods: {
-    handleModelChange(value) {
-      this.$emit('update:modelValue', value)
-      this.$emit('input', value)
-    },
-    handleChange(value) {
-      this.$emit('change', value)
-    }
-    // getDataSource () {
-    //   this.API.get(this.$attrs.api).then(response => {
-    //     if (response.list) {
-    //       this.options = response.list
-    //     } else {
-    //       this.options = response
-    //     }
-    //   })
-    // }
+  value: {
+    type: [String, Number, Boolean, Array, Object],
+    default: ''
   }
+})
+const emit = defineEmits(['update:modelValue', 'input', 'change'])
+const attrs = useAttrs()
+const componentData = reactive({
+  width: 0,
+  options: [],
+  defaultProps: {
+    label: 'label',
+    value: 'value',
+    disabled: 'disabled'
+  }
+})
+const width = toRef(componentData, 'width')
+const options = toRef(componentData, 'options')
+const defaultProps = toRef(componentData, 'defaultProps')
+function handleModelChange(value) {
+  emit('update:modelValue', value)
+  emit('input', value)
 }
+function handleChange(value) {
+  emit('change', value)
+}
+const currentValue = computed(() => {
+  return componentProps.modelValue !== undefined ? componentProps.modelValue : componentProps.value
+})
+const _options = computed(() => {
+  return attrs.options || componentData.options
+})
+const defaultPropsName = computed(() => {
+  return attrs.defaultProps || componentData.defaultProps
+})
+defineExpose({
+  handleModelChange,
+  handleChange,
+  ...toRefs(componentData),
+  currentValue,
+  _options,
+  defaultPropsName
+})
 </script>
 <style lang="less">
 .span-ellipsis {

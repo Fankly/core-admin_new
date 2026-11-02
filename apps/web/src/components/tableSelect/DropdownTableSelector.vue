@@ -26,23 +26,22 @@
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
-
-defineOptions({ name: "dropdownTableSelector" })
-import { ref, watch, defineProps, defineEmits } from 'vue'
+import { ref, watch } from 'vue'
 import TableSelectorModal from './TableSelectorModal.vue'
+defineOptions({
+  name: 'dropdownTableSelector'
+})
 
 interface SearchField {
   field: string
   label: string
   type?: string
 }
-
 interface TableColumn {
   field: string
   title: string
   width?: number
 }
-
 const props = defineProps({
   modelValue: {
     type: [String, Number],
@@ -89,46 +88,50 @@ const props = defineProps({
     default: '600px'
   }
 })
-
 const emit = defineEmits(['update:modelValue', 'update:labelValue', 'change', 'confirm'])
-
 const modalRef = ref()
 const modalVisible = ref(false)
 const displayLabel = ref('')
-
 watch(
   () => props.labelValue,
   (newVal) => {
     displayLabel.value = newVal
   },
-  { immediate: true }
+  {
+    immediate: true
+  }
 )
-
 const openModal = () => {
   modalVisible.value = true
   modalRef.value?.open()
 }
-
 const handleConfirm = ({ id, label, ...someData }: { id: string | number; label: string; [key: string]: any }) => {
   displayLabel.value = label
   emit('update:modelValue', id)
   emit('update:labelValue', label)
-  emit('change', { id: id, label: label })
-  emit('confirm', { id, label, ...someData })
+  emit('change', {
+    id: id,
+    label: label
+  })
+  emit('confirm', {
+    id,
+    label,
+    ...someData
+  })
   modalVisible.value = false
 }
-
 const handleClose = () => {
   modalVisible.value = false
 }
-
 const handleClear = () => {
   displayLabel.value = ''
   emit('update:modelValue', '')
   emit('update:labelValue', '')
-  emit('change', { id: '', label: '' })
+  emit('change', {
+    id: '',
+    label: ''
+  })
 }
-
 defineExpose({
   openModal,
   handleClear

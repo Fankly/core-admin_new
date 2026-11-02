@@ -1,20 +1,20 @@
-<script lang="tsx">
-export default {
-  name: '/motivation/device/index'
-}
-</script>
+
 <script setup lang="tsx">
 import userDialog from '@/components/select/userDialog.vue'
 import BDZ from './components/BDZ.vue'
 import SDXL from './components/SDXL.vue'
 import ZSJXJ from './components/ZSJXJ.vue'
 import { ref, onMounted } from 'vue'
-import { getEjdw, getPublicData, getYjdw } from '@/api/common' //公共代码
+import { getEjdw, getPublicData, getYjdw } from '@/api/common'
+defineOptions({
+  name: '/motivation/device/index'
+})
+
+ //公共代码
 
 const tabMsg = ref('1') //当前页签位置
 const userDialogRef = ref()
 const isShowPage = ref(false)
-
 const userInfo = ref<{
   deptId: string
   deptName: string
@@ -34,7 +34,6 @@ const userInfo = ref<{
   specialorgcode: '',
   roleId: ''
 })
-
 const yjdwList = ref<
   {
     code: string
@@ -68,11 +67,9 @@ const getRoleHandle = () => {
       specialorgcode: userInfOther.specialorgcode
     }
     getYjdwData()
-
     isShowPage.value = true
   }
 }
-
 onMounted(async () => {
   await userDialogRef.value.getUser()
 })

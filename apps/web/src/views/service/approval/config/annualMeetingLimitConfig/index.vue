@@ -87,7 +87,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/service/approval/config/annualMeetingLimitConfig/index" })
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
@@ -97,6 +96,7 @@ import { getDataByParent, getPublicData } from '@/api/common'
 import { ElMessage, ElTree } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { getPageList, saveData } from '@/api/service/IhhsMeeting/approval/annualMeetingLimitConfig'
+defineOptions({ name: "/service/approval/config/annualMeetingLimitConfig/index" })
 
 interface PageConfig extends ContextProps {
   loading: boolean

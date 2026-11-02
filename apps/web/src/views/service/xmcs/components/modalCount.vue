@@ -17,13 +17,12 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'modalCount'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+defineOptions({
+  name: 'modalCount'
+})
 
 // 子组件
 const emit = defineEmits(['showModal'])
@@ -49,7 +48,10 @@ const open = async (params: any) => {
 const pushMsgHandle = async () => {
   rmarkDataRef.value.validate(async (valid: any) => {
     if (!valid) return
-    emit('showModal', { ...rmarkData, xmid: ids.value })
+    emit('showModal', {
+      ...rmarkData,
+      xmid: ids.value
+    })
   })
 }
 // 子组件暴露方法到父组件

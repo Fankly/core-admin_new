@@ -34,19 +34,22 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'personTable'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive, nextTick } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { ElMessage } from 'element-plus'
 import { bindStaffSaveDelete, getStaffByXmId } from '@/api/service/xmcs/index'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import { VXETable } from 'vxe-table'
 import { getEjdwList, getYjdwList } from '@/api/matter'
+defineOptions({
+  name: 'personTable'
+})
+
+ //表格组件
+
+ //公共代码
 
 // 子组件
 const emit = defineEmits(['pageType'])
@@ -89,13 +92,14 @@ const deleteData = async (selecList: any) => {
   })
   if (type != 'confirm') return ElMessage.info('已取消')
   const ids = selecList.map(({ id }: any) => id)
-  const res: any = await bindStaffSaveDelete({ ids: ids })
+  const res: any = await bindStaffSaveDelete({
+    ids: ids
+  })
   if (!res.success) return ElMessage.error(res.msg)
   ElMessage.success('已删除！')
   proTableRef.value?.clearSelection()
   proTableRef.value?.getTableList()
 }
-
 const getYjdwEnum = async () => {
   yjdwListData.value.length = 0 //清空单位
   if (formData.value.specialorgid) {
@@ -104,7 +108,6 @@ const getYjdwEnum = async () => {
     yjdwListData.value.push(...res.data)
   }
 }
-
 const changeYjdwHandle = async (val: string) => {
   const params = proTableRef.value?.searchParam
   params.ejdw = ''
@@ -126,19 +129,26 @@ const handerClickTable = async (val: any) => {
     proTableRef.value?.element.toggleRowSelection(val)
   })
 }
-
 const acceptParams = (param: any) => {
   isShowTable.value = true
-  formData.value = { ...param }
+  formData.value = {
+    ...param
+  }
   if (formData.value) {
     proTableRef.value?.getTableList()
     getYjdwEnum()
   }
 }
-
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', label: '序号', width: 50 },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: 50
+  },
   {
     prop: 'deptid',
     label: '所属部门',
@@ -147,7 +157,10 @@ const tableColumns = reactive<any>([
       order: 1
     },
     enum: () => getPublicData('ZXCSDEPTTYPE_COM'),
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.deptid
     }
@@ -155,9 +168,18 @@ const tableColumns = reactive<any>([
   {
     prop: 'yjdw',
     label: '一级单位',
-    search: { el: 'select', props: { onChange: changeYjdwHandle }, order: 3 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: changeYjdwHandle
+      },
+      order: 3
+    },
     enum: yjdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.yjdw
     }
@@ -165,16 +187,26 @@ const tableColumns = reactive<any>([
   {
     prop: 'ejdw',
     label: '二级单位',
-    search: { el: 'select', order: 4 },
+    search: {
+      el: 'select',
+      order: 4
+    },
     enum: ejdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.ejdw
     }
   },
-  { prop: 'username', label: '用户姓名' }
+  {
+    prop: 'username',
+    label: '用户姓名'
+  }
 ])
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 <style scoped lang="less"></style>

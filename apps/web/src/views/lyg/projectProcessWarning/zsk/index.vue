@@ -79,7 +79,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/lyg/projectProcessWarning/zsk/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -89,6 +88,8 @@ import maintModal from '@/views/lyg/projectProcessWarning/zsk/components/maintMo
 import { knowledgeBasePage, knowledgeBaseRemove, knowledgeBaseDownload, knowledgeBaseTop, knowledgeBaseCancelTop } from '@/api/lyg/knowledgeBase'
 import { apiExporFile } from '@/utils/export'
 import { downloadAttach } from '@/api/sys/fileShare'
+defineOptions({ name: "/lyg/projectProcessWarning/zsk/index" })
+
 // ========== 类型定义 ==========
 
 interface SelectedRow {

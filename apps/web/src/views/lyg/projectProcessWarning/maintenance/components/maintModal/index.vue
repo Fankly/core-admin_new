@@ -71,11 +71,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'maintModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
@@ -83,6 +78,9 @@ import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { getPublicData } from '@/api/common'
 import { yjyzSave } from '@/api/lyg/index'
+defineOptions({
+  name: 'maintModal'
+})
 
 /** 公共代码项 */
 interface CodeItem {
@@ -95,16 +93,18 @@ interface ModalParams {
   type: string
   searchParams: Record<string, any>
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
 const modalTitle = ref('')
-
 const statusList = ref<CodeItem[]>([])
 
 /** 使用 reactive 管理表单数据，类型更明确 */
@@ -125,7 +125,6 @@ const handleClose = () => {
 const handleSave = () => {
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -137,13 +136,16 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
-      const res = await yjyzSave({ ...searchParams.value })
+      const res = await yjyzSave({
+        ...searchParams.value
+      })
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -173,6 +175,7 @@ const acceptParams = (params: ModalParams) => {
   isShowModal.value = true
   fetchOptions()
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>

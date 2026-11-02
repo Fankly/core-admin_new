@@ -27,92 +27,88 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { RefreshRight as EpRefreshRight } from '@element-plus/icons-vue'
-
-import { mapGetters } from '@/store/business'
-
-export default {
-  setup() {
-    return { EpRefreshRight }
+import componentStore from '@/store/business'
+import { computed, reactive, toRefs, getCurrentInstance } from 'vue'
+defineOptions({
+  name: 'projectViewItem'
+})
+const componentProps = defineProps({
+  keyValues: {
+    type: Array
   },
-  components: {},
-  props: {
-    keyValues: {
-      type: Array
-    },
-    dataValue: {
-      type: Object
-    },
-    diffData: {
-      type: Object
-    },
-    showSec: {
-      type: Boolean
-    }
+  dataValue: {
+    type: Object
   },
-  name: 'projectViewItem',
-  data() {
-    return {}
+  diffData: {
+    type: Object
   },
-  created() {},
-  mounted() {},
-  methods: {
-    getColor(number) {
-      // let colorString = 'success--text--color';
-      // if (+number >= 90) {
-      //   colorString = 'danger--text--color'
-      // } else if (+number >= 70) {
-      //   colorString = 'warning--text--color'
-      // }
-      let colorString = 'danger--text--color'
-      return colorString
-    },
-    getSecTextClass(item, diffData) {
-      const typeMap = {
-        danger: 'sec-text--danger',
-        warning: 'sec-text--warning',
-        success: 'sec-text--success',
-        info: 'sec-text--info',
-        default: 'sec-text--default'
-      }
-
-      let colorType = item.secColorType
-
-      // 如果 secColorType 是函数，调用函数获取颜色类型
-      if (typeof colorType === 'function') {
-        colorType = colorType(diffData)
-      }
-
-      // 如果 secColorType 是对象，根据条件判断
-      if (typeof colorType === 'object' && colorType !== null) {
-        // 可以扩展对象格式的判断逻辑
-        colorType = colorType.default || 'default'
-      }
-
-      return typeMap[colorType] || typeMap['info']
-    }
-  },
-  computed: {
-    showRerunBtn() {
-      return this.getUserInfo?.loginName === 'yunwei' || this.getUserInfo?.isAdmin || this.showRerunBtnTest
-    },
-    itemRateColor() {
-      if (this.diffData) {
-        return this.keyValues
-          .filter((item) => item)
-          .filter((item) => item.rateProp)
-          .reduce((obj, next) => {
-            obj[next.value] = this.getColor(this.diffData?.[next.rateProp])
-            return obj
-          }, {})
-      }
-      return {}
-    },
-    ...mapGetters(['getCurrentMenuId', 'getUserInfo'])
-  },
-  watch: {}
+  showSec: {
+    type: Boolean
+  }
+})
+const componentInstance = getCurrentInstance().proxy
+const componentData = reactive({})
+function getColor(number) {
+  // let colorString = 'success--text--color';
+  // if (+number >= 90) {
+  //   colorString = 'danger--text--color'
+  // } else if (+number >= 70) {
+  //   colorString = 'warning--text--color'
+  // }
+  let colorString = 'danger--text--color'
+  return colorString
 }
+function getSecTextClass(item, diffData) {
+  const typeMap = {
+    danger: 'sec-text--danger',
+    warning: 'sec-text--warning',
+    success: 'sec-text--success',
+    info: 'sec-text--info',
+    default: 'sec-text--default'
+  }
+  let colorType = item.secColorType
+
+  // 如果 secColorType 是函数，调用函数获取颜色类型
+  if (typeof colorType === 'function') {
+    colorType = colorType(diffData)
+  }
+
+  // 如果 secColorType 是对象，根据条件判断
+  if (typeof colorType === 'object' && colorType !== null) {
+    // 可以扩展对象格式的判断逻辑
+    colorType = colorType.default || 'default'
+  }
+  return typeMap[colorType] || typeMap.info
+}
+const getCurrentMenuId = computed(() => componentStore.getters.getCurrentMenuId)
+const getUserInfo = computed(() => componentStore.getters.getUserInfo)
+const showRerunBtn = computed(() => {
+  return getUserInfo.value?.loginName === 'yunwei' || getUserInfo.value?.isAdmin || componentInstance.showRerunBtnTest
+})
+const itemRateColor = computed(() => {
+  if (componentProps.diffData) {
+    return componentProps.keyValues
+      .filter((item) => item)
+      .filter((item) => item.rateProp)
+      .reduce((obj, next) => {
+        obj[next.value] = getColor(componentProps.diffData?.[next.rateProp])
+        return obj
+      }, {})
+  }
+  return {}
+})
+defineExpose({
+  EpRefreshRight,
+  getCurrentMenuId,
+  getUserInfo,
+  getColor,
+  getSecTextClass,
+  ...toRefs(componentData),
+  showRerunBtn,
+  itemRateColor
+})
 </script>
 <style lang="less" scoped>
 .title-group {

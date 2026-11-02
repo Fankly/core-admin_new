@@ -57,7 +57,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/ai/priceQuery/index" })
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useStore } from '@/store/business'
@@ -73,6 +72,7 @@ import { apiExportHandle } from '@/utils/export'
 import { formatNumValue } from '@/utils/utils'
 import { getEjdwList, getYjdwList } from '@/api/ai/smartTaskAudit'
 import { getPublicData, getSubProtypeTree } from '@/api/common'
+defineOptions({ name: "/ai/priceQuery/index" })
 
 const props = defineProps<{
   sharedUserInfo?: Record<string, any>

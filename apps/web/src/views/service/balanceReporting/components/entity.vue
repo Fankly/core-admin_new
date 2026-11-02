@@ -44,17 +44,12 @@
   </div>
   <chooseTree ref="treeModalRef" @choose-data="saveTree" />
 </template>
-<script lang="ts">
-import { EditPen as EpEditPen } from '@element-plus/icons-vue'
-import { ElIcon } from 'element-plus'
-export default {}
-</script>
-<script setup lang="ts">
-import { ref, defineProps, defineExpose, reactive, nextTick } from 'vue'
-import { ElMessageBox, ElMessage, ElInput } from 'element-plus'
-import { h } from 'vue'
-import { getDwTree, saveDw, pageDw, removeDw, updateDispOrder } from '@/api/service/balanceReporting/index'
 
+<script setup lang="ts">
+import { EditPen as EpEditPen } from '@element-plus/icons-vue'
+import { ElIcon, ElMessageBox, ElMessage, ElInput } from 'element-plus'
+import { ref, reactive, nextTick, h } from 'vue'
+import { getDwTree, saveDw, pageDw, removeDw, updateDispOrder } from '@/api/service/balanceReporting/index'
 import { saveDwYs, pageDwYs, removeDwYs, updateDispOrderYs, getDwTreeYs } from '@/api/lslxJsc/index'
 import proTable from '@/components/ProTable/index.vue' //表格组件
 import { ColumnProps } from '@/components/ProTable/interface'
@@ -94,7 +89,11 @@ const getUnitApis = () => (isType.value == '1' ? UNIT_API_MAP.ys : UNIT_API_MAP.
 const getCheckedDwIds = () => (dataList.value ? dataList.value.map((item: any) => item.dwId) : [])
 const pageMeeting = async () => {
   if (versionStatus.value) {
-    const params = { versionId: versionStatus.value?.versionId, page: 1, limit: 100 }
+    const params = {
+      versionId: versionStatus.value?.versionId,
+      page: 1,
+      limit: 100
+    }
     let res: any = await getUnitApis().page(params)
     if (res.success) {
       const records = res.data?.records || []
@@ -193,23 +192,49 @@ const closeHandle = () => {
 }
 // 列表项
 const tableColumns = reactive<ColumnProps<any>[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'versionNo', label: '版本编号', width: '130' },
-  { prop: 'versionName', label: '版本名称', width: '200' },
-  { prop: 'dwName', label: '单位名称' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'versionNo',
+    label: '版本编号',
+    width: '130'
+  },
+  {
+    prop: 'versionName',
+    label: '版本名称',
+    width: '200'
+  },
+  {
+    prop: 'dwName',
+    label: '单位名称'
+  },
   {
     prop: 'dispOrder',
     label: '显示顺序',
     width: '120',
     headerRender: () => {
-      return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '显示顺序'])
+      return h('span', [
+        h(ElIcon, null, {
+          default: () => h(EpEditPen)
+        }),
+        '显示顺序'
+      ])
     },
     render: ({ row }: any) => {
       return h(ElInput, {
         modelValue: row.dispOrder,
         'onUpdate:modelValue': (val: any) => (row.dispOrder = val),
-        inputStyle: { border: '1px solid #fff;', textAlign: 'center' }
+        inputStyle: {
+          border: '1px solid #fff;',
+          textAlign: 'center'
+        }
       })
     }
   }

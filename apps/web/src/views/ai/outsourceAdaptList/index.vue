@@ -67,7 +67,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/ai/outsourceAdaptList/index" })
 import { onMounted, reactive, ref } from 'vue'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
@@ -89,6 +88,7 @@ import {
 } from '@/api/ai/outsourceAdaptList'
 import type { OutsourceAdaptListRow } from '@/api/ai/outsourceAdaptList'
 import type { ColumnProps } from '@/components/ProTablePage/interface'
+defineOptions({ name: "/ai/outsourceAdaptList/index" })
 
 /** 业务大类 / 小类公共代码（级联：大类 getCommonDict(code)，小类 getCommonDict(code, pCode)） */
 const BIZ_CAT_CODE = 'OUTSOURCE_RULE_KB_BIZ_CAT'

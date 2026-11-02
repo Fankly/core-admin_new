@@ -208,7 +208,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ReviewAnalysisModal" })
 import { computed, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import {
@@ -226,6 +225,7 @@ import {
   pickRowDimCodes
 } from '../hooks/lhhsPivot'
 import type { DimCodeMap, DrillColumn, PivotBodyRow, PivotFieldItem, PivotQuery, PivotTable } from '../hooks/lhhsPivot'
+defineOptions({ name: "ReviewAnalysisModal" })
 
 /** 入参：主表勾选一条时传 meetingId（单个），多条时传 meetingIds（数组） */
 interface ModalParams {

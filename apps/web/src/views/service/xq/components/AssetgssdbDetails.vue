@@ -127,14 +127,13 @@ import {
   Refresh as EpRefresh,
   Upload as EpUpload
 } from '@element-plus/icons-vue'
-
-defineOptions({ name: "AssetgssdbDetails" })
 import { onMounted, ref, nextTick, watch, onUnmounted } from 'vue'
 import { getMatAttrComp, getFjListByXmIdAndFjId, downloadAttach, getTymlywj, getWlzcbById } from '@/api/service/requirement'
 import { ElMessage } from 'element-plus'
 import { getPublicCodeMap } from '@/utils/tableFormatter'
 import VXETable from 'vxe-table'
 import baseService from '@/service/baseService'
+defineOptions({ name: "AssetgssdbDetails" })
 
 interface Props {
   selectData: any

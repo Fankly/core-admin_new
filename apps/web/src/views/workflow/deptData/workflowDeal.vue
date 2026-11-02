@@ -29,11 +29,7 @@
   </div>
   <detaildeptData ref="detaildeptDataRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/workflow/deptData/workflowDeal'
-}
-</script>
+
 
 <script setup lang="ts">
 import { reactive, ref, onMounted, nextTick } from 'vue'
@@ -43,6 +39,9 @@ import VChart from 'vue-echarts'
 import ProTable from '@/components/ProTable/index.vue'
 import detaildeptData from '@/views/service/deptData/components/detailDeptData.vue'
 import { getProSlDataByDept } from '@/api/service/deptData/index'
+defineOptions({
+  name: '/workflow/deptData/workflowDeal'
+})
 
 const workItemIdString = ref<string>('')
 const proTableRef = ref()
@@ -64,7 +63,6 @@ const barLoadingOptions = ref<any>({
 // 当前行是否属于当前角色（匹配部门）
 const isCurrentRoleRow = (row: any) => searchForm.deptId == row?.deptcode
 const isBgRow = (row: any) => searchForm.deptId == row?.deptcode
-
 onMounted(() => {
   const workItemId = getQueryString('workItemId')
   const deptId = getQueryString('deptId')
@@ -274,7 +272,6 @@ const detailView = (row: any, column: any) => {
     detaildeptDataRef.value?.acceptParams(params)
   }
 }
-
 const getDataList = async () => {
   let params = {
     endDate: searchForm.endDate,
@@ -282,7 +279,9 @@ const getDataList = async () => {
   }
   loading.value = true
   try {
-    let res = await getProSlDataByDept({ ...params })
+    let res = await getProSlDataByDept({
+      ...params
+    })
     if (res && res.success && Array.isArray(res.data)) {
       const deptSpj = res.data.filter((item: any) => item.deptname == '省平均')
       const spjItem = deptSpj[0]
@@ -322,13 +321,28 @@ const getDataList = async () => {
     loading.value = false
   }
 }
-
 const tableColumns = reactive<any>([
-  { type: 'index', label: '序号', width: 50 },
-  { prop: 'deptname', label: '归口部门' },
-  { prop: 'fjl', label: '分解率（%）' },
-  { prop: 'lxl', label: '立项率（%）' },
-  { prop: 'jsl', label: '完成率（%）' }
+  {
+    type: 'index',
+    label: '序号',
+    width: 50
+  },
+  {
+    prop: 'deptname',
+    label: '归口部门'
+  },
+  {
+    prop: 'fjl',
+    label: '分解率（%）'
+  },
+  {
+    prop: 'lxl',
+    label: '立项率（%）'
+  },
+  {
+    prop: 'jsl',
+    label: '完成率（%）'
+  }
 ])
 
 // 获取"workItemId"

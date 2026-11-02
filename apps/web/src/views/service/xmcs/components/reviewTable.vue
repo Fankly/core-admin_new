@@ -30,18 +30,21 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'reviewTable'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive, nextTick } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { ElMessage } from 'element-plus'
 import { getWhyj } from '@/api/service/xmcs/index'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import { VXETable } from 'vxe-table'
+defineOptions({
+  name: 'reviewTable'
+})
+
+ //表格组件
+
+ //公共代码
 
 // 子组件
 const emit = defineEmits(['pageType'])
@@ -70,23 +73,46 @@ const handerClickTable = async (val: any) => {
     proTableRef.value?.element.toggleRowSelection(val)
   })
 }
-
 const acceptParams = (param: any) => {
   isShowTable.value = true
-  formData.value = { ...param }
+  formData.value = {
+    ...param
+  }
   if (formData.value) proTableRef.value?.getTableList()
 }
-
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', label: '序号', width: 50 },
-  { prop: 'opinion', label: '审批结果' },
-  { prop: 'reason', label: '工作量及审批意见说明' },
-  { prop: 'djReason', label: '单价审批意见说明' },
-  { prop: 'sszqReason', label: '实施周期审批意见说明' },
-  { prop: 'updateTime', label: '更新时间' }
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: 50
+  },
+  {
+    prop: 'opinion',
+    label: '审批结果'
+  },
+  {
+    prop: 'reason',
+    label: '工作量及审批意见说明'
+  },
+  {
+    prop: 'djReason',
+    label: '单价审批意见说明'
+  },
+  {
+    prop: 'sszqReason',
+    label: '实施周期审批意见说明'
+  },
+  {
+    prop: 'updateTime',
+    label: '更新时间'
+  }
 ])
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 <style scoped lang="less"></style>

@@ -232,7 +232,7 @@
   <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -241,178 +241,218 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
 import { showHelpMsg } from '@/utils/message'
-
-export default defineComponent({
-  name: '/budget-process/process-37',
-  components: { userDialog },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+defineOptions({
+  name: '/budget-process/process-37'
+})
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  helpHandle,
+  loading: false,
+  searchShow: true,
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  example: [],
+  columnObj: {},
+  segmentIds: [],
+  segment: [
+    {
+      value: 'dw',
+      label: '单位',
+      checked: true
+    },
+    {
+      value: 'z701',
+      label: 'Z701配网专项成本',
+      checked: true
+    },
+    {
+      value: 'z702',
+      label: 'Z702农网专项成本（主业）',
+      checked: true
+    },
+    {
+      value: 'z703',
+      label: 'Z703业扩专项成本',
+      checked: true
+    },
+    {
+      value: 'z248',
+      label: 'Z248农村低压电网修理',
+      checked: true
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      helpHandle,
-      loading: false,
-      searchShow: true,
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      example: [],
-      columnObj: {},
-      segmentIds: [],
-      segment: [
-        {
-          value: 'dw',
-          label: '单位',
-          checked: true
-        },
-        {
-          value: 'z701',
-          label: 'Z701配网专项成本',
-          checked: true
-        },
-        {
-          value: 'z702',
-          label: 'Z702农网专项成本（主业）',
-          checked: true
-        },
-        {
-          value: 'z703',
-          label: 'Z703业扩专项成本',
-          checked: true
-        },
-        {
-          value: 'z248',
-          label: 'Z248农村低压电网修理',
-          checked: true
-        }
-      ],
-      dataList: {
-        start: '',
-        end: ''
-      },
-      year: new Date().getFullYear().toString()
-    })
+  ],
+  dataList: {
+    start: '',
+    end: ''
   },
-  created() {
-    this.handleColumn()
-  },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-  },
-
-  methods: {
-    // 展示百分比计算规则
-    showPercentage(numOne, numTwo) {
-      return numOne + '/' + numTwo
-    },
-    //计算表格高度
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 60 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 60 + 'px'
-      }
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.segmentIds.push(item.value)
-        this.columnObj[item.value] = item.checked
-      })
-    },
-
-    //项目环节
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked
-        }
-      }
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-    },
-    loadData() {
-      this.loading = true
-      let params = {
-        specialorgid: this.specialorgid,
-        lxkssj: this.dataList.start,
-        lxjssj: this.dataList.end,
-        year: this.year
-      }
-      baseService.post(`/process34/getData`, params).then((res) => {
-        if (res.success) {
-          this.example = res.data
-          this.loading = false
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    exportBtn() {
-      let params = {
-        specialorgid: this.specialorgid,
-        lxkssj: this.dataList.start,
-        lxjssj: this.dataList.end,
-        year: this.year
-      }
-      baseService.export(`/process34/export`, params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '项目关联设备资产总览.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-    reset() {
-      this.dataList.start = ''
-      this.dataList.end = ''
-      this.year = new Date().getFullYear().toString()
-      this.example = []
-      this.loadData()
+  year: new Date().getFullYear().toString()
+})
+const loading = toRef(setupState, 'loading')
+const searchShow = toRef(setupState, 'searchShow')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const example = toRef(setupState, 'example')
+const columnObj = toRef(setupState, 'columnObj')
+const segmentIds = toRef(setupState, 'segmentIds')
+const segment = toRef(setupState, 'segment')
+const dataList = toRef(setupState, 'dataList')
+const year = toRef(setupState, 'year')
+// 展示百分比计算规则
+function showPercentage(numOne, numTwo) {
+  return numOne + '/' + numTwo
+}
+//计算表格高度
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 60 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 60 + 'px'
+  }
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.segmentIds.push(item.value)
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+//项目环节
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
     }
   }
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+}
+function loadData() {
+  setupState.loading = true
+  let params = {
+    specialorgid: setupState.specialorgid,
+    lxkssj: setupState.dataList.start,
+    lxjssj: setupState.dataList.end,
+    year: setupState.year
+  }
+  baseService.post(`/process34/getData`, params).then((res) => {
+    if (res.success) {
+      setupState.example = res.data
+      setupState.loading = false
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function exportBtn() {
+  let params = {
+    specialorgid: setupState.specialorgid,
+    lxkssj: setupState.dataList.start,
+    lxjssj: setupState.dataList.end,
+    year: setupState.year
+  }
+  baseService.export(`/process34/export`, params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '项目关联设备资产总览.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+function reset() {
+  setupState.dataList.start = ''
+  setupState.dataList.end = ''
+  setupState.year = new Date().getFullYear().toString()
+  setupState.example = []
+  loadData()
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+})
+;(() => {
+  handleColumn()
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  helpHandle,
+  loading,
+  searchShow,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  userCode,
+  userId,
+  specialorgid,
+  example,
+  columnObj,
+  segmentIds,
+  segment,
+  dataList,
+  year,
+  showPercentage,
+  setTableHeight,
+  showSearch,
+  handleColumn,
+  listShow,
+  loadCompany,
+  loadData,
+  exportBtn,
+  reset
 })
 </script>
 

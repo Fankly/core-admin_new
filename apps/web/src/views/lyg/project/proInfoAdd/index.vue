@@ -38,7 +38,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/lyg/project/proInfoAdd/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, nextTick, h } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -49,11 +48,14 @@ import { getSgbm } from '@/api/service/requirement'
 import { xmqgcInfoPage, batchUpdate, xmqgcInfoExport, getXmxxbcImportTemplate, importXmxxbc } from '@/api/lyg/index'
 import { useStore } from '@/store/business'
 import { apiExportHandle } from '@/utils/export'
-import ImportExcel from '@/components/ImportExcel/indexNew.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexNew.vue'
 import { formatNumValue } from '@/utils/utils'
 import ElTreeSelect from '@/components/ElTreeSelect/index'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { getEjdwList, getYjdwList } from '@/api/ai/smartTaskAudit'
+defineOptions({ name: "/lyg/project/proInfoAdd/index" })
+
+ //导入组件
 
 // ========== 类型定义 ==========
 

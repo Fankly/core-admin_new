@@ -762,18 +762,10 @@
   <smartTaskProgress ref="progressModal" />
 </template>
 
-<script lang="ts">
-export default {
-  // 必须等于路由 path（AGENTS.md：keep-alive 缓存依赖此约定）
-  name: '/ai/smartReviewHomeThree/index'
-}
-</script>
 
 <script setup lang="ts">
 import { computed, nextTick, onActivated, onBeforeUnmount, onMounted, reactive, ref, shallowRef, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-// 环节责任角色图标的底图（lucide，项目里 AI 区已在用，见 views/ai/businessWorkbench）：
-// 4 个角色 3 种图标 —— 专家/复核「单人」、运营「双人」、AI「闪光」，照原型；色位与图标在 ROLE_ICONS 里配对。
 import { Sparkles, User, Users } from '@lucide/vue'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
 import ElTreeSelect from '@/components/ElTreeSelect'
@@ -799,9 +791,26 @@ import {
   buildPointReviewPercents,
   buildRankSummary
 } from './data'
-import type { AuditRow, BarItem, DeptBar, DeptBarDim, DonutSegment, MetricKey, PointReviewBar, PointReviewDim, ReviewStepRole } from './data'
+import type {
+  AuditRow,
+  BarItem,
+  DeptBar,
+  DeptBarDim,
+  DonutSegment,
+  MetricKey,
+  PointReviewBar,
+  PointReviewDim,
+  ReviewStepRole
+} from './data'
 import { useSmartReviewHomeThree } from './hooks/useSmartReviewHomeThree'
 import type { OptionItem } from './hooks/useSmartReviewHomeThree'
+defineOptions({
+  // 必须等于路由 path（AGENTS.md：keep-alive 缓存依赖此约定）
+  name: '/ai/smartReviewHomeThree/index'
+})
+
+// 环节责任角色图标的底图（lucide，项目里 AI 区已在用，见 views/ai/businessWorkbench）：
+// 4 个角色 3 种图标 —— 专家/复核「单人」、运营「双人」、AI「闪光」，照原型；色位与图标在 ROLE_ICONS 里配对。
 
 /** 导出文件名的兜底（后端响应头带了 content-disposition 就用服务端给的） */
 const EXPORT_FILE_NAME = '智能审核项目清单'
@@ -882,7 +891,8 @@ const deptBarGradient = (index: number) => {
 }
 
 /** 柱子的悬浮提示：原型 tooltip 是「部门 / 数值 单位」（单位不在图上单独标了，跟它保持一致） */
-const barTip = (dept: DeptBar) => (barDim.value === 'amount' ? `${dept.name} / ${dept.amountText} 万元` : `${dept.name} / ${dept.countText} 个`)
+const barTip = (dept: DeptBar) =>
+  barDim.value === 'amount' ? `${dept.name} / ${dept.amountText} 万元` : `${dept.name} / ${dept.countText} 个`
 
 // --- 卡1 的维度切换（按金额 / 按数量）---
 // 两个维度各有自己的接口入参（mode=2 金额 / mode=1 数量），hook 里已各取一次，切换只换读哪个字段。
@@ -953,7 +963,6 @@ const scheduleTableHeightSync = () => {
     tableRef.value?.doLayout?.()
   }, TABLE_HEIGHT_SETTLE_MS)
 }
-
 const toggleListFullscreen = () => {
   isListFullscreen.value = !isListFullscreen.value
   /*
@@ -995,7 +1004,12 @@ const onListFullscreenKeydown = (event: KeyboardEvent) => {
  * 角色色位 → 图标：与图例共用一套映射（4 个角色 3 种图标，照原型；
  * 「专家 / 复核」都是单人，「运营」双人，「AI」闪光，靠色位区分）。
  */
-const ROLE_ICONS: Record<ReviewStepRole['tone'], typeof User> = { violet: User, blue: Users, teal: Sparkles, gray: User }
+const ROLE_ICONS: Record<ReviewStepRole['tone'], typeof User> = {
+  violet: User,
+  blue: Users,
+  teal: Sparkles,
+  gray: User
+}
 
 /**
  * 导览的 8 步（第 8 步「升级审核能力」是原型 2026-10-14 版新增），把「文案 + 责任角色 + 角色图标」在这里配好，
@@ -1003,7 +1017,11 @@ const ROLE_ICONS: Record<ReviewStepRole['tone'], typeof User> = { violet: User, 
  */
 const reviewSteps = REVIEW_STEPS.map((label, index) => {
   const role = REVIEW_STEP_ROLES[index]
-  return { label, role, icon: role ? ROLE_ICONS[role.tone] : User }
+  return {
+    label,
+    role,
+    icon: role ? ROLE_ICONS[role.tone] : User
+  }
 })
 // 角色表与环节表必须等长：少写一条不会报错，只会在界面上静默空掉一格
 if (REVIEW_STEP_ROLES.length !== REVIEW_STEPS.length) {
@@ -1011,7 +1029,10 @@ if (REVIEW_STEP_ROLES.length !== REVIEW_STEPS.length) {
 }
 
 /** 导览标题行右上角的图例（4 个角色各一枚），图标同样按色位取 */
-const stepLegends = REVIEW_STEP_LEGENDS.map((item) => ({ ...item, icon: ROLE_ICONS[item.tone] }))
+const stepLegends = REVIEW_STEP_LEGENDS.map((item) => ({
+  ...item,
+  icon: ROLE_ICONS[item.tone]
+}))
 
 /** 当前高亮的环节序号（1..8）；0 = 已归零，等待第一拍；8 = 全部走完（终态） */
 const guideStep = ref(0)
@@ -1029,7 +1050,6 @@ const isGuideFinished = computed(() => guideStep.value >= REVIEW_STEPS.length)
  */
 const GUIDE_STEP_MS = 1500
 let guideTimer: number | undefined
-
 const stopGuide = () => {
   if (guideTimer !== undefined) {
     window.clearTimeout(guideTimer)
@@ -1152,9 +1172,18 @@ const PROBLEM_RESULT_CODE = '20'
  * 展示顺序按需求给的「全部复核 → 部分复核 → 待复核」。
  */
 const manualReviewStatusOptions = [
-  { code: '3', name: '全部复核' },
-  { code: '2', name: '部分复核' },
-  { code: '1', name: '待复核' }
+  {
+    code: '3',
+    name: '全部复核'
+  },
+  {
+    code: '2',
+    name: '部分复核'
+  },
+  {
+    code: '1',
+    name: '待复核'
+  }
 ]
 
 /** 「审核要点异动排名」面板点选时固定下发的审核意见范围（不通过 + 待复核） */
@@ -1199,9 +1228,17 @@ const emptyText = computed(() => {
  * （`protypeTree/getSubprotypeTree` 的节点是 `{ middleId, name, children? }`，
  * 值取 middleId —— 清单里任务行的 proType 就是这一套码值）。
  */
-const PRO_TYPE_TREE_PROPS = { label: 'name', children: 'children', value: 'middleId' }
+const PRO_TYPE_TREE_PROPS = {
+  label: 'name',
+  children: 'children',
+  value: 'middleId'
+}
 /** 项目状态树的字段映射（同 views/ai/document 的 flowStatusProps：码值取 code） */
-const FLOW_STATUS_TREE_PROPS = { children: 'children', label: 'name', value: 'code' }
+const FLOW_STATUS_TREE_PROPS = {
+  children: 'children',
+  label: 'name',
+  value: 'code'
+}
 
 /** 清空项目类型（重置时用；下拉自身的清空/删标签由 ElTreeSelect 维护 v-model，不用手动同步树） */
 const clearProType = () => {
@@ -1211,7 +1248,11 @@ const clearProType = () => {
 /* ---------------- 清单取数（服务端筛选 + 服务端分页） ---------------- */
 
 /** 分页状态；total 由接口返参回填（见下面的 watch）。默认每页 10 条（需求 2026-10-19） */
-const pageable = reactive({ current: 1, size: 10, total: 0 })
+const pageable = reactive({
+  current: 1,
+  size: 10,
+  total: 0
+})
 
 /** 序号跨页连续：el-table 的 index 列只给行下标，要自己叠加前面页的条数 */
 const indexMethod = (index: number) => (pageable.current - 1) * pageable.size + index + 1
@@ -1297,12 +1338,10 @@ const reloadRows = ({ resetPage = false } = {}) => {
   selectedRows.value = []
   return loadAuditRows(buildListParams())
 }
-
 const handlePageChange = (page: number) => {
   pageable.current = page
   void reloadRows()
 }
-
 const handleSizeChange = (size: number) => {
   pageable.size = size
   pageable.current = 1
@@ -1321,7 +1360,14 @@ watch(auditTotal, (value) => {
  */
 const filterExport = async () => {
   try {
-    await apiExportHandle({ ...roleParams(), ...buildConditionParams() }, EXPORT_FILE_NAME, exportTask)
+    await apiExportHandle(
+      {
+        ...roleParams(),
+        ...buildConditionParams()
+      },
+      EXPORT_FILE_NAME,
+      exportTask
+    )
   } catch (e) {
     ElMessage.error((e as Error)?.message || '导出失败')
   }
@@ -1399,7 +1445,9 @@ const filterSubmit = () => {
   appliedFilters.taskIdList = []
   appliedFilters.problemResult = ''
   activeReviewPoint.value = ''
-  void reloadRows({ resetPage: true })
+  void reloadRows({
+    resetPage: true
+  })
 }
 
 /**
@@ -1436,7 +1484,15 @@ const filterReset = () => {
  * 所以从它穿透要额外把 `result` 写死成 **'20'**，否则同一个部门下会把通过/待复核的记录也带出来，
  * 与环段上的数字对不上。用独立字段 `appliedFilters.problemResult` 存，不占用表单的「AI预审结论」。
  */
-const pickDept = (bar: { id: string; name: string }, options: { problemOnly?: boolean } = {}) => {
+const pickDept = (
+  bar: {
+    id: string
+    name: string
+  },
+  options: {
+    problemOnly?: boolean
+  } = {}
+) => {
   const next = activeDept.value === bar.name ? '' : bar.name
   resetPanelFilters()
   activeDept.value = next
@@ -1445,14 +1501,25 @@ const pickDept = (bar: { id: string; name: string }, options: { problemOnly?: bo
     appliedFilters.dept = bar.id
     if (options.problemOnly) appliedFilters.problemResult = PROBLEM_RESULT_CODE
   }
-  void reloadRows({ resetPage: true })
+  void reloadRows({
+    resetPage: true
+  })
 }
 
 /**
  * 卡2「AI识别问题项目」点环段/图例：按**归口部门**筛清单（与卡1 柱体同一条路，不另起状态），
  * 并额外带上写死的 `result: '20'`（见 pickDept 的 problemOnly）。
  */
-const pickProblemSlice = (seg: DonutSegment) => pickDept({ id: seg.code, name: seg.name }, { problemOnly: true })
+const pickProblemSlice = (seg: DonutSegment) =>
+  pickDept(
+    {
+      id: seg.code,
+      name: seg.name
+    },
+    {
+      problemOnly: true
+    }
+  )
 
 /**
  * 卡3「审核要点异动排名」点条：按 **ruleId** 筛清单（接口按 id 查；名称可能重复，不能拿名称当条件）。
@@ -1469,7 +1536,9 @@ const pickRank = (item: BarItem) => {
     appliedFilters.ruleId = item.ruleId || ''
     appliedFilters.reviewOpinionList = [...RANK_REVIEW_OPINIONS]
   }
-  void reloadRows({ resetPage: true })
+  void reloadRows({
+    resetPage: true
+  })
 }
 
 /**
@@ -1485,7 +1554,9 @@ const pickReview = (item: PointReviewBar) => {
   resetPanelFilters()
   activeReviewPoint.value = next
   if (next) appliedFilters.taskIdList = [...(item.taskIdList || [])]
-  void reloadRows({ resetPage: true })
+  void reloadRows({
+    resetPage: true
+  })
 }
 
 // --- 顶栏「数据截止」区间 ---
@@ -1501,7 +1572,7 @@ const formatAuditTime = (_row: any, _column: any, cellValue: unknown) => {
   if (cellValue === null || cellValue === undefined || cellValue === '') return '-'
   const str = String(cellValue)
   return str.length >= 10 ? str.slice(0, 10) : str
-}/**
+} /**
  * 默认区间：本年度 1 月 1 日 ~ 今天。
  * 原型把区间写死在 HTML 里，这里改成按当天算，免得每年要来改代码。
  */
@@ -1512,7 +1583,10 @@ const dateRange = reactive({
 })
 
 /** 已提交的区间，字段名与接口一致（startDate / endDate），可直接作为 loadBoard 的入参 */
-const appliedRange = ref({ startDate: dateRange.start, endDate: dateRange.end })
+const appliedRange = ref({
+  startDate: dateRange.start,
+  endDate: dateRange.end
+})
 
 /**
  * 下方筛选区的「AI审核时间」默认值跟顶栏区间保持一致。
@@ -1541,7 +1615,15 @@ watch(
  */
 const endBounds = computed(() => {
   const year = dateRange.start.slice(0, 4)
-  return /^\d{4}$/.test(year) ? { min: `${year}-01-01`, max: `${year}-12-31` } : { min: '', max: '' }
+  return /^\d{4}$/.test(year)
+    ? {
+        min: `${year}-01-01`,
+        max: `${year}-12-31`
+      }
+    : {
+        min: '',
+        max: ''
+      }
 })
 
 /** 把 YYYY-MM-DD 挪到指定年份，月日不变；2/29 遇到非闰年时退到当月最后一天 */
@@ -1593,13 +1675,19 @@ const queryByDate = () => {
     return
   }
   // 提交：落到接口口径的 appliedRange 上，再原样丢给 loadBoard（别再另造一份对象，键名容易走偏）
-  appliedRange.value = { startDate: start, endDate: end }
+  appliedRange.value = {
+    startDate: start,
+    endDate: end
+  }
   void Promise.all([loadBoard(appliedRange.value), reloadRows()])
 }
 
 /* ---------------- 智能审核详情 / 智能审核轨迹（跳转逻辑照智能审核任务管理） ---------------- */
 
-const detailModal = reactive({ visible: false, loading: false })
+const detailModal = reactive({
+  visible: false,
+  loading: false
+})
 const detailRow = ref<Record<string, any>>({})
 
 /** 任务进度弹窗（复用智能审核任务管理的组件，内部按 taskId 调 getProcessProgress） */
@@ -1623,7 +1711,10 @@ const openProgressModal = () => {
     ElMessage.warning('所选项目缺少任务ID')
     return
   }
-  progressModal.value?.acceptParams({ taskId, projectName: row.xmmc })
+  progressModal.value?.acceptParams({
+    taskId,
+    projectName: row.xmmc
+  })
 }
 
 /** 打开详情：先把行数据写进去再开弹窗，避免弹窗内的首次请求读到空 taskId/proId */
@@ -1649,7 +1740,6 @@ const handleRoleReady = async () => {
   if (!isShowPage.value) return
   await Promise.all([loadBoard(appliedRange.value), reloadRows()])
 }
-
 onMounted(() => {
   userRoleSelectorRef.value?.getUser()
   window.addEventListener('keydown', onListFullscreenKeydown)
@@ -1671,7 +1761,6 @@ watch(isShowPage, (visible) => {
  * 免得刚播两拍又被打回第 0 步。
  */
 let guideStartedOnMount = false
-
 onActivated(() => {
   if (!isShowPage.value) return
   if (!guideStartedOnMount) {
@@ -1680,7 +1769,6 @@ onActivated(() => {
   }
   startGuide()
 })
-
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onListFullscreenKeydown)
   window.removeEventListener('resize', syncTableMaxHeight)

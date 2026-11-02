@@ -49,20 +49,18 @@
   <UserRoleSelector ref="userRoleSelectorRef" @loadCompany="getRoleHandle" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/ai/businessWorkbench/index'
-}
-</script>
 
 <script setup lang="ts">
+import './styles.css';
 import { onMounted } from 'vue'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
 import ModuleCards from './components/ModuleCards.vue'
 import MeetingList from './components/MeetingList.vue'
 import StatisticsPanel from './components/StatisticsPanel.vue'
 import { useBusinessWorkbench } from './hooks/useBusinessWorkbench'
-import './styles.css'
+defineOptions({
+  name: '/ai/businessWorkbench/index'
+})
 
 const {
   isShowPage,
@@ -102,7 +100,6 @@ const {
   handlePageChange,
   handlePageSizeChange
 } = useBusinessWorkbench()
-
 onMounted(() => {
   userRoleSelectorRef.value?.getUser()
 })

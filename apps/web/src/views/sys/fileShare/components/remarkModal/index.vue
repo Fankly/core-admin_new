@@ -97,11 +97,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'remarkModal'
-}
-</script>
 
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
@@ -109,6 +104,9 @@ import { getPublicCodeList } from '@/api/common'
 import { getDirectoryTree } from '@/api/sys/fileShare'
 import { ElMessage } from 'element-plus'
 import ElTreeSelect from '@/components/ElTreeSelect'
+defineOptions({
+  name: 'remarkModal'
+})
 
 interface RemarkParams {
   id: string
@@ -122,14 +120,22 @@ interface RemarkParams {
   major?: string
   directoryId?: string
 }
-
 const emit = defineEmits<{
   (
     e: 'success',
-    val: { id: string; remark: string; wjzh: string; fwsj: string; fwdw: string; fwbm: string; wjsylx: string; major: string; directoryId: string }
+    val: {
+      id: string
+      remark: string
+      wjzh: string
+      fwsj: string
+      fwdw: string
+      fwbm: string
+      wjsylx: string
+      major: string
+      directoryId: string
+    }
   ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
@@ -143,7 +149,6 @@ const directoryProps = {
   children: 'children',
   value: 'id'
 }
-
 const formParams = ref<RemarkParams>({
   id: '',
   remark: '',
@@ -156,12 +161,10 @@ const formParams = ref<RemarkParams>({
   major: '',
   directoryId: ''
 })
-
 const handleClose = () => {
   ruleFormRef.value?.resetFields()
   isShowModal.value = false
 }
-
 const handleSave = () => {
   if (loading.value) return
   loading.value = true
@@ -179,7 +182,6 @@ const handleSave = () => {
   loading.value = false
   handleClose()
 }
-
 const acceptParams = async (params: RemarkParams) => {
   formParams.value = {
     id: params.id,
@@ -197,7 +199,6 @@ const acceptParams = async (params: RemarkParams) => {
   await nextTick()
   await getCodeList()
 }
-
 const getCodeList = async () => {
   const res: any = await getPublicCodeList({
     codes: ['DIRECTORY_WJSYLX', 'DIRECTORY_ATTACH_MAJOR_COM', 'DIRECTORY_ATTACH_FWDW_COM']
@@ -209,8 +210,9 @@ const getCodeList = async () => {
   if (!data.success) return ElMessage.error(data.msg)
   directoryList.value = data.data
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

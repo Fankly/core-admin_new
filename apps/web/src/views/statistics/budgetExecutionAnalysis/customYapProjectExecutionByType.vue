@@ -149,15 +149,9 @@
   <FxbgModal ref="fxbgModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/statistics/budgetExecutionAnalysis/customYapProjectExecutionByType'
-}
-</script>
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
-
 import userDialog from '@/components/select/userDialog.vue'
 import DwSelect from '@/views/fy/standardCost/components/DwSelect.vue'
 import XmlbSelect from '@/views/statistics/components/XmlbSelect.vue'
@@ -181,17 +175,18 @@ import type { BudgetExecutionFormulaContext } from '@/views/statistics/budgetExe
 import { createLatestRequestTracker, fitNumericColumnWidths } from '@/views/statistics/budgetExecutionAnalysis/viewHelpers'
 import { formatBudgetExecutionExportSheet } from '@/views/statistics/budgetExecutionAnalysis/exportHelpers'
 import { loadBudgetExecutionFormulaContext } from '@/views/statistics/budgetExecutionAnalysis/exportContext'
+defineOptions({
+  name: '/statistics/budgetExecutionAnalysis/customYapProjectExecutionByType'
+})
 
 interface RowVo {
   id: string
 }
-
 interface CodeData {
   code: string
   name: string
   note?: string | number
 }
-
 interface FormData {
   sjx: string[]
   xsws: string
@@ -205,7 +200,6 @@ interface FormData {
   kxpzLists: string[]
   dwList: ProYapMbaSearch['dwList']
 }
-
 interface Column {
   canBeCt: boolean
   children: Column[]
@@ -217,9 +211,7 @@ interface Column {
   visible: boolean
   width: number
 }
-
 const flatColumns = reactive<Column[]>([])
-
 const selectData = reactive<{
   projectType: any
   xmlbData: any
@@ -227,11 +219,9 @@ const selectData = reactive<{
   projectType: [],
   xmlbData: []
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const formList = reactive<{
   YSZXYL_SJX: CodeData[]
   XSWS: CodeData[]
@@ -245,7 +235,6 @@ const formList = reactive<{
   BUDUGET_EXECUTION_ANALYSIS: [],
   YSZXFX_KX_COLUMN: []
 })
-
 const searchGridRef = ref()
 const userDialogRef = ref()
 const helpModalRef = ref()
@@ -256,9 +245,7 @@ const xmlbRef = ref()
 const dwId = ref<string>('')
 const dwName = ref<string>('')
 const year = ref('')
-
 type TbhbSearchType = '1' | '2'
-
 const formData = reactive<FormData>({
   sjx: ['MBZ', 'DFJ', 'LXZ', 'WCZ', 'WCL'],
   xsws: '',
@@ -272,7 +259,6 @@ const formData = reactive<FormData>({
   kxpzLists: [],
   dwList: []
 })
-
 const gridRef = ref()
 const exportFormulaContext = ref<BudgetExecutionFormulaContext>()
 const isExpanding = ref(false)
@@ -288,10 +274,8 @@ const FIXED_LEAF_COLUMN_COUNT = 2
 // 展示维度默认值：优先取参数配置，缺省回落 YSZXYL_YAP
 const DEFAULT_BUSI_TYPE_PARAM_KEY = 'YSZXYL_YAP_DEFAULT_BUSI_TYPE'
 const DEFAULT_BUSI_TYPE = 'YSZXYL_YAP'
-
 const isExpandTaskCanceled = (taskId: number) => taskId !== expandTaskId.value
 const isStaleSearchRequest = (token: number) => !searchRequestTracker.isLatest(token)
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   stripe: true,
@@ -331,25 +315,20 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
     useStyle: true
   }
 })
-
 const changeYsndData = (val: string) => {
   if (val) year.value = formData.ysnd
   else formData.ysnd = ''
   getXmlbData(val)
 }
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const handleChangeXswsData = () => {
   searchDataHandle()
 }
-
 const handleRemoveTag = (value: string) => {
   formData.sjx.length = 0
 }
-
 const clearGridData = () => {
   activeSearchToken = searchRequestTracker.issue()
   expandTaskId.value += 1
@@ -361,7 +340,6 @@ const clearGridData = () => {
   gridOptions.columns = []
   return activeSearchToken
 }
-
 const mapTableRows = (rows: any[] = []) => {
   return rows.map((item: any) => {
     const values = {
@@ -371,7 +349,6 @@ const mapTableRows = (rows: any[] = []) => {
     return values
   })
 }
-
 const requestTableRowsByParent = async (
   parentId: string,
   options: {
@@ -405,9 +382,14 @@ const requestTableRowsByParent = async (
     return []
   }
 }
-
 const normalizeIndicatorOptions = (data: any): CodeData[] => {
-  const sourceData = Array.isArray(data) ? data : Array.isArray(data?.indicators) ? data.indicators : Array.isArray(data?.data) ? data.data : []
+  const sourceData = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.indicators)
+      ? data.indicators
+      : Array.isArray(data?.data)
+        ? data.data
+        : []
   const indicatorMap = new Map<string, CodeData>()
   sourceData.forEach((item: any) => {
     if (typeof item === 'string' && item.trim()) {
@@ -426,12 +408,10 @@ const normalizeIndicatorOptions = (data: any): CodeData[] => {
   })
   return Array.from(indicatorMap.values())
 }
-
 const resetIndicatorData = () => {
   formList.YSZXYL_SJX = []
   formData.sjx = []
 }
-
 const getIndicatorData = async () => {
   const requestToken = indicatorRequestTracker.issue()
   if (!formData.busiType) {
@@ -455,11 +435,12 @@ const getIndicatorData = async () => {
     }
   }
 }
-
 const getTableData = async (requestToken: number) => {
   gridOptions.loading = true
   try {
-    const rows = await requestTableRowsByParent('-1', { requestToken })
+    const rows = await requestTableRowsByParent('-1', {
+      requestToken
+    })
     if (!isStaleSearchRequest(requestToken)) {
       gridOptions.columns = fitNumericColumnWidths(gridOptions.columns as any[], rows, gridRef.value?.$el)
       gridOptions.data = rows
@@ -470,19 +451,27 @@ const getTableData = async (requestToken: number) => {
 }
 
 // 动态列修改
-const isVisibleLeafColumn = (column: Column) => (!Array.isArray(column.children) || column.children.length === 0) && column.visible !== false
-
-const applyFixedByLeafIndex = (column: Column, state: { leafColumnIndex: number }) => {
+const isVisibleLeafColumn = (column: Column) =>
+  (!Array.isArray(column.children) || column.children.length === 0) && column.visible !== false
+const applyFixedByLeafIndex = (
+  column: Column,
+  state: {
+    leafColumnIndex: number
+  }
+) => {
   delete column.fixed
   if (!isVisibleLeafColumn(column)) return
-
   state.leafColumnIndex += 1
   if (state.leafColumnIndex <= FIXED_LEAF_COLUMN_COUNT) {
     column.fixed = 'left'
   }
 }
-
-const editDynamicColumnData = async <T extends VxeGridPropTypes.Columns & Column[]>(data: T, state = { leafColumnIndex: 0 }) => {
+const editDynamicColumnData = async <T extends VxeGridPropTypes.Columns & Column[]>(
+  data: T,
+  state = {
+    leafColumnIndex: 0
+  }
+) => {
   for (const item of data) {
     flatColumns.push(item)
     if (item.children && item.children.length !== 0) {
@@ -519,12 +508,14 @@ const editDynamicColumnData = async <T extends VxeGridPropTypes.Columns & Column
     applyFixedByLeafIndex(item, state)
   }
 }
-
 const getDynamicColumnData = async (params: ProYapMbaSearch, requestToken: number): Promise<boolean> => {
   exportFormulaContext.value = undefined
   gridOptions.loading = true
   try {
-    const [res, context] = await Promise.all([getDynamicColumnByDw(params), loadBudgetExecutionFormulaContext('yap', params.dwId, params.dwList)])
+    const [res, context] = await Promise.all([
+      getDynamicColumnByDw(params),
+      loadBudgetExecutionFormulaContext('yap', params.dwId, params.dwList)
+    ])
     if (isStaleSearchRequest(requestToken)) return false
     if (res.success) {
       await editDynamicColumnData(res.data)
@@ -544,21 +535,21 @@ const getDynamicColumnData = async (params: ProYapMbaSearch, requestToken: numbe
   }
   return false
 }
-
 const getFormParams = (): ProYapMbaSearch => {
   return {
     busiType: formData.busiType,
     dwId: dwId.value,
     saveDate: formData.saveDate,
     ysnd: formData.ysnd,
-    dwList: formData.dwList.map((item) => ({ ...item })),
+    dwList: formData.dwList.map((item) => ({
+      ...item
+    })),
     indicators: formData.sjx.join(','),
     kxpzLists: [...formData.kxpzLists],
     parentId: '-1',
     xmlbIds: formData.xmlbIds
   }
 }
-
 const setFormData = async () => {
   const $dwSelect = dwSelectRef.value
   if ($dwSelect) {
@@ -569,7 +560,6 @@ const setFormData = async () => {
     }))
   }
 }
-
 const searchDataHandle = async () => {
   const requestToken = clearGridData()
   if (!formList.YSZXYL_SJX.length) {
@@ -591,7 +581,6 @@ const searchDataHandle = async () => {
   if (!(await getDynamicColumnData(params, requestToken)) || isStaleSearchRequest(requestToken)) return
   await getTableData(requestToken)
 }
-
 const resetDataHandle = async () => {
   const requestToken = clearGridData()
   await setDefaultValue()
@@ -602,7 +591,6 @@ const resetDataHandle = async () => {
   if (!(await getDynamicColumnData(params, requestToken)) || isStaleSearchRequest(requestToken)) return
   await getTableData(requestToken)
 }
-
 const setDefaultValue = async () => {
   const now = new Date()
   year.value = now.getFullYear().toString()
@@ -638,7 +626,6 @@ const resolveDefaultBusiType = async (): Promise<string> => {
   if (options.some((item) => item.code === defaultCode)) return defaultCode
   return options[0]?.code || defaultCode
 }
-
 const exportDataHandle = () => {
   const $table = gridRef.value
   if ($table) {
@@ -652,11 +639,13 @@ const exportDataHandle = () => {
     $table.exportData({
       ...gridOptions.exportConfig,
       sheetMethod: (params: any) =>
-        formatBudgetExecutionExportSheet(params, context, { includeFormulaExplanations: false, autoFitNumericColumns: true })
+        formatBudgetExecutionExportSheet(params, context, {
+          includeFormulaExplanations: false,
+          autoFitNumericColumns: true
+        })
     })
   }
 }
-
 const handleTbhb = async (searchType: TbhbSearchType) => {
   if (gridOptions.loading) return
   if (!formData.sjx.length) {
@@ -671,7 +660,10 @@ const handleTbhb = async (searchType: TbhbSearchType) => {
   const title = searchType === '1' ? '同比分析' : '环比分析'
   tbhbModalRef.value?.open({
     title,
-    params: { ...getFormParams(), searchType },
+    params: {
+      ...getFormParams(),
+      searchType
+    },
     dataSource: 'yap',
     xsws: formData.xsws,
     exportName: `自定义预安排项目执行分析（按类型）-${title}`
@@ -690,17 +682,27 @@ const viewReportHandle = () => {
     getYapFxbg
   )
 }
-
 const yieldToMainThread = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
-
-const preloadLazyDataByLevel = async (data: any[], targetLevel: number, state: { count: number }, taskId: number): Promise<void> => {
-  const queue: Array<{ row: any; level: number }> = []
+const preloadLazyDataByLevel = async (
+  data: any[],
+  targetLevel: number,
+  state: {
+    count: number
+  },
+  taskId: number
+): Promise<void> => {
+  const queue: Array<{
+    row: any
+    level: number
+  }> = []
   for (const row of data) {
     if (row && typeof row === 'object' && row.leaf) {
-      queue.push({ row, level: 1 })
+      queue.push({
+        row,
+        level: 1
+      })
     }
   }
-
   let cursor = 0
   const worker = async () => {
     while (true) {
@@ -710,33 +712,44 @@ const preloadLazyDataByLevel = async (data: any[], targetLevel: number, state: {
       cursor += 1
       const { row, level } = current
       if (targetLevel !== Infinity && level >= targetLevel) continue
-
-      const children = await requestTableRowsByParent(row.id, { showError: false, taskId })
+      const children = await requestTableRowsByParent(row.id, {
+        showError: false,
+        taskId
+      })
       if (isExpandTaskCanceled(taskId)) return
       row.children = children
       state.count += 1
       if (state.count % EXPAND_YIELD_INTERVAL === 0) {
         await yieldToMainThread()
       }
-
       for (const child of children) {
         if (child && typeof child === 'object' && child.leaf) {
-          queue.push({ row: child, level: level + 1 })
+          queue.push({
+            row: child,
+            level: level + 1
+          })
         }
       }
     }
   }
-
   const workerCount = Math.max(1, Math.min(EXPAND_PRELOAD_CONCURRENCY, queue.length || 1))
-  await Promise.all(Array.from({ length: workerCount }, () => worker()))
+  await Promise.all(
+    Array.from(
+      {
+        length: workerCount
+      },
+      () => worker()
+    )
+  )
 }
-
 const expandToLevel = async (
   data: any[],
   $table: any,
   targetLevel: number,
   currentLevel: number,
-  state: { count: number },
+  state: {
+    count: number
+  },
   visitedRows: WeakSet<object>,
   taskId?: number
 ): Promise<void> => {
@@ -759,42 +772,52 @@ const expandToLevel = async (
     }
   }
 }
-
 const expandByLevelHandle = async (command: string) => {
   if (!gridOptions.columns || gridOptions.columns.length === 0) {
     return
   }
-
   const taskId = ++expandTaskId.value
   const targetLevel = command.includes('ALL') ? Infinity : parseInt(command.split('_')[1], 10)
   if (targetLevel !== Infinity && (!Number.isFinite(targetLevel) || targetLevel < 1)) {
     ElMessage.warning('展开层级参数无效')
     return
   }
-
   isExpanding.value = true
   gridOptions.loading = true
   try {
     await setFormData()
     if (isExpandTaskCanceled(taskId)) return
-
-    const rootRows = await requestTableRowsByParent('-1', { taskId })
+    const rootRows = await requestTableRowsByParent('-1', {
+      taskId
+    })
     if (isExpandTaskCanceled(taskId)) return
-
-    await preloadLazyDataByLevel(rootRows, targetLevel, { count: 0 }, taskId)
+    await preloadLazyDataByLevel(
+      rootRows,
+      targetLevel,
+      {
+        count: 0
+      },
+      taskId
+    )
     if (isExpandTaskCanceled(taskId)) return
-
     gridOptions.data = rootRows
     await nextTick()
     if (isExpandTaskCanceled(taskId)) return
-
     const $table = gridRef.value
     if (!$table) return
-
     await $table.clearTreeExpand()
     if (isExpandTaskCanceled(taskId)) return
-
-    await expandToLevel(rootRows, $table, targetLevel, 1, { count: 0 }, new WeakSet<object>(), taskId)
+    await expandToLevel(
+      rootRows,
+      $table,
+      targetLevel,
+      1,
+      {
+        count: 0
+      },
+      new WeakSet<object>(),
+      taskId
+    )
   } finally {
     if (!isExpandTaskCanceled(taskId)) {
       gridOptions.loading = false
@@ -821,10 +844,11 @@ const getProjectData = () => {
     }
   })
 }
-
 const getPublicCode = async () => {
   let codes = ['XSWS', 'ZKCJ', 'BUDUGET_EXECUTION_ANALYSIS', 'YSZXFX_KX_COLUMN']
-  const res = await getPublicCodeList({ codes })
+  const res = await getPublicCodeList({
+    codes
+  })
   if (res.success && res.data) {
     formList.XSWS = res.data['XSWS']
     formList.ZKCJ = res.data['ZKCJ'] || []
@@ -832,18 +856,15 @@ const getPublicCode = async () => {
     formList.YSZXFX_KX_COLUMN = res.data['YSZXFX_KX_COLUMN'] || []
   }
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
   dwId.value = userDialogRef.value.userMsg.org_id
   dwName.value = userDialogRef.value.userMsg.org_name
-
   if (isQuery) {
     pageInfo.isShowPage = true
     await searchDataHandle()
   }
 }
-
 const getXmlbData = async (val?: string) => {
   if (xmlbRef.value) xmlbRef.value.clearHandle()
   const requestToken = xmlbRequestTracker.issue()
@@ -868,24 +889,20 @@ const getXmlbData = async (val?: string) => {
     }
   }
 }
-
 const handleBusiTypeChange = async () => {
   formData.xmlbIds = ''
   clearGridData()
   await Promise.all([getIndicatorData(), getXmlbData()])
 }
-
 const initParams = async () => {
   await getPublicCode()
   await setDefaultValue()
   await getXmlbData()
   userDialogRef.value.getUser()
 }
-
 onMounted(() => {
   initParams()
 })
-
 watch(
   () => year.value,
   () => {

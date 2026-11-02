@@ -31,17 +31,15 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'similarityModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { aiAuditSimilarityEdit } from '@/api/suzhou/aiAuditInuseRange'
+defineOptions({
+  name: 'similarityModal'
+})
 
 interface ModalParams {
   type: string
@@ -50,39 +48,46 @@ interface ModalParams {
     similarityJson?: string
   }
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const formRef = ref()
 const modalTitle = ref('')
-const formData = ref({ proTypeList: [] as string[], similarityJson: '' })
-
+const formData = ref({
+  proTypeList: [] as string[],
+  similarityJson: ''
+})
 const handleClose = () => {
   formRef.value?.resetFields()
   isShowModal.value = false
 }
-
 const handleSave = () => {
   if (loading.value) return
   formRef.value.validate(async (valid: boolean) => {
     if (!valid) return
     try {
-      const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', { status: 'warning' })
+      const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
+        status: 'warning'
+      })
       if (type !== 'confirm') return ElMessage.info('已取消')
     } catch {
       return
     }
-
     loading.value = true
     try {
       const res = await aiAuditSimilarityEdit(formData.value)
       if (!res.success) return ElMessage.error(res.msg || '保存失败')
       ElMessage.success('保存成功！')
-      emit('searchHandle', { param: 'success' })
+      emit('searchHandle', {
+        param: 'success'
+      })
       handleClose()
     } catch (error) {
       ElMessage.error((error as Error).message || '保存失败')
@@ -91,9 +96,10 @@ const handleSave = () => {
     }
   })
 }
-
 const acceptParams = (params: ModalParams) => {
-  const searchParams = params.searchParams || { proTypeList: [] }
+  const searchParams = params.searchParams || {
+    proTypeList: []
+  }
   modalTitle.value = params.type
   formData.value = {
     proTypeList: [...(searchParams.proTypeList || [])],
@@ -102,8 +108,9 @@ const acceptParams = (params: ModalParams) => {
   }
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

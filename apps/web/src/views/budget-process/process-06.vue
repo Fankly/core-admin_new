@@ -203,7 +203,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -212,9 +212,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import projectType from '@/components/select/projectType.vue'
@@ -227,560 +225,609 @@ import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { showHelpMsg } from '@/utils/message'
 import { getPublicData } from '@/api/common'
-export default defineComponent({
-  name: '/budget-process/process-06',
-  components: {
-    projectType,
-    affiliatedUnit,
-    copyTextBox,
-    Centralized,
-    projectnature,
-    Projectstatus,
-    userDialog
+import { useRoute, useRouter } from 'vue-router'
+defineOptions({
+  name: '/budget-process/process-06'
+})
+const route = useRoute()
+const router = useRouter()
+const xmxzRef = useTemplateRef('xmxz')
+const xmztRef = useTemplateRef('xmzt')
+const typeRef = useTemplateRef('type')
+const companyRef = useTemplateRef('company')
+const gkbmRef = useTemplateRef('gkbm')
+const xmbmRef = useTemplateRef('xmbm')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  helpHandle,
+  store,
+  dataList: {
+    month: new Date(),
+    post1: '',
+    xmb: '',
+    zbxLists: []
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
-    }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      helpHandle,
-      store,
-      dataList: {
-        month: new Date(),
-        post1: '',
-        xmb: '',
-        zbxLists: []
-      },
-
-      //搜索区域显示与隐藏
-      searchShow: true,
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      //穿透数据
-      tables: [
-        {
-          label: '招投标环节',
-          value: '/budget-process/process-18'
-        },
-        {
-          label: '合同签订环节',
-          value: '/budget-process/process-19'
-        },
-        {
-          label: '项目实施环节',
-          value: '/budget-process/process-20'
-        },
-        {
-          label: '项目审计环节',
-          value: '/budget-process/process-21'
-        },
-        {
-          label: '结算与资金支付环节',
-          value: '/budget-process/process-22'
-        },
-        {
-          label: '决算与增资环节',
-          value: '/budget-process/process-23'
-        }
-      ],
-      //表格备足开关
-      remarks: false,
-      example: [],
-      zbxOptions: [],
-
-      //控制表格列显示与隐藏
-      columnObj: {},
-      //列设置默认展示字段
-      //默认所有
-      applicationId: [],
-      //列菜单数据
-      applications: [
-        {
-          value: 'QKJXMLXMC',
-          label: '项目类型',
-          checked: true
-        },
-        {
-          value: 'QKJXMB_MC',
-          label: '项目包',
-          checked: true
-        },
-        {
-          value: 'QKJYJDW_NAME',
-          label: '一级单位',
-          checked: true
-        },
-        {
-          value: 'QKJEJDW_NAME',
-          label: '二级单位',
-          checked: true
-        },
-        {
-          value: 'QKJGKBM_NAME',
-          label: '部门',
-          checked: true
-        },
-        {
-          value: 'ERPJDYS',
-          label: '年度预算',
-          checked: true
-        },
-        {
-          value: 'NDZCB_HS',
-          label: '当年财务支出',
-          checked: true
-        },
-        {
-          value: 'ztb',
-          label: '招投标',
-          checked: true
-        },
-        {
-          value: 'htqd',
-          label: '合同签订',
-          checked: true
-        },
-        {
-          value: 'xmss',
-          label: '项目实施',
-          checked: true
-        },
-        {
-          value: 'xmsj',
-          label: '项目审计',
-          checked: true
-        },
-        {
-          value: 'jsyzjzf',
-          label: '结算与资金支付',
-          checked: true
-        },
-        {
-          value: 'jsyzz',
-          label: '决算与增资',
-          checked: true
-        },
-        {
-          value: 'xmgb',
-          label: '项目关闭',
-          checked: true
-        }
-      ],
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      pendingPenetration: null
-    })
-  },
-  created() {
-    this.handleColumn()
-    this.pendingPenetration = this.getPenetrationQuery()
-    this.loadZbxOptions()
-  },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    if (this.pendingPenetration && this.pendingPenetration.specialorgid) {
-      this.specialorgid = parseInt(this.pendingPenetration.specialorgid)
-      this.loadCompanyData()
-    } else {
-      this.$refs.userDialog.getUser(this.userId, this.userCode)
-    }
-  },
-  methods: {
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 80 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 80 + 'px'
-      }
+  //搜索区域显示与隐藏
+  searchShow: true,
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  //穿透数据
+  tables: [
+    {
+      label: '招投标环节',
+      value: '/budget-process/process-18'
     },
-    loadData() {
-      this.loading = true
-      const params = {
-        qkjxmlxbms: [],
-        qkjejdws: [],
-        pspids: [],
-        zyear: '',
-        zmonth: '',
-        page: this.page.page,
-        limit: this.page.limit,
-        post1: this.dataList.post1,
-        zjsjd_mc: this.$refs.xmxz.value,
-        gkbms: [],
-        xmb: this.dataList.xmb,
-        zxmzt: this.$refs.xmzt.value,
-        specialorgid: this.specialorgid,
-        zbxLists: this.dataList.zbxLists
-      }
-      params.qkjxmlxbms = this.$refs.type.selectList
-      params.qkjejdws = this.$refs.company.selectList
-      params.gkbms = this.$refs.gkbm.selectList
-      //项目编码
-      if (this.$refs.xmbm) {
-        params.pspids = this.$refs.xmbm.array
-      }
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      if (this.dataList.month) {
-        if (this.remarks == false) {
-          baseService.post('/process/process06/', params).then((res) => {
-            if (res.success == true) {
-              this.loading = false
-              this.example = res.data.records
-              this.page.total = res.data.total
-            } else {
-              this.loading = false
-              ElMessage({
-                type: 'error',
-                message: res.msg
-              })
-            }
-          })
+    {
+      label: '合同签订环节',
+      value: '/budget-process/process-19'
+    },
+    {
+      label: '项目实施环节',
+      value: '/budget-process/process-20'
+    },
+    {
+      label: '项目审计环节',
+      value: '/budget-process/process-21'
+    },
+    {
+      label: '结算与资金支付环节',
+      value: '/budget-process/process-22'
+    },
+    {
+      label: '决算与增资环节',
+      value: '/budget-process/process-23'
+    }
+  ],
+  //表格备足开关
+  remarks: false,
+  example: [],
+  zbxOptions: [],
+  //控制表格列显示与隐藏
+  columnObj: {},
+  //列设置默认展示字段
+  //默认所有
+  applicationId: [],
+  //列菜单数据
+  applications: [
+    {
+      value: 'QKJXMLXMC',
+      label: '项目类型',
+      checked: true
+    },
+    {
+      value: 'QKJXMB_MC',
+      label: '项目包',
+      checked: true
+    },
+    {
+      value: 'QKJYJDW_NAME',
+      label: '一级单位',
+      checked: true
+    },
+    {
+      value: 'QKJEJDW_NAME',
+      label: '二级单位',
+      checked: true
+    },
+    {
+      value: 'QKJGKBM_NAME',
+      label: '部门',
+      checked: true
+    },
+    {
+      value: 'ERPJDYS',
+      label: '年度预算',
+      checked: true
+    },
+    {
+      value: 'NDZCB_HS',
+      label: '当年财务支出',
+      checked: true
+    },
+    {
+      value: 'ztb',
+      label: '招投标',
+      checked: true
+    },
+    {
+      value: 'htqd',
+      label: '合同签订',
+      checked: true
+    },
+    {
+      value: 'xmss',
+      label: '项目实施',
+      checked: true
+    },
+    {
+      value: 'xmsj',
+      label: '项目审计',
+      checked: true
+    },
+    {
+      value: 'jsyzjzf',
+      label: '结算与资金支付',
+      checked: true
+    },
+    {
+      value: 'jsyzz',
+      label: '决算与增资',
+      checked: true
+    },
+    {
+      value: 'xmgb',
+      label: '项目关闭',
+      checked: true
+    }
+  ],
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
+  },
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  pendingPenetration: null
+})
+const dataList = toRef(setupState, 'dataList')
+const searchShow = toRef(setupState, 'searchShow')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const tables = toRef(setupState, 'tables')
+const remarks = toRef(setupState, 'remarks')
+const example = toRef(setupState, 'example')
+const zbxOptions = toRef(setupState, 'zbxOptions')
+const columnObj = toRef(setupState, 'columnObj')
+const applicationId = toRef(setupState, 'applicationId')
+const applications = toRef(setupState, 'applications')
+const page = toRef(setupState, 'page')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const pendingPenetration = toRef(setupState, 'pendingPenetration')
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 80 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 80 + 'px'
+  }
+}
+function loadData() {
+  setupState.loading = true
+  const params = {
+    qkjxmlxbms: [],
+    qkjejdws: [],
+    pspids: [],
+    zyear: '',
+    zmonth: '',
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    post1: setupState.dataList.post1,
+    zjsjd_mc: xmxzRef.value.value,
+    gkbms: [],
+    xmb: setupState.dataList.xmb,
+    zxmzt: xmztRef.value.value,
+    specialorgid: setupState.specialorgid,
+    zbxLists: setupState.dataList.zbxLists
+  }
+  params.qkjxmlxbms = typeRef.value.selectList
+  params.qkjejdws = companyRef.value.selectList
+  params.gkbms = gkbmRef.value.selectList
+  //项目编码
+  if (xmbmRef.value) {
+    params.pspids = xmbmRef.value.array
+  }
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  if (setupState.dataList.month) {
+    if (setupState.remarks == false) {
+      baseService.post('/process/process06/', params).then((res) => {
+        if (res.success == true) {
+          setupState.loading = false
+          setupState.example = res.data.records
+          setupState.page.total = res.data.total
         } else {
-          this.example = []
-          this.remarksbtn()
-          baseService.post('/process/process06/', params).then((res) => {
-            if (res.success == true) {
-              this.loading = false
-              res.data.records.forEach((item) => {
-                this.example.push(item)
-              })
-
-              this.page.total = res.data.total
-            } else {
-              this.loading = false
-              ElMessage({
-                type: 'error',
-                message: res.msg
-              })
-            }
+          setupState.loading = false
+          ElMessage({
+            type: 'error',
+            message: res.msg
           })
         }
-      } else {
-        this.loading = false
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-    //导出按钮
-    async exportBtn() {
-      this.loading = true
-      if (this.dataList.month) {
-        const params = {
-          qkjxmlxbms: [],
-          qkjejdws: [],
-          pspids: [],
-          zyear: '',
-          zmonth: '',
-          page: this.page.page,
-          limit: this.page.limit,
-          post1: this.dataList.post1,
-          zjsjd_mc: this.$refs.xmxz.value,
-          gkbms: [],
-          xmb: this.dataList.xmb,
-          zxmzt: this.$refs.xmzt.value,
-          specialorgid: this.specialorgid,
-          zbxLists: this.dataList.zbxLists
-        }
-        params.qkjxmlxbms = this.$refs.type.selectList
-        params.qkjejdws = this.$refs.company.selectList
-        params.gkbms = this.$refs.gkbm.selectList
-        //项目编码
-        if (this.$refs.xmbm) {
-          params.pspids = this.$refs.xmbm.array
-        }
-        if (this.dataList.month != '') {
-          let time = new Date(this.dataList.month)
-          let zyear = time.getFullYear()
-          let zmonth = time.getMonth() + 1
-          params.zyear = JSON.stringify(zyear)
-          params.zmonth = JSON.stringify(zmonth)
-        }
-
-        await baseService.export('/process/process06/export', params).then((res) => {
-          this.loading = false
-          const blob = res
-          let dom = document.createElement('a')
-          let url = window.URL.createObjectURL(blob)
-          dom.href = url
-          dom.download = '预算全过程规范性监控明细.xlsx'
-          document.body.appendChild(dom)
-          dom.click()
-          document.body.removeChild(dom)
-          window.URL.revokeObjectURL(url)
-        })
-      }
-    },
-    // 分页控件当前页修改事件
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    // 分页控件请求数量修改事件
-    limitChangeHandle(currentLimitNum) {
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-
-    //搜索按钮
-    search() {
-      this.loadData()
-    },
-
-    //重置按钮
-    reset() {
-      this.dataList.month = new Date()
-      this.remarks = false
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.dataList.post1 = ''
-      this.dataList.xmb = ''
-      this.dataList.zbxLists = []
-      this.$refs.gkbm.clear()
-      this.$refs.xmxz.clear()
-      this.$refs.xmzt.clear()
-      this.$refs.xmbm.clear()
-      this.example = []
-      this.loadData()
-    },
-
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-
-    //处理列数据
-    handleColumn() {
-      this.applications.forEach((item) => {
-        this.applicationId.push(item.value)
-        this.columnObj[item.value] = item.checked
       })
-    },
-
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked
-        }
-      }
-    },
-
-    getPenetrationQuery() {
-      const query = this.$route.query
-      if (!query || query.id == undefined) {
-        return null
-      }
-
-      const id = Array.isArray(query.id) ? query.id[0] : query.id
-      const zbx = Array.isArray(query.zbx) ? query.zbx[0] : query.zbx
-      const wd = Array.isArray(query.wd) ? query.wd[0] : query.wd
-      const specialorgid = Array.isArray(query.specialorgid) ? query.specialorgid[0] : query.specialorgid
-      if (!id || !zbx) {
-        return null
-      }
-
-      return {
-        id,
-        zbx,
-        wd: wd == undefined ? '0' : String(wd),
-        specialorgid
-      }
-    },
-
-    async applyPenetrationQuery() {
-      const penetration = this.pendingPenetration
-      if (!penetration) {
-        return
-      }
-
-      if (penetration.wd === '1') {
-        await this.$refs.type.setCheckedById(penetration.id)
-      } else {
-        await this.$refs.company.setCheckedByCode(penetration.id)
-      }
-      this.dataList.zbxLists = [penetration.zbx]
-      this.pendingPenetration = null
-      this.loadData()
-    },
-
-    //表格备注开关
-    remarksbtn() {
-      if (this.remarks) {
-        let calculation = {
-          pspid: '稽核规则（计算公式）',
-          jh_ztbcylz: '招投标差异率=（招标金额-中标金额）/招标金额，统计差异率超10%的招标金额与中标金额差额绝对值的合计数',
-          jh_htqdgfxz: '合同签订规范性=服务入账日期-对应服务合同签订日期，统计<0天的入账金额合计数；仅指服务合同',
-          jh_htlygfxz: '合同履约规范性=财务支出（含税）-对应合同金额，统计>0万元，差额合计值；仅指项目化物资和服务',
-          jh_wzlygfxz: '物资领用规范性=首批物资领用日期-首笔服务确认日期；指标值>0天的物资领用金额合计数',
-          jh_wzzlztbsz: '物资整领整退：通过项目定义+物资唯一码，汇总出库、退库数量，如果数量相等，则为整出整退。',
-          jh_wztklz: '物资退库率=物资累计退库金额/（物资累计领用金额+物资累计退库金额）',
-          jh_wzcqgcez: '物资超欠供差额=审定结果材料费-入账材料费（含税领料金额）；同一项目多次送审的，取合计数',
-          erpndysbd: '预算调整率=（当前预算金额-年初预算下达金额）/年初预算下达金额；',
-          erpndysbdcs: '当年预算调整次数 ',
-          xmsj: '审计核减率=（累计送审金额-累计审定金额）/累计送审金额；同一项目多次送审，取合计数',
-          sbfwqrpje: '首笔服务入账合理性=实际开工日期-首笔服务类财务支出日期',
-          jh_htzfgfx_sl: '资金支付规范性=资金支付金额-对应合同金额，涉及多个合同的，统计合计值；仅项目服务',
-          jh_skdwyzx_sl: '合同供应商=实际收款单位，统计不一致支付金额合计值',
-          jh_zgzzhlxz: '暂估增资合理性=设备购置支出-累计暂估增资金额',
-          zjgcye: '在建工程余额 ',
-          stat: '根据前7个环节，判断是否展示此项目：前7个环节都规范，不展示',
-          pspids: '3',
-          jh_ztbcyl: '3',
-          jh_htqdgfx: '3',
-          jh_htlygfx: '3',
-          jh_wzlygfx: '3',
-          jh_wzlygfx: '3',
-          JH_WZTKL: '3',
-          jh_wzcqgce: '3',
-          jh_ndystzl: '3',
-          jh_ndystzcs: '3',
-          jh_sjhjl: '3',
-          jh_sbfwrzhlx: '3',
-          jh_zjzfje: '3',
-          jh_skdwyzx: '3',
-          jh_zgzzhlx: '3',
-          jh_zjgcfs: '3',
-          STAT: '3'
-        }
-
-        let judge = {
-          pspid: '判断标准',
-          JH_LXGFX: '根据智能审核结果判断，不规范数量',
-          jh_ztbcylz: '差异率绝对值≥10%',
-          jh_htqdgfxz: '<0天',
-          jh_htlygfxz: '>0万元',
-          jh_wzlygfxz: '>0天',
-          jh_wzzlztbsz: '出库=退库',
-          jh_wztklz: '退库率≥20%（暂定）',
-          jh_wzcqgcez: '≠0',
-          erpndysbd: '预算调整率绝对值≥15%（暂定）',
-          erpndysbdcs: '>3次（暂定） ',
-          xmsj: '≥10%（暂定）',
-          sbfwqrpje: '>0天',
-          jh_htzfgfx_sl: '>0万元',
-          jh_skdwyzx_sl: '不一致',
-          jh_zgzzhlxz: '>0万元',
-          zjgcye: '<0万元 ',
-          stat: '',
-          pspids: '3',
-          jh_lxgfx: '3',
-          jh_ztbcyl: '3',
-          jh_htqdgfx: '3',
-          jh_htlygfx: '3',
-          jh_wzlygfx: '3',
-          jh_wzlygfx: '3',
-          JH_WZTKL: '3',
-          jh_wzcqgce: '3',
-          jh_ndystzl: '3',
-          jh_ndystzcs: '3',
-          jh_sjhjl: '3',
-          jh_sbfwrzhlx: '3',
-          jh_zjzfje: '3',
-          jh_skdwyzx: '3',
-          jh_zgzzhlx: '3',
-          jh_zjgcfs: '3',
-          STAT: '3'
-        }
-
-        let exhibition = {
-          pspid: '展示内容',
-          JH_LXGFX: '展示不规范点的数量',
-          jh_ztbcylz: '展示差额绝对值合计数',
-          jh_htqdgfxz: '展示入账金额合计数',
-          jh_htlygfxz: '展示差额合计数',
-          jh_wzlygfxz: '展示物资领用金额',
-          jh_wzzlztbsz: '展示整领整退物资金额（整领部分的合计金额） ',
-          jh_wztklz: '展示物资退库率',
-          jh_wzcqgcez: '物资超欠供差额绝对值',
-          erpndysbd: '展示调整金额',
-          erpndysbdcs: '展示调整次数 ',
-          xmsj: '展示核减金额',
-          sbfwqrpje: '展示服务入账金额',
-          jh_htzfgfx_sl: '展示差额合计数',
-          jh_skdwyzx_sl: '展示资金支付金额',
-          jh_zgzzhlxz: '展示差额',
-          zjgcye: '在建工程余额 ',
-          stat: '项目状态 ',
-          pspids: '3',
-          jh_lxgfx: '3',
-          jh_ztbcyl: '3',
-          jh_htqdgfx: '3',
-          jh_htlygfx: '3',
-          jh_wzlygfx: '3',
-          jh_wzlygfx: '3',
-          JH_WZTKL: '3',
-          jh_wzcqgce: '3',
-          jh_ndystzl: '3',
-          jh_ndystzcs: '3',
-          jh_sjhjl: '3',
-          jh_sbfwrzhlx: '3',
-          jh_zjzfje: '3',
-          jh_skdwyzx: '3',
-          jh_zgzzhlx: '3',
-          jh_zjgcfs: '3',
-          STAT: '3'
-        }
-        this.example.unshift(exhibition)
-        this.example.unshift(judge)
-        this.example.unshift(calculation)
-      } else {
-        this.example.splice(0, 3)
-      }
-    },
-
-    //穿透跳转
-    goTable(path, pspid) {
-      this.$router.push({ path: path, query: { pspid: pspid } })
-    },
-    loadZbxOptions() {
-      return getPublicData('YSQGC_GFX_ZBX').then((res) => {
-        if (res.success) {
-          this.zbxOptions = res.data
+    } else {
+      setupState.example = []
+      remarksbtn()
+      baseService.post('/process/process06/', params).then((res) => {
+        if (res.success == true) {
+          setupState.loading = false
+          res.data.records.forEach((item) => {
+            setupState.example.push(item)
+          })
+          setupState.page.total = res.data.total
+        } else {
+          setupState.loading = false
+          ElMessage({
+            type: 'error',
+            message: res.msg
+          })
         }
       })
-    },
-    loadCompany() {
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.loadCompanyData()
-    },
-    loadCompanyData() {
-      this.loading = false
-      this.$refs.company.getAffiliatedUnit(this.specialorgid).then(() => {
-        this.applyPenetrationQuery()
-      })
-      this.$refs.gkbm.getProjectType(this.specialorgid)
+    }
+  } else {
+    setupState.loading = false
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
+    })
+  }
+}
+//导出按钮
+async function exportBtn() {
+  setupState.loading = true
+  if (setupState.dataList.month) {
+    const params = {
+      qkjxmlxbms: [],
+      qkjejdws: [],
+      pspids: [],
+      zyear: '',
+      zmonth: '',
+      page: setupState.page.page,
+      limit: setupState.page.limit,
+      post1: setupState.dataList.post1,
+      zjsjd_mc: xmxzRef.value.value,
+      gkbms: [],
+      xmb: setupState.dataList.xmb,
+      zxmzt: xmztRef.value.value,
+      specialorgid: setupState.specialorgid,
+      zbxLists: setupState.dataList.zbxLists
+    }
+    params.qkjxmlxbms = typeRef.value.selectList
+    params.qkjejdws = companyRef.value.selectList
+    params.gkbms = gkbmRef.value.selectList
+    //项目编码
+    if (xmbmRef.value) {
+      params.pspids = xmbmRef.value.array
+    }
+    if (setupState.dataList.month != '') {
+      let time = new Date(setupState.dataList.month)
+      let zyear = time.getFullYear()
+      let zmonth = time.getMonth() + 1
+      params.zyear = JSON.stringify(zyear)
+      params.zmonth = JSON.stringify(zmonth)
+    }
+    await baseService.export('/process/process06/export', params).then((res) => {
+      setupState.loading = false
+      const blob = res
+      let dom = document.createElement('a')
+      let url = window.URL.createObjectURL(blob)
+      dom.href = url
+      dom.download = '预算全过程规范性监控明细.xlsx'
+      document.body.appendChild(dom)
+      dom.click()
+      document.body.removeChild(dom)
+      window.URL.revokeObjectURL(url)
+    })
+  }
+}
+// 分页控件当前页修改事件
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+//搜索按钮
+function search() {
+  loadData()
+}
+//重置按钮
+function reset() {
+  setupState.dataList.month = new Date()
+  setupState.remarks = false
+  typeRef.value.clear()
+  companyRef.value.clear()
+  setupState.dataList.post1 = ''
+  setupState.dataList.xmb = ''
+  setupState.dataList.zbxLists = []
+  gkbmRef.value.clear()
+  xmxzRef.value.clear()
+  xmztRef.value.clear()
+  xmbmRef.value.clear()
+  setupState.example = []
+  loadData()
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+//处理列数据
+function handleColumn() {
+  setupState.applications.forEach((item) => {
+    setupState.applicationId.push(item.value)
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
     }
   }
+}
+function getPenetrationQuery() {
+  const query = route.query
+  if (!query || query.id == undefined) {
+    return null
+  }
+  const id = Array.isArray(query.id) ? query.id[0] : query.id
+  const zbx = Array.isArray(query.zbx) ? query.zbx[0] : query.zbx
+  const wd = Array.isArray(query.wd) ? query.wd[0] : query.wd
+  const specialorgid = Array.isArray(query.specialorgid) ? query.specialorgid[0] : query.specialorgid
+  if (!id || !zbx) {
+    return null
+  }
+  return {
+    id,
+    zbx,
+    wd: wd == undefined ? '0' : String(wd),
+    specialorgid
+  }
+}
+async function applyPenetrationQuery() {
+  const penetration = setupState.pendingPenetration
+  if (!penetration) {
+    return
+  }
+  if (penetration.wd === '1') {
+    await typeRef.value.setCheckedById(penetration.id)
+  } else {
+    await companyRef.value.setCheckedByCode(penetration.id)
+  }
+  setupState.dataList.zbxLists = [penetration.zbx]
+  setupState.pendingPenetration = null
+  loadData()
+}
+//表格备注开关
+function remarksbtn() {
+  if (setupState.remarks) {
+    let calculation = {
+      pspid: '稽核规则（计算公式）',
+      jh_ztbcylz: '招投标差异率=（招标金额-中标金额）/招标金额，统计差异率超10%的招标金额与中标金额差额绝对值的合计数',
+      jh_htqdgfxz: '合同签订规范性=服务入账日期-对应服务合同签订日期，统计<0天的入账金额合计数；仅指服务合同',
+      jh_htlygfxz: '合同履约规范性=财务支出（含税）-对应合同金额，统计>0万元，差额合计值；仅指项目化物资和服务',
+      jh_wzlygfxz: '物资领用规范性=首批物资领用日期-首笔服务确认日期；指标值>0天的物资领用金额合计数',
+      jh_wzzlztbsz: '物资整领整退：通过项目定义+物资唯一码，汇总出库、退库数量，如果数量相等，则为整出整退。',
+      jh_wztklz: '物资退库率=物资累计退库金额/（物资累计领用金额+物资累计退库金额）',
+      jh_wzcqgcez: '物资超欠供差额=审定结果材料费-入账材料费（含税领料金额）；同一项目多次送审的，取合计数',
+      erpndysbd: '预算调整率=（当前预算金额-年初预算下达金额）/年初预算下达金额；',
+      erpndysbdcs: '当年预算调整次数 ',
+      xmsj: '审计核减率=（累计送审金额-累计审定金额）/累计送审金额；同一项目多次送审，取合计数',
+      sbfwqrpje: '首笔服务入账合理性=实际开工日期-首笔服务类财务支出日期',
+      jh_htzfgfx_sl: '资金支付规范性=资金支付金额-对应合同金额，涉及多个合同的，统计合计值；仅项目服务',
+      jh_skdwyzx_sl: '合同供应商=实际收款单位，统计不一致支付金额合计值',
+      jh_zgzzhlxz: '暂估增资合理性=设备购置支出-累计暂估增资金额',
+      zjgcye: '在建工程余额 ',
+      stat: '根据前7个环节，判断是否展示此项目：前7个环节都规范，不展示',
+      pspids: '3',
+      jh_ztbcyl: '3',
+      jh_htqdgfx: '3',
+      jh_htlygfx: '3',
+      jh_wzlygfx: '3',
+      jh_wzlygfx: '3',
+      JH_WZTKL: '3',
+      jh_wzcqgce: '3',
+      jh_ndystzl: '3',
+      jh_ndystzcs: '3',
+      jh_sjhjl: '3',
+      jh_sbfwrzhlx: '3',
+      jh_zjzfje: '3',
+      jh_skdwyzx: '3',
+      jh_zgzzhlx: '3',
+      jh_zjgcfs: '3',
+      STAT: '3'
+    }
+    let judge = {
+      pspid: '判断标准',
+      JH_LXGFX: '根据智能审核结果判断，不规范数量',
+      jh_ztbcylz: '差异率绝对值≥10%',
+      jh_htqdgfxz: '<0天',
+      jh_htlygfxz: '>0万元',
+      jh_wzlygfxz: '>0天',
+      jh_wzzlztbsz: '出库=退库',
+      jh_wztklz: '退库率≥20%（暂定）',
+      jh_wzcqgcez: '≠0',
+      erpndysbd: '预算调整率绝对值≥15%（暂定）',
+      erpndysbdcs: '>3次（暂定） ',
+      xmsj: '≥10%（暂定）',
+      sbfwqrpje: '>0天',
+      jh_htzfgfx_sl: '>0万元',
+      jh_skdwyzx_sl: '不一致',
+      jh_zgzzhlxz: '>0万元',
+      zjgcye: '<0万元 ',
+      stat: '',
+      pspids: '3',
+      jh_lxgfx: '3',
+      jh_ztbcyl: '3',
+      jh_htqdgfx: '3',
+      jh_htlygfx: '3',
+      jh_wzlygfx: '3',
+      jh_wzlygfx: '3',
+      JH_WZTKL: '3',
+      jh_wzcqgce: '3',
+      jh_ndystzl: '3',
+      jh_ndystzcs: '3',
+      jh_sjhjl: '3',
+      jh_sbfwrzhlx: '3',
+      jh_zjzfje: '3',
+      jh_skdwyzx: '3',
+      jh_zgzzhlx: '3',
+      jh_zjgcfs: '3',
+      STAT: '3'
+    }
+    let exhibition = {
+      pspid: '展示内容',
+      JH_LXGFX: '展示不规范点的数量',
+      jh_ztbcylz: '展示差额绝对值合计数',
+      jh_htqdgfxz: '展示入账金额合计数',
+      jh_htlygfxz: '展示差额合计数',
+      jh_wzlygfxz: '展示物资领用金额',
+      jh_wzzlztbsz: '展示整领整退物资金额（整领部分的合计金额） ',
+      jh_wztklz: '展示物资退库率',
+      jh_wzcqgcez: '物资超欠供差额绝对值',
+      erpndysbd: '展示调整金额',
+      erpndysbdcs: '展示调整次数 ',
+      xmsj: '展示核减金额',
+      sbfwqrpje: '展示服务入账金额',
+      jh_htzfgfx_sl: '展示差额合计数',
+      jh_skdwyzx_sl: '展示资金支付金额',
+      jh_zgzzhlxz: '展示差额',
+      zjgcye: '在建工程余额 ',
+      stat: '项目状态 ',
+      pspids: '3',
+      jh_lxgfx: '3',
+      jh_ztbcyl: '3',
+      jh_htqdgfx: '3',
+      jh_htlygfx: '3',
+      jh_wzlygfx: '3',
+      jh_wzlygfx: '3',
+      JH_WZTKL: '3',
+      jh_wzcqgce: '3',
+      jh_ndystzl: '3',
+      jh_ndystzcs: '3',
+      jh_sjhjl: '3',
+      jh_sbfwrzhlx: '3',
+      jh_zjzfje: '3',
+      jh_skdwyzx: '3',
+      jh_zgzzhlx: '3',
+      jh_zjgcfs: '3',
+      STAT: '3'
+    }
+    setupState.example.unshift(exhibition)
+    setupState.example.unshift(judge)
+    setupState.example.unshift(calculation)
+  } else {
+    setupState.example.splice(0, 3)
+  }
+}
+//穿透跳转
+function goTable(path, pspid) {
+  router.push({
+    path: path,
+    query: {
+      pspid: pspid
+    }
+  })
+}
+function loadZbxOptions() {
+  return getPublicData('YSQGC_GFX_ZBX').then((res) => {
+    if (res.success) {
+      setupState.zbxOptions = res.data
+    }
+  })
+}
+function loadCompany() {
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  loadCompanyData()
+}
+function loadCompanyData() {
+  setupState.loading = false
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid).then(() => {
+    applyPenetrationQuery()
+  })
+  gkbmRef.value.getProjectType(setupState.specialorgid)
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  if (setupState.pendingPenetration && setupState.pendingPenetration.specialorgid) {
+    setupState.specialorgid = parseInt(setupState.pendingPenetration.specialorgid)
+    loadCompanyData()
+  } else {
+    userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+  }
+})
+;(() => {
+  handleColumn()
+  setupState.pendingPenetration = getPenetrationQuery()
+  loadZbxOptions()
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  helpHandle,
+  store,
+  dataList,
+  searchShow,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  tables,
+  remarks,
+  example,
+  zbxOptions,
+  columnObj,
+  applicationId,
+  applications,
+  page,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  pendingPenetration,
+  setTableHeight,
+  loadData,
+  exportBtn,
+  pageChangeHandle,
+  limitChangeHandle,
+  search,
+  reset,
+  showSearch,
+  handleColumn,
+  listShow,
+  getPenetrationQuery,
+  applyPenetrationQuery,
+  remarksbtn,
+  goTable,
+  loadZbxOptions,
+  loadCompany,
+  loadCompanyData
 })
 </script>
 

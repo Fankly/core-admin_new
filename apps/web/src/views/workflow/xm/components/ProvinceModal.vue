@@ -15,113 +15,110 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ProvinceModal" })
+import { getDataByParent } from '@/api/common'
+import { modiySdkzybm } from '@/api/workflow/xm'
+import { ElMessage } from 'element-plus'
+import { reactive, ref } from 'vue'
+import { VXETable } from 'vxe-table'
+defineOptions({
+  name: 'ProvinceModal'
+})
 interface Parameter {
-  xmIds: string[];
-  workItemId:string;
+  xmIds: string[]
+  workItemId: string
 }
-import { getDataByParent } from "@/api/common";
-import { modiySdkzybm } from "@/api/workflow/xm";
-import { ElMessage } from "element-plus";
-import { defineEmits, defineExpose, reactive, ref } from "vue";
-import { VXETable } from "vxe-table";
 
 interface PublicCode {
-  code:string;
-  name:string;
+  code: string
+  name: string
 }
-
-const emits = defineEmits(["close", "detail"]);
-
-const isShowModal = ref(false);
-const loading = ref(false);
-
-const formRef = ref();
-
-const selcteList = ref<PublicCode[]>([]);
-
+const emits = defineEmits(['close', 'detail'])
+const isShowModal = ref(false)
+const loading = ref(false)
+const formRef = ref()
+const selcteList = ref<PublicCode[]>([])
 const formData = reactive({
-  sdkzybmId: ""
-});
-
+  sdkzybmId: ''
+})
 const modalFormRules = reactive({
-  sdkzybmId: [{ required: true, message: "请选择省对口专业部门",  trigger: ["change"]  }]
-});
-
-
+  sdkzybmId: [
+    {
+      required: true,
+      message: '请选择省对口专业部门',
+      trigger: ['change']
+    }
+  ]
+})
 const parameter = ref<Parameter>({
   xmIds: [],
-  workItemId:''
-});
-
-
-const getPublicCode = async ()=>{
+  workItemId: ''
+})
+const getPublicCode = async () => {
   try {
-    const res = await getDataByParent("QMYS_ZZJG");
-    if(res.success){
-    selcteList.value = res.data;
-      return true;
-    }else{
-      throw new Error(res.msg);
+    const res = await getDataByParent('QMYS_ZZJG')
+    if (res.success) {
+      selcteList.value = res.data
+      return true
+    } else {
+      throw new Error(res.msg)
     }
   } catch (e) {
-    const error = e as Error;
-    ElMessage.error(error.message);
-    return false;
+    const error = e as Error
+    ElMessage.error(error.message)
+    return false
   }
 }
-
 
 // 接收父组件参数
 const acceptParams = (params: Parameter) => {
-  getPublicCode();
-  parameter.value = { ...parameter.value, ...params };
-  isShowModal.value = true;
-};
-
+  getPublicCode()
+  parameter.value = {
+    ...parameter.value,
+    ...params
+  }
+  isShowModal.value = true
+}
 const handleCancel = () => {
   if (formRef.value) {
-    isShowModal.value = false;
-    formRef.value.resetFields();
-    emits("close");
+    isShowModal.value = false
+    formRef.value.resetFields()
+    emits('close')
   }
-};
-
+}
 const handleDetail = () => {
   formRef.value.validate(async (valid: any) => {
-    const type = await VXETable.modal.confirm("是否确定?", "提示", {
-      confirmButtonText: "是",
-      cancelButtonText: "否"
-    });
-    if (type === "confirm") {
-      loading.value = true;
+    const type = await VXETable.modal.confirm('是否确定?', '提示', {
+      confirmButtonText: '是',
+      cancelButtonText: '否'
+    })
+    if (type === 'confirm') {
+      loading.value = true
       try {
-          const res = await modiySdkzybm({
-          sdkzybmId:formData.sdkzybmId,
-          xmIds:parameter.value.xmIds,
-          workItemId:parameter.value.workItemId
-          });
-          if(res.success){
-            isShowModal.value = false;
-            formRef.value.resetFields();
-            ElMessage.success('操作成功！');
-            emits('detail');
-          }else{
-            throw new Error(res.msg);
-          }
-      }catch(e){
-        const error = e as Error;
-        ElMessage.error(error.message);
-      }finally{
-        loading.value = false;
+        const res = await modiySdkzybm({
+          sdkzybmId: formData.sdkzybmId,
+          xmIds: parameter.value.xmIds,
+          workItemId: parameter.value.workItemId
+        })
+        if (res.success) {
+          isShowModal.value = false
+          formRef.value.resetFields()
+          ElMessage.success('操作成功！')
+          emits('detail')
+        } else {
+          throw new Error(res.msg)
+        }
+      } catch (e) {
+        const error = e as Error
+        ElMessage.error(error.message)
+      } finally {
+        loading.value = false
       }
     }
-  });
-};
-
+  })
+}
 defineExpose({
   acceptParams
-});
+})
 </script>
 
 <style scoped></style>

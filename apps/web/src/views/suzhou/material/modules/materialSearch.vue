@@ -37,9 +37,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialSearch" })
 import { useCrudSearch } from '@/views/suzhou/common/hooks/useCrudSearch'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
+defineOptions({ name: "materialSearch" })
+
 const { searchForm, handleSearch, handleReset } = useCrudSearch({
   materialCode: '',
   materialDesc: '',

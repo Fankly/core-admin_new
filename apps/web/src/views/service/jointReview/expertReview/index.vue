@@ -232,8 +232,6 @@ import {
   TrendCharts as EpTrendCharts,
   User as EpUser
 } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/service/jointReview/expertReview/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref } from 'vue'
 import { meetingReview } from '@/views/service/jointReview/expertReview/hooks/zym'
@@ -242,6 +240,7 @@ import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import ExpertProcessModal from '@/views/service/jointReview/components/ExpertProcessModal.vue'
 import { ElMessage } from 'element-plus'
+defineOptions({ name: "/service/jointReview/expertReview/index" })
 
 const {
   userDialogRef,

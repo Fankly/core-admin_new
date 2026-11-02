@@ -30,89 +30,96 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 import { CwProjectDiff, CwProject } from '@/api/mainController'
-
-export default {
-  components: {},
-  props: {
-    projectId: {
-      type: String
-    }
-  },
-  name: 'similarAnalysis',
-  data() {
-    return {
-      dataList: [],
-      reserveStatus: []
-    }
-  },
-  created() {
-    this.getReserveStatus()
-  },
-  mounted() {
-    this.getList()
-  },
-  methods: {
-    getStatus(projectReserveStatus) {
-      return this.reserveStatus.find((item) => item.key == projectReserveStatus)?.value
-    },
-    getReserveStatus() {
-      CwProject.reserveStatus(this, {}).then((res) => {
-        this.reserveStatus = res.data
-      })
-    },
-    handleSelect(item) {
-      this.$emit('on-select', item)
-    },
-    getType(type) {
-      let _type = 'primary'
-      switch (+type) {
-        case this.ReserveTypeDict.CREATE:
-          _type = 'info'
-          break
-        case this.ReserveTypeDict.REJECTED || this.ReserveTypeDict.DELAYED:
-          _type = 'warning'
-          break
-        case this.ReserveTypeDict.FINISHED:
-          _type = 'success'
-          break
-        case this.StatusReserveDict.PRE_REVIEW_COMPLETED:
-          _type = 'success'
-          break
-      }
-      return _type
-    },
-    getList() {
-      CwProjectDiff.list(this, {
-        cwProjectDiffDtoFilter: {
-          projectId: this.projectId
-        }
-      }).then((res) => {
-        const { dataList = [] } = res.data
-        this.$emit('update:data', dataList)
-        this.dataList = dataList
-
-        // this.dataValue = {
-        //   projectOutcome: JSON.parse(projectOutcome),
-        //   history: JSON.parse(history),
-        //   ...otherValues
-        // }
-      })
-    }
-  },
-  computed: {},
-  watch: {
-    projectId: {
-      handler(val, oldVal) {
-        if (val && oldVal && val != oldVal) {
-          this.getList()
-        }
-      },
-      deep: true
-    }
+import { reactive, toRef, toRefs, watch, onMounted, getCurrentInstance } from 'vue'
+defineOptions({
+  name: 'similarAnalysis'
+})
+const componentProps = defineProps({
+  projectId: {
+    type: String
   }
+})
+const emit = defineEmits()
+const componentInstance = getCurrentInstance().proxy
+const componentData = reactive({
+  dataList: [],
+  reserveStatus: []
+})
+const dataList = toRef(componentData, 'dataList')
+const reserveStatus = toRef(componentData, 'reserveStatus')
+function getStatus(projectReserveStatus) {
+  return componentData.reserveStatus.find((item) => item.key == projectReserveStatus)?.value
 }
+function getReserveStatus() {
+  CwProject.reserveStatus(componentInstance, {}).then((res) => {
+    componentData.reserveStatus = res.data
+  })
+}
+function handleSelect(item) {
+  emit('on-select', item)
+}
+function getType(type) {
+  let _type = 'primary'
+  switch (+type) {
+    case componentInstance.ReserveTypeDict.CREATE:
+      _type = 'info'
+      break
+    case componentInstance.ReserveTypeDict.REJECTED || componentInstance.ReserveTypeDict.DELAYED:
+      _type = 'warning'
+      break
+    case componentInstance.ReserveTypeDict.FINISHED:
+      _type = 'success'
+      break
+    case componentInstance.StatusReserveDict.PRE_REVIEW_COMPLETED:
+      _type = 'success'
+      break
+  }
+  return _type
+}
+function getList() {
+  CwProjectDiff.list(componentInstance, {
+    cwProjectDiffDtoFilter: {
+      projectId: componentProps.projectId
+    }
+  }).then((res) => {
+    const { dataList = [] } = res.data
+    emit('update:data', dataList)
+    componentData.dataList = dataList
+
+    // this.dataValue = {
+    //   projectOutcome: JSON.parse(projectOutcome),
+    //   history: JSON.parse(history),
+    //   ...otherValues
+    // }
+  })
+}
+watch(
+  () => componentProps.projectId,
+  function (val, oldVal) {
+    if (val && oldVal && val != oldVal) {
+      getList()
+    }
+  },
+  {
+    deep: true
+  }
+)
+onMounted(() => {
+  getList()
+})
+;(() => {
+  getReserveStatus()
+})()
+defineExpose({
+  getStatus,
+  getReserveStatus,
+  handleSelect,
+  getType,
+  getList,
+  ...toRefs(componentData)
+})
 </script>
 <style lang="less" scoped>
 .card-container {

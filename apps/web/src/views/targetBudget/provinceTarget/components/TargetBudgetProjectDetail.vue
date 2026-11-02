@@ -30,8 +30,8 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "TargetBudgetProjectDetail" })
 import { useTargetBudgetProjectDetail } from './hooks/useTargetBudgetProjectDetail'
+defineOptions({ name: "TargetBudgetProjectDetail" })
 
 const {
   isShowModal,

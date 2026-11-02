@@ -19,12 +19,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "BudgetChangesBatchModal" })
-// 父组件传过来的参数
 import { reactive, ref } from 'vue'
 import { batchUpdateData } from '@/api/config/continueCarryover'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
+defineOptions({ name: "BudgetChangesBatchModal" })
+// 父组件传过来的参数
 
 interface RowVO {
   ystzfd: string

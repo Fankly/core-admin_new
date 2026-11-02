@@ -418,8 +418,6 @@ import {
   Search as EpSearch,
   Warning as EpWarning
 } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/suzhou/aiAuditInuseRange/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, onBeforeUnmount, onActivated, ref, reactive, nextTick, watch, defineAsyncComponent, shallowRef, markRaw, h } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -445,6 +443,7 @@ import {
   aiAuditSimilarityGet
 } from '@/api/suzhou/aiAuditInuseRange'
 import { getPublicData } from '@/api/common'
+defineOptions({ name: "/suzhou/aiAuditInuseRange/index" })
 
 // 弹窗按需异步加载，降低首屏解析成本
 const rangeModal = defineAsyncComponent(() => import('@/views/suzhou/aiAuditInuseRange/components/rangeModal/index.vue'))

@@ -27,7 +27,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "SuzhouMaterialPage" })
 import type { Component, PropType } from 'vue'
 import { computed, onMounted, useSlots } from 'vue'
 import HelpModal from '@/components/HelpModal/index.vue'
@@ -36,6 +35,7 @@ import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
 import MaterialTable from '@/views/suzhou/common/components/MaterialTable.vue'
 import { useCrudPage } from '@/views/suzhou/common/hooks/useCrudPage'
 import type { CrudPageConfig, CrudRequest } from '@/views/suzhou/common/types/crud'
+defineOptions({ name: "SuzhouMaterialPage" })
 
 const props = defineProps({
   toolbar: {

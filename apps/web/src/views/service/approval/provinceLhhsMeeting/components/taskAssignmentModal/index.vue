@@ -139,23 +139,30 @@
 </template>
 
 <script setup lang="ts">
-import { Tickets as EpTickets, OfficeBuilding as EpOfficeBuilding, Folder as EpFolder } from '@element-plus/icons-vue'
+import {
+  Tickets as EpTickets,
+  OfficeBuilding as EpOfficeBuilding,
+  Folder as EpFolder,
+  Check as EpCheck,
+  Close as EpClose,
+  Refresh as EpRefresh,
+  Search as EpSearch
+} from '@element-plus/icons-vue'
 import type { Component } from 'vue'
-import { Check as EpCheck, Close as EpClose, Refresh as EpRefresh, Search as EpSearch } from '@element-plus/icons-vue'
-
-defineOptions({ name: "TaskAssignmentModal" })
-import { ref, reactive, nextTick, defineExpose, computed } from 'vue'
+import { ref, reactive, nextTick, computed } from 'vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { getDfpxx, getYnrhszjListNum, psfgData as defaultPsfgData } from '@/api/service/IhhsMeeting/approval/proviceIhhsMeeting'
 import { getPublicData } from '@/api/common'
 import { ElMessage } from 'element-plus'
 import { VxeGridInstance, VxeGridProps, VXETable } from 'vxe-table'
 import { IObject } from '@/types/interface'
+defineOptions({
+  name: 'TaskAssignmentModal'
+})
 
 interface AssignmentApis {
   psfgData?: (params: any) => Promise<any>
 }
-
 interface ModalProps {
   title?: string
   meetingId: string
@@ -167,14 +174,11 @@ interface ModalProps {
   pszyType?: string
   assignmentApis?: AssignmentApis
 }
-
 type AssignModeCode = '1' | '2' | '3'
-
 interface AssignModeOption {
   code: AssignModeCode
   name: string
 }
-
 const ASSIGN_MODE_PUBLIC_CODE = 'LHHS_FGPS_TYPE'
 const assignModeIconMap: Record<AssignModeCode, Component> = {
   '1': EpTickets,
@@ -182,10 +186,15 @@ const assignModeIconMap: Record<AssignModeCode, Component> = {
   '3': EpFolder
 }
 const fallbackAssignModeOptions: AssignModeOption[] = [
-  { code: '1', name: '按事项' },
-  { code: '2', name: '按单位' }
+  {
+    code: '1',
+    name: '按事项'
+  },
+  {
+    code: '2',
+    name: '按单位'
+  }
 ]
-
 const emit = defineEmits(['allocated'])
 const modalVisible = ref(false)
 const modalProps = ref<ModalProps>({
@@ -200,7 +209,6 @@ const modalProps = ref<ModalProps>({
 const assignMode = ref<AssignModeCode>('1')
 const assignModeOptions = ref<AssignModeOption[]>([...fallbackAssignModeOptions])
 const assignRightLoading = ref(false)
-
 const assignLeftSearchName = ref('')
 const assignRightSearchKeyword = ref('')
 const assignRightProjectCode = ref('')
@@ -208,11 +216,9 @@ const assignRightIsAllocated = ref<'0' | '1' | ''>('')
 const assignLeftSelection = ref<any[]>([])
 const assignRightSelection = ref([])
 const allLeftExperts = ref<any[]>([])
-
 const assignLeftGridRef = ref<VxeGridInstance>()
 const assignRightGridRef = ref<VxeGridInstance>()
 const loading = ref(false)
-
 const assignRightPage = reactive({
   currentPage: 1,
   pageSize: 20,
@@ -223,9 +229,10 @@ const assignRightPage = reactive({
 const isAssignEnabled = computed(() => {
   return assignLeftSelection.value.length > 0 && assignRightSelection.value.length > 0
 })
-
-const centerConfig = { align: 'center', headerAlign: 'center' }
-
+const centerConfig = {
+  align: 'center',
+  headerAlign: 'center'
+}
 const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number): T => {
   let timeoutId: ReturnType<typeof setTimeout>
   return ((...args: Parameters<T>) => {
@@ -237,7 +244,12 @@ const debounce = <T extends (...args: any[]) => any>(fn: T, delay: number): T =>
 // 列映射定义
 const columnsMap: Record<string, any[]> = {
   '1': [
-    { type: 'checkbox', width: 50, fixed: 'left', ...centerConfig },
+    {
+      type: 'checkbox',
+      width: 50,
+      fixed: 'left',
+      ...centerConfig
+    },
     {
       type: 'seq',
       width: 80,
@@ -258,7 +270,12 @@ const columnsMap: Record<string, any[]> = {
       showOverflow: true,
       ...centerConfig
     },
-    { field: 'ysly', title: '预算来源', width: 120, ...centerConfig },
+    {
+      field: 'ysly',
+      title: '预算来源',
+      width: 120,
+      ...centerConfig
+    },
     {
       field: 'num',
       title: '项目数量',
@@ -268,7 +285,12 @@ const columnsMap: Record<string, any[]> = {
     }
   ],
   '2': [
-    { type: 'checkbox', width: 50, fixed: 'left', ...centerConfig },
+    {
+      type: 'checkbox',
+      width: 50,
+      fixed: 'left',
+      ...centerConfig
+    },
     {
       field: 'yjdw',
       title: '单位名称',
@@ -286,7 +308,12 @@ const columnsMap: Record<string, any[]> = {
     }
   ],
   '3': [
-    { type: 'checkbox', width: 50, fixed: 'left', ...centerConfig },
+    {
+      type: 'checkbox',
+      width: 50,
+      fixed: 'left',
+      ...centerConfig
+    },
     {
       field: 'xmbm',
       title: '项目编码',
@@ -335,21 +362,37 @@ const columnsMap: Record<string, any[]> = {
     }
   ]
 }
-
 const assignLeftGridOptions = reactive<VxeGridProps<any>>({
   border: 'inner',
   height: 'auto',
   size: 'mini',
   stripe: true,
   loading: false,
-  checkboxConfig: { trigger: 'row', highlight: true },
-  rowConfig: { isCurrent: true, isHover: true, keyField: 'expertId' },
+  checkboxConfig: {
+    trigger: 'row',
+    highlight: true
+  },
+  rowConfig: {
+    isCurrent: true,
+    isHover: true,
+    keyField: 'expertId'
+  },
   columnConfig: {
     resizable: true
   },
   columns: [
-    { type: 'checkbox', width: 40, align: 'center' },
-    { field: 'expertName', align: 'center', title: '专家姓名', width: 90, sortable: true },
+    {
+      type: 'checkbox',
+      width: 40,
+      align: 'center'
+    },
+    {
+      field: 'expertName',
+      align: 'center',
+      title: '专家姓名',
+      width: 90,
+      sortable: true
+    },
     {
       field: 'majorName',
       title: '专家专业',
@@ -376,7 +419,6 @@ const assignLeftGridOptions = reactive<VxeGridProps<any>>({
   ],
   data: []
 })
-
 const assignRightGridOptions = reactive<VxeGridProps<any>>({
   border: true,
   height: '100%',
@@ -387,12 +429,19 @@ const assignRightGridOptions = reactive<VxeGridProps<any>>({
   columnConfig: {
     resizable: true
   },
-  checkboxConfig: { trigger: 'row', highlight: true, range: true },
-  rowConfig: { isCurrent: true, isHover: true, height: 32 },
+  checkboxConfig: {
+    trigger: 'row',
+    highlight: true,
+    range: true
+  },
+  rowConfig: {
+    isCurrent: true,
+    isHover: true,
+    height: 32
+  },
   columns: columnsMap['1'],
   data: []
 })
-
 const normalizeAssignModeOptions = (list: any[]): AssignModeOption[] => {
   if (!Array.isArray(list)) return []
   const result: AssignModeOption[] = []
@@ -401,11 +450,13 @@ const normalizeAssignModeOptions = (list: any[]): AssignModeOption[] => {
     if (!code || !(code in columnsMap)) continue
     const name = String(item?.name ?? '').trim()
     if (!name) continue
-    result.push({ code, name })
+    result.push({
+      code,
+      name
+    })
   }
   return result
 }
-
 const initAssignModeOptions = async () => {
   let options = [...fallbackAssignModeOptions]
   try {
@@ -444,7 +495,6 @@ const loadAssignLeftData = async () => {
     assignLeftGridOptions.loading = false
   }
 }
-
 const applyLeftFilter = () => {
   const keyword = assignLeftSearchName.value.trim()
   if (!keyword) {
@@ -459,11 +509,9 @@ const applyLeftFilter = () => {
   })
   assignLeftGridOptions.data = filtered
 }
-
 const handleAssignLeftSearch = debounce(() => {
   applyLeftFilter()
 }, 300)
-
 const handleAssignRightSearch = debounce(() => {
   assignRightPage.currentPage = 1
   loadAssignRightData()
@@ -527,7 +575,6 @@ const handleAssignRightPageChange = (val: number) => {
   assignRightPage.currentPage = val
   loadAssignRightData()
 }
-
 const handleAssignRightSizeChange = (val: number) => {
   assignRightPage.pageSize = val
   assignRightPage.currentPage = 1
@@ -594,7 +641,6 @@ const acceptParams = (params: ModalProps) => {
     loadAssignLeftData()
   })
 }
-
 defineExpose({
   acceptParams
 })

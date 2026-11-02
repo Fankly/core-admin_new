@@ -17,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "BudgetingTable" })
 import { useBudgetingTable } from '@/views/service/budget/budgeting/hooks/useBudgetingTable'
 import { onMounted } from 'vue'
+defineOptions({ name: "BudgetingTable" })
 
 const { gridOptions, gridEvents, page, handleChangeSizeChange, handleChangeCurrentChange, searchData, getColumnsData, gridRef } = useBudgetingTable()
 

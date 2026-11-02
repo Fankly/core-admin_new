@@ -1,81 +1,75 @@
-<script lang="ts">
-export default {
-  name: "/ygConfigData/components/TreeDialog"
-};
-</script>
+
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { getYszxlyNodeTree, getNodeTree } from "@/api/statistics/budgetStatisticsConfig";
-import { InitParams } from "@/views/ygConfigData/budgetStatisticsConfig.vue";
-import { ElMessage } from "element-plus";
-import { getPublicData, getBizOrgXzTreeExcludeBmNoPermissionNoLazy } from "@/api/common";
-import { useRoute } from "vue-router";
+import { ref } from 'vue'
+import { getYszxlyNodeTree, getNodeTree } from '@/api/statistics/budgetStatisticsConfig'
+import { InitParams } from '@/views/ygConfigData/budgetStatisticsConfig.vue'
+import { ElMessage } from 'element-plus'
+import { getPublicData, getBizOrgXzTreeExcludeBmNoPermissionNoLazy } from '@/api/common'
+import { useRoute } from 'vue-router'
+defineOptions({
+  name: '/ygConfigData/components/TreeDialog'
+})
 
 interface Props {
-  initParams: InitParams;
+  initParams: InitParams
 }
-
-const route = useRoute();
-const treeTypeList = ref<any[]>([]);
-const treeTypeCode = ref<any>("YSZXYL");
+const route = useRoute()
+const treeTypeList = ref<any[]>([])
+const treeTypeCode = ref<any>('YSZXYL')
 const defaultProps = ref({
-  id: "id",
-  label: "name",
-  children: "children"
+  id: 'id',
+  label: 'name',
+  children: 'children'
   // disabled: (data: any, node: any) => {
   //   return data.children.length != 0;
   // }
-});
-const treeRef = ref();
-
-const emits = defineEmits(["getTreeData"]);
-
-const props = defineProps<Props>();
-const showModal = ref(false);
-const treeDataList = ref<any[]>([]);
-
+})
+const treeRef = ref()
+const emits = defineEmits(['getTreeData'])
+const props = defineProps<Props>()
+const showModal = ref(false)
+const treeDataList = ref<any[]>([])
 const closeModalHandle = () => {
-  showModal.value = false;
+  showModal.value = false
   // 清空数据
-};
+}
 // 公共代码
 const initParamLists = async () => {
-  const publicCodeList = await getPublicData("YS_STAT_BUSI_TYPE");
+  const publicCodeList = await getPublicData('YS_STAT_BUSI_TYPE')
   if (publicCodeList.success && publicCodeList.data.length !== 0) {
-    treeTypeList.value = publicCodeList.data;
+    treeTypeList.value = publicCodeList.data
   }
-  await getTreeData();
-};
-
+  await getTreeData()
+}
 const detailHandle = () => {
-  const nodes: any[] = treeRef.value.getCheckedNodes();
+  const nodes: any[] = treeRef.value.getCheckedNodes()
   if (nodes && nodes.length > 0) {
     nodes.forEach((element: any) => {
-      element.children.length = 0;
-    });
-    emits("getTreeData", nodes);
+      element.children.length = 0
+    })
+    emits('getTreeData', nodes)
   }
-};
+}
 
 // const showModalHandle = async () => {
 //   await getTreeData();
 // };
 const getTreeData = async () => {
-  let res = await getNodeTree(treeTypeCode.value, props.initParams.nd);
+  let res = await getNodeTree(treeTypeCode.value, props.initParams.nd)
   if (res.success && res.data) {
-    treeDataList.value = res.data;
+    treeDataList.value = res.data
   } else {
-    ElMessage.error(res.msg);
+    ElMessage.error(res.msg)
   }
-};
+}
 const handlerTree = () => {
-  getTreeData();
-};
+  getTreeData()
+}
 defineExpose({
   showModal,
   initParamLists
-});
+})
 </script>
 
 <template>

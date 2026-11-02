@@ -84,8 +84,6 @@
 
 <script setup lang="ts">
 import { EnumMapInjectionKey } from '@/components/ProTable/interface'
-
-defineOptions({ name: "ProTablesource" })
 import { ref, watch, provide, onMounted, unref, computed, reactive, Ref } from 'vue'
 import { ElMessageBox, ElTable } from 'element-plus'
 import { useTable } from '@/hooks/useTable'
@@ -100,6 +98,7 @@ import TableColumn from './components/TableColumn.vue'
 import Sortable from 'sortablejs'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
+defineOptions({ name: "ProTablesource" })
 
 type ElTableInstance = InstanceType<typeof ElTable>
 

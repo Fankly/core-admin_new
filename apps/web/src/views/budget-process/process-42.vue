@@ -441,7 +441,7 @@
   <CentralizedModification ref="editPageRef" :userInfo="userInfo" :formData="selectData" flag="VIEW" />
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -449,9 +449,18 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import {
+  markRaw as markElementIconRaw,
+  reactive,
+  toRef,
+  nextTick,
+  reactive as reactiveLocal,
+  toRefs,
+  computed,
+  watch,
+  onMounted,
+  useTemplateRef
+} from 'vue'
 import baseService from '@/service/baseService'
 import { getYssxByZdtx } from '@/api/matter/matterBasic'
 import { getYslxct } from '@/api/matter/yssxMatter'
@@ -471,1350 +480,1525 @@ import { buildProcess42MatterParams, mapProcess42YssxOptions, mapProcess42ZdtxOp
 import { getBizOrgXzTreeExcludeBmNoPermissionNoLazy, getParamValueMulti } from '@/api/common' //公共代码
 // import { useStore } from '@/store/business'
 import { usePage } from '@/hooks/useUser'
-
-export default defineComponent({
-  name: '/budget-process/process-42',
-  components: {
-    ProjectDetailSearchSetting,
-    copyTextBox,
-    userDialog,
-    HelpModal,
-    ToolbarButtons,
-    CentralizedModification
+import { useRoute } from 'vue-router'
+defineOptions({
+  name: '/budget-process/process-42'
+})
+const route = useRoute()
+const projectDetailSearchSettingRefRef = useTemplateRef('projectDetailSearchSettingRef')
+const helpModalRefRef = useTemplateRef('helpModalRef')
+const tableNameRef = useTemplateRef('tableName')
+const XMMCRef = useTemplateRef('XMMC')
+const GWXMBMRef = useTemplateRef('GWXMBM')
+const centerTreeRef = useTemplateRef('centerTree')
+const XmbmcTreeRef = useTemplateRef('XmbmcTree')
+const XmlxTreeRef = useTemplateRef('XmlxTree')
+const DwTreeRef = useTemplateRef('DwTree')
+const userDialogRef = useTemplateRef('userDialog')
+const contentTablesRef = useTemplateRef('contentTables')
+const editPageRefRef = useTemplateRef('editPageRef')
+const store = useStore()
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  selectData: {},
+  userInfo: {},
+  store,
+  show_Ljwcl: true,
+  show_Yswcl: true,
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-  setup() {
-    const store = useStore()
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      selectData: {},
-      userInfo: {},
-      store,
-      show_Ljwcl: true,
-      show_Yswcl: true,
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      isQuery: false,
-      searchShow: true,
-      segment: [],
-      example: [],
-      loading: false,
-      centerLoading: false,
-      centerRequestId: 0,
-      xmbmcLoading: false,
-      xmbmcRequestId: 0,
-      yssxRemoteLoading: false,
-      yssxRemoteQuery: '',
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      columnObj: {},
-      searchData: {
-        ZDXM: '',
-        ND: new Date().getFullYear(),
-        // 今天
-        YSQJ_DATE_END: new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(),
-        YSQJ_DATE_START: new Date().getFullYear() + '-01-01',
-        XMMC: '',
-        YJFL: null,
-        YSSX_NEW_ID: [],
-        ZDTX_ID: '',
-        EJFL: null,
-        SJFL: null,
-        ZCXZ: '',
-        XMLXID: [],
-        XmlxIDTreeValue: [],
-        PRE_ARR_STATUS: '',
-        XMXZ: '',
-        JDDETYPE_TYPE: '',
-        LXSJ_DATE_START: '',
-        LXSJ_DATE_END: '',
-        XMBMC: [],
-        XmbmcTreeValue: [],
-        ZYQCGBM: '',
-        DWID: [],
-        DWIDTree: [],
-        NDYSWCL_START_NUM: '',
-        NDYSWCL_START_QJ: '',
-        NDYSWCL_END_NUM: '',
-        NDYSWCL_END_QJ: '',
-        SFAQSC: '',
-        YSLY: '',
-        JHLX: '',
-        centerTreeValue: [],
-        centerId: [],
-        yjdw: '',
-        ejdw: '',
-        profit_center: '',
-        apply_center: '',
-        xmlx_id: '',
-        roleCode: '',
-        roleId: '',
-        spRoleId: '',
-        searchType: ''
-      },
-      columns: [],
-      defaultProps: {
-        children: 'children',
-        label: 'text'
-      },
-      dwProps: {
-        children: 'children',
-        label: 'name'
-      },
-      xmlxProps: {
-        children: 'children',
-        label: 'name'
-      },
-      searchCombo: {
-        ZDXM: [],
-        searchType: [],
-        YJFL: [],
-        YSSX_NEW_ID: [],
-        ZDTX_ID: [],
-        EJFL: [],
-        SJFL: [],
-        ZCXZ: [],
-        CIRCUL_STATUS: [
-          {
-            label: '已立项',
-            value: '6'
-          },
-          {
-            label: '已关闭',
-            value: '8'
-          }
-        ],
-        XMLXID: [],
-        PRE_ARR_STATUS: [],
-        XMXZ: [],
-        JDDETYPE_TYPE: [],
-        ZYFJFTRTJFW: [],
-        XMBMC: [],
-        ZYQCGBM: [],
-        centerId: [],
-        DWList: [],
-        NDYSWCL_END_QJ: [],
-        NDYSWCL_START_QJ: [],
-        XMLJWCL_START_QJ: [],
-        dateFlag: false,
-        XMLJWCL_END_QJ: [],
-        SFAQSC: [],
-        YSLY: [],
-        JHLX: []
-      },
-      selectList: {},
-      selectedRows: [],
-      sapUrl: ''
-    })
+  isQuery: false,
+  searchShow: true,
+  segment: [],
+  example: [],
+  loading: false,
+  centerLoading: false,
+  centerRequestId: 0,
+  xmbmcLoading: false,
+  xmbmcRequestId: 0,
+  yssxRemoteLoading: false,
+  yssxRemoteQuery: '',
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  columnObj: {},
+  searchData: {
+    ZDXM: '',
+    ND: new Date().getFullYear(),
+    // 今天
+    YSQJ_DATE_END: new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate(),
+    YSQJ_DATE_START: new Date().getFullYear() + '-01-01',
+    XMMC: '',
+    YJFL: null,
+    YSSX_NEW_ID: [],
+    ZDTX_ID: '',
+    EJFL: null,
+    SJFL: null,
+    ZCXZ: '',
+    XMLXID: [],
+    XmlxIDTreeValue: [],
+    PRE_ARR_STATUS: '',
+    XMXZ: '',
+    JDDETYPE_TYPE: '',
+    LXSJ_DATE_START: '',
+    LXSJ_DATE_END: '',
+    XMBMC: [],
+    XmbmcTreeValue: [],
+    ZYQCGBM: '',
+    DWID: [],
+    DWIDTree: [],
+    NDYSWCL_START_NUM: '',
+    NDYSWCL_START_QJ: '',
+    NDYSWCL_END_NUM: '',
+    NDYSWCL_END_QJ: '',
+    SFAQSC: '',
+    YSLY: '',
+    JHLX: '',
+    centerTreeValue: [],
+    centerId: [],
+    yjdw: '',
+    ejdw: '',
+    profit_center: '',
+    apply_center: '',
+    xmlx_id: '',
+    roleCode: '',
+    roleId: '',
+    spRoleId: '',
+    searchType: ''
   },
-  async mounted() {
-    this.loading = true
-    this.getDynamicColumn()
-    this.handleColumn()
-    this.getYjflData()
-    this.getXmbmcData()
-    this.getYjdwOrEjdwData()
-    this.getCbzxData()
-    this.getXmlxData()
-    this.getComboData([
-      'QUERYTYPE_NEW',
-      'GY_TJFH',
-      'ZYQCGBM_COM',
-      'ZYFJFTRTJFW_COM',
-      'SFAQSC',
-      'PRE_ARR_STATUS',
-      'XMXZ',
-      'XMBTYPE_COM',
-      'ZCXZ',
-      'ZDXM_COM',
-      'XMLB_YSLY',
-      'XMLB_JHLX'
-    ])
-    this.getZdtxOptions()
-
-    if (this.$route.query && JSON.stringify(this.$route.query) != '{}') {
-      const nd = new Date(this.$route.query.nd).getFullYear() || new Date().getFullYear()
-      this.searchData['YSQJ_DATE_START'] = nd + '-01-01'
-      this.searchData['YSQJ_DATE_END'] = nd + '-12-31'
-      this.$refs.GWXMBM.setValue(this.$route.query.xmbm)
-      this.specialorgid = JSON.parse(this.$route.query.specialorgid) || ''
-      this.roleCode = this.$route.query.roleCode || ''
-      this.roleId = this.$route.query?.roleId || ''
-      this.spRoleId = this.$route.query?.spRoleId || ''
-      const isRoel = await usePage(this.roleId, this.specialorgid, this.spRoleId)
-      console.log(isRoel)
-      if (isRoel) {
-        this.isQuery = true
-        if (this.isQuery) {
-          const processHtml = document.querySelector('.process_42')
-          processHtml.style.display = 'block'
-        }
-      } else {
-        this.$refs.userDialog.getUser(this.userId, this.userCode)
-      }
-
-      this.loadData()
-    } else {
-      this.$refs.userDialog.getUser(this.userId, this.userCode)
-    }
-    this.loading = false
+  columns: [],
+  defaultProps: {
+    children: 'children',
+    label: 'text'
   },
-  computed: {
-    xmbmcTreeData() {
-      return this.searchCombo.XMBMC.length ? [{ code: '__all_xmb__', name: '全部项目包', children: this.searchCombo.XMBMC }] : []
-    },
-    selectedUnitCodes() {
-      return [...new Set([...this.searchData.yjdw.split(','), ...this.searchData.ejdw.split(',')])].filter(Boolean).sort().join(',')
-    }
+  dwProps: {
+    children: 'children',
+    label: 'name'
   },
-  watch: {
-    'searchData.XMLXID': {
-      handler: function () {
-        this.setXmbmcData()
+  xmlxProps: {
+    children: 'children',
+    label: 'name'
+  },
+  searchCombo: {
+    ZDXM: [],
+    searchType: [],
+    YJFL: [],
+    YSSX_NEW_ID: [],
+    ZDTX_ID: [],
+    EJFL: [],
+    SJFL: [],
+    ZCXZ: [],
+    CIRCUL_STATUS: [
+      {
+        label: '已立项',
+        value: '6'
       },
-      deep: true
-    },
-    selectedUnitCodes() {
-      this.getCbzxData()
-    },
-    'searchData.XMXZ': {
-      handler: function () {
-        this.searchData.XMBMC = []
-        this.setXmbmcData()
+      {
+        label: '已关闭',
+        value: '8'
       }
-    },
-    'searchData.SJFL': {
-      handler: function () {
-        this.setXmbmcData()
-      }
-    },
-    'searchData.ND': {
-      handler: function () {
-        this.setXmbmcData()
-        this.getXmlxData()
-        this.refreshYssxOptionsByNd()
-      }
-    }
+    ],
+    XMLXID: [],
+    PRE_ARR_STATUS: [],
+    XMXZ: [],
+    JDDETYPE_TYPE: [],
+    ZYFJFTRTJFW: [],
+    XMBMC: [],
+    ZYQCGBM: [],
+    centerId: [],
+    DWList: [],
+    NDYSWCL_END_QJ: [],
+    NDYSWCL_START_QJ: [],
+    XMLJWCL_START_QJ: [],
+    dateFlag: false,
+    XMLJWCL_END_QJ: [],
+    SFAQSC: [],
+    YSLY: [],
+    JHLX: []
   },
-  methods: {
-    handleSetting() {
-      this.$refs.projectDetailSearchSettingRef.acceptParams({
-        dataType: '1'
-      })
-    },
-    getHelpMessageHandle() {
-      this.$refs.helpModalRef.showModal = true
-    },
-    startChangeDateHandle(val) {
-      // 如果设置val的年份和结束时间的年份不一致，就把结束时间设置为和开始时间一样的年份，把月份设置为12月，日期设置为31号
-      if (this.searchData.YSQJ_DATE_END) {
-        const endDate = new Date(this.searchData.YSQJ_DATE_END)
-        if (val.getFullYear() !== endDate.getFullYear()) {
-          endDate.setFullYear(val.getFullYear())
-          endDate.setMonth(11)
-          endDate.setDate(31)
-          this.searchData.YSQJ_DATE_END = endDate
-          // 设置年度
-          this.searchData.ND = val.getFullYear()
-        }
-      }
-    },
-    endChangeDateHandle(val) {
-      // 如果设置val的年份和开始时间的年份不一致，就把开始时间设置为和结束时间一样的年份，把月份设置为1月，日期设置为1号
-      if (this.searchData.YSQJ_DATE_START) {
-        const startDate = new Date(this.searchData.YSQJ_DATE_START)
-        if (val.getFullYear() !== startDate.getFullYear()) {
-          startDate.setFullYear(val.getFullYear())
-          startDate.setMonth(0)
-          startDate.setDate(1)
-          this.searchData.YSQJ_DATE_START = startDate
-          // 设置年度
-          this.searchData.ND = val.getFullYear()
-        }
-      }
-    },
-    startDateDisableHandler(time) {
-      if (this.searchData.YSQJ_DATE_END) {
-        return time.getTime() > new Date(this.searchData.YSQJ_DATE_END).getTime()
-      } else {
-        return false
-      }
-    },
-    endDateDisableHandler(time) {
-      if (this.searchData.YSQJ_DATE_START) {
-        return time.getTime() < new Date(this.searchData.YSQJ_DATE_START).getTime()
-      } else {
-        return false
-      }
-    },
-    lxsjStartDateDisableHandler(time) {
-      if (this.searchData.LXSJ_DATE_END) {
-        return time.getTime() > new Date(this.searchData.LXSJ_DATE_END).getTime()
-      } else {
-        return false
-      }
-    },
-    lxsjEndDateDisableHandler(time) {
-      if (this.searchData.LXSJ_DATE_START) {
-        return time.getTime() < new Date(this.searchData.LXSJ_DATE_START).getTime()
-      } else {
-        return false
-      }
-    },
-    getComboData(values) {
-      const params = {
-        codes: values
-      }
-      baseService.post('process40/getComCodeByCode/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          const data = res.data
-          for (let key in res.data) {
-            switch (key) {
-              case 'QUERYTYPE_NEW':
-                // 设置查询类型默认值
-                this.searchData.searchType = data[key][0].code
-                this.searchCombo.searchType = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'GY_TJFH':
-                this.searchCombo.NDYSWCL_START_QJ = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                this.searchCombo.XMLJWCL_START_QJ = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'ZYQCGBM_COM':
-                this.searchCombo.ZYQCGBM = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'ZYFJFTRTJFW_COM':
-                this.searchCombo.ZYFJFTRTJFW = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'SFAQSC':
-                this.searchCombo.SFAQSC = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'PRE_ARR_STATUS':
-                this.searchCombo.PRE_ARR_STATUS = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'XMXZ':
-                this.searchCombo.XMXZ = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'XMBTYPE_COM':
-                this.searchCombo.JDDETYPE_TYPE = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'ZCXZ':
-                this.searchCombo.ZCXZ = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'ZDXM_COM':
-                this.searchCombo.ZDXM = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'XMLB_YSLY':
-                this.searchCombo.YSLY = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-              case 'XMLB_JHLX':
-                this.searchCombo.JHLX = data[key].map((item) => {
-                  return {
-                    label: item.name,
-                    value: item.code
-                  }
-                })
-                break
-            }
-          }
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    syncSelectedYssxOptions() {
-      const yssxIds = Array.isArray(this.searchData.YSSX_NEW_ID) ? this.searchData.YSSX_NEW_ID : []
-      const availableYssxIds = this.searchCombo.YSSX_NEW_ID.map((item) => item.value)
-      this.searchData.YSSX_NEW_ID = yssxIds.filter((id) => availableYssxIds.includes(id))
-    },
-    mergeSelectedYssxOptions(nextOptions) {
-      const yssxIds = Array.isArray(this.searchData.YSSX_NEW_ID) ? this.searchData.YSSX_NEW_ID : []
-      const selectedOptions = this.searchCombo.YSSX_NEW_ID.filter((item) => yssxIds.includes(item.value))
-      const nextOptionIds = nextOptions.map((item) => item.value)
-      return selectedOptions.filter((item) => !nextOptionIds.includes(item.value)).concat(nextOptions)
-    },
-    getYssxOptions(zdtxId = this.searchData.ZDTX_ID) {
-      getYssxByZdtx({
-        zdtxId,
-        nd: this.searchData.ND
-      }).then((res) => {
-        if (res.success) {
-          this.searchCombo.YSSX_NEW_ID = mapProcess42YssxOptions(res.data)
-          this.syncSelectedYssxOptions()
-        } else {
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    handleYssxRemoteSearch(query) {
-      if (this.searchData.ZDTX_ID) {
-        return
-      }
-      const keyword = query.trim()
-      this.yssxRemoteQuery = keyword
-      if (!keyword) {
-        if (this.searchData.YSSX_NEW_ID.length === 0) {
-          this.searchCombo.YSSX_NEW_ID = []
-        }
-        this.yssxRemoteLoading = false
-        return
-      }
-      this.yssxRemoteLoading = true
-      getYssxByZdtx({
-        yssxName: keyword,
-        nd: this.searchData.ND
-      })
-        .then((res) => {
-          if (this.searchData.ZDTX_ID || this.yssxRemoteQuery !== keyword) {
-            return
-          }
-          if (res.success) {
-            this.searchCombo.YSSX_NEW_ID = this.mergeSelectedYssxOptions(mapProcess42YssxOptions(res.data))
-          } else {
-            this.searchCombo.YSSX_NEW_ID = []
-            ElMessage({
-              type: 'error',
-              message: res.msg
-            })
-          }
-        })
-        .finally(() => {
-          if (this.yssxRemoteQuery === keyword) {
-            this.yssxRemoteLoading = false
-          }
-        })
-    },
-    refreshYssxOptionsByNd() {
-      if (this.searchData.ZDTX_ID) {
-        this.getYssxOptions()
-        return
-      }
-      if (this.yssxRemoteQuery) {
-        this.handleYssxRemoteSearch(this.yssxRemoteQuery)
-        return
-      }
-      this.searchData.YSSX_NEW_ID = []
-      this.searchCombo.YSSX_NEW_ID = []
-    },
-    handleZdtxChange(value) {
-      this.yssxRemoteQuery = ''
-      this.yssxRemoteLoading = false
-      this.searchData.YSSX_NEW_ID = []
-      if (!value) {
-        this.searchCombo.YSSX_NEW_ID = []
-        return
-      }
-      this.getYssxOptions(value)
-    },
-    getZdtxOptions() {
-      getYslxct().then((res) => {
-        if (res.success) {
-          this.searchCombo.ZDTX_ID = mapProcess42ZdtxOptions(res.data)
-        } else {
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    getDynamicColumn() {
-      // 获取用户id
-      this.columns.length = 0
-      const id = this.store.getters.getUserMsg.id
-      this.loading = true
-      baseService.get(`process40/getDynamicColumn?userId=${id}`).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.columns = res.data.map((item) => {
-            return {
-              columnKey: item.columnKey,
-              columnName: item.columnName,
-              checked: true,
-              sumFlag: item.sumFlag || '0',
-              sumValue: ''
-            }
-          })
-
-          // 重新按照上面el-table-column的顺序排序
-          this.$nextTick(() => {
-            if (this.$refs.tableName) {
-              this.$refs.tableName.refreshColumn()
-              this.$refs.tableName.recalculate(true)
-            }
-          })
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    isSumColumn(itemOrField) {
-      const column = typeof itemOrField === 'string' ? this.columns.find((item) => item.columnKey === itemOrField) : itemOrField
-      return !!column && String(column.sumFlag) === '1'
-    },
-    getColumnTitle(item) {
-      const extraText = this.isSumColumn(item) ? `${item.sumValue ? `\n${item.sumValue}` : ''}` : ''
-      if (!extraText) return item.columnName
-      if (item.columnName.includes('（万元）')) {
-        return item.columnName.replace('（万元）', `\n${extraText}（万元）`)
-      }
-      if (item.columnName.includes('(万元)')) {
-        return item.columnName.replace('(万元)', `\n${extraText}(万元)`)
-      }
-      return `${item.columnName}${extraText}`
-    },
-    headerCellStyle({ column }) {
-      if (column && this.isSumColumn(column.field)) {
-        return {
-          cursor: 'pointer',
-          color: 'rgb(0, 112, 107)'
-        }
-      }
-      return {
-        cursor: 'default'
-      }
-    },
-    resetColumnSumValues() {
-      this.columns.forEach((item) => {
-        item.sumValue = ''
-      })
-    },
-    formatSumValue(sumValue) {
-      if (typeof sumValue === 'undefined' || sumValue === null || sumValue === '') return ''
-      if (isValidNumber(sumValue)) {
-        return formatValue(sumValue.toString(), 6)
-      }
-      return sumValue
-    },
-    updateColumnSumValue(columnKey, sumValue) {
-      this.columns.forEach((item) => {
-        if (item.columnKey === columnKey) {
-          item.sumValue = this.formatSumValue(sumValue)
-        }
-      })
-      this.$nextTick(() => {
-        if (this.$refs.tableName) {
-          this.$refs.tableName.refreshColumn()
-          this.$refs.tableName.recalculate(true)
-        }
-      })
-    },
-    syncSearchQueryText() {
-      if (this.$refs.XMMC.array.length > 0) {
-        this.searchData.XMMC = this.$refs.XMMC.array.join(',')
-      } else {
-        this.searchData.XMMC = ''
-      }
-      if (this.$refs.GWXMBM.array.length > 0) {
-        this.searchData.GWXMBM = this.$refs.GWXMBM.array.join(',')
-      } else {
-        this.searchData.GWXMBM = ''
-      }
-      if (!this.searchData.searchType) {
-        if (this.searchCombo.searchType.length === 0) {
-          this.searchData.searchType = '1'
-        } else {
-          this.searchData.searchType = this.searchCombo.searchType[0].value
-        }
-      }
-    },
-    buildSearchParams(extraParams = {}) {
-      this.syncSearchQueryText()
-      let yjfl = ''
-      if (this.searchData.YJFL && this.searchData.YJFL.value) {
-        yjfl = this.searchData.YJFL.value
-      }
-      let ejfl = ''
-      if (this.searchData.EJFL && this.searchData.EJFL.value) {
-        ejfl = this.searchData.EJFL.value
-      }
-      let zcxz = ''
-      if (this.searchData.ZCXZ && this.searchData.ZCXZ.value) {
-        zcxz = this.searchData.ZCXZ.value
-      }
-      let LXSJ_START_DATE = ''
-      let LXSJ_END_DATE = ''
-      if (this.searchData.LXSJ_DATE_START) {
-        LXSJ_START_DATE = this.formatDate(this.searchData.LXSJ_DATE_START)
-      }
-      if (this.searchData.LXSJ_DATE_END) {
-        LXSJ_END_DATE = this.formatDate(this.searchData.LXSJ_DATE_END)
-      }
-      let startMonth = ''
-      let endMonth = ''
-      if (this.searchData.YSQJ_DATE_END && this.searchData.YSQJ_DATE_START) {
-        startMonth = new Date(this.searchData.YSQJ_DATE_START).getMonth() + 1
-        endMonth = new Date(this.searchData.YSQJ_DATE_END).getMonth() + 1
-      }
-      let xmbmc = ''
-      if (this.searchData.XMBMC) {
-        xmbmc = this.searchData.XMBMC.join(',')
-      }
-      let xmxz = ''
-      if (this.searchData.XMXZ) {
-        xmxz = this.searchData.XMXZ.join(',')
-      }
-      let circul_status = ''
-      if (this.searchData.CIRCUL_STATUS) {
-        circul_status = this.searchData.CIRCUL_STATUS.value
-      }
-      return {
-        specialorgid: this.specialorgid,
-        roleCode: this.roleCode,
-        page: this.page.page,
-        limit: this.page.limit,
-        XMMC: this.searchData.XMMC,
-        YJFL: yjfl,
-        GWXMBM: this.searchData.GWXMBM,
-        EJFL: ejfl,
-        ZCXZ: zcxz,
-        CIRCUL_STATUS: circul_status,
-        SJFL: this.searchData.SJFL,
-        PRE_ARR_STATUS: this.searchData.PRE_ARR_STATUS,
-        XMXZ: xmxz,
-        JDDETYPE_TYPE: this.searchData.JDDETYPE_TYPE,
-        LXSJ_START_DATE: LXSJ_START_DATE,
-        LXSJ_END_DATE: LXSJ_END_DATE,
-        ZYFJFTRTJFW: this.searchData.ZYFJFTRTJFW,
-        XMBMC: xmbmc,
-        XMLX_ID: this.searchData.xmlx_id,
-        ZYQCGBM: this.searchData.ZYQCGBM,
-        YJDW: this.searchData.yjdw,
-        EJDW: this.searchData.ejdw,
-        NDYSWCL_START_QJ: this.searchData.NDYSWCL_START_QJ,
-        NDYSWCL_START_NUM: parseInt(this.searchData.NDYSWCL_START_NUM),
-        NDYSWCL_END_QJ: this.searchData.NDYSWCL_END_QJ,
-        NDYSWCL_END_NUM: parseInt(this.searchData.NDYSWCL_END_NUM),
-        SFAQSC: this.searchData.SFAQSC,
-        PROFIT_CENTER: this.searchData.profit_center,
-        APPLY_CENTER: this.searchData.apply_center,
-        XMLJWCL_START_QJ: this.searchData.XMLJWCL_START_QJ,
-        XMLJWCL_START_NUM: parseInt(this.searchData.XMLJWCL_START_NUM),
-        XMLJWCL_END_QJ: this.searchData.XMLJWCL_END_QJ,
-        XMLJWCL_END_NUM: parseInt(this.searchData.XMLJWCL_END_NUM),
-        ND: this.searchData.ND,
-        YD_START: startMonth,
-        YD_END: endMonth,
-        QUERYTYPE: this.searchData.searchType,
-        ZDXM: this.searchData.ZDXM,
-        ysly: this.searchData.YSLY,
-        JHLX: this.searchData.JHLX,
-        ...buildProcess42MatterParams(this.searchData),
-        ...extraParams
-      }
-    },
-    handleHeaderCellClick({ column }) {
-      if (!column || !this.isSumColumn(column.field)) return
-      this.loading = true
-      getSumValue({
-        ...this.buildSearchParams(),
-        sumColumn: column.field
-      })
-        .then((res) => {
-          if (res.success) {
-            const sumValue =
-              res.data && typeof res.data === 'object' && Object.prototype.hasOwnProperty.call(res.data, 'sumValue') ? res.data.sumValue : res.data
-            this.updateColumnSumValue(column.field, sumValue)
-          } else {
-            ElMessage({
-              type: 'error',
-              message: res.msg
-            })
-          }
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-
-    // 会计凭证
-    async showFile() {
-      try {
-        if (JSON.stringify(this.selectList) == '{}') return ElMessage.warning('仅支持单个项目会计凭证查看！')
-        let year = new Date().getFullYear()
-        let month = new Date().getMonth() + 1 > 9 ? new Date().getMonth() + 1 : `0${new Date().getMonth() + 1}`
-        let day = new Date().getDate() > 9 ? new Date().getDate() : '0' + new Date().getDate()
-        let date = `${year}${month}${day}`
-        let res = await getParamValueMulti(['ERP_TCODE228_URL'])
-        if (res.success) {
-          this.sapUrl = `${res.data.ERP_TCODE228_URL}&AutoStart=true&DynamicParameter=P_BUKRS=${this.selectList.profit_center.substring(
-            2,
-            6
-          )};S_PSPID-LOW=${this.selectList.gwxmbm};S_BUDAT-HIGH=`
-          const type = await VXETable.modal.confirm('过账日期是否默认设置为今日？', '提示', {
-            status: 'warning',
-            confirmButtonText: '是',
-            cancelButtonText: '否'
-          })
-          if (type === 'close') return ElMessage.info('已取消')
-          const url = type === 'confirm' ? this.sapUrl + date : this.sapUrl
-          this.openWithSAPGUI(url)
-        } else {
-          ElMessage.error(res.msg)
-        }
-      } catch (e) {
-        console.log(e, '出错啦')
-      }
-    },
-    //打开SAP
-    openWithSAPGUI(fileUrl) {
-      const userAgent = navigator.userAgent
-      if (userAgent.includes('Chrome') && !userAgent.includes('Edge')) {
-        var iframe = document.createElement('iframe')
-        iframe.style.display = 'none'
-        iframe.src = fileUrl
-        document.body.appendChild(iframe)
-        setTimeout(() => {
-          document.body.removeChild(iframe)
-        }, 1000)
-      } else {
-        window.open(fileUrl, '_blank')
-      }
-    },
-    syncSelectedRows(records = []) {
-      this.selectedRows = records
-      this.selectList = records.length === 1 ? { ...records[0] } : {}
-    },
-    handleTableSelection({ records }) {
-      this.syncSelectedRows(records)
-    },
-    xmmcCellStyle({ row }) {
-      if (row.sfxqlr) {
-        return {
-          cursor: 'pointer',
-          color: 'var(--color-primary)',
-          textDecoration: 'underline'
-        }
-      }
-    },
-    handleCellStyle({ row, column }) {
-      if (column.title == '项目名称' && row.sfxqlr) {
-        return {
-          cursor: 'pointer',
-          textDecoration: 'underline',
-          color: 'var(--color-primary)'
-        }
-      }
-    },
-    getFormatterValue(params, cellValue) {
-      if (params && typeof params === 'object' && Object.prototype.hasOwnProperty.call(params, 'cellValue')) {
-        return params.cellValue
-      }
-      return cellValue
-    },
-    formatString(params, column, cellValue) {
-      const value = this.getFormatterValue(params, cellValue)
-      if (typeof value === 'undefined' || value === null || value === '') return '-'
-      return value
-    },
-    formatBaiFeiBi(params, column, cellValue) {
-      const value = this.getFormatterValue(params, cellValue)
-      if (typeof value === 'undefined' || value === null || value === '') return '-'
-      if (isValidNumber(value)) {
-        return new Decimal(value.toString()).toFixed(2) + '%'
-      } else {
-        return '0.00%'
-      }
-    },
-    formatMoney({ cellValue }) {
-      if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
-      if (isValidNumber(cellValue)) {
-        return formatValue(cellValue.toString(), 6)
-      } else {
-        return '0.000000'
-      }
-    },
-    getXmlxData() {
-      let startDate = new Date().getFullYear()
-      if (this.searchData.ND) {
-        startDate = this.searchData.ND
-      }
-      this.loading = true
-      const params = {
-        parentId: '0',
-        startDate: startDate
-      }
-      this.searchCombo.centerId = []
-      this.searchData.XMLXID = [] //置空
-      this.searchData.XmlxIDTreeValue = []
-      this.searchData.xmlx_id = ''
-      this.searchCombo.XMLXID = []
-      baseService.post('process40/getProTypeTreeNode/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.searchCombo.XMLXID = res.data
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    async getCbzxData() {
-      const requestId = ++this.centerRequestId
-      const unitCodes = this.selectedUnitCodes
-      this.centerLoading = true
-      // 单位切换或清空时，同时清理勾选、展示值和查询参数。
-      this.$refs.centerTree?.setCheckedKeys([])
-      this.searchData.centerId = []
-      this.searchData.centerTreeValue = []
-      this.searchData.profit_center = ''
-      this.searchData.apply_center = ''
-      this.searchCombo.centerId = []
-      const params = {
-        parentCode: unitCodes ? 'CBZX' : null,
-        rootCode: unitCodes || 'childtree:CBZX',
-        objId: -1,
-        level: 0
-      }
-      try {
-        const res = await baseService.post('process40/getTreeNodeCbzx/', params)
-        // 快速切换单位时，旧请求不得覆盖当前单位的归口部门。
-        if (requestId !== this.centerRequestId || unitCodes !== this.selectedUnitCodes) return
-        if (res.success) {
-          this.searchCombo.centerId = res.data || []
-        } else {
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      } catch (e) {
-        if (requestId === this.centerRequestId && unitCodes === this.selectedUnitCodes) {
-          ElMessage.error(e.message || '归口部门加载失败')
-        }
-      } finally {
-        if (requestId === this.centerRequestId) this.centerLoading = false
-      }
-    },
-    getYjdwOrEjdwData() {
-      this.loading = true
-      this.searchCombo.DWList = []
-      return getBizOrgXzTreeExcludeBmNoPermissionNoLazy()
-        .then((res) => {
-          if (res.success) {
-            this.searchCombo.DWList = res.data
-          } else {
-            ElMessage({
-              type: 'error',
-              message: res.msg
-            })
-          }
-        })
-        .finally(() => {
-          this.loading = false
-        })
-    },
-    setXmljwclHandler(data) {
-      this.searchCombo.XMLJWCL_END_QJ = []
-      this.searchData.XMLJWCL_END_QJ = ''
-      this.searchData.XMLJWCL_END_NUM = undefined
-      if (data === '>' || data === '>=') {
-        this.show_Ljwcl = false
-        this.searchCombo.XMLJWCL_END_QJ.push(
-          {
-            label: '<',
-            value: '<'
-          },
-          {
-            label: '<=',
-            value: '<='
-          }
-        )
-      } else if (data === '<' || data === '<=') {
-        this.show_Ljwcl = false
-        this.searchCombo.XMLJWCL_END_QJ.push(
-          {
-            label: '>',
-            value: '>'
-          },
-          {
-            label: '>=',
-            value: '>='
-          }
-        )
-      } else {
-        this.show_Ljwcl = true
-      }
-    },
-    setYswclHandler(data) {
-      this.searchCombo.NDYSWCL_END_QJ = []
-      this.searchData.NDYSWCL_END_QJ = ''
-      this.searchData.NDYSWCL_END_NUM = undefined
-      if (data === '>' || data === '>=') {
-        this.searchCombo.NDYSWCL_END_QJ.push(
-          {
-            label: '<',
-            value: '<'
-          },
-          {
-            label: '<=',
-            value: '<='
-          }
-        )
-        this.show_Yswcl = false
-      } else if (data === '<' || data === '<=') {
-        this.searchCombo.NDYSWCL_END_QJ.push(
-          {
-            label: '>',
-            value: '>'
-          },
-          {
-            label: '>=',
-            value: '>='
-          }
-        )
-        this.show_Yswcl = false
-      } else {
-        this.show_Yswcl = true
-      }
-    },
-    setXmbmcData() {
-      this.getXmbmcData()
-    },
-    clearXmbmcSelection() {
-      this.$refs.XmbmcTree?.setCheckedKeys([])
-      this.searchData.XMBMC = []
-      this.searchData.XmbmcTreeValue = []
-    },
-    handleXmbmcCheck() {
-      // 仅提交项目包叶子节点，排除“全部项目包”父节点。
-      const selectedPackages = this.$refs.XmbmcTree.getCheckedNodes(true)
-      this.searchData.XMBMC = selectedPackages.map((item) => item.code)
-      this.searchData.XmbmcTreeValue = selectedPackages.map((item) => item.name)
-    },
-    async getXmbmcData() {
-      const requestId = ++this.xmbmcRequestId
-      this.xmbmcLoading = true
-      this.clearXmbmcSelection()
-      this.searchCombo.XMBMC = []
-      let str = ''
-      if (this.searchData.XMXZ && this.searchData.XMXZ.length > 0) {
-        str = this.searchData.XMXZ.join(',')
-      }
-      const params = {
-        year: this.searchData.ND,
-        xmlx: this.searchData.xmlx_id,
-        xmblx: this.searchData.JDDETYPE_TYPE,
-        xmxz: str,
-        sjfl: this.searchData.SJFL,
-        xmbid: ''
-      }
-      try {
-        const res = await baseService.post('process40/getXmbArr/', params)
-        if (requestId !== this.xmbmcRequestId) return
-        if (res.success) {
-          this.searchCombo.XMBMC = res.data
-        } else {
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      } catch (e) {
-        if (requestId === this.xmbmcRequestId) ElMessage.error(e.message || '项目包加载失败')
-      } finally {
-        if (requestId === this.xmbmcRequestId) this.xmbmcLoading = false
-      }
-    },
-    getYjflData() {
-      this.loading = true
-      const params = {
-        rootCode: 'GWXMFL'
-      }
-      baseService.post('process40/getRootComCode/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          res.data.forEach((item) => {
-            this.searchCombo.YJFL.push({
-              value: item.code,
-              label: item.name,
-              id: item.id
-            })
-          })
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    handleCenterClick(data, self, child) {
-      let datalist = this.$refs.centerTree.getCheckedNodes()
-      this.searchData.centerId = [] //置空
-      this.searchData.centerTreeValue = []
-      this.searchData.profit_center = ''
-      this.searchData.apply_center = ''
-      datalist.forEach((item) => {
-        if (item.level == '1') {
-          this.searchData.profit_center += item.objCode + ','
-        } else if (item.level == '2') {
-          this.searchData.apply_center += item.objCode + ','
-        }
-        this.searchData.centerId.push({ id: item.id, label: item.text })
-        this.searchData.centerTreeValue.push(item.text)
-      })
-      this.searchData.profit_center = this.searchData.profit_center.substring(0, this.searchData.profit_center.length - 1)
-      this.searchData.apply_center = this.searchData.apply_center.substring(0, this.searchData.apply_center.length - 1)
-    },
-    // 获取项目类型数据
-    handleXmlxClick(data, self, child) {
-      let datalist = this.$refs.XmlxTree.getCheckedNodes()
-      this.searchData.XMLXID = [] //置空
-      this.searchData.XmlxIDTreeValue = []
-      this.searchData.xmlx_id = ''
-      datalist.forEach((item) => {
-        this.searchData.xmlx_id += item.code + ','
-        this.searchData.XMLXID.push({ id: item.id, label: item.name })
-        this.searchData.XmlxIDTreeValue.push(item.name)
-      })
-      this.searchData.xmlx_id = this.searchData.xmlx_id.substring(0, this.searchData.xmlx_id.length - 1)
-    },
-    getSjflData(selectedData) {
-      this.searchCombo.SJFL = []
-      this.searchData.SJFL = null
-      if (selectedData && selectedData.id) {
-        this.loading = true
-        const params = {
-          parentId: selectedData.id
-        }
-        baseService.post('process40/getComCodeByParent/', params).then((res) => {
-          if (res.success) {
-            this.loading = false
-            res.data.forEach((item) => {
-              this.searchCombo.SJFL.push({
-                value: item.code,
-                label: item.name,
-                id: item.id
-              })
-            })
-          } else {
-            this.loading = false
-            ElMessage({
-              type: 'error',
-              message: res.msg
-            })
-          }
-        })
-      }
-    },
-    getEjflData(selectedData) {
-      this.searchCombo.EJFL = []
-      this.searchCombo.SJFL = []
-      this.searchData.EJFL = null
-      this.searchData.SJFL = null
-      if (selectedData && selectedData.id) {
-        this.loading = true
-        const params = {
-          parentId: selectedData.id
-        }
-        baseService.post('process40/getComCodeByParent/', params).then((res) => {
-          if (res.success) {
-            this.loading = false
-            res.data.forEach((item) => {
-              this.searchCombo.EJFL.push({
-                value: item.code,
-                label: item.name,
-                id: item.id
-              })
-            })
-          } else {
-            this.loading = false
-            ElMessage({
-              type: 'error',
-              message: res.msg
-            })
-          }
-        })
-      }
-    },
-    handleDwClick(data, self, child) {
-      let datalist = this.$refs.DwTree.getCheckedNodes()
-      this.searchData.DWID = [] //置空
-      this.searchData.DWIDTree = []
-      this.searchData.yjdw = ''
-      this.searchData.ejdw = ''
-      datalist.forEach((item) => {
-        // 按业务节点类型区分单位级别，省级及分组节点不参与筛选。
-        if (item.nodeType === 'CITY' || item.nodeType === 'ZSDW') {
-          this.searchData.yjdw += item.code + ','
-        } else if (item.nodeType === 'COUNTY') {
-          this.searchData.ejdw += item.code + ','
-        } else {
-          return
-        }
-        this.searchData.DWIDTree.push({ id: item.id, label: item.name })
-        this.searchData.DWID.push(item.name)
-      })
-      this.searchData.yjdw = this.searchData.yjdw.substring(0, this.searchData.yjdw.length - 1)
-      this.searchData.ejdw = this.searchData.ejdw.substring(0, this.searchData.ejdw.length - 1)
-    },
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    limitChangeHandle(currentLimitNum) {
-      this.page.page = 1
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.roleCode = parseInt(this.$refs.userDialog.roleCode)
-      this.isQuery = this.$refs.userDialog.isQuery
-      let userInfOther = { ...this.$refs.userDialog.userMsg }
-      this.userInfo = {
-        deptId: userInfOther.specialorgid,
-        deptName: userInfOther.specialorgname,
-        dwId: userInfOther.org_id,
-        dwName: userInfOther.org_name,
-        roleId: userInfOther.role_id,
-        roleCode: userInfOther.code,
-        spRoleId: userInfOther.id,
-        specialorgcode: userInfOther.specialorgcode
-      }
-      if (this.isQuery) {
-        const processHtml = document.querySelector('.process_42')
-        processHtml.style.display = 'block'
-        this.$nextTick(() => {
-          if (this.$refs.tableName) this.$refs.tableName.recalculate(true)
-        })
-      }
-    },
-    //项目环节
-    listShow(value, checked) {
-      this.columns.forEach((item) => {
-        if (item.columnKey === value) {
-          item.checked = checked
-        }
-      })
-    },
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.$refs.contentTables.style.height = 'calc(100% - 280px)'
-      } else {
-        this.$refs.contentTables.style.height = 'calc(100% - 17px)'
-      }
-      this.$nextTick(() => {
-        if (this.$refs.tableName) this.$refs.tableName.recalculate(true)
-      })
-    },
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.columnObj[item.value] = item.checked
-      })
-    },
-    //搜索按钮
-    loadData() {
-      this.resetColumnSumValues()
-      this.loading = true
-      this.selectList = {}
-      this.selectedRows = []
-      const params = this.buildSearchParams()
-      baseService.post('/process40/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.example = res.data.records
-          this.page.total = res.data.total
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-
-    //重置按钮
-    reset() {
-      const hadSelectedUnits = Boolean(this.selectedUnitCodes)
-      this.page.page = 1
-      this.page.limit = 10
-      this.page.total = 0
-      this.selectList = {}
-      this.selectedRows = []
-      for (const key in this.searchData) {
-        if (key === 'YSQJ_DATE_END') {
-          this.searchData[key] = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
-        } else if (key === 'YSQJ_DATE_START') {
-          this.searchData[key] = new Date().getFullYear() + '-01-01'
-        } else if (key === 'centerTreeValue' || key === 'XmlxIDTreeValue' || key === 'DWIDTree' || key === 'XmbmcTreeValue' || key === 'XMBMC') {
-          this.searchData[key] = []
-        } else if (key === 'centerId' || key === 'XMLXID' || key === 'DWID' || key === 'YSSX_NEW_ID') {
-          this.searchData[key] = []
-        } else if (
-          key === 'YJFL' ||
-          key === 'ZDTX_ID' ||
-          key === 'EJFL' ||
-          key === 'SJFL' ||
-          key === 'ZCXZ' ||
-          key === 'CIRCUL_STATUS' ||
-          key === 'PRE_ARR_STATUS' ||
-          key === 'XMXZ' ||
-          key === 'JDDETYPE_TYPE' ||
-          key === 'ZYFJFTRTJFW' ||
-          key === 'ZYQCGBM' ||
-          key === 'SFAQSC' ||
-          key === 'YSLY'
-        ) {
-          this.searchData[key] = null
-        } else if (key === 'ND') {
-          this.searchData[key] = new Date().getFullYear()
-        } else if (key === 'NDYSWCL_START_NUM' || key === 'NDYSWCL_END_NUM' || key === 'XMLJWCL_START_NUM' || key === 'XMLJWCL_END_NUM') {
-          this.searchData[key] = undefined
-        } else if (key === 'searchType') {
-          this.searchData[key] = this.searchCombo.searchType.length ? this.searchCombo.searchType[0].value : '1'
-        } else {
-          this.searchData[key] = ''
-        }
-      }
-      this.$refs.DwTree?.setCheckedKeys([])
-      this.$refs.XMMC.clear()
-      this.$refs.GWXMBM.clear()
-      // 有单位时由联动监听刷新；无单位时主动刷新，避免重复请求。
-      if (!hadSelectedUnits) this.getCbzxData()
-      this.getXmbmcData()
-      this.getXmlxData()
-      this.searchData.ZDTX_ID = ''
-      this.yssxRemoteQuery = ''
-      this.yssxRemoteLoading = false
-      this.searchCombo.YSSX_NEW_ID = []
-      this.searchCombo.EJFL = []
-      this.searchCombo.SJFL = []
-      this.resetColumnSumValues()
-      this.example = []
-    },
-
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    formatDate(date) {
-      let time = new Date(date)
-      let zyear = time.getFullYear()
-      let zmonth = time.getMonth() + 1
-      let zday = time.getDate()
-      return JSON.stringify(zyear) + JSON.stringify(zmonth).padStart(2, '0') + JSON.stringify(zday).padStart(2, '0') + '000000'
-    },
-    handleRowDblclick({ row, column }) {
-      if (column.title != '项目名称' || !row.sfxqlr) return
-      this.selectData = { ...row, xmlx: row.xmlb }
-      this.$refs.editPageRef.isShowModal = true
-    },
-    // 数据导出
-    exportData() {
-      // 获取当前用户信息中id
-      const user = this.store.getters.getUserMsg
-      this.loading = true
-      const params = this.buildSearchParams({
-        userId: user.id
-      })
-      const selectedGwxmbm = this.selectedRows.map((item) => item.gwxmbm).filter((item) => item)
-      if (selectedGwxmbm.length > 0) {
-        params.GWXMBM = selectedGwxmbm.join(',')
-      }
-      delete params.roleCode
-      baseService.export('/process40/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '项目明细查询.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
+  selectList: {},
+  selectedRows: [],
+  sapUrl: ''
+})
+const selectData = toRef(setupState, 'selectData')
+const userInfo = toRef(setupState, 'userInfo')
+const show_Ljwcl = toRef(setupState, 'show_Ljwcl')
+const show_Yswcl = toRef(setupState, 'show_Yswcl')
+const page = toRef(setupState, 'page')
+const isQuery = toRef(setupState, 'isQuery')
+const searchShow = toRef(setupState, 'searchShow')
+const segment = toRef(setupState, 'segment')
+const example = toRef(setupState, 'example')
+const loading = toRef(setupState, 'loading')
+const centerLoading = toRef(setupState, 'centerLoading')
+const centerRequestId = toRef(setupState, 'centerRequestId')
+const xmbmcLoading = toRef(setupState, 'xmbmcLoading')
+const xmbmcRequestId = toRef(setupState, 'xmbmcRequestId')
+const yssxRemoteLoading = toRef(setupState, 'yssxRemoteLoading')
+const yssxRemoteQuery = toRef(setupState, 'yssxRemoteQuery')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const columnObj = toRef(setupState, 'columnObj')
+const searchData = toRef(setupState, 'searchData')
+const columns = toRef(setupState, 'columns')
+const defaultProps = toRef(setupState, 'defaultProps')
+const dwProps = toRef(setupState, 'dwProps')
+const xmlxProps = toRef(setupState, 'xmlxProps')
+const searchCombo = toRef(setupState, 'searchCombo')
+const selectList = toRef(setupState, 'selectList')
+const selectedRows = toRef(setupState, 'selectedRows')
+const sapUrl = toRef(setupState, 'sapUrl')
+const componentData = reactiveLocal({})
+componentData.roleCode = undefined
+const roleCode = toRef(componentData, 'roleCode')
+componentData.roleId = undefined
+const roleId = toRef(componentData, 'roleId')
+componentData.spRoleId = undefined
+const spRoleId = toRef(componentData, 'spRoleId')
+function handleSetting() {
+  projectDetailSearchSettingRefRef.value.acceptParams({
+    dataType: '1'
+  })
+}
+function getHelpMessageHandle() {
+  helpModalRefRef.value.showModal = true
+}
+function startChangeDateHandle(val) {
+  // 如果设置val的年份和结束时间的年份不一致，就把结束时间设置为和开始时间一样的年份，把月份设置为12月，日期设置为31号
+  if (setupState.searchData.YSQJ_DATE_END) {
+    const endDate = new Date(setupState.searchData.YSQJ_DATE_END)
+    if (val.getFullYear() !== endDate.getFullYear()) {
+      endDate.setFullYear(val.getFullYear())
+      endDate.setMonth(11)
+      endDate.setDate(31)
+      setupState.searchData.YSQJ_DATE_END = endDate
+      // 设置年度
+      setupState.searchData.ND = val.getFullYear()
     }
   }
+}
+function endChangeDateHandle(val) {
+  // 如果设置val的年份和开始时间的年份不一致，就把开始时间设置为和结束时间一样的年份，把月份设置为1月，日期设置为1号
+  if (setupState.searchData.YSQJ_DATE_START) {
+    const startDate = new Date(setupState.searchData.YSQJ_DATE_START)
+    if (val.getFullYear() !== startDate.getFullYear()) {
+      startDate.setFullYear(val.getFullYear())
+      startDate.setMonth(0)
+      startDate.setDate(1)
+      setupState.searchData.YSQJ_DATE_START = startDate
+      // 设置年度
+      setupState.searchData.ND = val.getFullYear()
+    }
+  }
+}
+function startDateDisableHandler(time) {
+  if (setupState.searchData.YSQJ_DATE_END) {
+    return time.getTime() > new Date(setupState.searchData.YSQJ_DATE_END).getTime()
+  } else {
+    return false
+  }
+}
+function endDateDisableHandler(time) {
+  if (setupState.searchData.YSQJ_DATE_START) {
+    return time.getTime() < new Date(setupState.searchData.YSQJ_DATE_START).getTime()
+  } else {
+    return false
+  }
+}
+function lxsjStartDateDisableHandler(time) {
+  if (setupState.searchData.LXSJ_DATE_END) {
+    return time.getTime() > new Date(setupState.searchData.LXSJ_DATE_END).getTime()
+  } else {
+    return false
+  }
+}
+function lxsjEndDateDisableHandler(time) {
+  if (setupState.searchData.LXSJ_DATE_START) {
+    return time.getTime() < new Date(setupState.searchData.LXSJ_DATE_START).getTime()
+  } else {
+    return false
+  }
+}
+function getComboData(values) {
+  const params = {
+    codes: values
+  }
+  baseService.post('process40/getComCodeByCode/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      const data = res.data
+      for (let key in res.data) {
+        switch (key) {
+          case 'QUERYTYPE_NEW':
+            // 设置查询类型默认值
+            setupState.searchData.searchType = data[key][0].code
+            setupState.searchCombo.searchType = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'GY_TJFH':
+            setupState.searchCombo.NDYSWCL_START_QJ = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            setupState.searchCombo.XMLJWCL_START_QJ = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'ZYQCGBM_COM':
+            setupState.searchCombo.ZYQCGBM = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'ZYFJFTRTJFW_COM':
+            setupState.searchCombo.ZYFJFTRTJFW = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'SFAQSC':
+            setupState.searchCombo.SFAQSC = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'PRE_ARR_STATUS':
+            setupState.searchCombo.PRE_ARR_STATUS = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'XMXZ':
+            setupState.searchCombo.XMXZ = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'XMBTYPE_COM':
+            setupState.searchCombo.JDDETYPE_TYPE = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'ZCXZ':
+            setupState.searchCombo.ZCXZ = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'ZDXM_COM':
+            setupState.searchCombo.ZDXM = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'XMLB_YSLY':
+            setupState.searchCombo.YSLY = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+          case 'XMLB_JHLX':
+            setupState.searchCombo.JHLX = data[key].map((item) => {
+              return {
+                label: item.name,
+                value: item.code
+              }
+            })
+            break
+        }
+      }
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function syncSelectedYssxOptions() {
+  const yssxIds = Array.isArray(setupState.searchData.YSSX_NEW_ID) ? setupState.searchData.YSSX_NEW_ID : []
+  const availableYssxIds = setupState.searchCombo.YSSX_NEW_ID.map((item) => item.value)
+  setupState.searchData.YSSX_NEW_ID = yssxIds.filter((id) => availableYssxIds.includes(id))
+}
+function mergeSelectedYssxOptions(nextOptions) {
+  const yssxIds = Array.isArray(setupState.searchData.YSSX_NEW_ID) ? setupState.searchData.YSSX_NEW_ID : []
+  const selectedOptions = setupState.searchCombo.YSSX_NEW_ID.filter((item) => yssxIds.includes(item.value))
+  const nextOptionIds = nextOptions.map((item) => item.value)
+  return selectedOptions.filter((item) => !nextOptionIds.includes(item.value)).concat(nextOptions)
+}
+function getYssxOptions(zdtxId = setupState.searchData.ZDTX_ID) {
+  getYssxByZdtx({
+    zdtxId,
+    nd: setupState.searchData.ND
+  }).then((res) => {
+    if (res.success) {
+      setupState.searchCombo.YSSX_NEW_ID = mapProcess42YssxOptions(res.data)
+      syncSelectedYssxOptions()
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function handleYssxRemoteSearch(query) {
+  if (setupState.searchData.ZDTX_ID) {
+    return
+  }
+  const keyword = query.trim()
+  setupState.yssxRemoteQuery = keyword
+  if (!keyword) {
+    if (setupState.searchData.YSSX_NEW_ID.length === 0) {
+      setupState.searchCombo.YSSX_NEW_ID = []
+    }
+    setupState.yssxRemoteLoading = false
+    return
+  }
+  setupState.yssxRemoteLoading = true
+  getYssxByZdtx({
+    yssxName: keyword,
+    nd: setupState.searchData.ND
+  })
+    .then((res) => {
+      if (setupState.searchData.ZDTX_ID || setupState.yssxRemoteQuery !== keyword) {
+        return
+      }
+      if (res.success) {
+        setupState.searchCombo.YSSX_NEW_ID = mergeSelectedYssxOptions(mapProcess42YssxOptions(res.data))
+      } else {
+        setupState.searchCombo.YSSX_NEW_ID = []
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
+    })
+    .finally(() => {
+      if (setupState.yssxRemoteQuery === keyword) {
+        setupState.yssxRemoteLoading = false
+      }
+    })
+}
+function refreshYssxOptionsByNd() {
+  if (setupState.searchData.ZDTX_ID) {
+    getYssxOptions()
+    return
+  }
+  if (setupState.yssxRemoteQuery) {
+    handleYssxRemoteSearch(setupState.yssxRemoteQuery)
+    return
+  }
+  setupState.searchData.YSSX_NEW_ID = []
+  setupState.searchCombo.YSSX_NEW_ID = []
+}
+function handleZdtxChange(value) {
+  setupState.yssxRemoteQuery = ''
+  setupState.yssxRemoteLoading = false
+  setupState.searchData.YSSX_NEW_ID = []
+  if (!value) {
+    setupState.searchCombo.YSSX_NEW_ID = []
+    return
+  }
+  getYssxOptions(value)
+}
+function getZdtxOptions() {
+  getYslxct().then((res) => {
+    if (res.success) {
+      setupState.searchCombo.ZDTX_ID = mapProcess42ZdtxOptions(res.data)
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function getDynamicColumn() {
+  // 获取用户id
+  setupState.columns.length = 0
+  const id = setupState.store.getters.getUserMsg.id
+  setupState.loading = true
+  baseService.get(`process40/getDynamicColumn?userId=${id}`).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.columns = res.data.map((item) => {
+        return {
+          columnKey: item.columnKey,
+          columnName: item.columnName,
+          checked: true,
+          sumFlag: item.sumFlag || '0',
+          sumValue: ''
+        }
+      })
+
+      // 重新按照上面el-table-column的顺序排序
+      nextTick(() => {
+        if (tableNameRef.value) {
+          tableNameRef.value.refreshColumn()
+          tableNameRef.value.recalculate(true)
+        }
+      })
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function isSumColumn(itemOrField) {
+  const column = typeof itemOrField === 'string' ? setupState.columns.find((item) => item.columnKey === itemOrField) : itemOrField
+  return !!column && String(column.sumFlag) === '1'
+}
+function getColumnTitle(item) {
+  const extraText = isSumColumn(item) ? `${item.sumValue ? `\n${item.sumValue}` : ''}` : ''
+  if (!extraText) return item.columnName
+  if (item.columnName.includes('（万元）')) {
+    return item.columnName.replace('（万元）', `\n${extraText}（万元）`)
+  }
+  if (item.columnName.includes('(万元)')) {
+    return item.columnName.replace('(万元)', `\n${extraText}(万元)`)
+  }
+  return `${item.columnName}${extraText}`
+}
+function headerCellStyle({ column }) {
+  if (column && isSumColumn(column.field)) {
+    return {
+      cursor: 'pointer',
+      color: 'rgb(0, 112, 107)'
+    }
+  }
+  return {
+    cursor: 'default'
+  }
+}
+function resetColumnSumValues() {
+  setupState.columns.forEach((item) => {
+    item.sumValue = ''
+  })
+}
+function formatSumValue(sumValue) {
+  if (typeof sumValue === 'undefined' || sumValue === null || sumValue === '') return ''
+  if (isValidNumber(sumValue)) {
+    return formatValue(sumValue.toString(), 6)
+  }
+  return sumValue
+}
+function updateColumnSumValue(columnKey, sumValue) {
+  setupState.columns.forEach((item) => {
+    if (item.columnKey === columnKey) {
+      item.sumValue = formatSumValue(sumValue)
+    }
+  })
+  nextTick(() => {
+    if (tableNameRef.value) {
+      tableNameRef.value.refreshColumn()
+      tableNameRef.value.recalculate(true)
+    }
+  })
+}
+function syncSearchQueryText() {
+  if (XMMCRef.value.array.length > 0) {
+    setupState.searchData.XMMC = XMMCRef.value.array.join(',')
+  } else {
+    setupState.searchData.XMMC = ''
+  }
+  if (GWXMBMRef.value.array.length > 0) {
+    setupState.searchData.GWXMBM = GWXMBMRef.value.array.join(',')
+  } else {
+    setupState.searchData.GWXMBM = ''
+  }
+  if (!setupState.searchData.searchType) {
+    if (setupState.searchCombo.searchType.length === 0) {
+      setupState.searchData.searchType = '1'
+    } else {
+      setupState.searchData.searchType = setupState.searchCombo.searchType[0].value
+    }
+  }
+}
+function buildSearchParams(extraParams = {}) {
+  syncSearchQueryText()
+  let yjfl = ''
+  if (setupState.searchData.YJFL && setupState.searchData.YJFL.value) {
+    yjfl = setupState.searchData.YJFL.value
+  }
+  let ejfl = ''
+  if (setupState.searchData.EJFL && setupState.searchData.EJFL.value) {
+    ejfl = setupState.searchData.EJFL.value
+  }
+  let zcxz = ''
+  if (setupState.searchData.ZCXZ && setupState.searchData.ZCXZ.value) {
+    zcxz = setupState.searchData.ZCXZ.value
+  }
+  let LXSJ_START_DATE = ''
+  let LXSJ_END_DATE = ''
+  if (setupState.searchData.LXSJ_DATE_START) {
+    LXSJ_START_DATE = formatDate(setupState.searchData.LXSJ_DATE_START)
+  }
+  if (setupState.searchData.LXSJ_DATE_END) {
+    LXSJ_END_DATE = formatDate(setupState.searchData.LXSJ_DATE_END)
+  }
+  let startMonth = ''
+  let endMonth = ''
+  if (setupState.searchData.YSQJ_DATE_END && setupState.searchData.YSQJ_DATE_START) {
+    startMonth = new Date(setupState.searchData.YSQJ_DATE_START).getMonth() + 1
+    endMonth = new Date(setupState.searchData.YSQJ_DATE_END).getMonth() + 1
+  }
+  let xmbmc = ''
+  if (setupState.searchData.XMBMC) {
+    xmbmc = setupState.searchData.XMBMC.join(',')
+  }
+  let xmxz = ''
+  if (setupState.searchData.XMXZ) {
+    xmxz = setupState.searchData.XMXZ.join(',')
+  }
+  let circul_status = ''
+  if (setupState.searchData.CIRCUL_STATUS) {
+    circul_status = setupState.searchData.CIRCUL_STATUS.value
+  }
+  return {
+    specialorgid: setupState.specialorgid,
+    roleCode: componentData.roleCode,
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    XMMC: setupState.searchData.XMMC,
+    YJFL: yjfl,
+    GWXMBM: setupState.searchData.GWXMBM,
+    EJFL: ejfl,
+    ZCXZ: zcxz,
+    CIRCUL_STATUS: circul_status,
+    SJFL: setupState.searchData.SJFL,
+    PRE_ARR_STATUS: setupState.searchData.PRE_ARR_STATUS,
+    XMXZ: xmxz,
+    JDDETYPE_TYPE: setupState.searchData.JDDETYPE_TYPE,
+    LXSJ_START_DATE: LXSJ_START_DATE,
+    LXSJ_END_DATE: LXSJ_END_DATE,
+    ZYFJFTRTJFW: setupState.searchData.ZYFJFTRTJFW,
+    XMBMC: xmbmc,
+    XMLX_ID: setupState.searchData.xmlx_id,
+    ZYQCGBM: setupState.searchData.ZYQCGBM,
+    YJDW: setupState.searchData.yjdw,
+    EJDW: setupState.searchData.ejdw,
+    NDYSWCL_START_QJ: setupState.searchData.NDYSWCL_START_QJ,
+    NDYSWCL_START_NUM: parseInt(setupState.searchData.NDYSWCL_START_NUM),
+    NDYSWCL_END_QJ: setupState.searchData.NDYSWCL_END_QJ,
+    NDYSWCL_END_NUM: parseInt(setupState.searchData.NDYSWCL_END_NUM),
+    SFAQSC: setupState.searchData.SFAQSC,
+    PROFIT_CENTER: setupState.searchData.profit_center,
+    APPLY_CENTER: setupState.searchData.apply_center,
+    XMLJWCL_START_QJ: setupState.searchData.XMLJWCL_START_QJ,
+    XMLJWCL_START_NUM: parseInt(setupState.searchData.XMLJWCL_START_NUM),
+    XMLJWCL_END_QJ: setupState.searchData.XMLJWCL_END_QJ,
+    XMLJWCL_END_NUM: parseInt(setupState.searchData.XMLJWCL_END_NUM),
+    ND: setupState.searchData.ND,
+    YD_START: startMonth,
+    YD_END: endMonth,
+    QUERYTYPE: setupState.searchData.searchType,
+    ZDXM: setupState.searchData.ZDXM,
+    ysly: setupState.searchData.YSLY,
+    JHLX: setupState.searchData.JHLX,
+    ...buildProcess42MatterParams(setupState.searchData),
+    ...extraParams
+  }
+}
+function handleHeaderCellClick({ column }) {
+  if (!column || !isSumColumn(column.field)) return
+  setupState.loading = true
+  getSumValue({
+    ...buildSearchParams(),
+    sumColumn: column.field
+  })
+    .then((res) => {
+      if (res.success) {
+        const sumValue =
+          res.data && typeof res.data === 'object' && Object.prototype.hasOwnProperty.call(res.data, 'sumValue')
+            ? res.data.sumValue
+            : res.data
+        updateColumnSumValue(column.field, sumValue)
+      } else {
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
+    })
+    .finally(() => {
+      setupState.loading = false
+    })
+}
+// 会计凭证
+async function showFile() {
+  try {
+    if (JSON.stringify(setupState.selectList) == '{}') return ElMessage.warning('仅支持单个项目会计凭证查看！')
+    let year = new Date().getFullYear()
+    let month = new Date().getMonth() + 1 > 9 ? new Date().getMonth() + 1 : `0${new Date().getMonth() + 1}`
+    let day = new Date().getDate() > 9 ? new Date().getDate() : '0' + new Date().getDate()
+    let date = `${year}${month}${day}`
+    let res = await getParamValueMulti(['ERP_TCODE228_URL'])
+    if (res.success) {
+      setupState.sapUrl = `${res.data.ERP_TCODE228_URL}&AutoStart=true&DynamicParameter=P_BUKRS=${setupState.selectList.profit_center.substring(2, 6)};S_PSPID-LOW=${setupState.selectList.gwxmbm};S_BUDAT-HIGH=`
+      const type = await VXETable.modal.confirm('过账日期是否默认设置为今日？', '提示', {
+        status: 'warning',
+        confirmButtonText: '是',
+        cancelButtonText: '否'
+      })
+      if (type === 'close') return ElMessage.info('已取消')
+      const url = type === 'confirm' ? setupState.sapUrl + date : setupState.sapUrl
+      openWithSAPGUI(url)
+    } else {
+      ElMessage.error(res.msg)
+    }
+  } catch (e) {
+    console.log(e, '出错啦')
+  }
+}
+//打开SAP
+function openWithSAPGUI(fileUrl) {
+  const userAgent = navigator.userAgent
+  if (userAgent.includes('Chrome') && !userAgent.includes('Edge')) {
+    var iframe = document.createElement('iframe')
+    iframe.style.display = 'none'
+    iframe.src = fileUrl
+    document.body.appendChild(iframe)
+    setTimeout(() => {
+      document.body.removeChild(iframe)
+    }, 1000)
+  } else {
+    window.open(fileUrl, '_blank')
+  }
+}
+function syncSelectedRows(records = []) {
+  setupState.selectedRows = records
+  setupState.selectList =
+    records.length === 1
+      ? {
+          ...records[0]
+        }
+      : {}
+}
+function handleTableSelection({ records }) {
+  syncSelectedRows(records)
+}
+function xmmcCellStyle({ row }) {
+  if (row.sfxqlr) {
+    return {
+      cursor: 'pointer',
+      color: 'var(--color-primary)',
+      textDecoration: 'underline'
+    }
+  }
+}
+function handleCellStyle({ row, column }) {
+  if (column.title == '项目名称' && row.sfxqlr) {
+    return {
+      cursor: 'pointer',
+      textDecoration: 'underline',
+      color: 'var(--color-primary)'
+    }
+  }
+}
+function getFormatterValue(params, cellValue) {
+  if (params && typeof params === 'object' && Object.prototype.hasOwnProperty.call(params, 'cellValue')) {
+    return params.cellValue
+  }
+  return cellValue
+}
+function formatString(params, column, cellValue) {
+  const value = getFormatterValue(params, cellValue)
+  if (typeof value === 'undefined' || value === null || value === '') return '-'
+  return value
+}
+function formatBaiFeiBi(params, column, cellValue) {
+  const value = getFormatterValue(params, cellValue)
+  if (typeof value === 'undefined' || value === null || value === '') return '-'
+  if (isValidNumber(value)) {
+    return new Decimal(value.toString()).toFixed(2) + '%'
+  } else {
+    return '0.00%'
+  }
+}
+function formatMoney({ cellValue }) {
+  if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
+  if (isValidNumber(cellValue)) {
+    return formatValue(cellValue.toString(), 6)
+  } else {
+    return '0.000000'
+  }
+}
+function getXmlxData() {
+  let startDate = new Date().getFullYear()
+  if (setupState.searchData.ND) {
+    startDate = setupState.searchData.ND
+  }
+  setupState.loading = true
+  const params = {
+    parentId: '0',
+    startDate: startDate
+  }
+  setupState.searchCombo.centerId = []
+  setupState.searchData.XMLXID = [] //置空
+  setupState.searchData.XmlxIDTreeValue = []
+  setupState.searchData.xmlx_id = ''
+  setupState.searchCombo.XMLXID = []
+  baseService.post('process40/getProTypeTreeNode/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.searchCombo.XMLXID = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+async function getCbzxData() {
+  const requestId = ++setupState.centerRequestId
+  const unitCodes = selectedUnitCodes.value
+  setupState.centerLoading = true
+  // 单位切换或清空时，同时清理勾选、展示值和查询参数。
+  centerTreeRef.value?.setCheckedKeys([])
+  setupState.searchData.centerId = []
+  setupState.searchData.centerTreeValue = []
+  setupState.searchData.profit_center = ''
+  setupState.searchData.apply_center = ''
+  setupState.searchCombo.centerId = []
+  const params = {
+    parentCode: unitCodes ? 'CBZX' : null,
+    rootCode: unitCodes || 'childtree:CBZX',
+    objId: -1,
+    level: 0
+  }
+  try {
+    const res = await baseService.post('process40/getTreeNodeCbzx/', params)
+    // 快速切换单位时，旧请求不得覆盖当前单位的归口部门。
+    if (requestId !== setupState.centerRequestId || unitCodes !== selectedUnitCodes.value) return
+    if (res.success) {
+      setupState.searchCombo.centerId = res.data || []
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  } catch (e) {
+    if (requestId === setupState.centerRequestId && unitCodes === selectedUnitCodes.value) {
+      ElMessage.error(e.message || '归口部门加载失败')
+    }
+  } finally {
+    if (requestId === setupState.centerRequestId) setupState.centerLoading = false
+  }
+}
+function getYjdwOrEjdwData() {
+  setupState.loading = true
+  setupState.searchCombo.DWList = []
+  return getBizOrgXzTreeExcludeBmNoPermissionNoLazy()
+    .then((res) => {
+      if (res.success) {
+        setupState.searchCombo.DWList = res.data
+      } else {
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
+    })
+    .finally(() => {
+      setupState.loading = false
+    })
+}
+function setXmljwclHandler(data) {
+  setupState.searchCombo.XMLJWCL_END_QJ = []
+  setupState.searchData.XMLJWCL_END_QJ = ''
+  setupState.searchData.XMLJWCL_END_NUM = undefined
+  if (data === '>' || data === '>=') {
+    setupState.show_Ljwcl = false
+    setupState.searchCombo.XMLJWCL_END_QJ.push(
+      {
+        label: '<',
+        value: '<'
+      },
+      {
+        label: '<=',
+        value: '<='
+      }
+    )
+  } else if (data === '<' || data === '<=') {
+    setupState.show_Ljwcl = false
+    setupState.searchCombo.XMLJWCL_END_QJ.push(
+      {
+        label: '>',
+        value: '>'
+      },
+      {
+        label: '>=',
+        value: '>='
+      }
+    )
+  } else {
+    setupState.show_Ljwcl = true
+  }
+}
+function setYswclHandler(data) {
+  setupState.searchCombo.NDYSWCL_END_QJ = []
+  setupState.searchData.NDYSWCL_END_QJ = ''
+  setupState.searchData.NDYSWCL_END_NUM = undefined
+  if (data === '>' || data === '>=') {
+    setupState.searchCombo.NDYSWCL_END_QJ.push(
+      {
+        label: '<',
+        value: '<'
+      },
+      {
+        label: '<=',
+        value: '<='
+      }
+    )
+    setupState.show_Yswcl = false
+  } else if (data === '<' || data === '<=') {
+    setupState.searchCombo.NDYSWCL_END_QJ.push(
+      {
+        label: '>',
+        value: '>'
+      },
+      {
+        label: '>=',
+        value: '>='
+      }
+    )
+    setupState.show_Yswcl = false
+  } else {
+    setupState.show_Yswcl = true
+  }
+}
+function setXmbmcData() {
+  getXmbmcData()
+}
+function clearXmbmcSelection() {
+  XmbmcTreeRef.value?.setCheckedKeys([])
+  setupState.searchData.XMBMC = []
+  setupState.searchData.XmbmcTreeValue = []
+}
+function handleXmbmcCheck() {
+  // 仅提交项目包叶子节点，排除“全部项目包”父节点。
+  const selectedPackages = XmbmcTreeRef.value.getCheckedNodes(true)
+  setupState.searchData.XMBMC = selectedPackages.map((item) => item.code)
+  setupState.searchData.XmbmcTreeValue = selectedPackages.map((item) => item.name)
+}
+async function getXmbmcData() {
+  const requestId = ++setupState.xmbmcRequestId
+  setupState.xmbmcLoading = true
+  clearXmbmcSelection()
+  setupState.searchCombo.XMBMC = []
+  let str = ''
+  if (setupState.searchData.XMXZ && setupState.searchData.XMXZ.length > 0) {
+    str = setupState.searchData.XMXZ.join(',')
+  }
+  const params = {
+    year: setupState.searchData.ND,
+    xmlx: setupState.searchData.xmlx_id,
+    xmblx: setupState.searchData.JDDETYPE_TYPE,
+    xmxz: str,
+    sjfl: setupState.searchData.SJFL,
+    xmbid: ''
+  }
+  try {
+    const res = await baseService.post('process40/getXmbArr/', params)
+    if (requestId !== setupState.xmbmcRequestId) return
+    if (res.success) {
+      setupState.searchCombo.XMBMC = res.data
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  } catch (e) {
+    if (requestId === setupState.xmbmcRequestId) ElMessage.error(e.message || '项目包加载失败')
+  } finally {
+    if (requestId === setupState.xmbmcRequestId) setupState.xmbmcLoading = false
+  }
+}
+function getYjflData() {
+  setupState.loading = true
+  const params = {
+    rootCode: 'GWXMFL'
+  }
+  baseService.post('process40/getRootComCode/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      res.data.forEach((item) => {
+        setupState.searchCombo.YJFL.push({
+          value: item.code,
+          label: item.name,
+          id: item.id
+        })
+      })
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function handleCenterClick(data, self, child) {
+  let datalist = centerTreeRef.value.getCheckedNodes()
+  setupState.searchData.centerId = [] //置空
+  setupState.searchData.centerTreeValue = []
+  setupState.searchData.profit_center = ''
+  setupState.searchData.apply_center = ''
+  datalist.forEach((item) => {
+    if (item.level == '1') {
+      setupState.searchData.profit_center += item.objCode + ','
+    } else if (item.level == '2') {
+      setupState.searchData.apply_center += item.objCode + ','
+    }
+    setupState.searchData.centerId.push({
+      id: item.id,
+      label: item.text
+    })
+    setupState.searchData.centerTreeValue.push(item.text)
+  })
+  setupState.searchData.profit_center = setupState.searchData.profit_center.substring(0, setupState.searchData.profit_center.length - 1)
+  setupState.searchData.apply_center = setupState.searchData.apply_center.substring(0, setupState.searchData.apply_center.length - 1)
+}
+// 获取项目类型数据
+function handleXmlxClick(data, self, child) {
+  let datalist = XmlxTreeRef.value.getCheckedNodes()
+  setupState.searchData.XMLXID = [] //置空
+  setupState.searchData.XmlxIDTreeValue = []
+  setupState.searchData.xmlx_id = ''
+  datalist.forEach((item) => {
+    setupState.searchData.xmlx_id += item.code + ','
+    setupState.searchData.XMLXID.push({
+      id: item.id,
+      label: item.name
+    })
+    setupState.searchData.XmlxIDTreeValue.push(item.name)
+  })
+  setupState.searchData.xmlx_id = setupState.searchData.xmlx_id.substring(0, setupState.searchData.xmlx_id.length - 1)
+}
+function getSjflData(selectedData) {
+  setupState.searchCombo.SJFL = []
+  setupState.searchData.SJFL = null
+  if (selectedData && selectedData.id) {
+    setupState.loading = true
+    const params = {
+      parentId: selectedData.id
+    }
+    baseService.post('process40/getComCodeByParent/', params).then((res) => {
+      if (res.success) {
+        setupState.loading = false
+        res.data.forEach((item) => {
+          setupState.searchCombo.SJFL.push({
+            value: item.code,
+            label: item.name,
+            id: item.id
+          })
+        })
+      } else {
+        setupState.loading = false
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
+    })
+  }
+}
+function getEjflData(selectedData) {
+  setupState.searchCombo.EJFL = []
+  setupState.searchCombo.SJFL = []
+  setupState.searchData.EJFL = null
+  setupState.searchData.SJFL = null
+  if (selectedData && selectedData.id) {
+    setupState.loading = true
+    const params = {
+      parentId: selectedData.id
+    }
+    baseService.post('process40/getComCodeByParent/', params).then((res) => {
+      if (res.success) {
+        setupState.loading = false
+        res.data.forEach((item) => {
+          setupState.searchCombo.EJFL.push({
+            value: item.code,
+            label: item.name,
+            id: item.id
+          })
+        })
+      } else {
+        setupState.loading = false
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
+    })
+  }
+}
+function handleDwClick(data, self, child) {
+  let datalist = DwTreeRef.value.getCheckedNodes()
+  setupState.searchData.DWID = [] //置空
+  setupState.searchData.DWIDTree = []
+  setupState.searchData.yjdw = ''
+  setupState.searchData.ejdw = ''
+  datalist.forEach((item) => {
+    // 按业务节点类型区分单位级别，省级及分组节点不参与筛选。
+    if (item.nodeType === 'CITY' || item.nodeType === 'ZSDW') {
+      setupState.searchData.yjdw += item.code + ','
+    } else if (item.nodeType === 'COUNTY') {
+      setupState.searchData.ejdw += item.code + ','
+    } else {
+      return
+    }
+    setupState.searchData.DWIDTree.push({
+      id: item.id,
+      label: item.name
+    })
+    setupState.searchData.DWID.push(item.name)
+  })
+  setupState.searchData.yjdw = setupState.searchData.yjdw.substring(0, setupState.searchData.yjdw.length - 1)
+  setupState.searchData.ejdw = setupState.searchData.ejdw.substring(0, setupState.searchData.ejdw.length - 1)
+}
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.page = 1
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  componentData.roleCode = parseInt(userDialogRef.value.roleCode)
+  setupState.isQuery = userDialogRef.value.isQuery
+  let userInfOther = {
+    ...userDialogRef.value.userMsg
+  }
+  setupState.userInfo = {
+    deptId: userInfOther.specialorgid,
+    deptName: userInfOther.specialorgname,
+    dwId: userInfOther.org_id,
+    dwName: userInfOther.org_name,
+    roleId: userInfOther.role_id,
+    roleCode: userInfOther.code,
+    spRoleId: userInfOther.id,
+    specialorgcode: userInfOther.specialorgcode
+  }
+  if (setupState.isQuery) {
+    const processHtml = document.querySelector('.process_42')
+    processHtml.style.display = 'block'
+    nextTick(() => {
+      if (tableNameRef.value) tableNameRef.value.recalculate(true)
+    })
+  }
+}
+//项目环节
+function listShow(value, checked) {
+  setupState.columns.forEach((item) => {
+    if (item.columnKey === value) {
+      item.checked = checked
+    }
+  })
+}
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    contentTablesRef.value.style.height = 'calc(100% - 280px)'
+  } else {
+    contentTablesRef.value.style.height = 'calc(100% - 17px)'
+  }
+  nextTick(() => {
+    if (tableNameRef.value) tableNameRef.value.recalculate(true)
+  })
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+//搜索按钮
+function loadData() {
+  resetColumnSumValues()
+  setupState.loading = true
+  setupState.selectList = {}
+  setupState.selectedRows = []
+  const params = buildSearchParams()
+  baseService.post('/process40/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.example = res.data.records
+      setupState.page.total = res.data.total
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+//重置按钮
+function reset() {
+  const hadSelectedUnits = Boolean(selectedUnitCodes.value)
+  setupState.page.page = 1
+  setupState.page.limit = 10
+  setupState.page.total = 0
+  setupState.selectList = {}
+  setupState.selectedRows = []
+  for (const key in setupState.searchData) {
+    if (key === 'YSQJ_DATE_END') {
+      setupState.searchData[key] = new Date().getFullYear() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getDate()
+    } else if (key === 'YSQJ_DATE_START') {
+      setupState.searchData[key] = new Date().getFullYear() + '-01-01'
+    } else if (
+      key === 'centerTreeValue' ||
+      key === 'XmlxIDTreeValue' ||
+      key === 'DWIDTree' ||
+      key === 'XmbmcTreeValue' ||
+      key === 'XMBMC'
+    ) {
+      setupState.searchData[key] = []
+    } else if (key === 'centerId' || key === 'XMLXID' || key === 'DWID' || key === 'YSSX_NEW_ID') {
+      setupState.searchData[key] = []
+    } else if (
+      key === 'YJFL' ||
+      key === 'ZDTX_ID' ||
+      key === 'EJFL' ||
+      key === 'SJFL' ||
+      key === 'ZCXZ' ||
+      key === 'CIRCUL_STATUS' ||
+      key === 'PRE_ARR_STATUS' ||
+      key === 'XMXZ' ||
+      key === 'JDDETYPE_TYPE' ||
+      key === 'ZYFJFTRTJFW' ||
+      key === 'ZYQCGBM' ||
+      key === 'SFAQSC' ||
+      key === 'YSLY'
+    ) {
+      setupState.searchData[key] = null
+    } else if (key === 'ND') {
+      setupState.searchData[key] = new Date().getFullYear()
+    } else if (key === 'NDYSWCL_START_NUM' || key === 'NDYSWCL_END_NUM' || key === 'XMLJWCL_START_NUM' || key === 'XMLJWCL_END_NUM') {
+      setupState.searchData[key] = undefined
+    } else if (key === 'searchType') {
+      setupState.searchData[key] = setupState.searchCombo.searchType.length ? setupState.searchCombo.searchType[0].value : '1'
+    } else {
+      setupState.searchData[key] = ''
+    }
+  }
+  DwTreeRef.value?.setCheckedKeys([])
+  XMMCRef.value.clear()
+  GWXMBMRef.value.clear()
+  // 有单位时由联动监听刷新；无单位时主动刷新，避免重复请求。
+  if (!hadSelectedUnits) getCbzxData()
+  getXmbmcData()
+  getXmlxData()
+  setupState.searchData.ZDTX_ID = ''
+  setupState.yssxRemoteQuery = ''
+  setupState.yssxRemoteLoading = false
+  setupState.searchCombo.YSSX_NEW_ID = []
+  setupState.searchCombo.EJFL = []
+  setupState.searchCombo.SJFL = []
+  resetColumnSumValues()
+  setupState.example = []
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+function formatDate(date) {
+  let time = new Date(date)
+  let zyear = time.getFullYear()
+  let zmonth = time.getMonth() + 1
+  let zday = time.getDate()
+  return JSON.stringify(zyear) + JSON.stringify(zmonth).padStart(2, '0') + JSON.stringify(zday).padStart(2, '0') + '000000'
+}
+function handleRowDblclick({ row, column }) {
+  if (column.title != '项目名称' || !row.sfxqlr) return
+  setupState.selectData = {
+    ...row,
+    xmlx: row.xmlb
+  }
+  editPageRefRef.value.isShowModal = true
+}
+// 数据导出
+function exportData() {
+  // 获取当前用户信息中id
+  const user = setupState.store.getters.getUserMsg
+  setupState.loading = true
+  const params = buildSearchParams({
+    userId: user.id
+  })
+  const selectedGwxmbm = setupState.selectedRows.map((item) => item.gwxmbm).filter((item) => item)
+  if (selectedGwxmbm.length > 0) {
+    params.GWXMBM = selectedGwxmbm.join(',')
+  }
+  delete params.roleCode
+  baseService.export('/process40/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '项目明细查询.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+const xmbmcTreeData = computed(() => {
+  return setupState.searchCombo.XMBMC.length
+    ? [
+        {
+          code: '__all_xmb__',
+          name: '全部项目包',
+          children: setupState.searchCombo.XMBMC
+        }
+      ]
+    : []
+})
+const selectedUnitCodes = computed(() => {
+  return [...new Set([...setupState.searchData.yjdw.split(','), ...setupState.searchData.ejdw.split(',')])].filter(Boolean).sort().join(',')
+})
+watch(
+  () => setupState.searchData.XMLXID,
+  function () {
+    setXmbmcData()
+  },
+  {
+    deep: true
+  }
+)
+watch(
+  () => selectedUnitCodes.value,
+  function () {
+    getCbzxData()
+  }
+)
+watch(
+  () => setupState.searchData.XMXZ,
+  function () {
+    setupState.searchData.XMBMC = []
+    setXmbmcData()
+  },
+  {}
+)
+watch(
+  () => setupState.searchData.SJFL,
+  function () {
+    setXmbmcData()
+  },
+  {}
+)
+watch(
+  () => setupState.searchData.ND,
+  function () {
+    setXmbmcData()
+    getXmlxData()
+    refreshYssxOptionsByNd()
+  },
+  {}
+)
+onMounted(async () => {
+  setupState.loading = true
+  getDynamicColumn()
+  handleColumn()
+  getYjflData()
+  getXmbmcData()
+  getYjdwOrEjdwData()
+  getCbzxData()
+  getXmlxData()
+  getComboData([
+    'QUERYTYPE_NEW',
+    'GY_TJFH',
+    'ZYQCGBM_COM',
+    'ZYFJFTRTJFW_COM',
+    'SFAQSC',
+    'PRE_ARR_STATUS',
+    'XMXZ',
+    'XMBTYPE_COM',
+    'ZCXZ',
+    'ZDXM_COM',
+    'XMLB_YSLY',
+    'XMLB_JHLX'
+  ])
+  getZdtxOptions()
+  if (route.query && JSON.stringify(route.query) != '{}') {
+    const nd = new Date(route.query.nd).getFullYear() || new Date().getFullYear()
+    setupState.searchData.YSQJ_DATE_START = nd + '-01-01'
+    setupState.searchData.YSQJ_DATE_END = nd + '-12-31'
+    GWXMBMRef.value.setValue(route.query.xmbm)
+    setupState.specialorgid = JSON.parse(route.query.specialorgid) || ''
+    componentData.roleCode = route.query.roleCode || ''
+    componentData.roleId = route.query?.roleId || ''
+    componentData.spRoleId = route.query?.spRoleId || ''
+    const isRoel = await usePage(componentData.roleId, setupState.specialorgid, componentData.spRoleId)
+    console.log(isRoel)
+    if (isRoel) {
+      setupState.isQuery = true
+      if (setupState.isQuery) {
+        const processHtml = document.querySelector('.process_42')
+        processHtml.style.display = 'block'
+      }
+    } else {
+      userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+    }
+    loadData()
+  } else {
+    userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+  }
+  setupState.loading = false
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpRefreshRight,
+  EpSearch,
+  selectData,
+  userInfo,
+  store,
+  show_Ljwcl,
+  show_Yswcl,
+  page,
+  isQuery,
+  searchShow,
+  segment,
+  example,
+  loading,
+  centerLoading,
+  centerRequestId,
+  xmbmcLoading,
+  xmbmcRequestId,
+  yssxRemoteLoading,
+  yssxRemoteQuery,
+  userCode,
+  userId,
+  specialorgid,
+  columnObj,
+  searchData,
+  columns,
+  defaultProps,
+  dwProps,
+  xmlxProps,
+  searchCombo,
+  selectList,
+  selectedRows,
+  sapUrl,
+  handleSetting,
+  getHelpMessageHandle,
+  startChangeDateHandle,
+  endChangeDateHandle,
+  startDateDisableHandler,
+  endDateDisableHandler,
+  lxsjStartDateDisableHandler,
+  lxsjEndDateDisableHandler,
+  getComboData,
+  syncSelectedYssxOptions,
+  mergeSelectedYssxOptions,
+  getYssxOptions,
+  handleYssxRemoteSearch,
+  refreshYssxOptionsByNd,
+  handleZdtxChange,
+  getZdtxOptions,
+  getDynamicColumn,
+  isSumColumn,
+  getColumnTitle,
+  headerCellStyle,
+  resetColumnSumValues,
+  formatSumValue,
+  updateColumnSumValue,
+  syncSearchQueryText,
+  buildSearchParams,
+  handleHeaderCellClick,
+  showFile,
+  openWithSAPGUI,
+  syncSelectedRows,
+  handleTableSelection,
+  xmmcCellStyle,
+  handleCellStyle,
+  getFormatterValue,
+  formatString,
+  formatBaiFeiBi,
+  formatMoney,
+  getXmlxData,
+  getCbzxData,
+  getYjdwOrEjdwData,
+  setXmljwclHandler,
+  setYswclHandler,
+  setXmbmcData,
+  clearXmbmcSelection,
+  handleXmbmcCheck,
+  getXmbmcData,
+  getYjflData,
+  handleCenterClick,
+  handleXmlxClick,
+  getSjflData,
+  getEjflData,
+  handleDwClick,
+  pageChangeHandle,
+  limitChangeHandle,
+  loadCompany,
+  listShow,
+  setTableHeight,
+  handleColumn,
+  loadData,
+  reset,
+  showSearch,
+  formatDate,
+  handleRowDblclick,
+  exportData,
+  ...toRefs(componentData),
+  xmbmcTreeData,
+  selectedUnitCodes
 })
 </script>
 

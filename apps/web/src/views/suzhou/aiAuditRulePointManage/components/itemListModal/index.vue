@@ -31,11 +31,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'itemListModal'
-}
-</script>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
@@ -44,11 +39,13 @@ import type { VxeGridProps } from 'vxe-table'
 import RangeVxeTable from '@/components/RangeVxeTable/index.vue'
 import { getXmyssxByCategoryRulePage, getXmyssxByRulePage } from '@/api/suzhou/aiAuditRulePoint'
 import type { XmyssxByCategoryRuleRow } from '@/api/suzhou/aiAuditRulePoint'
+defineOptions({
+  name: 'itemListModal'
+})
 
 interface ItemListTableRow extends XmyssxByCategoryRuleRow {
   rowId: string
 }
-
 interface ModalParams {
   /**
    * 规则名称：**只有主列表「已分配事项数」列的入口传**，用来做标题前缀。
@@ -60,7 +57,6 @@ interface ModalParams {
   /** 要点id：要点弹层的二级入口走文档十三（按要点查），两个 id 互斥 */
   ruleId?: string
 }
-
 const isShowModal = ref(false)
 const categoryRuleId = ref('')
 const ruleId = ref('')
@@ -79,9 +75,25 @@ const modalTitle = computed(() => (ruleName.value ? `${ruleName.value} · 已分
  * 按需求只保留事项两列，要点信息不再重复展示。
  */
 const columns: VxeGridProps['columns'] = [
-  { type: 'seq', title: '序号', width: 70, headerAlign: 'center' },
-  { field: 'zyssxbm', title: '预算事项编码', width: 180, headerAlign: 'center' },
-  { field: 'remark', title: '预算事项名称', minWidth: 280, align: 'left', headerAlign: 'center' }
+  {
+    type: 'seq',
+    title: '序号',
+    width: 70,
+    headerAlign: 'center'
+  },
+  {
+    field: 'zyssxbm',
+    title: '预算事项编码',
+    width: 180,
+    headerAlign: 'center'
+  },
+  {
+    field: 'remark',
+    title: '预算事项名称',
+    minWidth: 280,
+    align: 'left',
+    headerAlign: 'center'
+  }
 ]
 
 /**
@@ -92,8 +104,16 @@ const getList = async (params: Record<string, any>) => {
   const page = params.page ?? 1
   const limit = params.limit ?? 20
   const res = ruleId.value
-    ? await getXmyssxByRulePage({ ruleId: ruleId.value, page, limit })
-    : await getXmyssxByCategoryRulePage({ categoryRuleId: categoryRuleId.value, page, limit })
+    ? await getXmyssxByRulePage({
+        ruleId: ruleId.value,
+        page,
+        limit
+      })
+    : await getXmyssxByCategoryRulePage({
+        categoryRuleId: categoryRuleId.value,
+        page,
+        limit
+      })
   if (!res.success) ElMessage.error(res.msg || '已分配事项清单获取失败')
   const records = Array.isArray(res?.data?.records) ? res.data.records : []
   const offset = (Number(page) - 1) * Number(limit)
@@ -102,23 +122,25 @@ const getList = async (params: Record<string, any>) => {
     ...res,
     data: {
       ...res?.data,
-      records: records.map((item, index) => ({ ...item, rowId: `${keyPrefix}-${offset + index}` }))
+      records: records.map((item, index) => ({
+        ...item,
+        rowId: `${keyPrefix}-${offset + index}`
+      }))
     }
   }
 }
-
 const handleClose = () => {
   isShowModal.value = false
 }
-
 const acceptParams = (params: ModalParams = {}) => {
   categoryRuleId.value = params.categoryRuleId || ''
   ruleId.value = params.ruleId || ''
   ruleName.value = params.ruleName || ''
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

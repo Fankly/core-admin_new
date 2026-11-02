@@ -148,7 +148,7 @@ export const getListPageData = (params: Params): Promise<ServiceResult<PageData>
 
 ## 3. TypeScript
 
-- 项目自有业务代码、工具函数和测试优先使用 `.ts` / `.tsx`,Vue 脚本必须声明 `lang="ts"`（含 JSX 时用 `lang="tsx"`）。工具链配置和第三方生成/内嵌源码按其运行要求保留 JS,不要仅改扩展名或关闭类型检查。
+- 项目自有业务代码、工具函数和测试优先使用 `.ts` / `.tsx`,新增 Vue 脚本必须声明 `lang="ts"`（含 JSX 时用 `lang="tsx"`）。历史 JavaScript 组件已统一为 Composition API,仍保留原有语言边界；补全真实业务类型后再开启 TypeScript,不要只加 `lang="ts"`、批量填充 `any` 或关闭类型检查。工具链配置和第三方生成/内嵌源码按其运行要求保留 JS。
 - `strict: true`(继承自 `@repo/tsconfig/base.json`),新代码不得依赖 `any` 蒙混过关。历史 `any` 可以不对其做无谓改动。
 - 接口/类型定义就近放置:页面级类型放组件内或同目录 `interface/`;跨域公共类型放 `src/types/`。
 - 公共索引类型统一用 `IObject`(`src/types/interface.ts`),不要临时 `Record<string, any>` 造轮子。
@@ -166,8 +166,9 @@ export const getListPageData = (params: Params): Promise<ServiceResult<PageData>
 Vue 官方把选项式与组合式描述为"同一个底层系统所提供的两套不同的接口",并明确建议:**构建完整单页应用时用组合式 API + 单文件组件**。本仓库正是这个场景,所以:
 
 - **新组件一律 `<script setup lang="ts">`**,这是组合式 API 在 SFC 中的推荐写法。
-- 现存组件同时使用 `<script setup>` 与 `defineComponent({ setup() })`,`TableBox` / `baseHome` 等仍有选项式写法。**这些是历史代码,不要为了统一风格去批量改写**;只在实际动到某个文件、且改动范围本就覆盖整个 script 时顺手迁移。
-- 改造老组件时按官方的等价关系迁移:`data()` → `ref` / `reactive`,`methods` → 普通函数,`computed` 选项 → `computed()`,`created` / `mounted` → `onMounted`(`created` 里的同步逻辑直接放 setup 顶层)。迁移完必须把 `this.$message` 之类实例属性换成显式 import,`baseHome.vue` 就依赖 `this.$message`。
+- 全仓组件已统一为 `<script setup>`。`data()` 使用 `ref` / `reactive`,方法使用普通函数,计算属性使用 `computed()`,监听器使用 `watch()`；同步初始化留在 setup 顶层,DOM 操作放到 `onMounted()`。
+- 组件事件、属性和父组件调用的接口分别通过 `defineEmits`、`defineProps`、`defineExpose` 声明。Element Plus 消息与确认框显式导入；模板引用优先使用 `useTemplateRef`。财务页面原有上传、日期、分类与缓存 mixin 已拆为 `core/composables/useWorkspace.js` 中的组合式函数。
+- `pnpm --filter budget-process check:vue` 扫描全部 Vue 文件,检查单个 setup 脚本、现代样式穿透语法并编译脚本和模板；它已纳入 `check:architecture` / `verify`。组件交互与缓存生命周期由相邻 Vitest 用例验证。
 
 响应式状态默认用 `ref`(仓库里 `ref` 56 处 : `reactive` 15 处);只在状态是一组固定字段的对象、且不需要整体替换时用 `reactive`。组件对象、`import.meta.glob` 的 loader 这类不该被深层代理的值必须用 `shallowRef`,原因见 `views/home.vue` 的注释。
 
@@ -175,7 +176,7 @@ Vue 官方把选项式与组合式描述为"同一个底层系统所提供的两
 
 统一顺序:`<template>` → `<script setup lang="ts">` → `<style scoped lang="...">`。
 
-**每个组件只允许一个 `<script>` 块,新增和迁移组件使用 `<script setup lang="ts">`（含 JSX 时用 `lang="tsx"`）。** 禁止双 script 写法,也不要使用会被编译器忽略的 `<script setup name="...">`。显式组件名统一使用 `defineOptions`:
+**每个组件只允许一个 `<script setup>` 块,新增组件使用 `lang="ts"`（含 JSX 时用 `lang="tsx"`）。** 跨实例共享的缓存、类型以及只执行一次的图表注册放在相邻 `.module.ts` / `.module.js` 中；原有 JavaScript 组件按第 3 节逐步补全类型。禁止双 script 写法,也不要使用会被编译器忽略的 `<script setup name="...">`。显式组件名统一使用 `defineOptions`:
 
 - Vue 3.3+ 的 `defineOptions`,写在唯一的 `<script setup>` 内:
 
@@ -203,7 +204,7 @@ const emit = defineEmits<{
 }>()
 ```
 
-- **默认按 `props.x` 访问**,不要解构。Vue 3.5 起 `<script setup>` 里解构出的 props 由编译器保持响应性(仓库是 3.5.42,`vue/no-setup-props-destructure` 也已关闭),但全仓无一处这么写 —— 沿用 `props.x` 与邻居保持一致。传给组合式函数时用 `toRefs(props)` / `toRef(props, 'x')`。
+- **默认按 `props.x` 访问**,不要解构。Vue 3.5 起 `<script setup>` 里解构出的 props 由编译器保持响应性(仓库是 3.5.44,`vue/no-setup-props-destructure` 也已关闭),但全仓无一处这么写 —— 沿用 `props.x` 与邻居保持一致。传给组合式函数时用 `toRefs(props)` / `toRef(props, 'x')`。
 - 事件名声明用 camelCase、模板上用 kebab-case,Vue 会自动转换:`defineEmits<{ (e: 'settingClick'): void }>()` 对应 `@setting-click`。仓库既有代码两种拼法都有(`custom-event-name-casing` 已关),新代码按上面这条统一。
 - 双向绑定用 `defineModel()`(3.4+),不要手写 `modelValue` prop + `update:modelValue` 事件。多个绑定给参数:`defineModel('searchVisible')` 对应 `v-model:search-visible`,用法见 `ProTable` 与 `ToolbarButtons` 之间的传参。
 - 需要向父组件暴露方法时用 `defineExpose`(仓库 7 处),不要靠父组件直接摸子组件内部状态。

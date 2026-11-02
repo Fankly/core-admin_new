@@ -114,21 +114,17 @@
 import UserSelectDialog from '@/components/base/UserSelectDialog.vue'
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
-import { ref, defineEmits, defineProps, watch, reactive } from 'vue'
+import { ref, watch, reactive } from 'vue'
 import { getEjdwList, getYjdwList } from '@/api/matter'
 import { ElMessage } from 'element-plus'
 import { staffArrangementList, staffArrangementSave, staffArrangementRemove } from '@/api/service/xmcs/index'
 import { getDataByParent } from '@/api/common/index'
 import VXETable from 'vxe-table'
-
 const tableRef = ref()
 const userSelectRef = ref<InstanceType<typeof UserSelectDialog>>()
-
 const dialogVisible = ref(false)
 const loading = ref(false)
-
 const tableData = ref([])
-
 const searchForm = reactive<{
   yjdw: string
   ejdw: string
@@ -138,7 +134,6 @@ const searchForm = reactive<{
   ejdw: '',
   deptId: ''
 })
-
 const props = defineProps({
   visible: {
     type: Boolean,
@@ -149,13 +144,10 @@ const props = defineProps({
     required: true
   }
 })
-
 const emit = defineEmits(['update:visible', 'close'])
-
 const yjdwListData = ref<any[]>([])
 const ejdwListData = ref<any[]>([])
 const deptList = ref<any[]>([])
-
 const handleUserSelected = async (user: any) => {
   if (user && user.length !== 0) {
     const users = user.map((item: any) => ({
@@ -172,7 +164,6 @@ const handleUserSelected = async (user: any) => {
     }
   }
 }
-
 const handleClose = () => {
   dialogVisible.value = false
   searchForm.yjdw = ''
@@ -185,7 +176,6 @@ const handleClose = () => {
   emit('update:visible', false)
   emit('close')
 }
-
 const getYjdwEnum = async () => {
   if (props.specialOrgId) {
     let res: any = await getYjdwList(props.specialOrgId)
@@ -227,7 +217,6 @@ const changeYjdwHandle = async (val: string) => {
     loading.value = false
   }
 }
-
 const changeEjdwHandle = async () => {
   if (!searchForm.deptId) return
   loading.value = true
@@ -246,7 +235,6 @@ const changeEjdwHandle = async () => {
     loading.value = false
   }
 }
-
 const addHandle = async (row?: number) => {
   if (!searchForm.ejdw) {
     ElMessage.warning('请先筛选二级单位')
@@ -263,7 +251,6 @@ const addHandle = async (row?: number) => {
     await $table.setEditCell(newRow, 'userId')
   }
 }
-
 const selectHandle = () => {
   if (!searchForm.ejdw) {
     ElMessage.warning('请先筛选二级单位')
@@ -271,7 +258,6 @@ const selectHandle = () => {
   }
   if (userSelectRef.value) userSelectRef.value.dialogVisible = true
 }
-
 const delHandle = async () => {
   const $table = tableRef.value
   if ($table) {
@@ -295,7 +281,6 @@ const delHandle = async () => {
     }
   }
 }
-
 const saveHandle = async () => {
   const $table = tableRef.value
   if ($table) {
@@ -332,7 +317,6 @@ const saveHandle = async () => {
     }
   }
 }
-
 const handleShow = () => {
   getYjdwEnum()
 }

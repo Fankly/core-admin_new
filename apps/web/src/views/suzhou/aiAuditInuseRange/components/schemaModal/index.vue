@@ -54,15 +54,9 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'schemaModal'
-}
-</script>
 
 <script setup lang="ts">
 import { InfoFilled as EpInfoFilled, Warning as EpWarning } from '@element-plus/icons-vue'
-
 import { markRaw, nextTick, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
@@ -71,6 +65,9 @@ import RangeVxeTable from '@/components/RangeVxeTable/index.vue'
 import { getXmAttachExtractSchemaMenu } from '@/api/ai/xmAttachExtractSchemaMenu'
 import { schemaEdit } from '@/api/suzhou/aiAuditInuseRange'
 import type { ColumnProps } from '@/components/ProTablePage/interface'
+defineOptions({
+  name: 'schemaModal'
+})
 
 interface RoleContext {
   bmId: string
@@ -79,7 +76,6 @@ interface RoleContext {
   roleId: string
   userId: string
 }
-
 interface ModalParams {
   type: string
   searchParams: {
@@ -90,11 +86,14 @@ interface ModalParams {
     selectedNames?: string
   }
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const tableLoading = ref(false)
@@ -107,24 +106,54 @@ const echoCount = ref(0)
 const isBatchEdit = ref(false)
 /** 编辑回显的已关联模版名称 */
 const selectedSchemaNames = ref('')
-const roleContext = ref<RoleContext>({ bmId: '', dwId: '', roleCode: '', roleId: '', userId: '' })
-
+const roleContext = ref<RoleContext>({
+  bmId: '',
+  dwId: '',
+  roleCode: '',
+  roleId: '',
+  userId: ''
+})
 const tableColumns = markRaw<VxeGridProps['columns']>([
-  { type: 'checkbox', width: 50 },
-  { type: 'seq', width: 50, title: '序号' },
-  { field: 'schemaName', title: '模版名称', minWidth: 220 },
-  { field: 'fjTypeName', title: '附件类型', minWidth: 180 },
-  { field: 'schemaJson', title: 'Schema内容', minWidth: 520, showOverflow: true }
+  {
+    type: 'checkbox',
+    width: 50
+  },
+  {
+    type: 'seq',
+    width: 50,
+    title: '序号'
+  },
+  {
+    field: 'schemaName',
+    title: '模版名称',
+    minWidth: 220
+  },
+  {
+    field: 'fjTypeName',
+    title: '附件类型',
+    minWidth: 180
+  },
+  {
+    field: 'schemaJson',
+    title: 'Schema内容',
+    minWidth: 520,
+    showOverflow: true
+  }
 ])
-
 const searchColumns = reactive<ColumnProps[]>([
   {
     prop: 'schemaName',
     label: '模版名称',
-    search: { el: 'input', order: 1, props: { clearable: true, placeholder: '请输入模版名称' } }
+    search: {
+      el: 'input',
+      order: 1,
+      props: {
+        clearable: true,
+        placeholder: '请输入模版名称'
+      }
+    }
   }
 ])
-
 const callBackHandle = (data: any) => {
   tableLoading.value = false
   const selectedIdSet = new Set(pendingSelectedIds.value)
@@ -140,13 +169,11 @@ const callBackHandle = (data: any) => {
   })
   return data
 }
-
 const handleRequestError = (error: unknown) => {
   tableLoading.value = false
   if ((error as Error)?.message === 'STALE_TABLE_REQUEST') return
   ElMessage.error((error as Error)?.message || 'Schema列表加载失败，请重试')
 }
-
 const getPageList = (params: any) => {
   tableLoading.value = true
   return getXmAttachExtractSchemaMenu({
@@ -157,14 +184,12 @@ const getPageList = (params: any) => {
     schemaName: params.schemaName || ''
   })
 }
-
 const getSelectedSchemaIds = (): string[] => {
   const selected = proTableRef.value?.selectedList || []
   const fromTable = selected.map((item: any) => String(item.schemaId)).filter(Boolean)
   // 未加载到当前分页的回显 ID 仍参与保存，避免跨页丢关联
   return Array.from(new Set([...fromTable, ...pendingSelectedIds.value]))
 }
-
 const handleClose = () => {
   proTypeList.value = []
   pendingSelectedIds.value = []
@@ -173,27 +198,31 @@ const handleClose = () => {
   selectedSchemaNames.value = ''
   isShowModal.value = false
 }
-
 const handleSave = async () => {
   if (loading.value) return
   if (!proTypeList.value.length) return ElMessage.warning('缺少项目类型！')
   const schemaIdList = getSelectedSchemaIds()
   if (!schemaIdList.length) return ElMessage.warning('请选择提取Schema！')
-
   let confirmResult: string
   try {
-    confirmResult = await VXETable.modal.confirm('是否保存，请确定！', '提示', { status: 'warning' })
+    confirmResult = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
+      status: 'warning'
+    })
   } catch {
     return
   }
   if (confirmResult !== 'confirm') return ElMessage.info('已取消')
-
   loading.value = true
   try {
-    const res = await schemaEdit({ schemaIdList, proTypeList: proTypeList.value })
+    const res = await schemaEdit({
+      schemaIdList,
+      proTypeList: proTypeList.value
+    })
     if (!res.success) return ElMessage.error(res.msg || '保存失败')
     ElMessage.success('保存成功！')
-    emit('searchHandle', { param: 'success' })
+    emit('searchHandle', {
+      param: 'success'
+    })
     handleClose()
   } catch (error) {
     ElMessage.error((error as Error).message || '保存失败')
@@ -201,7 +230,6 @@ const handleSave = async () => {
     loading.value = false
   }
 }
-
 const acceptParams = (params: ModalParams) => {
   modalTitle.value = params.type || '选择提取Schema'
   proTypeList.value = params.searchParams.proTypeList || []
@@ -210,15 +238,22 @@ const acceptParams = (params: ModalParams) => {
   echoCount.value = selectedIds.length
   selectedSchemaNames.value = String(params.searchParams.selectedNames || '').trim()
   isBatchEdit.value = params.type === '批量编辑'
-  roleContext.value = params.searchParams.roleContext || { bmId: '', dwId: '', roleCode: '', roleId: '', userId: '' }
+  roleContext.value = params.searchParams.roleContext || {
+    bmId: '',
+    dwId: '',
+    roleCode: '',
+    roleId: '',
+    userId: ''
+  }
   isShowModal.value = true
   nextTick(() => {
     proTableRef.value?.clearSelection()
     proTableRef.value?.reset()
   })
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

@@ -1,31 +1,22 @@
-<script lang="ts">
-export default {
-  name: '/budget-process/ExecutionMonitorProcess'
-}
-</script>
+
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, Operation as EpOperation, QuestionFilled as EpQuestionFilled } from '@element-plus/icons-vue'
-
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { onMounted, reactive, ref, watch } from 'vue'
 import { useStore } from '@/store/business'
 import TreeSelect from '@/components/select/TreeSelect.vue'
 import { useRouter } from 'vue-router'
 import { CellStyle, QueryFormProcess } from '@/views/budget-process/types/process-46'
-import {
-  getProTypeTreeNode,
-  getRateConfig,
-  searchProcess47New,
-  exportProcess47New,
-  getUnitTreeNode
-} from '@/api/process'
+import { getProTypeTreeNode, getRateConfig, searchProcess47New, exportProcess47New, getUnitTreeNode } from '@/api/process'
 import { Decimal } from 'decimal.js'
+defineOptions({
+  name: '/budget-process/ExecutionMonitorProcess'
+})
 
 onMounted(() => {
   initData()
 })
-
 const store = useStore()
 const router = useRouter()
 const proParams = ref({
@@ -43,7 +34,6 @@ const rateRangeList: any = ref([])
 const loading = ref(true)
 // 表格数据
 const tableData: any = ref([])
-
 watch(
   () => store.state.proParams,
   (newVal) => {
@@ -65,9 +55,7 @@ const mainRef = ref()
 
 // 初始化数据
 const initData = () => {
-  proParams.value = store.getters.getProParams.nd
-    ? store.getters.getProParams
-    : JSON.parse(sessionStorage.getItem('ProParams') as string)
+  proParams.value = store.getters.getProParams.nd ? store.getters.getProParams : JSON.parse(sessionStorage.getItem('ProParams') as string)
   nd.value = proParams.value.nd
   specialorgid.value = proParams.value.specialorgid
   roleCode.value = proParams.value.roleCode
@@ -104,7 +92,6 @@ const rateChangeColorHandle = ({ row, column, rowIndex, columnIndex }: CellStyle
   const cellStyle: any = {
     color: '#000'
   }
-
   if (row.gll <= rateRange.value[0].zsbfb) {
     cellStyle.backgroundColor = 'rgba(215, 215, 215, 0.8)'
   } else if (row.gll > rateRange.value[0].zsbfb && row.gll < rateRange.value[1].zsbfb) {
@@ -118,7 +105,6 @@ const rateChangeColorHandle = ({ row, column, rowIndex, columnIndex }: CellStyle
     return cellStyle
   }
 }
-
 const getRateConfigHandle = () => {
   loading.value = true
   getRateConfig().then((res: any) => {
@@ -195,7 +181,6 @@ const treeProps = reactive({
     label: 'name'
   }
 })
-
 const clearDataHandle = () => {
   queryForm.xmlx.length = 0
 }
@@ -288,7 +273,6 @@ const page = reactive({
   limit: 20,
   total: 0
 })
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()

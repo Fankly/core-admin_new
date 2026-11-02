@@ -1,11 +1,9 @@
 <script setup lang="ts">
-defineOptions({ name: "/service/Storage/sqckConfirm/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import GeneralReport from '@/views/service/Storage/components/GeneralReport/index.vue'
 import { ElMessage } from 'element-plus'
-import { UserInfo } from '@/views/service/Storage/interface'
+import { UserInfo, RowVo } from '@/views/service/Storage/interface'
 import { exportData, stockOutData, getSqckPage, thData } from '@/api/service/Storage/sqckConfirm'
-import { RowVo } from '@/views/service/Storage/interface'
 import { getInfo } from '@/api/service/Storage/PlannedOutbound/Declaration'
 import { onMounted, ref } from 'vue'
 import { getPublicCodeList } from '@/api/common'
@@ -17,6 +15,10 @@ import { GlobalInfo } from '@/views/service/lkyptzl/interface'
 import { useGuide } from '@/hooks/useGuide'
 import { checkSameProperty } from '@/utils/utils'
 import SqckConfirmTypeModal from '@/views/service/Storage/sqckConfirm/components/SqckConfirmTypeModal.vue'
+defineOptions({
+  name: '/service/Storage/sqckConfirm/index'
+})
+
 // import reviewModal from '@/components/yssxTable/reviewModal.vue'
 
 const userInfo = ref<UserInfo>({
@@ -29,26 +31,21 @@ const userInfo = ref<UserInfo>({
   spRoleId: '',
   specialorgcode: ''
 })
-
 const store = useStore()
 const route = useRoute()
-
 const sqckConfirmTypeModalRef = ref<InstanceType<typeof SqckConfirmTypeModal>>()
-
 const { startGuide } = useGuide({
   moduleKey: 'Outbound',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 const ndList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const tab = ref<{
   type: string
   name: string
@@ -58,12 +55,9 @@ const tab = ref<{
 })
 const generalReportRef = ref<InstanceType<typeof GeneralReport>>()
 const isShowPage = ref(false)
-
 const returnModal = ref()
 const xmIdList = ref<any[]>([])
-
 const userDialogRef = ref<InstanceType<typeof userDialog>>()
-
 const getRoleHandle = async () => {
   try {
     if (userDialogRef.value) {
@@ -89,9 +83,7 @@ const getRoleHandle = async () => {
     console.error(e.message)
   }
 }
-
 const selectedDatas = ref<RowVo[]>([])
-
 const outboundHandle = async (list: RowVo[]) => {
   if (list && list.length === 0) {
     ElMessage.warning('请至少选择一条数据!')
@@ -127,7 +119,6 @@ const outboundHandle = async (list: RowVo[]) => {
     }
   }
 }
-
 const boundQueryData = async () => {
   try {
     if (generalReportRef.value) generalReportRef.value.loading = true
@@ -147,7 +138,6 @@ const boundQueryData = async () => {
     if (generalReportRef.value) generalReportRef.value.loading = false
   }
 }
-
 const getPublicDataList = async () => {
   const res = await getPublicCodeList({
     codes: ['ZLYS_XMJHSSND']
@@ -174,7 +164,6 @@ const getXmType = async (dwId: string) => {
     tab.value = res.data
   }
 }
-
 const handleError = (error: Error, message = '操作失败'): void => {
   ElMessage({
     message: `${message}:${error.message}`,
@@ -182,7 +171,6 @@ const handleError = (error: Error, message = '操作失败'): void => {
     duration: 5000
   })
 }
-
 onMounted(async () => {
   try {
     // 获取公共代码

@@ -40,99 +40,80 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, reactive } from 'vue'
-
+<script setup lang="ts">
+import { ref, reactive } from 'vue'
 import { ModalProps } from './interface/index'
 import { ElMessage } from 'element-plus'
 import { getZcByZcbm } from '@/api/service/requirement'
 import VXETable from 'vxe-table'
-
-export default defineComponent({
-  name: 'AddOrEditModal',
-  setup(_props, { expose, emit }) {
-    const isShowModal = ref(false)
-    const tabName = ref('1')
-    const zcbmFormRef = ref()
-
-    const modalProps = ref<ModalProps>({
-      opType: 'ADD',
-      title: '设备资产信息-新增'
+defineOptions({
+  name: 'AddOrEditModal'
+})
+const _props = defineProps({})
+const emit = defineEmits()
+const isShowModal = ref(false)
+const tabName = ref('1')
+const zcbmFormRef = ref()
+const modalProps = ref<ModalProps>({
+  opType: 'ADD',
+  title: '设备资产信息-新增'
+})
+const zcbmFormRules = reactive({
+  zcbm: [
+    {
+      required: true,
+      message: '请输入ERP资产编号',
+      trigger: 'blur'
+    }
+  ],
+  gsdm: [
+    {
+      required: true,
+      message: '请输入公司代码',
+      trigger: 'change'
+    }
+  ]
+})
+const zcbmFormData = reactive({
+  gsdm: '',
+  zcbm: ''
+})
+const loading = ref(false)
+const handleDetailModal = async () => {
+  try {
+    const type = await VXETable.modal.confirm('是否确认新增？', '温馨提示', {
+      status: 'warning'
     })
-
-    const zcbmFormRules = reactive({
-      zcbm: [
-        {
-          required: true,
-          message: '请输入ERP资产编号',
-          trigger: 'blur'
-        }
-      ],
-      gsdm: [
-        {
-          required: true,
-          message: '请输入公司代码',
-          trigger: 'change'
-        }
-      ]
-    })
-
-    const zcbmFormData = reactive({
-      gsdm: '',
-      zcbm: ''
-    })
-
-    const loading = ref(false)
-
-    const handleDetailModal = async () => {
-      try {
-        const type = await VXETable.modal.confirm('是否确认新增？', '温馨提示', {
-          status: 'warning'
-        })
-        if (type === 'confirm') {
-          loading.value = true
-          const res = await getZcByZcbm(zcbmFormData.gsdm, zcbmFormData.zcbm)
-          if (res.success) {
-            emit('sendData', res)
-          } else {
-            throw new Error(res.msg)
-          }
-        }
-      } catch (error: any) {
-        ElMessage.error(error.message)
-      } finally {
-        loading.value = false
+    if (type === 'confirm') {
+      loading.value = true
+      const res = await getZcByZcbm(zcbmFormData.gsdm, zcbmFormData.zcbm)
+      if (res.success) {
+        emit('sendData', res)
+      } else {
+        throw new Error(res.msg)
       }
     }
-
-    const handleCloseModal = () => {
-      zcbmFormRef.value.resetFields()
-      isShowModal.value = false
-    }
-
-    const acceptParams = (params: ModalProps) => {
-      modalProps.value = { ...params }
-      isShowModal.value = true
-    }
-    expose({
-      acceptParams,
-      handleCloseModal,
-      handleDetailModal,
-      isShowModal
-    })
-    return {
-      loading,
-      zcbmFormData,
-      zcbmFormRef,
-      modalProps,
-      acceptParams,
-      handleCloseModal,
-      handleDetailModal,
-      zcbmFormRules,
-      isShowModal,
-      tabName
-    }
+  } catch (error: any) {
+    ElMessage.error(error.message)
+  } finally {
+    loading.value = false
   }
+}
+const handleCloseModal = () => {
+  zcbmFormRef.value.resetFields()
+  isShowModal.value = false
+}
+const acceptParams = (params: ModalProps) => {
+  modalProps.value = {
+    ...params
+  }
+  isShowModal.value = true
+}
+defineExpose({
+  acceptParams,
+  handleCloseModal,
+  handleDetailModal,
+  isShowModal
 })
 </script>
 

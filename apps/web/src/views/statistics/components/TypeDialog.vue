@@ -1,56 +1,50 @@
-<script lang="ts">
-export default {
-  name: '/statistics/components/TypeDialog'
-}
-</script>
+
 
 <script setup lang="ts">
-import { ref, defineExpose, defineProps, toRef, reactive, defineEmits } from 'vue'
+import { ref, toRef, reactive } from 'vue'
 import ProTypeTreeSelect from '@/components/select/ProTypeTreeSelect.vue'
 import { InitParams } from '@/views/statistics/budgetStatisticsConfig.vue'
 import { getPublicData, getAllProtypeTreeNew } from '@/api/common'
 import { ElMessage } from 'element-plus'
 import { cloneDeep } from 'lodash'
+defineOptions({
+  name: '/statistics/components/TypeDialog'
+})
 
 interface Props {
   initParams: InitParams
 }
-
 const emits = defineEmits(['getTypeData'])
-
 const props = defineProps<Props>()
-
 const formRef = ref()
-
 const nd = toRef(props.initParams, 'nd')
-
 const treeData = ref([])
-
 const xmbSelectList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const showModal = ref(false)
-
 const formData = reactive<any>({
   proType: '',
   packType: ''
 })
-
 const rulesForm = reactive({
-  proType: [{ required: true, message: '请选择项目类型', trigger: ['change'] }]
+  proType: [
+    {
+      required: true,
+      message: '请选择项目类型',
+      trigger: ['change']
+    }
+  ]
 })
-
 const initPublicCode = async () => {
   let res = await getPublicData('XMBTYPE_COM')
   if (res.success && res.data) {
     xmbSelectList.value = res.data
   }
 }
-
 const initFormData = async () => {
   const params = {
     parentId: '0',
@@ -66,7 +60,6 @@ const initFormData = async () => {
     })
   }
 }
-
 const releaseHandle = async () => {
   if (!formRef.value) return
   await formRef.value.validate(async (valid: any) => {
@@ -77,12 +70,10 @@ const releaseHandle = async () => {
     }
   })
 }
-
 const showModalHandle = () => {
   initPublicCode()
   initFormData()
 }
-
 const closeModalHandle = () => {
   showModal.value = false
   formData.packType = ''

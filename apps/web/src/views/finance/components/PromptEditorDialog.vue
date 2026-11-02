@@ -10,55 +10,57 @@
   </dialogContainer>
 </template>
 
-<script>
+<script setup>
 import PromptEditor from './PromptEditor.vue'
-
-export default {
-  name: 'PromptEditorDialog',
-  components: {
-    PromptEditor
+import { reactive, toRef, toRefs, watch, getCurrentInstance } from 'vue'
+defineOptions({
+  name: 'PromptEditorDialog'
+})
+const componentProps = defineProps({
+  value: {
+    type: String,
+    default: ''
   },
-  props: {
-    value: {
-      type: String,
-      default: ''
-    },
-    tags: {
-      type: Array,
-      default: () => []
-    },
-    placeholder: {
-      type: String,
-      default: '请输入内容'
-    }
+  tags: {
+    type: Array,
+    default: () => []
   },
-  data() {
-    return {
-      buttonLoading: false,
-      currentValue: ''
-    }
-  },
-  watch: {
-    value: {
-      immediate: true,
-      handler(val) {
-        this.currentValue = val || ''
-      }
-    }
-  },
-  methods: {
-    handleCancel() {
-      if (this.observer != null) {
-        this.observer.cancel(false)
-      }
-    },
-    handleSubmit() {
-      if (this.observer != null) {
-        this.observer.cancel(true, this.currentValue)
-      }
-    }
+  placeholder: {
+    type: String,
+    default: '请输入内容'
+  }
+})
+const componentInstance = getCurrentInstance().proxy
+const componentData = reactive({
+  buttonLoading: false,
+  currentValue: ''
+})
+const buttonLoading = toRef(componentData, 'buttonLoading')
+const currentValue = toRef(componentData, 'currentValue')
+function handleCancel() {
+  if (componentInstance.observer != null) {
+    componentInstance.observer.cancel(false)
   }
 }
+function handleSubmit() {
+  if (componentInstance.observer != null) {
+    componentInstance.observer.cancel(true, componentData.currentValue)
+  }
+}
+watch(
+  () => componentProps.value,
+  function (val) {
+    componentData.currentValue = val || ''
+  },
+  {
+    immediate: true
+  }
+)
+defineExpose({
+  handleCancel,
+  handleSubmit,
+  ...toRefs(componentData)
+})
 </script>
 
 <style lang="less" scoped>

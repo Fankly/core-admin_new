@@ -27,14 +27,16 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/motivation/dispatchIntegrationList/index" })
 import { onMounted, ref } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import ProtableCurd from '@/views/motivation/MarketingMotivation/components/ProtableCurdNew.vue'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import { exportDdxt, deleteDdxt, saveOrUpdate, importData, page } from '@/api/xmInfo/dispatchIntegrationList'
 import { decimal2Rules } from '@/utils/rules'
 import { useStore } from '@/store/business'
+defineOptions({ name: "/motivation/dispatchIntegrationList/index" })
+
+ //公共代码
 
 const userDialogRef = ref<any>()
 const tabData = ref('1')

@@ -18,42 +18,33 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/goalValue/customGoalValue/components/ConfigHeader'
-}
-</script>
 
 <script setup lang="ts">
-import { computed, defineEmits, defineExpose, defineProps, onMounted, reactive, watch } from 'vue'
+import { computed, onMounted, reactive, watch } from 'vue'
 import { getYearData } from '@/api/common'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/goalValue/customGoalValue/components/ConfigHeader'
+})
 
 interface Props {
   showPage: boolean
 }
-
 interface YearData {
   yearCode: string
   yearName: string
 }
-
 const emits = defineEmits(['changeNd', 'addData', 'deleteData'])
-
 const props = defineProps<Props>()
-
 const isShowPage = computed(() => props.showPage)
-
 const formData = reactive({
   nd: ''
 })
-
 const pageInfo = reactive<{
   ndDataList: YearData[]
 }>({
   ndDataList: []
 })
-
 const getYearDataList = async () => {
   try {
     let res = await getYearData()
@@ -68,36 +59,29 @@ const getYearDataList = async () => {
     ElMessage.error('年度数据加载失败，请稍后重试')
   }
 }
-
 const initDefaultValue = () => {
   formData.nd = new Date().getFullYear().toString()
 }
-
 const addOrEditDataHandle = (flag: string) => {
   emits('addData', flag)
 }
-
 const delDataHandle = () => {
   emits('deleteData')
 }
-
 watch(
   () => formData.nd,
   (newVal) => {
     emits('changeNd', newVal)
   }
 )
-
 const initParams = async () => {
   await getYearDataList()
   initDefaultValue()
 }
-
 defineExpose({
   pageInfo,
   formData
 })
-
 onMounted(initParams)
 </script>
 

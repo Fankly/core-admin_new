@@ -27,13 +27,10 @@
     <CentralizedModification :get-api="'LHHS'" ref="editPageRef" :userInfo="userInfo" :formData="selectData" :flag="'VIEW'" />
   </div>
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, ArrowRight as EpArrowRight } from '@element-plus/icons-vue'
-
-import { ref, reactive, defineProps, nextTick, defineExpose } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import proTable from '@/components/ProTable/index.vue' //表格组件
 import { pageExpertReviewInfo } from '@/api/service/jointReview'
 import expertReview from '@/views/service/ywpt/components/expertReview.vue' //专家评审信息
@@ -96,25 +93,79 @@ const showProjectInfo = async (selectedList: any) => {
   editPageRef.value.isShowModal = true
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'meetingCode', label: '会议编号', width: '100' },
-  { prop: 'meetingName', label: '会议名称', width: '280' },
-  { prop: 'organizer', label: '组织人', width: '80' },
-  { prop: 'review_expert_name', label: '专家组长', width: '80' },
-  { prop: 'review_opinion', label: '专家组长终评意见', width: '140' },
-  { prop: 'review_reason', label: '专家组长终评意见说明', width: '200' },
-  { prop: 'review_time', label: '专家组长终评时间', width: '150' },
-  { prop: 'xmbm', label: '项目编码', width: '180' },
-  { prop: 'xmmc', label: '项目名称', width: '280' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'meetingCode',
+    label: '会议编号',
+    width: '100'
+  },
+  {
+    prop: 'meetingName',
+    label: '会议名称',
+    width: '280'
+  },
+  {
+    prop: 'organizer',
+    label: '组织人',
+    width: '80'
+  },
+  {
+    prop: 'review_expert_name',
+    label: '专家组长',
+    width: '80'
+  },
+  {
+    prop: 'review_opinion',
+    label: '专家组长终评意见',
+    width: '140'
+  },
+  {
+    prop: 'review_reason',
+    label: '专家组长终评意见说明',
+    width: '200'
+  },
+  {
+    prop: 'review_time',
+    label: '专家组长终评时间',
+    width: '150'
+  },
+  {
+    prop: 'xmbm',
+    label: '项目编码',
+    width: '180'
+  },
+  {
+    prop: 'xmmc',
+    label: '项目名称',
+    width: '280'
+  },
   // { prop: 'sfgmb', label: '是否规模包', width: '100' },
   // { prop: 'gmbbm', label: '规模包编码', width: '180' },
   // { prop: 'gmbmc', label: '规模包名称', width: '200' },
-  { prop: 'pro_type_name', label: '项目类型', width: '180' },
-  { prop: 'yjdw', label: '一级单位', width: '180' },
-  { prop: 'ejdw', label: '二级单位', width: '180' }
+  {
+    prop: 'pro_type_name',
+    label: '项目类型',
+    width: '180'
+  },
+  {
+    prop: 'yjdw',
+    label: '一级单位',
+    width: '180'
+  },
+  {
+    prop: 'ejdw',
+    label: '二级单位',
+    width: '180'
+  }
 ])
-
 defineExpose({
   proDataRef,
   isShowModal,

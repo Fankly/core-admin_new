@@ -236,8 +236,6 @@
 
 <script setup lang="ts">
 import { ArrowRight as EpArrowRight } from '@element-plus/icons-vue'
-
-defineOptions({ name: "xmbgxx" })
 import { getPublicData } from '@/api/common'
 import { getBgInfo, getFjGroupByXmlx, getHisBgInfo, uploadYsbgAttach } from '@/api/service/budget'
 import DynamicUploadGroup from '@/components/DynamicForm/components/DynamicUploadGroup.vue'
@@ -245,6 +243,7 @@ import ReNumberInput from '@/components/ReNumberInput'
 import Decimal from 'decimal.js'
 import { ElMessage } from 'element-plus'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+defineOptions({ name: "xmbgxx" })
 
 interface Props {
   selectData: any

@@ -73,25 +73,93 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import useView from '@/hooks/useView'
-import { defineComponent, reactive, toRefs } from 'vue'
+import { reactive, toRefs, proxyRefs, toRef } from 'vue'
 import AddOrUpdate from './menu-add-or-update.vue'
-
-export default defineComponent({
-  name: '/sys/menu',
-  components: {
-    AddOrUpdate
-  },
-  setup() {
-    const state = reactive({ getDataListURL: '/sys/menu/list', deleteURL: '/sys/menu/update' })
-
-    const formatHandle = (row: any, field: string) => {
-      return String(row?.[field] ?? '') === '1' ? '是' : '否'
-    }
-
-    return { ...useView(state), ...toRefs(state), formatHandle }
-  }
+defineOptions({
+  name: '/sys/menu'
+})
+const state = reactive({
+  getDataListURL: '/sys/menu/list',
+  deleteURL: '/sys/menu/update'
+})
+const formatHandle = (row: any, field: string) => {
+  return String(row?.[field] ?? '') === '1' ? '是' : '否'
+}
+const setupState = proxyRefs({
+  ...useView(state),
+  ...toRefs(state),
+  formatHandle
+})
+const query = toRef(setupState, 'query')
+const dataListSelectionChangeHandle = toRef(setupState, 'dataListSelectionChangeHandle')
+const dataListSortChangeHandle = toRef(setupState, 'dataListSortChangeHandle')
+const pageSizeChangeHandle = toRef(setupState, 'pageSizeChangeHandle')
+const pageCurrentChangeHandle = toRef(setupState, 'pageCurrentChangeHandle')
+const getDataList = toRef(setupState, 'getDataList')
+const addHandle = toRef(setupState, 'addHandle')
+const addOrUpdateHandle = toRef(setupState, 'addOrUpdateHandle')
+const deleteHandle = toRef(setupState, 'deleteHandle')
+const exportHandle = toRef(setupState, 'exportHandle')
+const closeCurrentTab = toRef(setupState, 'closeCurrentTab')
+const handleFlowRoute = toRef(setupState, 'handleFlowRoute')
+const flowDetailRoute = toRef(setupState, 'flowDetailRoute')
+const createdIsNeed = toRef(setupState, 'createdIsNeed')
+const activatedIsNeed = toRef(setupState, 'activatedIsNeed')
+const getDataListURL = toRef(setupState, 'getDataListURL')
+const getDataListIsPage = toRef(setupState, 'getDataListIsPage')
+const deleteURL = toRef(setupState, 'deleteURL')
+const deleteIsBatch = toRef(setupState, 'deleteIsBatch')
+const deleteIsBatchKey = toRef(setupState, 'deleteIsBatchKey')
+const exportURL = toRef(setupState, 'exportURL')
+const dataForm = toRef(setupState, 'dataForm')
+const dataList = toRef(setupState, 'dataList')
+const order = toRef(setupState, 'order')
+const orderField = toRef(setupState, 'orderField')
+const page = toRef(setupState, 'page')
+const limit = toRef(setupState, 'limit')
+const total = toRef(setupState, 'total')
+const dataListLoading = toRef(setupState, 'dataListLoading')
+const dataListSelections = toRef(setupState, 'dataListSelections')
+const addOrUpdateVisible = toRef(setupState, 'addOrUpdateVisible')
+const addOrUpdate = toRef(setupState, 'addOrUpdate')
+const elTable = toRef(setupState, 'elTable')
+defineExpose({
+  query,
+  dataListSelectionChangeHandle,
+  dataListSortChangeHandle,
+  pageSizeChangeHandle,
+  pageCurrentChangeHandle,
+  getDataList,
+  addHandle,
+  addOrUpdateHandle,
+  deleteHandle,
+  exportHandle,
+  closeCurrentTab,
+  handleFlowRoute,
+  flowDetailRoute,
+  createdIsNeed,
+  activatedIsNeed,
+  getDataListURL,
+  getDataListIsPage,
+  deleteURL,
+  deleteIsBatch,
+  deleteIsBatchKey,
+  exportURL,
+  dataForm,
+  dataList,
+  order,
+  orderField,
+  page,
+  limit,
+  total,
+  dataListLoading,
+  dataListSelections,
+  addOrUpdateVisible,
+  addOrUpdate,
+  elTable,
+  formatHandle
 })
 </script>
 

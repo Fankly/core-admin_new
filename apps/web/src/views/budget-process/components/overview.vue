@@ -233,91 +233,118 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Search as EpSearch } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
+import { markRaw as markElementIconRaw, ref, reactive, toRef } from 'vue'
 import VChart from 'vue-echarts'
-import { ref, defineComponent, reactive } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import { useStore } from '@/store/business'
 import process from '@/views/budget-process/js/process-data'
 import affiliatedUnit from '@/components/select/affiliatedUnit.vue'
-
-export default defineComponent({
-  name: '/budget-process/components/overview',
-  components: {
-    VChart,
-    userDialog,
-    affiliatedUnit
-  },
-  props: {
-    dataObj: {
-      type: Object,
-      default: () => {}
-    }
-  },
-  setup(props) {
-    const store = useStore()
-    let totalAnnualBudget = props.dataObj.data3 * 98574
-    let lastYearBudget = props.dataObj.data3 * 87941
-    let totalAnnualBudgetPercentage = (totalAnnualBudget / lastYearBudget).toFixed(2)
-    let budgetExecutionAmount = props.dataObj.data3 * 71521
-    let lastYearAmount = props.dataObj.data3 * 61521
-    let budgetExecutionAmountPercentage = (budgetExecutionAmount / lastYearAmount).toFixed(2)
-    let budgetExecutionRate = props.dataObj.data3 / 10
-    let lastYearRate = (props.dataObj.data3 * 12) / 100
-    let budgetExecutionRatePercentage = (budgetExecutionRate / lastYearRate).toFixed(2)
-    let establishment = props.dataObj.data1 * 12311
-    let demand = props.dataObj.data3 * 42141
-    let bidding = props.dataObj.data3 * 12213
-    let contract = props.dataObj.data3 * 12341
-    let finance = props.dataObj.data3 * 14124
-    let close = props.dataObj.data3 * 12441
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      totalAnnualBudget,
-      lastYearBudget,
-      totalAnnualBudgetPercentage,
-      budgetExecutionAmount,
-      lastYearAmount,
-      budgetExecutionAmountPercentage,
-      budgetExecutionRate,
-      lastYearRate,
-      budgetExecutionRatePercentage,
-      establishment,
-      demand,
-      bidding,
-      contract,
-      finance,
-      close,
-      loading: false,
-      dataList: {
-        month: new Date()
-      },
-      projects: [],
-      searchShow: false,
-      one: '',
-      two: '',
-      three: '',
-      four: 1
-    })
-  },
-  methods: {
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-    },
-    formatMoney(money) {
-      // 格式化金额 10000 => 10,000
-      return money.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    }
+defineOptions({
+  name: '/budget-process/components/overview'
+})
+const props = defineProps({
+  dataObj: {
+    type: Object,
+    default: () => {}
   }
+})
+const store = useStore()
+let totalAnnualBudget = props.dataObj.data3 * 98574
+let lastYearBudget = props.dataObj.data3 * 87941
+let totalAnnualBudgetPercentage = (totalAnnualBudget / lastYearBudget).toFixed(2)
+let budgetExecutionAmount = props.dataObj.data3 * 71521
+let lastYearAmount = props.dataObj.data3 * 61521
+let budgetExecutionAmountPercentage = (budgetExecutionAmount / lastYearAmount).toFixed(2)
+let budgetExecutionRate = props.dataObj.data3 / 10
+let lastYearRate = (props.dataObj.data3 * 12) / 100
+let budgetExecutionRatePercentage = (budgetExecutionRate / lastYearRate).toFixed(2)
+let establishment = props.dataObj.data1 * 12311
+let demand = props.dataObj.data3 * 42141
+let bidding = props.dataObj.data3 * 12213
+let contract = props.dataObj.data3 * 12341
+let finance = props.dataObj.data3 * 14124
+let close = props.dataObj.data3 * 12441
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  totalAnnualBudget,
+  lastYearBudget,
+  totalAnnualBudgetPercentage,
+  budgetExecutionAmount,
+  lastYearAmount,
+  budgetExecutionAmountPercentage,
+  budgetExecutionRate,
+  lastYearRate,
+  budgetExecutionRatePercentage,
+  establishment,
+  demand,
+  bidding,
+  contract,
+  finance,
+  close,
+  loading: false,
+  dataList: {
+    month: new Date()
+  },
+  projects: [],
+  searchShow: false,
+  one: '',
+  two: '',
+  three: '',
+  four: 1
+})
+const loading = toRef(setupState, 'loading')
+const dataList = toRef(setupState, 'dataList')
+const projects = toRef(setupState, 'projects')
+const searchShow = toRef(setupState, 'searchShow')
+const one = toRef(setupState, 'one')
+const two = toRef(setupState, 'two')
+const three = toRef(setupState, 'three')
+const four = toRef(setupState, 'four')
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+}
+function formatMoney(money) {
+  // 格式化金额 10000 => 10,000
+  return money.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpSearch,
+  store,
+  totalAnnualBudget,
+  lastYearBudget,
+  totalAnnualBudgetPercentage,
+  budgetExecutionAmount,
+  lastYearAmount,
+  budgetExecutionAmountPercentage,
+  budgetExecutionRate,
+  lastYearRate,
+  budgetExecutionRatePercentage,
+  establishment,
+  demand,
+  bidding,
+  contract,
+  finance,
+  close,
+  loading,
+  dataList,
+  projects,
+  searchShow,
+  one,
+  two,
+  three,
+  four,
+  showSearch,
+  formatMoney
 })
 </script>
 

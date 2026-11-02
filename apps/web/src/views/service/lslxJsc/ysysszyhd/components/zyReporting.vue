@@ -122,31 +122,24 @@
   </div>
   <ReViewModal ref="reviewRef" :title="modalTitle" :isView="isView" :form-data="paramsData" />
 </template>
-<script lang="ts">
-export default {
-  name: '/lslxJsc/components/zyReporting'
-}
-</script>
+
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
-import {
-  getTableDataForZgkbmYs,
-  getDynamicColumnForZgkbmYs,
-  passForZgkbmYs,
-  rejectForZgkbmYs
-} from '@/api/lslxJsc/szyBmApi'
+import { getTableDataForZgkbmYs, getDynamicColumnForZgkbmYs, passForZgkbmYs, rejectForZgkbmYs } from '@/api/lslxJsc/szyBmApi'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { formatValue } from '@/utils/utils'
 import { vxeExportHandle } from '@/utils/export'
 import ReViewModal from '@/views/service/lslxJsc/ysysszytb/components/ReViewModal/index.vue'
+defineOptions({
+  name: '/lslxJsc/components/zyReporting'
+})
 
 interface paramsDataVo {
   versionId: string
   zgkbmId: string
   nd: string
 }
-
 const emits = defineEmits(['pushPage', 'getPass'])
 const reviewRef = ref()
 
@@ -167,7 +160,6 @@ const userInfo = ref()
 const isView = ref<boolean>(false)
 const modalTitle = ref<string>('拟出库项目维护')
 const paramsData = ref<any>({})
-
 const pageInfo = reactive<{
   loading: boolean
 }>({
@@ -179,7 +171,6 @@ const isShowModel = ref(false)
 const closeHandle = () => {
   emits('pushPage', true)
 }
-
 const tableInfo = reactive<any>({
   border: true,
   tableData: [],
@@ -272,7 +263,6 @@ const handleCellClick = ({ row, column }: any) => {
     reviewRef.value.acceptParams()
   }
 }
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -314,7 +304,6 @@ const hanldeNck = (type: any, val: any) => {
 const newData = async () => {
   await getDataList()
 }
-
 const getDataList = async () => {
   tableInfo.loading = true
   const api: any = getTableDataForZgkbmYs
@@ -331,10 +320,7 @@ const getDataList = async () => {
     tableInfo.tableData = res.data
     tableInfo.loading = false
     allAmount.value = 0
-    let gmSum = tableInfo.tableData.reduce(
-      (gmSum: number, item: any) => gmSum + Number(item['hj_nckje']),
-      0
-    )
+    let gmSum = tableInfo.tableData.reduce((gmSum: number, item: any) => gmSum + Number(item['hj_nckje']), 0)
     allAmount.value = Number(gmSum).toFixed(6)
   } else {
     tableInfo.loading = false

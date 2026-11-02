@@ -71,9 +71,8 @@
 </template>
 
 <script setup lang="ts">
-import { getPublicCodeList } from '@/api/common'
+import { getPublicCodeList, downloadAttach } from '@/api/common'
 import { deleteAttach, getAttachList, uploadAttach } from '@/api/config/templateFileManager'
-import { downloadAttach } from '@/api/common'
 import type { AttachmentTypeOption, TemplateAttachmentRow } from '../types'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
@@ -88,34 +87,28 @@ const validateFileType = (file: File): boolean => {
   const fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1)
   return ALLOWED_FILE_TYPES.includes(fileExtension)
 }
-
 const props = defineProps<{
   modelValue: boolean
   protypeIds: string
   protypeId: string
   singleSelection: boolean
 }>()
-
 const emit = defineEmits<{
   (event: 'update:modelValue', value: boolean): void
 }>()
-
 const fjTypeList = ref<AttachmentTypeOption[]>([])
 const fjLoading = ref(false)
 const hasLoadedTypes = ref(false)
 const tableRefs = ref<Record<string, any>>({})
 const fileListMap = reactive<Record<string, TemplateAttachmentRow[]>>({})
 const loadingMap = reactive<Record<string, boolean>>({})
-
 const visible = computed({
   get: () => props.modelValue,
   set: (value: boolean) => emit('update:modelValue', value)
 })
-
 const hasActiveUploading = computed(() => Object.values(loadingMap).some((value) => value === true))
 const canLoadPersistedAttachments = computed(() => props.singleSelection && !!props.protypeId)
 const singleSelection = computed(() => props.singleSelection)
-
 const setTableRef = (code: string, el: any) => {
   if (el) {
     tableRefs.value[code] = el
@@ -123,7 +116,6 @@ const setTableRef = (code: string, el: any) => {
   }
   delete tableRefs.value[code]
 }
-
 const ensureFileListKeys = () => {
   fjTypeList.value.forEach((item) => {
     if (!Array.isArray(fileListMap[item.code])) {
@@ -131,28 +123,23 @@ const ensureFileListKeys = () => {
     }
   })
 }
-
 const normalizeAttachmentList = (data: any): TemplateAttachmentRow[] => {
   if (Array.isArray(data)) return data
   if (Array.isArray(data?.list)) return data.list
   if (Array.isArray(data?.records)) return data.records
   return []
 }
-
 const getAttachmentName = (row: TemplateAttachmentRow) => {
   return row.name || row.attachName || row.fileName || '-'
 }
-
 const hasAttachmentId = (row: TemplateAttachmentRow) => {
   return row.id !== undefined && row.id !== null && row.id !== ''
 }
-
 const resetFileListMap = () => {
   Object.keys(fileListMap).forEach((key) => {
     fileListMap[key] = []
   })
 }
-
 const resetModalState = () => {
   fjTypeList.value = []
   hasLoadedTypes.value = false
@@ -160,23 +147,21 @@ const resetModalState = () => {
   Object.keys(fileListMap).forEach((key) => delete fileListMap[key])
   Object.keys(loadingMap).forEach((key) => delete loadingMap[key])
 }
-
 const loadFjTypes = async () => {
   if (hasLoadedTypes.value) return
-
-  const res = await getPublicCodeList({ codes: ['XMLB_ATTACH_CONFIG_FJTYPE'] })
+  const res = await getPublicCodeList({
+    codes: ['XMLB_ATTACH_CONFIG_FJTYPE']
+  })
   if (!res.success) throw new Error(res.msg)
   fjTypeList.value = res.data?.['XMLB_ATTACH_CONFIG_FJTYPE'] || []
   hasLoadedTypes.value = true
   ensureFileListKeys()
 }
-
 const applyAllAttachmentRows = (rows: TemplateAttachmentRow[]) => {
   const groupedRows = fjTypeList.value.reduce<Record<string, TemplateAttachmentRow[]>>((result, item) => {
     result[item.code] = []
     return result
   }, {})
-
   rows.forEach((row) => {
     const code = String(row.fjId || '')
     if (!code) return
@@ -185,13 +170,11 @@ const applyAllAttachmentRows = (rows: TemplateAttachmentRow[]) => {
     }
     groupedRows[code].push(row)
   })
-
   Object.keys(groupedRows).forEach((code) => {
     fileListMap[code] = groupedRows[code]
   })
   ensureFileListKeys()
 }
-
 const loadAttachmentRows = async (fjType?: string) => {
   if (!props.protypeId) return []
   const res = await getAttachList({
@@ -201,24 +184,20 @@ const loadAttachmentRows = async (fjType?: string) => {
   if (!res.success) throw new Error(res.msg)
   return normalizeAttachmentList(res.data)
 }
-
 const refreshAllAttachmentRows = async () => {
   if (!canLoadPersistedAttachments.value) {
     resetFileListMap()
     ensureFileListKeys()
     return
   }
-
   const rows = await loadAttachmentRows()
   applyAllAttachmentRows(rows)
 }
-
 const refreshAttachmentRowsByType = async (fjType: string) => {
   if (!canLoadPersistedAttachments.value) return
   const rows = await loadAttachmentRows(fjType)
   fileListMap[fjType] = rows
 }
-
 const initializeModal = async () => {
   fjLoading.value = true
   try {
@@ -230,30 +209,26 @@ const initializeModal = async () => {
     fjLoading.value = false
   }
 }
-
 const onBeforeHide = () => {
   if (hasActiveUploading.value) {
     ElMessage.warning('请等待所有文件上传完成')
     return false
   }
 }
-
 const handleModalClose = () => {
   resetModalState()
 }
-
 const uploadHandle = async (fjType: AttachmentTypeOption) => {
   if (!props.protypeIds) {
     ElMessage.warning('请先选择要上传的记录')
     return
   }
-
   const $table = tableRefs.value[fjType.code]
   if (!$table) return
-
-  const { files } = await $table.readFile({ multiple: true })
+  const { files } = await $table.readFile({
+    multiple: true
+  })
   if (!files || files.length === 0) return
-
   loadingMap[fjType.code] = true
   try {
     const fileArr = Array.from(files) as File[]
@@ -265,22 +240,18 @@ const uploadHandle = async (fjType: AttachmentTypeOption) => {
       ElMessage.error(`不支持的文件类型: ${invalidFileNames}。支持的文件类型: ${ALLOWED_FILE_TYPES.join('、')}`)
       return
     }
-
     const formData = new FormData()
     for (let i = 0; i < fileArr.length; i++) {
       const file = fileArr[i]
       formData.append('files', file)
     }
-
     const res = await uploadAttach({
       fileNames: fileArr.map((file) => file.name),
       fjType: fjType.code,
       protypeIds: props.protypeIds,
       formData
     })
-
     if (!res.success) throw new Error(res.msg)
-
     ElMessage.success('上传成功')
     if (canLoadPersistedAttachments.value) {
       await refreshAttachmentRowsByType(fjType.code)
@@ -291,18 +262,15 @@ const uploadHandle = async (fjType: AttachmentTypeOption) => {
     loadingMap[fjType.code] = false
   }
 }
-
 const handleDownload = async (row: TemplateAttachmentRow) => {
   if (!row.uuid) {
     ElMessage.warning('附件缺少下载标识')
     return
   }
-
   try {
     const res = await downloadAttach(row.uuid)
     if (!res.success) throw new Error(res.msg || '附件下载失败')
     if (!res.data) throw new Error('附件下载地址为空')
-
     const link = document.createElement('a')
     link.href = res.data
     link.download = getAttachmentName(row)
@@ -313,19 +281,16 @@ const handleDownload = async (row: TemplateAttachmentRow) => {
     ElMessage.error(e.message)
   }
 }
-
 const handleDelete = async (fjType: string, row: TemplateAttachmentRow) => {
   if (!props.singleSelection) return
   if (!hasAttachmentId(row)) {
     ElMessage.warning('附件缺少删除标识')
     return
   }
-
   const type = await VXETable.modal.confirm('确认是否删除？', '温馨提示', {
     status: 'warning'
   })
   if (type !== 'confirm') return
-
   loadingMap[fjType] = true
   try {
     const res = await deleteAttach({
@@ -340,7 +305,6 @@ const handleDelete = async (fjType: string, row: TemplateAttachmentRow) => {
     loadingMap[fjType] = false
   }
 }
-
 watch(
   () => props.modelValue,
   (visibleValue) => {

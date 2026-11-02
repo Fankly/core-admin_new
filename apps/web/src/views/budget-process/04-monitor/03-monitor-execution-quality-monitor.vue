@@ -76,7 +76,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   Coin as EpCoin,
   CollectionTag as EpCollectionTag,
@@ -88,72 +88,71 @@ import {
   Reading as EpReading,
   TurnOff as EpTurnOff
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive, ref } from "vue";
-import QualityMonitoring from "../../../components/quality-monitoring/QualityMonitoring.vue";
-import ReserveEstablishment from "../../../components/quality-monitoring/ReserveEstablishment.vue";
-import Bidding from "../../../components/quality-monitoring/Bidding.vue";
-import echarts from "../../../components/quality-monitoring/echarts.vue";
-
-export default defineComponent({
-  components: {
-    QualityMonitoring,
-    ReserveEstablishment,
-    Bidding,
-    echarts
-  },
-  setup() {
-    const dataOne = ref(["南京", "苏州", "无锡", "常州", "镇江", "扬州", "泰州", "南通"]);
-    const dataTwo = ref(["大中型基建", "小型基建", "工业建筑", "商业建筑", "住宅建筑", "其他"]);
-    return reactive({
-      EpCoin: markElementIconRaw(EpCoin),
-      EpCollectionTag: markElementIconRaw(EpCollectionTag),
-      EpCreditCard: markElementIconRaw(EpCreditCard),
-      EpDataAnalysis: markElementIconRaw(EpDataAnalysis),
-      EpDiscount: markElementIconRaw(EpDiscount),
-      EpFiles: markElementIconRaw(EpFiles),
-      EpPieChart: markElementIconRaw(EpPieChart),
-      EpReading: markElementIconRaw(EpReading),
-      EpTurnOff: markElementIconRaw(EpTurnOff),
-      temShow: "",
-      dataOne,
-      dataTwo
-    });
-  },
-  mounted() {
-    this.changeColor("box-1");
-  },
-  methods: {
-    changeColor(name) {
-      //选中元素的样式
-      this.temShow = name;
-      let box = document.querySelector(`.${name}`);
-      box.classList.add("publicStyle");
-
-      let rightSon = box.querySelector(".box-right");
-      rightSon.classList.add("right");
-
-      if (box.querySelectorAll(".box-left").length > 0) {
-        box.querySelector(".box-left").classList.add("left");
-      }
-
-      //除选中元素外的其他元素
-      let domList = [];
-      let p = box.parentNode.children;
-      for (var i = 0, pl = p.length; i < pl; i++) {
-        if (p[i] !== box) domList.push(p[i]);
-      }
-      domList.forEach((item) => {
-        item.querySelector(".box-right").classList.remove("right");
-        item.classList.remove("publicStyle");
-        if (item.querySelectorAll(".left").length > 0) {
-          item.querySelector(".left").classList.remove("left");
-        }
-      });
-    }
+import { markRaw as markElementIconRaw, reactive, ref, toRef, onMounted } from 'vue'
+import QualityMonitoring from '../../../components/quality-monitoring/QualityMonitoring.vue'
+import ReserveEstablishment from '../../../components/quality-monitoring/ReserveEstablishment.vue'
+import Bidding from '../../../components/quality-monitoring/Bidding.vue'
+import echarts from '../../../components/quality-monitoring/echarts.vue'
+const dataOne = ref(['南京', '苏州', '无锡', '常州', '镇江', '扬州', '泰州', '南通'])
+const dataTwo = ref(['大中型基建', '小型基建', '工业建筑', '商业建筑', '住宅建筑', '其他'])
+const setupState = reactive({
+  EpCoin: markElementIconRaw(EpCoin),
+  EpCollectionTag: markElementIconRaw(EpCollectionTag),
+  EpCreditCard: markElementIconRaw(EpCreditCard),
+  EpDataAnalysis: markElementIconRaw(EpDataAnalysis),
+  EpDiscount: markElementIconRaw(EpDiscount),
+  EpFiles: markElementIconRaw(EpFiles),
+  EpPieChart: markElementIconRaw(EpPieChart),
+  EpReading: markElementIconRaw(EpReading),
+  EpTurnOff: markElementIconRaw(EpTurnOff),
+  temShow: '',
+  dataOne,
+  dataTwo
+})
+const temShow = toRef(setupState, 'temShow')
+function changeColor(name) {
+  //选中元素的样式
+  setupState.temShow = name
+  let box = document.querySelector(`.${name}`)
+  box.classList.add('publicStyle')
+  let rightSon = box.querySelector('.box-right')
+  rightSon.classList.add('right')
+  if (box.querySelectorAll('.box-left').length > 0) {
+    box.querySelector('.box-left').classList.add('left')
   }
-});
+
+  //除选中元素外的其他元素
+  let domList = []
+  let p = box.parentNode.children
+  for (var i = 0, pl = p.length; i < pl; i++) {
+    if (p[i] !== box) domList.push(p[i])
+  }
+  domList.forEach((item) => {
+    item.querySelector('.box-right').classList.remove('right')
+    item.classList.remove('publicStyle')
+    if (item.querySelectorAll('.left').length > 0) {
+      item.querySelector('.left').classList.remove('left')
+    }
+  })
+}
+onMounted(() => {
+  changeColor('box-1')
+})
+defineExpose({
+  EpCoin,
+  EpCollectionTag,
+  EpCreditCard,
+  EpDataAnalysis,
+  EpDiscount,
+  EpFiles,
+  EpPieChart,
+  EpReading,
+  EpTurnOff,
+  temShow,
+  dataOne,
+  dataTwo,
+  changeColor
+})
 </script>
 
 <style lang="less" scoped>

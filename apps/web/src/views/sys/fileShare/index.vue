@@ -273,8 +273,6 @@ import {
   View as EpView,
   Warning as EpWarning
 } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/sys/fileShare/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, onBeforeUnmount, onActivated, ref, computed, nextTick, defineAsyncComponent, markRaw, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -294,6 +292,7 @@ import {
   batchUpdateAttachStatus
 } from '@/api/sys/fileShare'
 import { getPublicData } from '@/api/common'
+defineOptions({ name: "/sys/fileShare/index" })
 
 // 弹窗按需异步加载，降低首屏解析成本
 const remarkModal = defineAsyncComponent(() => import('@/views/sys/fileShare/components/remarkModal/index.vue'))

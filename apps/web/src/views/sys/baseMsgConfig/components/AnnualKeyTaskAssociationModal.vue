@@ -33,13 +33,13 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "AnnualKeyTaskAssociationModal" })
 import { nextTick, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { linkNdzdrw } from '@/api/sys/proCategory'
 import type { UserRole } from '@/components/UserRoleSelector/interface'
 import type { AnnualKeyTaskRowVO } from '@/api/xmInfo/annualKeyTask'
 import AnnualKeyTask from '@/views/xmInfo/annualKeyTask/index.vue'
+defineOptions({ name: "AnnualKeyTaskAssociationModal" })
 
 interface AcceptParams {
   ids: string[]

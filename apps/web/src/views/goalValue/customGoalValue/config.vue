@@ -36,11 +36,6 @@
   ></FormDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/goalValue/customGoalValue/config'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -52,11 +47,13 @@ import { nextTick, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { batchDeleteConfig } from '@/api/goalValue/customGoalValue'
 import { VXETable } from 'vxe-table'
+defineOptions({
+  name: '/goalValue/customGoalValue/config'
+})
 
 export type InitParams = {
   nd: string
 }
-
 const createLatestRequestTracker = () => {
   let current = 0
   return {
@@ -64,39 +61,31 @@ const createLatestRequestTracker = () => {
     isLatest: (token: number) => token === current
   }
 }
-
 const userDialogRef = ref()
 const formDialogRef = ref()
 const treeTableRef = ref()
 const mainTableRef = ref()
 const operationFlag = ref('')
 const userInfo = ref<any>()
-
 const treeParams = ref<any>(null)
 const mainTableData = ref<any>([])
-
 const editData = ref('')
-
 const dialogData = reactive({
   title: ''
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
 const refreshRequestTracker = createLatestRequestTracker()
 const ROOT_PARENT_ID = '0'
-
 const initParams = reactive<InitParams>({
   nd: ''
 })
-
 const setMainTableLoading = (loading: boolean) => {
   if (mainTableRef.value) {
     mainTableRef.value.mainLoading = loading
   }
 }
-
 const clearConfigViewState = () => {
   treeParams.value = null
   mainTableData.value = []
@@ -105,7 +94,6 @@ const clearConfigViewState = () => {
   }
   setMainTableLoading(false)
 }
-
 const deleteDataHandle = async () => {
   const $table = mainTableRef.value.mainTableRef
   if ($table) {
@@ -115,7 +103,6 @@ const deleteDataHandle = async () => {
       return
     }
     let index = records.findIndex((item: any) => String(item.sfqy) === '1')
-
     if (index !== -1) {
       ElMessage.warning('存在启用状态的数据,无法删除！')
       return
@@ -162,10 +149,11 @@ const addOrEditDataHandle = (flag: string) => {
   operationFlag.value = flag
   formDialogRef.value.showModal = true
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   if (isQuery) {
     pageInfo.isShowPage = true
     // 页面显示后树形表格才挂载，主动加载一次数据
@@ -173,7 +161,6 @@ const getRoleHandle = async () => {
     await refreshTreeAndTable()
   }
 }
-
 const refreshTreeAndTable = async () => {
   const requestToken = refreshRequestTracker.issue()
   const $table = treeTableRef.value
@@ -187,22 +174,18 @@ const refreshTreeAndTable = async () => {
   if (!refreshRequestTracker.isLatest(requestToken)) return
   await $table.getTableData(ROOT_PARENT_ID)
 }
-
 const changeNdHandle = async (val: string) => {
   initParams.nd = val || ''
   await refreshTreeAndTable()
 }
-
 const treeTableChangeHandle = (val: any) => {
   treeParams.value = val
 }
-
 const mainTableDataHandle = (val: any[]) => {
   setMainTableLoading(true)
   mainTableData.value = val
   setMainTableLoading(false)
 }
-
 const updateTableHandle = async () => {
   const requestToken = refreshRequestTracker.issue()
   if (!initParams.nd) {
@@ -217,12 +200,12 @@ const updateTableHandle = async () => {
     const curData = treeParams.value || $treeTable?.getCurrentRecord?.()
     const selectId = curData?.id != null && curData?.id !== '' ? String(curData.id) : ROOT_PARENT_ID
     // 刷新前收集祖先路径，懒加载深层节点才能正确恢复
-    const pathIds =
-      typeof $table.collectAncestorPathIds === 'function' ? $table.collectAncestorPathIds(curData) : []
-
-    const selected = await $table.getTreeTable({ selectId, pathIds })
+    const pathIds = typeof $table.collectAncestorPathIds === 'function' ? $table.collectAncestorPathIds(curData) : []
+    const selected = await $table.getTreeTable({
+      selectId,
+      pathIds
+    })
     if (!refreshRequestTracker.isLatest(requestToken)) return
-
     const finalId = selected?.id != null ? String(selected.id) : selectId
     if (selected) {
       treeParams.value = selected
@@ -231,16 +214,13 @@ const updateTableHandle = async () => {
     await $table.getTableData(finalId)
   }
 }
-
 const clearDataHandle = () => {
   editData.value = ''
 }
-
 const initData = () => {
   userDialogRef.value.getUser()
   clearConfigViewState()
 }
-
 onMounted(initData)
 </script>
 

@@ -29,7 +29,6 @@
   <reviewTable ref="reviewTableRef" />
 </template>
 <script setup lang="ts">
-defineOptions({ name: "/service/jointReview/xmOpinionSummary/xmReviewTable" })
 import { onMounted, reactive, ref } from 'vue'
 import reviewTable from '@/views/service/jointReview/xmOpinionSummary/components/reviewTable.vue'
 import { getPublicData, getGkbmInProvince } from '@/api/common'
@@ -43,6 +42,7 @@ import { getAllBatchList } from '@/api/service/IhhsMeeting/approval/batch'
 import baseService from '@/service/baseService'
 import { GlobalInfo } from '@/views/service/jointReview/expertReview/interface'
 import { formatNumValue, pxWidth } from '@/utils/utils'
+defineOptions({ name: "/service/jointReview/xmOpinionSummary/xmReviewTable" })
 
 const userDialogRef = ref()
 const isShowPage = ref(false)

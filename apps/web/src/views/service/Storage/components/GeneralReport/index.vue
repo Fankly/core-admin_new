@@ -1,12 +1,8 @@
-<script lang="ts">
-export default {
-  name: 'GeneralReport'
-}
-</script>
+
 <script setup lang="ts">
 import DynamicReports from '@/components/DynamicReports/index.vue'
 import { getDynamicTableByUser, getDynamicSearchColumn } from '@/api/service/requirement'
-import { ref, defineExpose, reactive, onMounted, computed, withDefaults, defineProps } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Configs, Params } from '@/views/service/xq/interface'
 import { Result, UserInfo, RowVo } from '@/views/service/Storage/interface'
@@ -19,12 +15,14 @@ import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { freezeColumns } from '@/utils/utils'
+defineOptions({
+  name: 'GeneralReport'
+})
 
 interface Tab {
   type: string
   name: string
 }
-
 interface Props {
   searchCode: string
   searchApi: (params: any) => Promise<Result>
@@ -38,7 +36,6 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   freezeLeftCount: 0
 })
-
 const formRef = ref()
 const helpModalRef = ref()
 const isShowModal = ref(false)
@@ -52,13 +49,9 @@ const dynamciSearch = ref<Configs[]>([])
 const searchDatas = ref<any>({})
 const linkLength = ref(0)
 const userInfo = computed(() => props.userInfo)
-
 const checkedData = ref<RowVo[]>([])
-
 const title = '高级设置'
-
 const defaultValueProp = ref<any>({})
-
 const searchData = ref<{
   [key: string]: any
 }>({})
@@ -67,11 +60,9 @@ const page = {
   limit: 20,
   page: 1
 }
-
 const spanComp = computed(() =>
   linkLength.value % 4 === 0 ? 24 : linkLength.value % 4 === 1 ? 18 : linkLength.value % 4 === 2 ? 12 : linkLength.value % 4 === 3 ? 6 : 24
 )
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchDataHandle()
@@ -81,13 +72,11 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchDataHandle()
 }
-
 const processData = reactive({
   isShowDialog: false,
   compName: '',
   id: ''
 })
-
 const processHandle = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -100,7 +89,6 @@ const processHandle = () => {
     }
   }
 }
-
 const exportHandle = () => {
   const exportApi = props.exportApi
   if (!exportApi) return
@@ -130,7 +118,6 @@ const exportHandle = () => {
     loading.value = false
   })
 }
-
 const handleFieldChange = async (prop: string, value: any, column: Configs) => {
   if (prop === 'yjdw') {
     if (value) {
@@ -152,7 +139,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
       }
     }
   }
-
   if (prop === 'yjfl') {
     if (value) {
       const findEjflData: any = dynamciSearch.value.find((search) => search.code === 'ejfl')
@@ -179,7 +165,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
       }
     }
   }
-
   if (prop === 'ejfl') {
     if (value) {
       const findData: any = dynamciSearch.value.find((search) => search.code === 'sjfl')
@@ -201,7 +186,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
     }
   }
 }
-
 const searchDataHandle = async () => {
   const searchApi = props.searchApi
   if (!searchApi) return
@@ -225,7 +209,6 @@ const searchDataHandle = async () => {
     loading.value = false
   }
 }
-
 const initParamsData = async (method: any, params: any): Promise<any[]> => {
   const res = await baseService.post(method, params)
   if (res.success) {
@@ -235,7 +218,6 @@ const initParamsData = async (method: any, params: any): Promise<any[]> => {
     return []
   }
 }
-
 const viewHandle = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -248,7 +230,6 @@ const viewHandle = () => {
     editPageRef.value.isShowModal = true
   }
 }
-
 const resetHandle = () => {
   dynamciSearch.value.forEach((item) => {
     if (item.dependOnColumn) {
@@ -257,7 +238,6 @@ const resetHandle = () => {
       }
     }
   })
-
   for (let valueKey in searchDatas.value) {
     let data = searchDatas.value[valueKey]
     if (Array.isArray(data)) {
@@ -276,7 +256,6 @@ const resetHandle = () => {
   }
   searchDataHandle()
 }
-
 const searchConfigHandle = async () => {
   loading.value = true
   const searchResData = await getDynamicSearchColumn({
@@ -320,7 +299,11 @@ const searchConfigHandle = async () => {
         filterable: true,
         multiple: item.multiple,
         options: [],
-        treeProps: { children: 'children', label: 'name', value: 'id' }
+        treeProps: {
+          children: 'children',
+          label: 'name',
+          value: 'id'
+        }
       }
     })
     for (const item of customData) {
@@ -346,7 +329,6 @@ const searchConfigHandle = async () => {
         }
       }
     }
-
     if (ggdms.length > 0) {
       const initData = await initParamsData('/commonCode/getCommonCode', {
         bmId: userInfo.value.deptId || '',
@@ -364,7 +346,6 @@ const searchConfigHandle = async () => {
     loading.value = false
   }
 }
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   columnConfig: {
@@ -380,7 +361,6 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   },
   columns: []
 })
-
 const getDynamicTable = async () => {
   const res = await getDynamicTableByUser({
     searchCode: searchCode.value
@@ -399,7 +379,6 @@ const getDynamicTable = async () => {
     freezeColumns(gridOptions.columns as any, props.freezeLeftCount)
   }
 }
-
 const showHandle = async () => {
   try {
     loading.value = true
@@ -410,27 +389,22 @@ const showHandle = async () => {
     loading.value = false
   }
 }
-
 onMounted(() => {
   showHandle()
 })
-
 const showModalHandle = () => {
   searchConfigHandle()
   getDynamicTable()
 }
-
 const settingHandle = () => {
   dynamicReportsRef.value.isShowDrawer = true
 }
-
 const checkChangeHandle = ({ records }: any) => {
   checkedData.value = records
 }
 const checkChangeAllHandle = ({ records }: any) => {
   checkedData.value = records
 }
-
 const cellClickHandle = async ({ row, column }: any) => {
   if (column.type === 'checkbox') return
   checkedData.value = []
@@ -438,7 +412,6 @@ const cellClickHandle = async ({ row, column }: any) => {
   gridRef.value.setCheckboxRow(row, true)
   checkedData.value.push(row)
 }
-
 const isChecked = computed(() => checkedData.value && checkedData.value.length === 0)
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true

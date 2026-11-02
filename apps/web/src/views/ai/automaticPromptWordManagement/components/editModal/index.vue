@@ -52,11 +52,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'automaticPromptWordManagementEditModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -64,42 +59,47 @@ import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { getPromptTemplateDetail, saveOrUpdatePromptTemplate } from '@/api/ai/automaticPromptWordManagement'
 import type { PromptTemplateVO } from '@/api/ai/automaticPromptWordManagement'
+defineOptions({
+  name: 'automaticPromptWordManagementEditModal'
+})
 
 /** 弹窗参数 */
 interface ModalParams {
   type: string
   searchParams: Partial<PromptTemplateVO>
 }
-
 interface PromptWordFormData {
   templateId?: string | number | null
   promptCode: string
   promptContent: string
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
 const modalTitle = ref('')
-
-const createEmptyForm = (): PromptWordFormData => ({ templateId: null, promptCode: '', promptContent: '' })
+const createEmptyForm = (): PromptWordFormData => ({
+  templateId: null,
+  promptCode: '',
+  promptContent: ''
+})
 const formData = ref<PromptWordFormData>(createEmptyForm())
-
 const handleClose = () => {
   ruleFormRef.value?.resetFields()
   formData.value = createEmptyForm()
   isShowModal.value = false
 }
-
 const handleSave = () => {
   if (loading.value) return
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -111,7 +111,6 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
       const res = await saveOrUpdatePromptTemplate({
@@ -121,7 +120,9 @@ const handleSave = () => {
       })
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         // 编码重复等校验失败：直接把后端提示抛给用户
@@ -134,7 +135,6 @@ const handleSave = () => {
     }
   })
 }
-
 const acceptParams = async (params: ModalParams) => {
   modalTitle.value = params.type
   formData.value = {
@@ -163,8 +163,9 @@ const acceptParams = async (params: ModalParams) => {
     loading.value = false
   }
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

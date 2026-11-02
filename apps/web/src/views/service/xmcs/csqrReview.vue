@@ -40,7 +40,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/service/xmcs/csqrReview" })
 import { onMounted, ref } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { getBindXmByUser, whyj, zxcsSpReject, zxcsSpSubmit } from '@/api/service/xmcs/index'
@@ -54,6 +53,7 @@ import { VXETable } from 'vxe-table'
 import modalReview from '@/views/service/xmcs/components/modalReview.vue'
 import searchModal from './components/searchModal.vue'
 import { useStore } from '@/store/business'
+defineOptions({ name: "/service/xmcs/csqrReview" })
 
 const store = useStore()
 const userDialogRef = ref()

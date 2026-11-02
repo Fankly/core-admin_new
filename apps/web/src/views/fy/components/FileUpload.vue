@@ -44,12 +44,14 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "FileUpload" })
 import { deleteAttachByUUID, downloadAttach, getAttachList, uploadAttachBatch } from '@/api/fy/common'
 import { ElMessage } from 'element-plus'
-import { reactive, ref, withDefaults, defineProps, defineEmits, defineExpose, toRef } from 'vue'
+import { reactive, ref, toRef } from 'vue'
 import { VXETable } from 'vxe-table'
 import XEUtils from 'xe-utils'
+defineOptions({
+  name: 'FileUpload'
+})
 
 export interface Props {
   isShowModal: boolean
@@ -60,14 +62,12 @@ export interface Props {
   toolButton?: ('save' | 'sigle' | 'multiple' | 'delete' | 'download')[] | boolean // 是否显示
   title: string
 }
-
 interface RowVO {
   fjmc: string
   filesize: string
   instime: string
   file: any
 }
-
 const props = withDefaults(defineProps<Props>(), {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -75,30 +75,26 @@ const props = withDefaults(defineProps<Props>(), {
   busiId: '',
   title: '文件上传'
 })
-
 const showModal = toRef(props, 'isShowModal')
-
 const emit = defineEmits(['close', 'show'])
-
 const tableRef = ref()
-
 const loading = ref(false)
 const fileUpload = reactive({
   data: []
 })
-
 const formatterHandle = ({ cellValue, column }: any) => {
   if (column.field === 'instime') {
     return XEUtils.toDateString(new Date(cellValue))
   }
   return cellValue ? cellValue : ''
 }
-
 const insertEvent = async (isMultiple: boolean) => {
   const $table = tableRef.value
   if ($table) {
     const types = ['doc', 'docx', 'xls', 'xlsx', 'pdf', 'zip']
-    const { files } = await $table.readFile({ multiple: isMultiple })
+    const { files } = await $table.readFile({
+      multiple: isMultiple
+    })
     try {
       const records: RowVO[] = Array.from(files).map((file: any) => {
         const ns = file.name.split('.')
@@ -123,7 +119,6 @@ const insertEvent = async (isMultiple: boolean) => {
     }
   }
 }
-
 const removeSelectEvent = async () => {
   const $table = tableRef.value
   if ($table) {
@@ -145,27 +140,22 @@ const removeSelectEvent = async () => {
     }
   }
 }
-
 const showToolButton = (key: 'save' | 'sigle' | 'multiple' | 'delete' | 'download') => {
   return Array.isArray(props.toolButton) ? props.toolButton.includes(key) : props.toolButton
 }
-
 const closeHandle = () => {
   emit('close', !props.isShowModal)
 }
-
 const showHandle = () => {
   getFileList()
   emit('show')
 }
-
 const getFileList = async () => {
   fileUpload.data.length = 0
   if (!props.busiId) return
   let res = await getAttachList(props.busiId)
   fileUpload.data = res.data
 }
-
 const getInsertEvent = async () => {
   const $table = tableRef.value
   if ($table) {
@@ -208,7 +198,6 @@ const downloadHandle = async (uuid?: string) => {
   window.URL.revokeObjectURL(url)
   loading.value = false
 }
-
 defineExpose({
   ...fileUpload.data
 })

@@ -29,11 +29,7 @@
     </template>
   </vxe-modal>
 </template>
-<script lang="ts">
-export default {
-  name: 'MbzYzxConfigModal'
-}
-</script>
+
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
@@ -41,14 +37,15 @@ import { ElMessage } from 'element-plus'
 import VXETable from 'vxe-table'
 import { mbzYzxConfig } from '@/api/sys/proCategory'
 import { getPublicData } from '@/api/common'
+defineOptions({
+  name: 'MbzYzxConfigModal'
+})
 
 interface AcceptParams {
   ids: string[]
   dwId: string
 }
-
 const emit = defineEmits(['saveDataAfter'])
-
 const formRef = ref()
 const isShowModal = ref(false)
 const sfData = ref<
@@ -65,7 +62,6 @@ const parameter = ref<AcceptParams>({
 const formData = ref({
   mbzYzx: ''
 })
-
 const formRules = reactive({
   mbzYzx: [
     {
@@ -75,20 +71,20 @@ const formRules = reactive({
     }
   ]
 })
-
 const getPublicCode = async () => {
   const res = await getPublicData('GY_SF')
   if (res.success) {
     sfData.value = res.data
   }
 }
-
 const acceptParams = (params: AcceptParams) => {
   getPublicCode()
   isShowModal.value = true
-  parameter.value = { ...parameter.value, ...params }
+  parameter.value = {
+    ...parameter.value,
+    ...params
+  }
 }
-
 const handleSave = async () => {
   await formRef.value.validate()
   try {
@@ -122,7 +118,6 @@ const handleCancel = () => {
   formRef.value.resetFields()
   isShowModal.value = false
 }
-
 defineExpose({
   acceptParams
 })

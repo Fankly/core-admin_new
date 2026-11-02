@@ -16,10 +16,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialTaskDetailTestSearch" })
 import { inject, reactive, ref } from 'vue'
 import { CrudTableRefInjectionKey } from '@/views/suzhou/common/types/crud'
 import type { CrudQueryParams } from '@/views/suzhou/common/types/crud'
+defineOptions({ name: "materialTaskDetailTestSearch" })
 
 const materialTableRef = inject(CrudTableRefInjectionKey, ref())
 

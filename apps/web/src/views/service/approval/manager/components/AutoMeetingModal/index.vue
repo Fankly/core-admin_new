@@ -70,108 +70,306 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ManagerAutoMeetingModal" })
-import { defineExpose, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { VxeGridInstance, VxeGridProps } from 'vxe-table'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { autoMeeting, getProjectList } from '@/api/service/approval/manager'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({
+  name: 'ManagerAutoMeetingModal'
+})
 
 interface ModalProps {
   title: string
   meetingId: string
   search?: () => void
 }
-
 interface ProjectRow {
   xmbm: string
   xmmc: string
   [key: string]: any
 }
-
 const gridRef = ref<VxeGridInstance>()
 const modalVisible = ref(false)
 const loading = ref(false)
 const tableData = ref<ProjectRow[]>([])
 const selectedRows = ref<ProjectRow[]>([])
-
 const modalProps = ref<ModalProps>({
   title: '',
   meetingId: '',
   search: undefined
 })
-
 const searchForm = reactive<Record<string, any>>({
   xmbm: ''
 })
-
 const page = reactive({
   page: 1,
   limit: 20,
   total: 0
 })
-
-const centerConfig = { align: 'center', headerAlign: 'center' } as const
+const centerConfig = {
+  align: 'center',
+  headerAlign: 'center'
+} as const
 const gridOptions = reactive<VxeGridProps<ProjectRow>>({
   border: true,
   height: '100%',
   showOverflow: true,
   showHeaderOverflow: true,
-  checkboxConfig: { trigger: 'row', highlight: true, range: true },
-  rowConfig: { isHover: true, height: 32 },
-  columnConfig: { resizable: true },
+  checkboxConfig: {
+    trigger: 'row',
+    highlight: true,
+    range: true
+  },
+  rowConfig: {
+    isHover: true,
+    height: 32
+  },
+  columnConfig: {
+    resizable: true
+  },
   columns: [
-    { type: 'checkbox', width: 50, fixed: 'left', ...centerConfig },
-    { type: 'seq', width: 60, title: '序号', fixed: 'left', ...centerConfig },
-    { field: 'xmbm', title: '项目编码', width: 180, fixed: 'left', showOverflow: true, ...centerConfig },
-    { field: 'xmmc', title: '项目名称', width: 280, fixed: 'left', showOverflow: true, ...centerConfig },
-    { field: 'isPackName', title: '是否打捆项目', width: 100, ...centerConfig },
-    { field: 'proType', title: '项目类型', width: 280, showOverflow: true, ...centerConfig },
-    { field: 'ysly', title: '预算来源', width: 100, ...centerConfig },
-    { field: 'yjdwName', title: '一级单位', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'ejdwName', title: '二级单位', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'applyCenter', title: '成本中心', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'amount', title: '申报金额（万元）', width: 180, align: 'right', headerAlign: 'center', slots: { default: 'amountSlot' } },
-    { field: 'jhssndName', title: '计划实施年份', width: 140, ...centerConfig },
-    { field: 'zdtxName', title: '重点投向', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'zgkbm', title: '专业部门', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'yssxmc', title: '预算事项名称', width: 280, showOverflow: true, slots: { default: 'yssxmcSlot' }, ...centerConfig },
-    { field: 'remark', title: '预算事项说明', width: 280, showOverflow: true, ...centerConfig },
-    { field: 'yjfl', title: '一级分类', width: 140, ...centerConfig },
-    { field: 'ejfl', title: '二级分类', width: 140, ...centerConfig },
-    { field: 'sjfl', title: '三级分类', width: 140, ...centerConfig },
-    { field: 'fzrbh', title: '实施部门', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'xmssr', title: '项目实施人', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'zyfjftrtjfw', title: '研发投入统计范围', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'zyqcgbm', title: '预期成果', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'jryftrbfb', title: '研发投入百分比', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'bfbjsfssm', title: '百分比说明', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'sfaqsc', title: '是否安全生产', width: 140, ...centerConfig },
-    { field: 'aqscfylx', title: '安全生产费用类型', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'xllx', title: '线路类型', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'dydj', title: '电压等级', width: 140, ...centerConfig },
-    { field: 'ssnr', title: '项目实施内容', width: 280, showOverflow: true, ...centerConfig },
-    { field: 'xmjys', title: '项目建议书（数量）', width: 140, ...centerConfig },
-    { field: 'ky', title: '可研（数量）', width: 140, ...centerConfig },
-    { field: 'pfwj', title: '批复文件（数量）', width: 140, ...centerConfig }
+    {
+      type: 'checkbox',
+      width: 50,
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      type: 'seq',
+      width: 60,
+      title: '序号',
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      field: 'xmbm',
+      title: '项目编码',
+      width: 180,
+      fixed: 'left',
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'xmmc',
+      title: '项目名称',
+      width: 280,
+      fixed: 'left',
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'isPackName',
+      title: '是否打捆项目',
+      width: 100,
+      ...centerConfig
+    },
+    {
+      field: 'proType',
+      title: '项目类型',
+      width: 280,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'ysly',
+      title: '预算来源',
+      width: 100,
+      ...centerConfig
+    },
+    {
+      field: 'yjdwName',
+      title: '一级单位',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'ejdwName',
+      title: '二级单位',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'applyCenter',
+      title: '成本中心',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'amount',
+      title: '申报金额（万元）',
+      width: 180,
+      align: 'right',
+      headerAlign: 'center',
+      slots: {
+        default: 'amountSlot'
+      }
+    },
+    {
+      field: 'jhssndName',
+      title: '计划实施年份',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'zdtxName',
+      title: '重点投向',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'zgkbm',
+      title: '专业部门',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'yssxmc',
+      title: '预算事项名称',
+      width: 280,
+      showOverflow: true,
+      slots: {
+        default: 'yssxmcSlot'
+      },
+      ...centerConfig
+    },
+    {
+      field: 'remark',
+      title: '预算事项说明',
+      width: 280,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'yjfl',
+      title: '一级分类',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'ejfl',
+      title: '二级分类',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'sjfl',
+      title: '三级分类',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'fzrbh',
+      title: '实施部门',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'xmssr',
+      title: '项目实施人',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'zyfjftrtjfw',
+      title: '研发投入统计范围',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'zyqcgbm',
+      title: '预期成果',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'jryftrbfb',
+      title: '研发投入百分比',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'bfbjsfssm',
+      title: '百分比说明',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'sfaqsc',
+      title: '是否安全生产',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'aqscfylx',
+      title: '安全生产费用类型',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'xllx',
+      title: '线路类型',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'dydj',
+      title: '电压等级',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'ssnr',
+      title: '项目实施内容',
+      width: 280,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'xmjys',
+      title: '项目建议书（数量）',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'ky',
+      title: '可研（数量）',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'pfwj',
+      title: '批复文件（数量）',
+      width: 140,
+      ...centerConfig
+    }
   ]
 })
-
 const formatAmount = (value: unknown) => {
   if (value === undefined || value === null || value === '') return '-'
   return formatNumValue(value as string | number, 6)
 }
-
 const clearSelection = () => {
   selectedRows.value = []
   gridRef.value?.clearCheckboxRow()
 }
-
 const resetSearchForm = () => {
   searchForm.xmbm = ''
 }
-
 const resetModalState = () => {
   tableData.value = []
   resetSearchForm()
@@ -180,13 +378,11 @@ const resetModalState = () => {
   page.limit = 20
   page.total = 0
 }
-
 const closeHandle = () => {
   if (loading.value) return
   modalVisible.value = false
   resetModalState()
 }
-
 const loadTable = async () => {
   if (!modalProps.value.meetingId) {
     ElMessage.warning('未获取到会议ID')
@@ -219,40 +415,33 @@ const loadTable = async () => {
     loading.value = false
   }
 }
-
 const searchTable = () => {
   page.page = 1
   loadTable()
 }
-
 const resetSearch = () => {
   resetSearchForm()
   page.page = 1
   loadTable()
 }
-
 const pageChangeHandle = (currentPage: number) => {
   page.page = currentPage
   loadTable()
 }
-
 const limitChangeHandle = (limit: number) => {
   page.page = 1
   page.limit = limit
   loadTable()
 }
-
 const handleSelection = ({ records }: any) => {
   selectedRows.value = records || []
 }
-
 const handleCellClick = async ({ row, column }: any) => {
   if (column.type === 'checkbox') return
   await gridRef.value?.clearCheckboxRow()
   await gridRef.value?.setCheckboxRow(row, true)
   selectedRows.value = [row]
 }
-
 const handleAutoMeeting = async () => {
   if (selectedRows.value.length === 0) {
     ElMessage.warning('请至少选择一条数据进行自动纳会操作!')
@@ -289,14 +478,15 @@ const handleAutoMeeting = async () => {
     loading.value = false
   }
 }
-
 const acceptParams = (params: ModalProps) => {
   resetModalState()
-  modalProps.value = { ...modalProps.value, ...params }
+  modalProps.value = {
+    ...modalProps.value,
+    ...params
+  }
   modalVisible.value = true
   void loadTable()
 }
-
 defineExpose({
   acceptParams
 })

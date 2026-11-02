@@ -102,22 +102,20 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/xmInfo/kmfzpz'
-}
-</script>
+
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import kmfzpzAdd from '@/views/xmInfo/components/kmfzpzAdd.vue'
 import copyKmfzpz from '@/views/xmInfo/components/copyKmfzpz.vue'
 import { computed, onMounted, reactive, ref } from 'vue'
-
 import { getYearData, getYskmTreeData } from '@/api/common'
 import { DataList, deleteData, enableOrDisableData, getDataList } from '@/api/xmInfo/kmfzpz'
 import { ElMessage } from 'element-plus'
 import { VxeColumnPropTypes, VXETable, VxeTablePropTypes } from 'vxe-table'
+defineOptions({
+  name: '/xmInfo/kmfzpz'
+})
 
 interface List {
   ndList: NdList[]
@@ -125,7 +123,6 @@ interface List {
   options: any
   statusList: StatusList[]
 }
-
 interface RowVO {
   itemId: string
   itemName: string
@@ -133,12 +130,10 @@ interface RowVO {
   status: string
   yskmId: string
 }
-
 interface StatusList {
   label: string
   value: string
 }
-
 interface YskmList {
   cnx: string | null
   cnxCode: string | null
@@ -149,39 +144,31 @@ interface YskmList {
   name: string
   pid: string
 }
-
 interface NdList {
   yearName: string
   yearCode: string
 }
-
 const userDialogRef = ref()
 const treeRef = ref()
 const kmfzpzAddRef = ref()
 const copyKmfzpzRef = ref()
-
 const settingLR: ContextProps = reactive({
   minPercent: 20,
   defaultPercent: 20,
   split: 'vertical'
 })
-
 const userInfo = ref()
 const tableRef = ref()
-
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const formData = reactive({
   itemName: '',
   status: ''
 })
-
 const params = reactive({
   nd: ''
 })
-
 const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
   lazy: true,
   hasChildField: 'leafCode',
@@ -198,7 +185,6 @@ const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
     })
   }
 })
-
 const list = reactive<List>({
   ndList: [],
   yskmList: [],
@@ -218,7 +204,6 @@ const list = reactive<List>({
     isLeaf: 'leaf'
   }
 })
-
 const tableInfo = reactive({
   columns: [
     {
@@ -258,20 +243,15 @@ const tableInfo = reactive({
     sort: ''
   }
 })
-
 const treeData = reactive<{
   [key: string]: string
 }>({
   yskmId: '',
   cnxCode: ''
 })
-
 const isDisabled = computed(() => !treeData.yskmId || !treeData.cnxCode)
-
 const isShowEditBtn = computed(() => tableRef.value && tableRef.value.getCheckboxRecords().length !== 1)
-
 const isShowDeleteBtn = computed(() => tableRef.value && tableRef.value.getCheckboxRecords().length === 0)
-
 const changeNdDataHandle = async () => {
   list.yskmList.length = 0
   tableInfo.tableData.length = 0
@@ -279,11 +259,9 @@ const changeNdDataHandle = async () => {
   list.yskmList = yskmList.data
   await resetHandle()
 }
-
 const saveHandle = (params: DataList) => {
   getTableData()
 }
-
 const operationHandle = (flag: string) => {
   tableInfo.operationFlag = flag
   const $table = tableRef.value
@@ -318,7 +296,6 @@ const operationHandle = (flag: string) => {
   }
   kmfzpzAddRef.value.showModal = true
 }
-
 const deleteHandle = async () => {
   const $table = tableRef.value
   if ($table) {
@@ -349,11 +326,9 @@ const deleteHandle = async () => {
     }
   }
 }
-
 const searchHandle = async () => {
   await getTableData()
 }
-
 const resetHandle = async () => {
   formData.itemName = ''
   formData.status = ''
@@ -365,11 +340,9 @@ const resetHandle = async () => {
     await getTableData()
   }
 }
-
 const copyHandle = () => {
   copyKmfzpzRef.value.showModal = true
 }
-
 const isDisableHandle = async (flag: string) => {
   let opeartionFlag = flag === '1' ? '启用' : '停用'
   const $table = tableRef.value
@@ -404,7 +377,6 @@ const isDisableHandle = async (flag: string) => {
     }
   }
 }
-
 const treeNodeClickHandle = async () => {
   const $table = treeRef.value
   if ($table) {
@@ -415,7 +387,6 @@ const treeNodeClickHandle = async () => {
     await getTableData()
   }
 }
-
 const getTableData = async () => {
   tableInfo.loading = true
   let yskmId = treeData.yskmId || params.nd
@@ -428,7 +399,6 @@ const getTableData = async () => {
   tableInfo.tableData = tableData.data
   tableInfo.loading = false
 }
-
 const formatterStatus: VxeColumnPropTypes.Formatter<RowVO> = ({ column, cellValue }) => {
   if (column.field === 'status') {
     const item = list.statusList.find((item: any) => item.value === cellValue)
@@ -436,7 +406,6 @@ const formatterStatus: VxeColumnPropTypes.Formatter<RowVO> = ({ column, cellValu
   }
   return cellValue
 }
-
 const initParams = async () => {
   const ndDataList = await getYearData()
   list.ndList = ndDataList.data
@@ -445,21 +414,20 @@ const initParams = async () => {
   list.yskmList = yskmList.data
   await getTableData()
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   if (isQuery) {
     pageInfo.isShowPage = true
   }
 }
-
 const cellStyle = () => {
   return {
     cursor: 'pointer'
   }
 }
-
 onMounted(() => {
   userDialogRef.value.getUser()
   initParams()

@@ -53,16 +53,10 @@
   </div>
 </template>
 
-<script lang="ts">
-// 每个实例的 listbox / option id 需要全页唯一，供 aria-controls 与 aria-activedescendant 引用。
-let multiSelectSeed = 0
-</script>
-
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 import { Check, ChevronDown } from '@lucide/vue'
 import type { OverviewSelectOption } from '../types'
-
 const props = withDefaults(
   defineProps<{
     modelValue: string[]
@@ -72,11 +66,15 @@ const props = withDefaults(
     /** 已设置非默认值：胶囊改为浅青底，提示条件已生效。 */
     applied?: boolean
   }>(),
-  { disabled: false, applied: false }
+  {
+    disabled: false,
+    applied: false
+  }
 )
-const emit = defineEmits<{ (event: 'update:modelValue', value: string[]): void }>()
-
-const uid = `overview-multi-select-${++multiSelectSeed}`
+const emit = defineEmits<{
+  (event: 'update:modelValue', value: string[]): void
+}>()
+const uid = `overview-multi-select-${useId()}`
 const labelId = `${uid}-label`
 const valueId = `${uid}-value`
 const listId = `${uid}-list`
@@ -84,10 +82,17 @@ const optionId = (index: number) => `${uid}-option-${index}`
 
 // 首项「全部」的 value 用空字符串表示不筛选；单位 / 专业编码不会为空。
 const ALL_VALUE = ''
-const menuOptions = computed<OverviewSelectOption[]>(() => [{ value: ALL_VALUE, label: '全部' }, ...props.options])
+const menuOptions = computed<OverviewSelectOption[]>(() => [
+  {
+    value: ALL_VALUE,
+    label: '全部'
+  },
+  ...props.options
+])
 const isSelected = (value: string) => (value === ALL_VALUE ? !props.modelValue.length : props.modelValue.includes(value))
-
-const selectedLabels = computed(() => props.modelValue.map((value) => props.options.find((option) => option.value === value)?.label ?? value))
+const selectedLabels = computed(() =>
+  props.modelValue.map((value) => props.options.find((option) => option.value === value)?.label ?? value)
+)
 // 多个已选值时胶囊只显示数量，避免长单位名把整行条件挤换行；完整名称放在悬停提示里。
 const valueText = computed(() => {
   if (!props.modelValue.length) return '全部'
@@ -95,16 +100,16 @@ const valueText = computed(() => {
   return `已选 ${selectedLabels.value.length} 项`
 })
 const valueTitle = computed(() => (props.modelValue.length ? selectedLabels.value.join('、') : '全部'))
-
 const rootRef = ref<HTMLElement | null>(null)
 const listRef = ref<HTMLElement | null>(null)
 const open = ref(false)
 const activeIndex = ref(-1)
-
 const scrollActiveIntoView = () => {
   nextTick(() => {
     if (activeIndex.value < 0) return
-    listRef.value?.querySelector<HTMLElement>(`#${optionId(activeIndex.value)}`)?.scrollIntoView({ block: 'nearest' })
+    listRef.value?.querySelector<HTMLElement>(`#${optionId(activeIndex.value)}`)?.scrollIntoView({
+      block: 'nearest'
+    })
   })
 }
 
@@ -113,19 +118,16 @@ const firstSelectedIndex = () => {
   const index = menuOptions.value.findIndex((item) => item.value !== ALL_VALUE && props.modelValue.includes(item.value))
   return index >= 0 ? index : 0
 }
-
 const openMenu = (index = firstSelectedIndex()) => {
   if (props.disabled || !props.options.length) return
   open.value = true
   activeIndex.value = Math.min(Math.max(index, 0), menuOptions.value.length - 1)
   scrollActiveIntoView()
 }
-
 const closeMenu = () => {
   open.value = false
   activeIndex.value = -1
 }
-
 const toggle = () => (open.value ? closeMenu() : openMenu())
 
 // 多选：点「全部」清空，点其它项在已选集合里增删；面板保持展开，便于连续勾选。
@@ -136,10 +138,11 @@ const choose = (index: number) => {
     if (props.modelValue.length) emit('update:modelValue', [])
     return
   }
-  const next = props.modelValue.includes(item.value) ? props.modelValue.filter((value) => value !== item.value) : [...props.modelValue, item.value]
+  const next = props.modelValue.includes(item.value)
+    ? props.modelValue.filter((value) => value !== item.value)
+    : [...props.modelValue, item.value]
   emit('update:modelValue', next)
 }
-
 const moveActive = (index: number) => {
   activeIndex.value = Math.min(Math.max(index, 0), menuOptions.value.length - 1)
   scrollActiveIntoView()
@@ -192,7 +195,6 @@ const handleKeydown = (event: KeyboardEvent) => {
       break
   }
 }
-
 const handleFocusOut = (event: FocusEvent) => {
   if (open.value && !rootRef.value?.contains(event.relatedTarget as Node | null)) closeMenu()
 }

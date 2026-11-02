@@ -50,125 +50,129 @@
     </el-row>
   </el-form>
 </template>
-<script>
+<script setup>
 import ConfigItem from '../ConfigItem/index.vue'
 import { SysGlobalDictController } from '@/api'
 import _ from 'lodash'
-
-export default {
-  components: {
-    ConfigItem
+import { reactive, toRef, toRefs, computed, onMounted, getCurrentInstance, useTemplateRef } from 'vue'
+defineOptions({
+  name: 'FormConfigBox'
+})
+const componentProps = defineProps({
+  config: {
+    // 绑定值
+    type: Object,
+    default: () => ({})
   },
-  props: {
-    config: {
-      // 绑定值
-      type: Object,
-      default: () => ({})
-    },
-    options: {
-      // 表单项
-      type: Array,
-      default: () => []
-    },
-    value: {
-      // 绑定值
-      type: Object,
-      default: () => ({})
-    },
-    modelValue: {
-      // Vue 3 v-model
-      type: Object,
-      default: undefined
-    },
-    onSubmit: {
-      // 绑定值
-      type: Function,
-      default: () => {}
-    },
-    flexWarp: Boolean,
-    readonly: Boolean,
-    disabled: Boolean
+  options: {
+    // 表单项
+    type: Array,
+    default: () => []
   },
-  model: {
-    prop: 'value',
-    event: 'on-model-change'
+  value: {
+    // 绑定值
+    type: Object,
+    default: () => ({})
   },
-  name: 'FormConfigBox',
-  data() {
-    return {
-      objectRefs: {},
-      defaultConfig: {
-        labelWidth: '120px',
-        clearable: true,
-        rules: {}
-      },
-      dictOptions: {}
+  modelValue: {
+    // Vue 3 v-model
+    type: Object,
+    default: undefined
+  },
+  onSubmit: {
+    // 绑定值
+    type: Function,
+    default: () => {}
+  },
+  flexWarp: Boolean,
+  readonly: Boolean,
+  disabled: Boolean
+})
+const emit = defineEmits()
+const componentInstance = getCurrentInstance().proxy
+const formRef = useTemplateRef('form')
+const componentData = reactive({
+  objectRefs: {},
+  defaultConfig: {
+    labelWidth: '120px',
+    clearable: true,
+    rules: {}
+  },
+  dictOptions: {}
+})
+const objectRefs = toRef(componentData, 'objectRefs')
+const defaultConfig = toRef(componentData, 'defaultConfig')
+const dictOptions = toRef(componentData, 'dictOptions')
+componentData.defaultValues = undefined
+const defaultValues = toRef(componentData, 'defaultValues')
+function loadDictDropdownList(dictCode) {
+  return new Promise((resolve, reject) => {
+    let params = {
+      dictCode
     }
-  },
-  created() {
-    this.defaultValues = _.cloneDeep(this.formModel)
-  },
-  mounted() {
-    const dictOptions = this.options || []
-    dictOptions
-      .filter((item) => item?.dict)
-      .forEach((obj) => {
-        this.loadDictDropdownList(obj.dict).then((res) => {
-          this.dictOptions[obj.dict] = obj.optionFormatter ? obj.optionFormatter(res) : res
-        })
+    SysGlobalDictController.listAll(componentInstance, params)
+      .then((res) => {
+        resolve(res?.fullResultList)
       })
-  },
-  methods: {
-    loadDictDropdownList(dictCode) {
-      return new Promise((resolve, reject) => {
-        let params = {
-          dictCode
-        }
-        SysGlobalDictController.listAll(this, params)
-          .then((res) => {
-            resolve(res?.fullResultList)
-          })
-          .catch((e) => {
-            reject(e)
-          })
+      .catch((e) => {
+        reject(e)
       })
-    },
-    handleSubmit(callback = () => {}) {
-      this.$refs.form.validate((valid, errors) => {
-        if (valid) {
-          callback(this.formModel)
-          this.onSubmit(this.formModel)
-        }
-      })
-    },
-    validate(callback = () => {}) {
-      this.$refs.form.validate((valid, errors) => {
-        callback(valid, errors)
-      })
-    },
-    handleReset() {
-      this.$refs.form.resetFields()
-      const newObj = _.cloneDeep(this.defaultValues)
-      this.emitModelChange(newObj)
-    },
-    emitModelChange(value) {
-      this.$emit('update:modelValue', value)
-      this.$emit('on-model-change', value)
-    }
-  },
-  computed: {
-    formModel() {
-      return this.modelValue ?? this.value
-    },
-    _config() {
-      return {
-        ...this.defaultConfig,
-        ...this.config
-      }
-    }
-  },
-  watch: {}
+  })
 }
+function handleSubmit(callback = () => {}) {
+  formRef.value.validate((valid, errors) => {
+    if (valid) {
+      callback(formModel.value)
+      componentProps.onSubmit(formModel.value)
+    }
+  })
+}
+function validate(callback = () => {}) {
+  formRef.value.validate((valid, errors) => {
+    callback(valid, errors)
+  })
+}
+function handleReset() {
+  formRef.value.resetFields()
+  const newObj = _.cloneDeep(componentData.defaultValues)
+  emitModelChange(newObj)
+}
+function emitModelChange(value) {
+  emit('update:modelValue', value)
+  emit('on-model-change', value)
+}
+const formModel = computed(() => {
+  return componentProps.modelValue ?? componentProps.value
+})
+const _config = computed(() => {
+  return {
+    ...componentData.defaultConfig,
+    ...componentProps.config
+  }
+})
+onMounted(() => {
+  const dictOptions = componentProps.options || []
+  dictOptions
+    .filter((item) => item?.dict)
+    .forEach((obj) => {
+      loadDictDropdownList(obj.dict).then((res) => {
+        componentData.dictOptions[obj.dict] = obj.optionFormatter ? obj.optionFormatter(res) : res
+      })
+    })
+})
+;(() => {
+  componentData.defaultValues = _.cloneDeep(formModel.value)
+})()
+defineExpose({
+  loadDictDropdownList,
+  handleSubmit,
+  validate,
+  handleReset,
+  emitModelChange,
+  ...toRefs(componentData),
+  formModel,
+  _config
+})
 </script>
 <style lang="less" scoped>
 .FormConfigBox {

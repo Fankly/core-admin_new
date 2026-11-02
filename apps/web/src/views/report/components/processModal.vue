@@ -25,47 +25,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineExpose, defineProps } from "vue";
-import { getProgressDataByType } from "@/api/report";
-
+import { ref } from 'vue'
+import { getProgressDataByType } from '@/api/report'
 interface Props {
-  clickTableData: any;
+  clickTableData: any
 }
-
-const props = defineProps<Props>();
-
-const tableData = ref([]);
-const tableRef = ref();
-
-const isShowModal = ref(false);
-
+const props = defineProps<Props>()
+const tableData = ref([])
+const tableRef = ref()
+const isShowModal = ref(false)
 const exportHandle = () => {
-  const $table = tableRef.value;
+  const $table = tableRef.value
   if ($table) {
     $table.exportData({
-      sheetName: "成本性项目三率报表-按类型-进度指标",
-      type: "xlsx",
-      filename: "成本性项目三率报表-按类型-进度指标",
+      sheetName: '成本性项目三率报表-按类型-进度指标',
+      type: 'xlsx',
+      filename: '成本性项目三率报表-按类型-进度指标',
       useStyle: true
-    });
+    })
   }
-};
-
+}
 const showHandle = async () => {
   const res = await getProgressDataByType({
     dwId: props.clickTableData.dw_id,
     startDate: props.clickTableData.startDate,
     endDate: props.clickTableData.endDate,
     xmlxId: props.clickTableData.xmlx_id
-  });
+  })
   if (res.success) {
-    tableData.value = res.data;
+    tableData.value = res.data
   }
-};
-
+}
 defineExpose({
   isShowModal
-});
+})
 </script>
 
 <style scoped lang="less">

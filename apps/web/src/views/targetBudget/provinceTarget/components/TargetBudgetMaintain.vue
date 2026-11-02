@@ -231,14 +231,13 @@
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
-
-defineOptions({ name: "TargetBudgetmaintain" })
 import { ref } from 'vue'
 import { useTargetBudgetMaintain } from './hooks/useTargetBudgetMaintain'
 import ImportExcel from '@/components/ImportExcel/index.vue'
 import ProjectDetailAddModal from './ProjectDetailAddModal.vue'
 import TargetControlAdjustmentModal from './TargetControlAdjustmentModal.vue'
 import TargetBudgetAttachments from './TargetBudgetAttachments.vue'
+defineOptions({ name: "TargetBudgetmaintain" })
 
 interface TargetBudgetMaintainProps {
   search: () => void

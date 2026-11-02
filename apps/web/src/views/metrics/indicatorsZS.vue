@@ -35,25 +35,31 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="tsx">
-export default {
-  name: '/metrics/indicatorsZS'
-}
-</script>
+
 <script setup lang="tsx">
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import userDialog from '@/components/select/userDialog.vue'
+import proTable from '@/components/ProTable/index.vue'
 import { onMounted, ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getOfficialData } from '@/api/metrics/index'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import { exportXlsx } from '@/utils/export'
+defineOptions({
+  name: '/metrics/indicatorsZS'
+})
+ //权限弹框
+ //表格组件
+
+ //公共代码
 
 const userDialogRef = ref() // 用户角色
 const loading = ref(false)
 const isShowPage = ref(false) //未选择角色前不展示页面
 const tabList = ref<any>([])
-const fromParms = reactive<any>({ nd: '', yd: '' }) //接口入参
+const fromParms = reactive<any>({
+  nd: '',
+  yd: ''
+}) //接口入参
 const currentYearMonth = ref<any>('') //当前年月
 const tabMsg = ref('1') //当前页签位置
 const tableDWRef = ref() //按单位ref
@@ -76,12 +82,14 @@ const getCurrentMonth = () => {
 const handlerBtn = async (selectedList: any) => {
   const text: any = tabMsg.value == '1' ? '按单位' : '按类型'
   //导出的数据
-  const dataList: any = (tabMsg.value == '1' ? tableDataDW.value : tableDataLX.value).map(({ statItem, wcz, statValue, lastStatValue }: any) => ({
-    statItem,
-    wcz,
-    statValue,
-    lastStatValue
-  }))
+  const dataList: any = (tabMsg.value == '1' ? tableDataDW.value : tableDataLX.value).map(
+    ({ statItem, wcz, statValue, lastStatValue }: any) => ({
+      statItem,
+      wcz,
+      statValue,
+      lastStatValue
+    })
+  )
   // 导出的表头
   const headerList = (tabMsg.value == '1' ? DWColumns : XMColumns).map(({ label }: any) => label)
   exportXlsx(headerList, dataList, `${text}成本性项目预算结算率统计指标表.xlsx`)
@@ -105,7 +113,11 @@ const getRoleHandle = async () => {
 }
 // 按单位列表项
 const DWColumns = reactive<any>([
-  { prop: 'statItem', label: '单位', width: '280' },
+  {
+    prop: 'statItem',
+    label: '单位',
+    width: '280'
+  },
   {
     prop: 'wcz',
     label: '完成值(万元)',
@@ -113,12 +125,24 @@ const DWColumns = reactive<any>([
     headerAlign: 'center',
     width: '120'
   },
-  { prop: 'statValue', label: '当年结算率(%)', width: '180' },
-  { prop: 'lastStatValue', label: '同期结算率(%)', width: '180' }
+  {
+    prop: 'statValue',
+    label: '当年结算率(%)',
+    width: '180'
+  },
+  {
+    prop: 'lastStatValue',
+    label: '同期结算率(%)',
+    width: '180'
+  }
 ])
 // 按类型列表项
 const XMColumns = reactive<any>([
-  { prop: 'statItem', label: '项目类型', width: '280' },
+  {
+    prop: 'statItem',
+    label: '项目类型',
+    width: '280'
+  },
   {
     prop: 'wcz',
     label: '完成值(万元)',
@@ -126,8 +150,16 @@ const XMColumns = reactive<any>([
     headerAlign: 'center',
     width: '120'
   },
-  { prop: 'statValue', label: '当年结算率(%)', width: '180' },
-  { prop: 'lastStatValue', label: '同期结算率(%)', width: '180' }
+  {
+    prop: 'statValue',
+    label: '当年结算率(%)',
+    width: '180'
+  },
+  {
+    prop: 'lastStatValue',
+    label: '同期结算率(%)',
+    width: '180'
+  }
 ])
 const initParamLists = async () => {
   // 获取公共代码
@@ -144,8 +176,14 @@ const getDataApi = async () => {
     const yearAndMonth: any = currentYearMonth.value.split('-')
     fromParms.nd = yearAndMonth[0]
     fromParms.yd = Number(yearAndMonth[1])
-    let res: any = await getOfficialData({ ...fromParms, statType: '1' })
-    let root: any = await getOfficialData({ ...fromParms, statType: '2' })
+    let res: any = await getOfficialData({
+      ...fromParms,
+      statType: '1'
+    })
+    let root: any = await getOfficialData({
+      ...fromParms,
+      statType: '2'
+    })
     if (res.success && root.success) {
       loading.value = false
       numReturn(res.data)

@@ -39,25 +39,27 @@
   </div>
   <CentralizedModification :get-api="'LHHS'" ref="editPageRef" :userInfo="userInfo" :formData="selectData" :flag="'VIEW'"></CentralizedModification>
 </template>
-<script lang="tsx">
-export default {
-  name: '/service/ywpt/reportReview'
-}
-</script>
+
 <script setup lang="tsx">
 import { ArrowDown as EpArrowDown, ArrowRight as EpArrowRight } from '@element-plus/icons-vue'
-
 import { onActivated, ref, reactive, nextTick, watch, onMounted } from 'vue'
 import { pageExpertReviewInfo, leaderReviewPageXmInfo, leaderReviewExportXmInfo } from '@/api/service/jointReview'
 import { ElNotification, ElMessage } from 'element-plus'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
 import { formatNumValue } from '@/utils/utils'
 import { getEjdwData, getYjdwData } from '@/api/service/expertinformation'
-import expertReview from '@/views/service/ywpt/components/expertReview.vue' //专家评审信息
+import expertReview from '@/views/service/ywpt/components/expertReview.vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { useRoute } from 'vue-router'
 import { decrypt } from '@/utils/crypto'
+defineOptions({
+  name: '/service/ywpt/reportReview'
+})
+
+ //表格组件
+
+ //专家评审信息
 
 // 初始化页面
 const loading = ref(false) //接口调用加载中。。。
@@ -71,7 +73,6 @@ var timer: any
 const isShowTable = ref(true) //显示表格
 const isShowData = ref(true)
 const route = useRoute()
-
 const userInfo = ref<any>()
 const levelOne = ref<any>([]) // 一级单位
 const levelTwo = ref<any>([]) // 二级单位
@@ -216,19 +217,41 @@ const exportHandle = (selectedList: any) => {
     loading.value = false
   })
 }
-
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'review_expert_name', label: '专家组长', width: '80' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'review_expert_name',
+    label: '专家组长',
+    width: '80'
+  },
   {
     prop: 'review_opinion',
     label: '终评意见',
     width: '120'
   },
-  { prop: 'review_reason', label: '终评意见说明', width: '200' },
-  { prop: 'review_time', label: '终评时间', width: '150' },
-  { prop: 'sfthName', label: '是否退回', width: '80' },
+  {
+    prop: 'review_reason',
+    label: '终评意见说明',
+    width: '200'
+  },
+  {
+    prop: 'review_time',
+    label: '终评时间',
+    width: '150'
+  },
+  {
+    prop: 'sfthName',
+    label: '是否退回',
+    width: '80'
+  },
   {
     prop: 'xmbm',
     label: '项目编码',
@@ -244,19 +267,47 @@ const tableColumns = reactive<any>([
     prop: 'xmmc',
     label: '项目名称',
     width: '180',
-    search: { el: 'input', order: 2 }
+    search: {
+      el: 'input',
+      order: 2
+    }
   },
-  { prop: 'sfgmb', label: '是否规模包', width: '100' },
-  { prop: 'gmbbm', label: '规模包编码', width: '180' },
-  { prop: 'gmbmc', label: '规模包名称', width: '200' },
-  { prop: 'pro_type_name', label: '项目类型', width: '280' },
+  {
+    prop: 'sfgmb',
+    label: '是否规模包',
+    width: '100'
+  },
+  {
+    prop: 'gmbbm',
+    label: '规模包编码',
+    width: '180'
+  },
+  {
+    prop: 'gmbmc',
+    label: '规模包名称',
+    width: '200'
+  },
+  {
+    prop: 'pro_type_name',
+    label: '项目类型',
+    width: '280'
+  },
   {
     prop: 'yjdw',
     label: '一级单位',
     width: '180',
-    search: { el: 'select', props: { onChange: selectChange }, order: 3 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: selectChange
+      },
+      order: 3
+    },
     enum: levelOne.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.yjdw
     }
@@ -264,15 +315,25 @@ const tableColumns = reactive<any>([
   {
     prop: 'ejdw',
     label: '二级单位',
-    search: { el: 'select', order: 4 },
+    search: {
+      el: 'select',
+      order: 4
+    },
     enum: levelTwo.value,
     width: '180',
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.ejdw
     }
   },
-  { prop: 'apply_center', label: '成本中心', width: '280' },
+  {
+    prop: 'apply_center',
+    label: '成本中心',
+    width: '280'
+  },
   {
     prop: 'amount',
     label: '申报金额（万元）',
@@ -285,28 +346,116 @@ const tableColumns = reactive<any>([
       return formatNumValue(value, 6)
     }
   },
-  { prop: 'jhssnd', label: '计划实施年份', width: '140' },
-  { prop: 'zdtx', label: '重点投向', width: '180' },
-  { prop: 'zgkbm', label: '省归口部门', width: '180' },
-  { prop: 'yssxmc', label: '预算事项名称', width: '200' },
-  { prop: 'yssx_remark', label: '预算事项说明', width: '280' },
-  { prop: 'yjfl', label: '一级分类', width: '140' },
-  { prop: 'ejfl', label: '二级分类', width: '140' },
-  { prop: 'sjfl', label: '三级分类', width: '140' },
-  { prop: 'ssbm', label: '实施部门', width: '180' },
-  { prop: 'xmssr', label: '项目实施人', width: '180' },
-  { prop: 'zyfjftrtjfw', label: '研发投入统计范围', width: '180' },
-  { prop: 'zyqcg', label: '预期成果', width: '180' },
-  { prop: 'jryftrbfb', label: '研发投入百分比', width: '180' },
-  { prop: 'bfbjsfssm', label: '百分比说明', width: '180' },
-  { prop: 'sfaqsc', label: '是否安全生产', width: '140' },
-  { prop: 'aqscfylx', label: '安全生产费用类型', width: '180' },
-  { prop: 'xllx', label: '线路类型', width: '140' },
-  { prop: 'dydj', label: '电压等级', width: '140' },
-  { prop: 'ssnr', label: '项目实施内容', width: '280' },
-  { prop: 'fj1', label: '项目建议书（数量）', width: '140' },
-  { prop: 'fj2', label: '可研（数量）', width: '140' },
-  { prop: 'fj3', label: '批复文件（数量）', width: '140' }
+  {
+    prop: 'jhssnd',
+    label: '计划实施年份',
+    width: '140'
+  },
+  {
+    prop: 'zdtx',
+    label: '重点投向',
+    width: '180'
+  },
+  {
+    prop: 'zgkbm',
+    label: '省归口部门',
+    width: '180'
+  },
+  {
+    prop: 'yssxmc',
+    label: '预算事项名称',
+    width: '200'
+  },
+  {
+    prop: 'yssx_remark',
+    label: '预算事项说明',
+    width: '280'
+  },
+  {
+    prop: 'yjfl',
+    label: '一级分类',
+    width: '140'
+  },
+  {
+    prop: 'ejfl',
+    label: '二级分类',
+    width: '140'
+  },
+  {
+    prop: 'sjfl',
+    label: '三级分类',
+    width: '140'
+  },
+  {
+    prop: 'ssbm',
+    label: '实施部门',
+    width: '180'
+  },
+  {
+    prop: 'xmssr',
+    label: '项目实施人',
+    width: '180'
+  },
+  {
+    prop: 'zyfjftrtjfw',
+    label: '研发投入统计范围',
+    width: '180'
+  },
+  {
+    prop: 'zyqcg',
+    label: '预期成果',
+    width: '180'
+  },
+  {
+    prop: 'jryftrbfb',
+    label: '研发投入百分比',
+    width: '180'
+  },
+  {
+    prop: 'bfbjsfssm',
+    label: '百分比说明',
+    width: '180'
+  },
+  {
+    prop: 'sfaqsc',
+    label: '是否安全生产',
+    width: '140'
+  },
+  {
+    prop: 'aqscfylx',
+    label: '安全生产费用类型',
+    width: '180'
+  },
+  {
+    prop: 'xllx',
+    label: '线路类型',
+    width: '140'
+  },
+  {
+    prop: 'dydj',
+    label: '电压等级',
+    width: '140'
+  },
+  {
+    prop: 'ssnr',
+    label: '项目实施内容',
+    width: '280'
+  },
+  {
+    prop: 'fj1',
+    label: '项目建议书（数量）',
+    width: '140'
+  },
+  {
+    prop: 'fj2',
+    label: '可研（数量）',
+    width: '140'
+  },
+  {
+    prop: 'fj3',
+    label: '批复文件（数量）',
+    width: '140'
+  }
 ])
 </script>
 <style scoped lang="less">

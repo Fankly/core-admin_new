@@ -456,10 +456,10 @@
   </singleContainer>
 </template>
 
-<script>
-import { projectConfigMixin, uploadMixin, statsDateRangeMixin, cachedSinglePageMixin } from '@/core/mixins'
+<script setup>
+import { TAB_KEYS } from './index.module'
+import '@/core/mixins'
 import configText from './components/configText.vue'
-
 import {
   CwProjectAssetDiff,
   CwProjectDiff,
@@ -469,7 +469,6 @@ import {
   CwProjectApprove,
   CwProjectItemDiff
 } from '@/api/mainController'
-
 import rejectReason from './components/RejectReason/index.vue'
 import similarAnalysis from './components/similarAnalysis_new.vue'
 import sameItemAnalysis from './components/sameItemAnalysis.vue'
@@ -477,986 +476,1209 @@ import projectView from './components/projectView.vue'
 import similarSetting from './components/similarSetting.vue'
 import projectViewItem from './components/projectViewItem.vue'
 import ApprovalConfirmDialog from './ApprovalConfirmDialog.vue'
-
 import projectSSE from './components/projectSSE/index.vue'
-
-import { mapGetters, mapMutations } from '@/store/business'
 import _ from 'lodash'
 
 // 抽取所有Tab关联项避免硬编码
-const TAB_KEYS = {
-  PROJECT_INFO: '1',
-  NECESSITY: '2',
-  SIMILAR: '3',
-  APPROVAL_RECORD: '4',
-  NAME_ANALYZE: '5',
-  THREE_AREA: '6',
-  THREE_ONE: '7',
-  ASSET_COMP: '8',
-  SIMILAR_2: '9'
-}
-
-export default {
-  components: {
-    // configText,
-    projectView,
-    similarAnalysis,
-    // sameItemAnalysis,
-    // projectViewItem,
-    projectSSE
+import componentStore from '@/store/business'
+import { useProjectConfig, useUpload, useStatsDateRange, useCachedSinglePage } from '@/core/composables/useWorkspace'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  computed,
+  proxyRefs,
+  toRef,
+  nextTick,
+  reactive,
+  toRefs,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  onActivated,
+  onDeactivated,
+  getCurrentInstance,
+  useTemplateRef
+} from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+defineOptions({
+  name: '/finance/reserveApprovalDetailTest'
+})
+const componentProps = defineProps({
+  // originCallback: {
+  //   type: [Function]
+  // }
+  _key: {
+    type: [Number, String],
+    default: undefined
   },
-  props: {
-    id: { type: String },
-    listKey: { type: String },
-    // 指定审批角色（抽屉/嵌入场景使用，路由场景仍优先读取 query.approvalRole）
-    approvalRole: { type: String },
-    // 嵌入模式（如在抽屉中打开），隐藏页面内的返回按钮，交由外层容器关闭
-    embedded: { type: Boolean, default: false }
+  _origin: {
+    type: String
   },
-  name: '/finance/reserveApprovalDetailTest',
-  mixins: [projectConfigMixin, uploadMixin, statsDateRangeMixin, cachedSinglePageMixin],
-  data() {
-    return {
-      projectRiskData: {},
-      TAB_KEYS,
-      tabInfo: {
-        [TAB_KEYS.PROJECT_INFO]: { label: '项目信息', tooltip: '' },
-        // [TAB_KEYS.NAME_ANALYZE]: { label: '项目名称分析', tooltip: '基于向量化相似对比分析，对项目名称进行重名及语义比对，识别重复或变相重复申报项目。' },
-        [TAB_KEYS.NECESSITY]: {
-          label: '实施内容合理性分析',
-          tooltip: '基于AI推理能力对申报内容进行结构化理解，评估完整性、合理性与逻辑一致性，判断项目实施必要性。'
-        },
-        [TAB_KEYS.SIMILAR]: {
-          label: '相似分析',
-          tooltip: '利用AI语义建模与相似度推理，对实施内容进行深度比对分析，识别重复或高度相似项目。'
-        },
-        [TAB_KEYS.THREE_ONE]: {
-          label: '关联资产及费用合理性分析',
-          tooltip: '比对定额、历史与行业价，识别单价异常风险；挂钩固定资产卡片，识别资本性支出费用化风险。'
-        },
-        [TAB_KEYS.ASSET_COMP]: {
-          label: '资产级设备判别',
-          tooltip: '基于AI语义识别与知识匹配能力，解析物资清单并对标固定资产同源目录，甄别资产级设备。'
-        },
-        [TAB_KEYS.THREE_AREA]: { label: '三区三县比对', tooltip: '' },
-        [TAB_KEYS.APPROVAL_RECORD]: { label: '审批记录', tooltip: '' },
-        [TAB_KEYS.SIMILAR_2]: {
-          label: '相似分析（按事项）',
-          tooltip: '利用AI语义建模与相似度推理，对实施内容进行深度比对分析，识别重复或高度相似项目。'
-        }
-      },
-
-      // 用于存放打字机逐步输出的数据对象
-      streamedData: {
-        nameAnalyze_coreResult: '',
-        nameAnalyze_analysisInfo: '',
-        threeOne_analyseAsset: '',
-        threeOne_coreResult: '',
-        threeOne_analysisInfo: '',
-        assetComp_coreResult: '',
-        assetComp_analysisInfo: ''
-      },
-      typewriterTimers: {},
-
-      // 用于控制动画时机的状态 (懒加载核心)
-      rawAiData: {
-        necessity: null,
-        threeOne: null,
-        assetComp: null
-      },
-      hasAnimated: {
-        [TAB_KEYS.NECESSITY]: false,
-        [TAB_KEYS.THREE_ONE]: false,
-        [TAB_KEYS.ASSET_COMP]: false
-      },
-      typewriterDone: {
-        [TAB_KEYS.THREE_ONE]: false,
-        [TAB_KEYS.ASSET_COMP]: false
-      },
-
-      data: [],
-      data2: [],
-      reserveStatus: [],
-      sameItemList: [],
-      detailData: undefined,
-      sameItemData: undefined,
-      diffData: undefined,
-      currentSimilarType: null,
-      indexStatus: undefined,
-      activeName: TAB_KEYS.NECESSITY,
-      dataValue: {},
-      projectViewData: {},
-      approvalList: [],
-      nameAnalyzeList: [],
-      assetComparisonObj: {},
-      assistCheckList: undefined,
-      unmountScrollSync: undefined,
-      analysisTableData: [],
-      threeOneDiffData: {},
-      nameAnalyzeObj: {},
-      nameAnalyzeLoading: {
-        ratioAnalysis: true,
-        assetComparison: true,
-        necessityAnalysis: true
-      },
-
-      // AI Loading 状态
-      aiLoadingState: {
-        nameAnalyze: false,
-        threeOne: false,
-        assetComparison: false
-      },
-      aiLoadingTimers: {
-        nameAnalyze: false,
-        threeOne: false,
-        assetComparison: false
-      },
-      // 用于轮询查询的定时器
-      aiPollingTimers: {
-        nameAnalyze: null,
-        threeOne: null,
-        assetComparison: null
-      },
-      preNextIds: { nextId: false, preId: false },
-      pageRoleMap: {
-        deptApprovalDetail: {
-          apiSuffix: 'dept',
-          preNextApi: 'deptPreNext',
-          needConfirmDialog: false,
-          isNeedFinishOperate: false,
-          showSettingBtn: false,
-          routeName: 'deptApprovalDetail'
-        },
-        financeApprovalDetail: {
-          apiSuffix: 'finance',
-          preNextApi: 'financePreNext',
-          needConfirmDialog: true,
-          isNeedFinishOperate: true,
-          showSettingBtn: true,
-          routeName: 'financeApprovalDetail'
-        },
-        jysApprovalDetail: {
-          apiSuffix: 'jys',
-          preNextApi: 'jysPreNext',
-          needConfirmDialog: true,
-          isNeedFinishOperate: false,
-          showSettingBtn: false,
-          routeName: 'jysApprovalDetail'
-        },
-        fzbApprovalDetail: {
-          apiSuffix: 'fzb',
-          preNextApi: 'fzbPreNext',
-          needConfirmDialog: true,
-          isNeedFinishOperate: false,
-          showSettingBtn: false,
-          routeName: 'fzbApprovalDetail'
-        }
-      }
+  id: {
+    type: String
+  },
+  listKey: {
+    type: String
+  },
+  // 指定审批角色（抽屉/嵌入场景使用，路由场景仍优先读取 query.approvalRole）
+  approvalRole: {
+    type: String
+  },
+  // 嵌入模式（如在抽屉中打开），隐藏页面内的返回按钮，交由外层容器关闭
+  embedded: {
+    type: Boolean,
+    default: false
+  }
+})
+const componentInstance = getCurrentInstance().proxy
+const route = useRoute()
+const router = useRouter()
+const similarAnalysisRef = useTemplateRef('similarAnalysis')
+const similarAnalysis2Ref = useTemplateRef('similarAnalysis2')
+const projectViewRef = useTemplateRef('projectView')
+const ProjectConfigState = proxyRefs(useProjectConfig())
+const openAdmin = toRef(ProjectConfigState, 'openAdmin')
+const UploadState = proxyRefs(useUpload())
+const parseUploadData = toRef(UploadState, 'parseUploadData')
+const getPictureList = toRef(UploadState, 'getPictureList')
+const fileListToJson = toRef(UploadState, 'fileListToJson')
+const getUploadFileUrl = toRef(UploadState, 'getUploadFileUrl')
+const filterEmptyValues = toRef(UploadState, 'filterEmptyValues')
+const getUploadFileUrlByFetch = toRef(UploadState, 'getUploadFileUrlByFetch')
+const getUploadActionUrl = toRef(UploadState, 'getUploadActionUrl')
+const pictureFile = toRef(UploadState, 'pictureFile')
+const getUploadHeaders = toRef(UploadState, 'getUploadHeaders')
+const StatsDateRangeState = proxyRefs(useStatsDateRange())
+const getDateRangeFilter = toRef(StatsDateRangeState, 'getDateRangeFilter')
+const formatDateByStatsType = toRef(StatsDateRangeState, 'formatDateByStatsType')
+const formatDateTime = toRef(StatsDateRangeState, 'formatDateTime')
+const getStatsTypeShowName = toRef(StatsDateRangeState, 'getStatsTypeShowName')
+const getAllowStatsTypeList = toRef(StatsDateRangeState, 'getAllowStatsTypeList')
+const CachedSinglePageState = proxyRefs(useCachedSinglePage(componentProps))
+const routerPush = toRef(CachedSinglePageState, 'routerPush')
+const singlePageReload = toRef(CachedSinglePageState, 'singlePageReload')
+const oncancel = toRef(CachedSinglePageState, 'oncancel')
+const refreshUrlParams = toRef(CachedSinglePageState, 'refreshUrlParams')
+const savedKey = toRef(CachedSinglePageState, 'savedKey')
+const componentData = reactive({
+  projectRiskData: {},
+  TAB_KEYS,
+  tabInfo: {
+    [TAB_KEYS.PROJECT_INFO]: {
+      label: '项目信息',
+      tooltip: ''
+    },
+    // [TAB_KEYS.NAME_ANALYZE]: { label: '项目名称分析', tooltip: '基于向量化相似对比分析，对项目名称进行重名及语义比对，识别重复或变相重复申报项目。' },
+    [TAB_KEYS.NECESSITY]: {
+      label: '实施内容合理性分析',
+      tooltip: '基于AI推理能力对申报内容进行结构化理解，评估完整性、合理性与逻辑一致性，判断项目实施必要性。'
+    },
+    [TAB_KEYS.SIMILAR]: {
+      label: '相似分析',
+      tooltip: '利用AI语义建模与相似度推理，对实施内容进行深度比对分析，识别重复或高度相似项目。'
+    },
+    [TAB_KEYS.THREE_ONE]: {
+      label: '关联资产及费用合理性分析',
+      tooltip: '比对定额、历史与行业价，识别单价异常风险；挂钩固定资产卡片，识别资本性支出费用化风险。'
+    },
+    [TAB_KEYS.ASSET_COMP]: {
+      label: '资产级设备判别',
+      tooltip: '基于AI语义识别与知识匹配能力，解析物资清单并对标固定资产同源目录，甄别资产级设备。'
+    },
+    [TAB_KEYS.THREE_AREA]: {
+      label: '三区三县比对',
+      tooltip: ''
+    },
+    [TAB_KEYS.APPROVAL_RECORD]: {
+      label: '审批记录',
+      tooltip: ''
+    },
+    [TAB_KEYS.SIMILAR_2]: {
+      label: '相似分析（按事项）',
+      tooltip: '利用AI语义建模与相似度推理，对实施内容进行深度比对分析，识别重复或高度相似项目。'
     }
   },
-  created() {},
-  mounted() {
-    this.getReserveStatus()
-    this.refreshTable(true)
-    this.getPreNextStatus()
+  // 用于存放打字机逐步输出的数据对象
+  streamedData: {
+    nameAnalyze_coreResult: '',
+    nameAnalyze_analysisInfo: '',
+    threeOne_analyseAsset: '',
+    threeOne_coreResult: '',
+    threeOne_analysisInfo: '',
+    assetComp_coreResult: '',
+    assetComp_analysisInfo: ''
   },
-  activated() {
-    // 因为你在上面修改了 loadTabIfNeeded，它已经具备了识别 status === 0 并重发请求的能力
-    // 所以切回页面时，只需要无脑调用一次，它就会自动接力之前的轮询
-    if (this.activeName) {
-      this.loadTabIfNeeded(this.activeName)
-    }
+  typewriterTimers: {},
+  // 用于控制动画时机的状态 (懒加载核心)
+  rawAiData: {
+    necessity: null,
+    threeOne: null,
+    assetComp: null
   },
-  deactivated() {
-    // 👇 优化：一行搞定休眠
-    this.clearAllAITimers()
+  hasAnimated: {
+    [TAB_KEYS.NECESSITY]: false,
+    [TAB_KEYS.THREE_ONE]: false,
+    [TAB_KEYS.ASSET_COMP]: false
   },
-  beforeUnmount() {
-    if (this.unmountScrollSync) this.unmountScrollSync()
-    // 👇 优化：一行搞定销毁
-    this.clearAllAITimers()
+  typewriterDone: {
+    [TAB_KEYS.THREE_ONE]: false,
+    [TAB_KEYS.ASSET_COMP]: false
   },
-  methods: {
-    async projectRiskInfo() {
-      const res = await CwProjectDiff.projectRiskInfo(this, { projectId: this.dataValue.projectId })
-      this.projectRiskData = res.data || {}
-    },
-    clearAllAITimers() {
-      const timerGroups = ['typewriterTimers', 'aiLoadingTimers', 'aiPollingTimers']
-      timerGroups.forEach((groupName) => {
-        if (this[groupName]) {
-          Object.values(this[groupName]).forEach((timer) => {
-            if (timer) clearTimeout(timer)
-          })
-        }
-      })
-    },
-    // ✨ 核心机制 1：懒加载调度方法
-    loadTabIfNeeded(tabName) {
-      if (tabName === this.TAB_KEYS.NECESSITY) {
-        // 👇 修改：增加 status === 0 的判断，切回 tab 时如果是 0 重新触发查询
-        if (!this.rawAiData.necessity || this.rawAiData.necessity.status === 0) this.getCwProjectNecessity()
-        else this.checkAndTriggerAnimation(tabName)
-      } else if (tabName === this.TAB_KEYS.THREE_ONE) {
-        // 👇 修改同上
-        if (!this.rawAiData.threeOne || this.rawAiData.threeOne.status === 0) this.getThreeOneDiffView()
-        else this.checkAndTriggerAnimation(tabName)
-      } else if (tabName === this.TAB_KEYS.ASSET_COMP) {
-        // 👇 修改同上
-        if (!this.rawAiData.assetComp || this.rawAiData.assetComp.status === 0) this.getAssetComparisonData()
-        else this.checkAndTriggerAnimation(tabName)
-      }
-    },
-
-    hasAITabResult(dataObj, contentKeys = []) {
-      if (!dataObj || dataObj.status !== 1) return false
-
-      if (dataObj.viewTotal && Number(dataObj.viewTotal) > 0) return true
-
-      return contentKeys.some((key) => this.hasMeaningfulAIValue(dataObj[key]))
-    },
-
-    hasMeaningfulAIValue(value) {
-      if (Array.isArray(value)) return value.length > 0
-      if (value == null) return false
-
-      const text = String(value)
-        .replace(/<[^>]*>/g, '')
-        .trim()
-      return text !== '' && text !== '[]' && text !== '{}'
-    },
-
-    // ✨ 核心机制 2：响应深层监听，控制 Loading 并触发打字机
-    handleAILoading(loadingKey, dataObj, tabKey) {
-      // 1. 如果后端返回空，或者数据还没回来，或者被重置了
-      // 此时既不显示 Loading 也不显示 Else 内容，直接返回
-      if (!dataObj || Object.keys(dataObj).length === 0) {
-        this.aiLoadingState[loadingKey] = false
-        return
-      }
-
-      const status = dataObj.status
-      const viewTotal = dataObj.viewTotal
-
-      if (this.aiLoadingTimers[loadingKey]) {
-        clearTimeout(this.aiLoadingTimers[loadingKey])
-        this.aiLoadingTimers[loadingKey] = null
-      }
-
-      // 2. 明确正在计算
-      if (status === 0) {
-        this.aiLoadingState[loadingKey] = true
-      } else if (status === 1) {
-        if (viewTotal === 0) {
-          // 只有在确定没结果时，才启用那个 3 秒的 Loading 缓冲提示
-          this.aiLoadingState[loadingKey] = true
-          this.aiLoadingTimers[loadingKey] = setTimeout(() => {
-            this.aiLoadingState[loadingKey] = false
-            this.loadTabIfNeeded(tabKey)
-          }, 3000)
-        } else {
-          // 有结果了，关闭 Loading。
-          // 此时 Template 中的 v-else-if 判定会变为 true，内容才会显示出来。
-          this.aiLoadingState[loadingKey] = false
-          if (tabKey && this.activeName === tabKey) {
-            this.checkAndTriggerAnimation(tabKey)
-          }
-        }
-      } else {
-        this.aiLoadingState[loadingKey] = false
-      }
-    },
-
-    // 触发打字机动画
-    checkAndTriggerAnimation(tabName) {
-      if (this.activeName !== tabName || this.hasAnimated[tabName]) return
-
-      // 统一处理后端返回的富文本字符串：
-      // 1. 去除 HTML 标签之间的多余换行和空格，防止被 CSS 的 pre-wrap 渲染出巨大空行
-      // 2. 将非标签间的普通文本真实换行替换为 <br/> 保留排版
-      const formatHtmlText = (text) => {
-        if (!text) return ''
-        return String(text).replace(/>\s+</g, '><').replace(/\n/g, '<br/>')
-      }
-
-      if (tabName === TAB_KEYS.NECESSITY && this.rawAiData.necessity && this.rawAiData.necessity.status == 1) {
-        this.hasAnimated[TAB_KEYS.NECESSITY] = true
-        this.startTypewriter(formatHtmlText(this.rawAiData.necessity.coreResult), 'nameAnalyze_coreResult')
-        this.startTypewriter(formatHtmlText(this.rawAiData.necessity.analysisInfo), 'nameAnalyze_analysisInfo')
-      }
-
-      if (tabName === TAB_KEYS.THREE_ONE && this.rawAiData.threeOne && this.rawAiData.threeOne.status == 1) {
-        this.hasAnimated[TAB_KEYS.THREE_ONE] = true
-
-        let safeAnalyseAsset = formatHtmlText(this.rawAiData.threeOne.analyseAsset)
-        this.startTypewriter(this.highlightText(safeAnalyseAsset, []), 'threeOne_analyseAsset')
-
-        let safeCoreResult = formatHtmlText(this.rawAiData.threeOne.coreResult)
-        this.startTypewriter(this.highlightText(safeCoreResult, []), 'threeOne_coreResult')
-
-        let safeAnalysisInfo = formatHtmlText(this.rawAiData.threeOne.analysisInfo)
-        this.startTypewriter(safeAnalysisInfo, 'threeOne_analysisInfo', () => {
-          this.typewriterDone[TAB_KEYS.THREE_ONE] = true
-        })
-      }
-
-      if (tabName === TAB_KEYS.ASSET_COMP && this.rawAiData.assetComp && this.rawAiData.assetComp.status == 1) {
-        this.hasAnimated[TAB_KEYS.ASSET_COMP] = true
-
-        let safeCoreResult = formatHtmlText(this.rawAiData.assetComp.coreResult)
-        this.startTypewriter(this.highlightText(safeCoreResult, []), 'assetComp_coreResult')
-
-        let safeAnalysisInfo = formatHtmlText(this.rawAiData.assetComp.analysisInfo)
-        this.startTypewriter(safeAnalysisInfo, 'assetComp_analysisInfo', () => {
-          this.typewriterDone[TAB_KEYS.ASSET_COMP] = true
-        })
-      }
-    },
-
-    // 清空状态
-    resetAiAnimations() {
-      // 1. 先停掉所有正在跑的定时器
-      this.clearAllAITimers()
-
-      // 2. 还原标志位
-      this.hasAnimated = {
-        [TAB_KEYS.NECESSITY]: false,
-        [TAB_KEYS.THREE_ONE]: false,
-        [TAB_KEYS.ASSET_COMP]: false
-      }
-      this.typewriterDone = {
-        [TAB_KEYS.THREE_ONE]: false,
-        [TAB_KEYS.ASSET_COMP]: false
-      }
-
-      // 3. 还原 AI 原始数据与 Loading 状态
-      this.rawAiData = { necessity: null, threeOne: null, assetComp: null }
-      this.aiLoadingState = {
-        nameAnalyze: false,
-        threeOne: false,
-        assetComparison: false
-      }
-
-      // 4. 重置定时器容器
-      this.typewriterTimers = {}
-      this.aiLoadingTimers = { nameAnalyze: null, threeOne: null, assetComparison: null }
-      this.aiPollingTimers = { nameAnalyze: null, threeOne: null, assetComparison: null }
-
-      // 5. 清空打字机内容和其他业务状态
-      this.streamedData = {
-        nameAnalyze_coreResult: '',
-        nameAnalyze_analysisInfo: '',
-        threeOne_analyseAsset: '',
-        threeOne_coreResult: '',
-        threeOne_analysisInfo: '',
-        assetComp_coreResult: '',
-        assetComp_analysisInfo: ''
-      }
-      this.threeOneDiffData = {}
-      this.assetComparisonObj = {}
-      this.nameAnalyzeObj = {}
-      this.data2 = []
-      this.detailData = undefined
-      this.diffData = undefined
-      this.currentSimilarType = null
-    },
-
-    escapeHtml(text) {
-      if (!text) return ''
-      return text.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
-    },
-
-    startTypewriter(sourceText, targetKey, onFinish) {
-      if (this.typewriterTimers[targetKey]) {
-        clearTimeout(this.typewriterTimers[targetKey])
-      }
-
-      if (!sourceText) {
-        this.streamedData[targetKey] = ''
-        if (typeof onFinish === 'function') onFinish()
-        return
-      }
-
-      this.streamedData[targetKey] = ''
-
-      let i = 0
-      let currentHTML = ''
-      let charsPerTick = sourceText.length > 500 ? 15 : sourceText.length > 200 ? 8 : 3
-
-      const type = () => {
-        let charsAdded = 0
-        while (i < sourceText.length && charsAdded < charsPerTick) {
-          if (sourceText[i] === '<') {
-            let tagEnd = sourceText.indexOf('>', i)
-            if (tagEnd !== -1) {
-              currentHTML += sourceText.substring(i, tagEnd + 1)
-              i = tagEnd + 1
-              continue
-            }
-          }
-          if (sourceText[i] === '&') {
-            let entityEnd = sourceText.indexOf(';', i)
-            if (entityEnd !== -1 && entityEnd - i < 10) {
-              currentHTML += sourceText.substring(i, entityEnd + 1)
-              i = entityEnd + 1
-              charsAdded++
-              continue
-            }
-          }
-
-          currentHTML += sourceText[i]
-          i++
-          charsAdded++
-        }
-
-        if (i < sourceText.length) {
-          this.streamedData[targetKey] = currentHTML + '<span class="ai-cursor-disabled"></span>'
-          this.typewriterTimers[targetKey] = setTimeout(type, 100)
-        } else {
-          this.streamedData[targetKey] = currentHTML
-          if (typeof onFinish === 'function') onFinish()
-        }
-      }
-
-      this.typewriterTimers[targetKey] = setTimeout(type, 0)
-    },
-
-    highlightText(html, keywords) {
-      if (!html || !keywords?.length) return html
-      const container = document.createElement('div')
-      container.innerHTML = html
-      const walk = (node) => {
-        if (node.nodeType === 3) {
-          let text = node.nodeValue
-          keywords.forEach((keyword) => {
-            if (!keyword) return
-            const regex = new RegExp(keyword, 'g')
-            text = text.replace(regex, `<span class="highlight-text">${keyword}</span>`)
-          })
-          const span = document.createElement('span')
-          span.innerHTML = text
-          node.replaceWith(...span.childNodes)
-        } else if (node.nodeType === 1) {
-          node.childNodes.forEach(walk)
-        }
-      }
-      container.childNodes.forEach(walk)
-      return container.innerHTML
-    },
-
-    getReserveStatus() {
-      CwProject.reserveStatus(this, {}).then((res) => {
-        this.reserveStatus = res.data
-      })
-    },
-    handleBack() {
-      this.$router.back()
-    },
-    onCountdownEnd() {
-      this.getDiffView()
-    },
-
-    // ============================================
-    // 👇👇 原版业务方法恢复区域，不再有省略号 👇👇
-    // ============================================
-    onDetail(approveId) {
-      this.detailData = undefined
-      this.diffData = undefined
-      this.$router.push({
-        name: '/finance/reserveApprovalDetailTest',
-        query: {
-          id: approveId,
-          listKey: this.approvalListKey,
-          approvalRole: this.currentApprovalRoleName
-        }
-      })
-      const tagList = this.$utils.getObjectFromSessionStorage('tagList')
-      if (tagList) {
-        const route = tagList.find((item) => item.formRouterName == this.$route.name)
-        if (route) route.fullPath = this.$route.fullPath
-      }
-      this.$utils.setObjectToSessionStorage('tagList', tagList)
-      this.refreshUrlParams()
-      this.$message.success('操作成功')
-    },
-    async prevNextStep(number) {
-      await this.getPreNextStatus()
-      const { preId, nextId } = this.preNextIds
-      if (number == 1) {
-        if (preId == null) {
-          this.$message.warning('没有上一条数据')
-          return
-        }
-        this.onDetail(preId)
-      }
-      if (number == 2) {
-        if (nextId == null) {
-          this.$message.warning('没有下一条数据')
-          return
-        }
-        this.onDetail(nextId)
-      }
-    },
-    async getPreNextStatus() {
-      const preId = await this.getPreNext(1)
-      const nextId = await this.getPreNext(2)
-      this.preNextIds = { preId, nextId }
-    },
-    getPreNext(preNext = 1) {
-      const jsonStr = decodeURIComponent(this.approvalListKey)
-      const listKey = JSON.parse(jsonStr)
-      const cwPreNextDto = { id: this.approvalId, preNext, listKey }
-      return CwProjectApprove[this.currentPageRole.preNextApi](this, { cwPreNextDto }).then((res) => res.data)
-    },
-
-    // ✨ 核心机制 3：发请求时，显式开启本页签的 Loading
-    getCwProjectNecessity() {
-      if (!this.dataValue.projectId) {
-        this.aiLoadingState.nameAnalyze = false
-        this.nameAnalyzeObj = { status: 1, viewTotal: 0 }
-        return
-      }
-
-      this.aiLoadingState.nameAnalyze = true
-      CwProject.cwProjectNecessityView(this, {
-        projectId: this.dataValue.projectId
-      })
-        .then((res) => {
-          const data = res.data || { status: 1, viewTotal: 0 }
-          this.rawAiData.necessity = data
-          this.nameAnalyzeObj = data
-
-          // 👇 新增轮询逻辑
-          if (data.status === 0 && this.activeName === this.TAB_KEYS.NECESSITY) {
-            if (this.aiPollingTimers.nameAnalyze) clearTimeout(this.aiPollingTimers.nameAnalyze)
-            this.aiPollingTimers.nameAnalyze = setTimeout(() => {
-              // 定时器到期时再次确认是否还在当前 Tab
-              if (this.activeName === this.TAB_KEYS.NECESSITY) {
-                this.getCwProjectNecessity()
-              }
-            }, 5000)
-          }
-        })
-        .catch((e) => {
-          this.aiLoadingState.nameAnalyze = false
-          this.rawAiData.necessity = { status: -1, viewTotal: 0 }
-          this.nameAnalyzeObj = { status: -1, viewTotal: 0 }
-          this.$message.error('实施内容合理性分析加载失败')
-          throw e
-        })
-    },
-    getThreeOneDiffView() {
-      if (!this.dataValue.projectId) {
-        this.aiLoadingState.threeOne = false
-        this.threeOneDiffData = { status: 1, viewTotal: 0 }
-        return
-      }
-
-      this.aiLoadingState.threeOne = true
-      CwProject.cwProjectThreeOneDiffView(this, {
-        projectId: this.dataValue.projectId
-      })
-        .then((res) => {
-          const data = res.data || { status: 1, viewTotal: 0 }
-          this.rawAiData.threeOne = data
-          this.threeOneDiffData = data
-
-          // 👇 新增轮询逻辑
-          if (data.status === 0 && this.activeName === this.TAB_KEYS.THREE_ONE) {
-            if (this.aiPollingTimers.threeOne) clearTimeout(this.aiPollingTimers.threeOne)
-            this.aiPollingTimers.threeOne = setTimeout(() => {
-              if (this.activeName === this.TAB_KEYS.THREE_ONE) {
-                this.getThreeOneDiffView()
-              }
-            }, 5000)
-          }
-        })
-        .catch((e) => {
-          this.aiLoadingState.threeOne = false
-          this.rawAiData.threeOne = { status: -1, viewTotal: 0 }
-          this.threeOneDiffData = { status: -1, viewTotal: 0 }
-          this.$message.error('关联资产及费用合理性分析加载失败')
-          throw e
-        })
-    },
-    getAssetComparisonData() {
-      if (!this.dataValue.projectId) {
-        this.aiLoadingState.assetComparison = false
-        this.assetComparisonObj = { status: 1, viewTotal: 0 }
-        return
-      }
-
-      this.aiLoadingState.assetComparison = true
-      CwProjectAssetDiff.view(this, {
-        projectId: this.dataValue.projectId
-      })
-        .then((res) => {
-          const data = res.data || { status: 1, viewTotal: 0 }
-          this.rawAiData.assetComp = data
-          this.assetComparisonObj = data
-
-          // 👇 新增轮询逻辑
-          if (data.status === 0 && this.activeName === this.TAB_KEYS.ASSET_COMP) {
-            if (this.aiPollingTimers.assetComparison) clearTimeout(this.aiPollingTimers.assetComparison)
-            this.aiPollingTimers.assetComparison = setTimeout(() => {
-              if (this.activeName === this.TAB_KEYS.ASSET_COMP) {
-                this.getAssetComparisonData()
-              }
-            }, 5000)
-          }
-        })
-        .catch((e) => {
-          this.aiLoadingState.assetComparison = false
-          this.rawAiData.assetComp = { status: -1, viewTotal: 0 }
-          this.assetComparisonObj = { status: -1, viewTotal: 0 }
-          this.$message.error('资产级设备判别加载失败')
-          throw e
-        })
-    },
-
-    getNameAnalyzeList() {
-      CwProject.cwProjectNameList(this, {
-        cwProjectNamesDiffDataDtoFilter: {
-          projectId: this.dataValue.projectId
-        }
-      }).then((res) => {
-        this.nameAnalyzeList = res.data?.dataList
-      })
-    },
-
-    handleExport(type) {
-      if (type == 1) {
-        CwProjectApply.exportReviewOpinion(this, { projectId: this.dataValue?.projectId })
-      }
-      if (type == 2) {
-        CwProjectApply.exportProposalDoc(this, { projectId: this.dataValue?.projectId })
-      }
-    },
-    handleConfirm() {
-      this.handleApprove(true, 1)
-    },
-    handleSetting() {
-      this.$dialog
-        .show('配置', similarSetting, { area: ['500px'] }, {})
-        .then(() => {
-          this.refreshTable(true)
-        })
-        .catch(() => {})
-    },
-    getDiffView() {
-      const ApiClass = this.currentSimilarType === 'similar2' ? CwProjectItemDiff : CwProjectDiff
-      ApiClass.view(this, {
-        id: this.detailData.id,
-        projectId: this.detailData.projectId
-      }).then((res) => {
-        this.diffData = res.data
-        this.vectorScore = this.diffData?.vectorScore
-      })
-    },
-    getAssistCheck() {
-      CwProjectDiff.assistCheckList(this, {
-        projectId: this.dataValue?.projectId
-      }).then((res) => {
-        this.assistCheckList = res.data
-      })
-    },
-    clearSyncHieght() {
-      this.$nextTick(() => {
-        const elements = document.querySelectorAll('.projectView')
-        elements.forEach((v) => {
-          this.ProjectKeyValues.forEach((item) => {
-            const element = v.querySelector('#' + item.value)
-            if (element) {
-              element.style.height = ''
-            }
-          })
-        })
-      })
-    },
-    syncHeights() {
-      this.$nextTick(() => {
-        setTimeout(() => {
-          const [elementA, elementB] = document.querySelectorAll('.projectView')
-          this.ProjectKeyValues.forEach((item) => {
-            const _elementA = elementA.querySelector('#' + item.value)
-            const _elementB = elementB.querySelector('#' + item.value)
-            if (_elementA && _elementB) {
-              const maxHeight = Math.max(_elementA.offsetHeight, _elementB.offsetHeight)
-              _elementA.style.height = `${maxHeight}px`
-              _elementB.style.height = `${maxHeight}px`
-            }
-          })
-          this.unmountScrollSync = this.syncScroll(elementA, elementB)
-        }, 800)
-      })
-    },
-    handleScroll(elementToSync, event) {
-      elementToSync.scrollTop = event.target.scrollTop
-    },
-    syncScroll(element1, element2) {
-      const handleScroll1 = (event) => this.handleScroll(element2, event)
-      const handleScroll2 = (event) => this.handleScroll(element1, event)
-      element1.addEventListener('scroll', handleScroll1)
-      element2.addEventListener('scroll', handleScroll2)
-      return function unmount() {
-        element1.removeEventListener('scroll', handleScroll1)
-        element2.removeEventListener('scroll', handleScroll2)
-      }
-    },
-    handleSelect(item) {
-      this.$nextTick(() => {
-        setTimeout(() => {
-          const [elementA] = document.querySelectorAll('.projectView')
-          elementA.scrollTop = elementA.scrollTop + 1
-          elementA.scrollTop = elementA.scrollTop - 1
-        }, 100)
-      })
-    },
-    async handleApprove(confirm, status, params) {
-      const rejectReasonPromise = () => {
-        return new Promise((resolve, reject) => {
-          this.$dialog
-            .show('驳回理由', rejectReason, { area: ['600px'] })
-            .then(async ({ reason }) => {
-              resolve(reason)
-            })
-            .catch((e) => {
-              reject(e)
-            })
-        })
-      }
-      let remark
-      if (status == 0) {
-        remark = await rejectReasonPromise()
-      } else if (confirm) {
-        await this.$confirm('确认审核通过?')
-      }
-      CwProjectApprove[`${this.currentPageRole.apiSuffix}Approve`](this, {
-        cwApproveDto: {
-          remark,
-          status,
-          projectId: this.dataValue?.projectId,
-          id: this.approvalId,
-          ...params
-        }
-      }).then(() => {
-        this.$message.success('操作成功')
-        setTimeout(() => {
-          this.refreshTable(true)
-          this.getFollowupInfo(this)
-        }, 4000)
-      })
-    },
-    handleAIRejudge() {
-      this.$confirm('确认AI重审？')
-        .then(() => {
-          CwProjectDiff.retryDiffProject(this, {
-            projectId: this.dataValue.projectId
-          }).then(() => {
-            this.$message.success('AI重审已触发')
-
-            // 重置数据并重新获取
-            this.rawAiData.necessity = null
-            this.rawAiData.threeOne = null
-            this.rawAiData.assetComp = null
-
-            // 重置动画状态
-            this.hasAnimated[this.TAB_KEYS.NECESSITY] = false
-            this.hasAnimated[this.TAB_KEYS.THREE_ONE] = false
-            this.hasAnimated[this.TAB_KEYS.ASSET_COMP] = false
-
-            this.typewriterDone[this.TAB_KEYS.THREE_ONE] = false
-            this.typewriterDone[this.TAB_KEYS.ASSET_COMP] = false
-
-            // 重新获取数据
-            this.getCwProjectNecessity()
-            this.getThreeOneDiffView()
-            this.getAssetComparisonData()
-
-            // 刷新两个相似分析
-            this.$refs.similarAnalysis?.getList()
-            this.$refs.similarAnalysis2?.getList()
-          })
-        })
-        .catch(() => {})
-    },
-    getRowClassName({ row }) {
-      if (row.matchStatus == 3) {
-        return 'red-row'
-      } else if (row.matchStatus == 2) {
-        return 'orange-row'
-      }
-      return ''
-    },
-    getApprovalList() {
-      CwProject.approvalLog(this, {
-        cwProjectApproveDtoFilter: {
-          projectId: this.dataValue.projectId
-        }
-      }).then((res) => {
-        this.approvalList = res.data?.dataList
-      })
-    },
-    getType(type) {
-      let _type = 'primary'
-      switch (+type) {
-        case this.StatusReserveDict.PENDING_SUBMIT:
-          _type = 'info'
-          break
-        case this.StatusReserveDict.REJECTED || this.StatusReserveDict.DELAYED:
-          _type = 'warning'
-          break
-        case this.StatusReserveDict.PRE_REVIEW_COMPLETED:
-          _type = 'success'
-          break
-      }
-      return _type
-    },
-    ifConfirm(msg, callback = () => {}) {
-      return this.$confirm(msg).then(() => {
-        callback()
-      })
-    },
-    async tabClick(event) {},
-    getInfo() {
-      this.refreshTable(true)
-    },
-
-    // ✨ 核心机制 4：将需要懒加载的接口从初始化方法中移除
-    async refreshTable() {
-      this.resetAiAnimations()
-
-      await this.loadData()
-      this.getApprovalList()
-      this.projectRiskInfo()
-      this.getAssistCheck()
-      this.getNameAnalyzeList() // 项目名称分析保持初加载
-
-      // 初始化检查当前激活的是哪个 Tab，按需触发懒加载
-      this.loadTabIfNeeded(this.activeName)
-
-      this.$refs.projectView?.initFormData()
-    },
-
-    loadData() {
-      return new Promise((resolve, reject) => {
-        CwProjectApprove[`${this.currentPageRole.apiSuffix}View`](this, {
-          id: this.approvalId
-        })
-          .then((res) => {
-            if (res) {
-              this.dataValue = res.data
-            }
-            resolve()
-          })
-          .catch((e) => {
-            reject(e)
-          })
-      })
-    },
-    loadTableVerify() {
-      return true
-    },
-    handleSubmit() {},
-    handleCancel() {},
-    onCancel(isSuccess = false, data) {
-      if (this.observer != null) {
-        this.observer.cancel(isSuccess, data)
-      }
-    },
-    onSubmit() {
-      this.onCancel(true)
-    },
-    ...mapMutations(['removeTag'])
+  data: [],
+  data2: [],
+  reserveStatus: [],
+  sameItemList: [],
+  detailData: undefined,
+  sameItemData: undefined,
+  diffData: undefined,
+  currentSimilarType: null,
+  indexStatus: undefined,
+  activeName: TAB_KEYS.NECESSITY,
+  dataValue: {},
+  projectViewData: {},
+  approvalList: [],
+  nameAnalyzeList: [],
+  assetComparisonObj: {},
+  assistCheckList: undefined,
+  unmountScrollSync: undefined,
+  analysisTableData: [],
+  threeOneDiffData: {},
+  nameAnalyzeObj: {},
+  nameAnalyzeLoading: {
+    ratioAnalysis: true,
+    assetComparison: true,
+    necessityAnalysis: true
   },
-  computed: {
-    necessaryKeyValues() {
-      return [{ name: '分析结论', value: 'resultContent' }]
-    },
-    approvalId() {
-      return this.id || this.$route.query.id
-    },
-    approvalListKey() {
-      return this.listKey || this.$route.query.listKey
-    },
-    currentApprovalRoleName() {
-      return this.$route.query.approvalRole || this.approvalRole || this.$route.name
-    },
-    currentPageRole() {
-      return this.pageRoleMap[this.currentApprovalRoleName] || this.pageRoleMap.deptApprovalDetail
-    },
-    isFinance() {
-      return this.currentApprovalRoleName === 'financeApprovalDetail'
-    },
-    InfoKeyValues() {
-      return [
-        // { label: '申请人', prop: 'createUserName' },
-        { label: '申请时间', prop: 'createTime', formatter: (value) => value },
-        { label: '申请部门', prop: 'workDeptName' },
-        // { label: '审批时间', prop: 'approveTime', formatter: (value) => value },
-        { label: '审批意见', prop: 'approveDesc' }
-      ]
-    },
-    ProjectKeyValues() {
-      return this.$refs.projectView?.KeyValues.filter((item) => item) || []
-    },
-    ...mapGetters(['getCurrentMenuId', 'getUserInfo'])
+  // AI Loading 状态
+  aiLoadingState: {
+    nameAnalyze: false,
+    threeOne: false,
+    assetComparison: false
   },
-  watch: {
-    // 🌟 监听 Tab 切换，按需触发懒加载
-    activeName(val) {
-      this.loadTabIfNeeded(val)
+  aiLoadingTimers: {
+    nameAnalyze: false,
+    threeOne: false,
+    assetComparison: false
+  },
+  // 用于轮询查询的定时器
+  aiPollingTimers: {
+    nameAnalyze: null,
+    threeOne: null,
+    assetComparison: null
+  },
+  preNextIds: {
+    nextId: false,
+    preId: false
+  },
+  pageRoleMap: {
+    deptApprovalDetail: {
+      apiSuffix: 'dept',
+      preNextApi: 'deptPreNext',
+      needConfirmDialog: false,
+      isNeedFinishOperate: false,
+      showSettingBtn: false,
+      routeName: 'deptApprovalDetail'
     },
-
-    // 🌟 深层监听并传入当前对应的 Tab Key
-    nameAnalyzeObj: {
-      handler(val) {
-        this.handleAILoading('nameAnalyze', val, this.TAB_KEYS.NECESSITY)
-      },
-      deep: true
+    financeApprovalDetail: {
+      apiSuffix: 'finance',
+      preNextApi: 'financePreNext',
+      needConfirmDialog: true,
+      isNeedFinishOperate: true,
+      showSettingBtn: true,
+      routeName: 'financeApprovalDetail'
     },
-    threeOneDiffData: {
-      handler(val) {
-        this.handleAILoading('threeOne', val, this.TAB_KEYS.THREE_ONE)
-      },
-      deep: true
+    jysApprovalDetail: {
+      apiSuffix: 'jys',
+      preNextApi: 'jysPreNext',
+      needConfirmDialog: true,
+      isNeedFinishOperate: false,
+      showSettingBtn: false,
+      routeName: 'jysApprovalDetail'
     },
-    assetComparisonObj: {
-      handler(val) {
-        this.handleAILoading('assetComparison', val, this.TAB_KEYS.ASSET_COMP)
-      },
-      deep: true
-    },
-
-    approvalId: {
-      handler(val, oldVal) {
-        if (val && val != oldVal) {
-          this.refreshTable(true)
-          this.getPreNextStatus()
-        }
-      }
-    },
-    detailData: {
-      handler(val, oldVal) {
-        if (val && !oldVal) {
-          this.getDiffView()
-        } else {
-          this.$refs.similarAnalysis?.getList()
-          this.$refs.similarAnalysis2?.getList()
-          this.clearSyncHieght()
-        }
-      },
-      deep: true
-    },
-    id: {
-      handler(val, oldVal) {
-        if (val !== oldVal) {
-          this.refreshTable(true)
-        }
-      }
+    fzbApprovalDetail: {
+      apiSuffix: 'fzb',
+      preNextApi: 'fzbPreNext',
+      needConfirmDialog: true,
+      isNeedFinishOperate: false,
+      showSettingBtn: false,
+      routeName: 'fzbApprovalDetail'
     }
   }
+})
+const projectRiskData = toRef(componentData, 'projectRiskData')
+const tabInfo = toRef(componentData, 'tabInfo')
+const streamedData = toRef(componentData, 'streamedData')
+const typewriterTimers = toRef(componentData, 'typewriterTimers')
+const rawAiData = toRef(componentData, 'rawAiData')
+const hasAnimated = toRef(componentData, 'hasAnimated')
+const typewriterDone = toRef(componentData, 'typewriterDone')
+const data = toRef(componentData, 'data')
+const data2 = toRef(componentData, 'data2')
+const reserveStatus = toRef(componentData, 'reserveStatus')
+const sameItemList = toRef(componentData, 'sameItemList')
+const detailData = toRef(componentData, 'detailData')
+const sameItemData = toRef(componentData, 'sameItemData')
+const diffData = toRef(componentData, 'diffData')
+const currentSimilarType = toRef(componentData, 'currentSimilarType')
+const indexStatus = toRef(componentData, 'indexStatus')
+const activeName = toRef(componentData, 'activeName')
+const dataValue = toRef(componentData, 'dataValue')
+const projectViewData = toRef(componentData, 'projectViewData')
+const approvalList = toRef(componentData, 'approvalList')
+const nameAnalyzeList = toRef(componentData, 'nameAnalyzeList')
+const assetComparisonObj = toRef(componentData, 'assetComparisonObj')
+const assistCheckList = toRef(componentData, 'assistCheckList')
+const unmountScrollSync = toRef(componentData, 'unmountScrollSync')
+const analysisTableData = toRef(componentData, 'analysisTableData')
+const threeOneDiffData = toRef(componentData, 'threeOneDiffData')
+const nameAnalyzeObj = toRef(componentData, 'nameAnalyzeObj')
+const nameAnalyzeLoading = toRef(componentData, 'nameAnalyzeLoading')
+const aiLoadingState = toRef(componentData, 'aiLoadingState')
+const aiLoadingTimers = toRef(componentData, 'aiLoadingTimers')
+const aiPollingTimers = toRef(componentData, 'aiPollingTimers')
+const preNextIds = toRef(componentData, 'preNextIds')
+const pageRoleMap = toRef(componentData, 'pageRoleMap')
+componentData.vectorScore = undefined
+const vectorScore = toRef(componentData, 'vectorScore')
+function removeTag(payload) {
+  return componentStore.commit('removeTag', payload)
 }
+async function projectRiskInfo() {
+  const res = await CwProjectDiff.projectRiskInfo(componentInstance, {
+    projectId: componentData.dataValue.projectId
+  })
+  componentData.projectRiskData = res.data || {}
+}
+function clearAllAITimers() {
+  const timerGroups = ['typewriterTimers', 'aiLoadingTimers', 'aiPollingTimers']
+  timerGroups.forEach((groupName) => {
+    if (componentData[groupName]) {
+      Object.values(componentData[groupName]).forEach((timer) => {
+        if (timer) clearTimeout(timer)
+      })
+    }
+  })
+}
+// ✨ 核心机制 1：懒加载调度方法
+function loadTabIfNeeded(tabName) {
+  if (tabName === componentData.TAB_KEYS.NECESSITY) {
+    // 👇 修改：增加 status === 0 的判断，切回 tab 时如果是 0 重新触发查询
+    if (!componentData.rawAiData.necessity || componentData.rawAiData.necessity.status === 0) getCwProjectNecessity()
+    else checkAndTriggerAnimation(tabName)
+  } else if (tabName === componentData.TAB_KEYS.THREE_ONE) {
+    // 👇 修改同上
+    if (!componentData.rawAiData.threeOne || componentData.rawAiData.threeOne.status === 0) getThreeOneDiffView()
+    else checkAndTriggerAnimation(tabName)
+  } else if (tabName === componentData.TAB_KEYS.ASSET_COMP) {
+    // 👇 修改同上
+    if (!componentData.rawAiData.assetComp || componentData.rawAiData.assetComp.status === 0) getAssetComparisonData()
+    else checkAndTriggerAnimation(tabName)
+  }
+}
+function hasAITabResult(dataObj, contentKeys = []) {
+  if (!dataObj || dataObj.status !== 1) return false
+  if (dataObj.viewTotal && Number(dataObj.viewTotal) > 0) return true
+  return contentKeys.some((key) => hasMeaningfulAIValue(dataObj[key]))
+}
+function hasMeaningfulAIValue(value) {
+  if (Array.isArray(value)) return value.length > 0
+  if (value == null) return false
+  const text = String(value)
+    .replace(/<[^>]*>/g, '')
+    .trim()
+  return text !== '' && text !== '[]' && text !== '{}'
+}
+// ✨ 核心机制 2：响应深层监听，控制 Loading 并触发打字机
+function handleAILoading(loadingKey, dataObj, tabKey) {
+  // 1. 如果后端返回空，或者数据还没回来，或者被重置了
+  // 此时既不显示 Loading 也不显示 Else 内容，直接返回
+  if (!dataObj || Object.keys(dataObj).length === 0) {
+    componentData.aiLoadingState[loadingKey] = false
+    return
+  }
+  const status = dataObj.status
+  const viewTotal = dataObj.viewTotal
+  if (componentData.aiLoadingTimers[loadingKey]) {
+    clearTimeout(componentData.aiLoadingTimers[loadingKey])
+    componentData.aiLoadingTimers[loadingKey] = null
+  }
+
+  // 2. 明确正在计算
+  if (status === 0) {
+    componentData.aiLoadingState[loadingKey] = true
+  } else if (status === 1) {
+    if (viewTotal === 0) {
+      // 只有在确定没结果时，才启用那个 3 秒的 Loading 缓冲提示
+      componentData.aiLoadingState[loadingKey] = true
+      componentData.aiLoadingTimers[loadingKey] = setTimeout(() => {
+        componentData.aiLoadingState[loadingKey] = false
+        loadTabIfNeeded(tabKey)
+      }, 3000)
+    } else {
+      // 有结果了，关闭 Loading。
+      // 此时 Template 中的 v-else-if 判定会变为 true，内容才会显示出来。
+      componentData.aiLoadingState[loadingKey] = false
+      if (tabKey && componentData.activeName === tabKey) {
+        checkAndTriggerAnimation(tabKey)
+      }
+    }
+  } else {
+    componentData.aiLoadingState[loadingKey] = false
+  }
+}
+// 触发打字机动画
+function checkAndTriggerAnimation(tabName) {
+  if (componentData.activeName !== tabName || componentData.hasAnimated[tabName]) return
+
+  // 统一处理后端返回的富文本字符串：
+  // 1. 去除 HTML 标签之间的多余换行和空格，防止被 CSS 的 pre-wrap 渲染出巨大空行
+  // 2. 将非标签间的普通文本真实换行替换为 <br/> 保留排版
+  const formatHtmlText = (text) => {
+    if (!text) return ''
+    return String(text).replace(/>\s+</g, '><').replace(/\n/g, '<br/>')
+  }
+  if (tabName === TAB_KEYS.NECESSITY && componentData.rawAiData.necessity && componentData.rawAiData.necessity.status == 1) {
+    componentData.hasAnimated[TAB_KEYS.NECESSITY] = true
+    startTypewriter(formatHtmlText(componentData.rawAiData.necessity.coreResult), 'nameAnalyze_coreResult')
+    startTypewriter(formatHtmlText(componentData.rawAiData.necessity.analysisInfo), 'nameAnalyze_analysisInfo')
+  }
+  if (tabName === TAB_KEYS.THREE_ONE && componentData.rawAiData.threeOne && componentData.rawAiData.threeOne.status == 1) {
+    componentData.hasAnimated[TAB_KEYS.THREE_ONE] = true
+    let safeAnalyseAsset = formatHtmlText(componentData.rawAiData.threeOne.analyseAsset)
+    startTypewriter(highlightText(safeAnalyseAsset, []), 'threeOne_analyseAsset')
+    let safeCoreResult = formatHtmlText(componentData.rawAiData.threeOne.coreResult)
+    startTypewriter(highlightText(safeCoreResult, []), 'threeOne_coreResult')
+    let safeAnalysisInfo = formatHtmlText(componentData.rawAiData.threeOne.analysisInfo)
+    startTypewriter(safeAnalysisInfo, 'threeOne_analysisInfo', () => {
+      componentData.typewriterDone[TAB_KEYS.THREE_ONE] = true
+    })
+  }
+  if (tabName === TAB_KEYS.ASSET_COMP && componentData.rawAiData.assetComp && componentData.rawAiData.assetComp.status == 1) {
+    componentData.hasAnimated[TAB_KEYS.ASSET_COMP] = true
+    let safeCoreResult = formatHtmlText(componentData.rawAiData.assetComp.coreResult)
+    startTypewriter(highlightText(safeCoreResult, []), 'assetComp_coreResult')
+    let safeAnalysisInfo = formatHtmlText(componentData.rawAiData.assetComp.analysisInfo)
+    startTypewriter(safeAnalysisInfo, 'assetComp_analysisInfo', () => {
+      componentData.typewriterDone[TAB_KEYS.ASSET_COMP] = true
+    })
+  }
+}
+// 清空状态
+function resetAiAnimations() {
+  // 1. 先停掉所有正在跑的定时器
+  clearAllAITimers()
+
+  // 2. 还原标志位
+  componentData.hasAnimated = {
+    [TAB_KEYS.NECESSITY]: false,
+    [TAB_KEYS.THREE_ONE]: false,
+    [TAB_KEYS.ASSET_COMP]: false
+  }
+  componentData.typewriterDone = {
+    [TAB_KEYS.THREE_ONE]: false,
+    [TAB_KEYS.ASSET_COMP]: false
+  }
+
+  // 3. 还原 AI 原始数据与 Loading 状态
+  componentData.rawAiData = {
+    necessity: null,
+    threeOne: null,
+    assetComp: null
+  }
+  componentData.aiLoadingState = {
+    nameAnalyze: false,
+    threeOne: false,
+    assetComparison: false
+  }
+
+  // 4. 重置定时器容器
+  componentData.typewriterTimers = {}
+  componentData.aiLoadingTimers = {
+    nameAnalyze: null,
+    threeOne: null,
+    assetComparison: null
+  }
+  componentData.aiPollingTimers = {
+    nameAnalyze: null,
+    threeOne: null,
+    assetComparison: null
+  }
+
+  // 5. 清空打字机内容和其他业务状态
+  componentData.streamedData = {
+    nameAnalyze_coreResult: '',
+    nameAnalyze_analysisInfo: '',
+    threeOne_analyseAsset: '',
+    threeOne_coreResult: '',
+    threeOne_analysisInfo: '',
+    assetComp_coreResult: '',
+    assetComp_analysisInfo: ''
+  }
+  componentData.threeOneDiffData = {}
+  componentData.assetComparisonObj = {}
+  componentData.nameAnalyzeObj = {}
+  componentData.data2 = []
+  componentData.detailData = undefined
+  componentData.diffData = undefined
+  componentData.currentSimilarType = null
+}
+function escapeHtml(text) {
+  if (!text) return ''
+  return text.toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;')
+}
+function startTypewriter(sourceText, targetKey, onFinish) {
+  if (componentData.typewriterTimers[targetKey]) {
+    clearTimeout(componentData.typewriterTimers[targetKey])
+  }
+  if (!sourceText) {
+    componentData.streamedData[targetKey] = ''
+    if (typeof onFinish === 'function') onFinish()
+    return
+  }
+  componentData.streamedData[targetKey] = ''
+  let i = 0
+  let currentHTML = ''
+  let charsPerTick = sourceText.length > 500 ? 15 : sourceText.length > 200 ? 8 : 3
+  const type = () => {
+    let charsAdded = 0
+    while (i < sourceText.length && charsAdded < charsPerTick) {
+      if (sourceText[i] === '<') {
+        let tagEnd = sourceText.indexOf('>', i)
+        if (tagEnd !== -1) {
+          currentHTML += sourceText.substring(i, tagEnd + 1)
+          i = tagEnd + 1
+          continue
+        }
+      }
+      if (sourceText[i] === '&') {
+        let entityEnd = sourceText.indexOf(';', i)
+        if (entityEnd !== -1 && entityEnd - i < 10) {
+          currentHTML += sourceText.substring(i, entityEnd + 1)
+          i = entityEnd + 1
+          charsAdded++
+          continue
+        }
+      }
+      currentHTML += sourceText[i]
+      i++
+      charsAdded++
+    }
+    if (i < sourceText.length) {
+      componentData.streamedData[targetKey] = currentHTML + '<span class="ai-cursor-disabled"></span>'
+      componentData.typewriterTimers[targetKey] = setTimeout(type, 100)
+    } else {
+      componentData.streamedData[targetKey] = currentHTML
+      if (typeof onFinish === 'function') onFinish()
+    }
+  }
+  componentData.typewriterTimers[targetKey] = setTimeout(type, 0)
+}
+function highlightText(html, keywords) {
+  if (!html || !keywords?.length) return html
+  const container = document.createElement('div')
+  container.innerHTML = html
+  const walk = (node) => {
+    if (node.nodeType === 3) {
+      let text = node.nodeValue
+      keywords.forEach((keyword) => {
+        if (!keyword) return
+        const regex = new RegExp(keyword, 'g')
+        text = text.replace(regex, `<span class="highlight-text">${keyword}</span>`)
+      })
+      const span = document.createElement('span')
+      span.innerHTML = text
+      node.replaceWith(...span.childNodes)
+    } else if (node.nodeType === 1) {
+      node.childNodes.forEach(walk)
+    }
+  }
+  container.childNodes.forEach(walk)
+  return container.innerHTML
+}
+function getReserveStatus() {
+  CwProject.reserveStatus(componentInstance, {}).then((res) => {
+    componentData.reserveStatus = res.data
+  })
+}
+function handleBack() {
+  router.back()
+}
+function onCountdownEnd() {
+  getDiffView()
+}
+// ============================================
+// 👇👇 原版业务方法恢复区域，不再有省略号 👇👇
+// ============================================
+function onDetail(approveId) {
+  componentData.detailData = undefined
+  componentData.diffData = undefined
+  router.push({
+    name: '/finance/reserveApprovalDetailTest',
+    query: {
+      id: approveId,
+      listKey: approvalListKey.value,
+      approvalRole: currentApprovalRoleName.value
+    }
+  })
+  const tagList = componentInstance.$utils.getObjectFromSessionStorage('tagList')
+  if (tagList) {
+    const route = tagList.find((item) => item.formRouterName == route.name)
+    if (route) route.fullPath = route.fullPath
+  }
+  componentInstance.$utils.setObjectToSessionStorage('tagList', tagList)
+  CachedSinglePageState.refreshUrlParams()
+  ElMessage.success('操作成功')
+}
+async function prevNextStep(number) {
+  await getPreNextStatus()
+  const { preId, nextId } = componentData.preNextIds
+  if (number == 1) {
+    if (preId == null) {
+      ElMessage.warning('没有上一条数据')
+      return
+    }
+    onDetail(preId)
+  }
+  if (number == 2) {
+    if (nextId == null) {
+      ElMessage.warning('没有下一条数据')
+      return
+    }
+    onDetail(nextId)
+  }
+}
+async function getPreNextStatus() {
+  const preId = await getPreNext(1)
+  const nextId = await getPreNext(2)
+  componentData.preNextIds = {
+    preId,
+    nextId
+  }
+}
+function getPreNext(preNext = 1) {
+  const jsonStr = decodeURIComponent(approvalListKey.value)
+  const listKey = JSON.parse(jsonStr)
+  const cwPreNextDto = {
+    id: approvalId.value,
+    preNext,
+    listKey
+  }
+  return CwProjectApprove[currentPageRole.value.preNextApi](componentInstance, {
+    cwPreNextDto
+  }).then((res) => res.data)
+}
+// ✨ 核心机制 3：发请求时，显式开启本页签的 Loading
+function getCwProjectNecessity() {
+  if (!componentData.dataValue.projectId) {
+    componentData.aiLoadingState.nameAnalyze = false
+    componentData.nameAnalyzeObj = {
+      status: 1,
+      viewTotal: 0
+    }
+    return
+  }
+  componentData.aiLoadingState.nameAnalyze = true
+  CwProject.cwProjectNecessityView(componentInstance, {
+    projectId: componentData.dataValue.projectId
+  })
+    .then((res) => {
+      const data = res.data || {
+        status: 1,
+        viewTotal: 0
+      }
+      componentData.rawAiData.necessity = data
+      componentData.nameAnalyzeObj = data
+
+      // 👇 新增轮询逻辑
+      if (data.status === 0 && componentData.activeName === componentData.TAB_KEYS.NECESSITY) {
+        if (componentData.aiPollingTimers.nameAnalyze) clearTimeout(componentData.aiPollingTimers.nameAnalyze)
+        componentData.aiPollingTimers.nameAnalyze = setTimeout(() => {
+          // 定时器到期时再次确认是否还在当前 Tab
+          if (componentData.activeName === componentData.TAB_KEYS.NECESSITY) {
+            getCwProjectNecessity()
+          }
+        }, 5000)
+      }
+    })
+    .catch((e) => {
+      componentData.aiLoadingState.nameAnalyze = false
+      componentData.rawAiData.necessity = {
+        status: -1,
+        viewTotal: 0
+      }
+      componentData.nameAnalyzeObj = {
+        status: -1,
+        viewTotal: 0
+      }
+      ElMessage.error('实施内容合理性分析加载失败')
+      throw e
+    })
+}
+function getThreeOneDiffView() {
+  if (!componentData.dataValue.projectId) {
+    componentData.aiLoadingState.threeOne = false
+    componentData.threeOneDiffData = {
+      status: 1,
+      viewTotal: 0
+    }
+    return
+  }
+  componentData.aiLoadingState.threeOne = true
+  CwProject.cwProjectThreeOneDiffView(componentInstance, {
+    projectId: componentData.dataValue.projectId
+  })
+    .then((res) => {
+      const data = res.data || {
+        status: 1,
+        viewTotal: 0
+      }
+      componentData.rawAiData.threeOne = data
+      componentData.threeOneDiffData = data
+
+      // 👇 新增轮询逻辑
+      if (data.status === 0 && componentData.activeName === componentData.TAB_KEYS.THREE_ONE) {
+        if (componentData.aiPollingTimers.threeOne) clearTimeout(componentData.aiPollingTimers.threeOne)
+        componentData.aiPollingTimers.threeOne = setTimeout(() => {
+          if (componentData.activeName === componentData.TAB_KEYS.THREE_ONE) {
+            getThreeOneDiffView()
+          }
+        }, 5000)
+      }
+    })
+    .catch((e) => {
+      componentData.aiLoadingState.threeOne = false
+      componentData.rawAiData.threeOne = {
+        status: -1,
+        viewTotal: 0
+      }
+      componentData.threeOneDiffData = {
+        status: -1,
+        viewTotal: 0
+      }
+      ElMessage.error('关联资产及费用合理性分析加载失败')
+      throw e
+    })
+}
+function getAssetComparisonData() {
+  if (!componentData.dataValue.projectId) {
+    componentData.aiLoadingState.assetComparison = false
+    componentData.assetComparisonObj = {
+      status: 1,
+      viewTotal: 0
+    }
+    return
+  }
+  componentData.aiLoadingState.assetComparison = true
+  CwProjectAssetDiff.view(componentInstance, {
+    projectId: componentData.dataValue.projectId
+  })
+    .then((res) => {
+      const data = res.data || {
+        status: 1,
+        viewTotal: 0
+      }
+      componentData.rawAiData.assetComp = data
+      componentData.assetComparisonObj = data
+
+      // 👇 新增轮询逻辑
+      if (data.status === 0 && componentData.activeName === componentData.TAB_KEYS.ASSET_COMP) {
+        if (componentData.aiPollingTimers.assetComparison) clearTimeout(componentData.aiPollingTimers.assetComparison)
+        componentData.aiPollingTimers.assetComparison = setTimeout(() => {
+          if (componentData.activeName === componentData.TAB_KEYS.ASSET_COMP) {
+            getAssetComparisonData()
+          }
+        }, 5000)
+      }
+    })
+    .catch((e) => {
+      componentData.aiLoadingState.assetComparison = false
+      componentData.rawAiData.assetComp = {
+        status: -1,
+        viewTotal: 0
+      }
+      componentData.assetComparisonObj = {
+        status: -1,
+        viewTotal: 0
+      }
+      ElMessage.error('资产级设备判别加载失败')
+      throw e
+    })
+}
+function getNameAnalyzeList() {
+  CwProject.cwProjectNameList(componentInstance, {
+    cwProjectNamesDiffDataDtoFilter: {
+      projectId: componentData.dataValue.projectId
+    }
+  }).then((res) => {
+    componentData.nameAnalyzeList = res.data?.dataList
+  })
+}
+function handleExport(type) {
+  if (type == 1) {
+    CwProjectApply.exportReviewOpinion(componentInstance, {
+      projectId: componentData.dataValue?.projectId
+    })
+  }
+  if (type == 2) {
+    CwProjectApply.exportProposalDoc(componentInstance, {
+      projectId: componentData.dataValue?.projectId
+    })
+  }
+}
+function handleConfirm() {
+  handleApprove(true, 1)
+}
+function handleSetting() {
+  componentInstance.$dialog
+    .show(
+      '配置',
+      similarSetting,
+      {
+        area: ['500px']
+      },
+      {}
+    )
+    .then(() => {
+      refreshTable(true)
+    })
+    .catch(() => {})
+}
+function getDiffView() {
+  const ApiClass = componentData.currentSimilarType === 'similar2' ? CwProjectItemDiff : CwProjectDiff
+  ApiClass.view(componentInstance, {
+    id: componentData.detailData.id,
+    projectId: componentData.detailData.projectId
+  }).then((res) => {
+    componentData.diffData = res.data
+    componentData.vectorScore = componentData.diffData?.vectorScore
+  })
+}
+function getAssistCheck() {
+  CwProjectDiff.assistCheckList(componentInstance, {
+    projectId: componentData.dataValue?.projectId
+  }).then((res) => {
+    componentData.assistCheckList = res.data
+  })
+}
+function clearSyncHieght() {
+  nextTick(() => {
+    const elements = document.querySelectorAll('.projectView')
+    elements.forEach((v) => {
+      ProjectKeyValues.value.forEach((item) => {
+        const element = v.querySelector('#' + item.value)
+        if (element) {
+          element.style.height = ''
+        }
+      })
+    })
+  })
+}
+function syncHeights() {
+  nextTick(() => {
+    setTimeout(() => {
+      const [elementA, elementB] = document.querySelectorAll('.projectView')
+      ProjectKeyValues.value.forEach((item) => {
+        const _elementA = elementA.querySelector('#' + item.value)
+        const _elementB = elementB.querySelector('#' + item.value)
+        if (_elementA && _elementB) {
+          const maxHeight = Math.max(_elementA.offsetHeight, _elementB.offsetHeight)
+          _elementA.style.height = `${maxHeight}px`
+          _elementB.style.height = `${maxHeight}px`
+        }
+      })
+      componentData.unmountScrollSync = syncScroll(elementA, elementB)
+    }, 800)
+  })
+}
+function handleScroll(elementToSync, event) {
+  elementToSync.scrollTop = event.target.scrollTop
+}
+function syncScroll(element1, element2) {
+  const handleScroll1 = (event) => handleScroll(element2, event)
+  const handleScroll2 = (event) => handleScroll(element1, event)
+  element1.addEventListener('scroll', handleScroll1)
+  element2.addEventListener('scroll', handleScroll2)
+  return function unmount() {
+    element1.removeEventListener('scroll', handleScroll1)
+    element2.removeEventListener('scroll', handleScroll2)
+  }
+}
+function handleSelect(item) {
+  nextTick(() => {
+    setTimeout(() => {
+      const [elementA] = document.querySelectorAll('.projectView')
+      elementA.scrollTop = elementA.scrollTop + 1
+      elementA.scrollTop = elementA.scrollTop - 1
+    }, 100)
+  })
+}
+async function handleApprove(confirm, status, params) {
+  const rejectReasonPromise = () => {
+    return new Promise((resolve, reject) => {
+      componentInstance.$dialog
+        .show('驳回理由', rejectReason, {
+          area: ['600px']
+        })
+        .then(async ({ reason }) => {
+          resolve(reason)
+        })
+        .catch((e) => {
+          reject(e)
+        })
+    })
+  }
+  let remark
+  if (status == 0) {
+    remark = await rejectReasonPromise()
+  } else if (confirm) {
+    await ElMessageBox.confirm('确认审核通过?')
+  }
+  CwProjectApprove[`${currentPageRole.value.apiSuffix}Approve`](componentInstance, {
+    cwApproveDto: {
+      remark,
+      status,
+      projectId: componentData.dataValue?.projectId,
+      id: approvalId.value,
+      ...params
+    }
+  }).then(() => {
+    ElMessage.success('操作成功')
+    setTimeout(() => {
+      refreshTable(true)
+      componentInstance.getFollowupInfo(componentInstance)
+    }, 4000)
+  })
+}
+function handleAIRejudge() {
+  ElMessageBox.confirm('确认AI重审？')
+    .then(() => {
+      CwProjectDiff.retryDiffProject(componentInstance, {
+        projectId: componentData.dataValue.projectId
+      }).then(() => {
+        ElMessage.success('AI重审已触发')
+
+        // 重置数据并重新获取
+        componentData.rawAiData.necessity = null
+        componentData.rawAiData.threeOne = null
+        componentData.rawAiData.assetComp = null
+
+        // 重置动画状态
+        componentData.hasAnimated[componentData.TAB_KEYS.NECESSITY] = false
+        componentData.hasAnimated[componentData.TAB_KEYS.THREE_ONE] = false
+        componentData.hasAnimated[componentData.TAB_KEYS.ASSET_COMP] = false
+        componentData.typewriterDone[componentData.TAB_KEYS.THREE_ONE] = false
+        componentData.typewriterDone[componentData.TAB_KEYS.ASSET_COMP] = false
+
+        // 重新获取数据
+        getCwProjectNecessity()
+        getThreeOneDiffView()
+        getAssetComparisonData()
+
+        // 刷新两个相似分析
+        similarAnalysisRef.value?.getList()
+        similarAnalysis2Ref.value?.getList()
+      })
+    })
+    .catch(() => {})
+}
+function getRowClassName({ row }) {
+  if (row.matchStatus == 3) {
+    return 'red-row'
+  } else if (row.matchStatus == 2) {
+    return 'orange-row'
+  }
+  return ''
+}
+function getApprovalList() {
+  CwProject.approvalLog(componentInstance, {
+    cwProjectApproveDtoFilter: {
+      projectId: componentData.dataValue.projectId
+    }
+  }).then((res) => {
+    componentData.approvalList = res.data?.dataList
+  })
+}
+function getType(type) {
+  let _type = 'primary'
+  switch (+type) {
+    case componentInstance.StatusReserveDict.PENDING_SUBMIT:
+      _type = 'info'
+      break
+    case componentInstance.StatusReserveDict.REJECTED || componentInstance.StatusReserveDict.DELAYED:
+      _type = 'warning'
+      break
+    case componentInstance.StatusReserveDict.PRE_REVIEW_COMPLETED:
+      _type = 'success'
+      break
+  }
+  return _type
+}
+function ifConfirm(msg, callback = () => {}) {
+  return ElMessageBox.confirm(msg).then(() => {
+    callback()
+  })
+}
+async function tabClick(event) {}
+function getInfo() {
+  refreshTable(true)
+}
+// ✨ 核心机制 4：将需要懒加载的接口从初始化方法中移除
+async function refreshTable() {
+  resetAiAnimations()
+  await loadData()
+  getApprovalList()
+  projectRiskInfo()
+  getAssistCheck()
+  getNameAnalyzeList() // 项目名称分析保持初加载
+
+  // 初始化检查当前激活的是哪个 Tab，按需触发懒加载
+  loadTabIfNeeded(componentData.activeName)
+  projectViewRef.value?.initFormData()
+}
+function loadData() {
+  return new Promise((resolve, reject) => {
+    CwProjectApprove[`${currentPageRole.value.apiSuffix}View`](componentInstance, {
+      id: approvalId.value
+    })
+      .then((res) => {
+        if (res) {
+          componentData.dataValue = res.data
+        }
+        resolve()
+      })
+      .catch((e) => {
+        reject(e)
+      })
+  })
+}
+function loadTableVerify() {
+  return true
+}
+function handleSubmit() {}
+function handleCancel() {}
+function onCancel(isSuccess = false, data) {
+  if (componentInstance.observer != null) {
+    componentInstance.observer.cancel(isSuccess, data)
+  }
+}
+function onSubmit() {
+  onCancel(true)
+}
+const getCurrentMenuId = computed(() => componentStore.getters.getCurrentMenuId)
+const getUserInfo = computed(() => componentStore.getters.getUserInfo)
+const necessaryKeyValues = computed(() => {
+  return [
+    {
+      name: '分析结论',
+      value: 'resultContent'
+    }
+  ]
+})
+const approvalId = computed(() => {
+  return componentProps.id || route.query.id
+})
+const approvalListKey = computed(() => {
+  return componentProps.listKey || route.query.listKey
+})
+const currentApprovalRoleName = computed(() => {
+  return route.query.approvalRole || componentProps.approvalRole || route.name
+})
+const currentPageRole = computed(() => {
+  return componentData.pageRoleMap[currentApprovalRoleName.value] || componentData.pageRoleMap.deptApprovalDetail
+})
+const isFinance = computed(() => {
+  return currentApprovalRoleName.value === 'financeApprovalDetail'
+})
+const InfoKeyValues = computed(() => {
+  return [
+    // { label: '申请人', prop: 'createUserName' },
+    {
+      label: '申请时间',
+      prop: 'createTime',
+      formatter: (value) => value
+    },
+    {
+      label: '申请部门',
+      prop: 'workDeptName'
+    },
+    // { label: '审批时间', prop: 'approveTime', formatter: (value) => value },
+    {
+      label: '审批意见',
+      prop: 'approveDesc'
+    }
+  ]
+})
+const ProjectKeyValues = computed(() => {
+  return projectViewRef.value?.KeyValues.filter((item) => item) || []
+})
+watch(
+  () => componentData.activeName,
+  function (val) {
+    loadTabIfNeeded(val)
+  }
+)
+watch(
+  () => componentData.nameAnalyzeObj,
+  function (val) {
+    handleAILoading('nameAnalyze', val, componentData.TAB_KEYS.NECESSITY)
+  },
+  {
+    deep: true
+  }
+)
+watch(
+  () => componentData.threeOneDiffData,
+  function (val) {
+    handleAILoading('threeOne', val, componentData.TAB_KEYS.THREE_ONE)
+  },
+  {
+    deep: true
+  }
+)
+watch(
+  () => componentData.assetComparisonObj,
+  function (val) {
+    handleAILoading('assetComparison', val, componentData.TAB_KEYS.ASSET_COMP)
+  },
+  {
+    deep: true
+  }
+)
+watch(
+  () => approvalId.value,
+  function (val, oldVal) {
+    if (val && val != oldVal) {
+      refreshTable(true)
+      getPreNextStatus()
+    }
+  },
+  {}
+)
+watch(
+  () => componentData.detailData,
+  function (val, oldVal) {
+    if (val && !oldVal) {
+      getDiffView()
+    } else {
+      similarAnalysisRef.value?.getList()
+      similarAnalysis2Ref.value?.getList()
+      clearSyncHieght()
+    }
+  },
+  {
+    deep: true
+  }
+)
+watch(
+  () => componentProps.id,
+  function (val, oldVal) {
+    if (val !== oldVal) {
+      refreshTable(true)
+    }
+  },
+  {}
+)
+onMounted(() => {
+  getReserveStatus()
+  refreshTable(true)
+  getPreNextStatus()
+})
+onBeforeUnmount(() => {
+  if (componentData.unmountScrollSync) componentData.unmountScrollSync()
+  // 👇 优化：一行搞定销毁
+  clearAllAITimers()
+})
+onActivated(() => {
+  // 因为你在上面修改了 loadTabIfNeeded，它已经具备了识别 status === 0 并重发请求的能力
+  // 所以切回页面时，只需要无脑调用一次，它就会自动接力之前的轮询
+  if (componentData.activeName) {
+    loadTabIfNeeded(componentData.activeName)
+  }
+})
+onDeactivated(() => {
+  // 👇 优化：一行搞定休眠
+  clearAllAITimers()
+})
+defineExpose({
+  removeTag,
+  getCurrentMenuId,
+  getUserInfo,
+  openAdmin,
+  parseUploadData,
+  getPictureList,
+  fileListToJson,
+  getUploadFileUrl,
+  filterEmptyValues,
+  getUploadFileUrlByFetch,
+  getUploadActionUrl,
+  pictureFile,
+  getUploadHeaders,
+  getDateRangeFilter,
+  formatDateByStatsType,
+  formatDateTime,
+  getStatsTypeShowName,
+  getAllowStatsTypeList,
+  routerPush,
+  singlePageReload,
+  oncancel,
+  refreshUrlParams,
+  savedKey,
+  projectRiskInfo,
+  clearAllAITimers,
+  loadTabIfNeeded,
+  hasAITabResult,
+  hasMeaningfulAIValue,
+  handleAILoading,
+  checkAndTriggerAnimation,
+  resetAiAnimations,
+  escapeHtml,
+  startTypewriter,
+  highlightText,
+  getReserveStatus,
+  handleBack,
+  onCountdownEnd,
+  onDetail,
+  prevNextStep,
+  getPreNextStatus,
+  getPreNext,
+  getCwProjectNecessity,
+  getThreeOneDiffView,
+  getAssetComparisonData,
+  getNameAnalyzeList,
+  handleExport,
+  handleConfirm,
+  handleSetting,
+  getDiffView,
+  getAssistCheck,
+  clearSyncHieght,
+  syncHeights,
+  handleScroll,
+  syncScroll,
+  handleSelect,
+  handleApprove,
+  handleAIRejudge,
+  getRowClassName,
+  getApprovalList,
+  getType,
+  ifConfirm,
+  tabClick,
+  getInfo,
+  refreshTable,
+  loadData,
+  loadTableVerify,
+  handleSubmit,
+  handleCancel,
+  onCancel,
+  onSubmit,
+  ...toRefs(componentData),
+  necessaryKeyValues,
+  approvalId,
+  approvalListKey,
+  currentApprovalRoleName,
+  currentPageRole,
+  isFinance,
+  InfoKeyValues,
+  ProjectKeyValues
+})
 </script>
 
 <style lang="less">

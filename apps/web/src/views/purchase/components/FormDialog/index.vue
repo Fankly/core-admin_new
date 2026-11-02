@@ -211,7 +211,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "FormDialog" })
 import { getCgxxByXmid, getChildCglx, getDataByCgsq, save } from '@/api/purchase'
 import ProTable from '@/components/ProTable/index.vue'
 import { ColumnProps } from '@/components/ProTable/interface'
@@ -219,6 +218,7 @@ import { PurchaseData, PurchaseDatas, RulesForm, SuppliesForm } from '@/views/pu
 import { ElMessage } from 'element-plus'
 import { computed, reactive, ref } from 'vue'
 import { cloneDeep } from 'lodash'
+defineOptions({ name: "FormDialog" })
 
 interface Props {
   showDiaglog: boolean

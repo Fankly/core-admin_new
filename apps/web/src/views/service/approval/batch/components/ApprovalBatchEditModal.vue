@@ -207,8 +207,8 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ApprovalBatchEditModal" })
 import { useApprovalBatchEdit } from './hooks/useApprovalBatchEdit'
+defineOptions({ name: "ApprovalBatchEditModal" })
 
 interface Props {
   search: () => void

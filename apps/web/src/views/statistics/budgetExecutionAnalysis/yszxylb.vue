@@ -156,15 +156,9 @@
   <FxbgModal ref="fxbgModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/statistics/budgetExecutionAnalysis/yszxylb'
-}
-</script>
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
-
 import userDialog from '@/components/select/userDialog.vue'
 import DwSelect from '@/views/fy/standardCost/components/DwSelect.vue'
 import XmlbSelect from '@/views/statistics/components/XmlbSelect.vue'
@@ -184,20 +178,25 @@ import FxbgModal from '@/views/statistics/components/FxbgModal/index.vue'
 import { getFxbg } from '@/api/statistics/yszxfxbg'
 import { applyFormulaHeaderTooltips } from '@/views/statistics/components/formulaHeader'
 import type { BudgetExecutionFormulaContext } from '@/views/statistics/budgetExecutionAnalysis/indicatorFormula'
-import { createLatestRequestTracker, decorateDynamicColumns, fitNumericColumnWidths } from '@/views/statistics/budgetExecutionAnalysis/viewHelpers'
+import {
+  createLatestRequestTracker,
+  decorateDynamicColumns,
+  fitNumericColumnWidths
+} from '@/views/statistics/budgetExecutionAnalysis/viewHelpers'
 import { formatBudgetExecutionExportSheet } from '@/views/statistics/budgetExecutionAnalysis/exportHelpers'
 import { loadBudgetExecutionFormulaContext } from '@/views/statistics/budgetExecutionAnalysis/exportContext'
+defineOptions({
+  name: '/statistics/budgetExecutionAnalysis/yszxylb'
+})
 
 interface RowVo {
   id: string
 }
-
 interface CodeData {
   code: string
   name: string
   note?: string | number
 }
-
 interface FormData {
   sjx: string[]
   xsws: string
@@ -211,17 +210,14 @@ interface FormData {
   kxpzLists: string[]
   dwList: Data['dwList']
 }
-
 const selectData = reactive<{
   xmlbData: any
 }>({
   xmlbData: []
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const formList = reactive<{
   YSZXYL_SJX: CodeData[]
   XSWS: CodeData[]
@@ -235,7 +231,6 @@ const formList = reactive<{
   BUDUGET_EXECUTION_ANALYSIS: [],
   YSZXFX_KX_COLUMN: []
 })
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const tbhbModalRef = ref()
@@ -244,7 +239,6 @@ const dwSelectRef = ref()
 const dwId = ref<string>('')
 const dwName = ref<string>('')
 const year = ref('')
-
 const formData = reactive<FormData>({
   sjx: [],
   xsws: '',
@@ -258,7 +252,6 @@ const formData = reactive<FormData>({
   kxpzLists: [],
   dwList: []
 })
-
 const gridRef = ref()
 const exportFormulaContext = ref<BudgetExecutionFormulaContext>()
 const isExpanding = ref(false)
@@ -270,12 +263,9 @@ let activeSearchToken = 0
 let tableQueryParams: Data | undefined
 const xmlbRequestTracker = createLatestRequestTracker()
 const indicatorRequestTracker = createLatestRequestTracker()
-
 type TbhbSearchType = '1' | '2'
-
 const isExpandTaskCanceled = (taskId: number) => taskId !== expandTaskId.value
 const isStaleSearchRequest = (requestToken?: number) => typeof requestToken === 'number' && !searchRequestTracker.isLatest(requestToken)
-
 const mapTableRows = (rows: any[] = []) => {
   return rows.map((item: any) => {
     const values = {
@@ -285,7 +275,6 @@ const mapTableRows = (rows: any[] = []) => {
     return values
   })
 }
-
 const requestTableRowsByParent = async (
   parentId: string,
   options: {
@@ -297,7 +286,10 @@ const requestTableRowsByParent = async (
   const { showError = true, taskId, requestToken = activeSearchToken } = options
   if (typeof taskId === 'number' && isExpandTaskCanceled(taskId)) return []
   if (isStaleSearchRequest(requestToken) || !tableQueryParams) return []
-  const params: Data = { ...tableQueryParams, parentId }
+  const params: Data = {
+    ...tableQueryParams,
+    parentId
+  }
   try {
     const res = await getDataListByDw(params)
     if (isStaleSearchRequest(requestToken)) return []
@@ -316,7 +308,6 @@ const requestTableRowsByParent = async (
     return []
   }
 }
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   columnConfig: {
@@ -355,19 +346,15 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
     useStyle: true
   }
 })
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const handleChangeXswsData = () => {
   searchDataHandle()
 }
-
 const handleRemoveTag = (value: string) => {
   formData.sjx.length = 0
 }
-
 const clearGridData = () => {
   activeSearchToken = searchRequestTracker.issue()
   expandTaskId.value += 1
@@ -381,9 +368,14 @@ const clearGridData = () => {
   else gridOptions.data = []
   return activeSearchToken
 }
-
 const normalizeIndicatorOptions = (data: any): CodeData[] => {
-  const sourceData = Array.isArray(data) ? data : Array.isArray(data?.indicators) ? data.indicators : Array.isArray(data?.data) ? data.data : []
+  const sourceData = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.indicators)
+      ? data.indicators
+      : Array.isArray(data?.data)
+        ? data.data
+        : []
   const indicatorMap = new Map<string, CodeData>()
   sourceData.forEach((item: any) => {
     if (typeof item === 'string' && item.trim()) {
@@ -402,12 +394,10 @@ const normalizeIndicatorOptions = (data: any): CodeData[] => {
   })
   return Array.from(indicatorMap.values())
 }
-
 const resetIndicatorData = () => {
   formList.YSZXYL_SJX = []
   formData.sjx = []
 }
-
 const getIndicatorData = async () => {
   const requestToken = indicatorRequestTracker.issue()
   if (!formData.busiType) {
@@ -431,7 +421,6 @@ const getIndicatorData = async () => {
     }
   }
 }
-
 const getTableDataByRequest = async (params: Data, requestToken: number) => {
   gridOptions.loading = true
   try {
@@ -448,11 +437,13 @@ const getTableDataByRequest = async (params: Data, requestToken: number) => {
     }
   }
 }
-
 const getDynamicColumnData = async (params: Data, requestToken: number): Promise<boolean> => {
   gridOptions.loading = true
   try {
-    const [res, context] = await Promise.all([getDynamicColumnByDw(params), loadBudgetExecutionFormulaContext('budget', params.dwId, params.dwList)])
+    const [res, context] = await Promise.all([
+      getDynamicColumnByDw(params),
+      loadBudgetExecutionFormulaContext('budget', params.dwId, params.dwList)
+    ])
     if (isStaleSearchRequest(requestToken)) return false
     if (res.success) {
       gridOptions.columns = decorateDynamicColumns(res.data || [], formData.xsws, formatNumValue) as any
@@ -475,14 +466,15 @@ const getDynamicColumnData = async (params: Data, requestToken: number): Promise
     }
   }
 }
-
 const getFormParams = (): Data => {
   let params: Data = {
     busiType: formData.busiType,
     dwId: dwId.value,
     endDate: formData.endDate,
     startDate: formData.startDate,
-    dwList: formData.dwList.map((item) => ({ ...item })),
+    dwList: formData.dwList.map((item) => ({
+      ...item
+    })),
     indicators: formData.sjx.join(','),
     kxpzLists: [...formData.kxpzLists],
     parentId: year.value,
@@ -490,7 +482,6 @@ const getFormParams = (): Data => {
   }
   return params
 }
-
 const setFormData = async () => {
   const $dwSelect = dwSelectRef.value
   if ($dwSelect) {
@@ -501,7 +492,6 @@ const setFormData = async () => {
     }))
   }
 }
-
 const searchDataHandle = async () => {
   const requestToken = clearGridData()
   if (!formList.YSZXYL_SJX.length) {
@@ -524,13 +514,11 @@ const searchDataHandle = async () => {
   if (!dynamicColumnsLoaded || isStaleSearchRequest(requestToken)) return
   await getTableDataByRequest(params, requestToken)
 }
-
 const resetDataHandle = async () => {
   clearGridData()
   await setDefaultValue()
   await getXmlbData()
 }
-
 const setDefaultValue = async () => {
   const now = new Date()
   year.value = now.getFullYear().toString()
@@ -550,7 +538,6 @@ const setDefaultValue = async () => {
   formData.kxpzLists = formList.YSZXFX_KX_COLUMN.filter((item) => String(item.note) === '1').map((item) => String(item.code))
   formData.dwList.length = 0
 }
-
 const disabledEndMonth = (time: Date) => {
   if (!formData.startDate) return false
   const startDate = new Date(formData.startDate)
@@ -561,7 +548,6 @@ const disabledEndMonth = (time: Date) => {
   const monthDiff = (currentYear - startYear) * 12 + (currentMonth - startMonth)
   return currentYear !== startYear || monthDiff < 0
 }
-
 const exportDataHandle = () => {
   const $table = gridRef.value
   if ($table) {
@@ -575,11 +561,13 @@ const exportDataHandle = () => {
     $table.exportData({
       ...gridOptions.exportConfig,
       sheetMethod: (params: any) =>
-        formatBudgetExecutionExportSheet(params, context, { includeFormulaExplanations: false, autoFitNumericColumns: true })
+        formatBudgetExecutionExportSheet(params, context, {
+          includeFormulaExplanations: false,
+          autoFitNumericColumns: true
+        })
     })
   }
 }
-
 const handleTbhb = async (searchType: TbhbSearchType) => {
   if (gridOptions.loading) return
   if (!formData.sjx.length) {
@@ -589,7 +577,10 @@ const handleTbhb = async (searchType: TbhbSearchType) => {
   await setFormData()
   tbhbModalRef.value?.open({
     title: searchType === '1' ? '同比分析' : '环比分析',
-    params: { ...getFormParams(), searchType },
+    params: {
+      ...getFormParams(),
+      searchType
+    },
     xsws: formData.xsws
   })
 }
@@ -605,20 +596,30 @@ const viewReportHandle = () => {
     getFxbg
   )
 }
-
 const handleBusiTypeChange = async () => {
   formData.xmlbIds = ''
   clearGridData()
   await Promise.all([getIndicatorData(), getXmlbData()])
 }
-
 const yieldToMainThread = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
-
-const preloadLazyDataByLevel = async (data: any[], targetLevel: number, state: { count: number }, taskId: number): Promise<void> => {
-  const queue: Array<{ row: any; level: number }> = []
+const preloadLazyDataByLevel = async (
+  data: any[],
+  targetLevel: number,
+  state: {
+    count: number
+  },
+  taskId: number
+): Promise<void> => {
+  const queue: Array<{
+    row: any
+    level: number
+  }> = []
   for (const row of data) {
     if (row && typeof row === 'object' && row.leaf) {
-      queue.push({ row, level: 1 })
+      queue.push({
+        row,
+        level: 1
+      })
     }
   }
   let cursor = 0
@@ -630,7 +631,10 @@ const preloadLazyDataByLevel = async (data: any[], targetLevel: number, state: {
       cursor += 1
       const { row, level } = current
       if (targetLevel !== Infinity && level >= targetLevel) continue
-      const children = await requestTableRowsByParent(row.id, { showError: false, taskId })
+      const children = await requestTableRowsByParent(row.id, {
+        showError: false,
+        taskId
+      })
       if (isExpandTaskCanceled(taskId)) return
       row.children = children
       state.count += 1
@@ -639,21 +643,32 @@ const preloadLazyDataByLevel = async (data: any[], targetLevel: number, state: {
       }
       for (const child of children) {
         if (child && typeof child === 'object' && child.leaf) {
-          queue.push({ row: child, level: level + 1 })
+          queue.push({
+            row: child,
+            level: level + 1
+          })
         }
       }
     }
   }
   const workerCount = Math.max(1, Math.min(EXPAND_PRELOAD_CONCURRENCY, queue.length || 1))
-  await Promise.all(Array.from({ length: workerCount }, () => worker()))
+  await Promise.all(
+    Array.from(
+      {
+        length: workerCount
+      },
+      () => worker()
+    )
+  )
 }
-
 const expandToLevel = async (
   data: any[],
   $table: any,
   targetLevel: number,
   currentLevel: number,
-  state: { count: number },
+  state: {
+    count: number
+  },
   visitedRows: WeakSet<object>,
   taskId?: number
 ): Promise<void> => {
@@ -677,7 +692,6 @@ const expandToLevel = async (
     }
   }
 }
-
 const expandByLevelHandle = async (command: string) => {
   if (!gridOptions.columns || gridOptions.columns.length === 0) {
     return
@@ -693,9 +707,18 @@ const expandByLevelHandle = async (command: string) => {
   try {
     await setFormData()
     if (isExpandTaskCanceled(taskId)) return
-    const rootRows = await requestTableRowsByParent(year.value, { taskId })
+    const rootRows = await requestTableRowsByParent(year.value, {
+      taskId
+    })
     if (isExpandTaskCanceled(taskId)) return
-    await preloadLazyDataByLevel(rootRows, targetLevel, { count: 0 }, taskId)
+    await preloadLazyDataByLevel(
+      rootRows,
+      targetLevel,
+      {
+        count: 0
+      },
+      taskId
+    )
     if (isExpandTaskCanceled(taskId)) return
     gridOptions.data = rootRows
     await nextTick()
@@ -704,7 +727,17 @@ const expandByLevelHandle = async (command: string) => {
     if (!$table) return
     await $table.clearTreeExpand()
     if (isExpandTaskCanceled(taskId)) return
-    await expandToLevel(rootRows, $table, targetLevel, 1, { count: 0 }, new WeakSet<object>(), taskId)
+    await expandToLevel(
+      rootRows,
+      $table,
+      targetLevel,
+      1,
+      {
+        count: 0
+      },
+      new WeakSet<object>(),
+      taskId
+    )
   } finally {
     if (!isExpandTaskCanceled(taskId)) {
       gridOptions.loading = false
@@ -712,11 +745,12 @@ const expandByLevelHandle = async (command: string) => {
     }
   }
 }
-
 const getPublicCode = async () => {
   let codes = ['XSWS', 'ZKCJ', 'BUDUGET_EXECUTION_ANALYSIS', 'YSZXFX_KX_COLUMN']
   try {
-    const res = await getPublicCodeList({ codes })
+    const res = await getPublicCodeList({
+      codes
+    })
     if (res.success && res.data) {
       formList.XSWS = res.data['XSWS']
       formList.ZKCJ = res.data['ZKCJ'] || []
@@ -729,18 +763,15 @@ const getPublicCode = async () => {
     ElMessage.error('公共代码加载失败，请稍后重试')
   }
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
   dwId.value = userDialogRef.value.userMsg.org_id
   dwName.value = userDialogRef.value.userMsg.org_name
-
   if (isQuery) {
     pageInfo.isShowPage = true
     // searchDataHandle()
   }
 }
-
 const getXmlbData = async () => {
   const requestToken = xmlbRequestTracker.issue()
   if (!formData.busiType) {
@@ -763,18 +794,15 @@ const getXmlbData = async () => {
     }
   }
 }
-
 const initParams = async () => {
   await getPublicCode()
   await setDefaultValue()
   await getXmlbData()
   userDialogRef.value.getUser()
 }
-
 onMounted(() => {
   initParams()
 })
-
 watch(
   () => formData.startDate,
   (newVal, oldVal) => {

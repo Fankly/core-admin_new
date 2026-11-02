@@ -67,7 +67,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "reViewExpertProModal" })
 import { nextTick, ref, reactive } from 'vue'
 import {
   deleteYnrzjWhenPsz,
@@ -84,6 +83,7 @@ import { getCommonCodeByParentCode, getYjdwFromCm, getPublicData } from '@/api/c
 import PendingTrialModal from '@/views/service/approval/provinceLhhsMeeting/components/PendingTrialModal/pendingTrialExpertModal.vue'
 import { VXETable } from 'vxe-table'
 import { downloadExportBlob } from '@/views/service/approval/provinceLhhsMeeting/utils/download'
+defineOptions({ name: "reViewExpertProModal" })
 
 interface ModalProps {
   search?: () => void

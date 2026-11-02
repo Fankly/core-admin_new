@@ -1,96 +1,87 @@
-<script lang="ts">
-export default {
-  name: "/ygConfigData/components/TypeDialog"
-};
-</script>
+
 
 <script setup lang="ts">
-import { ref, defineExpose, defineProps, toRef, reactive, defineEmits } from "vue";
-import ProTypeTreeSelect from "@/components/select/ProTypeTreeSelect.vue";
-import { InitParams } from "@/views/ygConfigData/budgetStatisticsConfig.vue";
-import { getPublicData, getAllProtypeTree } from "@/api/common";
-import { ElMessage } from "element-plus";
-import { cloneDeep } from "lodash";
+import { ref, toRef, reactive } from 'vue'
+import ProTypeTreeSelect from '@/components/select/ProTypeTreeSelect.vue'
+import { InitParams } from '@/views/ygConfigData/budgetStatisticsConfig.vue'
+import { getPublicData, getAllProtypeTree } from '@/api/common'
+import { ElMessage } from 'element-plus'
+import { cloneDeep } from 'lodash'
+defineOptions({
+  name: '/ygConfigData/components/TypeDialog'
+})
 
 interface Props {
-  initParams: InitParams;
+  initParams: InitParams
 }
-
-const emits = defineEmits(["getTypeData"]);
-
-const props = defineProps<Props>();
-
-const formRef = ref();
-
-const nd = toRef(props.initParams, "nd");
-
-const treeData = ref([]);
-
+const emits = defineEmits(['getTypeData'])
+const props = defineProps<Props>()
+const formRef = ref()
+const nd = toRef(props.initParams, 'nd')
+const treeData = ref([])
 const xmbSelectList = ref<
   {
-    code: string;
-    name: string;
+    code: string
+    name: string
   }[]
->([]);
-
-const showModal = ref(false);
-
+>([])
+const showModal = ref(false)
 const formData = reactive<any>({
-  proType: "",
-  packType: ""
-});
-
+  proType: '',
+  packType: ''
+})
 const rulesForm = reactive({
-  proType: [{ required: true, message: "请选择项目类型", trigger: ["change"] }]
-});
-
+  proType: [
+    {
+      required: true,
+      message: '请选择项目类型',
+      trigger: ['change']
+    }
+  ]
+})
 const initPublicCode = async () => {
-  let res = await getPublicData("XMBTYPE_COM");
+  let res = await getPublicData('XMBTYPE_COM')
   if (res.success && res.data) {
-    xmbSelectList.value = res.data;
+    xmbSelectList.value = res.data
   }
-};
-
+}
 const initFormData = async () => {
   const params = {
-    parentId: "0",
+    parentId: '0',
     startDate: nd.value
-  };
-  let res = await getAllProtypeTree();
+  }
+  let res = await getAllProtypeTree()
   if (res.success) {
-    treeData.value = res.data;
+    treeData.value = res.data
   } else {
     ElMessage({
-      type: "error",
+      type: 'error',
       message: res.msg
-    });
+    })
   }
-};
-
+}
 const releaseHandle = async () => {
-  if (!formRef.value) return;
+  if (!formRef.value) return
   await formRef.value.validate(async (valid: any) => {
     if (valid) {
-      let copyData = cloneDeep(formData);
-      emits("getTypeData", copyData);
-      closeModalHandle();
+      let copyData = cloneDeep(formData)
+      emits('getTypeData', copyData)
+      closeModalHandle()
     }
-  });
-};
-
+  })
+}
 const showModalHandle = () => {
-  initPublicCode();
-  initFormData();
-};
-
+  initPublicCode()
+  initFormData()
+}
 const closeModalHandle = () => {
-  showModal.value = false;
-  formData.packType = "";
-  formData.proType = "";
-};
+  showModal.value = false
+  formData.packType = ''
+  formData.proType = ''
+}
 defineExpose({
   showModal
-});
+})
 </script>
 
 <template>

@@ -131,7 +131,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -140,9 +140,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, watch, onMounted, getCurrentInstance, useTemplateRef } from 'vue'
 import { ElMessage } from 'element-plus'
 import baseService from '@/service/baseService'
 import projectType from '@/components/select/projectType.vue'
@@ -153,243 +151,273 @@ import projectnature from '@/components/select/projectnature.vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { showHelpMsg } from '@/utils/message'
-
-export default defineComponent({
-  name: '/budget-process/process-23',
-  components: {
-    projectType,
-    affiliatedUnit,
-    copyTextBox,
-    Centralized,
-    projectnature,
-    userDialog
+defineOptions({
+  name: '/budget-process/process-23'
+})
+const componentInstance = getCurrentInstance().proxy
+const xmxzRef = useTemplateRef('xmxz')
+const xmbmRef = useTemplateRef('xmbm')
+const gkbmRef = useTemplateRef('gkbm')
+const typeRef = useTemplateRef('type')
+const companyRef = useTemplateRef('company')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  helpHandle,
+  example: [],
+  searchShow: true,
+  dataList: {
+    post1: '',
+    xmb: '',
+    month: new Date()
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
-    }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      helpHandle,
-      example: [],
-      searchShow: true,
-      dataList: {
-        post1: '',
-        xmb: '',
-        month: new Date()
-      },
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: ''
-    })
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-  watch: {
-    'store.state.jsyzzData.pspid': {
-      handler: function (val) {
-        if (val) {
-          this.$refs.xmbm.ids = val
-          this.$refs.xmbm.text = val
-          this.$refs.xmbm.array.push(val)
-          this.specialorgid = JSON.parse(this.store.state.jsyzzData.specialorgid)
-          this.loadData()
-          // 清空vuex中的数据
-          this.store.commit('jsyzzData', {})
-        }
-      }
-    },
-    deep: true
-  },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    if (this.store.state.jsyzzData.pspid && this.store.state.jsyzzData.specialorgid) {
-      this.$refs.xmbm.ids = this.store.state.jsyzzData.pspid
-      this.$refs.xmbm.text = this.store.state.jsyzzData.pspid
-      this.$refs.xmbm.array.push(this.store.state.jsyzzData.pspid)
-      this.specialorgid = JSON.parse(this.store.state.jsyzzData.specialorgid)
-      this.loadData()
-      // 清空vuex中的数据
-      this.store.commit('jsyzzData', {})
-    } else {
-      this.loading = true
-      this.$refs.userDialog.getUser()
-    }
-  },
-  methods: {
-    loadData() {
-      this.loading = true
-      const params = {
-        pspids: [],
-        zjsjd_mc: this.$refs.xmxz.value,
-        gkbms: [],
-        post1: this.dataList.post1,
-        xmb: this.dataList.xmb,
-        zyear: '',
-        zmonth: '',
-
-        qkjxmlxbms: [],
-        qkjejdws: [],
-
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-      //项目编码
-      params.pspids = this.$refs.xmbm.array
-      //归口部门
-      params.gkbms = this.$refs.gkbm.selectList
-      //截至日期
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type.selectList
-      // 所属单位
-      params.qkjejdws = this.$refs.company.selectList
-
-      baseService.post('/process/process23/', params).then((res) => {
-        if (res.success == true) {
-          this.loading = false
-          this.example = res.data.list
-          this.page.total = res.data.total
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-
-    //导出按钮
-    async exportBtn() {
-      this.loading = true
-      const params = {
-        pspids: [],
-        zjsjd_mc: this.$refs.xmxz.value,
-        gkbms: [],
-        post1: this.dataList.post1,
-        xmb: this.dataList.xmb,
-        zyear: '',
-        zmonth: '',
-
-        qkjxmlxbms: [],
-        qkjejdws: [],
-
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-      //项目编码
-      params.pspids = this.$refs.xmbm.array
-      //归口部门
-      params.gkbms = this.$refs.gkbm.selectList
-      //截至日期
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type.selectList
-      // 所属单位
-      params.qkjejdws = this.$refs.company.selectList
-      await baseService.export('/process/process23/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '决算与增资环节穿透.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 100 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 100 + 'px'
-      }
-    },
-    // 分页控件当前页修改事件
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    // 分页控件请求数量修改事件
-    limitChangeHandle(currentLimitNum) {
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    //查询按钮
-    search() {
-      if (this.dataList.month) {
-        this.loadData()
-      } else {
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-    //重置按钮
-    reset() {
-      this.$refs.xmbm.clear()
-      this.$refs.xmxz.clear()
-      this.$refs.gkbm.clear()
-      this.dataList.post1 = ''
-      this.dataList.xmb = ''
-      this.dataList.month = new Date()
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.example = []
-      this.search()
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
-      this.$refs.gkbm.getProjectType(this.specialorgid)
-    }
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const example = toRef(setupState, 'example')
+const searchShow = toRef(setupState, 'searchShow')
+const dataList = toRef(setupState, 'dataList')
+const page = toRef(setupState, 'page')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+function loadData() {
+  setupState.loading = true
+  const params = {
+    pspids: [],
+    zjsjd_mc: xmxzRef.value.value,
+    gkbms: [],
+    post1: setupState.dataList.post1,
+    xmb: setupState.dataList.xmb,
+    zyear: '',
+    zmonth: '',
+    qkjxmlxbms: [],
+    qkjejdws: [],
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
   }
+  //项目编码
+  params.pspids = xmbmRef.value.array
+  //归口部门
+  params.gkbms = gkbmRef.value.selectList
+  //截至日期
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  //项目类型
+  params.qkjxmlxbms = typeRef.value.selectList
+  // 所属单位
+  params.qkjejdws = companyRef.value.selectList
+  baseService.post('/process/process23/', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example = res.data.list
+      setupState.page.total = res.data.total
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+//导出按钮
+async function exportBtn() {
+  setupState.loading = true
+  const params = {
+    pspids: [],
+    zjsjd_mc: xmxzRef.value.value,
+    gkbms: [],
+    post1: setupState.dataList.post1,
+    xmb: setupState.dataList.xmb,
+    zyear: '',
+    zmonth: '',
+    qkjxmlxbms: [],
+    qkjejdws: [],
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+  //项目编码
+  params.pspids = xmbmRef.value.array
+  //归口部门
+  params.gkbms = gkbmRef.value.selectList
+  //截至日期
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  //项目类型
+  params.qkjxmlxbms = typeRef.value.selectList
+  // 所属单位
+  params.qkjejdws = companyRef.value.selectList
+  await baseService.export('/process/process23/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '决算与增资环节穿透.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 100 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 100 + 'px'
+  }
+}
+// 分页控件当前页修改事件
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+//查询按钮
+function search() {
+  if (setupState.dataList.month) {
+    loadData()
+  } else {
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
+    })
+  }
+}
+//重置按钮
+function reset() {
+  xmbmRef.value.clear()
+  xmxzRef.value.clear()
+  gkbmRef.value.clear()
+  setupState.dataList.post1 = ''
+  setupState.dataList.xmb = ''
+  setupState.dataList.month = new Date()
+  typeRef.value.clear()
+  companyRef.value.clear()
+  setupState.example = []
+  search()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+  gkbmRef.value.getProjectType(setupState.specialorgid)
+}
+watch(
+  () => setupState.store.state.jsyzzData.pspid,
+  function (val) {
+    if (val) {
+      xmbmRef.value.ids = val
+      xmbmRef.value.text = val
+      xmbmRef.value.array.push(val)
+      setupState.specialorgid = JSON.parse(setupState.store.state.jsyzzData.specialorgid)
+      loadData()
+      // 清空vuex中的数据
+      setupState.store.commit('jsyzzData', {})
+    }
+  },
+  {}
+)
+watch(() => componentInstance.deep, true)
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  if (setupState.store.state.jsyzzData.pspid && setupState.store.state.jsyzzData.specialorgid) {
+    xmbmRef.value.ids = setupState.store.state.jsyzzData.pspid
+    xmbmRef.value.text = setupState.store.state.jsyzzData.pspid
+    xmbmRef.value.array.push(setupState.store.state.jsyzzData.pspid)
+    setupState.specialorgid = JSON.parse(setupState.store.state.jsyzzData.specialorgid)
+    loadData()
+    // 清空vuex中的数据
+    setupState.store.commit('jsyzzData', {})
+  } else {
+    setupState.loading = true
+    userDialogRef.value.getUser()
+  }
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  helpHandle,
+  example,
+  searchShow,
+  dataList,
+  page,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  loadData,
+  exportBtn,
+  setTableHeight,
+  pageChangeHandle,
+  limitChangeHandle,
+  showSearch,
+  search,
+  reset,
+  loadCompany
 })
 </script>
 

@@ -186,8 +186,6 @@
 </template>
 <script lang="ts" setup>
 import { More as EpMore, Search as EpSearch } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/ai/reviewWorkBench/reviewDeatil/index" })
 import { ref, reactive, nextTick, onMounted, computed } from 'vue'
 import otherOpinion from './components/otherOpinion.vue'
 import { reviewHandle } from './hooks/showReview'
@@ -213,10 +211,13 @@ import { searchFun } from '@/views/service/jointReview/hooks/search'
 import { exportFun } from '@/views/ai/reviewWorkBench/reviewDeatil/hooks/imporExcel'
 import { expertReview } from '@/views/service/jointReview/expertReview/hooks/psy'
 import searchParams from '@/views/service/jointReview/components/searchParams.vue'
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import AiAuditOpinion from '@/views/service/jointReview/components/AiAuditOpinion.vue'
 import { getYjdwData } from '@/api/service/expertinformation'
 import { apiExportHandle, apiExporFile } from '@/utils/export'
+defineOptions({ name: "/ai/reviewWorkBench/reviewDeatil/index" })
+
+ //导入组件
 
 // 筛选标签
 const filterTabs = ref<any[]>([

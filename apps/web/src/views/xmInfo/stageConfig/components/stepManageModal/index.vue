@@ -63,20 +63,17 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'stepManageModal'
-}
-</script>
 
 <script setup lang="ts">
 import { Delete as EpDelete, Edit as EpEdit, Search as EpSearch } from '@element-plus/icons-vue'
-
 import { ref, markRaw, nextTick, defineAsyncComponent } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import RangeVxeTableStyle from '@/components/RangeVxeTableStyle/index.vue'
 import { processGetPage, processSaveOrUpdate, processDelete } from '@/api/xmInfo/stageConfig'
+defineOptions({
+  name: 'stepManageModal'
+})
 
 interface AttachRow {
   id?: string
@@ -96,13 +93,10 @@ interface AttachRow {
   flowStatus?: string
   [key: string]: any
 }
-
 const emit = defineEmits<{
   (e: 'success'): void
 }>()
-
 const remarkModal = defineAsyncComponent(() => import('@/views/xmInfo/stageConfig/components/remarkModal/index.vue'))
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const actionLoading = ref(false)
@@ -113,35 +107,83 @@ const remarkModalRef = ref()
 
 /** 请求序号：丢弃过期响应，避免快速搜索闪旧数据 */
 let reqSeq = 0
-
-const operationTypeMap = markRaw<Record<string, string>>({ '1': '普通操作', '2': '工作流审批', '3': '评审意见' })
-const pslxMap = markRaw<Record<string, string>>({ '1': '外围系统评审', '2': '联合会审评审', '3': '省专业预审退回', '4': '省财务、发展线下会审' })
-const yjclbmTypeMap = markRaw<Record<string, string>>({ '1': '直接获取', '2': '通过脚本获取' })
-
+const operationTypeMap = markRaw<Record<string, string>>({
+  '1': '普通操作',
+  '2': '工作流审批',
+  '3': '评审意见'
+})
+const pslxMap = markRaw<Record<string, string>>({
+  '1': '外围系统评审',
+  '2': '联合会审评审',
+  '3': '省专业预审退回',
+  '4': '省财务、发展线下会审'
+})
+const yjclbmTypeMap = markRaw<Record<string, string>>({
+  '1': '直接获取',
+  '2': '通过脚本获取'
+})
 const operationColumn = markRaw({
   field: 'operation',
   title: '操作',
   width: 130,
   fixed: 'right',
   align: 'center',
-  slots: { default: 'operation' }
+  slots: {
+    default: 'operation'
+  }
 })
-
 const columns = markRaw<any[]>([
-  { type: 'seq', width: 50, title: '序号', fixed: 'left' },
-  { field: 'groupCode', title: '环节编码', width: 120, fixed: 'left' },
-  { field: 'groupName', title: '环节名称', width: 150, fixed: 'left' },
-  { field: 'code', title: '步骤编号', width: 100, fixed: 'left' },
-  { field: 'name', title: '步骤名称', minWidth: 180, fixed: 'left' },
-  { field: 'operationRole', title: '操作角色', width: 150 },
-  { field: 'operationRoleCode', title: '角色编码', width: 150 },
+  {
+    type: 'seq',
+    width: 50,
+    title: '序号',
+    fixed: 'left'
+  },
+  {
+    field: 'groupCode',
+    title: '环节编码',
+    width: 120,
+    fixed: 'left'
+  },
+  {
+    field: 'groupName',
+    title: '环节名称',
+    width: 150,
+    fixed: 'left'
+  },
+  {
+    field: 'code',
+    title: '步骤编号',
+    width: 100,
+    fixed: 'left'
+  },
+  {
+    field: 'name',
+    title: '步骤名称',
+    minWidth: 180,
+    fixed: 'left'
+  },
+  {
+    field: 'operationRole',
+    title: '操作角色',
+    width: 150
+  },
+  {
+    field: 'operationRoleCode',
+    title: '角色编码',
+    width: 150
+  },
   {
     field: 'yjclbmType',
     title: '预计处理部门获取方式',
     width: 160,
     formatter: ({ cellValue }: any) => yjclbmTypeMap[String(cellValue)] || cellValue || '-'
   },
-  { field: 'yjclbm', title: '预计处理部门', minWidth: 200 },
+  {
+    field: 'yjclbm',
+    title: '预计处理部门',
+    minWidth: 200
+  },
   {
     field: 'operationType',
     title: '操作类型',
@@ -161,35 +203,65 @@ const columns = markRaw<any[]>([
     width: 150,
     formatter: ({ cellValue }: any) => pslxMap[String(cellValue)] || cellValue || '-'
   },
-  { field: 'mainCode', title: '关键操作节点', width: 150 },
-  { field: 'wfCode', title: '流程编码', width: 150 },
-  { field: 'wfNodeCode', title: '流程节点编码', width: 150 },
-  { field: 'opeartionDes', title: '普通业务操作说明', minWidth: 300, headerAlign: 'center', align: 'left' },
-  { field: 'remark', title: '说明', minWidth: 300, headerAlign: 'center', align: 'left' },
-  { field: 'sortCode', title: '排序', minWidth: 150 },
-  { field: 'flowStatus', title: '状态', minWidth: 150 },
+  {
+    field: 'mainCode',
+    title: '关键操作节点',
+    width: 150
+  },
+  {
+    field: 'wfCode',
+    title: '流程编码',
+    width: 150
+  },
+  {
+    field: 'wfNodeCode',
+    title: '流程节点编码',
+    width: 150
+  },
+  {
+    field: 'opeartionDes',
+    title: '普通业务操作说明',
+    minWidth: 300,
+    headerAlign: 'center',
+    align: 'left'
+  },
+  {
+    field: 'remark',
+    title: '说明',
+    minWidth: 300,
+    headerAlign: 'center',
+    align: 'left'
+  },
+  {
+    field: 'sortCode',
+    title: '排序',
+    minWidth: 150
+  },
+  {
+    field: 'flowStatus',
+    title: '状态',
+    minWidth: 150
+  },
   operationColumn
 ])
-
 const callBackHandle = (data: any) => data
-
 const reloadTable = () => {
   tableRef.value?.clearSelection()
   tableRef.value?.getTableList()
 }
-
 const handleSearch = () => {
   reloadTable()
 }
-
 const handleTableQuery = () => {
   tableRef.value?.clearSelection()
 }
-
 const getPageList = (params: any) => {
   const seq = ++reqSeq
   loading.value = true
-  return processGetPage({ ...params, name: keyword.value })
+  return processGetPage({
+    ...params,
+    name: keyword.value
+  })
     .then((res: any) => {
       if (seq !== reqSeq) throw new Error('STALE_TABLE_REQUEST')
       loading.value = false
@@ -203,20 +275,21 @@ const getPageList = (params: any) => {
       throw err
     })
 }
-
 const handleAdd = () => {
   remarkModalRef.value?.acceptParams({})
 }
-
 const handleEdit = (row: AttachRow) => {
-  remarkModalRef.value?.acceptParams({ ...row })
+  remarkModalRef.value?.acceptParams({
+    ...row
+  })
 }
-
 const handleRemarkSave = async (params: AttachRow) => {
   if (actionLoading.value) return
   actionLoading.value = true
   try {
-    const res = await processSaveOrUpdate({ ...params })
+    const res = await processSaveOrUpdate({
+      ...params
+    })
     if (res.success) {
       ElMessage.success('保存成功')
       // 延后到下一帧再刷新：表单弹窗 destroy-on-close 卸载与本表 reload+自动列宽重算
@@ -234,10 +307,11 @@ const handleRemarkSave = async (params: AttachRow) => {
     actionLoading.value = false
   }
 }
-
 const handleDelete = async (row: AttachRow) => {
   try {
-    const type = await VXETable.modal.confirm('确定删除该步骤吗？', '提示', { status: 'warning' })
+    const type = await VXETable.modal.confirm('确定删除该步骤吗？', '提示', {
+      status: 'warning'
+    })
     if (type !== 'confirm') {
       ElMessage.info('已取消')
       return
@@ -248,7 +322,9 @@ const handleDelete = async (row: AttachRow) => {
   if (actionLoading.value) return
   actionLoading.value = true
   try {
-    const res = await processDelete({ ids: [row.id] })
+    const res = await processDelete({
+      ids: [row.id]
+    })
     if (res.success) {
       ElMessage.success('删除成功')
       reloadTable()
@@ -262,19 +338,18 @@ const handleDelete = async (row: AttachRow) => {
     actionLoading.value = false
   }
 }
-
 const handleClose = () => {
   keyword.value = ''
   isShowModal.value = false
 }
-
 const acceptParams = () => {
   keyword.value = ''
   modalTitle.value = '步骤管理'
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

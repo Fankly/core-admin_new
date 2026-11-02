@@ -157,15 +157,13 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'remarkModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { FormRules } from 'element-plus'
+defineOptions({
+  name: 'remarkModal'
+})
 
 interface RemarkParams {
   id?: string
@@ -187,46 +185,111 @@ interface RemarkParams {
   opeartionDes?: string
   remark?: string
 }
-
 const emit = defineEmits<{
   (e: 'success', val: RemarkParams): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
 const modalTitle = ref('新增步骤')
-
 const operationTypeOptions = [
-  { value: '1', label: '普通操作' },
-  { value: '2', label: '工作流审批' },
-  { value: '3', label: '评审意见' }
+  {
+    value: '1',
+    label: '普通操作'
+  },
+  {
+    value: '2',
+    label: '工作流审批'
+  },
+  {
+    value: '3',
+    label: '评审意见'
+  }
 ]
 const pslxOptions = [
-  { value: '1', label: '外围系统评审' },
-  { value: '2', label: '联合会审评审' },
-  { value: '3', label: '省专业预审退回' },
-  { value: '4', label: '省财务、发展线下会审' }
+  {
+    value: '1',
+    label: '外围系统评审'
+  },
+  {
+    value: '2',
+    label: '联合会审评审'
+  },
+  {
+    value: '3',
+    label: '省专业预审退回'
+  },
+  {
+    value: '4',
+    label: '省财务、发展线下会审'
+  }
 ]
 const yjclbmTypeOptions = [
-  { value: '1', label: '直接获取' },
-  { value: '2', label: '通过脚本获取' }
+  {
+    value: '1',
+    label: '直接获取'
+  },
+  {
+    value: '2',
+    label: '通过脚本获取'
+  }
 ]
-
 const formParams = ref<RemarkParams>({})
 
 /** 动态校验规则：选中工作流审批(2)时必填流程相关字段 */
 const rules = computed<FormRules>(() => {
   const r: FormRules = {
-    code: [{ required: true, message: '请输入步骤编码', trigger: 'blur' }],
-    name: [{ required: true, message: '请输入步骤名称', trigger: 'blur' }],
-    groupCode: [{ required: true, message: '请输入环节编码', trigger: 'blur' }],
-    groupName: [{ required: true, message: '请输入环节名称', trigger: 'blur' }],
-    operationType: [{ required: true, message: '请选择操作类型', trigger: 'change' }]
+    code: [
+      {
+        required: true,
+        message: '请输入步骤编码',
+        trigger: 'blur'
+      }
+    ],
+    name: [
+      {
+        required: true,
+        message: '请输入步骤名称',
+        trigger: 'blur'
+      }
+    ],
+    groupCode: [
+      {
+        required: true,
+        message: '请输入环节编码',
+        trigger: 'blur'
+      }
+    ],
+    groupName: [
+      {
+        required: true,
+        message: '请输入环节名称',
+        trigger: 'blur'
+      }
+    ],
+    operationType: [
+      {
+        required: true,
+        message: '请选择操作类型',
+        trigger: 'change'
+      }
+    ]
   }
   if (formParams.value.operationType === '2') {
-    r.wfCode = [{ required: true, message: '请输入流程编码', trigger: 'blur' }]
-    r.wfNodeCode = [{ required: true, message: '请输入流程节点编码', trigger: 'blur' }]
+    r.wfCode = [
+      {
+        required: true,
+        message: '请输入流程编码',
+        trigger: 'blur'
+      }
+    ]
+    r.wfNodeCode = [
+      {
+        required: true,
+        message: '请输入流程节点编码',
+        trigger: 'blur'
+      }
+    ]
   }
   return r
 })
@@ -235,19 +298,19 @@ const rules = computed<FormRules>(() => {
 const handleOperationTypeChange = () => {
   ruleFormRef.value?.clearValidate?.()
 }
-
 const handleClose = () => {
   ruleFormRef.value?.resetFields()
   isShowModal.value = false
 }
-
 const handleSave = () => {
   if (loading.value) return
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
     loading.value = true
     try {
-      const submitData = { ...formParams.value }
+      const submitData = {
+        ...formParams.value
+      }
       // 先关闭弹窗再 emit：父组件保存成功后会触发列表 reload + 自动列宽重算，
       // 若此时表单弹窗仍在卸载/动画中，两者叠加会明显卡顿。
       isShowModal.value = false
@@ -257,7 +320,6 @@ const handleSave = () => {
     }
   })
 }
-
 const acceptParams = (params: Partial<RemarkParams> = {}) => {
   modalTitle.value = params.id ? '编辑步骤' : '新增步骤'
   formParams.value = {
@@ -282,8 +344,9 @@ const acceptParams = (params: Partial<RemarkParams> = {}) => {
   }
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

@@ -94,7 +94,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/ai/xmMaterialRefPrice/index" })
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
@@ -118,6 +117,7 @@ import {
 } from '@/api/ai/xmMaterialRefPrice'
 import type { XmMaterialRefPriceRow } from '@/api/ai/xmMaterialRefPrice'
 import type { ColumnProps } from '@/components/ProTable/interface'
+defineOptions({ name: "/ai/xmMaterialRefPrice/index" })
 
 type OperationType = 'ADD' | 'EDIT' | 'DELETE'
 

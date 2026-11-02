@@ -25,99 +25,95 @@
     </el-row>
   </div>
 </template>
-<script>
-export default {
-  components: {},
-  props: {
-    appendButtons: {
-      type: Array,
-      default: () => []
-    },
-    hiddenButton: {
-      type: Boolean
-    },
-    cancelLoading: {
-      type: Boolean
-    },
-    submitLoading: {
-      type: Boolean
-    },
-    readOnly: {
-      type: Boolean,
-      default: false
-    },
-    disabledSubmit: {
-      type: Boolean,
-      default: false
-    },
-    submitLabel: {
-      type: String,
-      default: '提交'
-    },
-    cancelLabel: {
-      type: String,
-      default: '取消'
-    },
-    buttonLoading: {
-      type: Boolean,
-      default: false
-    },
-    onCancel: {
-      type: Function,
-      default: () => {}
-    },
-    onSubmit: {
-      type: Function,
-      default: () => {}
-    },
-    scrollbar: {
-      type: Boolean,
-      default: false
-    }
+<script setup>
+import { reactive, toRefs, computed } from 'vue'
+defineOptions({
+  name: 'singleContainer'
+})
+const componentProps = defineProps({
+  appendButtons: {
+    type: Array,
+    default: () => []
   },
-  name: 'singleContainer',
-  data() {
-    return {}
+  hiddenButton: {
+    type: Boolean
   },
-  created() {},
-  mounted() {},
-  methods: {},
-  computed: {
-    defaultButtons() {
-      return [
-        {
-          key: 'cancel',
-          label: this.cancelLabel || '取消',
-          attrs: {
-            plain: true,
-            loading: this.cancelLoading
-          },
-          events: {
-            click: () => {
-              this.onCancel(false)
-            }
-          }
-        },
-        {
-          key: 'submit',
-          label: this.submitLabel || '确定',
-          attrs: {
-            disabled: this.disabledSubmit,
-            type: 'primary',
-            loading: this.submitLoading
-          },
-          events: {
-            click: () => {
-              this.onSubmit()
-            }
-          }
-        },
-        ...this.appendButtons
-      ]
-    }
+  cancelLoading: {
+    type: Boolean
   },
-  watch: {}
-}
+  submitLoading: {
+    type: Boolean
+  },
+  readOnly: {
+    type: Boolean,
+    default: false
+  },
+  disabledSubmit: {
+    type: Boolean,
+    default: false
+  },
+  submitLabel: {
+    type: String,
+    default: '提交'
+  },
+  cancelLabel: {
+    type: String,
+    default: '取消'
+  },
+  buttonLoading: {
+    type: Boolean,
+    default: false
+  },
+  onCancel: {
+    type: Function,
+    default: () => {}
+  },
+  onSubmit: {
+    type: Function,
+    default: () => {}
+  },
+  scrollbar: {
+    type: Boolean,
+    default: false
+  }
+})
+const componentData = reactive({})
+const defaultButtons = computed(() => {
+  return [
+    {
+      key: 'cancel',
+      label: componentProps.cancelLabel || '取消',
+      attrs: {
+        plain: true,
+        loading: componentProps.cancelLoading
+      },
+      events: {
+        click: () => {
+          componentProps.onCancel(false)
+        }
+      }
+    },
+    {
+      key: 'submit',
+      label: componentProps.submitLabel || '确定',
+      attrs: {
+        disabled: componentProps.disabledSubmit,
+        type: 'primary',
+        loading: componentProps.submitLoading
+      },
+      events: {
+        click: () => {
+          componentProps.onSubmit()
+        }
+      }
+    },
+    ...componentProps.appendButtons
+  ]
+})
+defineExpose({
+  ...toRefs(componentData),
+  defaultButtons
+})
 </script>
 <style lang="less" scoped>
 .singleContainer {

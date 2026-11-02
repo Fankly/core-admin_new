@@ -127,14 +127,10 @@
   </div>
   <ImportExcel ref="importRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/service/components/reporting'
-}
-</script>
+
 
 <script setup lang="ts">
-import { reactive, ref, defineProps, defineExpose, computed } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import {
   exportForProvince,
   exportForYjdw,
@@ -146,12 +142,18 @@ import {
   getImportTemplate,
   xmlbysjyDetailImport
 } from '@/api/service/balanceReporting/index'
-import { summaryValue } from '@/utils/utils' //合计项目类型值
+import { summaryValue, formatValue } from '@/utils/utils'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Decimal } from 'decimal.js'
-import { formatValue } from '@/utils/utils'
-import ImportExcel from '@/components/ImportExcel/indexSy.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexSy.vue'
 import { apiExportHandle, vxeExportGkHandle } from '@/utils/export'
+defineOptions({
+  name: '/service/components/reporting'
+})
+
+ //合计项目类型值
+
+ //导入组件
 
 //接收父组件传参
 const props = defineProps({
@@ -175,9 +177,7 @@ const pageInfo = reactive<{
   loading: true,
   isShowPage: false
 })
-
 const updateParams = reactive<any[]>([])
-
 const count = ref(0)
 const isShowModel = ref(false)
 const reportEditableFieldSet = ref<Set<string>>(new Set())
@@ -230,11 +230,10 @@ const getDwValuePayload = (row: any, column: any) => {
     dwId: getColumnDwId(column),
     dwName: getColumnDwName(column),
     qksm: situationColumn ? getSituationValue(row, situationColumn) : '',
-    ysje: numericColumn ? getNumericValue(row, numericColumn) ?? '' : '',
+    ysje: numericColumn ? (getNumericValue(row, numericColumn) ?? '') : '',
     [getDwValueKey(column)]: getDwValue(row, column)
   }
 }
-
 const normalizeColumns = (columns: any[]) => {
   const normalizedColumns = columns.filter((item: any) => item.visible)
   normalizedColumns.forEach((group: any) => {
@@ -262,7 +261,6 @@ const finishLazyLoading = () => {
   count.value = Math.max(count.value - 1, 0)
   if (!count.value) pageInfo.loading = false
 }
-
 const tableInfo = reactive<any>({
   toolbarConfig: {
     custom: true
@@ -361,7 +359,6 @@ const tableInfo = reactive<any>({
     }
   }
 })
-
 const formatterData = ({ cellValue, column }: any) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return ''
   if (isSituationColumn(column)) return cellValue
@@ -386,7 +383,12 @@ const displayColumns = computed(() => {
     .map((group: any) => {
       if (!group.children?.length) return group
       const children = group.children.filter((child: any) => selectedStatItems.value.includes(child.title))
-      return children.length ? { ...group, children } : null
+      return children.length
+        ? {
+            ...group,
+            children
+          }
+        : null
     })
     .filter(Boolean)
 })
@@ -394,7 +396,6 @@ const displayColumns = computed(() => {
 const resetStatItems = () => {
   selectedStatItems.value = isReportMode.value ? [] : statItemOptions.value.slice()
 }
-
 const sumhandle = (row: any, key: string) => {
   if (Number(row[key]) < 0) {
     row[key] = '0.000000'
@@ -417,12 +418,12 @@ const sumhandle = (row: any, key: string) => {
 
 // 获取编辑数据表格
 const getEditDataHandle = ({ column, row }: any) => {
-  if (!isSituationColumn(column) && (typeof row[column.field] == 'undefined' || row[column.field] == null || row[column.field] == '')) return
+  if (!isSituationColumn(column) && (typeof row[column.field] == 'undefined' || row[column.field] == null || row[column.field] == ''))
+    return
   const id: string = row['id']
   if (!id) return
   const dwId = getColumnDwId(column)
   const outIndex = updateParams.findIndex((item: any) => item.id === id)
-
   if (outIndex > -1) {
     const index = updateParams[outIndex].dwValues.findIndex((item: any) => item.dwId === dwId)
     if (index > -1) {
@@ -563,7 +564,6 @@ const newData = async () => {
   await getDataList()
   await threeLevel()
 }
-
 const getDataList = async () => {
   pageInfo.loading = true
   tableInfo.tableData.length = 0

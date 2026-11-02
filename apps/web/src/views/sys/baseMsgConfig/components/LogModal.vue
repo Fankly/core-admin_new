@@ -95,10 +95,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "DeptModal" })
 import { getEditLog } from '@/api/sys/proCategory'
 import { ElMessage } from 'element-plus'
 import { reactive, ref } from 'vue'
+defineOptions({ name: "DeptModal" })
 
 interface AcceptParams {
   id: string

@@ -146,8 +146,6 @@
 
 <script setup lang="ts">
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/service/Storage/confirmOutbound/index" })
 import { onMounted, ref, watch, provide, computed } from 'vue'
 import { ServiceGeneralReport } from '@/components/service'
 import type { UserInfo } from '@/components/service/ServiceGeneralReport/types'
@@ -163,6 +161,7 @@ import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { formatNumValue, checkSameProperty } from '@/utils/utils'
 import { getParamConfig } from '@/api/common'
 import { thData } from '@/api/service/Storage/sqckConfirm'
+defineOptions({ name: "/service/Storage/confirmOutbound/index" })
 
 const userRoleSelectorRef = ref<InstanceType<typeof UserRoleSelector>>()
 const confirmOutboundModalRef = ref<InstanceType<typeof ConfirmOutboundModal>>()

@@ -48,11 +48,11 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ViewAnnualKeyTaskModal" })
 import { ref, shallowRef } from 'vue'
 import { ElMessage } from 'element-plus'
 import VXETable from 'vxe-table'
 import { getAlreadyLinkNdzdrw, deleteAlreadyLinkNdzdrw } from '@/api/sys/proCategory'
+defineOptions({ name: "ViewAnnualKeyTaskModal" })
 
 interface AcceptParams {
   protypeId: string

@@ -39,25 +39,25 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: '/lslxJsc/components/dwTable'
-}
-</script>
+
 <script setup lang="ts">
-import { reactive, ref, defineEmits, defineProps } from 'vue'
+import { reactive, ref } from 'vue'
+defineOptions({
+  name: '/lslxJsc/components/dwTable'
+})
 
 interface propsVo {
   btnList: any[]
   formList: any[]
 }
-
 const props = defineProps<propsVo>()
 const emits = defineEmits(['btnType'])
 
 // 点击按钮
 const handleClickBtn = (val: any) => {
-  emits('btnType', { ...val })
+  emits('btnType', {
+    ...val
+  })
 }
 </script>
 

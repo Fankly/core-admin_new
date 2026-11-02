@@ -4,8 +4,8 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/lyg/report/wzjhxx/index" })
 import ReportBaseTable from '../components/ReportBaseTable.vue'
 import { wzjhxxPage, wzjhxxExport } from '@/api/lyg/report'
 import { columns } from './columns'
+defineOptions({ name: "/lyg/report/wzjhxx/index" })
 </script>

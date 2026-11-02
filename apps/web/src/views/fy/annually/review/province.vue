@@ -246,11 +246,6 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/fy/annually/review/province'
-}
-</script>
 
 <script setup lang="ts">
 import FyHeader from '@/views/fy/components/Header.vue'
@@ -284,8 +279,11 @@ import {
 import { findPrevNode, formatValue, isNullOrUndefined } from '@/utils/utils'
 import { Decimal } from 'decimal.js'
 import { getGroupSummary } from '@/utils/prearranged'
-export type ToolButton = ('save' | 'import' | 'export' | 'download' | 'sd' | 'close')[] | boolean
+defineOptions({
+  name: '/fy/annually/review/province'
+})
 
+export type ToolButton = ('save' | 'import' | 'export' | 'download' | 'sd' | 'close')[] | boolean
 const userDialogRef = ref()
 const ndTableRef = ref()
 const zyTableRef = ref()
@@ -294,12 +292,9 @@ const headerRef = ref()
 const dwbzViewRef = ref()
 const toolbarOneRef = ref()
 const toolbarTwoRef = ref()
-
 const isDiabledSd = computed(() => !(reviewLayoutRef.value.curChangeData?.row, reviewLayoutRef.value.curChangeData?.row.sbzt === '1'))
-
 const isDisabled = computed(() => userMsg.shxdzt === '1')
 const isSaveDisabled = computed(() => userMsg.status === '4')
-
 const userMsg = reactive<any>({
   userData: null,
   specialorgid: '',
@@ -311,11 +306,9 @@ const userMsg = reactive<any>({
   statusInfo: '',
   shxdzt: ''
 })
-
 const reviewMsg = reactive({
   isShowModal: false
 })
-
 const dwMsg = reactive<{
   isShowModal: boolean
   busiId: string
@@ -339,12 +332,10 @@ const dwMsg = reactive<{
   operationFlag: '',
   sdzt: ''
 })
-
 const tabMsg = reactive({
   name: '1',
   isDisabled: true
 })
-
 const kmMsg = reactive<{
   isShowModal: boolean
   kmId: any
@@ -354,11 +345,9 @@ const kmMsg = reactive<{
   kmId: [],
   title: '年度审定 - 科目查看'
 })
-
 const activeCellMethod = ({ row }: any) => {
   return !row.leaf
 }
-
 const tableMsg = reactive<TableMsg>({
   rowConfig: {
     height: 32
@@ -429,7 +418,6 @@ const tableMsg = reactive<TableMsg>({
     }
   }
 })
-
 const getDwData = async (specialorgid: string) => {
   let res = await getCurrentPageData(specialorgid, tableMsg.nd, userMsg.flag)
   if (res.success) {
@@ -449,17 +437,14 @@ const getDwData = async (specialorgid: string) => {
     ElMessage.error(res.msg)
   }
 }
-
 const closeDialog = (val: boolean) => {
   reviewMsg.isShowModal = false
   getDwData(userMsg.specialorgid)
 }
-
 const getTableList = (params: any) => {
   params.specialorgid = userMsg.specialorgid
   return getDwStatus(params)
 }
-
 const isDisabledBtn = async ({ props }: any) => {
   userMsg.flag = props.name
   getTableData()
@@ -477,7 +462,6 @@ const closeModalHandle = (val: boolean, flag: string) => {
 const reviewHandle = () => {
   reviewMsg.isShowModal = true
 }
-
 const saveTableHandle = async () => {
   const $table = tabMsg.name === '1' ? zyTableRef.value : ndTableRef.value
   if ($table) {
@@ -518,12 +502,10 @@ const saveTableHandle = async () => {
     }
   }
 }
-
 const sdHandle = (params: any) => {
   params.dwId = params.ejdw
   return provinceSd(params)
 }
-
 const saveHandle = (params: any) => {
   const records: any[] = dwbzViewRef.value.element.getUpdateRecords()
   const updateRecords = records.filter((item) => item.id && !item.leaf)
@@ -603,7 +585,6 @@ const exportTableDataHandle = (flag: string) => {
     userMsg.loading = false
   })
 }
-
 const headerDataHandle = (params: any) => {
   dwMsg.opType === 'edit' ? (params.opType = '1') : (params.opType = '0')
   return getDynamicColumnDwDetail(params)
@@ -634,7 +615,6 @@ const headerCellClickHandle = ({ column }: any) => {
       : (dwMsg.toolButton = ['export', 'close', 'download'])
   }
 }
-
 const headerCellStyle = ({ column }: any) => {
   const isColumn = isClickHeader(tableMsg.columns as Columns[], column.field)
   if (isColumn) {
@@ -652,7 +632,6 @@ const headerCellStyle = ({ column }: any) => {
     lineHeight: '16px'
   }
 }
-
 const cellClickHandle = async ({ row, columnIndex }: any) => {
   if (row.id && !row.leaf && columnIndex === 0) {
     kmMsg.isShowModal = true
@@ -660,7 +639,6 @@ const cellClickHandle = async ({ row, columnIndex }: any) => {
     kmMsg.kmId = findPrevNode(tableData, row)
   }
 }
-
 const sumhandle = (row: any, key: string) => {
   if (key.includes('_dfj')) {
     row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(tableMsg.xsws)) : new Decimal(0).toFixed(Number(tableMsg.xsws))
@@ -670,12 +648,10 @@ const sumhandle = (row: any, key: string) => {
     getGroupSummary(tableData, config, key, Number(tableMsg.xsws), 'leaf', 'id', columnKeys)
   }
 }
-
 const isEditHandle = (columns: Columns[], field: string, row: any) => {
   let columnsIndex = columns.findIndex((item: any) => item.eidt && !row.leaf && item.columnKey === field && !!row.id)
   return columnsIndex > -1
 }
-
 const cellStyle = ({ row, column, columnIndex }: any) => {
   const isColumn = isEditHandle(tableMsg.columns as Columns[], column.field, row)
   if (tableMsg.editConfig && !tableMsg.editConfig.enabled) {
@@ -700,7 +676,6 @@ const cellStyle = ({ row, column, columnIndex }: any) => {
     }
   }
 }
-
 const formatterData = ({ column, cellValue }: any) => {
   if (column.field === 'cnx' || column.field === 'name') {
     return cellValue
@@ -708,9 +683,10 @@ const formatterData = ({ column, cellValue }: any) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   return formatValue(cellValue, Number(tableMsg.xsws))
 }
-
 const getRoleHandle = async () => {
-  userMsg.userData = { ...userDialogRef.value.userMsg }
+  userMsg.userData = {
+    ...userDialogRef.value.userMsg
+  }
   userMsg.specialorgid = userMsg.userData.org_id
   const isQuery = userDialogRef.value.isQuery
   tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString()
@@ -723,14 +699,12 @@ const getRoleHandle = async () => {
     linkTable()
   }
 }
-
 const updateTableData = (val: string) => {
   reviewLayoutRef.value.getTableList()
   getDwData(userMsg.specialorgid)
   getTableData()
   if (val === 'sd') closeModalHandle(false, 'dw')
 }
-
 const linkTable = () => {
   const $table = Number(userMsg.flag) === 1 ? zyTableRef.value : ndTableRef.value
   const $toolBar = Number(userMsg.flag) === 1 ? toolbarOneRef.value : toolbarTwoRef.value
@@ -738,7 +712,6 @@ const linkTable = () => {
     $table.connect($toolBar)
   }
 }
-
 const getTableData = async () => {
   clearTableData()
   getDwData(userMsg.specialorgid)
@@ -761,28 +734,23 @@ const getTableData = async () => {
   }
   userMsg.loading = false
 }
-
 const initData = () => {
   // 调用角色modal
   userDialogRef.value.getUser()
 }
-
 const changeNdHandle = (val: string) => {
   tableMsg.nd = val
   getTableData()
 }
-
 const changeXswsHandle = (val: string) => {
   tableMsg.xsws = val
   getTableData()
 }
-
 const clearTableData = () => {
   if (tableMsg.columns) tableMsg.columns.length = 0
   if (tableMsg.tableData) tableMsg.tableData.length = 0
   if (tableMsg.ndData) tableMsg.ndData.length = 0
 }
-
 const reviewColumns = reactive<VxeColumnProps[]>([
   {
     type: 'seq',
@@ -804,7 +772,6 @@ const reviewColumns = reactive<VxeColumnProps[]>([
     width: 120
   }
 ])
-
 onMounted(initData)
 </script>
 

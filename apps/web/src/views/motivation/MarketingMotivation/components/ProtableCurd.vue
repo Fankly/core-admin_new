@@ -64,11 +64,7 @@
     :label-width="labelWidth"
   />
 </template>
-<script lang="ts">
-export default {
-  name: 'ProtableCurd'
-}
-</script>
+
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import ProTable from '@/components/ProTable/index.vue'
@@ -76,6 +72,9 @@ import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import FormModal, { FormField } from '@/components/FormModal'
 import { ElMessage } from 'element-plus'
 import VXETable from 'vxe-table'
+defineOptions({
+  name: 'ProtableCurd'
+})
 
 interface UserInfo {
   deptId: string
@@ -87,7 +86,6 @@ interface UserInfo {
   specialorgcode: string
   roleId: string
 }
-
 interface Props {
   userInfo: UserInfo
   formFields: FormField[]
@@ -105,9 +103,7 @@ interface Props {
   labelWidth: string
   cjr?: string
 }
-
 const props = defineProps<Props>()
-
 const proTableRef = ref<InstanceType<typeof ProTable>>()
 const formModalRef = ref<InstanceType<typeof FormModal>>()
 const importRef = ref<InstanceType<typeof ImportExcel>>()
@@ -131,7 +127,9 @@ const openModal = async (modeFlag: 'add' | 'edit' | 'view', row?: any[]) => {
   } else {
     if (row) {
       if (props.infoApi) {
-        let res = await props.infoApi({ id: row[0].id })
+        let res = await props.infoApi({
+          id: row[0].id
+        })
         if (res.success) {
           formData.value = res.data.records[0]
         } else {
@@ -224,10 +222,15 @@ const handleClose = () => {
 
 // 导入
 const handleImport = () => {
-  let newParmas = { cjr: props?.cjr || '' }
+  let newParmas = {
+    cjr: props?.cjr || ''
+  }
   let tempApi: any = props.tempApi
   let importApi: any = props.importApi
-  if (importRef.value) importRef.value.fromData = { ...newParmas }
+  if (importRef.value)
+    importRef.value.fromData = {
+      ...newParmas
+    }
   if (!tempApi && !importApi) return
   let params = {
     tempApi: (importParams: any) => {
@@ -250,7 +253,6 @@ const handleImport = () => {
   }
   if (importRef.value) importRef.value.acceptParams(params)
 }
-
 const handleExport = async () => {
   loading.value = true
   try {
@@ -295,11 +297,9 @@ const callBackHandle = (val: any) => {
   loading.value = false
   return val
 }
-
 const getParams = () => {
   return proTableRef.value?.searchParam
 }
-
 defineExpose({
   getParams: getParams
 })

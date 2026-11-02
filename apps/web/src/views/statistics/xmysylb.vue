@@ -71,8 +71,6 @@
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/statistics/xmysylb" })
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
@@ -94,6 +92,7 @@ import {
   applyExportNumberCell,
   createLatestRequestTracker
 } from '@/views/statistics/budgetExecutionAnalysis/viewHelpers'
+defineOptions({ name: "/statistics/xmysylb" })
 
 interface CodeData {
   code: string

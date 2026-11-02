@@ -20,11 +20,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'finishXmXmDetailModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref, reactive, computed, nextTick, h } from 'vue'
@@ -37,10 +32,12 @@ import { getSgbm } from '@/api/service/requirement'
 import { getYjdwList } from '@/api/ai/smartTaskAudit'
 import { apiExportHandle } from '@/utils/export'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({
+  name: 'finishXmXmDetailModal'
+})
 
 /** 弹窗模式：ytb-应填报项目明细；done-已填报明细 */
 type DetailMode = 'ytb' | 'done'
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const proTableRef = ref<any>(null)
@@ -54,9 +51,21 @@ const yjdwList = ref<any[]>([]) // 一级单位
 const gkbmList = ref<any[]>([]) // 归口部门
 const projectTypeList = ref<any[]>([]) // 项目类型树
 const taskList = ref<any[]>([]) // 任务名称
-const proTypeProps = { label: 'name', children: 'children', value: 'id' }
+const proTypeProps = {
+  label: 'name',
+  children: 'children',
+  value: 'id'
+}
 // 单条数据时默认选中且不可编辑的字段标记
-const disabledMap = reactive<{ yjdw: boolean; gkbm: boolean; xmlx: boolean }>({ yjdw: false, gkbm: false, xmlx: false })
+const disabledMap = reactive<{
+  yjdw: boolean
+  gkbm: boolean
+  xmlx: boolean
+}>({
+  yjdw: false,
+  gkbm: false,
+  xmlx: false
+})
 // 搜索表单版本号：done 模式下数据加载完毕后自增，强制 ProTable 重新挂载以刷新下拉枚举
 const searchVersion = ref(0)
 
@@ -65,17 +74,28 @@ const callBackHandle = (data: any) => {
   loading.value = false
   return data
 }
-
 const getPageList = async (param: any) => {
   loading.value = true
-  const params = { ...param, ...getParams.value }
-  exportParams.value = { ...params }
+  const params = {
+    ...param,
+    ...getParams.value
+  }
+  exportParams.value = {
+    ...params
+  }
   const api = mode.value === 'done' ? finishXmYtbPage : finishXmDetailPage
   try {
-    return await api({ ...params })
+    return await api({
+      ...params
+    })
   } catch (e) {
     console.error(e)
-    return { data: { records: [], total: 0 } }
+    return {
+      data: {
+        records: [],
+        total: 0
+      }
+    }
   } finally {
     loading.value = false
   }
@@ -86,7 +106,13 @@ const handleExport = () => {
   const isDone = mode.value === 'done'
   const fileName = isDone ? '预计完成数填报明细' : '应填报预计完成数项目明细'
   const api = isDone ? finishXmYtbExport : finishXmDetailExport
-  apiExportHandle({ ...exportParams.value }, fileName, api)
+  apiExportHandle(
+    {
+      ...exportParams.value
+    },
+    fileName,
+    api
+  )
 }
 
 /** 关闭弹窗 */
@@ -106,7 +132,10 @@ const handleClose = () => {
 /** 加载一级单位 */
 const loadYjdwData = async () => {
   yjdwList.value = []
-  const res: any = await getYjdwList({ bmId: getParams.value.bmId, dwId: getParams.value.dwId })
+  const res: any = await getYjdwList({
+    bmId: getParams.value.bmId,
+    dwId: getParams.value.dwId
+  })
   if (res.success && res.data?.length) {
     yjdwList.value = res.data
   }
@@ -116,7 +145,12 @@ const loadYjdwData = async () => {
 const loadGkbm = async (yjdwVal: string) => {
   gkbmList.value = []
   if (!yjdwVal) return
-  const res: any = await getSgbm({ YJDW: yjdwVal, parentCode: yjdwVal, bmId: getParams.value.bmId, dwId: getParams.value.dwId })
+  const res: any = await getSgbm({
+    YJDW: yjdwVal,
+    parentCode: yjdwVal,
+    bmId: getParams.value.bmId,
+    dwId: getParams.value.dwId
+  })
   if (res.success && res.data?.length) {
     gkbmList.value = res.data
   }
@@ -126,7 +160,9 @@ const loadGkbm = async (yjdwVal: string) => {
 const loadProjectType = async (xmlxVal: string) => {
   projectTypeList.value = []
   if (!xmlxVal) return
-  const res: any = await getSubProtypeTreeByXmlx({ xmlx: xmlxVal })
+  const res: any = await getSubProtypeTreeByXmlx({
+    xmlx: xmlxVal
+  })
   if (res.success && res.data?.length) {
     projectTypeList.value = res.data
   }
@@ -136,7 +172,9 @@ const loadProjectType = async (xmlxVal: string) => {
 const loadTaskList = async () => {
   taskList.value = []
   if (!getParams.value.nd) return
-  const res: any = await listRwByNd({ nd: getParams.value.nd })
+  const res: any = await listRwByNd({
+    nd: getParams.value.nd
+  })
   if (res.success && res.data?.length) {
     taskList.value = res.data
   }
@@ -159,7 +197,9 @@ const onYjdwChange = async (val: string) => {
 /** 打开弹窗 */
 const acceptParams = async (params: any) => {
   mode.value = params.mode === 'done' ? 'done' : 'ytb'
-  getParams.value = { ...params }
+  getParams.value = {
+    ...params
+  }
   modalTitle.value = params.name || (mode.value === 'done' ? '预计完成数填报明细' : '应填报预计完成数项目明细')
   // 重置下拉状态
   disabledMap.yjdw = false
@@ -172,7 +212,6 @@ const acceptParams = async (params: any) => {
 
   // 缓存 done 模式初始搜索值（待 ProTable 重新挂载后回填）
   const initSearch: any = {}
-
   if (mode.value === 'done') {
     // 加载任务名称
     await loadTaskList()
@@ -207,7 +246,6 @@ const acceptParams = async (params: any) => {
   isShowModal.value = true
   searchVersion.value++
   await nextTick()
-
   if (mode.value === 'done') {
     const sp = proTableRef.value?.searchParam
     if (sp) {
@@ -219,20 +257,58 @@ const acceptParams = async (params: any) => {
     proTableRef.value?.getTableList()
   }
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 
 // ========== 表格列配置 ==========
 const baseColumns: any[] = [
-  { prop: 'pspid', label: '项目编码', width: 150 },
-  { prop: 'post1', label: '项目名称', minWidth: 180, showOverflowTooltip: true },
-  { prop: 'zyear', label: '年度', width: 80 },
-  { prop: 'qkjyjdwName', label: '一级单位', width: 150 },
-  { prop: 'qkjejdwName', label: '二级单位', width: 150 },
-  { prop: 'applyCenterName', label: '实施部门', width: 180 },
-  { prop: 'qkjgkbmName', label: '项目归口部门', width: 180 },
-  { prop: 'qkjxmlxmc', label: '项目类型', width: 180 },
-  { prop: 'projectManagerName', label: '责任人', width: 120 },
+  {
+    prop: 'pspid',
+    label: '项目编码',
+    width: 150
+  },
+  {
+    prop: 'post1',
+    label: '项目名称',
+    minWidth: 180,
+    showOverflowTooltip: true
+  },
+  {
+    prop: 'zyear',
+    label: '年度',
+    width: 80
+  },
+  {
+    prop: 'qkjyjdwName',
+    label: '一级单位',
+    width: 150
+  },
+  {
+    prop: 'qkjejdwName',
+    label: '二级单位',
+    width: 150
+  },
+  {
+    prop: 'applyCenterName',
+    label: '实施部门',
+    width: 180
+  },
+  {
+    prop: 'qkjgkbmName',
+    label: '项目归口部门',
+    width: 180
+  },
+  {
+    prop: 'qkjxmlxmc',
+    label: '项目类型',
+    width: 180
+  },
+  {
+    prop: 'projectManagerName',
+    label: '责任人',
+    width: 120
+  },
   {
     prop: 'erpztys',
     label: '年度预算（万元）',
@@ -270,33 +346,64 @@ const searchColumns = computed<any[]>(() => [
     prop: 'zyear',
     label: '年份',
     isShow: false,
-    search: { el: 'select', order: 1 },
+    search: {
+      el: 'select',
+      order: 1
+    },
     enum: () => getPublicData('NDCX'),
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'rwId',
     label: '任务名称',
     isShow: false,
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: taskList,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'qkjyjdw',
     label: '一级单位',
     isShow: false,
-    search: { el: 'select', order: 3, props: { onChange: onYjdwChange, disabled: disabledMap.yjdw } },
+    search: {
+      el: 'select',
+      order: 3,
+      props: {
+        onChange: onYjdwChange,
+        disabled: disabledMap.yjdw
+      }
+    },
     enum: yjdwList,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'qkjgkbm',
     label: '归口部门',
     isShow: false,
-    search: { el: 'select', order: 4, props: { disabled: true } },
+    search: {
+      el: 'select',
+      order: 4,
+      props: {
+        disabled: true
+      }
+    },
     enum: gkbmList,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'qkjxmlxbm',
@@ -317,7 +424,6 @@ const searchColumns = computed<any[]>(() => [
     }
   }
 ])
-
 const tableColumns = computed<any[]>(() => {
   const cols = [...baseColumns]
   if (mode.value === 'done') {
@@ -325,7 +431,11 @@ const tableColumns = computed<any[]>(() => {
     // 注入查询条件列（仅 done 模式有搜索表单）
     cols.push(...searchColumns.value)
   }
-  cols.push({ prop: 'closeStatus', label: '项目关闭状态', width: 120 })
+  cols.push({
+    prop: 'closeStatus',
+    label: '项目关闭状态',
+    width: 120
+  })
   return cols
 })
 </script>

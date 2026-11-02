@@ -118,9 +118,7 @@
 import { computed } from 'vue'
 import ReText from '@/components/ReText/src/index.vue'
 import { ArrowRight, Plus, Refresh, Search, WarningFilled } from '../icons'
-import type { WorkbenchFilterOption } from '../types'
-import type { WorkbenchProject } from '../types'
-
+import type { WorkbenchFilterOption, WorkbenchProject } from '../types'
 const props = withDefaults(
   defineProps<{
     projects: WorkbenchProject[]
@@ -129,7 +127,11 @@ const props = withDefaults(
     activeStatus: string
     keyword: string
     refreshing: boolean
-    page: { page: number; limit: number; total: number | string }
+    page: {
+      page: number
+      limit: number
+      total: number | string
+    }
     statusClass: (status?: string) => string
     /** 列表加载失败的原因；非空时渲染错误态并提供重新加载 */
     errorText?: string
@@ -138,7 +140,6 @@ const props = withDefaults(
     errorText: ''
   }
 )
-
 const emit = defineEmits([
   'update:keyword',
   'create-task',
@@ -150,7 +151,6 @@ const emit = defineEmits([
   'reload',
   'clear-filters'
 ])
-
 const hasActiveFilter = computed(() => Boolean(props.keyword.trim() || props.activeStatus))
 
 // 受控输入上不做 trim，否则用户敲空格时 DOM 与状态不一致；空格由查询参数组装时统一去除

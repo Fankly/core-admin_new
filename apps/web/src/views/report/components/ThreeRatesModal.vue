@@ -25,52 +25,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineExpose, defineProps } from "vue";
-import { getProgressDataByTypeNew } from "@/api/report";
-
+import { ref } from 'vue'
+import { getProgressDataByTypeNew } from '@/api/report'
 interface Props {
-  clickTableData: any;
+  clickTableData: any
 }
-
-const props = defineProps<Props>();
-
-const tableData = ref([]);
-const tableRef = ref();
-
-const isShowModal = ref(false);
-
+const props = defineProps<Props>()
+const tableData = ref([])
+const tableRef = ref()
+const isShowModal = ref(false)
 const exportHandle = () => {
-  const $table = tableRef.value;
+  const $table = tableRef.value
   if ($table) {
     $table.exportData({
-      sheetName: "成本性项目三率报表-进度指标",
-      type: "xlsx",
-      filename: "成本性项目三率报表-进度指标",
+      sheetName: '成本性项目三率报表-进度指标',
+      type: 'xlsx',
+      filename: '成本性项目三率报表-进度指标',
       useStyle: true
-    });
+    })
   }
-};
-
+}
 const showHandle = async () => {
-  let field = null;
+  let field = null
   if (props.clickTableData && props.clickTableData.field) {
-    field = props.clickTableData.field.split("&")[0].split("=")[1];
+    field = props.clickTableData.field.split('&')[0].split('=')[1]
   }
-
   const res = await getProgressDataByTypeNew({
     dwId: field || props.clickTableData.dw_id,
     startDate: props.clickTableData.startDate,
     endDate: props.clickTableData.endDate,
     xmlxId: props.clickTableData.id
-  });
+  })
   if (res.success) {
-    tableData.value = res.data;
+    tableData.value = res.data
   }
-};
-
+}
 defineExpose({
   isShowModal
-});
+})
 </script>
 
 <style scoped lang="less">

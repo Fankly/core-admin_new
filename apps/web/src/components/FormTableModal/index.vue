@@ -255,19 +255,19 @@
   <ImportExcel ref="importRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: 'FormTableModal'
-}
-</script>
 
 <script setup lang="ts">
 import baseService from '@/service/baseService'
 import { ref, reactive, computed, watch, onBeforeUnmount, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import { getImportTemplateByDyGzljnr, importExcelGzljnr, deleteGzljnrHandler, queryGzljnrByDyid } from '@/api/service/xmcs/index'
+defineOptions({
+  name: 'FormTableModal'
+})
+
+ //导入组件
 
 export interface FormField {
   prop: string
@@ -285,14 +285,24 @@ export interface FormField {
   step?: number
   multiple?: boolean
   clearable?: boolean
-  options?: Array<{ label?: string; value: any; name?: string; code?: string }>
+  options?: Array<{
+    label?: string
+    value: any
+    name?: string
+    code?: string
+  }>
   apiConfig?: {
     url: string
     method?: 'get' | 'post'
     params?: Record<string, any>
     labelField?: string
     valueField?: string
-    transfrom?: (data: any) => Array<{ label?: string; value: any; name?: string; code?: string }>
+    transfrom?: (data: any) => Array<{
+      label?: string
+      value: any
+      name?: string
+      code?: string
+    }>
   }
   activeValue?: any
   inactiveValue?: any
@@ -303,11 +313,31 @@ export interface FormField {
     parentValue: any,
     formData: Record<string, any>
   ) =>
-    | Promise<Array<{ label?: string; value: any; name?: string; code?: string }>>
-    | Array<{ label?: string; value: any; name?: string; code?: string }>
+    | Promise<
+        Array<{
+          label?: string
+          value: any
+          name?: string
+          code?: string
+        }>
+      >
+    | Array<{
+        label?: string
+        value: any
+        name?: string
+        code?: string
+      }>
   cascadeConfig?: {
     parentField: string
-    optionsMap: Record<string, Array<{ label?: string; value: any; name?: string; code?: string }>>
+    optionsMap: Record<
+      string,
+      Array<{
+        label?: string
+        value: any
+        name?: string
+        code?: string
+      }>
+    >
   }
   multiDependsOn?: {
     fields: string[]
@@ -315,13 +345,17 @@ export interface FormField {
       url: string
       method?: 'get' | 'post'
       params?: Record<string, any>
-      transfrom?: (data: any) => Array<{ label?: string; value: any; name?: string; code?: string }>
+      transfrom?: (data: any) => Array<{
+        label?: string
+        value: any
+        name?: string
+        code?: string
+      }>
     }
     loader?: (dependentValues: Record<string, any>, formData: Record<string, any>) => Promise<any> | any
     clearOnChange?: boolean
   }
 }
-
 interface Props {
   title?: string
   mode?: 'add' | 'edit' | 'view'
@@ -331,7 +365,6 @@ interface Props {
   labelWidth?: string
   height?: string
 }
-
 const props = withDefaults(defineProps<Props>(), {
   title: '表单',
   mode: 'add',
@@ -339,9 +372,7 @@ const props = withDefaults(defineProps<Props>(), {
   labelWidth: '120px',
   height: '600px'
 })
-
 const emit = defineEmits(['save', 'close', 'fieldChange'])
-
 const tableRef = ref()
 const gzljnrData = ref<any[]>([])
 const modalRef = ref()
@@ -349,23 +380,30 @@ const formRef = ref()
 const visible = ref(false)
 const loading = ref(false)
 const formData = reactive<Record<string, any>>({})
-const dynamicOptions = reactive<Record<string, Array<{ label?: string; value: any; name?: string; code?: string }>>>({})
+const dynamicOptions = reactive<
+  Record<
+    string,
+    Array<{
+      label?: string
+      value: any
+      name?: string
+      code?: string
+    }>
+  >
+>({})
 const multiDependencyLoading = reactive<Record<string, boolean>>({})
 const importRef = ref()
 const dyid = ref('')
 const debounceTimers = reactive<Record<string, number>>({})
-
 const debouncedHandleMultiDependency = (fieldProp: string, delay = 300) => {
   if (debounceTimers[fieldProp]) {
     clearTimeout(debounceTimers[fieldProp])
   }
-
   debounceTimers[fieldProp] = setTimeout(async () => {
     await handleMultiDependencyChange(fieldProp)
     delete debounceTimers[fieldProp]
   }, delay)
 }
-
 const checkMultiDependencyCondition = (field: FormField): boolean => {
   if (!field.multiDependsOn?.fields?.length) return false
   const result = field.multiDependsOn.fields.every((fieldName) => {
@@ -375,7 +413,6 @@ const checkMultiDependencyCondition = (field: FormField): boolean => {
   })
   return result
 }
-
 const loadDataFromMultiDependency = async (field: FormField): Promise<void> => {
   if (!field.multiDependsOn) return
   if (multiDependencyLoading[field.prop]) return
@@ -384,16 +421,21 @@ const loadDataFromMultiDependency = async (field: FormField): Promise<void> => {
   fields.forEach((fieldName) => {
     dependentValues[fieldName] = formData[fieldName]
   })
-
   try {
     multiDependencyLoading[field.prop] = true
     let result: any
-
     if (loader) {
-      result = await Promise.resolve(loader(dependentValues, { ...formData }))
+      result = await Promise.resolve(
+        loader(dependentValues, {
+          ...formData
+        })
+      )
     } else if (apiConfig) {
       const { url, method = 'get', params = {}, transfrom } = apiConfig
-      const requestParams = { ...params, ...dependentValues }
+      const requestParams = {
+        ...params,
+        ...dependentValues
+      }
       const data = null
       result = transfrom ? transfrom(data) : data
     }
@@ -406,7 +448,6 @@ const loadDataFromMultiDependency = async (field: FormField): Promise<void> => {
     multiDependencyLoading[field.prop] = false
   }
 }
-
 const handleMultiDependencyChange = async (changedFieldProp: string): Promise<void> => {
   const affectedFields = props.fields.filter((field) => field.multiDependsOn?.fields?.includes(changedFieldProp))
   if (affectedFields.length === 0) return
@@ -424,12 +465,10 @@ const handleMultiDependencyChange = async (changedFieldProp: string): Promise<vo
   })
   await Promise.allSettled(updatePromises)
 }
-
 const loadOptionsFromApi = async (field: FormField) => {
   if (!field.apiConfig) return []
   try {
     const { url, method = 'get', params, labelField = 'label', valueField = 'value', transfrom } = field.apiConfig
-
     const response = await baseService[method](url, params)
     const data: any[] = response.data || []
     if (transfrom) {
@@ -443,9 +482,7 @@ const loadOptionsFromApi = async (field: FormField) => {
     return []
   }
 }
-
 const isViewMode = computed(() => props.mode === 'view')
-
 const modalTitle = computed(() => {
   const modeMap = {
     add: '新增',
@@ -454,11 +491,8 @@ const modalTitle = computed(() => {
   }
   return `${modeMap[props.mode]}${props.title}`
 })
-
 const modalHeight = computed(() => props.height)
-
 const formFields = computed(() => props.fields)
-
 const setFieldValue = (field: string, value: any) => {
   formData[field] = value
   nextTick(() => {
@@ -469,11 +503,8 @@ const setFieldValue = (field: string, value: any) => {
     }
   })
 }
-
 const getLabelLines = (label: string) => label.split('\n')
-
 const getPlainLabel = (label: string) => label.replace(/\n/g, '')
-
 const isMultilineLabel = (label: string) => label.includes('\n')
 
 // 获取字段选项（支持静态和动态）
@@ -483,11 +514,15 @@ const getFieldOptions = (field: FormField) => {
   }
   return field.options || []
 }
-
 const handleFieldChange = async (field: FormField, immediate = false) => {
   // 通知外部字段值已变更（input/textarea 在失焦时触发，其余在 change 时触发），
   // 便于父组件做跨字段联动校验（如各专业调整单价 vs 国网标准的预警校验）
-  emit('fieldChange', { field, formData: { ...formData } })
+  emit('fieldChange', {
+    field,
+    formData: {
+      ...formData
+    }
+  })
   const needsDebounce = ['input', 'textarea', 'number'].includes(field.type) && !immediate
   if (needsDebounce) {
     debouncedHandleMultiDependency(field.prop)
@@ -499,22 +534,24 @@ const handleFieldChange = async (field: FormField, immediate = false) => {
 // 处理选择框变化
 const handleSelectChange = async (field: FormField, value: any) => {
   formData[field.prop] = value
-  emit('fieldChange', { field, formData: { ...formData } })
+  emit('fieldChange', {
+    field,
+    formData: {
+      ...formData
+    }
+  })
   // 递归清空所有依赖此字段的下级字段（包括间接依赖）
   clearDependentFields(field.prop)
 
   // 更新直接依赖此字段的下级字段选项
   const directDependentFields = props.fields.filter((f) => f.dependsOn === field.prop || f.cascadeConfig?.parentField === field.prop)
-
   const cascadePromises = directDependentFields.map((depField) => loadCascadeOptions(depField, value))
-
   await Promise.all([...cascadePromises, handleFieldChange(field, true)])
 }
 
 // 递归清空依赖字段
 const clearDependentFields = (changedFieldProp: string) => {
   const dependentFields = props.fields.filter((f) => f.dependsOn === changedFieldProp || f.cascadeConfig?.parentField === changedFieldProp)
-
   dependentFields.forEach((depField) => {
     // 清空字段值和选项
     formData[depField.prop] = depField.multiple ? [] : ''
@@ -531,9 +568,13 @@ const loadCascadeOptions = async (field: FormField, parentValue: any) => {
     dynamicOptions[field.prop] = []
     return
   }
-
   try {
-    let options: Array<{ label?: string; value: any; name?: string; code?: string }> = []
+    let options: Array<{
+      label?: string
+      value: any
+      name?: string
+      code?: string
+    }> = []
 
     // 使用 optionsLoader 加载选项
     if (field.optionsLoader) {
@@ -544,17 +585,14 @@ const loadCascadeOptions = async (field: FormField, parentValue: any) => {
     else if (field.cascadeConfig?.optionsMap) {
       options = field.cascadeConfig.optionsMap[parentValue] || []
     }
-
     dynamicOptions[field.prop] = options
   } catch (error) {
     console.error(`加载 ${field.label} 选项失败:`, error)
     dynamicOptions[field.prop] = []
   }
 }
-
 const initMultiDependencies = async () => {
   const multiDependencyFields = props.fields.filter((field) => field.multiDependsOn)
-
   for (const field of multiDependencyFields) {
     if (checkMultiDependencyCondition(field)) {
       await loadDataFromMultiDependency(field)
@@ -565,7 +603,6 @@ const initMultiDependencies = async () => {
 // 初始化联动选项
 const initCascadeOptions = async () => {
   const cascadeFields = props.fields.filter((field) => field.dependsOn || field.cascadeConfig)
-
   for (const field of cascadeFields) {
     const parentField = field.dependsOn || field.cascadeConfig?.parentField
     if (parentField && formData[parentField]) {
@@ -573,22 +610,17 @@ const initCascadeOptions = async () => {
     }
   }
 }
-
 const initApiOptions = async () => {
   const apiFields = props.fields.filter((field) => field.apiConfig && field.type === 'select')
-
   for (const field of apiFields) {
     const options = await loadOptionsFromApi(field)
     dynamicOptions[field.prop] = options
   }
 }
-
 const formRules = computed(() => {
   const rules: Record<string, any[]> = {}
-
   props.fields.forEach((field) => {
     const fieldRules = []
-
     if (field.required) {
       const requiredAction = ['select', 'slot'].includes(field.type) ? '选择' : '输入'
       fieldRules.push({
@@ -597,19 +629,15 @@ const formRules = computed(() => {
         trigger: ['select', 'slot'].includes(field.type) ? 'change' : 'blur'
       })
     }
-
     if (field.rules) {
       fieldRules.push(...field.rules)
     }
-
     if (fieldRules.length > 0) {
       rules[field.prop] = fieldRules
     }
   })
-
   return rules
 })
-
 const initFormData = () => {
   const data: Record<string, any> = {}
   props.fields.forEach((field) => {
@@ -631,20 +659,16 @@ const initFormData = () => {
       }
     }
   })
-
   Object.assign(formData, data)
 }
-
 const handleShow = async () => {
   initFormData()
   await initApiOptions()
   await initCascadeOptions()
   await initMultiDependencies()
 }
-
 const handleSave = async () => {
   if (!formRef.value) return
-
   try {
     await formRef.value.validate()
     loading.value = true
@@ -656,20 +680,21 @@ const handleSave = async () => {
       return !rgValid && !jxValid
     })
     if (isInvalid) return ElMessage.warning('人工和机械至少填写一项，且名称和数量必须都有值！')
-    emit('save', { ...formData, gzljnrList: gzljnrData.value })
+    emit('save', {
+      ...formData,
+      gzljnrList: gzljnrData.value
+    })
   } catch (error) {
     console.error('表单验证失败:', error)
   } finally {
     loading.value = false
   }
 }
-
 const handleClose = () => {
   clearAllTimers()
   visible.value = false
   emit('close')
 }
-
 const resetForm = () => {
   if (formRef.value) {
     formRef.value.resetFields()
@@ -681,7 +706,6 @@ const resetForm = () => {
     delete debounceTimers[key]
   })
 }
-
 const clearAllTimers = () => {
   Object.values(debounceTimers).forEach((timer) => {
     if (timer && typeof timer === 'number') clearTimeout(timer)
@@ -690,7 +714,6 @@ const clearAllTimers = () => {
     delete debounceTimers[key]
   })
 }
-
 const addHandle = async (row?: number) => {
   const $table = tableRef.value
   if ($table) {
@@ -704,17 +727,19 @@ const addHandle = async (row?: number) => {
     })
   }
 }
-
 const updateGzl = async () => {
   let res = await queryGzljnrByDyid(dyid.value)
   if (res.success) {
     gzljnrData.value = res.data || []
   }
 }
-
 const gzlImport = () => {
-  let newParmas = { dyid: dyid.value }
-  importRef.value.fromData = { ...newParmas }
+  let newParmas = {
+    dyid: dyid.value
+  }
+  importRef.value.fromData = {
+    ...newParmas
+  }
   let tempApi: any = getImportTemplateByDyGzljnr
   let importApi: any = importExcelGzljnr
   if (!tempApi && !importApi) return
@@ -739,7 +764,6 @@ const gzlImport = () => {
   }
   if (importRef.value) importRef.value.acceptParams(params)
 }
-
 const delHandle = async () => {
   const $table = tableRef.value
   if ($table) {
@@ -753,18 +777,18 @@ const delHandle = async () => {
     })
     if (type === 'confirm') {
       const ids = selectRecords.map(({ id }: any) => id)
-      const delApi = await deleteGzljnrHandler({ ids: ids })
+      const delApi = await deleteGzljnrHandler({
+        ids: ids
+      })
       if (!delApi.success) return ElMessage.error(delApi.msg)
       ElMessage.success('删除成功！')
       updateGzl()
     }
   }
 }
-
 onBeforeUnmount(() => {
   clearAllTimers()
 })
-
 watch(
   () => props.data,
   async () => {
@@ -775,9 +799,10 @@ watch(
       await initMultiDependencies()
     }
   },
-  { deep: true }
+  {
+    deep: true
+  }
 )
-
 const open = async (param: any) => {
   visible.value = true
   console.log(param, 'param')
@@ -786,19 +811,15 @@ const open = async (param: any) => {
     updateGzl()
   }
 }
-
 const close = () => {
   visible.value = false
 }
-
 const openLoading = () => {
   loading.value = true
 }
-
 const closeLoading = () => {
   loading.value = false
 }
-
 defineExpose({
   open,
   close,

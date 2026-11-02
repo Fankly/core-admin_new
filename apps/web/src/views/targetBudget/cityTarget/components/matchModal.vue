@@ -36,11 +36,7 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'matchModal'
-}
-</script>
+
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
@@ -48,6 +44,9 @@ import { getDynamicColumnForVerCmp, getTableDataForVerCmp } from '@/api/targetBu
 import { ElMessage } from 'element-plus'
 import { TableCellStyle } from '@/utils/tableCellStyle'
 import { exportVxeGrid } from '@/utils/excelExportTs'
+defineOptions({
+  name: 'matchModal'
+})
 
 const tableCellStyle = new TableCellStyle({
   structure: 'tree',
@@ -73,17 +72,20 @@ const closeHandle = () => {
   // rmarkData.viewMethod = '1'
   isShowModal.value = false
 }
-
 const cellStyle = ({ row, column }: any) => {
   const field = column.field
   const parentField = field.split('_')[0]
   if (column.field.includes('adjustedMbz1') || column.field.includes('adjustedMbz2')) {
     return {
-      color: row[`${parentField}_colorCode`] == '2' ? 'rgba(252, 185, 0, 1)' : row[`${parentField}_colorCode`] == '3' ? 'rgba(255, 76, 82, 1)' : ''
+      color:
+        row[`${parentField}_colorCode`] == '2'
+          ? 'rgba(252, 185, 0, 1)'
+          : row[`${parentField}_colorCode`] == '3'
+            ? 'rgba(255, 76, 82, 1)'
+            : ''
     }
   }
 }
-
 const rowStyle = ({ row }: any) => {
   if (row.leaf) {
     return {
@@ -91,7 +93,6 @@ const rowStyle = ({ row }: any) => {
     }
   }
 }
-
 const tableInfo = reactive<any>({
   toolbarConfig: {
     // custom: true
@@ -212,7 +213,6 @@ const getHeaderData = async (params: any) => {
     return false
   }
 }
-
 defineExpose({
   isShowModal,
   getHeaderData,

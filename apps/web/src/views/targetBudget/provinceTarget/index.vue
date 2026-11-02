@@ -15,13 +15,14 @@
 
 <!--省级统筹目标值管理-->
 <script setup lang="ts">
-defineOptions({ name: "/targetBudget/provinceTarget/index" })
 import { useProvinceTarget } from '@/views/targetBudget/provinceTarget/hooks/useProvinceTarget'
 import Operation from '@/views/targetBudget/provinceTarget/components/Operation.vue'
 import Search from '@/views/targetBudget/provinceTarget/components/Search.vue'
 import Table from '@/views/targetBudget/provinceTarget/components/Table.vue'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
 import { onMounted } from 'vue'
+defineOptions({ name: "/targetBudget/provinceTarget/index" })
+
 const {
   getPublicCodeData,
   getRoleHandle,

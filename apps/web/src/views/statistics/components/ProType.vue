@@ -7,8 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, ref, watch, defineEmits } from "vue";
-
+import { computed, ref, watch } from 'vue'
 const props = defineProps({
   treeData: {
     type: Array,
@@ -16,17 +15,17 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: "请选择"
+    default: '请选择'
   },
   modelValue: {
     type: String,
-    default: ""
+    default: ''
   },
   props: {
     type: Object,
     default: () => ({
-      children: "children",
-      label: "label"
+      children: 'children',
+      label: 'label'
     })
   },
   leafOnly: {
@@ -35,79 +34,71 @@ const props = defineProps({
   },
   valueKey: {
     type: String,
-    default: "id"
+    default: 'id'
   }
-});
-
-const emit = defineEmits(["update:modelValue"]);
-
-const defaultProps = computed(() => props.props);
-
-const selectedValue = ref();
-const treeRef = ref();
-const selectRef = ref();
-
+})
+const emit = defineEmits(['update:modelValue'])
+const defaultProps = computed(() => props.props)
+const selectedValue = ref()
+const treeRef = ref()
+const selectRef = ref()
 const handleNodeClick = (node: any): void => {
   if (props.leafOnly && node[props.props.children]?.length) {
-    return;
+    return
   }
-  selectedValue.value = node[props.props.label];
-  emit("update:modelValue", node[props.valueKey]);
-  selectRef.value?.blur();
-};
-
+  selectedValue.value = node[props.props.label]
+  emit('update:modelValue', node[props.valueKey])
+  selectRef.value?.blur()
+}
 const findNodeByValue = (data: any[], value: string | number): any => {
   for (const node of data) {
     if (node[props.valueKey] === Number(value)) {
-      return node;
+      return node
     }
     if (node[props.props.children]) {
-      const found = findNodeByValue(node[props.props.children], value);
-      if (found) return found;
+      const found = findNodeByValue(node[props.props.children], value)
+      if (found) return found
     }
   }
-  return null;
-};
-
+  return null
+}
 watch(
   () => props.modelValue,
   (newValue) => {
     if (!newValue) {
-      treeRef.value?.setCurrentKey(null);
-      selectedValue.value = "";
+      treeRef.value?.setCurrentKey(null)
+      selectedValue.value = ''
     } else {
-      const node = findNodeByValue(props.treeData, newValue);
+      const node = findNodeByValue(props.treeData, newValue)
       if (node) {
-        selectedValue.value = node[props.props.label];
-        treeRef.value?.setCurrentKey(newValue);
+        selectedValue.value = node[props.props.label]
+        treeRef.value?.setCurrentKey(newValue)
       }
     }
   },
   {
     immediate: true
   }
-);
-
+)
 watch(
   () => props.treeData,
   (newTreeData) => {
     if (newTreeData && newTreeData.length > 0 && props.modelValue) {
-      const node = findNodeByValue(newTreeData, props.modelValue);
+      const node = findNodeByValue(newTreeData, props.modelValue)
       if (node) {
-        selectedValue.value = node[props.props.label];
-        treeRef.value?.setCurrentKey(props.modelValue);
+        selectedValue.value = node[props.props.label]
+        treeRef.value?.setCurrentKey(props.modelValue)
       }
     }
   },
   {
     immediate: true
   }
-);
-
+)
 const clearHandle = () => {
-  selectedValue.value = "";
-  emit("update:modelValue", "");
-};
+  selectedValue.value = ''
+  emit('update:modelValue', '')
+}
 </script>
 
 <style scoped lang="less">

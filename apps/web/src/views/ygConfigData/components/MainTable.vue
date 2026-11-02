@@ -1,73 +1,73 @@
-<script lang="ts">
-export default {
-  name: "/ygConfigData/components/MainTable"
-};
-</script>
+
 
 <script setup lang="ts">
-import { defineProps, onMounted, reactive, ref, defineExpose } from "vue";
-import { InitParams } from "@/views/ygConfigData/budgetStatisticsConfig.vue";
-import { VxeColumnPropTypes } from "vxe-table";
-import { getPublicData } from "@/api/common";
-import { ElMessage } from "element-plus";
+import { onMounted, reactive, ref } from 'vue'
+import { InitParams } from '@/views/ygConfigData/budgetStatisticsConfig.vue'
+import { VxeColumnPropTypes } from 'vxe-table'
+import { getPublicData } from '@/api/common'
+import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/ygConfigData/components/MainTable'
+})
 
 interface Props {
-  mainTableData: any[];
-  initParams: InitParams;
+  mainTableData: any[]
+  initParams: InitParams
 }
-
-const props = defineProps<Props>();
-
-const publicList = ref([]);
-const mainTableRef = ref();
-const mainLoading = ref(false);
-
+const props = defineProps<Props>()
+const publicList = ref([])
+const mainTableRef = ref()
+const mainLoading = ref(false)
 const statusList = reactive([
-  { label: "是", value: "1" },
-  { label: "否", value: "0" }
-]);
-
-const recList = reactive([
-  { label: "启用", value: "1" },
-  { label: "停用", value: "0" }
-]);
-
-const formatterStatus: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
-  const item = statusList.find((item: any) => item.value === cellValue);
-  return item ? item.label : cellValue;
-};
-
-const formatterRrc: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
-  const item = recList.find((item: any) => item.value === cellValue);
-  return item ? item.label : cellValue;
-};
-
-const formatterStatMethod: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
-  const item: any = publicList.value.find((item: any) => item.code === cellValue);
-  return item ? item.name : cellValue;
-};
-
-const getPublicDataList = async (code: string) => {
-  let res = await getPublicData(code);
-  if (res.success && res.data) {
-    publicList.value = res.data;
-  } else {
-    ElMessage.error(res.msg);
+  {
+    label: '是',
+    value: '1'
+  },
+  {
+    label: '否',
+    value: '0'
   }
-};
-
+])
+const recList = reactive([
+  {
+    label: '启用',
+    value: '1'
+  },
+  {
+    label: '停用',
+    value: '0'
+  }
+])
+const formatterStatus: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
+  const item = statusList.find((item: any) => item.value === cellValue)
+  return item ? item.label : cellValue
+}
+const formatterRrc: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
+  const item = recList.find((item: any) => item.value === cellValue)
+  return item ? item.label : cellValue
+}
+const formatterStatMethod: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
+  const item: any = publicList.value.find((item: any) => item.code === cellValue)
+  return item ? item.name : cellValue
+}
+const getPublicDataList = async (code: string) => {
+  let res = await getPublicData(code)
+  if (res.success && res.data) {
+    publicList.value = res.data
+  } else {
+    ElMessage.error(res.msg)
+  }
+}
 const initParams = () => {
-  getPublicDataList("YSTJPZ_TJFS");
-};
-
+  getPublicDataList('YSTJPZ_TJFS')
+}
 onMounted(() => {
-  initParams();
-});
-
+  initParams()
+})
 defineExpose({
   mainTableRef,
   mainLoading
-});
+})
 </script>
 
 <template>

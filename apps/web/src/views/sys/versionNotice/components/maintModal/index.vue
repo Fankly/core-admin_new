@@ -80,11 +80,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'maintModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
@@ -92,17 +87,23 @@ import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import BasicEditor from '@/components/base/BasicEditor.vue'
 import { versionNoticeSave } from '@/api/sys/versionNotice'
+defineOptions({
+  name: 'maintModal'
+})
 
 /** 弹窗参数 */
 interface ModalParams {
   type: string
   searchParams: Record<string, any>
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
@@ -117,11 +118,41 @@ const releaseDateRange = ref<string[]>([])
 
 /** 表单校验规则 */
 const formRules = {
-  versionNo: [{ required: true, message: '请输入版本号', trigger: 'blur' }],
-  versionTitle: [{ required: true, message: '请输入通知标题', trigger: 'blur' }],
-  releaseDate: [{ required: true, message: '请选择检修日期', trigger: 'change' }],
-  noticeTime: [{ required: true, message: '请选择通知生效时间', trigger: 'change' }],
-  noticeExpireTime: [{ required: true, message: '请选择通知失效时间', trigger: 'change' }],
+  versionNo: [
+    {
+      required: true,
+      message: '请输入版本号',
+      trigger: 'blur'
+    }
+  ],
+  versionTitle: [
+    {
+      required: true,
+      message: '请输入通知标题',
+      trigger: 'blur'
+    }
+  ],
+  releaseDate: [
+    {
+      required: true,
+      message: '请选择检修日期',
+      trigger: 'change'
+    }
+  ],
+  noticeTime: [
+    {
+      required: true,
+      message: '请选择通知生效时间',
+      trigger: 'change'
+    }
+  ],
+  noticeExpireTime: [
+    {
+      required: true,
+      message: '请选择通知失效时间',
+      trigger: 'change'
+    }
+  ],
   versionContent: [
     {
       required: true,
@@ -171,7 +202,6 @@ const handleShow = () => {
 const handleSave = () => {
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -183,15 +213,18 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
       // 同步富文本内容到表单数据
       searchParams.value.versionContent = basicEditorRef.value?.valueHtml || ''
-      const res = await versionNoticeSave({ ...searchParams.value })
+      const res = await versionNoticeSave({
+        ...searchParams.value
+      })
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -207,11 +240,14 @@ const handleSave = () => {
 /** 打开弹窗 */
 const acceptParams = (params: ModalParams) => {
   modalTitle.value = params.type
-  searchParams.value = { ...params.searchParams }
+  searchParams.value = {
+    ...params.searchParams
+  }
   // 回显检修日期范围
   releaseDateRange.value = searchParams.value.releaseDate ? searchParams.value.releaseDate.split('~') : []
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>

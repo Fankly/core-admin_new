@@ -34,10 +34,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ReviewFlowQuerySetting" })
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getSearchColumn, updateSearchColumn } from '@/api/service/requirement'
+defineOptions({ name: "ReviewFlowQuerySetting" })
 
 const prop = defineProps({
   title: {

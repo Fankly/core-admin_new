@@ -54,20 +54,19 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'reviewTable'
-}
-</script>
+
 
 <script setup lang="ts">
-import { reactive, ref, defineProps, defineExpose, defineEmits } from 'vue'
+import { reactive, ref } from 'vue'
 import { getDynamicColumn, getTableData, exportData } from '@/api/service/IhhsMeeting/xmOpinionSummary'
 import { ElMessage } from 'element-plus'
 import { formatValue } from '@/utils/utils'
 import { apiExportHandle, vxeExportHandle } from '@/utils/export'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { formatReviewTableText } from './reviewTableText'
+defineOptions({
+  name: 'reviewTable'
+})
 
 const dialogFormRef = ref()
 const meetingId = ref<string>('')
@@ -81,7 +80,6 @@ const closeHandle = () => {
   isShowModal.value = false
   showAllReview.value = false
 }
-
 const xmTableRef = ref()
 const rightSearchKeyword = ref('')
 const rightProjectCode = ref('')
@@ -91,7 +89,6 @@ const xmListPage = reactive({
   pageSize: 100,
   total: 0
 })
-
 const getReviewAuthParams = () => {
   return {
     dwId: reviewAuthParams.value.dwId || '',
@@ -153,7 +150,14 @@ const handlePageChange = (val: number) => {
 }
 
 // 根据会议ID获取表头
-const getMeetingForXm = async (chooseMeetingId: string, authParams?: { dwId: string; bmId: string; roleId: string }) => {
+const getMeetingForXm = async (
+  chooseMeetingId: string,
+  authParams?: {
+    dwId: string
+    bmId: string
+    roleId: string
+  }
+) => {
   meetingId.value = chooseMeetingId
   reviewAuthParams.value = {
     dwId: authParams?.dwId || '',
@@ -181,9 +185,7 @@ const formatterData = ({ cellValue, column }: any) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   return formatValue(cellValue.toString(), 6)
 }
-
 const formatterText = ({ cellValue }: any) => formatReviewTableText(cellValue)
-
 const amountFields = ['xmgstz_sbys', 'xmgstz_sdje', 'xmgstz_hshj', 'sbys']
 
 // 表格对齐方式
@@ -217,7 +219,9 @@ const getDataByMeetingId = async () => {
   }
   gridProps.loading = true
   try {
-    const data: any = await getTableData({ ...params })
+    const data: any = await getTableData({
+      ...params
+    })
     if (data.success) {
       if (data.data.length == 0) return ElMessage.warning('暂无数据')
       gridProps.data = data.data.records
@@ -241,7 +245,6 @@ const exportHandle = () => {
   const fileName = '项目会审意见汇总表'
   apiExportHandle(params, fileName, exportData)
 }
-
 defineExpose({
   getMeetingForXm
 })

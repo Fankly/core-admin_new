@@ -254,26 +254,20 @@
 
 <script setup lang="ts">
 import { View as EpView } from '@element-plus/icons-vue'
-
-import { onMounted, ref, reactive, defineExpose, defineEmits, withDefaults, watch } from 'vue'
+import { onMounted, ref, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { checkMoney } from '@/utils/validate'
 import { getPublicData } from '@/api/common' //公共代码
-import {
-  searchPayDayList,
-  getZlhtfjList,
-  payDayDelete,
-  getDownloadUrl
-} from '@/api/service/requirement'
+import { searchPayDayList, getZlhtfjList, payDayDelete, getDownloadUrl } from '@/api/service/requirement'
 
 //接收父组件传参
 const props = withDefaults(
   defineProps<{
-    fpqz: string,
-    startDate: string,
-    endDate: string,
-    htID: string,
-    htBm: string,
+    fpqz: string
+    startDate: string
+    endDate: string
+    htID: string
+    htBm: string
     dialogState: string
   }>(),
   {
@@ -285,19 +279,16 @@ const props = withDefaults(
     dialogState: ''
   }
 )
-
 const page = reactive({
   total: 0,
   limit: 50,
   page: 1
 })
-
 const htPage = reactive({
   total: 0,
   limit: 50,
   page: 1
 })
-
 const loading = ref(false)
 const searchCode = ref('ZLHTTZGL_ZJJH')
 const validateStatus = ref(false)
@@ -308,7 +299,6 @@ const formObj = ref<any>({
   list: []
 })
 const tableDataList = ref()
-
 const selectData = ref<any>([])
 const isDisabled = ref(false)
 const rules = ref<any>({})
@@ -317,7 +307,6 @@ const formErrors = reactive({
   payDate: false,
   payAmountNottax: false
 })
-
 const emit = defineEmits(['judgementIsExistSameValue', 'dynamicComputation', 'updateData'])
 
 // 租金计划-当前页改变时会触发
@@ -351,25 +340,23 @@ const searchDataHandle = async () => {
   const getPageData = await searchPayDayList({
     page: page.page,
     limit: page.limit,
-    HTBM: props.htID,
-  });
+    HTBM: props.htID
+  })
   if (getPageData.success) {
-    formObj.value.list = getPageData.data.records;
-    page.total = getPageData.data.total;
-
+    formObj.value.list = getPageData.data.records
+    page.total = getPageData.data.total
     if (props.fpqz === '0') {
       // 判断是否分批起租为 否 时
-      isDisabled.value = true;
+      isDisabled.value = true
     } else {
-      isDisabled.value = false;
+      isDisabled.value = false
     }
-
     for (var i = 0; i < formObj.value.list.length; i++) {
-      formObj.value.list[i].payDate = getDate(formObj.value.list[i].payDate);
-      formObj.value.list[i].startDate = getDate(formObj.value.list[i].startDate);
-      formObj.value.list[i].endDate = getDate(formObj.value.list[i].endDate);
+      formObj.value.list[i].payDate = getDate(formObj.value.list[i].payDate)
+      formObj.value.list[i].startDate = getDate(formObj.value.list[i].startDate)
+      formObj.value.list[i].endDate = getDate(formObj.value.list[i].endDate)
     }
-    emit('dynamicComputation');
+    emit('dynamicComputation')
   }
 }
 
@@ -379,45 +366,43 @@ const htSearchDataHandle = async () => {
     page: htPage.page,
     limit: htPage.limit,
     contractNo: props.htBm
-  });
+  })
   if (getPageData.success) {
-    htPage.total = getPageData.data.total * 1;
-    tableDataList.value = getPageData.data.records;
+    htPage.total = getPageData.data.total * 1
+    tableDataList.value = getPageData.data.records
   }
 }
-
 const getDate = (value: any) => {
-  var nowDate = value ? new Date(value) : new Date();
-  var y = nowDate.getFullYear();
-  var m: any = nowDate.getMonth() + 1;
-  var d: any = nowDate.getDate();
+  var nowDate = value ? new Date(value) : new Date()
+  var y = nowDate.getFullYear()
+  var m: any = nowDate.getMonth() + 1
+  var d: any = nowDate.getDate()
   if (m < 10) {
     m = '0' + m
   }
   if (d < 10) {
     d = '0' + d
   }
-  return y + '-' + m + '-' + d;
+  return y + '-' + m + '-' + d
 }
-
 const rndNum = (n: any) => {
-  let rdmNum = '';
+  let rdmNum = ''
   for (let i = 0; i < n; i++) {
-    rdmNum += Math.floor(Math.random() * 10); // [0-10]的整数
+    rdmNum += Math.floor(Math.random() * 10) // [0-10]的整数
   }
-  return rdmNum;
+  return rdmNum
 }
 
 // 付款时间 onchange 事件
 const datePickerChange = (val: any, startDate: any, endDate: any) => {
   if (!val) return
   if (new Date(val) < new Date(startDate)) {
-    ElMessage.error('付款时间不得小于租赁期实际开始日！');
-    return;
+    ElMessage.error('付款时间不得小于租赁期实际开始日！')
+    return
   }
   if (new Date(val) > new Date(endDate)) {
-    ElMessage.error('付款时间不得大于租赁期实际结束日！');
-    return;
+    ElMessage.error('付款时间不得大于租赁期实际结束日！')
+    return
   }
 }
 
@@ -425,7 +410,8 @@ const datePickerChange = (val: any, startDate: any, endDate: any) => {
 const addMasgHandler = () => {
   if (props.fpqz === '0') {
     formObj.value.list.push({
-      tabItemId: 'T' + rndNum(6), // 生成以T开头的七位随机数
+      tabItemId: 'T' + rndNum(6),
+      // 生成以T开头的七位随机数
       pcNo: '第一批次',
       payDate: '',
       payAmountNottax: '',
@@ -434,10 +420,11 @@ const addMasgHandler = () => {
       endDate: props.endDate,
       dataStatus: 'add'
     })
-    isDisabled.value = true;
+    isDisabled.value = true
   } else {
     formObj.value.list.push({
-      tabItemId: 'T' + rndNum(6), // 生成以T开头的七位随机数
+      tabItemId: 'T' + rndNum(6),
+      // 生成以T开头的七位随机数
       pcNo: '',
       payDate: '',
       payAmountNottax: '',
@@ -446,25 +433,25 @@ const addMasgHandler = () => {
       endDate: '',
       dataStatus: 'add'
     })
-    isDisabled.value = false;
+    isDisabled.value = false
   }
-  page.total = formObj.value.list.length;
+  page.total = formObj.value.list.length
 }
 
 // 删除
 const delMasgHandler = async () => {
   if (selectData.value.length == 0) {
-    ElMessage.warning('请选择数据！');
-    return;
+    ElMessage.warning('请选择数据！')
+    return
   }
-  var ids = '';
-  const idList: any = [];
+  var ids = ''
+  const idList: any = []
   for (var i = 0; i < selectData.value.length; i++) {
     if (selectData.value[i].id) {
       if (i < selectData.value.length - 1) {
-        ids += selectData.value[i].id + ',';
+        ids += selectData.value[i].id + ','
       } else {
-        ids += selectData.value[i].id;
+        ids += selectData.value[i].id
       }
     }
     if (selectData.value[i].id) {
@@ -473,21 +460,20 @@ const delMasgHandler = async () => {
       idList.push(selectData.value[i].tabItemId)
     }
   }
-
-  const newDataList = formObj.value.list.filter((item: any) => !(idList.includes(item.id)) && !(idList.includes(item.tabItemId)))
-  formObj.value.list = newDataList;
-  page.total = formObj.value.list.length;
+  const newDataList = formObj.value.list.filter((item: any) => !idList.includes(item.id) && !idList.includes(item.tabItemId))
+  formObj.value.list = newDataList
+  page.total = formObj.value.list.length
   if (formObj.value.list.length == 0) {
     emit('updateData')
   }
   if (!ids) return
   const paramData: any = await payDayDelete({
     ID: ids
-  });
+  })
   if (paramData.success) {
-    ElMessage.success('删除成功！');
-    emit('dynamicComputation');
-    return;
+    ElMessage.success('删除成功！')
+    emit('dynamicComputation')
+    return
   } else {
     ElMessage.error('租金计划使用中,不可删除！')
   }
@@ -496,29 +482,28 @@ const delMasgHandler = async () => {
 // 复制行
 const copyHandler = () => {
   if (selectData.value.length == 0) {
-    ElMessage.warning('请选择数据！');
-    return;
+    ElMessage.warning('请选择数据！')
+    return
   }
   for (var i = 0; i < selectData.value.length; i++) {
     formObj.value.list.push({
       tabItemId: 'T' + rndNum(6),
       pcNo: selectData.value[i].pcNo,
-			fpqzNo: selectData.value[i].fpqzNo || '',
+      fpqzNo: selectData.value[i].fpqzNo || '',
       payDate: selectData.value[i].payDate,
       payAmountNottax: selectData.value[i].payAmountNottax,
-			payAmountTax: selectData.value[i].payAmountTax || '',
+      payAmountTax: selectData.value[i].payAmountTax || '',
       taxRate: selectData.value[i].taxRate,
       startDate: selectData.value[i].startDate,
       endDate: selectData.value[i].endDate,
       dataStatus: 'add'
     })
   }
-  page.total = formObj.value.list.length;
-  emit('dynamicComputation');
-} 
-
+  page.total = formObj.value.list.length
+  emit('dynamicComputation')
+}
 const handelChooseRow = (val: any) => {
-  selectData.value = val;
+  selectData.value = val
 }
 
 // 支付不含税租金输入框失去焦点事件
@@ -545,9 +530,9 @@ const selectChange = (val: any, item: any) => {
 const formValidate = () => {
   formRef.value.validate((valid: any) => {
     if (valid) {
-      validateStatus.value = true;
+      validateStatus.value = true
     } else {
-      validateStatus.value = false;
+      validateStatus.value = false
     }
   })
 }
@@ -559,7 +544,7 @@ const downloadFile = async (row: any) => {
   // const fileName = row.typBasNm.split('.')[0]
   const blob: any = await getDownloadUrl(uuid)
   if (blob.data) {
-    window.open(blob.data,'_blank');
+    window.open(blob.data, '_blank')
   }
   // const dom = document.createElement('a')
   // const url = window.URL.createObjectURL(blob)
@@ -572,16 +557,14 @@ const downloadFile = async (row: any) => {
   // window.URL.revokeObjectURL(url)
   loading.value = false
 }
-
 const searchTableHandle = (flag: string) => {
-  searchCode.value = flag;
+  searchCode.value = flag
   if (flag === 'ZLHTTZGL_ZJJH') {
-    searchDataHandle();
+    searchDataHandle()
   } else if (flag === 'ZLHTTZGL_HTFJ') {
-    htSearchDataHandle();
+    htSearchDataHandle()
   }
 }
-
 onMounted(async () => {
   // 税率
   const slCodeList = await getPublicData('ZL_RATE')
@@ -593,12 +576,10 @@ onMounted(async () => {
   if (pcsxCodeList.success && pcsxCodeList.data.length !== 0) {
     pcsxArr.value = pcsxCodeList.data
   }
-
   if (['edit', 'view'].includes(props.dialogState)) {
     searchDataHandle()
   }
 })
-
 defineExpose({
   isDisabled,
   formObj,
@@ -656,7 +637,7 @@ defineExpose({
   }
 }
 .dynamic-form {
-  ::v-deep(.el-form-item--small.el-form-item) {
+  :deep(.el-form-item--small.el-form-item) {
     margin-bottom: 0;
   }
 }

@@ -55,8 +55,6 @@
 
 <script setup lang="ts">
 import { EnumMapInjectionKey } from '@/components/ProTable/interface'
-
-defineOptions({ name: "RangeVxeTable" })
 import { computed, nextTick, onMounted, provide, reactive, ref, unref, useSlots, watch } from 'vue'
 import type { VxeGridInstance, VxeGridListeners, VxeGridProps } from 'vxe-table'
 import SearchForm from '@/components/SearchForm/index.vue'
@@ -65,6 +63,7 @@ import HelpModal from '@/components/HelpModal/index.vue'
 import ColSetting from '@/components/base/vxeColSetting.vue'
 import type { BreakPoint } from '@/components/Grid/interface'
 import type { ColumnProps } from '@/components/ProTablePage/interface'
+defineOptions({ name: "RangeVxeTable" })
 
 type RowClickMode = 'exclusive' | 'toggle' | 'none'
 type ToolButtonKey = 'help' | 'setting' | 'search' | 'other'

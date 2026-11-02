@@ -28,11 +28,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/motivation/TissueMotivTation/index" })
 import { onMounted, ref } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import ProtableCurd from '@/views/motivation/MarketingMotivation/components/ProtableCurd.vue'
-import { getEjdw, getYjdw, getPublicData } from '@/api/common' //公共代码
+import { getEjdw, getYjdw, getPublicData } from '@/api/common'
 import {
   ryhgzxxPage,
   ryhgzxxRemove,
@@ -44,6 +43,9 @@ import {
   ryhgzxxExportExcel
 } from '@/api/motivation/TissueMotivTation/index'
 import { decimal2Rules, integerRules } from '@/utils/rules'
+defineOptions({ name: "/motivation/TissueMotivTation/index" })
+
+ //公共代码
 
 const userDialogRef = ref<InstanceType<typeof userDialog>>()
 const tabData = ref('1')

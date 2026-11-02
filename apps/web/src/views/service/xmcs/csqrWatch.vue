@@ -54,8 +54,6 @@
 
 <script setup lang="tsx">
 import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/service/xmcs/csqr" })
 import { onMounted, ref } from 'vue'
 import { getZxcsSpGcPage, exportZxcsSpGc, gcStaffSave, updateDwType } from '@/api/service/xmcs/index'
 import { ElMessage } from 'element-plus'
@@ -71,6 +69,7 @@ import personGcTable from '@/views/service/xmcs/components/personGcTable.vue'
 import searchModal from './components/searchModal.vue'
 import selectModalNew from '@/components/yssxTable/selectModalNew.vue'
 import { getPublicData } from '@/api/common'
+defineOptions({ name: "/service/xmcs/csqr" })
 
 const countInfo = ref<any>({})
 const userDialogRef = ref()

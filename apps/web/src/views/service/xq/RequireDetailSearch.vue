@@ -1,8 +1,4 @@
-<script lang="ts">
-export default {
-  name: '/service/xq/RequireDetailSearch'
-}
-</script>
+
 <script setup lang="ts">
 import { getPublicData, getParamConfig } from '@/api/common'
 import { getAppMenu } from '@/api/menu/menuConfig'
@@ -21,11 +17,14 @@ import baseService from '@/service/baseService'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
 import { Configs, MenuConfig } from '@/views/service/xq/interface'
 import { ElMessage } from 'element-plus'
-import { computed, defineExpose, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
 import { freezeColumns } from '@/utils/utils'
 import { VxeGridProps, VxeTable, VXETable } from 'vxe-table'
+defineOptions({
+  name: '/service/xq/RequireDetailSearch'
+})
 
 interface RowVo {
   id: string
@@ -45,7 +44,6 @@ interface RowVo {
   cjr: string
   lyxt_name: string
 }
-
 const route = useRoute()
 const formRef = ref()
 const isShowModal = ref(false)
@@ -78,24 +76,19 @@ const userInfo = ref<{
   specialorgcode: '',
   spRoleId: ''
 })
-
 const { startGuide } = useGuide({
   moduleKey: 'RequireDetailSearch',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 const store = useStore()
 const userInfOther = ref<any>()
 const title = '高级设置'
-
 const operationBtn = ref<MenuConfig[]>([])
 const searchBtn = ref<MenuConfig[]>([])
 const userDialogRef = ref()
-
 const defaultValueProp = ref<any>({})
-
 const searchData = ref<{
   [key: string]: any
 }>({})
@@ -104,42 +97,32 @@ const page = {
   limit: 20,
   page: 1
 }
-
 const spanComp = computed(() =>
   linkLength.value % 4 === 0 ? 24 : linkLength.value % 4 === 1 ? 18 : linkLength.value % 4 === 2 ? 12 : linkLength.value % 4 === 3 ? 6 : 24
 )
-
 const isShowPage = ref(false)
 let searchRequestSeq = 0
 const ctProjectCodeField = 'xmbm'
-
 const getCurrentYear = () => new Date().getFullYear().toString()
-
 const hasDefaultValue = (value: any) => value !== undefined && value !== null && value !== ''
-
 const cloneDefaultValue = (value: any) => (Array.isArray(value) ? [...value] : value)
-
 const getCtStorageKey = () => {
   const ctKey = route.query.ctKey
   return Array.isArray(ctKey) ? ctKey[0] : ctKey
 }
-
 const isCtEntry = computed(() => Boolean(route.params.formJsc || getCtStorageKey()))
 const initLoading = ref(isCtEntry.value)
 const showMain = computed(() => isShowPage.value || initLoading.value)
 const pageLoading = computed(() => loading.value || initLoading.value)
-
 const normalizeCtProjectCodes = (value: any): string[] => {
   if (!Array.isArray(value)) return []
   return value.map((item) => `${item}`.trim()).filter(Boolean)
 }
-
 const applyCtSearchCondition = () => {
   const ctKey = getCtStorageKey()
   if (!ctKey) return
   const ctStorageValue = sessionStorage.getItem(ctKey)
   if (!ctStorageValue) return
-
   try {
     const ctData = JSON.parse(ctStorageValue)
     const projectCodes = normalizeCtProjectCodes(ctData?.[ctProjectCodeField])
@@ -150,32 +133,25 @@ const applyCtSearchCondition = () => {
     console.error(e)
   }
 }
-
 const isPlanYearField = (column: Configs) =>
   column.code?.toLowerCase() === 'jhssnd' || column.name?.includes('计划实施年度') || column.name?.includes('计划实施年份')
-
 const normalizeRouteQueryValues = (value: any) =>
   (Array.isArray(value) ? value : [value])
     .filter((item) => item !== undefined && item !== null)
     .map((item) => `${item}`.trim())
     .filter(Boolean)
-
 const setRouteSearchValue = (column: Configs | undefined, queryValue: any) => {
   if (!column) return
   const values = normalizeRouteQueryValues(queryValue)
   if (!values.length) return
-
   searchDatas.value[column.code] = column.type === 'inputText' ? values.join(',') : column.multiple ? values : values[0]
 }
-
 const applyRouteSearchCondition = () => {
   const projectCodeColumn = dynamciSearch.value.find((column) => column.code?.toLowerCase() === ctProjectCodeField)
   const planYearColumn = dynamciSearch.value.find(isPlanYearField)
-
   setRouteSearchValue(projectCodeColumn, route.query.xmbm)
   setRouteSearchValue(planYearColumn, route.query.nd)
 }
-
 const getColumnDefaultValue = (column: Configs) => {
   if (hasDefaultValue(column.defaultValue)) {
     if (column.multiple && typeof column.defaultValue === 'string') {
@@ -187,14 +163,12 @@ const getColumnDefaultValue = (column: Configs) => {
     return column.multiple ? [getCurrentYear()] : getCurrentYear()
   }
 }
-
 const setDefaultSearchValue = (column: Configs) => {
   const defaultValue = getColumnDefaultValue(column)
   if (defaultValue === undefined) return
   defaultValueProp.value[column.code] = cloneDefaultValue(defaultValue)
   searchDatas.value[column.code] = cloneDefaultValue(defaultValue)
 }
-
 const createSearchColumn = (column: Configs) => {
   const valueKey = column.code === 'zt' ? 'code' : 'id'
   return {
@@ -206,10 +180,13 @@ const createSearchColumn = (column: Configs) => {
     filterable: true,
     multiple: column.multiple,
     options: [],
-    treeProps: { children: 'children', label: 'name', value: valueKey }
+    treeProps: {
+      children: 'children',
+      label: 'name',
+      value: valueKey
+    }
   }
 }
-
 const clearSearchItem = (column?: Configs) => {
   if (!column) return
   column.options = []
@@ -219,7 +196,6 @@ const clearSearchItem = (column?: Configs) => {
     searchDatas.value[column.code] = ''
   }
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchDataHandle()
@@ -229,13 +205,11 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchDataHandle()
 }
-
 const processData = reactive({
   isShowDialog: false,
   compName: null,
   id: ''
 })
-
 const processHandle = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -243,7 +217,6 @@ const processHandle = () => {
     useProcess(records, processData)
   }
 }
-
 const exportHandle = () => {
   loading.value = true
   const params = {
@@ -269,7 +242,6 @@ const exportHandle = () => {
     loading.value = false
   })
 }
-
 const batchDownloadAttach = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -285,18 +257,19 @@ const batchDownloadAttach = () => {
     isfileTypeModal.value = true
   }
 }
-
 const closefileTypeHandle = () => {
   modalForm.fjId = ''
   isfileTypeModal.value = false
 }
-
 const resetfileTypeHandle = () => {
   loading.value = true
   const $grid = gridRef.value
   const records = $grid.getCheckboxRecords()
   const ids = records.map((item: any) => item.id)
-  exportXmAttach({ ids, fjId: modalForm.fjId || '' })
+  exportXmAttach({
+    ids,
+    fjId: modalForm.fjId || ''
+  })
     .then((res: any) => {
       const blob = res
       let dom = document.createElement('a')
@@ -317,7 +290,6 @@ const resetfileTypeHandle = () => {
       closefileTypeHandle()
     })
 }
-
 const handleFieldChange = async (prop: string, value: any, column: Configs) => {
   if (prop === 'yjdw') {
     const findData = dynamicSearchMap.value.get('ejdw')
@@ -334,7 +306,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
       clearSearchItem(findData)
     }
   }
-
   if (prop === 'yjfl') {
     const findData = dynamicSearchMap.value.get('ejfl')
     const findSjflData = dynamicSearchMap.value.get('sjfl')
@@ -352,7 +323,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
       clearSearchItem(findSjflData)
     }
   }
-
   if (prop === 'ejfl') {
     const findData = dynamicSearchMap.value.get('sjfl')
     if (value) {
@@ -369,7 +339,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
     }
   }
 }
-
 const searchDataHandle = async () => {
   const currentSeq = ++searchRequestSeq
   loading.value = true
@@ -395,12 +364,10 @@ const searchDataHandle = async () => {
     }
   }
 }
-
 const searchHandle = () => {
   page.page = 1
   searchDataHandle()
 }
-
 const initParamsData = async (method: any, params: any): Promise<any[]> => {
   const res = await baseService.post(method, params)
   if (res.success) {
@@ -410,7 +377,6 @@ const initParamsData = async (method: any, params: any): Promise<any[]> => {
     return []
   }
 }
-
 const viewHandle = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -424,7 +390,6 @@ const viewHandle = () => {
     editPageRef.value.isShowModal = true
   }
 }
-
 const resetHandle = () => {
   dynamciSearch.value.forEach((item) => {
     if (item.dependOnColumn) {
@@ -448,7 +413,6 @@ const resetHandle = () => {
   page.page = 1
   searchDataHandle()
 }
-
 const searchConfigHandle = async () => {
   loading.value = true
   try {
@@ -456,11 +420,15 @@ const searchConfigHandle = async () => {
       searchCode: searchCode.value
     })
     if (!searchResData.success) return
-
     const searchColumns = searchResData.data || []
-    const commonCodeConfigs: Array<{ code: string; ggdm: string }> = []
-    const customData: Array<{ dyff: string; code: string }> = []
-
+    const commonCodeConfigs: Array<{
+      code: string
+      ggdm: string
+    }> = []
+    const customData: Array<{
+      dyff: string
+      code: string
+    }> = []
     defaultValueProp.value = {}
     searchColumns.forEach((item: Configs) => {
       setDefaultSearchValue(item)
@@ -478,11 +446,9 @@ const searchConfigHandle = async () => {
         })
       }
     })
-
     linkLength.value = searchColumns.filter((item: Configs) => item.link).length
     dynamciSearch.value = searchColumns.map(createSearchColumn)
     dynamicSearchMap.value = new Map(dynamciSearch.value.map((item) => [item.code, item]))
-
     await Promise.all(
       customData.map(async (item) => {
         const findData = dynamicSearchMap.value.get(item.code)
@@ -499,7 +465,6 @@ const searchConfigHandle = async () => {
         }
       })
     )
-
     if (commonCodeConfigs.length > 0) {
       const initData = await initParamsData('/commonCode/getCommonCode', {
         bmId: userInfo.value.deptId || '',
@@ -519,7 +484,6 @@ const searchConfigHandle = async () => {
     loading.value = false
   }
 }
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   columnConfig: {
@@ -535,7 +499,6 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   },
   columns: []
 })
-
 const getDynamicTable = async () => {
   const res = await getDynamicTableByUser({
     searchCode: searchCode.value
@@ -560,7 +523,6 @@ const getDynamicTable = async () => {
     freezeColumns(gridOptions.columns as any, 2)
   }
 }
-
 const showHandle = async () => {
   await Promise.all([searchConfigHandle(), getDynamicTable()])
   applyRouteSearchCondition()
@@ -572,7 +534,9 @@ const showHandle = async () => {
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfOther.value = { ...userDialogRef.value.userMsg }
+    userInfOther.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfOther.value.specialorgid}`)
@@ -602,28 +566,23 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 const xmjdList = ref<any>([])
-
 const getPublicCode = async () => {
   const res = await getPublicData('ZLYS_XMJD')
   if (res.success && res.data) {
     xmjdList.value = res.data
   }
-
   const code = await getPublicData('XQLR_VIEW_DOWNLOAD_FJTYPE')
   if (code.success && code.data) {
     fileTypeList.value = code.data
   }
 }
-
 const getMaxDownloadNum = async () => {
   const res = await getParamConfig('XQLR_VIEW_BXPORT_MAX_NUM')
   if (res.success && res.data) {
     maxDownloadNum.value = parseInt(res.data) || 100
   }
 }
-
 onMounted(async () => {
   try {
     getPublicCode()
@@ -655,37 +614,30 @@ onMounted(async () => {
     initLoading.value = false
   }
 })
-
 watch(
   () => [route.query.ctKey, route.query.nd, route.query.xmbm],
   async (queryValues, oldQueryValues) => {
     if (!isShowPage.value || queryValues.every((value, index) => value === oldQueryValues[index])) return
     if (!queryValues.some((value) => normalizeRouteQueryValues(value).length)) return
-
     applyRouteSearchCondition()
     applyCtSearchCondition()
     await searchHandle()
   }
 )
-
 const showModalHandle = async () => {
   await Promise.all([searchConfigHandle(), getDynamicTable()])
 }
-
 const settingHandle = () => {
   dynamicReportsRef.value.isShowDrawer = true
 }
-
 const cellClickHandle = async ({ row, column }: any) => {
   if (column.type === 'checkbox') return
   await gridRef.value.clearCheckboxRow()
   gridRef.value.setCheckboxRow(row, true)
 }
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const modalLoading = ref(false)
 const modalformRef = ref()
 const isShowResetModal = ref(false)
@@ -697,9 +649,14 @@ const modalForm = reactive({
 })
 const ids = ref([])
 const modalFormRules = reactive({
-  xmjd: [{ required: true, message: '请选择项目阶段', trigger: ['change'] }]
+  xmjd: [
+    {
+      required: true,
+      message: '请选择项目阶段',
+      trigger: ['change']
+    }
+  ]
 })
-
 const reSendBtnHandle = async () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -712,7 +669,6 @@ const reSendBtnHandle = async () => {
     ids.value = records.map((item: any) => item.id)
   }
 }
-
 const reSendToJhxtHandle = async () => {
   if (modalformRef.value) await modalformRef.value.validate()
   try {
@@ -741,13 +697,11 @@ const reSendToJhxtHandle = async () => {
     modalLoading.value = false
   }
 }
-
 const closeResendHandle = () => {
   isShowResetModal.value = false
   modalForm.xmjd = ''
   ids.value = []
 }
-
 defineExpose({
   isShowModal,
   loading

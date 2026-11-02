@@ -5,8 +5,8 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "BudgetingTree" })
 import { useBudgetingTree } from '@/views/service/budget/budgeting/hooks/useBudgetingTree'
+defineOptions({ name: "BudgetingTree" })
 
 const { currentKey, treeRef, yearTreeProp, handleNodeClick, loadTreeData } = useBudgetingTree()
 </script>

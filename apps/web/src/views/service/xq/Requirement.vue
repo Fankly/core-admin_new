@@ -2,14 +2,9 @@
   <RequirementFormBase business-type="sfxqlr" />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
 import RequirementFormBase from './components/RequirementFormBase.vue'
-
-export default defineComponent({
-  name: '/service/xq/Requirement',
-  components: {
-    RequirementFormBase
-  }
+defineOptions({
+  name: '/service/xq/Requirement'
 })
 </script>

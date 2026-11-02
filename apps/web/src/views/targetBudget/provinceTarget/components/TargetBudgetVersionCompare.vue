@@ -38,8 +38,8 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "TargetBudgetVersioncompare" })
 import { useTargetBudgetVersionCompare } from './hooks/useTargetBudgetVersionCompare'
+defineOptions({ name: "TargetBudgetVersioncompare" })
 
 const {
   parameter,

@@ -63,15 +63,11 @@
   </vxe-modal>
   <proAssignedModal @include-in-review="clearSelect" ref="proAssignedModalRef" />
 </template>
-<script lang="tsx">
-export default {
-  name: 'proAssigned'
-}
-</script>
+
 <script setup lang="tsx">
 import { ref, reactive, nextTick } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
-import { getPublicData, getEjdwData, getYjdwData, getSubProtypeTree } from '@/api/common' //公共代码
+import proTable from '@/components/ProTable/index.vue'
+import { getPublicData, getEjdwData, getYjdwData, getSubProtypeTree } from '@/api/common'
 import { pageExpertInfo, pageExpertLinkedXmInfo, exportExpertLinkedXmInfo, removeExpertProjectLink } from '@/api/service/jointReview'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Split from '@/components/Split/index.vue'
@@ -79,11 +75,15 @@ import { formatNumValue } from '@/utils/utils'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import ElTreeSelect from '@/components/ElTreeSelect/index'
 import proAssignedModal from '@/views/service/ywpt/components/proAssignedModal/index.vue'
-
 import { apiExportHandle } from '@/utils/export'
+defineOptions({
+  name: 'proAssigned'
+})
+
+ //表格组件
+ //公共代码
 
 const emits = defineEmits(['pushPage'])
-
 const loading = ref(false)
 const isShowBtn = ref(true)
 const isShowModel = ref(false) //显示弹窗
@@ -171,7 +171,9 @@ const getPageList = async (params: any) => {
   if (params['xmbmList'].length > 1000) {
     return ElMessage.error('项目编码最大支持1000条！')
   }
-  proSearchData.value = { ...params }
+  proSearchData.value = {
+    ...params
+  }
   return pageExpertLinkedXmInfo(params)
 }
 // 数据处理回调
@@ -179,7 +181,6 @@ const callBackHandle = (val: any) => {
   loading.value = false
   return val
 }
-
 const handleClick = (type: any, selectedList: any) => {
   if (type == 'DEL') {
     ElMessageBox.confirm(`是否确定删除?`, '提示', {
@@ -212,14 +213,15 @@ const handleClick = (type: any, selectedList: any) => {
   } else {
     if (!searchData.value.expertId) return ElMessage.warning('请选择要分配的专家！')
     const params = {
-      row: { ...searchData.value },
+      row: {
+        ...searchData.value
+      },
       getTableList: proDataRef.value?.getTableList,
       getDataList: proTableRef.value?.getTableList
     }
     proAssignedModalRef.value.acceptParams(params)
   }
 }
-
 const handlePush = () => {
   try {
     loading.value = true
@@ -311,9 +313,12 @@ const selectChange1 = (val: any) => {
     }
   })
 }
-
 const expertColumns = reactive<any[]>([
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'major',
     label: '评审专业',
@@ -322,7 +327,10 @@ const expertColumns = reactive<any[]>([
       order: 4
     },
     enum: pszy.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.major
     }
@@ -340,9 +348,18 @@ const expertColumns = reactive<any[]>([
     prop: 'yjdw',
     label: '一级单位',
     width: '180',
-    search: { el: 'select', props: { onChange: selectChange }, order: 1 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: selectChange
+      },
+      order: 1
+    },
     enum: levelOne.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.yjdw
     }
@@ -351,9 +368,15 @@ const expertColumns = reactive<any[]>([
     prop: 'ejdw',
     label: '二级单位',
     width: '180',
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: levelTwo.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.ejdw
     }
@@ -363,12 +386,22 @@ const expertColumns = reactive<any[]>([
     label: '所属部门',
     width: '180'
   },
-  { prop: 'projectCount', label: '评审项目数量', width: '120' }
+  {
+    prop: 'projectCount',
+    label: '评审项目数量',
+    width: '120'
+  }
 ])
-
 const programColumns = reactive<any[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'meetingCode',
     label: '会议编号',
@@ -402,7 +435,11 @@ const programColumns = reactive<any[]>([
   // { prop: 'sfgmbName', label: '是否规模包', width: '100' },
   // { prop: 'gmbbm', label: '规模包编码', width: '180' },
   // { prop: 'gmbName', label: '规模包名称', width: '200' },
-  { prop: 'isPack', label: '是否打捆项目', width: '100' },
+  {
+    prop: 'isPack',
+    label: '是否打捆项目',
+    width: '100'
+  },
   {
     prop: 'proType',
     label: '项目类型',
@@ -410,7 +447,9 @@ const programColumns = reactive<any[]>([
     search: {
       order: 4,
       render: (scope: any) => {
-        return <ElTreeSelect clearable data={projectTypeList.value} props={proTypeProps} nodeKey={'middleId'} modelValue={scope.modelValue} />
+        return (
+          <ElTreeSelect clearable data={projectTypeList.value} props={proTypeProps} nodeKey={'middleId'} modelValue={scope.modelValue} />
+        )
       }
     }
   },
@@ -418,9 +457,18 @@ const programColumns = reactive<any[]>([
     prop: 'yjdw',
     label: '一级单位',
     width: '180',
-    search: { el: 'select', props: { onChange: selectChange1 }, order: 2 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: selectChange1
+      },
+      order: 2
+    },
     enum: levelOne.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.yjdw
     }
@@ -429,9 +477,15 @@ const programColumns = reactive<any[]>([
     prop: 'ejdw',
     label: '二级单位',
     width: '180',
-    search: { el: 'select', order: 3 },
+    search: {
+      el: 'select',
+      order: 3
+    },
     enum: levelTwoPro.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.ejdw
     }
@@ -456,9 +510,15 @@ const programColumns = reactive<any[]>([
   {
     prop: 'jhssnd',
     label: '计划实施年份',
-    search: { el: 'select', order: 4 },
+    search: {
+      el: 'select',
+      order: 4
+    },
     enum: ndDataList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.jhssnd
     }
@@ -579,7 +639,6 @@ const programColumns = reactive<any[]>([
     width: '140'
   }
 ])
-
 defineExpose({
   isShowModel,
   initParamLists,

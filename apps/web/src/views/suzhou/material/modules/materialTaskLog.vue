@@ -49,11 +49,11 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialTaskLog" })
 import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { VxeGridProps } from 'vxe-table'
 import { getLog } from '@/api/suzhou/material'
+defineOptions({ name: "materialTaskLog" })
 
 interface MaterialTaskLogRow {
   mjahr?: string

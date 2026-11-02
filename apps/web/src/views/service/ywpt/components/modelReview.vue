@@ -38,11 +38,9 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, defineExpose, reactive, nextTick } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 //接收父组件传参
@@ -67,8 +65,14 @@ const rmarkData = reactive({
   reason: ''
 })
 const options = ref([
-  { code: '1', name: '通过' },
-  { code: '0', name: '不通过' }
+  {
+    code: '1',
+    name: '通过'
+  },
+  {
+    code: '0',
+    name: '不通过'
+  }
 ])
 
 // 关闭

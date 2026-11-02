@@ -80,7 +80,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/config/ApplyOutboundConfirm/index" })
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import HelpModal from '@/components/HelpModal/index.vue'
 import userDialog from '@/components/select/userDialog.vue'
@@ -93,6 +92,7 @@ import ApplyOutboundConfirmModal from '@/views/config/ApplyOutboundConfirm/modul
 import { deleteSqckProtypeConfirmData, getSqckProtypeConfirmConfigList } from '@/api/config/sqckProtypeConfirmConfig'
 import { VXETable } from 'vxe-table'
 import { checkSameProperty } from '@/utils/utils'
+defineOptions({ name: "/config/ApplyOutboundConfirm/index" })
 
 interface RowVO {
   protypeName: string

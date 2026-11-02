@@ -19,10 +19,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "projectDetailQueryToolbar" })
 import FormModal from '@/components/FormModal'
 import { useProjectDetailQueryToolbar } from '@/views/config/projectDetailQuery/hooks/useProjectDetailQueryToolbar'
 import { usePermission } from '@/hooks/usePermission'
+defineOptions({ name: "projectDetailQueryToolbar" })
 
 const { hasPermission } = usePermission()
 const { formFields, formModalRef, formData, handleSave, handleClose, openModal, deleteData, isChecked, mode } = useProjectDetailQueryToolbar()

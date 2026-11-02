@@ -190,8 +190,6 @@ import {
   Timer as EpTimer,
   User as EpUser
 } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/ai/reviewWorkBench/index" })
 import { ref, reactive, onMounted } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { ElMessage } from 'element-plus'
@@ -203,6 +201,7 @@ import { buildMeetingEntryPayload, loadAiAuditParams } from '@/views/ai/reviewWo
 import { getMeetingCountByStatus, getMeetingCountByType, getMeetingPage, getReviewStat } from '@/api/ai/reviewWorkBench'
 import { encrypt } from '@/utils/crypto'
 import { getListPageDataByAccount } from '@/api/service/IhhsMeeting/expertReview'
+defineOptions({ name: "/ai/reviewWorkBench/index" })
 
 const loading = ref(false)
 const isShowPage = ref(false) //未选择角色前不展示页面

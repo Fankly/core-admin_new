@@ -56,27 +56,26 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'ZlxqsdkzyzzpzBasicOperation'
-}
-</script>
+
 <script setup lang="ts">
-import { ref, defineExpose, defineEmits, defineProps, reactive, watch, nextTick } from 'vue'
+import { ref, reactive, watch, nextTick } from 'vue'
 import { saveZlsdkzybmclbpz, SaveSdkzybmbzMsg } from '@/api/matter/matterBasic'
 import { ElMessage } from 'element-plus'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
+defineOptions({
+  name: 'ZlxqsdkzyzzpzBasicOperation'
+})
+
+ //表格组件
 
 interface MatterBasicMsg {
   title: string
   opType: string
 }
-
 interface Props {
   matterBasicMsg: MatterBasicMsg
   selectedData: any
 }
-
 interface RowVO {
   code: string
   name: string
@@ -85,22 +84,15 @@ interface RowVO {
   unicode: any
   [key: string]: number | string
 }
-
 const props = defineProps<Props>()
-
 const emit = defineEmits(['saveData'])
-
 const xmlxRef = ref()
 const formRef = ref()
-
 const isShowModal = ref(false)
 const loading = ref(false)
-
 const checkCodes = ref<any>([])
-
 const isShowTable = ref<boolean>(false)
 const proTableRef = ref()
-
 const formData = reactive<SaveSdkzybmbzMsg>({
   id: '',
   code: '',
@@ -108,15 +100,43 @@ const formData = reactive<SaveSdkzybmbzMsg>({
   dwxz: '',
   zlzclx: ''
 })
-
 const rulesForm = reactive({
-  id: [{ required: true, message: '请输入主键ID', trigger: ['blur'] }],
-  code: [{ required: true, message: '请输入省对口专业部门编码', trigger: ['blur'] }],
-  name: [{ required: true, message: '请输入省对口专业部门名称', trigger: ['blur'] }],
-  dwxz: [{ required: true, message: '请输入单位性质', trigger: ['blur'] }],
-  zlzclx: [{ required: true, message: '请输入租赁资产类型', trigger: ['blur'] }]
+  id: [
+    {
+      required: true,
+      message: '请输入主键ID',
+      trigger: ['blur']
+    }
+  ],
+  code: [
+    {
+      required: true,
+      message: '请输入省对口专业部门编码',
+      trigger: ['blur']
+    }
+  ],
+  name: [
+    {
+      required: true,
+      message: '请输入省对口专业部门名称',
+      trigger: ['blur']
+    }
+  ],
+  dwxz: [
+    {
+      required: true,
+      message: '请输入单位性质',
+      trigger: ['blur']
+    }
+  ],
+  zlzclx: [
+    {
+      required: true,
+      message: '请输入租赁资产类型',
+      trigger: ['blur']
+    }
+  ]
 })
-
 const showHandle = () => {
   if (props.matterBasicMsg.opType == 'EDIT') {
     // 修改
@@ -158,7 +178,6 @@ const saveHandle = async () => {
     }
   })
 }
-
 defineExpose({
   isShowModal
 })

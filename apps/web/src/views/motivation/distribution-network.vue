@@ -69,11 +69,7 @@
     @close="handleClose"
   />
 </template>
-<script lang="ts">
-export default {
-  name: '/motivation/distribution-network'
-}
-</script>
+
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useStore } from '@/store/business'
@@ -82,7 +78,7 @@ import ProTable from '@/components/ProTable/index.vue'
 import userDialog from '@/components/select/userDialog.vue'
 import ImportExcel from '@/components/ImportExcel/indexSy.vue'
 import FormModal, { FormField } from '@/components/FormModal'
-import { getEjdw, getPublicData, getYjdw } from '@/api/common' //公共代码
+import { getEjdw, getPublicData, getYjdw } from '@/api/common'
 import {
   pdxlxxPageApi,
   pdxlxxRemoveApi,
@@ -94,15 +90,19 @@ import {
   pdxlxxExportExcel
 } from '@/api/motivation/distribution-network'
 import { decimal2Rules, integerRules } from '@/utils/rules'
+defineOptions({
+  name: '/motivation/distribution-network'
+})
+
+ //公共代码
+
 const userDialogRef = ref()
 const isShowPage = ref(false)
-
 const proTableRef = ref<InstanceType<typeof ProTable>>()
 const formModalRef = ref<InstanceType<typeof FormModal>>()
 const importRef = ref<InstanceType<typeof ImportExcel>>()
 const mode = ref<'add' | 'edit' | 'view'>('add')
 const formData = ref({})
-
 const yjdwList = ref<
   {
     code: string
@@ -124,7 +124,6 @@ const getYjdwData = async () => {
     yjdwList.value.push(...yjdwRes.data)
   }
 }
-
 const selectYjdwChange = async (val: any) => {
   const params = proTableRef.value?.searchParam
   params.ejdw = ''
@@ -144,28 +143,44 @@ const canSubmit = (selectList: any[]) => {
 }
 // 表格字段
 const tableColumns = reactive<any[]>([
-  { type: 'selection', width: 80 },
+  {
+    type: 'selection',
+    width: 80
+  },
   // { type: 'index', width: 80, label: '序号' },
 
   {
     prop: 'yjdw',
     label: '一级单位（市）',
     width: '180',
-
-    search: { el: 'select', props: { onChange: selectYjdwChange }, order: 1 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: selectYjdwChange
+      },
+      order: 1
+    },
     isShow: false,
     enum: yjdwList.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'ejdw',
     label: '二级单位（县）',
     width: '180',
-
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: ejdwList.value,
     isShow: false,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'status',
@@ -176,10 +191,19 @@ const tableColumns = reactive<any[]>([
       order: 3
     },
     enum: [
-      { label: '草稿', value: '0' },
-      { label: '提交', value: '1' }
+      {
+        label: '草稿',
+        value: '0'
+      },
+      {
+        label: '提交',
+        value: '1'
+      }
     ],
-    fieldNames: { label: 'label', value: 'value' }
+    fieldNames: {
+      label: 'label',
+      value: 'value'
+    }
   },
   {
     prop: 'yjdwName',
@@ -271,55 +295,46 @@ const formFields: FormField[] = [
     label: '线路名称',
     type: 'input'
   },
-
   {
     prop: 'xlzcd',
     label: '线路总长度（km）',
     rules: decimal2Rules(),
-
     type: 'input'
   },
   {
     prop: 'jkcd',
     label: '架空长度（km）',
     rules: decimal2Rules(),
-
     type: 'input'
   },
   {
     prop: 'dlcd',
     label: '电缆长度（km）',
     rules: decimal2Rules(),
-
     type: 'input'
   },
   {
     prop: 'pbsl',
     label: '配变数量（个）',
     rules: integerRules(),
-
     type: 'input'
   },
-
   {
     prop: 'pbzrl',
     label: '配变总容量（VA）',
     rules: decimal2Rules(),
-
     type: 'input'
   },
   {
     prop: 'pdzf',
     label: '配电站房（个）',
     rules: integerRules(),
-
     type: 'input'
   },
   {
     prop: 'dytq',
     label: '低压台区（个）',
     rules: integerRules(),
-
     type: 'input'
   }
 ]
@@ -390,8 +405,9 @@ const openModal = async (modeFlag: 'add' | 'edit' | 'view', row?: any) => {
   mode.value = modeFlag
   if (modeFlag !== 'add') {
     if (!row.id) return
-
-    let res = await pdxlxxGetInfoApi({ id: row.id })
+    let res = await pdxlxxGetInfoApi({
+      id: row.id
+    })
     if (res.success) {
       formData.value = res.data
     } else {
@@ -427,7 +443,6 @@ const handleImport = () => {
   let newParmas = {}
   let tempApi: any = pdxlxxgetImportTemplate
   let importApi: any = pdxlxxImportExcel
-
   if (!tempApi && !importApi) return
   let params = {
     tempApi: (importParams: any) => {
@@ -480,8 +495,7 @@ const handleExport = async () => {
 // 行点击
 const rowClick = (row: any) => {
   clearSelect()
-  if (proTableRef.value && proTableRef.value.element)
-    proTableRef.value.element.toggleRowSelection(row, true)
+  if (proTableRef.value && proTableRef.value.element) proTableRef.value.element.toggleRowSelection(row, true)
 }
 
 // 查询列表
@@ -516,15 +530,12 @@ const getRoleHandle = () => {
       specialorgcode: userInfOther.specialorgcode
     }
     getYjdwData()
-
     isShowPage.value = true
   }
 }
-
 const initParams = () => {
   getPublicCodeData()
 }
-
 onMounted(async () => {
   initParams()
   await userDialogRef.value.getUser()

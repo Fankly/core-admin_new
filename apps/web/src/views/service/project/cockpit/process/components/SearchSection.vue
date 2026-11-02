@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import HelpModal from '@/components/HelpModal/index.vue'
-import { defineEmits, defineProps, getCurrentInstance, ref } from 'vue'
+import { getCurrentInstance, ref } from 'vue'
 
 // Props定义
 const props = defineProps<{
@@ -31,7 +31,6 @@ const props = defineProps<{
 
 // Emits定义
 const emit = defineEmits(['search'])
-
 const helpModalRef = ref()
 
 // 获取当前实例以访问 $message
@@ -48,7 +47,6 @@ const searchValue = ref('')
 const handleSearch = () => {
   emit('search', searchValue.value.trim())
 }
-
 const handleHelp = () => {
   helpModalRef.value.showModal = true
 }

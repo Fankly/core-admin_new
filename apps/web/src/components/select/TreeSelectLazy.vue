@@ -8,119 +8,125 @@
   </el-select>
 </template>
 
-<script>
-import { reactive, ref } from "vue";
-import { getSubProtypeTree, getPublicData,getBizOrgTreeNoPermission } from "@/api/common"; //公共代码
+<script setup>
+import { reactive, ref, proxyRefs, useTemplateRef } from 'vue'
+import { getSubProtypeTree, getPublicData, getBizOrgTreeNoPermission } from '@/api/common' //公共代码
 
-
-export default {
-  props: {
-    data: {
-      type: Array,
-      default: () => []
-    },
-    lazy: {
-      type: Boolean,
-      default: false
-    },
-    dataType: {
-      type: String,
-      default: "id"
-    },
-    isChildNode: {
-      type: Boolean,
-      default: true
-    },
-    defaultProps: {
-      type: Object,
-      default: () => ({
-        children: "children",
-        label: "label"
-      })
-    },
-    checkStrictly: { //严格检查模式
-      type: Boolean,
-      default: false
-    },
-    nodeKey: {
-      type: String,
-      default: "id"
-    },
-    isLeaf: {
-      type: Boolean,
-      default: true
-    },
-    isAll: {
-      type: Boolean,
-      default: false
-    },
-    defaultExpandAll: {
-      type: Boolean,
-      default: false
-    }
+const componentProps = defineProps({
+  data: {
+    type: Array,
+    default: () => []
   },
-  setup() {
-    const selectTree = ref("");
-    const selectTreeValue = reactive([]);
-    return {
-      selectTreeValue,
-      selectTree
-    };
+  lazy: {
+    type: Boolean,
+    default: false
   },
-  methods: {
-    // 清空选择
-    clearSelect() {
-      this.selectTreeValue = [];
-      this.selectTree = "";
-      this.$refs.tree.setCheckedKeys([]);
-    },
-    selectChange(e) {
-      this.clearSelect();
-      this.$emit("clearData");
-    },
-    async loadNode (node, resolve)  {
-      if(!this.lazy){return}
-      if(node.leaf){
-        return resolve([]);
-      }
-      try {
-        const nodeData = node.data.id;
-        const children = await getBizOrgTreeNoPermission(nodeData);
-        if (children.success) {
-          // children.data.forEach(item=>{
-          //   item.children=[]
-          // })
-          resolve(children.data);
-          return;
-        } else {
-          resolve([]);
-          return;
-        }
-      } catch (error) {
-        console.error("Failed to load node data:", error);
-        resolve([]);
-      }
-    },
-    handleCheckChange() {
-      let res = this.$refs.tree.getCheckedNodes(this.isLeaf, this.isChildNode); //这里两个true，1. 是否只是叶子节点 2. 是否包含半选节点（就是使得选择的时候不包含父节点）
-      let arrLabel = [];
-      let arr = [];
-      let dataType = [];
-      res.forEach((item) => {
-        arrLabel.push(item[this.defaultProps.label]);
-        arr.push(item);
-        dataType.push(item[this.dataType]);
-      });
-      this.selectTreeValue = arr;
-      this.selectTree = arrLabel;
-      if (this.isAll) {
-        this.$emit("selectChange", arr);
-      } else {
-        this.$emit("selectChange", dataType);
-      }
-    }
+  dataType: {
+    type: String,
+    default: 'id'
+  },
+  isChildNode: {
+    type: Boolean,
+    default: true
+  },
+  defaultProps: {
+    type: Object,
+    default: () => ({
+      children: 'children',
+      label: 'label'
+    })
+  },
+  checkStrictly: {
+    //严格检查模式
+    type: Boolean,
+    default: false
+  },
+  nodeKey: {
+    type: String,
+    default: 'id'
+  },
+  isLeaf: {
+    type: Boolean,
+    default: true
+  },
+  isAll: {
+    type: Boolean,
+    default: false
+  },
+  defaultExpandAll: {
+    type: Boolean,
+    default: false
   }
-};
+})
+const emit = defineEmits()
+const treeRef = useTemplateRef('tree')
+const selectTree = ref('')
+const selectTreeValue = reactive([])
+const setupState = proxyRefs({
+  selectTreeValue,
+  selectTree
+})
+// 清空选择
+function clearSelect() {
+  setupState.selectTreeValue = []
+  setupState.selectTree = ''
+  treeRef.value.setCheckedKeys([])
+}
+function selectChange(e) {
+  clearSelect()
+  emit('clearData')
+}
+async function loadNode(node, resolve) {
+  if (!componentProps.lazy) {
+    return
+  }
+  if (node.leaf) {
+    return resolve([])
+  }
+  try {
+    const nodeData = node.data.id
+    const children = await getBizOrgTreeNoPermission(nodeData)
+    if (children.success) {
+      // children.data.forEach(item=>{
+      //   item.children=[]
+      // })
+      resolve(children.data)
+      return
+    } else {
+      resolve([])
+      return
+    }
+  } catch (error) {
+    console.error('Failed to load node data:', error)
+    resolve([])
+  }
+}
+function handleCheckChange() {
+  let res = treeRef.value.getCheckedNodes(componentProps.isLeaf, componentProps.isChildNode) //这里两个true，1. 是否只是叶子节点 2. 是否包含半选节点（就是使得选择的时候不包含父节点）
+  let arrLabel = []
+  let arr = []
+  let dataType = []
+  res.forEach((item) => {
+    arrLabel.push(item[componentProps.defaultProps.label])
+    arr.push(item)
+    dataType.push(item[componentProps.dataType])
+  })
+  setupState.selectTreeValue = arr
+  setupState.selectTree = arrLabel
+  if (componentProps.isAll) {
+    emit('selectChange', arr)
+  } else {
+    emit('selectChange', dataType)
+  }
+}
+defineExpose({
+  selectTreeValue,
+  selectTree,
+  clearSelect,
+  selectChange,
+  loadNode,
+  handleCheckChange
+})
 </script>
 
 <style lang="less" scoped>

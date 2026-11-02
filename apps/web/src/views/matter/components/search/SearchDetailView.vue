@@ -8,183 +8,171 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "SearchDetailView"
-};
-</script>
 
 <script setup lang="ts">
-import { getDetail } from "@/api/matter/search";
-import { ElMessage } from "element-plus";
-import { reactive, ref, defineExpose, defineProps } from "vue";
-import { VxeGridProps } from "vxe-table";
+import { getDetail } from '@/api/matter/search'
+import { ElMessage } from 'element-plus'
+import { reactive, ref } from 'vue'
+import { VxeGridProps } from 'vxe-table'
+defineOptions({
+  name: 'SearchDetailView'
+})
 
 interface RowVO {
-  xmmc: string;
-  ejdw: string;
-  ejfl: string;
-  gkbm: string;
-  gwxmbm: string;
-  protypeName: string;
-  saptime: string;
-  sjfl: string;
-  sxGkbm: string;
-  xmbName: string;
-  xmbType: string;
-  yjdw: string;
-  yjfl: string;
-  yssxName: string;
-  zdtx: string;
+  xmmc: string
+  ejdw: string
+  ejfl: string
+  gkbm: string
+  gwxmbm: string
+  protypeName: string
+  saptime: string
+  sjfl: string
+  sxGkbm: string
+  xmbName: string
+  xmbType: string
+  yjdw: string
+  yjfl: string
+  yssxName: string
+  zdtx: string
 }
-
 interface Props {
-  params: any;
+  params: any
 }
-
-const props = defineProps<Props>();
-
-const isShowModal = ref(false);
-
+const props = defineProps<Props>()
+const isShowModal = ref(false)
 const page = reactive({
   total: 0,
   limit: 10,
   page: 1,
-  current: "1"
-});
-
+  current: '1'
+})
 const gripOptions = reactive<VxeGridProps<RowVO>>({
   border: true,
   columnConfig: {
     resizable: true
   },
   loading: false,
-  headerAlign: "center",
-  align: "center",
+  headerAlign: 'center',
+  align: 'center',
   showOverflow: true,
-  height: "100%",
+  height: '100%',
   rowConfig: {
     height: 32
   },
   columns: [
     {
-      field: "xmmc",
-      title: "项目名称",
+      field: 'xmmc',
+      title: '项目名称',
       width: 320
     },
     {
-      field: "gwxmbm",
-      title: "国网项目编码",
+      field: 'gwxmbm',
+      title: '国网项目编码',
       width: 220
     },
     {
-      field: "protypeName",
-      title: "项目类型",
+      field: 'protypeName',
+      title: '项目类型',
       width: 220
     },
     {
-      field: "xmbName",
-      title: "项目包名称",
+      field: 'xmbName',
+      title: '项目包名称',
       width: 220
     },
     {
-      field: "xmbType",
-      title: "项目包类型",
+      field: 'xmbType',
+      title: '项目包类型',
       width: 220
     },
     {
-      field: "zdtx",
-      title: "重点投向",
+      field: 'zdtx',
+      title: '重点投向',
       width: 220
     },
     {
-      field: "yssxName",
-      title: "预算事项",
+      field: 'yssxName',
+      title: '预算事项',
       width: 220
     },
     {
-      field: "sxGkbm",
-      title: "事项归口部门",
+      field: 'sxGkbm',
+      title: '事项归口部门',
       width: 220
     },
     {
-      field: "gkbm",
-      title: "归口部门",
+      field: 'gkbm',
+      title: '归口部门',
       width: 220
     },
     {
-      field: "yjdw",
-      title: "一级单位",
+      field: 'yjdw',
+      title: '一级单位',
       width: 220
     },
     {
-      field: "ejdw",
-      title: "二级单位",
+      field: 'ejdw',
+      title: '二级单位',
       width: 220
     },
     {
-      field: "saptime",
-      title: "立项时间",
+      field: 'saptime',
+      title: '立项时间',
       width: 220
     },
     {
-      field: "yjfl",
-      title: "一级分类",
+      field: 'yjfl',
+      title: '一级分类',
       width: 220
     },
     {
-      field: "ejfl",
-      title: "二级分类",
+      field: 'ejfl',
+      title: '二级分类',
       width: 220
     },
     {
-      field: "sjfl",
-      title: "三级分类",
+      field: 'sjfl',
+      title: '三级分类',
       width: 220
     }
   ]
-});
-
+})
 const closeHandle = () => {
-  isShowModal.value = false;
-};
-
+  isShowModal.value = false
+}
 const showHandle = () => {
-  searchHandle();
-};
-
+  searchHandle()
+}
 const searchHandle = async () => {
-  gripOptions.loading = true;
+  gripOptions.loading = true
   let res = await getDetail({
     ...props.params,
     ...page
-  });
+  })
   if (res.success) {
-    gripOptions.data = res.data.records;
-    page.total = res.data.total;
-    gripOptions.loading = false;
+    gripOptions.data = res.data.records
+    page.total = res.data.total
+    gripOptions.loading = false
   } else {
-    gripOptions.loading = false;
+    gripOptions.loading = false
     ElMessage({
-      type: "error",
+      type: 'error',
       message: res.msg
-    });
+    })
   }
-};
-
+}
 const pageChangeHandle = (currentPageNum: number) => {
-  page.page = currentPageNum;
-  searchHandle();
-};
+  page.page = currentPageNum
+  searchHandle()
+}
 const limitChangeHandle = (currentLimitNum: number) => {
-  page.page = 1;
-  page.limit = currentLimitNum;
-  searchHandle();
-};
-
+  page.page = 1
+  page.limit = currentLimitNum
+  searchHandle()
+}
 defineExpose({
   isShowModal
-});
+})
 </script>
 
 <style scoped lang="less">

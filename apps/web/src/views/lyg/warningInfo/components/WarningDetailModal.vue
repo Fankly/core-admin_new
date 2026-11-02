@@ -23,13 +23,13 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "WarningDetailModal" })
 import { ref, reactive, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import RangeVxeTableStyle from '@/components/RangeVxeTableStyle/index.vue'
 import { getYjxmKeyNodeDetail, exportYjxmKeyNodeDetail } from '@/api/lyg/index'
 import { apiExportHandle } from '@/utils/export'
 import { getDetailColumns, getExportFileName, getModalTitle } from '@/views/lyg/warningInfo/data/warningDetailColumns'
+defineOptions({ name: "WarningDetailModal" })
 
 const tableRef = ref<any>(null)
 const isShowModal = ref(false)

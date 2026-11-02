@@ -55,11 +55,7 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: '/workflow/lslx/workflowViewYs'
-}
-</script>
+
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
@@ -67,6 +63,9 @@ import { getTableDataForYs, getDynamicColumnForYs } from '@/api/lslxJsc/index'
 import { ElMessage, ElNotification } from 'element-plus'
 import { formatValue } from '@/utils/utils'
 import { loadUserWfInfo } from '@/api/workflow'
+defineOptions({
+  name: '/workflow/lslx/workflowViewYs'
+})
 
 interface wfDataVo {
   DW_ID: string
@@ -103,7 +102,6 @@ const pageInfo = reactive<{
   isShowPage: false
 })
 const count = ref(0)
-
 const tableInfo = reactive<any>({
   tableData: [],
   columns: [],
@@ -147,14 +145,15 @@ const tableInfo = reactive<any>({
     }
   }
 })
-
 onMounted(() => {
   const workItemId = getQueryString('workItemId')
   loadUserWfInfo(workItemId).then((res: any) => {
     if (res.success) {
       let data = res.data
       userInfo.value = data.user
-      wfDataString.value = { ...data.wfData }
+      wfDataString.value = {
+        ...data.wfData
+      }
       workItemIdString.value = workItemId
       wfInstIdString.value = data.wfInstId
       wfCodeString.value = data.wfCode
@@ -164,7 +163,6 @@ onMounted(() => {
     }
   })
 })
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -204,13 +202,18 @@ const exportHandle1 = () => {
       const nameCol = worksheet.getColumn('A')
       const newArr: any[] = []
       getExportData(newArr, tableInfo.tableData as any, 1)
-      nameCol.eachCell({ includeEmpty: false }, (cell: any, cellNumber: number) => {
-        if (cell.address !== 'A1' && cell.address !== 'A2') {
-          if (newArr[cellNumber - 3].cj > 1) {
-            cell.value = '    '.repeat(newArr[cellNumber - 3].cj - 1) + newArr[cellNumber - 3].name
+      nameCol.eachCell(
+        {
+          includeEmpty: false
+        },
+        (cell: any, cellNumber: number) => {
+          if (cell.address !== 'A1' && cell.address !== 'A2') {
+            if (newArr[cellNumber - 3].cj > 1) {
+              cell.value = '    '.repeat(newArr[cellNumber - 3].cj - 1) + newArr[cellNumber - 3].name
+            }
           }
         }
-      })
+      )
       worksheet.eachRow((row: any, rowNumber: any) => {
         // 非末级当前行加粗
         if (newArr[rowNumber - 3]?.leaf) {
@@ -273,7 +276,6 @@ const rowStyle = ({ row }: any) => {
     }
   }
 }
-
 const getDataList = async () => {
   const api: any = getTableDataForYs
   pageInfo.loading = true
@@ -321,7 +323,6 @@ const getQueryString = (name: string): string => {
     params.forEach((value, k) => acc.set(k, value))
     return acc
   }, new Map())
-
   if (window.location.hash.includes('?')) {
     const hashQuery = window.location.hash.split('?')[1]
     new URLSearchParams(hashQuery).forEach((value, k) => allParams.set(k, value))

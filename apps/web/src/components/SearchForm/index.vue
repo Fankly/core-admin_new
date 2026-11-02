@@ -32,16 +32,15 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { getSearchKey } from '@/components/ProTable/useColumns'
-import type { ColumnProps } from '@/components/ProTable/interface'
+import type { ColumnProps, SearchParams } from '@/components/ProTable/interface'
 import type { GridInstance, GridColumns } from '@/components/Grid/interface'
 import { getGridColumns, getHiddenIndex } from '@/components/Grid/layout'
-import type { SearchParams } from '@/components/ProTable/interface'
 import SearchFormItem from './components/SearchFormItem.vue'
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
-
-defineOptions({ name: 'SearchForm' })
-
+defineOptions({
+  name: 'SearchForm'
+})
 interface SearchFormProps {
   columns?: ColumnProps[]
   searchParam?: SearchParams
@@ -49,7 +48,10 @@ interface SearchFormProps {
   search: () => void | Promise<void>
   reset: () => void | Promise<void>
 }
-const props = withDefaults(defineProps<SearchFormProps>(), { columns: () => [], searchParam: () => ({}) })
+const props = withDefaults(defineProps<SearchFormProps>(), {
+  columns: () => [],
+  searchParam: () => ({})
+})
 
 // 获取响应式设置
 const getResponsive = (item: ColumnProps) => {
@@ -64,12 +66,22 @@ const getResponsive = (item: ColumnProps) => {
 
 // 是否默认折叠搜索项
 const collapsed = ref(false)
-
 const gridRef = ref<GridInstance | null>(null)
 const showCollapse = computed(() => {
   const breakpoint = gridRef.value?.breakPoint ?? 'xl'
   const cols = getGridColumns(props.searchCol, breakpoint)
   const fields = props.columns.map((column) => getResponsive(column))
-  return getHiddenIndex([...fields, { suffix: true }], breakpoint, cols) !== -1
+  return (
+    getHiddenIndex(
+      [
+        ...fields,
+        {
+          suffix: true
+        }
+      ],
+      breakpoint,
+      cols
+    ) !== -1
+  )
 })
 </script>

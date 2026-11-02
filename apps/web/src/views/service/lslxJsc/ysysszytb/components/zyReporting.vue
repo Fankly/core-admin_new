@@ -144,14 +144,10 @@
   <ImportExcel ref="importRef" />
   <ReViewModal ref="reviewRef" @get-close="getClose" :title="modalTitle" :isView="isView" :form-data="paramsData" />
 </template>
-<script lang="ts">
-export default {
-  name: '/lslxJsc/components/zyReporting'
-}
-</script>
+
 
 <script setup lang="ts">
-import { reactive, ref, defineProps, defineExpose, defineEmits } from 'vue'
+import { reactive, ref } from 'vue'
 import {
   getTableDataForZgkbmYs,
   getDynamicColumnForZgkbmYs,
@@ -162,12 +158,17 @@ import {
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Decimal } from 'decimal.js'
 import { formatValue } from '@/utils/utils'
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import { submitWorkflow, WFParam, WFUserInfo } from '@/hooks/useWorkflow'
 import { useStore } from '@/store/business'
 import { useRouter } from 'vue-router'
 import { vxeExportHandle } from '@/utils/export'
 import ReViewModal from '@/views/service/lslxJsc/ysysszytb/components/ReViewModal/index.vue'
+defineOptions({
+  name: '/lslxJsc/components/zyReporting'
+})
+
+ //导入组件
 
 const router = useRouter()
 const wfParam = ref<WFParam>({
@@ -203,7 +204,6 @@ const isShowModel = ref(false)
 const closeHandle = () => {
   emits('pushPage', true)
 }
-
 const tableInfo = reactive<any>({
   border: true,
   tableData: [],
@@ -264,7 +264,6 @@ const handleCellClick = ({ row, column }: any) => {
     reviewRef.value.acceptParams()
   }
 }
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -285,7 +284,6 @@ const formatterData = ({ cellValue, column }: any) => {
   if (column.title.includes('%')) return formatValue(cellValue.toString(), 6)
   return formatValue(cellValue.toString(), 6)
 }
-
 
 // 自定义导出
 const exportHandle = () => {
@@ -326,8 +324,8 @@ const unitDescImportHandle = async () => {
 }
 const hanldeNckUp = () => {
   router.push({
-      name: '/service/lslxJsc/sjtcxmncksbys',
-    })
+    name: '/service/lslxJsc/sjtcxmncksbys'
+  })
 }
 // 维护/查看
 const hanldeNck = (type: any, val: any) => {
@@ -340,8 +338,8 @@ const hanldeNck = (type: any, val: any) => {
   modalTitle.value = val
   reviewRef.value.acceptParams()
 }
-const getClose = (val: any) =>{
-  if(val && isView.value){
+const getClose = (val: any) => {
+  if (val && isView.value) {
     newData()
   }
 }
@@ -349,7 +347,6 @@ const getClose = (val: any) =>{
 const newData = async () => {
   await getDataList()
 }
-
 const getDataList = async () => {
   tableInfo.loading = true
   const api: any = getTableDataForZgkbmYs
@@ -365,10 +362,7 @@ const getDataList = async () => {
     tableInfo.tableData = res.data
     tableInfo.loading = false
     allAmount.value = 0
-    let gmSum = tableInfo.tableData.reduce(
-      (gmSum: number, item: any) => gmSum + Number(item['hj_nckje']),
-      0
-    )
+    let gmSum = tableInfo.tableData.reduce((gmSum: number, item: any) => gmSum + Number(item['hj_nckje']), 0)
     allAmount.value = Number(gmSum).toFixed(6)
   } else {
     tableInfo.loading = false
@@ -413,24 +407,15 @@ const submitCbxqshWorkflowHandle = () => {
   }
   wfParam.value.VERSION_ID = props.formData?.versionId
   wfParam.value.ZGKBM_ID = props.formData?.zgkbmId
-  submitWorkflow(
-    store.getters.getUserMsg.systemCode,
-    'ZGKBM_YSSHLC',
-    '',
-    wfUserInfo,
-    wfParam.value,
-    {},
-    submitWFCallback
-  )
+  submitWorkflow(store.getters.getUserMsg.systemCode, 'ZGKBM_YSSHLC', '', wfUserInfo, wfParam.value, {}, submitWFCallback)
 }
-
 const submitWFCallback = async () => {
   let spfrom = {
     userId: store.getters.getUserMsg.id,
     spOrgId: userInfo.value.specialorgid || '',
     spRoleId: userInfo.value.id || '',
     wfCode: 'ZGKBM_YSSHLC',
-    wfData: wfParam.value,
+    wfData: wfParam.value
   }
   const res = await submitWf({
     ...spfrom
@@ -449,7 +434,6 @@ const submitWFCallback = async () => {
     })
   }
 }
-
 defineExpose({
   isShowModel,
   getHeaderData,

@@ -51,8 +51,6 @@
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Operation as EpOperation } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/service/budget/budgeting/index" })
 import BudgetingToolbar from '@/views/service/budget/budgeting/modules/BudgetingToolbar.vue'
 import BudgetingTree from '@/views/service/budget/budgeting/modules/BudgetingTree.vue'
 import BudgetingTable from '@/views/service/budget/budgeting/modules/BudgetingTable.vue'
@@ -64,6 +62,7 @@ import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import ColSetting from '@/views/service/project/projectActivation/components/ColSetting.vue'
 import { useBudgeting } from '@/views/service/budget/budgeting/hooks/useBudgeting'
 import { onMounted } from 'vue'
+defineOptions({ name: "/service/budget/budgeting/index" })
 
 const { userRoleSelectorRef, getRoleHandle, helpModalRef, isShowPage, initPublicParams, activeTab, settingLR, getHelpMessageHandle, handleIsShowSearch, isShowSearch, colRef, gridRef, budgetingTableRef, colSetting, openColSetting } = useBudgeting()
 

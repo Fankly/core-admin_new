@@ -13,10 +13,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ReNumberInput" })
 import Decimal from 'decimal.js'
 import type { PropType } from 'vue'
 import { ref, watch } from 'vue'
+defineOptions({ name: "ReNumberInput" })
 
 const props = defineProps({
   modelValue: {

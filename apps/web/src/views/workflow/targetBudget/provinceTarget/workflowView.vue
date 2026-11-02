@@ -119,11 +119,10 @@
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
-
-defineOptions({ name: "WorkflowDeal" })
 import { onMounted } from 'vue'
 import { useWorkflowDeal } from './hooks/useWorkflowDeal'
 import TargetBudgetAttachments from '@/views/targetBudget/provinceTarget/components/TargetBudgetAttachments.vue'
+defineOptions({ name: "WorkflowDeal" })
 
 const {
   loading,

@@ -111,7 +111,6 @@
   <MaterialFilePreview ref="filePreviewRef" />
 </template>
 <script setup lang="ts">
-defineOptions({ name: "/toDo/suzhou/materialTask" })
 import { reactive, ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { notify } from '@/api/workflow'
@@ -125,11 +124,14 @@ import {
 } from '@/api/suzhou/materialTask'
 import type { MaterialTaskDetailRow } from '@/views/suzhou/common/types/material'
 import type { VxeGridProps } from 'vxe-table'
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import { useStore } from '@/store/business'
 import materialTaskFile from '@/views/suzhou/materialTask/modules/materialTaskFile.vue'
 import MaterialFilePreview from '@/views/suzhou/materialTaskDetail/modules/materialFilePreview.vue'
 import { getFileItems, type MaterialFileItem } from '@/views/suzhou/materialTaskDetail/utils/filePreview'
+defineOptions({ name: "/toDo/suzhou/materialTask" })
+
+ //导入组件
 
 interface CommonParamVo {
   createorId: string

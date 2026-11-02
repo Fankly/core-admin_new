@@ -16,19 +16,10 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/project/cockpit/index'
-}
-</script>
 
 <script setup lang="ts">
 import { getCurrentInstance, onMounted, ref } from 'vue'
-import {
-  getProcessSteps,
-  getTableConfig,
-  getTableData
-} from '@/views/service/project/cockpit/process/api'
+import { getProcessSteps, getTableConfig, getTableData } from '@/views/service/project/cockpit/process/api'
 import DataTable from '@/views/service/project/cockpit/process/components/DataTable.vue'
 import ProcessStep from '@/views/service/project/cockpit/process/components/ProcessStep.vue'
 import SearchSection from '@/views/service/project/cockpit/process/components/SearchSection.vue'
@@ -37,6 +28,9 @@ import baseService from '@/service/baseService'
 import { useStore } from '@/store/business'
 import { useUser } from '@/hooks/useUser'
 import { useRoute } from 'vue-router'
+defineOptions({
+  name: '/service/project/cockpit/index'
+})
 
 const userInfo = ref<any>({})
 const userDialogRef = ref()
@@ -61,7 +55,6 @@ interface ProcessStepAction {
   hasPermision: boolean
   outsideMenu: string
 }
-
 interface IProcessStep {
   appIcon: string
   icon: string
@@ -70,7 +63,6 @@ interface IProcessStep {
   menus: ProcessStepAction[]
   userInfo: any
 }
-
 const processSteps = ref<IProcessStep[]>([])
 interface TableColumn {
   key: string
@@ -89,17 +81,15 @@ interface TableDataItem {
 }
 const tableData = ref<TableDataItem[]>([])
 const currentSearchTerm = ref('')
-
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
-
-      const flagData = await baseService.post(
-        `/workflow/cbxqsh/getFqzz?spOrgId=${userInfo.value.specialorgid}`
-      )
+      const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfo.value.specialorgid}`)
       if (flagData.success && flagData.data) {
         flag.value = flagData.data
         store.commit('setZlGlobalInfo', {
@@ -132,14 +122,12 @@ const initializeData = async () => {
   try {
     // 并行加载所有数据
     const [stepsRes, configRes] = await Promise.all([getProcessSteps(), getTableConfig()])
-
     if (stepsRes.code) {
       stepsRes.data.forEach((item: any) => {
         item.userInfo = userInfo.value
       })
       processSteps.value = stepsRes.data
     }
-
     if (configRes.code) {
       tableColumns.value = configRes.data.columns
     }
@@ -158,12 +146,9 @@ const handleSearch = async (searchTerm: any) => {
   try {
     loading.value = true
     currentSearchTerm.value = searchTerm
-
     const result = await getTableData(searchTerm)
-
     if (result.code) {
       tableData.value = result.data.list
-
       if (result.data.list.length === 0) {
         proxy?.$message({
           message: '未找到相关项目',

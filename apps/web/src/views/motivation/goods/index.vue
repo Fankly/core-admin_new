@@ -11,12 +11,13 @@
   </el-tabs>
 </template>
 <script setup lang="ts">
-defineOptions({ name: "/motivation/goods/index" })
 import { onMounted, ref } from 'vue'
 import RegeistLibrary from './RegeistLibrary.vue'
 import ProfressLibrary from './ProfressLibrary.vue'
 import userDialog from '@/components/select/userDialog.vue'
 import type { TabItem, UserInfo } from './types/index'
+defineOptions({ name: "/motivation/goods/index" })
+
 // 载入成功控制器
 let loaded: any = null
 // 用户信息载入控制

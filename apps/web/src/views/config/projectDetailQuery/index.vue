@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/config/projectDetailQuery/index" })
 import ProjectDetailQueryToolbar from '@/views/config/projectDetailQuery/modules/projectDetailQueryToolbar.vue'
 import ProjectDetailQueryTable from '@/views/config/projectDetailQuery/modules/projectDetailQueryTable.vue'
 import HelpModal from '@/components/HelpModal/index.vue'
@@ -27,6 +26,7 @@ import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { useProjectDetailQuery } from '@/views/config/projectDetailQuery/hooks/useProjectDetailQuery'
 import { onMounted } from 'vue'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
+defineOptions({ name: "/config/projectDetailQuery/index" })
 
 const { helpModalRef, projectDetailQueryTableRef, userRoleSelectorRef, getRoleHandle, isShowPage, getHelpMessageHandle } = useProjectDetailQuery()
 

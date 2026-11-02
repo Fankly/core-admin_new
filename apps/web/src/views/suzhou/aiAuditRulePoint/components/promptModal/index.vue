@@ -86,11 +86,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'promptModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -98,6 +93,9 @@ import { ElMessage } from 'element-plus'
 import { Sparkles, X } from '@lucide/vue'
 import { VXETable } from 'vxe-table'
 import { savePrompt, getPrompt } from '@/api/suzhou/aiAuditRulePoint'
+defineOptions({
+  name: 'promptModal'
+})
 
 interface ModalParams {
   type?: string
@@ -105,16 +103,18 @@ interface ModalParams {
   searchParams: Record<string, any>
   ruleIdList?: (string | number)[]
 }
-
 interface PromptItem {
   title: string
   content: string
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const previewMode = ref(false)
@@ -125,25 +125,63 @@ const promptContent = ref('')
 
 /** 5 段固定结构，编辑模式双向绑定 */
 const promptValues = ref<PromptItem[]>([
-  { title: 'AI角色', content: '' },
-  { title: '核心审核提示词', content: '' },
-  { title: '输入数据配置', content: '' },
-  { title: '输出要求', content: '' },
-  { title: '限制条件', content: '' }
+  {
+    title: 'AI角色',
+    content: ''
+  },
+  {
+    title: '核心审核提示词',
+    content: ''
+  },
+  {
+    title: '输入数据配置',
+    content: ''
+  },
+  {
+    title: '输出要求',
+    content: ''
+  },
+  {
+    title: '限制条件',
+    content: ''
+  }
 ])
-
 const promptFields = [
-  { index: '1', title: 'AI角色', en: 'Role', rows: 3 },
-  { index: '2', title: '核心审核提示词', en: 'Audit Prompt', rows: 10, maxlength: 5000 },
-  { index: '3', title: '输入数据配置', en: 'Input Data', rows: 10 },
-  { index: '4', title: '输出要求', en: 'Output Requirement', rows: 10 },
-  { index: '5', title: '限制条件', en: 'Constraints', rows: 10 }
+  {
+    index: '1',
+    title: 'AI角色',
+    en: 'Role',
+    rows: 3
+  },
+  {
+    index: '2',
+    title: '核心审核提示词',
+    en: 'Audit Prompt',
+    rows: 10,
+    maxlength: 5000
+  },
+  {
+    index: '3',
+    title: '输入数据配置',
+    en: 'Input Data',
+    rows: 10
+  },
+  {
+    index: '4',
+    title: '输出要求',
+    en: 'Output Requirement',
+    rows: 10
+  },
+  {
+    index: '5',
+    title: '限制条件',
+    en: 'Constraints',
+    rows: 10
+  }
 ]
-
 const handleClose = () => {
   isShowModal.value = false
 }
-
 const handleSave = () => {
   // 校验：编辑模式 5 段全必填，预览模式 promptContent 必填
   if (previewMode.value) {
@@ -158,9 +196,10 @@ const handleSave = () => {
       return
     }
   }
-
   VXETable.modal
-    .confirm('是否保存，请确定！', '提示', { status: 'warning' })
+    .confirm('是否保存，请确定！', '提示', {
+      status: 'warning'
+    })
     .then(async (type) => {
       if (type !== 'confirm') {
         ElMessage.info('已取消')
@@ -170,16 +209,25 @@ const handleSave = () => {
       try {
         // 编辑模式只传 prompts，预览模式只传 promptContent，另一字段传空
         const payload = previewMode.value
-          ? { ruleIdList: ruleIdList.value, prompts: [], promptContent: promptContent.value }
+          ? {
+              ruleIdList: ruleIdList.value,
+              prompts: [],
+              promptContent: promptContent.value
+            }
           : {
               ruleIdList: ruleIdList.value,
-              prompts: promptValues.value.map((item) => ({ title: item.title, content: item.content || '' })),
+              prompts: promptValues.value.map((item) => ({
+                title: item.title,
+                content: item.content || ''
+              })),
               promptContent: ''
             }
         const res = await savePrompt(payload)
         if (res.success) {
           ElMessage.success('保存成功！')
-          emit('searchHandle', { param: 'success' })
+          emit('searchHandle', {
+            param: 'success'
+          })
           handleClose()
         } else {
           ElMessage.error(res.msg)
@@ -192,15 +240,19 @@ const handleSave = () => {
     })
     .catch(() => {})
 }
-
 const acceptParams = async (params: ModalParams) => {
   const data = params.searchParams || {}
   modalTitle.value = params.modalTitle || ''
-  searchParams.value = { ...data }
+  searchParams.value = {
+    ...data
+  }
   ruleIdList.value = params.ruleIdList || []
   previewMode.value = false
   // 先重置为空，打开弹窗
-  promptValues.value = promptFields.map((field) => ({ title: field.title, content: '' }))
+  promptValues.value = promptFields.map((field) => ({
+    title: field.title,
+    content: ''
+  }))
   promptContent.value = ''
   isShowModal.value = true
 
@@ -215,7 +267,10 @@ const acceptParams = async (params: ModalParams) => {
         const prompts: PromptItem[] = Array.isArray(resData.prompts) ? resData.prompts : []
         promptValues.value = promptFields.map((field) => {
           const matched = prompts.find((p) => p.title === field.title)
-          return { title: field.title, content: matched?.content || '' }
+          return {
+            title: field.title,
+            content: matched?.content || ''
+          }
         })
         // 回显模式：promptContent 有值优先预览模式，无值才编辑模式
         previewMode.value = !!promptContent.value
@@ -227,8 +282,9 @@ const acceptParams = async (params: ModalParams) => {
     }
   }
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

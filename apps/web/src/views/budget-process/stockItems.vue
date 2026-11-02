@@ -261,15 +261,8 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
 
-export default defineComponent({
-  name: '/budget-process/stockItems'
-})
-</script>
-
-<script lang="ts" setup>
+<script setup lang="ts">
 import newTerm from '@/components/newTerm/index.vue'
 import Split from '@/components/Split/index.vue'
 import userDialog from '@/components/select/userDialog.vue'
@@ -277,11 +270,13 @@ import TreeSelect from '@/components/select/TreeSelect.vue'
 import baseService from '@/service/baseService'
 import copyTextBox from '@/components/select/copyTextBox.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
-import { h } from 'vue'
+import { onMounted, reactive, ref, h } from 'vue'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { useGuide } from '@/hooks/useGuide'
+defineOptions({
+  name: '/budget-process/stockItems'
+})
 
 interface DefaultProps {
   defaultProps: {
@@ -297,7 +292,6 @@ interface DefaultProps {
     label: string
   }
 }
-
 interface TreeData {
   id: string
   label: string
@@ -305,7 +299,6 @@ interface TreeData {
   zyssxbm?: string
   children?: Array<TreeData>
 }
-
 const isShow: any = ref(false)
 const xmbmRef = ref()
 const helpModalRef = ref()
@@ -338,18 +331,15 @@ const historyColumns = ref([
     columnName: '修改后预算事项名称'
   }
 ])
-
 const { startGuide } = useGuide({
   moduleKey: 'stockItems',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 let treeTableData: any = ref([])
 const defaultProps: DefaultProps = reactive({
   defaultProps: {
@@ -494,20 +484,16 @@ onMounted(() => {
   getXmlxData()
   getUnitData()
 })
-
 const clearDataHandle = () => {
   leftSearchData.xmlx.length = 0
   getTreeData()
 }
-
 const clearRightDataHandle = () => {
   formData.xmlx.length = 0
 }
-
 const initData = () => {
   userDialogRef.value.getUser()
 }
-
 const searchTreeAndTableHandle = (value: string) => {
   searchData.ND = value
   getTreeData()
@@ -528,12 +514,10 @@ const toggleSelection = (rows: any) => {
     tableRef.value.clearSelection()
   }
 }
-
 interface TreeParams {
   specialorgid: string
   nd: string
 }
-
 const getTreeData = () => {
   loading.value = true
   const params: TreeParams = {
@@ -602,7 +586,6 @@ const getProjectTypeData = () => {
     }
   })
 }
-
 const getXmlxData = () => {
   let startDate = new Date().getFullYear().toString()
   if (searchData.ND) {
@@ -629,17 +612,14 @@ const getXmlxData = () => {
 const getProjectType = (value: any) => {
   formData.xmlx = value
 }
-
 const getLeftXmlxData = (value: any) => {
   leftSearchData.xmlx = value
   getTreeData()
 }
-
 interface UnitValue {
   level: number
   objCode: never
 }
-
 const getChangeUnitData = (value: any) => {
   // 设置一级单位和二级单位清空
   formData.yjdw = []
@@ -701,7 +681,6 @@ const historyHandle = () => {
     return
   }
   isHistory.value = true
-
   baseService.post(`process43/getHistory?xmid=${multipleSelection.value[0].xmid}`).then((res) => {
     if (res.success) {
       historyData.value = res.data
@@ -759,7 +738,6 @@ const exportSxHandle = () => {
       dom.click()
       document.body.removeChild(dom)
       window.URL.revokeObjectURL(url)
-
       loading.value = false
     })
 }
@@ -845,24 +823,28 @@ const deleteHandle = () => {
     .then(() => {
       loading.value = true
       let xmIds = multipleSelection.value.map((item: any) => item.xmid)
-      baseService.post('process43/delete', { ids: xmIds }).then((res) => {
-        if (res.success) {
-          loading.value = false
-          ElMessage({
-            type: 'success',
-            message: '删除成功'
-          })
-          // 树刷新
-          getTreeData()
-          searchHandle()
-        } else {
-          loading.value = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
+      baseService
+        .post('process43/delete', {
+          ids: xmIds
+        })
+        .then((res) => {
+          if (res.success) {
+            loading.value = false
+            ElMessage({
+              type: 'success',
+              message: '删除成功'
+            })
+            // 树刷新
+            getTreeData()
+            searchHandle()
+          } else {
+            loading.value = false
+            ElMessage({
+              type: 'error',
+              message: res.msg
+            })
+          }
+        })
     })
     .catch(() => {
       loading.value = false

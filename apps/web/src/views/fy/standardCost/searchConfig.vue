@@ -157,11 +157,7 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/fy/standardCost/searchConfig'
-}
-</script>
+
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
 import searchConfigAdd from './components/searchConfigAdd.vue'
@@ -171,14 +167,14 @@ import Maintenance from '@/views/fy/standardCost/components/Maintenance.vue'
 import Fszwh from '@/views/fy/standardCost/components/Fszwh.vue'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
-
 import { deleteData, getCnxLevelTree, getDataList, getFormData } from '@/api/fy/searchConfig'
-
 import { computed, onMounted, reactive, ref } from 'vue'
-
 import VXETable, { VxeTablePropTypes } from 'vxe-table'
 import { getPublicData, getYearData } from '@/api/common'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/fy/standardCost/searchConfig'
+})
 
 interface RowVO {
   cnx: string
@@ -191,26 +187,22 @@ interface RowVO {
   pid: string
   sort: string
 }
-
 interface Result {
   code: number
   data: any
   msg: string
   success: boolean
 }
-
 interface Bzcbcx {
   code: string
   name: string
 }
-
 interface List {
   ndList: NdList[]
   yskmList: YskmList[]
   bzcbcxList: Bzcbcx[]
   options: any
 }
-
 interface YskmList {
   cnx: string | null
   id: string
@@ -218,18 +210,15 @@ interface YskmList {
   name: string
   pid: string
 }
-
 interface NdList {
   yearName: string
   yearCode: string
 }
-
 interface Columns {
   title: string
   field: string
   width: number | string
 }
-
 interface SelectData {
   id?: string
   pid: string
@@ -242,7 +231,6 @@ interface SelectData {
   }[]
   sort: string
 }
-
 interface TableInfo {
   columns: Columns[]
   tableData: any[]
@@ -251,7 +239,6 @@ interface TableInfo {
   loading: boolean
   selectData: SelectData
 }
-
 interface Params {
   dwId: string
   pzId: string
@@ -259,7 +246,6 @@ interface Params {
   nd: string
   templateCode: string
 }
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const searchConfigAddRef = ref()
@@ -270,35 +256,21 @@ const maintenanceRef = ref()
 const fszwhRef = ref()
 const selectedDatas = ref()
 const cnxDisabled = ref(false)
-
 const sort = ref(1)
-
 const isHideTemplateCode = computed(() => list && list.bzcbcxList.length === 0)
-
-const isShowEditBtn = computed(
-  () => tableRef.value && tableRef.value.getCheckboxRecords().length !== 1
-)
-
+const isShowEditBtn = computed(() => tableRef.value && tableRef.value.getCheckboxRecords().length !== 1)
 const isShowWhBtn = computed(
-  () =>
-    (tableRef.value && tableRef.value.getCheckboxRecords().length !== 1) ||
-    !tableRef.value.getCheckboxRecords()[0].cnx
+  () => (tableRef.value && tableRef.value.getCheckboxRecords().length !== 1) || !tableRef.value.getCheckboxRecords()[0].cnx
 )
-
-const isShowDeleteBtn = computed(
-  () => tableRef.value && tableRef.value.getCheckboxRecords().length === 0
-)
-
+const isShowDeleteBtn = computed(() => tableRef.value && tableRef.value.getCheckboxRecords().length === 0)
 const settingLR: ContextProps = reactive({
   minPercent: 20,
   defaultPercent: 20,
   split: 'vertical'
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const params = reactive<Params>({
   nd: '',
   month: 0,
@@ -306,7 +278,6 @@ const params = reactive<Params>({
   templateCode: '',
   pzId: ''
 })
-
 const treeConfig = reactive<any>({
   lazy: true,
   hasChildField: 'isleaf',
@@ -330,7 +301,6 @@ const treeConfig = reactive<any>({
     })
   }
 })
-
 const list = reactive<List>({
   ndList: [],
   yskmList: [],
@@ -341,7 +311,6 @@ const list = reactive<List>({
     isLeaf: 'leaf'
   }
 })
-
 const tableInfo = reactive<any>({
   columns: [
     {
@@ -392,11 +361,9 @@ const tableInfo = reactive<any>({
     sort: ''
   }
 })
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const formatterValue = ({ row, column, cellValue }: any) => {
   if (column.field === 'edit') {
     return row.edit ? '是' : '否'
@@ -412,7 +379,6 @@ const formatterValue = ({ row, column, cellValue }: any) => {
   }
   return cellValue
 }
-
 const changeNdDataHandle = async () => {
   list.yskmList.length = 0
   tableInfo.tableData.length = 0
@@ -421,7 +387,6 @@ const changeNdDataHandle = async () => {
   treeRef.value.setCurrentRow(list.yskmList[0])
   await treeNodeClickHandle()
 }
-
 const changeTemplateCodeDataHandle = async () => {
   list.yskmList.length = 0
   tableInfo.tableData.length = 0
@@ -430,7 +395,6 @@ const changeTemplateCodeDataHandle = async () => {
   treeRef.value.setCurrentRow(list.yskmList[0])
   await treeNodeClickHandle()
 }
-
 const getCnxLevelTreeData = async (id: string) => {
   if (id) {
     let res = await getCnxLevelTree(id)
@@ -450,7 +414,6 @@ const getCnxLevelTreeData = async (id: string) => {
     }
   }
 }
-
 const operationHandle = async (flag: string) => {
   tableInfo.operationFlag = flag
   const $table = tableRef.value
@@ -503,7 +466,6 @@ const operationHandle = async (flag: string) => {
   }
   searchConfigAddRef.value.showModal = true
 }
-
 const deleteHandle = async () => {
   const $table = tableRef.value
   if ($table) {
@@ -527,11 +489,9 @@ const deleteHandle = async () => {
     }
   }
 }
-
 const copyHandle = () => {
   copyKmfzpzRef.value.showModal = true
 }
-
 const zxzwhHandle = () => {
   const $table = tableRef.value
   if ($table) {
@@ -549,7 +509,6 @@ const zxzwhHandle = () => {
   }
   maintenanceRef.value.showModal = true
 }
-
 const fszwhHandle = () => {
   const $table = tableRef.value
   if ($table) {
@@ -567,14 +526,12 @@ const fszwhHandle = () => {
   }
   fszwhRef.value.showModal = true
 }
-
 const resetRootTree = async () => {
   await resetTable()
   treeRef.value.setAllTreeExpand(true)
   treeRef.value.setCurrentRow(list.yskmList[0])
   await treeNodeClickHandle()
 }
-
 const saveHandle = async () => {
   const $tree = treeRef.value
   const $table = tableRef.value
@@ -594,7 +551,6 @@ const saveHandle = async () => {
     }
   }
 }
-
 const treeNodeClickHandle = async () => {
   const $table = treeRef.value
   if ($table) {
@@ -604,9 +560,7 @@ const treeNodeClickHandle = async () => {
       nd: params.nd,
       pid: selectData.id
     })
-
     sort.value = res.data?.length
-
     if (res.success) {
       tableInfo.tableData = res.data
     } else {
@@ -614,7 +568,6 @@ const treeNodeClickHandle = async () => {
     }
   }
 }
-
 const initParams = async () => {
   // 获取公共代码
   const publicCodeList = await getPublicData('BZCBCXPZ_TEMPLATE_CODE')
@@ -633,7 +586,6 @@ const initParams = async () => {
     await treeNodeClickHandle()
   }
 }
-
 const resetTable = async () => {
   let data = [
     {
@@ -647,7 +599,6 @@ const resetTable = async () => {
   ]
   list.yskmList = data
 }
-
 const getRoleHandle = async () => {
   params.dwId = userDialogRef.value.userMsg.org_id
   let monthData: Result = await getFormData(params.dwId)
@@ -657,13 +608,11 @@ const getRoleHandle = async () => {
     pageInfo.isShowPage = true
   }
 }
-
 const cellStyle = () => {
   return {
     cursor: 'pointer'
   }
 }
-
 onMounted(() => {
   userDialogRef.value.getUser()
   initParams()

@@ -48,11 +48,6 @@
   <IndicatorRelationDialog ref="indicatorRelationDialogRef" :busiType="initParams.busiType" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/statistics/budgetExecutionAnalysis/budgetStatisticsConfig'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -66,12 +61,14 @@ import { ElMessage } from 'element-plus'
 import { batchDeleteConfig } from '@/api/statistics/budgetStatisticsConfig'
 import { VXETable } from 'vxe-table'
 import { createLatestRequestTracker } from '@/views/statistics/budgetExecutionAnalysis/viewHelpers'
+defineOptions({
+  name: '/statistics/budgetExecutionAnalysis/budgetStatisticsConfig'
+})
 
 export type InitParams = {
   nd: string
   busiType: string
 }
-
 const userDialogRef = ref()
 const formDialogRef = ref()
 const indicatorRelationDialogRef = ref()
@@ -79,32 +76,25 @@ const treeTableRef = ref()
 const mainTableRef = ref()
 const operationFlag = ref('')
 const userInfo = ref<any>()
-
 const treeParams = ref<any>(null)
 const mainTableData = ref<any>([])
-
 const editData = ref('')
-
 const dialogData = reactive({
   title: ''
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
 const refreshRequestTracker = createLatestRequestTracker()
-
 const initParams = reactive<InitParams>({
   nd: '',
   busiType: ''
 })
-
 const setMainTableLoading = (loading: boolean) => {
   if (mainTableRef.value) {
     mainTableRef.value.mainLoading = loading
   }
 }
-
 const clearConfigViewState = () => {
   treeParams.value = null
   mainTableData.value = []
@@ -113,7 +103,6 @@ const clearConfigViewState = () => {
   }
   setMainTableLoading(false)
 }
-
 const deleteDataHandle = async () => {
   if (!initParams.busiType) return
   const $table = mainTableRef.value.mainTableRef
@@ -124,7 +113,6 @@ const deleteDataHandle = async () => {
       return
     }
     let index = records.findIndex((item: any) => item.recState === '1')
-
     if (index !== -1) {
       ElMessage.warning('存在启用状态的数据,无法删除！')
       return
@@ -173,22 +161,21 @@ const addOrEditDataHandle = (flag: string) => {
   operationFlag.value = flag
   formDialogRef.value.showModal = true
 }
-
 const indicatorRelationHandle = () => {
   if (!initParams.busiType) return
   if (indicatorRelationDialogRef.value) {
     indicatorRelationDialogRef.value.showModal = true
   }
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   if (isQuery) {
     pageInfo.isShowPage = true
   }
 }
-
 const refreshTreeAndTable = async () => {
   const requestToken = refreshRequestTracker.issue()
   const $table = treeTableRef.value
@@ -202,27 +189,22 @@ const refreshTreeAndTable = async () => {
   if (!refreshRequestTracker.isLatest(requestToken)) return
   await $table.getTableData(initParams.nd)
 }
-
 const changeNdHandle = async (val: string) => {
   initParams.nd = val || ''
   await refreshTreeAndTable()
 }
-
 const changeBusiTypeHandle = async (val: string) => {
   initParams.busiType = val || ''
   await refreshTreeAndTable()
 }
-
 const treeTableChangeHandle = (val: any) => {
   treeParams.value = val
 }
-
 const mainTableDataHandle = (val: any[]) => {
   setMainTableLoading(true)
   mainTableData.value = val
   setMainTableLoading(false)
 }
-
 const updateTableHandle = async () => {
   const requestToken = refreshRequestTracker.issue()
   if (!initParams.nd || !initParams.busiType) {
@@ -244,7 +226,6 @@ const updateTableHandle = async () => {
     await $table.getTableData(selectId)
   }
 }
-
 const findPath = (data: any[], targetId: string, path: any[] = []) => {
   for (const item of data) {
     if (item.id === targetId) {
@@ -257,7 +238,6 @@ const findPath = (data: any[], targetId: string, path: any[] = []) => {
   }
   return null
 }
-
 const expandAndSelectNode = async (dataList: any[], targetId: string, treeTableRef: any) => {
   if (!treeTableRef || !targetId) return
   const path = findPath(dataList, targetId)
@@ -270,16 +250,13 @@ const expandAndSelectNode = async (dataList: any[], targetId: string, treeTableR
     treeTableRef.setCurrentRow(targetNode)
   }
 }
-
 const clearDataHandle = () => {
   editData.value = ''
 }
-
 const initData = () => {
   userDialogRef.value.getUser()
   clearConfigViewState()
 }
-
 onMounted(initData)
 </script>
 

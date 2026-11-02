@@ -167,22 +167,16 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: "/fy/prearranged/release/cityReview"
-};
-</script>
 
 <script setup lang="ts">
-import FyHeader from "@/views/fy/components/Header.vue";
-import userDialog from "@/components/select/userDialog.vue";
-import dwbzView from "@/views/fy/prearranged/release/components/dwbzView.vue";
-import reviewLayout from "@/views/fy/prearranged/release/components/reviewLayout.vue";
-import yskmView from "@/views/fy/prearranged/release/components/yskmView.vue";
-import type { TableMsg } from "@/views/fy/prearranged/interface";
-
-import { computed, onMounted, reactive, ref } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
+import FyHeader from '@/views/fy/components/Header.vue'
+import userDialog from '@/components/select/userDialog.vue'
+import dwbzView from '@/views/fy/prearranged/release/components/dwbzView.vue'
+import reviewLayout from '@/views/fy/prearranged/release/components/reviewLayout.vue'
+import yskmView from '@/views/fy/prearranged/release/components/yskmView.vue'
+import type { TableMsg } from '@/views/fy/prearranged/interface'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   authorize,
   importData,
@@ -200,469 +194,442 @@ import {
   approvedAndIsssued,
   getCurrentPageData,
   exportData
-} from "@/api/fy/release/city";
-import { VxeColumnProps } from "vxe-table";
-import { findPrevNode, formatValue } from "@/utils/utils";
-import { Columns } from "@/views/fy/prearranged/interface";
-import { containsNd } from "@/api/fy/common";
-import { getWfTracking } from "@/api/workflow";
+} from '@/api/fy/release/city'
+import { VxeColumnProps } from 'vxe-table'
+import { findPrevNode, formatValue } from '@/utils/utils'
+import { Columns } from '@/views/fy/prearranged/interface'
+import { containsNd } from '@/api/fy/common'
+import { getWfTracking } from '@/api/workflow'
+defineOptions({
+  name: '/fy/prearranged/release/cityReview'
+})
 
-export type ToolButton = ("save" | "import" | "export" | "download" | "sd" | "close")[] | boolean;
-
-const userDialogRef = ref();
-const treeTableRef = ref();
-const treeNdTableRef = ref();
-const reviewLayoutRef = ref();
-const dwbzViewRef = ref();
-const headerRef = ref();
-const toolbarOneRef = ref();
-const toolbarTwoRef = ref();
-
-const isDisabled = computed(() => userMsg.loading);
-
+export type ToolButton = ('save' | 'import' | 'export' | 'download' | 'sd' | 'close')[] | boolean
+const userDialogRef = ref()
+const treeTableRef = ref()
+const treeNdTableRef = ref()
+const reviewLayoutRef = ref()
+const dwbzViewRef = ref()
+const headerRef = ref()
+const toolbarOneRef = ref()
+const toolbarTwoRef = ref()
+const isDisabled = computed(() => userMsg.loading)
 const isSbDisabled = computed(() => {
-  return userInfo.value.status !== "11" || userMsg.loading;
-});
-
-const isDiabledSd = computed(() => !(reviewLayoutRef.value.curChangeData?.row, reviewLayoutRef.value.curChangeData?.row.sbStatusbm === "1"));
-
-const isWfId = computed(() => userInfo.value && !userInfo.value.wfId);
-
+  return userInfo.value.status !== '11' || userMsg.loading
+})
+const isDiabledSd = computed(() => !(reviewLayoutRef.value.curChangeData?.row, reviewLayoutRef.value.curChangeData?.row.sbStatusbm === '1'))
+const isWfId = computed(() => userInfo.value && !userInfo.value.wfId)
 const userMsg = reactive<any>({
   userData: null,
-  specialorgid: "",
-  dwName: "",
+  specialorgid: '',
+  dwName: '',
   isShowPage: false,
   loading: false,
-  flag: "1"
-});
-
+  flag: '1'
+})
 const userInfo = ref<any>({
-  statusInfo: "",
-  status: ""
-});
-
-const isCity = ref(true);
-const isHidenTab = ref(false);
-
+  statusInfo: '',
+  status: ''
+})
+const isCity = ref(true)
+const isHidenTab = ref(false)
 const reviewMsg = reactive({
   isShowModal: false
-});
-
+})
 const dwMsg = reactive<{
-  isShowModal: boolean;
-  dwId: string;
-  title: string;
-  toolButton: ToolButton;
-  showHeader: boolean;
-  operationFlag: string;
-  busiId: string;
-  sdzt: string;
+  isShowModal: boolean
+  dwId: string
+  title: string
+  toolButton: ToolButton
+  showHeader: boolean
+  operationFlag: string
+  busiId: string
+  sdzt: string
 }>({
   isShowModal: false,
-  dwId: "",
-  title: "预安排审定 - 单位查看",
-  toolButton: ["export", "download"],
+  dwId: '',
+  title: '预安排审定 - 单位查看',
+  toolButton: ['export', 'download'],
   showHeader: false,
-  operationFlag: "",
-  busiId: "",
-  sdzt: ""
-});
-
+  operationFlag: '',
+  busiId: '',
+  sdzt: ''
+})
 const tabMsg = reactive({
-  name: "1",
+  name: '1',
   isDisabled: true
-});
-
+})
 const kmMsg = reactive<{
-  isShowModal: boolean;
-  kmId: any;
-  title: string;
+  isShowModal: boolean
+  kmId: any
+  title: string
 }>({
   isShowModal: false,
   kmId: [],
-  title: "预安排审定 - 科目查看"
-});
-
+  title: '预安排审定 - 科目查看'
+})
 const tableMsg = reactive<TableMsg>({
   rowConfig: {
     height: 32
   },
-  nd: "",
-  xsws: "",
+  nd: '',
+  xsws: '',
   tableData: [],
   ndData: [],
   columns: [],
   ndColumns: [],
   zyTreeConfig: {
     lazy: true,
-    hasChildField: "leaf",
+    hasChildField: 'leaf',
     loadMethod({ row }: any) {
       let params = {
         nd: tableMsg.nd,
         specialorgid: userMsg.specialorgid,
-        kmlx: "1",
+        kmlx: '1',
         parentId: row.id
-      };
+      }
       return new Promise((resolve: any) => {
         getCityDataList({
           ...params
         }).then((res: any) => {
           if (res.success) {
-            resolve(res.data);
+            resolve(res.data)
           } else {
-            ElMessage.error(res.msg);
-            resolve([]);
+            ElMessage.error(res.msg)
+            resolve([])
           }
-        });
-      });
+        })
+      })
     }
   },
   ndTreeConfig: {
     lazy: true,
-    hasChildField: "leaf",
+    hasChildField: 'leaf',
     loadMethod({ row }: any) {
       let params = {
         nd: tableMsg.nd,
         specialorgid: userMsg.specialorgid,
-        kmlx: "2",
+        kmlx: '2',
         parentId: row.id
-      };
+      }
       return new Promise((resolve: any) => {
         getCityDataList({
           ...params
         }).then((res: any) => {
           if (res.success) {
-            resolve(res.data);
+            resolve(res.data)
           } else {
-            ElMessage.error(res.msg);
-            resolve([]);
+            ElMessage.error(res.msg)
+            resolve([])
           }
-        });
-      });
+        })
+      })
     }
   }
-});
-
+})
 const closeDialog = () => {
-  reviewMsg.isShowModal = false;
-  getUserInfo();
-};
-
+  reviewMsg.isShowModal = false
+  getUserInfo()
+}
 const updateTableData = (val: string) => {
-  reviewLayoutRef.value.getTableList();
-  getUserInfo();
-  getTableData();
-  if (val === "sd") closeModalHandle(false, "dw");
-};
-
+  reviewLayoutRef.value.getTableList()
+  getUserInfo()
+  getTableData()
+  if (val === 'sd') closeModalHandle(false, 'dw')
+}
 const saveByDwHandle = (params: any) => {
-  const records: any[] = dwbzViewRef.value.element.getUpdateRecords();
-  const updateRecords = records.filter((item) => !item.leaf && item.id);
+  const records: any[] = dwbzViewRef.value.element.getUpdateRecords()
+  const updateRecords = records.filter((item) => !item.leaf && item.id)
   let mxList = updateRecords.map((item) => {
     return {
       sdje: item.yapSdValue,
       yskmId: item.id,
-      detailId: item.detailId ? item.detailId : ""
-    };
-  });
-  params.mxList = mxList;
-  return saveByDw(params);
-};
-
+      detailId: item.detailId ? item.detailId : ''
+    }
+  })
+  params.mxList = mxList
+  return saveByDw(params)
+}
 const linkTable = () => {
-  const $table = Number(userMsg.flag) === 1 ? treeTableRef.value : treeNdTableRef.value;
-  const $toolBar = Number(userMsg.flag) === 1 ? toolbarOneRef.value : toolbarTwoRef.value;
+  const $table = Number(userMsg.flag) === 1 ? treeTableRef.value : treeNdTableRef.value
+  const $toolBar = Number(userMsg.flag) === 1 ? toolbarOneRef.value : toolbarTwoRef.value
   if ($table && $toolBar) {
-    $table.connect($toolBar);
+    $table.connect($toolBar)
   }
-};
-
+}
 const getTableList = (params: any) => {
-  return getDwStatus(params);
-};
-
+  return getDwStatus(params)
+}
 const isDisabledBtn = ({ props }: any) => {
-  userMsg.flag = props.name;
-  getTableData();
-  getUserInfo();
-  linkTable();
-};
+  userMsg.flag = props.name
+  getTableData()
+  getUserInfo()
+  linkTable()
+}
 
 // 关闭modal
 const closeModalHandle = (val: boolean, flag: string) => {
-  flag === "dw" ? (dwMsg.isShowModal = val) : (kmMsg.isShowModal = val);
-  dwMsg.dwId = "";
-  kmMsg.kmId.length = 0;
-};
+  flag === 'dw' ? (dwMsg.isShowModal = val) : (kmMsg.isShowModal = val)
+  dwMsg.dwId = ''
+  kmMsg.kmId.length = 0
+}
 
 // 审核
 const reviewHandle = () => {
-  reviewMsg.isShowModal = true;
-};
+  reviewMsg.isShowModal = true
+}
 
 // 审定
 const sdDataHandle = (flag: string) => {
-  let record = reviewLayoutRef.value.element.getCurrentRecord();
+  let record = reviewLayoutRef.value.element.getCurrentRecord()
   if (!record) {
-    ElMessage.warning("请选择一条数据进行操作！");
-    return;
+    ElMessage.warning('请选择一条数据进行操作！')
+    return
   }
-  dwMsg.isShowModal = true;
-  dwMsg.dwId = record.sbdwbm;
-  dwMsg.busiId = record.dwdetailId;
-  dwMsg.sdzt = record.sdStatusbm;
-  dwMsg.title = flag === "edit" ? "预安排审定 - 单位审定" : "预安排审定 - 单位查看";
-  dwMsg.toolButton = flag === "edit" ? ["save", "import", "export", "sd", "download", "close"] : ["download", "close"];
-  dwMsg.operationFlag = flag;
-};
+  dwMsg.isShowModal = true
+  dwMsg.dwId = record.sbdwbm
+  dwMsg.busiId = record.dwdetailId
+  dwMsg.sdzt = record.sdStatusbm
+  dwMsg.title = flag === 'edit' ? '预安排审定 - 单位审定' : '预安排审定 - 单位查看'
+  dwMsg.toolButton = flag === 'edit' ? ['save', 'import', 'export', 'sd', 'download', 'close'] : ['download', 'close']
+  dwMsg.operationFlag = flag
+}
 
 // 下达
 const releaseHandle = async () => {
-  ElMessageBox.confirm("是否确认审定上报？", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "success"
+  ElMessageBox.confirm('是否确认审定上报？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'success'
   }).then(async () => {
     let params = {
-      busiType: "YAP",
+      busiType: 'YAP',
       kmlx: userMsg.flag,
       nd: tableMsg.nd,
       ejdw: userMsg.specialorgid
-    };
-    let res = await approvedAndIsssued(params);
-    if (res.success) {
-      ElMessage.success("审定上报成功！");
-    } else {
-      ElMessage.error(res.msg);
     }
-  });
-};
+    let res = await approvedAndIsssued(params)
+    if (res.success) {
+      ElMessage.success('审定上报成功！')
+    } else {
+      ElMessage.error(res.msg)
+    }
+  })
+}
 
 // 导出
 const exportTableDataHandle = (flag: string) => {
-  userMsg.loading = true;
+  userMsg.loading = true
   exportData({
-    busiType: "YAP",
+    busiType: 'YAP',
     xsws: tableMsg.xsws,
     kmlx: userMsg.flag,
     nd: tableMsg.nd,
     specialorgid: userMsg.specialorgid,
-    parentId: "-1"
+    parentId: '-1'
   }).then((res: any) => {
-    const blob = res;
-    let dom = document.createElement("a");
-    let url = window.URL.createObjectURL(blob);
-    dom.href = url;
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
     // 获取文件名
-    let filename = res.headers["content-disposition"].split(";")[1].split("=")[1];
-    dom.download = `${decodeURI(decodeURI(filename))}`;
-    document.body.appendChild(dom);
-    dom.click();
-    document.body.removeChild(dom);
-    window.URL.revokeObjectURL(url);
-    userMsg.loading = false;
-  });
-};
-
+    let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
+    dom.download = `${decodeURI(decodeURI(filename))}`
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+    userMsg.loading = false
+  })
+}
 const cellClickHandle = async ({ row, columnIndex, column }: any, flag: string) => {
-  if (row.id && !row.leaf && column.field === "name") {
-    kmMsg.isShowModal = true;
-    const tableData = Number(userMsg.flag) === 1 ? tableMsg.tableData : tableMsg.ndData;
-    kmMsg.kmId = findPrevNode(tableData, row);
-    userMsg.flag = flag;
+  if (row.id && !row.leaf && column.field === 'name') {
+    kmMsg.isShowModal = true
+    const tableData = Number(userMsg.flag) === 1 ? tableMsg.tableData : tableMsg.ndData
+    kmMsg.kmId = findPrevNode(tableData, row)
+    userMsg.flag = flag
   }
-};
+}
 
 // 判断表头是否可以点击
 const isClickHeader = (columns: Columns[], field: string) => {
-  return columns.find((item: Columns) => item.eidt && item.columnKey === field);
-};
+  return columns.find((item: Columns) => item.eidt && item.columnKey === field)
+}
 
 // 表头点击
 const headerCellClickHandle = ({ column }: any) => {
-  const isColumn = isClickHeader(tableMsg.columns as any[], column.field);
+  const isColumn = isClickHeader(tableMsg.columns as any[], column.field)
   if (isColumn) {
-    dwMsg.busiId = isColumn.dwDetailId;
-    dwMsg.operationFlag = "view";
-    dwMsg.title = "预安排审定 - 单位查看";
-    dwMsg.toolButton = ["download", "close"];
-    dwMsg.isShowModal = true;
-    dwMsg.dwId = column.field;
+    dwMsg.busiId = isColumn.dwDetailId
+    dwMsg.operationFlag = 'view'
+    dwMsg.title = '预安排审定 - 单位查看'
+    dwMsg.toolButton = ['download', 'close']
+    dwMsg.isShowModal = true
+    dwMsg.dwId = column.field
   }
-};
-
+}
 const headerCellStyle = ({ column }: any) => {
-  const isColumn = isClickHeader(tableMsg.columns as any[], column.field);
+  const isColumn = isClickHeader(tableMsg.columns as any[], column.field)
   if (isColumn) {
     return {
-      cursor: "pointer",
-      color: "rgb(0, 112, 107)",
-      padding: "8px 0",
-      lineHeight: "16px"
-    };
-  }
-  return {
-    cursor: "auto",
-    color: "#303133",
-    padding: "8px 0",
-    lineHeight: "16px"
-  };
-};
-
-const cellStyle = ({ row, column }: any) => {
-  if (row.id && !row.leaf && column.field === "name") {
-    return {
-      cursor: "pointer",
-      backgroundColor: "rgba(232, 234, 236,0.5)",
-      color: "rgb(0, 112, 107)"
-    };
-  }
-  return {
-    cursor: "auto",
-    backgroundColor: "rgba(232, 234, 236,0.5)",
-    color: "rgb(96, 98, 102)"
-  };
-};
-
-const isNeedNum = (columns: any[], field: string) => {
-  let findIndex = columns.findIndex((item) => item.needSum && item.columnKey === field);
-  return findIndex > -1;
-};
-
-const formatterData = ({ column, cellValue }: any) => {
-  if (typeof cellValue === "undefined" || cellValue === null || cellValue === "") return "-";
-  if (tableMsg.columns) {
-    const isNum = isNeedNum(tableMsg.columns, column.field);
-    if (isNum) {
-      return formatValue(cellValue, Number(tableMsg.xsws));
+      cursor: 'pointer',
+      color: 'rgb(0, 112, 107)',
+      padding: '8px 0',
+      lineHeight: '16px'
     }
   }
-  return cellValue;
-};
+  return {
+    cursor: 'auto',
+    color: '#303133',
+    padding: '8px 0',
+    lineHeight: '16px'
+  }
+}
+const cellStyle = ({ row, column }: any) => {
+  if (row.id && !row.leaf && column.field === 'name') {
+    return {
+      cursor: 'pointer',
+      backgroundColor: 'rgba(232, 234, 236,0.5)',
+      color: 'rgb(0, 112, 107)'
+    }
+  }
+  return {
+    cursor: 'auto',
+    backgroundColor: 'rgba(232, 234, 236,0.5)',
+    color: 'rgb(96, 98, 102)'
+  }
+}
+const isNeedNum = (columns: any[], field: string) => {
+  let findIndex = columns.findIndex((item) => item.needSum && item.columnKey === field)
+  return findIndex > -1
+}
+const formatterData = ({ column, cellValue }: any) => {
+  if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
+  if (tableMsg.columns) {
+    const isNum = isNeedNum(tableMsg.columns, column.field)
+    if (isNum) {
+      return formatValue(cellValue, Number(tableMsg.xsws))
+    }
+  }
+  return cellValue
+}
 
 // 是否隐藏tab
 const isHideTab = async (dwId: string) => {
-  let res = await containsNd(dwId);
+  let res = await containsNd(dwId)
   if (res.success) {
-    isHidenTab.value = res.data;
+    isHidenTab.value = res.data
   }
-};
-
+}
 const getRoleHandle = async () => {
-  userMsg.userData = { ...userDialogRef.value.userMsg };
-  userMsg.dwName = userDialogRef.value.userMsg.org_name;
-  userMsg.specialorgid = userMsg.userData.org_id;
-  tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString();
-  tableMsg.xsws = headerRef.value.formParams.xsws || "2";
-  isHideTab(userMsg.userData.org_id);
-  const isQuery = userDialogRef.value.isQuery;
-  await getUserInfo();
+  userMsg.userData = {
+    ...userDialogRef.value.userMsg
+  }
+  userMsg.dwName = userDialogRef.value.userMsg.org_name
+  userMsg.specialorgid = userMsg.userData.org_id
+  tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString()
+  tableMsg.xsws = headerRef.value.formParams.xsws || '2'
+  isHideTab(userMsg.userData.org_id)
+  const isQuery = userDialogRef.value.isQuery
+  await getUserInfo()
   if (isQuery && isCity.value) {
-    userMsg.isShowPage = true;
+    userMsg.isShowPage = true
     // 判断是否已经下达
     // 获取动态列和动态表头
-    await getTableData();
-    linkTable();
+    await getTableData()
+    linkTable()
   }
-};
-
+}
 const getTableData = async () => {
-  clearTableData();
-  userMsg.loading = true;
+  clearTableData()
+  userMsg.loading = true
   let params = {
     nd: tableMsg.nd,
     xsws: tableMsg.xsws,
     specialorgid: userMsg.specialorgid,
     kmlx: userMsg.flag,
-    parentId: "-1"
-  };
-  let res = await Promise.all([getCityDynamicColumn(params), getCityDataList(params)]);
+    parentId: '-1'
+  }
+  let res = await Promise.all([getCityDynamicColumn(params), getCityDataList(params)])
   if (res[0].success && res[1].success) {
-    tableMsg.columns = res[0].data.filter((item: Columns) => item.visible);
-    Number(userMsg.flag) === 1 ? (tableMsg.tableData = res[1].data) : (tableMsg.ndData = res[1].data);
+    tableMsg.columns = res[0].data.filter((item: Columns) => item.visible)
+    Number(userMsg.flag) === 1 ? (tableMsg.tableData = res[1].data) : (tableMsg.ndData = res[1].data)
     // compTableWidth();
   } else {
-    ElMessage.error("请刷新页面进行重试！");
+    ElMessage.error('请刷新页面进行重试！')
   }
-  userMsg.loading = false;
-};
-
+  userMsg.loading = false
+}
 const initData = async () => {
   // 调用角色modal
-  userDialogRef.value.getUser();
-};
-
+  userDialogRef.value.getUser()
+}
 const changeNdHandle = (val: string) => {
-  tableMsg.nd = val;
-  getUserInfo();
-  getTableData();
-};
-
+  tableMsg.nd = val
+  getUserInfo()
+  getTableData()
+}
 const changeXswsHandle = (val: string) => {
-  tableMsg.xsws = val;
-  getUserInfo();
-  getTableData();
-};
-
+  tableMsg.xsws = val
+  getUserInfo()
+  getTableData()
+}
 const openTodoTaskDesc = () => {
   if (userInfo.value.wfId) {
-    const winWidth = screen.width;
-    const winHeight = screen.height;
-    const width = 1200;
-    const height = 800;
-    let pageWidth = (winWidth - width) / 2;
-    let pageTop = (winHeight - height) / 2;
+    const winWidth = screen.width
+    const winHeight = screen.height
+    const width = 1200
+    const height = 800
+    let pageWidth = (winWidth - width) / 2
+    let pageTop = (winHeight - height) / 2
     getWfTracking(userInfo.value.wfId).then((res: any) => {
       if (res.success) {
-        window.open(res.data, "_blank", `width=${width},height=${height},top=${pageTop},left=${pageWidth}`);
+        window.open(res.data, '_blank', `width=${width},height=${height},top=${pageTop},left=${pageWidth}`)
       } else {
-        ElMessage.error(res.msg);
+        ElMessage.error(res.msg)
       }
-    });
+    })
   }
-};
-
+}
 const getUserInfo = async () => {
-  let res = await getCurrentPageData("YAP", userMsg.flag, tableMsg.nd, userMsg.specialorgid, tableMsg.xsws);
+  let res = await getCurrentPageData('YAP', userMsg.flag, tableMsg.nd, userMsg.specialorgid, tableMsg.xsws)
   if (res.success) {
-    userInfo.value = { ...res.data };
-    isCity.value = true;
+    userInfo.value = {
+      ...res.data
+    }
+    isCity.value = true
   } else {
-    ElMessage.error(res.msg);
-    isCity.value = false;
+    ElMessage.error(res.msg)
+    isCity.value = false
   }
-};
-
+}
 const clearTableData = () => {
-  if (tableMsg.columns) tableMsg.columns.length = 0;
-  if (tableMsg.tableData) tableMsg.tableData.length = 0;
-  if (tableMsg.ndData) tableMsg.ndData.length = 0;
-};
-
+  if (tableMsg.columns) tableMsg.columns.length = 0
+  if (tableMsg.tableData) tableMsg.tableData.length = 0
+  if (tableMsg.ndData) tableMsg.ndData.length = 0
+}
 const reviewColumns = reactive<VxeColumnProps[]>([
   {
-    type: "seq",
-    title: "序号",
+    type: 'seq',
+    title: '序号',
     width: 60
   },
   {
-    field: "sbdwmc",
-    title: "上报单位"
+    field: 'sbdwmc',
+    title: '上报单位'
   },
   {
-    field: "sbStatus",
-    title: "上报状态",
+    field: 'sbStatus',
+    title: '上报状态',
     width: 120
   },
   {
-    field: "sdStatus",
-    title: "审核状态",
+    field: 'sdStatus',
+    title: '审核状态',
     width: 120
   }
-]);
-
-onMounted(initData);
+])
+onMounted(initData)
 </script>
 
 <style scoped lang="less">

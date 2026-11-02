@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, Operation as EpOperation } from '@element-plus/icons-vue'
-
 import userDialog from '@/components/select/userDialog.vue'
 import { ElMessage } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
@@ -8,22 +7,22 @@ import { useStore } from '@/store/business'
 import { useRouter } from 'vue-router'
 import { exportData, searchData } from '@/api/wideColumn'
 import { Decimal } from 'decimal.js'
+defineOptions({
+  name: 'WideColumn'
+})
 
 onMounted(() => {
   initData()
 })
-
 interface Props {
   nd: boolean
   yd: boolean
   columnTables: any[]
   flag: string
 }
-
 const store = useStore()
 const router = useRouter()
 const props = defineProps<Props>()
-
 const isShowPage = ref(false)
 const loading = ref(true)
 const specialOrgId = ref('')
@@ -35,7 +34,6 @@ const tableData: any = ref([])
 // ref
 const userDialogRef = ref()
 const mainRef = ref()
-
 const monthData: any = ref([])
 
 // 初始化数据
@@ -78,7 +76,6 @@ const page = reactive({
   limit: 10,
   total: 0
 })
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -169,7 +166,6 @@ const resetHandle = () => {
   queryForm.yd = (new Date().getMonth() + 1).toString()
   searchHandle()
 }
-
 const selectRolesHandle = () => {
   loading.value = true
   userDialogRef.value.getUser()
@@ -201,11 +197,6 @@ const isHiddenQueryForm = () => {
 }
 </script>
 
-<script lang="ts">
-export default {
-  name: 'WideColumn'
-}
-</script>
 
 <template>
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>

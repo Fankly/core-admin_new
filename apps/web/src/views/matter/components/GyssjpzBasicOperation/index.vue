@@ -51,26 +51,23 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'GyssjpzBasicOperation'
-}
-</script>
+
 <script setup lang="ts">
-import { ref, defineExpose, defineEmits, defineProps, reactive, watch, nextTick } from 'vue'
+import { ref, reactive, watch, nextTick } from 'vue'
 import { saveOrUpdate } from '@/api/matter/matterBasic'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: 'GyssjpzBasicOperation'
+})
 
 interface MatterBasicMsg {
   title: string
   opType: string
 }
-
 interface Props {
   matterBasicMsg: MatterBasicMsg
   selectedData: any
 }
-
 interface RowVO {
   code: string
   name: string
@@ -79,10 +76,8 @@ interface RowVO {
   unicode: any
   [key: string]: number | string
 }
-
 const props = defineProps<Props>()
 const emit = defineEmits(['saveData'])
-
 const formRef = ref()
 const isShowModal = ref(false)
 const loading = ref(false)
@@ -92,14 +87,36 @@ const formData = ref<any>({
   lifnr: '',
   name1: ''
 })
-
 const rulesForm = reactive({
-  akont: [{ required: true, message: '请输入统驭科目', trigger: ['blur'] }],
-  bukrs: [{ required: true, message: '请输入公司代码', trigger: ['blur'] }],
-  lifnr: [{ required: true, message: '请输入编码', trigger: ['blur'] }],
-  name1: [{ required: true, message: '请输入名称', trigger: ['blur'] }]
+  akont: [
+    {
+      required: true,
+      message: '请输入统驭科目',
+      trigger: ['blur']
+    }
+  ],
+  bukrs: [
+    {
+      required: true,
+      message: '请输入公司代码',
+      trigger: ['blur']
+    }
+  ],
+  lifnr: [
+    {
+      required: true,
+      message: '请输入编码',
+      trigger: ['blur']
+    }
+  ],
+  name1: [
+    {
+      required: true,
+      message: '请输入名称',
+      trigger: ['blur']
+    }
+  ]
 })
-
 const showHandle = () => {
   if (props.matterBasicMsg.opType == 'EDIT') {
     // 修改
@@ -109,7 +126,7 @@ const showHandle = () => {
     formData.value.lifnr = paramsData.lifnr
     formData.value.name1 = paramsData.name1
   }
-  console.log(1111, formData.value) 
+  console.log(1111, formData.value)
 }
 
 // 关闭
@@ -141,7 +158,6 @@ const saveHandle = async () => {
     }
   })
 }
-
 defineExpose({
   isShowModal
 })

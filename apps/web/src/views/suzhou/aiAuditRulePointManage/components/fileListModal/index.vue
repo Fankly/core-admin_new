@@ -52,11 +52,6 @@
   <DetailModal :modal="auditDetailModal" :detail-row="auditDetailRow" @close="closeAuditDetail" />
 </template>
 
-<script lang="ts">
-export default {
-  name: 'fileListModal'
-}
-</script>
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
@@ -64,13 +59,17 @@ import { ElMessage } from 'element-plus'
 import type { VxeGridProps } from 'vxe-table'
 import RangeVxeTable from '@/components/RangeVxeTable/index.vue'
 import type { ColumnProps } from '@/components/ProTable/interface'
-// 一级/二级单位与 stockOut 需求明细同口径，统一走 @/api/common 的 getYjdw/getEjdw（baseService.post('bizOrgTree/getYjdw')）
 import { getEjdw, getYjdw } from '@/api/common'
 import { normalizeOptionList } from '@/views/ai/smartTaskAudit/utils'
 import DetailModal from '@/views/ai/smartTaskAudit/components/DetailModal.vue'
 import { useAuditDetailModal } from '../../hooks/useAuditDetailModal'
 import { getAuditXmFileDetail } from '@/api/suzhou/aiAuditRuleMonitoring'
 import type { AuditXmFileDetailRow } from '@/api/suzhou/aiAuditRuleMonitoring'
+defineOptions({
+  name: 'fileListModal'
+})
+
+// 一级/二级单位与 stockOut 需求明细同口径，统一走 @/api/common 的 getYjdw/getEjdw（baseService.post('bizOrgTree/getYjdw')）
 
 /** 表格行：接口字段 + 表格要求的唯一 rowKey */
 interface FileListTableRow extends AuditXmFileDetailRow {
@@ -82,7 +81,6 @@ interface RoleParams {
   bmId?: string
   dwId?: string
 }
-
 interface ModalParams {
   /** 文件类型名称，仅用于标题 */
   fileType?: string
@@ -91,12 +89,10 @@ interface ModalParams {
   /** 一级/二级单位下拉要用（口径与「审核要点异动排名」的未通过清单、stockOut 需求明细一致：bizOrgTree/getYjdw） */
   roleParams?: RoleParams
 }
-
 const isShowModal = ref(false)
 const modalTitle = ref('文件清单')
 const fileTypeId = ref('')
 const roleParams = ref<RoleParams>({})
-
 const yjdwOptions = reactive<Record<string, any>[]>([])
 const ejdwOptions = reactive<Record<string, any>[]>([])
 
@@ -107,16 +103,70 @@ const ejdwOptions = reactive<Record<string, any>[]>([])
  * - 文件名称是 attachName，原型写的是 fileName。
  */
 const columns: VxeGridProps['columns'] = [
-  { type: 'seq', title: '序号', width: 60, headerAlign: 'center' },
-  { field: 'xmbm', title: '项目编码', width: 150, headerAlign: 'center' },
-  { field: 'xmmc', title: '项目名称', minWidth: 190, align: 'left', headerAlign: 'center' },
-  { field: 'yjdwName', title: '一级单位', width: 140, align: 'left', headerAlign: 'center' },
-  { field: 'ejdwName', title: '二级单位', width: 140, align: 'left', headerAlign: 'center' },
-  { field: 'jhssnd', title: '计划年度', width: 100, headerAlign: 'center' },
-  { field: 'fileType', title: '文件类型', width: 120, headerAlign: 'center', slots: { default: 'fileType' } },
-  { field: 'attachName', title: '文件名称', minWidth: 260, align: 'left', headerAlign: 'center' },
+  {
+    type: 'seq',
+    title: '序号',
+    width: 60,
+    headerAlign: 'center'
+  },
+  {
+    field: 'xmbm',
+    title: '项目编码',
+    width: 150,
+    headerAlign: 'center'
+  },
+  {
+    field: 'xmmc',
+    title: '项目名称',
+    minWidth: 190,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'yjdwName',
+    title: '一级单位',
+    width: 140,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'ejdwName',
+    title: '二级单位',
+    width: 140,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'jhssnd',
+    title: '计划年度',
+    width: 100,
+    headerAlign: 'center'
+  },
+  {
+    field: 'fileType',
+    title: '文件类型',
+    width: 120,
+    headerAlign: 'center',
+    slots: {
+      default: 'fileType'
+    }
+  },
+  {
+    field: 'attachName',
+    title: '文件名称',
+    minWidth: 260,
+    align: 'left',
+    headerAlign: 'center'
+  },
   // 操作列放最后：与「未通过清单」的「查看」同一个动作（打开智能审核详情弹窗）
-  { title: '操作', width: 90, headerAlign: 'center', slots: { default: 'viewDetail' } }
+  {
+    title: '操作',
+    width: 90,
+    headerAlign: 'center',
+    slots: {
+      default: 'viewDetail'
+    }
+  }
 ]
 
 /**
@@ -130,7 +180,6 @@ const columns: VxeGridProps['columns'] = [
 const fillOptions = (target: Record<string, any>[], list: Record<string, any>[]) => {
   target.splice(0, target.length, ...list)
 }
-
 const buildRoleParams = () => ({
   bmId: roleParams.value.bmId || '',
   dwId: roleParams.value.dwId || ''
@@ -145,7 +194,11 @@ const handleYjdwChange = async (value: string) => {
   fillOptions(ejdwOptions, [])
   if (!value) return
   try {
-    const res = await getEjdw({ ...buildRoleParams(), YJDW: value, parentCode: value })
+    const res = await getEjdw({
+      ...buildRoleParams(),
+      YJDW: value,
+      parentCode: value
+    })
     fillOptions(ejdwOptions, res.success ? normalizeOptionList(res.data || []) : [])
   } catch (e) {
     ElMessage.error((e as Error)?.message || '二级单位获取失败')
@@ -170,30 +223,72 @@ const searchColumns = reactive<ColumnProps[]>([
     prop: 'yjdw',
     label: '一级单位',
     enum: yjdwOptions,
-    fieldNames: { label: 'name', value: 'code' },
-    search: { el: 'select', order: 1, props: { clearable: true, filterable: true, onChange: handleYjdwChange } }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
+    search: {
+      el: 'select',
+      order: 1,
+      props: {
+        clearable: true,
+        filterable: true,
+        onChange: handleYjdwChange
+      }
+    }
   },
   {
     prop: 'ejdw',
     label: '二级单位',
     enum: ejdwOptions,
-    fieldNames: { label: 'name', value: 'code' },
-    search: { el: 'select', order: 2, props: { clearable: true, filterable: true } }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
+    search: {
+      el: 'select',
+      order: 2,
+      props: {
+        clearable: true,
+        filterable: true
+      }
+    }
   },
   {
     prop: 'jhssnd',
     label: '计划年度',
-    search: { el: 'input', order: 3, props: { clearable: true, placeholder: '请输入计划年度' } }
+    search: {
+      el: 'input',
+      order: 3,
+      props: {
+        clearable: true,
+        placeholder: '请输入计划年度'
+      }
+    }
   },
   {
     prop: 'xmbm',
     label: '项目编码',
-    search: { el: 'input', order: 4, props: { clearable: true, placeholder: '请输入项目编码' } }
+    search: {
+      el: 'input',
+      order: 4,
+      props: {
+        clearable: true,
+        placeholder: '请输入项目编码'
+      }
+    }
   },
   {
     prop: 'xmmc',
     label: '项目名称',
-    search: { el: 'input', order: 5, props: { clearable: true, placeholder: '请输入项目名称' } }
+    search: {
+      el: 'input',
+      order: 5,
+      props: {
+        clearable: true,
+        placeholder: '请输入项目名称'
+      }
+    }
   }
 ])
 
@@ -238,18 +333,19 @@ const getList = async (params: Record<string, any>) => {
     ...res,
     data: {
       ...res?.data,
-      records: records.map((item, index) => ({ ...item, rowId: `${fileTypeId.value}-${offset + index}` }))
+      records: records.map((item, index) => ({
+        ...item,
+        rowId: `${fileTypeId.value}-${offset + index}`
+      }))
     }
   }
 }
-
 const handleClose = () => {
   isShowModal.value = false
 }
 
 // 「查看」→ 智能审核详情（先按 proId 换 taskId 再开弹窗，逻辑与未通过清单共用，见 hooks/useAuditDetailModal）
 const { auditDetailModal, auditDetailRow, openAuditDetail, closeAuditDetail } = useAuditDetailModal()
-
 const acceptParams = (params: ModalParams = {}) => {
   fileTypeId.value = params.fjId || ''
   roleParams.value = params.roleParams || {}
@@ -257,8 +353,9 @@ const acceptParams = (params: ModalParams = {}) => {
   isShowModal.value = true
   loadOptions()
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

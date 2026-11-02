@@ -23,21 +23,24 @@
   </vxe-modal>
   <UserGcManager :special-org-id="modalParam?.specialorgid" v-model="dialogVisible" ref="userGcManagerRef" @close="getPersonEnum" />
 </template>
-<script lang="tsx">
-export default {
-  name: 'personGcModal'
-}
-</script>
+
 <script setup lang="tsx">
 import { ref, reactive, nextTick } from 'vue'
 import UserGcManager from '@/views/service/xmcs/components/UserGcManager.vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { gcGetStaffPage } from '@/api/service/xmcs/index'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import { getEjdwList, getYjdwList } from '@/api/matter'
 import { ElMessage } from 'element-plus'
-const emit = defineEmits(['saveXm'])
+defineOptions({
+  name: 'personGcModal'
+})
 
+ //表格组件
+
+ //公共代码
+
+const emit = defineEmits(['saveXm'])
 const proTableRef = ref()
 const isShowModel = ref(false)
 const dialogVisible = ref(false)
@@ -73,30 +76,30 @@ const pageMeeting = (params: any) => {
   params['current'] = params['page']
   params['size'] = params['limit']
   params['dwType'] = params['dwType'] || ''
-  return gcGetStaffPage({ ...params })
+  return gcGetStaffPage({
+    ...params
+  })
 }
-
 const getPersonEnum = async () => {
   if (modalParam.value.specialorgid) {
     proTableRef.value?.getTableList()
   }
 }
-
 const seetingPerson = () => {
   dialogVisible.value = true
 }
-
 const personFp = (selectedList: any[]) => {
   const staffIds = selectedList.map(({ id }: any) => id)
-  emit('saveXm', { staffIds: staffIds, xmIds: modalParam.value?.xmIds || [] })
+  emit('saveXm', {
+    staffIds: staffIds,
+    xmIds: modalParam.value?.xmIds || []
+  })
 }
-
 const closeHandle = () => {
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
   isShowModel.value = false
 }
-
 const getYjdwEnum = async () => {
   yjdwListData.value.length = 0 //清空单位
   if (modalParam.value.specialorgid) {
@@ -105,7 +108,6 @@ const getYjdwEnum = async () => {
     yjdwListData.value.push(...res.data)
   }
 }
-
 const changeYjdwHandle = async (val: string) => {
   const params = proTableRef.value?.searchParam
   params.ejdw = ''
@@ -119,10 +121,16 @@ const changeYjdwHandle = async (val: string) => {
     ejdwListData.value.push(...res.data)
   }
 }
-
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', label: '序号', width: 50 },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: 50
+  },
   {
     prop: 'dwType',
     label: '类型',
@@ -131,14 +139,26 @@ const tableColumns = reactive<any>([
       order: 1
     },
     enum: () => getPublicData('ZXCSGCTYPE_COM'),
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'yjdw',
     label: '一级单位',
-    search: { el: 'select', props: { onChange: changeYjdwHandle }, order: 3 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: changeYjdwHandle
+      },
+      order: 3
+    },
     enum: yjdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.yjdwName
     }
@@ -146,26 +166,35 @@ const tableColumns = reactive<any>([
   {
     prop: 'ejdw',
     label: '二级单位',
-    search: { el: 'select', order: 4 },
+    search: {
+      el: 'select',
+      order: 4
+    },
     enum: ejdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.ejdwName
     }
   },
-  { prop: 'username', label: '人员名单' }
+  {
+    prop: 'username',
+    label: '人员名单'
+  }
 ])
-
 const acceptParams = (param: any) => {
   isShowModel.value = true
   clickType.value = param.clickType
-  modalParam.value = { ...param }
+  modalParam.value = {
+    ...param
+  }
   if (modalParam.value) {
     getYjdwEnum()
     proTableRef.value?.getTableList()
   }
 }
-
 defineExpose({
   acceptParams,
   closeHandle

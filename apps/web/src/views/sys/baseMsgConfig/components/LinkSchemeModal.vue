@@ -44,12 +44,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "LinkSchemeModal" })
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import VXETable from 'vxe-table'
 import { linkProtype } from '@/api/sys/proCategory'
 import { configGetPage } from '@/api/xmInfo/stageConfig'
+defineOptions({ name: "LinkSchemeModal" })
 
 interface AcceptParams {
   ids: string[]

@@ -153,11 +153,7 @@
   <DynamicReports :search-code="searchCode" @show-modal="showHandle" ref="dynamicReportsRef" :title="title" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/xq/ContractLedgerManagement'
-}
-</script>
+
 <script setup lang="ts">
 import {
   searchCsParamList,
@@ -171,7 +167,7 @@ import {
   csParamDelete
 } from '@/api/service/requirement'
 import { save, getEjdwData, getYjdwData, getBm, xmExpertDelete } from '@/api/service/expertinformation'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
@@ -182,13 +178,20 @@ import { useUser } from '@/hooks/useUser'
 import baseService from '@/service/baseService'
 import { Configs, MenuConfig } from '@/views/service/xq/interface'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
-import { computed, defineExpose, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
 import { VxeGridProps, VXETable } from 'vxe-table'
 import newModal from '@/views/service/xq/components/newModal.vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import DynamicReports from '@/components/DynamicReports/index.vue'
+defineOptions({
+  name: '/service/xq/ContractLedgerManagement'
+})
+
+ //公共代码
+
+ //表格组件
 
 interface RowVo {
   code: string
@@ -213,7 +216,6 @@ interface RowVo {
   exemption_name: string
   zlzcsyksynx: string
 }
-
 const route = useRoute()
 const formRef = ref()
 const isShowModal = ref(false)
@@ -245,7 +247,6 @@ const userInfo = ref<{
   specialorgcode: '',
   spRoleId: ''
 })
-
 const title = '高级设置'
 const newModalRef = ref<any>() //新增弹窗元素
 const modalTitle = ref<any>('') //弹窗标题
@@ -263,19 +264,16 @@ const vueModel = ref<any>('')
 const htID = ref<any>('')
 const isShowTable = ref<boolean>(false)
 const proTableRef = ref()
-
 const { startGuide } = useGuide({
   moduleKey: 'RequireDetailSearch',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 const store = useStore()
 const userInfOther = ref<any>()
 const userDialogRef = ref()
 const defaultValueProp = ref<any>({})
-
 const searchData = ref<{
   [key: string]: any
 }>({})
@@ -284,13 +282,10 @@ const page = {
   limit: 20,
   page: 1
 }
-
 const spanComp = computed(() =>
   linkLength.value % 4 === 0 ? 24 : linkLength.value % 4 === 1 ? 18 : linkLength.value % 4 === 2 ? 12 : linkLength.value % 4 === 3 ? 6 : 24
 )
-
 const isShowPage = ref(false)
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchDataHandle()
@@ -324,7 +319,6 @@ const exportHandle = () => {
     loading.value = false
   })
 }
-
 const handleFieldChange = async (prop: string, value: any, column: Configs) => {
   if (prop === 'yjdw') {
     if (value) {
@@ -367,7 +361,6 @@ const searchDataHandle = async () => {
     loading.value = false
   }
 }
-
 const initParamsData = async (method: any, params: any): Promise<any[]> => {
   const res = await baseService.post(method, params)
   if (res.success) {
@@ -404,7 +397,6 @@ const handlerBtn = async (val: any) => {
       newModalRef.value.rmarkData.exemption = 'N'
       newModalRef.value.rmarkData.yjdw = levelOne.value[0].code
       newModalRef.value.rmarkData.yjdwms = levelOne.value[0].name
-
       let item = levelOne.value.find((item: any) => item.code == levelOne.value[0].code)
       // const res: any = await getEjdwData(item ? item.id : '')
       const res: any = await baseService.post('/bizOrgTree/getEjdw', {
@@ -437,7 +429,6 @@ const getDetail = async (ID: any) => {
     newModalRef.value.rmarkData = dataList.data || {}
     newModalRef.value.levelOne = levelOne.value
     htID.value = newModalRef.value.rmarkData.id
-
     newModalRef.value.rmarkData.crtSigningDate = getDate(dataList.data.crtSigningDate) // 合同签订日期
     newModalRef.value.rmarkData.startDate = getDate(dataList.data.startDate) // 租赁期实际开始日
     newModalRef.value.rmarkData.endDate = getDate(dataList.data.endDate) // 租赁期实际结束日
@@ -449,7 +440,6 @@ const getDetail = async (ID: any) => {
     } else {
       newModalRef.value.rules.zlzcsyksynx[0].required = true
     }
-
     let item = levelOne.value.find((item: any) => item.code == selectData.value[0].yjdw)
     // const res: any = await getEjdwData(item ? item.id : '')
     const res: any = await baseService.post('/bizOrgTree/getEjdw', {
@@ -481,7 +471,6 @@ const getDetail = async (ID: any) => {
     } else {
       newModalRef.value.rules.wbsCode[0].required = false
       newModalRef.value.ruleFormRef.clearValidate('wbsCode')
-
       newModalRef.value.rules.wbsName[0].required = false
       newModalRef.value.ruleFormRef.clearValidate('wbsName')
     }
@@ -494,7 +483,6 @@ const delHandler = async () => {
   if ($grid) {
     const records = $grid.getCheckboxRecords()
     selectData.value = records
-
     if (selectData.value.length == 0) {
       ElMessage.warning('请选择数据！')
       return
@@ -506,7 +494,9 @@ const delHandler = async () => {
       type: 'warning'
     })
       .then(async () => {
-        let res: any = await csParamDelete({ ID: ids.join(',') })
+        let res: any = await csParamDelete({
+          ID: ids.join(',')
+        })
         if (res.success) {
           ElMessage.success('删除成功')
           searchDataHandle()
@@ -598,7 +588,6 @@ const resetHandle = () => {
   }
   searchDataHandle()
 }
-
 const searchConfigHandle = async () => {
   loading.value = true
   const searchResData = await getDynamicSearchColumn({
@@ -642,7 +631,11 @@ const searchConfigHandle = async () => {
         filterable: true,
         multiple: item.multiple,
         options: [],
-        treeProps: { children: 'children', label: 'name', value: 'id' }
+        treeProps: {
+          children: 'children',
+          label: 'name',
+          value: 'id'
+        }
       }
     })
     for (const item of customData) {
@@ -668,7 +661,6 @@ const searchConfigHandle = async () => {
         }
       }
     }
-
     if (ggdms.length > 0) {
       const initData = await initParamsData('/commonCode/getCommonCode', {
         bmId: userInfo.value.deptId || '',
@@ -686,7 +678,6 @@ const searchConfigHandle = async () => {
     loading.value = false
   }
 }
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   columnConfig: {
@@ -702,7 +693,6 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   },
   columns: []
 })
-
 const getDynamicTable = async () => {
   const res = await getDynamicTableByUser({
     searchCode: searchCode.value
@@ -726,7 +716,6 @@ const getDynamicTable = async () => {
     })
   }
 }
-
 const getDate = (value: any) => {
   var nowDate = value ? new Date(value) : new Date()
   var y = nowDate.getFullYear()
@@ -740,7 +729,6 @@ const getDate = (value: any) => {
   }
   return y + '-' + m + '-' + d
 }
-
 const showHandle = async () => {
   await searchConfigHandle()
   await getDynamicTable()
@@ -752,7 +740,9 @@ const showHandle = async () => {
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfOther.value = { ...userDialogRef.value.userMsg }
+    userInfOther.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfOther.value.specialorgid}`)
@@ -782,7 +772,6 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 onMounted(async () => {
   await userDialogRef.value.getUser()
 })
@@ -791,13 +780,11 @@ onMounted(async () => {
 const settingHandle = () => {
   dynamicReportsRef.value.isShowDrawer = true
 }
-
 const cellClickHandle = async ({ row, column }: any) => {
   if (column.type === 'checkbox') return
   await gridRef.value.clearCheckboxRow()
   gridRef.value.setCheckboxRow(row, true)
 }
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
@@ -815,7 +802,10 @@ const pageList = (val: any) => {
 // 列表查询
 const pageMeeting = (params: any) => {
   if (vueModel.value === 'czf') {
-    params = { ...params, comCode: 'YSSX_COM' }
+    params = {
+      ...params,
+      comCode: 'YSSX_COM'
+    }
     return qryGysData(params)
   } else {
     params = {
@@ -842,39 +832,64 @@ const pageMeeting = (params: any) => {
 const columnStyle = ({ row, column, rowIndex, columnIndex }: any) => {
   return 'cursor: pointer;'
 }
-
 const runTask = async (row: any, column: any) => {
   proTableRef.value?.clearSelection()
   proTableRef.value?.element.toggleRowSelection(row)
 }
-
 const tableColumns = reactive<any>([
-  { type: 'selection', label: '', width: '50' },
-  { type: 'index', label: '序号', width: '50' },
+  {
+    type: 'selection',
+    label: '',
+    width: '50'
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: '50'
+  },
   {
     prop: 'lifnr',
     label: '出租方编码',
-    search: { el: 'input', order: 1 }
+    search: {
+      el: 'input',
+      order: 1
+    }
   },
   {
     prop: 'name',
     label: '出租方名称',
-    search: { el: 'input', order: 2 }
+    search: {
+      el: 'input',
+      order: 2
+    }
   }
 ])
-
 const xmbmTableColumns = reactive<any>([
-  { type: 'selection', label: '', width: '50' },
-  { type: 'index', label: '序号', width: '50' },
+  {
+    type: 'selection',
+    label: '',
+    width: '50'
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: '50'
+  },
   {
     prop: 'xmbm',
     label: '项目编码',
-    search: { el: 'input', order: 1 }
+    search: {
+      el: 'input',
+      order: 1
+    }
   },
   {
     prop: 'xmmc',
     label: '项目名称',
-    search: { el: 'input', order: 2 }
+    search: {
+      el: 'input',
+      order: 2
+    }
   }
 ])
 
@@ -906,7 +921,6 @@ const saveModal = (selectedList: any) => {
     ElMessage.warning('请选择一条数据')
   }
 }
-
 defineExpose({
   isShowModal,
   loading,

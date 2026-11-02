@@ -64,7 +64,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/service/approval/config/deptMajor/index" })
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
@@ -76,6 +75,7 @@ import { getDataByParent, getPublicData } from '@/api/common'
 import { ElMessage, ElTree } from 'element-plus'
 import { getMajorDataList, saveData } from '@/api/service/IhhsMeeting/approval/deptMajor'
 import { VXETable } from 'vxe-table'
+defineOptions({ name: "/service/approval/config/deptMajor/index" })
 
 interface PageConfig extends ContextProps {
   loading: boolean

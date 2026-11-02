@@ -130,11 +130,7 @@
   <xm-info ref="xmInfoRef" :title="'组长模式'" :page-api="pageApi" :user-info="userInfo" :meeting-info="meetingInfo" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/jointReview/lhhsMeeting/management'
-}
-</script>
+
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref } from 'vue'
 import {
@@ -162,18 +158,22 @@ import { useStore } from '@/store/business'
 import { useRouter, useRoute } from 'vue-router'
 import selectModal from '@/views/service/jointReview/components/selectModal.vue'
 import selectModalPs from '@/views/service/ywpt/components/selectModal.vue'
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import proAssignedModal from '@/views/service/ywpt/components/proAssignedModal/review.vue'
 import proAssigned from '@/views/service/ywpt/components/proAssigned.vue'
 import xmInfo from '@/views/service/jointReview/lhhsMeeting/components/xmInfo.vue'
 import { REVIEW_MODE_ASSIGNED_CODE, useReviewModeCode } from '@/hooks/useReviewModeCode'
+defineOptions({
+  name: '/service/jointReview/lhhsMeeting/management'
+})
+
+ //导入组件
 
 interface meetingVo {
   expertName: string
   expertId: string
   meetingId: string
 }
-
 const userDialogRef = ref()
 const pageApi = ref<any>(getLeaderByMeetingId)
 const importRef = ref() //导入
@@ -202,9 +202,7 @@ const {
   hasReviewMode,
   checkReviewModeOptionsReady
 } = useReviewModeCode()
-
 const store = useStore()
-
 const userInfo = ref<{
   deptId: string
   deptName: string
@@ -232,7 +230,6 @@ const meetingInfo = reactive<meetingVo>({
 const clearSelect = () => {
   proTableRef.value?.clearSelection()
 }
-
 const rowClick = (row: any) => {
   clearSelect()
   proTableRef.value?.element.toggleRowSelection(row)
@@ -243,12 +240,10 @@ const getPageList = (params: any) => {
   params['size'] = params['limit']
   return getLhhsMeetingPageData(params)
 }
-
 const callBackHandle = (val: any) => {
   loading.value = false
   return val
 }
-
 const getPublicCodeData = async () => {
   try {
     const res = await getPublicData('LHHS_MEETING_STATUS')
@@ -295,10 +290,16 @@ const psmsView = async (row: any, column: any) => {
     })
   }
 }
-
 const tableColumns = reactive<any[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'status',
     label: '会议状态',
@@ -447,13 +448,17 @@ const tableColumns = reactive<any[]>([
     width: '100'
   }
 ])
-
 const openModal = async (title: string, selectedData: any[] = []) => {
   if (title !== '创建' && selectedData && selectedData.length !== 1) {
     ElMessage.warning('请选择一条数据进行' + title + '操作!')
     return
   }
-  const row: any = selectedData.length === 0 ? {} : { ...selectedData[0] }
+  const row: any =
+    selectedData.length === 0
+      ? {}
+      : {
+          ...selectedData[0]
+        }
   if (title === '修改' && row['status'] !== '00') {
     ElMessage.warning('仅状态为[未发布]状态才可进行编辑!')
     return
@@ -470,20 +475,26 @@ const openModal = async (title: string, selectedData: any[] = []) => {
   const params = {
     title,
     isView: title === '查看',
-    row: { ...row },
+    row: {
+      ...row
+    },
     api: title !== '查看' ? addOrUpdateMeeting : undefined,
     getTableList: proTableRef.value?.getTableList
   }
   modalRef.value?.acceptParams(params)
 }
-
 const openReviewModal = (pageFlag: string, title: string, selectedData: any[] = []) => {
   let btnPermissions = []
   if (selectedData && selectedData.length !== 1) {
     ElMessage.warning('请选择一条数据进行操作!')
     return
   }
-  const row = selectedData.length === 0 ? {} : { ...selectedData[0] }
+  const row =
+    selectedData.length === 0
+      ? {}
+      : {
+          ...selectedData[0]
+        }
   if (pageFlag === 'PROGRAM') {
     btnPermissions = ['ADD', 'DELETE', 'EXPORT']
   } else {
@@ -494,12 +505,13 @@ const openReviewModal = (pageFlag: string, title: string, selectedData: any[] = 
     pageFlag: pageFlag,
     title: `${other}-${title}`,
     isView: row['status'] === '00',
-    row: { ...row },
+    row: {
+      ...row
+    },
     btnPermissions: btnPermissions
   }
   reViewModalRef.value?.acceptParams(params)
 }
-
 const handleDeleteFormData = async (meetingList: any[] = []) => {
   if (meetingList && meetingList.length === 0) {
     ElMessage.warning('请至少选择一条数据进行删除操作!')
@@ -581,16 +593,16 @@ const handleIsOpen = async (selectList: any[], type: any, con: any) => {
 // 添加退改需求
 const handleReview = (selectList: any[]) => {
   const params = {
-    row: { meetingId: selectList[0].meetingId },
+    row: {
+      meetingId: selectList[0].meetingId
+    },
     getTableList: proTableRef.value.getTableList
   }
   proAssignedModalRef.value.acceptParams(params)
 }
-
 const handleImport = () => {
   selectModalRef.value.isShowModel = true
 }
-
 const choosePsms = (meetingList: any[] = []) => {
   if (!checkReviewModeOptionsReady()) return
   selectRef.value.isShowModel = true
@@ -598,7 +610,6 @@ const choosePsms = (meetingList: any[] = []) => {
   meetingId.value = meetingList[0].meetingId
   psms.value = meetingList[0]?.psms
 }
-
 const showModalPs = (val: any) => {
   const value = getReviewModeUpdateMessage(val)
   const text = psms.value ? (val === psms.value ? '当前评审模式保持不变，请确认。' : '是否调整评审模式？') : '是否选择当前评审模式？'
@@ -617,7 +628,9 @@ const showModalPs = (val: any) => {
         showAssigned()
         return
       }
-      const res: any = await psfg({ ...params })
+      const res: any = await psfg({
+        ...params
+      })
       if (res.success) {
         ElMessage.success(`${value}`)
         selectRef.value.isShowModel = false
@@ -635,7 +648,6 @@ const showModalPs = (val: any) => {
       console.log(error)
     })
 }
-
 const showAssigned = () => {
   proAssignedRef.value.isShowModel = true
   proAssignedRef.value.isShowBtn = true
@@ -662,13 +674,14 @@ const showModal = (val: any) => {
       console.log(error)
     })
 }
-
 const handleOption = () => {
   //导入终评意见
   let newParmas = {
     importMode: importMode.value
   }
-  importRef.value.fromData = { ...newParmas }
+  importRef.value.fromData = {
+    ...newParmas
+  }
   let tempApi: any = getExpertReviewOpinionImportTemplate
   let importApi: any = importExpertReviewOpinion
   if (!importApi) return
@@ -695,7 +708,6 @@ const handleOption = () => {
   proTableRef.value?.reset()
   proTableRef.value?.clearSelection()
 }
-
 const handlePublish = async (opType: string, title: string, meetingList: any[] = []) => {
   try {
     if (meetingList && meetingList.length === 0) {
@@ -707,7 +719,6 @@ const handlePublish = async (opType: string, title: string, meetingList: any[] =
         .filter((item: any) => item.status !== '00')
         .map((item) => item.meetingName)
         .join(',')
-
       if (name) throw new Error('会议名称:' + '[' + name + ']' + '：状态不是初始状态，不允许发布')
     } else {
       const name = meetingList
@@ -740,7 +751,6 @@ const handlePublish = async (opType: string, title: string, meetingList: any[] =
     console.error(error.message)
   }
 }
-
 const getRoleHandle = () => {
   const isQuery = userDialogRef.value.isQuery
   const userInfOther = userDialogRef.value.userMsg
@@ -760,12 +770,10 @@ const getRoleHandle = () => {
     isShowPage.value = true
   }
 }
-
 const initParams = () => {
   getPublicCodeData()
   loadReviewModeOptions()
 }
-
 onMounted(async () => {
   initParams()
   const isRoel = await useUser('getJRGlobalInfo')

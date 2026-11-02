@@ -128,11 +128,6 @@
   <FxbgModal ref="fxbgModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/report/proYapMbz'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -159,17 +154,18 @@ import type { BudgetExecutionFormulaContext } from '@/views/statistics/budgetExe
 import { decorateDynamicColumns, fitNumericColumnWidths } from '@/views/statistics/budgetExecutionAnalysis/viewHelpers'
 import { formatBudgetExecutionExportSheet } from '@/views/statistics/budgetExecutionAnalysis/exportHelpers'
 import { loadBudgetExecutionFormulaContext } from '@/views/statistics/budgetExecutionAnalysis/exportContext'
+defineOptions({
+  name: '/report/proYapMbz'
+})
 
 interface RowVo {
   id: string
 }
-
 interface CodeData {
   code: string
   name: string
   note?: string | number
 }
-
 interface FormData {
   sjx: string[]
   xsws: string
@@ -182,7 +178,6 @@ interface FormData {
   kxpzLists: string[]
   dwList: ProYapMbaSearch['dwList']
 }
-
 const selectData = reactive<{
   projectType: any
   xmlbData: any
@@ -190,11 +185,9 @@ const selectData = reactive<{
   projectType: [],
   xmlbData: []
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const formList = reactive<{
   YSZXYL_SJX: CodeData[]
   XSWS: CodeData[]
@@ -204,7 +197,6 @@ const formList = reactive<{
   YSZXFX_KX_COLUMN: [],
   XSWS: []
 })
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const tbhbModalRef = ref()
@@ -215,9 +207,7 @@ const dwId = ref<string>('')
 const dwName = ref<string>('')
 const year = ref('')
 const busiType = ref('YSZXYL_YAP')
-
 type TbhbSearchType = '1' | '2'
-
 const formData = reactive<FormData>({
   sjx: ['MBZ', 'DFJ', 'LXZ', 'WCZ', 'WCL'],
   xsws: '',
@@ -230,10 +220,8 @@ const formData = reactive<FormData>({
   kxpzLists: [],
   dwList: []
 })
-
 const gridRef = ref()
 const exportFormulaContext = ref<BudgetExecutionFormulaContext>()
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   stripe: true,
@@ -291,21 +279,17 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
     useStyle: true
   }
 })
-
 const changeYsndData = (val: string) => {
   if (val) year.value = formData.ysnd
   else formData.ysnd = ''
   getXmlbData(val)
 }
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const handleChangeXswsData = () => {
   searchDataHandle()
 }
-
 const getTableData = async () => {
   gridOptions.loading = true
   let params: ProYapMbaSearch = getFormParams()
@@ -321,20 +305,21 @@ const getTableData = async () => {
         ...values
       }
     })
-
     gridOptions.loading = false
   } else {
     gridOptions.loading = false
     ElMessage.error(res.msg)
   }
 }
-
 const getDynamicColumnData = async (): Promise<boolean> => {
   gridOptions.loading = true
   exportFormulaContext.value = undefined
   const params = getFormParams()
   try {
-    const [res, context] = await Promise.all([getDynamicColumnByDw(params), loadBudgetExecutionFormulaContext('yap', params.dwId, params.dwList)])
+    const [res, context] = await Promise.all([
+      getDynamicColumnByDw(params),
+      loadBudgetExecutionFormulaContext('yap', params.dwId, params.dwList)
+    ])
     if (res.success) {
       gridOptions.columns = decorateDynamicColumns(res.data || [], formData.xsws, formatNumValue) as any
       applyFormulaHeaderTooltips(gridOptions.columns || [])
@@ -349,7 +334,6 @@ const getDynamicColumnData = async (): Promise<boolean> => {
   }
   return false
 }
-
 const getFormParams = (): ProYapMbaSearch => {
   return {
     busiType: busiType.value,
@@ -363,7 +347,6 @@ const getFormParams = (): ProYapMbaSearch => {
     xmlbIds: formData.xmlbIds
   }
 }
-
 const setFormData = async () => {
   const $dwSelect = dwSelectRef.value
   if ($dwSelect) {
@@ -374,7 +357,6 @@ const setFormData = async () => {
     }))
   }
 }
-
 const searchDataHandle = async () => {
   exportFormulaContext.value = undefined
   if (gridOptions.data) gridOptions.data.length = 0
@@ -387,14 +369,12 @@ const searchDataHandle = async () => {
   if (!(await getDynamicColumnData())) return
   await getTableData()
 }
-
 const resetDataHandle = async () => {
   exportFormulaContext.value = undefined
   await setDefaultValue()
   if (!(await getDynamicColumnData())) return
   await getTableData()
 }
-
 const setDefaultValue = async () => {
   const now = new Date()
   year.value = now.getFullYear().toString()
@@ -413,7 +393,6 @@ const setDefaultValue = async () => {
   formData.kxpzLists = formList.YSZXFX_KX_COLUMN.filter((item) => String(item.note) === '1').map((item) => String(item.code))
   formData.dwList.length = 0
 }
-
 const exportDataHandle = () => {
   const $table = gridRef.value
   if ($table) {
@@ -427,11 +406,13 @@ const exportDataHandle = () => {
     $table.exportData({
       ...gridOptions.exportConfig,
       sheetMethod: (params: any) =>
-        formatBudgetExecutionExportSheet(params, context, { includeFormulaExplanations: false, autoFitNumericColumns: true })
+        formatBudgetExecutionExportSheet(params, context, {
+          includeFormulaExplanations: false,
+          autoFitNumericColumns: true
+        })
     })
   }
 }
-
 const handleTbhb = async (searchType: TbhbSearchType) => {
   if (gridOptions.loading) return
   if (!formData.sjx.length) {
@@ -446,7 +427,10 @@ const handleTbhb = async (searchType: TbhbSearchType) => {
   const title = searchType === '1' ? '同比分析' : '环比分析'
   tbhbModalRef.value?.open({
     title,
-    params: { ...getFormParams(), searchType },
+    params: {
+      ...getFormParams(),
+      searchType
+    },
     dataSource: 'yap',
     xsws: formData.xsws,
     exportName: `项目预安排目标值-${title}`
@@ -473,7 +457,6 @@ const expandHandle = async () => {
     await expandAllTree(gridOptions.data as any[], $table)
   }
 }
-
 const expandAllTree = async (data: any[], $table: any) => {
   for (const row of data) {
     if (row.leaf) {
@@ -503,28 +486,26 @@ const getProjectData = () => {
     }
   })
 }
-
 const getPublicCode = async () => {
   let codes = ['YAP_MBZ_INDICATOR', 'XSWS', 'YSZXFX_KX_COLUMN']
-  const res = await getPublicCodeList({ codes })
+  const res = await getPublicCodeList({
+    codes
+  })
   if (res.success && res.data) {
     formList.YSZXYL_SJX = res.data['YAP_MBZ_INDICATOR']
     formList.XSWS = res.data['XSWS']
     formList.YSZXFX_KX_COLUMN = res.data['YSZXFX_KX_COLUMN'] || []
   }
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
   dwId.value = userDialogRef.value.userMsg.org_id
   dwName.value = userDialogRef.value.userMsg.org_name
-
   if (isQuery) {
     pageInfo.isShowPage = true
     await searchDataHandle()
   }
 }
-
 const getXmlbData = async (val?: string) => {
   if (xmlbRef.value) xmlbRef.value.clearHandle()
   const nd = val ? val : year.value
@@ -535,18 +516,15 @@ const getXmlbData = async (val?: string) => {
     ElMessage.error(res.msg)
   }
 }
-
 const initParams = async () => {
   await getPublicCode()
   await setDefaultValue()
   await getXmlbData()
   userDialogRef.value.getUser()
 }
-
 onMounted(() => {
   initParams()
 })
-
 watch(
   () => year.value,
   () => {

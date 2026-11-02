@@ -133,11 +133,6 @@
   <smartTaskProgress ref="progressModal" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/ai/smartTaskAuditAdmin/index'
-}
-</script>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
@@ -154,6 +149,9 @@ import TaskDetailListModal from './components/TaskDetailListModal.vue'
 import TaskDetailSumListModal from './components/TaskDetailSumListModal.vue'
 import smartTaskProgress from './components/smartTaskProgress.vue'
 import { useAiSmartTaskAuditPage } from './hooks/useAiSmartTaskAuditPage'
+defineOptions({
+  name: '/ai/smartTaskAuditAdmin/index'
+})
 
 const {
   isShowPage,
@@ -241,7 +239,6 @@ const {
   openProgressModal,
   progressModal
 } = useAiSmartTaskAuditPage()
-
 onMounted(() => {
   userRoleSelectorRef.value?.getUser()
 })

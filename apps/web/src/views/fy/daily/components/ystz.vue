@@ -63,66 +63,57 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ystz"
-};
-</script>
+
 <script setup lang="ts">
-import { getYskmTree } from "@/api/common";
-import { getDwJc } from "@/api/fy/release";
-import { getGroupSummary } from "@/utils/prearranged";
-import { Decimal } from "decimal.js";
-import { ElMessage } from "element-plus";
-import { reactive, Ref, ref, toRef } from "vue";
-import { DwList, YstzInfo, Columns, TableInfo } from "./interface/ystz";
-import lodash from "lodash";
-import { getDwCbzxList } from "@/api/fy/daily/dept";
-import { withDefaults, defineProps, defineExpose, defineEmits } from "vue";
-import { formatValue } from "@/utils/utils";
+import { getYskmTree } from '@/api/common'
+import { getDwJc } from '@/api/fy/release'
+import { getGroupSummary } from '@/utils/prearranged'
+import { Decimal } from 'decimal.js'
+import { ElMessage } from 'element-plus'
+import { reactive, Ref, ref, toRef } from 'vue'
+import { DwList, YstzInfo, Columns, TableInfo } from './interface/ystz'
+import lodash from 'lodash'
+import { getDwCbzxList } from '@/api/fy/daily/dept'
+import { formatValue } from '@/utils/utils'
+defineOptions({
+  name: 'ystz'
+})
 
 interface Props {
-  ystzInfo: YstzInfo;
-  xsws: string;
-  flag: string;
+  ystzInfo: YstzInfo
+  xsws: string
+  flag: string
 }
-
-const props = withDefaults(defineProps<Props>(), {});
-
-const ystzMsg: Ref<YstzInfo> = toRef(props, "ystzInfo");
-
-const emits = defineEmits(["close", "updateValue", "exportData"]);
-
-const tableRef = ref();
-
+const props = withDefaults(defineProps<Props>(), {})
+const ystzMsg: Ref<YstzInfo> = toRef(props, 'ystzInfo')
+const emits = defineEmits(['close', 'updateValue', 'exportData'])
+const tableRef = ref()
 const formValue = reactive<{
-  dwList: DwList[];
-  name: string;
-  dwValue: string;
-  yskmValue: any[];
-  yskmId: string;
-  dwIds: string | null;
+  dwList: DwList[]
+  name: string
+  dwValue: string
+  yskmValue: any[]
+  yskmId: string
+  dwIds: string | null
 }>({
-  name: "",
-  dwValue: "",
+  name: '',
+  dwValue: '',
   yskmValue: [],
   dwList: [],
-  yskmId: "",
+  yskmId: '',
   dwIds: null
-});
-
+})
 const activeCellMethod = ({ row }: any) => {
-  if (ystzMsg.value.flag === "dw" || ystzMsg.value.flag === "bm") {
-    return row.id && !row.leaf;
+  if (ystzMsg.value.flag === 'dw' || ystzMsg.value.flag === 'bm') {
+    return row.id && !row.leaf
   } else {
-    if (ystzMsg.value.flag === "km") {
-      return !!row.dwId || !!row.cbzx;
+    if (ystzMsg.value.flag === 'km') {
+      return !!row.dwId || !!row.cbzx
     } else {
-      return true;
+      return true
     }
   }
-};
-
+}
 const tableInfo: TableInfo = reactive({
   rowConfig: {
     height: 32
@@ -132,15 +123,15 @@ const tableInfo: TableInfo = reactive({
   tableData: [],
   loading: false,
   editConfig: {
-    trigger: "click",
-    mode: "cell",
+    trigger: 'click',
+    mode: 'cell',
     showStatus: true,
     enabled: true,
     beforeEditMethod: activeCellMethod
   },
   treeConfig: {
     lazy: true,
-    hasChildField: "leaf",
+    hasChildField: 'leaf',
     loadMethod({ row }: any) {
       let params: any = {
         nd: ystzMsg.value.nd,
@@ -149,49 +140,45 @@ const tableInfo: TableInfo = reactive({
         kmlx: ystzMsg.value.kmlx,
         parentId: row.id,
         dwIds: formValue.dwIds
-      };
+      }
       return new Promise((resolve: any) => {
         ystzMsg.value.requestApi(params).then((res) => {
           if (res.success) {
-            resolve(res.data);
+            resolve(res.data)
           } else {
-            ElMessage.error(res.msg);
-            resolve([]);
+            ElMessage.error(res.msg)
+            resolve([])
           }
-        });
-      });
+        })
+      })
     }
   }
-});
-
+})
 const yskmProps = reactive({
   lazy: true,
-  leaf: "leaf",
-  value: "id",
-  label: "name",
+  leaf: 'leaf',
+  value: 'id',
+  label: 'name',
   emitPath: false,
   lazyLoad(node: any, resolve: any) {
-    let id = node.level === 0 ? "-1" : node.data.id;
+    let id = node.level === 0 ? '-1' : node.data.id
     getYskmTree(ystzMsg.value.kmlx, ystzMsg.value.nd, id, ystzMsg.value.xsws).then((res: any) => {
       if (res.success) {
-        resolve(res.data);
+        resolve(res.data)
       } else {
-        ElMessage.error(res.msg);
-        resolve([]);
+        ElMessage.error(res.msg)
+        resolve([])
       }
-    });
+    })
   }
-});
-
+})
 const headerCellStyle = () => {
   return {
-    padding: "8px 0",
-    lineHeight: "16px"
-  };
-};
-
-const isShowModal = ref(false);
-
+    padding: '8px 0',
+    lineHeight: '16px'
+  }
+}
+const isShowModal = ref(false)
 const exportHandle = () => {
   let params = {
     nd: ystzMsg.value.nd,
@@ -201,51 +188,48 @@ const exportHandle = () => {
     dwIds: formValue.dwIds,
     yskmId: formValue.yskmId,
     flag: ystzMsg.value.flag
-  };
-  emits("exportData", params);
-};
-
+  }
+  emits('exportData', params)
+}
 const closeHandle = () => {
-  isShowModal.value = false;
+  isShowModal.value = false
   // 清空内容
-  clearValue();
-  emits("close", isShowModal.value);
-};
-
+  clearValue()
+  emits('close', isShowModal.value)
+}
 const saveHandle = () => {
-  let flag = ystzMsg.value.flag;
-  if (flag === "km") {
-    if (props.flag === "DEPT") {
-      const tableDatas = tableInfo.tableData.find((item) => item["je"]);
+  let flag = ystzMsg.value.flag
+  if (flag === 'km') {
+    if (props.flag === 'DEPT') {
+      const tableDatas = tableInfo.tableData.find((item) => item['je'])
       if (tableDatas) {
-        const sumBcxd = tableDatas["je"] || "0";
-        let sumValueDec = new Decimal(sumBcxd);
+        const sumBcxd = tableDatas['je'] || '0'
+        let sumValueDec = new Decimal(sumBcxd)
         if (props.ystzInfo.yskm && props.ystzInfo.yskm.dfj) {
-          const dfjValue = new Decimal(props.ystzInfo.yskm.dfj);
-          const res = sumValueDec.comparedTo(dfjValue);
+          const dfjValue = new Decimal(props.ystzInfo.yskm.dfj)
+          const res = sumValueDec.comparedTo(dfjValue)
           if (res === 1) {
-            ElMessage.warning("本次下达(万元)大于待分解(万元)");
-            return;
+            ElMessage.warning('本次下达(万元)大于待分解(万元)')
+            return
           }
         }
       }
-    } else if (props.flag === "CITY") {
-      const tableDatas = tableInfo.tableData.find((item) => item["bcxd"]);
+    } else if (props.flag === 'CITY') {
+      const tableDatas = tableInfo.tableData.find((item) => item['bcxd'])
       if (tableDatas) {
-        const sumBcxd = tableDatas["bcxd"] || "0";
-        let sumValueDec = new Decimal(sumBcxd);
+        const sumBcxd = tableDatas['bcxd'] || '0'
+        let sumValueDec = new Decimal(sumBcxd)
         if (props.ystzInfo.yskm && props.ystzInfo.yskm.dfj) {
-          const dfjValue = new Decimal(props.ystzInfo.yskm.dfj);
-          const res = sumValueDec.comparedTo(dfjValue);
+          const dfjValue = new Decimal(props.ystzInfo.yskm.dfj)
+          const res = sumValueDec.comparedTo(dfjValue)
           if (res === 1) {
-            ElMessage.warning("本次下达(万元)大于待分解(万元)");
-            return;
+            ElMessage.warning('本次下达(万元)大于待分解(万元)')
+            return
           }
         }
       }
     }
   }
-
   let params = {
     nd: ystzMsg.value.nd,
     xsws: ystzMsg.value.xsws,
@@ -254,226 +238,264 @@ const saveHandle = () => {
     dwIds: formValue.dwIds,
     yskmId: formValue.yskmId,
     flag: ystzMsg.value.flag
-  };
-  emits("updateValue", params);
-};
-
+  }
+  emits('updateValue', params)
+}
 const clearHandle = () => {
-  formValue.dwIds = null;
-  getDataList();
-};
-
+  formValue.dwIds = null
+  getDataList()
+}
 const getDwValueChangeHandle = lodash.debounce(function (val: any) {
   if (val.value && Array.isArray(val.value)) {
-    formValue.dwIds = val.value.join(",");
-    getDataList();
+    formValue.dwIds = val.value.join(',')
+    getDataList()
   }
-}, 500);
-
+}, 500)
 const getYskmValueHandle = (val: string) => {
-  formValue.yskmId = val;
-  getDataList();
-};
-
+  formValue.yskmId = val
+  getDataList()
+}
 const formatterData = (item: Columns, _column: any, cellValue: any) => {
-  if (!item.needSum) return cellValue;
-  if (typeof cellValue === "undefined" || cellValue === null || cellValue === "") return "-";
-  return formatValue(cellValue, Number(ystzMsg.value.xsws));
-};
-
-const oldInputValue = ref("0");
-
+  if (!item.needSum) return cellValue
+  if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
+  return formatValue(cellValue, Number(ystzMsg.value.xsws))
+}
+const oldInputValue = ref('0')
 const focusHandle = (row: any, key: string) => {
-  oldInputValue.value = row[key] ? row[key] : new Decimal(0).toFixed(Number(ystzMsg.value.xsws));
-};
-
+  oldInputValue.value = row[key] ? row[key] : new Decimal(0).toFixed(Number(ystzMsg.value.xsws))
+}
 const isClickHeader = (columns: any[], field: string) => {
-  let columnIndex = columns.findIndex((item: any) => item.eidt && item.columnKey === field);
-  return columnIndex > -1;
-};
-
+  let columnIndex = columns.findIndex((item: any) => item.eidt && item.columnKey === field)
+  return columnIndex > -1
+}
 const cellStyle = ({ row, column }: any) => {
-  if (ystzMsg.value.flag !== "km") {
+  if (ystzMsg.value.flag !== 'km') {
     if (tableInfo.editConfig && !tableInfo.editConfig.enabled) {
       return {
-        cursor: "auto",
-        backgroundColor: "rgba(232, 234, 236,0.5)"
-      };
+        cursor: 'auto',
+        backgroundColor: 'rgba(232, 234, 236,0.5)'
+      }
     }
     if (!isClickHeader(tableInfo.columns, column.field)) {
       return {
-        cursor: "auto",
-        backgroundColor: "rgba(232, 234, 236,0.5)"
-      };
+        cursor: 'auto',
+        backgroundColor: 'rgba(232, 234, 236,0.5)'
+      }
     }
-
     if (!row.id || row.leaf) {
       return {
-        cursor: "auto",
-        backgroundColor: "rgba(232, 234, 236,0.5)"
-      };
+        cursor: 'auto',
+        backgroundColor: 'rgba(232, 234, 236,0.5)'
+      }
     }
   } else {
-    let item = tableInfo.columns.find((item) => item.columnKey === column.field && item.eidt);
+    let item = tableInfo.columns.find((item) => item.columnKey === column.field && item.eidt)
     if (row.dwId === null || row.cbzx === null) {
       return {
-        cursor: "auto",
-        backgroundColor: "rgba(232, 234, 236,0.5)"
-      };
+        cursor: 'auto',
+        backgroundColor: 'rgba(232, 234, 236,0.5)'
+      }
     }
-    if (!item?.eidt || props.ystzInfo.operation === "view") {
+    if (!item?.eidt || props.ystzInfo.operation === 'view') {
       return {
-        cursor: "auto",
-        backgroundColor: "rgba(232, 234, 236,0.5)"
-      };
+        cursor: 'auto',
+        backgroundColor: 'rgba(232, 234, 236,0.5)'
+      }
     }
   }
-};
-
+}
 const sumhandle = (row: any, key: string) => {
-  let flag = ystzMsg.value.flag;
-  if (props.flag !== "PROVINCE" && flag === "km") {
-    let khsValue = new Decimal(0);
-    if (props.flag === "DEPT") {
-      khsValue = row["kyz"] ? new Decimal(row["kyz"]) : new Decimal(0);
+  let flag = ystzMsg.value.flag
+  if (props.flag !== 'PROVINCE' && flag === 'km') {
+    let khsValue = new Decimal(0)
+    if (props.flag === 'DEPT') {
+      khsValue = row['kyz'] ? new Decimal(row['kyz']) : new Decimal(0)
     } else {
-      khsValue = row["khs"] ? new Decimal(row["khs"]) : new Decimal(0);
+      khsValue = row['khs'] ? new Decimal(row['khs']) : new Decimal(0)
     }
-    const keyValue = row[key] ? new Decimal(row[key]) : new Decimal(0);
-    const result1 = keyValue.comparedTo(new Decimal(0));
-    const result2 = keyValue.abs().comparedTo(khsValue);
+    const keyValue = row[key] ? new Decimal(row[key]) : new Decimal(0)
+    const result1 = keyValue.comparedTo(new Decimal(0))
+    const result2 = keyValue.abs().comparedTo(khsValue)
     if (result1 === -1 && result2 === 1) {
-      ElMessage.warning("本次下达(万元)调减金额大于可回收金额(万元)");
-      row[key] = new Decimal(oldInputValue.value).toFixed(Number(ystzMsg.value.xsws));
+      ElMessage.warning('本次下达(万元)调减金额大于可回收金额(万元)')
+      row[key] = new Decimal(oldInputValue.value).toFixed(Number(ystzMsg.value.xsws))
     }
   }
-  row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(ystzMsg.value.xsws)) : new Decimal(0).toFixed(Number(ystzMsg.value.xsws));
-  let columnKeys = tableInfo.columns.filter((item) => item.eidt);
-  let setValueKey = "";
-  if (flag === "bm") {
-    setValueKey = "bcFjValue";
+  row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(ystzMsg.value.xsws)) : new Decimal(0).toFixed(Number(ystzMsg.value.xsws))
+  let columnKeys = tableInfo.columns.filter((item) => item.eidt)
+  let setValueKey = ''
+  if (flag === 'bm') {
+    setValueKey = 'bcFjValue'
   }
-  if (flag === "dw" || flag === "km") {
-    if (props.flag === "DEPT") {
-      if (tableInfo.sumColumns && ystzMsg.value.isCity) columnKeys = tableInfo.sumColumns.filter((item) => item.eidt);
-      setValueKey = "je";
+  if (flag === 'dw' || flag === 'km') {
+    if (props.flag === 'DEPT') {
+      if (tableInfo.sumColumns && ystzMsg.value.isCity) columnKeys = tableInfo.sumColumns.filter((item) => item.eidt)
+      setValueKey = 'je'
     } else {
-      if (tableInfo.sumColumns && ystzMsg.value.isCity) columnKeys = tableInfo.sumColumns.filter((item) => item.eidt);
-      setValueKey = "bcxd";
+      if (tableInfo.sumColumns && ystzMsg.value.isCity) columnKeys = tableInfo.sumColumns.filter((item) => item.eidt)
+      setValueKey = 'bcxd'
     }
   }
   if (ystzMsg.value.isCity) {
-    countFjValue(row, setValueKey, key, columnKeys, "dfj");
+    countFjValue(row, setValueKey, key, columnKeys, 'dfj')
   } else {
-    countFjValue(row, setValueKey, key, columnKeys);
+    countFjValue(row, setValueKey, key, columnKeys)
   }
-  if (flag !== "km") {
-    if (props.flag === "DEPT") {
-      getGroupSummary(tableInfo.tableData, tableInfo.treeConfig as any, key, Number(ystzMsg.value.xsws), "leaf", "id", columnKeys, setValueKey);
-      const dfjValue = new Decimal(row["dfj"]);
-      const sumValueDec = new Decimal(row[setValueKey]);
-      const res = sumValueDec.comparedTo(dfjValue);
+  if (flag !== 'km') {
+    if (props.flag === 'DEPT') {
+      getGroupSummary(
+        tableInfo.tableData,
+        tableInfo.treeConfig as any,
+        key,
+        Number(ystzMsg.value.xsws),
+        'leaf',
+        'id',
+        columnKeys,
+        setValueKey
+      )
+      const dfjValue = new Decimal(row['dfj'])
+      const sumValueDec = new Decimal(row[setValueKey])
+      const res = sumValueDec.comparedTo(dfjValue)
       if (res === 1) {
-        row[key] = new Decimal(oldInputValue.value).toFixed(Number(ystzMsg.value.xsws));
-        ElMessage.warning("本次分解(万元)大于待分解(万元)");
-        row["bcFjValue"] = 0;
-        getGroupSummary(tableInfo.tableData, tableInfo.treeConfig as any, key, Number(ystzMsg.value.xsws), "leaf", "id", columnKeys, setValueKey);
+        row[key] = new Decimal(oldInputValue.value).toFixed(Number(ystzMsg.value.xsws))
+        ElMessage.warning('本次分解(万元)大于待分解(万元)')
+        row['bcFjValue'] = 0
+        getGroupSummary(
+          tableInfo.tableData,
+          tableInfo.treeConfig as any,
+          key,
+          Number(ystzMsg.value.xsws),
+          'leaf',
+          'id',
+          columnKeys,
+          setValueKey
+        )
       }
     } else {
-      getGroupSummary(tableInfo.tableData, tableInfo.treeConfig as any, key, Number(ystzMsg.value.xsws), "leaf", "id", columnKeys, setValueKey);
+      getGroupSummary(
+        tableInfo.tableData,
+        tableInfo.treeConfig as any,
+        key,
+        Number(ystzMsg.value.xsws),
+        'leaf',
+        'id',
+        columnKeys,
+        setValueKey
+      )
     }
   } else {
-    if (props.flag === "DEPT") {
-      getGroupSummary(tableInfo.tableData, tableInfo.treeConfig as any, key, Number(ystzMsg.value.xsws), "leaf", "cbzx", columnKeys, setValueKey);
-    } else if (props.flag === "CITY") {
-      getGroupSummary(tableInfo.tableData, tableInfo.treeConfig as any, key, Number(ystzMsg.value.xsws), "leaf", "dwId", columnKeys, setValueKey);
+    if (props.flag === 'DEPT') {
+      getGroupSummary(
+        tableInfo.tableData,
+        tableInfo.treeConfig as any,
+        key,
+        Number(ystzMsg.value.xsws),
+        'leaf',
+        'cbzx',
+        columnKeys,
+        setValueKey
+      )
+    } else if (props.flag === 'CITY') {
+      getGroupSummary(
+        tableInfo.tableData,
+        tableInfo.treeConfig as any,
+        key,
+        Number(ystzMsg.value.xsws),
+        'leaf',
+        'dwId',
+        columnKeys,
+        setValueKey
+      )
     } else {
-      getGroupSummary(tableInfo.tableData, tableInfo.treeConfig as any, key, Number(ystzMsg.value.xsws), "leaf", "dwId", columnKeys, setValueKey);
+      getGroupSummary(
+        tableInfo.tableData,
+        tableInfo.treeConfig as any,
+        key,
+        Number(ystzMsg.value.xsws),
+        'leaf',
+        'dwId',
+        columnKeys,
+        setValueKey
+      )
     }
   }
-};
-
+}
 const countFjValue = (row: any, setValueKey: string, inputKey: string, columnKeys: any, sumKey?: string) => {
-  let sumVal = new Decimal("0");
-  if (sumKey) sumVal = row[sumKey] ? new Decimal(row[sumKey]) : new Decimal("0");
-  let sumValue = new Decimal("0");
+  let sumVal = new Decimal('0')
+  if (sumKey) sumVal = row[sumKey] ? new Decimal(row[sumKey]) : new Decimal('0')
+  let sumValue = new Decimal('0')
   if (columnKeys) {
     for (let i = 0; i < columnKeys.length; i++) {
-      const item = columnKeys[i];
-      sumValue = Decimal.add(sumValue, row[item.columnKey] ? row[item.columnKey] : 0);
+      const item = columnKeys[i]
+      sumValue = Decimal.add(sumValue, row[item.columnKey] ? row[item.columnKey] : 0)
     }
-    row[setValueKey] = sumValue.toFixed(Number(ystzMsg.value.xsws));
+    row[setValueKey] = sumValue.toFixed(Number(ystzMsg.value.xsws))
   }
-};
-
+}
 const showHandle = () => {
-  ystzMsg.value.xsws = props.xsws || "2";
-  tableInfo.tableData.length = 0;
-  tableInfo.columns.length = 0;
-  if (ystzMsg.value.yskmPath) formValue.yskmValue = ystzMsg.value.yskmPath;
-  if (ystzMsg.value.yskm && ystzMsg.value.yskm.id) formValue.yskmId = ystzMsg.value.yskm.id;
-  tableInfo.editConfig.enabled = props.ystzInfo.operation === "edit";
-  initData(ystzMsg.value.flag);
-  getDataList();
-};
-
+  ystzMsg.value.xsws = props.xsws || '2'
+  tableInfo.tableData.length = 0
+  tableInfo.columns.length = 0
+  if (ystzMsg.value.yskmPath) formValue.yskmValue = ystzMsg.value.yskmPath
+  if (ystzMsg.value.yskm && ystzMsg.value.yskm.id) formValue.yskmId = ystzMsg.value.yskm.id
+  tableInfo.editConfig.enabled = props.ystzInfo.operation === 'edit'
+  initData(ystzMsg.value.flag)
+  getDataList()
+}
 const clearValue = () => {
-  formValue.dwList = [];
-  formValue.dwValue = "";
-  formValue.name = "";
-  formValue.yskmValue = [];
-  if (formValue.dwIds) formValue.dwIds = null;
-  formValue.yskmId = "";
-};
-
+  formValue.dwList = []
+  formValue.dwValue = ''
+  formValue.name = ''
+  formValue.yskmValue = []
+  if (formValue.dwIds) formValue.dwIds = null
+  formValue.yskmId = ''
+}
 const getDataList = async () => {
-  tableInfo.loading = true;
-  let flag = ystzMsg.value.flag;
+  tableInfo.loading = true
+  let flag = ystzMsg.value.flag
   let params: any = {
     nd: ystzMsg.value.nd,
     xsws: ystzMsg.value.xsws,
     specialorgid: ystzMsg.value.dwId,
     kmlx: ystzMsg.value.kmlx
-  };
-  if (flag !== "km") {
-    params.dwIds = formValue.dwIds;
-    params.parentId = ystzMsg.value.nd;
-  } else {
-    params.yskmId = formValue.yskmId;
   }
-  let tableListRes = await ystzMsg.value.requestApi(params);
-  let headerRes = await ystzMsg.value.dynamicColumnApi(params);
+  if (flag !== 'km') {
+    params.dwIds = formValue.dwIds
+    params.parentId = ystzMsg.value.nd
+  } else {
+    params.yskmId = formValue.yskmId
+  }
+  let tableListRes = await ystzMsg.value.requestApi(params)
+  let headerRes = await ystzMsg.value.dynamicColumnApi(params)
   if (tableListRes.success && headerRes.success) {
-    tableInfo.tableData = tableListRes.data;
-    tableInfo.columns = headerRes.data.filter((item: Columns) => !item.hidden);
-    tableInfo.sumColumns = headerRes.data;
+    tableInfo.tableData = tableListRes.data
+    tableInfo.columns = headerRes.data.filter((item: Columns) => !item.hidden)
+    tableInfo.sumColumns = headerRes.data
   } else {
-    ElMessage.error("请重新再试！");
+    ElMessage.error('请重新再试！')
   }
-  tableInfo.loading = false;
-};
-
+  tableInfo.loading = false
+}
 const initData = async (flag: string) => {
-  if (flag === "dw") {
-    formValue.name = "单位：";
-    let dwRes = await getDwJc(ystzMsg.value.dwId, "ND", ystzMsg.value.kmlx);
-    if (dwRes.success) formValue.dwList = dwRes.data;
-  } else if (flag === "km") {
-    formValue.name = "预算科目：";
+  if (flag === 'dw') {
+    formValue.name = '单位：'
+    let dwRes = await getDwJc(ystzMsg.value.dwId, 'ND', ystzMsg.value.kmlx)
+    if (dwRes.success) formValue.dwList = dwRes.data
+  } else if (flag === 'km') {
+    formValue.name = '预算科目：'
   } else {
-    formValue.name = "部门：";
-    let dwRes = await getDwCbzxList(ystzMsg.value.dwId, ystzMsg.value.kmlx);
-    if (dwRes.success) formValue.dwList = dwRes.data;
+    formValue.name = '部门：'
+    let dwRes = await getDwCbzxList(ystzMsg.value.dwId, ystzMsg.value.kmlx)
+    if (dwRes.success) formValue.dwList = dwRes.data
   }
-};
-
+}
 defineExpose({
   isShowModal,
   closeHandle,
   tableInfo,
   table: tableRef,
   getDataList
-});
+})
 </script>
 
 <style scoped lang="less">

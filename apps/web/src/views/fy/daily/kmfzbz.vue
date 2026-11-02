@@ -59,34 +59,25 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/fy/daily/kmfzbz'
-}
-</script>
+
 <script setup lang="ts">
 import { getYearData } from '@/api/common'
-import {
-  exportData,
-  getDataList,
-  getDynamicColumnData,
-  getFormInfo,
-  saveData
-} from '@/api/fy/daily/kmfzbz'
+import { exportData, getDataList, getDynamicColumnData, getFormInfo, saveData, SaveLists } from '@/api/fy/daily/kmfzbz'
 import userDialog from '@/components/select/userDialog.vue'
 import { ElMessage } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
 import { VxeGridProps, VXETable } from 'vxe-table'
-import { SaveLists } from '@/api/fy/daily/kmfzbz'
 import { Decimal } from 'decimal.js'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
+defineOptions({
+  name: '/fy/daily/kmfzbz'
+})
 
 interface NdList {
   yearName: string
   yearCode: string
 }
-
 interface RowVO {
   id: string
   cnx: string
@@ -95,13 +86,10 @@ interface RowVO {
   pid: string
   [key: string]: number | string
 }
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const gridRef = ref()
-
 const userInfo = ref()
-
 const gridOptions = reactive<VxeGridProps<RowVO>>({
   border: true,
   keepSource: true,
@@ -141,9 +129,7 @@ const gridOptions = reactive<VxeGridProps<RowVO>>({
   columns: [],
   data: []
 })
-
 const flatColumns = reactive<any[]>([])
-
 const pageInfo = reactive({
   isShowPage: false,
   name: ''
@@ -152,18 +138,15 @@ const params = reactive({
   nd: '',
   dwId: ''
 })
-
 const list = reactive<{
   ndList: NdList[]
 }>({
   ndList: []
 })
-
 const changeNdDataHandle = async () => {
   await getDynamicColumn()
   await getTableData()
 }
-
 const isClickHeader = (columns: any, field: string) => {
   let columnIndex = columns.findIndex((item: any) => {
     return item.edit && item.field === field
@@ -186,9 +169,7 @@ const changeEditValueHandle = (event: Event, row: any, field: string) => {
       }
       if (item.pid === row.pid) {
         let itemNum = item[dwId + '_bctzz'] ? new Decimal(item[dwId + '_bctzz']) : new Decimal('0')
-        let itemMbzNum = item[dwId + '_ljmbz']
-          ? new Decimal(item[dwId + '_ljmbz'])
-          : new Decimal('0')
+        let itemMbzNum = item[dwId + '_ljmbz'] ? new Decimal(item[dwId + '_ljmbz']) : new Decimal('0')
         childrenSum = childrenSum.add(itemNum)
         childrenMbzSum = childrenMbzSum.add(itemMbzNum)
       }
@@ -199,7 +180,6 @@ const changeEditValueHandle = (event: Event, row: any, field: string) => {
   if (!parentSum) {
     parentSum = new Decimal('0')
   }
-
   if (totalSum.comparedTo(parentSum) > 0) {
     ElMessage.warning('承诺项：' + row.cnx + '：本次调整值超过目标值！')
     childrenSum = childrenSum.sub(row[dwId + '_bctzz'])
@@ -207,7 +187,6 @@ const changeEditValueHandle = (event: Event, row: any, field: string) => {
   }
   parentData[dwId + '_bctzz'] = childrenSum
 }
-
 const saveHandle = async () => {
   const $table = gridRef.value.getUpdateRecords()
   if ($table) {
@@ -271,10 +250,11 @@ const exportHandle = async () => {
   window.URL.revokeObjectURL(url)
   gridOptions.loading = false
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   params.dwId = userInfo.value.org_id
   getPgaeInfo()
   if (isQuery) {
@@ -283,7 +263,6 @@ const getRoleHandle = async () => {
     await getTableData()
   }
 }
-
 const getPgaeInfo = async () => {
   let res = await getFormInfo(params)
   if (res.success) {
@@ -292,7 +271,6 @@ const getPgaeInfo = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getTableData = async () => {
   gridOptions.loading = true
   let res = await getDataList(params)
@@ -304,7 +282,6 @@ const getTableData = async () => {
     gridOptions.loading = false
   }
 }
-
 const getDynamicColumn = async () => {
   flatColumns.length = 0
   let res = await getDynamicColumnData(params)
@@ -315,7 +292,6 @@ const getDynamicColumn = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const addSlots = (columnList: any) => {
   columnList.forEach((item: any) => {
     if (item.children && item.children.length !== 0) {
@@ -344,17 +320,14 @@ const addSlots = (columnList: any) => {
     }
   })
 }
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const initParams = async () => {
   const ndDataList = await getYearData()
   list.ndList = ndDataList.data
   params.nd = new Date().getFullYear().toString()
 }
-
 onMounted(() => {
   userDialogRef.value.getUser()
   initParams()

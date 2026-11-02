@@ -96,17 +96,15 @@
   <ReViewModal ref="reViewModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/TheesMeetingEdit'
-}
-</script>
+
 <script setup lang="ts">
 import ReViewModal from '@/views/service/jointReview/lhhsMeeting/components/ReViewModal'
-
-import { ref, defineExpose, reactive, defineEmits } from 'vue'
+import { ref, reactive } from 'vue'
 import { getPublicData } from '@/api/common'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/TheesMeetingEdit'
+})
 
 const loading = ref(false)
 const reViewModalRef = ref()
@@ -176,9 +174,7 @@ const rules = reactive({
     }
   ]
 })
-
 const emit = defineEmits(['clearSelect'])
-
 const viewDetailMsg = (pageFlag: string, title: string) => {
   let btnPermissions = []
   const row = modalProps.value.row
@@ -191,12 +187,13 @@ const viewDetailMsg = (pageFlag: string, title: string) => {
     pageFlag: pageFlag,
     title,
     isView: row['status'] === '00',
-    row: { ...row },
+    row: {
+      ...row
+    },
     btnPermissions: btnPermissions
   }
   reViewModalRef.value?.acceptParams(params)
 }
-
 interface ModalProps {
   title: string
   isView: boolean
@@ -204,7 +201,6 @@ interface ModalProps {
   api?: (params: any) => Promise<any>
   getTableList?: () => void
 }
-
 const majorList = ref<
   {
     code: string
@@ -217,7 +213,6 @@ const modalProps = ref<ModalProps>({
   title: '',
   row: {}
 })
-
 const handleSubmit = () => {
   ruleFormRef.value.validate(async (valid: any) => {
     if (!valid) return
@@ -227,7 +222,9 @@ const handleSubmit = () => {
       // });
       // if (type === "confirm") {
       loading.value = true
-      const row = { ...modalProps.value.row }
+      const row = {
+        ...modalProps.value.row
+      }
       row['major'] = row['major'].join(',')
       const res = await modalProps.value.api!(row)
       if (!res.success) throw new Error(res.msg)
@@ -243,7 +240,6 @@ const handleSubmit = () => {
     }
   })
 }
-
 const changeStartTime = (val: string) => {
   if (val && modalProps.value.row?.endTime) {
     const startTime = new Date(val).getTime()
@@ -266,7 +262,6 @@ const changeEndTime = (val: string) => {
     }
   }
 }
-
 const initParams = async () => {
   try {
     const res = await getPublicData('MAJOR_COM')
@@ -274,7 +269,6 @@ const initParams = async () => {
       throw new Error(res.msg)
     }
     majorList.value = res.data
-
     const item = await getPublicData('XMLB_YSLY_LHHS')
     if (!item.success) {
       throw new Error(item.msg)
@@ -284,19 +278,15 @@ const initParams = async () => {
     ElMessage.error(e.toString())
   }
 }
-
 const acceptParams = (params: ModalProps) => {
   initParams()
   modalProps.value = params
   modalVisible.value = true
 }
-
 const closeHandle = () => {
   modalVisible.value = false
 }
-
 const ruleFormRef = ref()
-
 defineExpose({
   acceptParams
 })

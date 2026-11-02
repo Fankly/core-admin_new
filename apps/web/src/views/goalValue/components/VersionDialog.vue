@@ -31,16 +31,13 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, defineEmits, defineExpose, defineProps, toRef, computed, Ref } from 'vue'
+import { reactive, ref, toRef, computed, Ref } from 'vue'
 import { addVersion, editVersion, FormParams } from '@/api/goalValue/version'
 import { ElMessage } from 'element-plus'
 import { IObject } from '@/types/interface'
 import { VXETable } from 'vxe-table'
-
 const emit = defineEmits(['closeDialog', 'searchData'])
-
 const isDisabled = computed(() => props.flag === 'VIEW')
-
 const props = defineProps({
   title: {
     type: String,
@@ -58,17 +55,13 @@ const props = defineProps({
     type: Object
   }
 })
-
 const nd = toRef(props, 'nd')
-
 const selectData: Ref<any> = toRef(props, 'selectedData')
-
 const versionDialogInfo = reactive({
   isShowVersionDialog: false,
   loading: false,
   title: ''
 })
-
 const formData = reactive<FormParams>({
   remake: '',
   sfyap: '0',
@@ -76,12 +69,10 @@ const formData = reactive<FormParams>({
 })
 const versionDialogRef = ref()
 const dialogFormRef = ref()
-
 const cancelHandle = () => {
   dialogFormRef.value.resetFields()
   emit('closeDialog', false)
 }
-
 const saveHandle = async () => {
   const api: IObject = {
     ADD: addVersion,
@@ -108,7 +99,6 @@ const saveHandle = async () => {
     }
   }
 }
-
 const showHandle = () => {
   if (!props.nd) nd.value = new Date().getFullYear().toString()
   if (props.flag !== 'ADD') {
@@ -117,7 +107,6 @@ const showHandle = () => {
     formData.sfyap = selectData.value.sfyap
   }
 }
-
 defineExpose({
   versionDialogInfo
 })

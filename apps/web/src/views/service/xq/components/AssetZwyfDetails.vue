@@ -235,8 +235,8 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "AssetZwyfDetails" })
 import { useMainnetOps } from './hoooks/useMainnetOps'
+defineOptions({ name: "AssetZwyfDetails" })
 
 interface Props {
   selectData: any

@@ -21,10 +21,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialTable" })
 import { computed, useSlots } from 'vue'
 import { useCrudTable } from '@/views/suzhou/common/hooks/useCrudTable'
 import type { VxeGridProps } from 'vxe-table'
+defineOptions({ name: "materialTable" })
 
 const props = defineProps<{
   columns?: VxeGridProps<any>['columns']

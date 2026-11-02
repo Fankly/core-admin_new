@@ -5,11 +5,6 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'targetValueDb'
-}
-</script>
 
 <script setup lang="ts">
 import { notify } from '@/api/workflow'
@@ -18,6 +13,9 @@ import { computed, onMounted, ref } from 'vue'
 import MbzView from './components/MbzView.vue'
 import SjtcMbzView from './components/SjtcMbzView.vue'
 import type { TargetValueWorkflowParams } from './components/types'
+defineOptions({
+  name: 'targetValueDb'
+})
 
 const createEmptyParams = (): TargetValueWorkflowParams => ({
   message: '',
@@ -30,21 +28,16 @@ const createEmptyParams = (): TargetValueWorkflowParams => ({
   versionName: '',
   nd: ''
 })
-
 const allParams = ref<TargetValueWorkflowParams>(createEmptyParams())
-
 const componentMap = {
   MBZ: MbzView,
   SJTCMBZ: SjtcMbzView
 }
-
 const currentComponent = computed(() => componentMap[allParams.value.code as keyof typeof componentMap])
-
 const emptyText = computed(() => {
   if (!allParams.value.code) return '缺少目标值类型参数!'
   return `暂不支持的目标值类型：${allParams.value.code}`
 })
-
 const setFullscreenStyle = () => {
   const style = 'height: 100vh; background-color: white;'
   document.querySelector('body')?.setAttribute('style', style)
@@ -52,7 +45,6 @@ const setFullscreenStyle = () => {
   document.querySelector('#app')?.setAttribute('style', style)
   document.querySelector('.rr-fullscreen')?.setAttribute('style', style)
 }
-
 const safeDecode = (value: string) => {
   if (!value) return ''
   try {
@@ -61,13 +53,11 @@ const safeDecode = (value: string) => {
     return value
   }
 }
-
 const appendSearchParams = (params: Map<string, string>, search: string) => {
   const query = search.startsWith('?') ? search.slice(1) : search
   if (!query) return
   new URLSearchParams(query).forEach((value, key) => params.set(key, value))
 }
-
 const appendJsonParams = (params: Map<string, string>) => {
   const rawAllParams = params.get('allParams')
   if (!rawAllParams) return
@@ -80,18 +70,14 @@ const appendJsonParams = (params: Map<string, string>) => {
     // allParams may not be a JSON payload; normal query params still work.
   }
 }
-
 const getAllParams = () => {
   const params = new Map<string, string>()
   appendSearchParams(params, window.location.search)
-
   const hashQueryIndex = window.location.hash.indexOf('?')
   if (hashQueryIndex > -1) {
     appendSearchParams(params, window.location.hash.slice(hashQueryIndex + 1))
   }
-
   appendJsonParams(params)
-
   const nextParams = createEmptyParams()
   params.forEach((value, key) => {
     nextParams[key] = safeDecode(value)
@@ -99,7 +85,6 @@ const getAllParams = () => {
   nextParams.code = nextParams.code.toUpperCase()
   return nextParams
 }
-
 const closeHandle = () => {
   try {
     const parentWindow = window.parent as any
@@ -108,7 +93,6 @@ const closeHandle = () => {
     window.parent.postMessage('close', '*')
   }
 }
-
 const notifyHandle = async () => {
   if (!allParams.value.workItemId) {
     ElMessage.warning('缺少工作流参数!')
@@ -121,7 +105,6 @@ const notifyHandle = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 onMounted(() => {
   setFullscreenStyle()
   allParams.value = getAllParams()

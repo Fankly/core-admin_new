@@ -149,11 +149,6 @@
   <el-image-viewer v-if="isImageViewerShow && imageUrl" :url-list="[imageUrl]" hide-on-click-modal teleported @close="closeImagePreview" />
 </template>
 
-<script lang="ts">
-export default {
-  name: 'LinkShareFileDialog'
-}
-</script>
 
 <script setup lang="ts">
 import {
@@ -166,7 +161,6 @@ import {
   Sort as EpSort,
   View as EpView
 } from '@element-plus/icons-vue'
-
 import { ref, shallowRef, markRaw, nextTick } from 'vue'
 import { ElMessage, ElImageViewer } from 'element-plus'
 import RangeVxeTableStyle from '@/components/RangeVxeTableStyle/index.vue'
@@ -176,6 +170,9 @@ import { getOfficeFileExtension } from '@/components/OfficePreview'
 import { apiExportHandle } from '@/utils/export'
 import { getChildDirectory, getAttachByDirectory, downloadAttach } from '@/api/sys/fileShare'
 import { linkAttachFromDirectory } from '@/api/matter/matterBasic'
+defineOptions({
+  name: 'LinkShareFileDialog'
+})
 
 interface TreeNode {
   id: string
@@ -187,67 +184,138 @@ interface TreeNode {
   attachNum?: number
   [key: string]: any
 }
-
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico']
 const isImageFile = (fileName?: string) => IMAGE_EXTS.includes(getOfficeFileExtension(fileName) || '')
-
-const emit = defineEmits<{ (event: 'success'): void }>()
-
+const emit = defineEmits<{
+  (event: 'success'): void
+}>()
 const isShowModal = ref(false)
 const loading = ref(false)
 const saving = ref(false)
-
 const treeRef = ref<any>(null)
 const inuseTableRef = ref<any>(null)
-
 const chooseNode = ref<string>('')
 const chooseNodeName = ref<string>('')
 const attachName = ref<string>('')
 const treeExpanding = ref(false)
 let tableReqSeq = 0
-
 let currentYssxIds: string[] = []
-
 const defaultProps = markRaw({
   label: 'directoryName',
   isLeaf: (data: TreeNode) => data.leaf === '1'
 })
-
 const operationColumn = markRaw({
   field: 'operation',
   title: '操作',
   width: 100,
   fixed: 'right',
   align: 'center',
-  slots: { default: 'operation' }
+  slots: {
+    default: 'operation'
+  }
 })
-
 const inuseColumns = markRaw<any[]>([
-  { type: 'checkbox', width: 50, fixed: 'left' },
-  { type: 'seq', width: 50, title: '序号', fixed: 'left' },
-  { field: 'directoryName', title: '所属目录', width: 120, fixed: 'left' },
-  { field: 'attachName', title: '文件标题', minWidth: 300, headerAlign: 'center', align: 'left', fixed: 'left' },
-  { field: 'majorName', title: '专业', width: 120 },
-  { field: 'wjzh', title: '发文字号', width: 150 },
-  { field: 'fwsj', title: '发文时间', width: 150 },
-  { field: 'fwdwName', title: '文件来源', width: 150 },
-  { field: 'fwbm', title: '拟稿部门', width: 150, visible: false },
-  { field: 'wjsylx', title: '文件使用类型', width: 150 },
-  { field: 'status', title: '状态', width: 90, align: 'center', slots: { default: 'status' } },
-  { field: 'size', title: '文件大小', width: 100, visible: false },
-  { field: 'uploadUser', title: '上传人', width: 100, visible: false },
-  { field: 'updtime', title: '最后修改日期', width: 150, visible: false },
-  { field: 'remark', title: '备注', minWidth: 300, visible: false },
+  {
+    type: 'checkbox',
+    width: 50,
+    fixed: 'left'
+  },
+  {
+    type: 'seq',
+    width: 50,
+    title: '序号',
+    fixed: 'left'
+  },
+  {
+    field: 'directoryName',
+    title: '所属目录',
+    width: 120,
+    fixed: 'left'
+  },
+  {
+    field: 'attachName',
+    title: '文件标题',
+    minWidth: 300,
+    headerAlign: 'center',
+    align: 'left',
+    fixed: 'left'
+  },
+  {
+    field: 'majorName',
+    title: '专业',
+    width: 120
+  },
+  {
+    field: 'wjzh',
+    title: '发文字号',
+    width: 150
+  },
+  {
+    field: 'fwsj',
+    title: '发文时间',
+    width: 150
+  },
+  {
+    field: 'fwdwName',
+    title: '文件来源',
+    width: 150
+  },
+  {
+    field: 'fwbm',
+    title: '拟稿部门',
+    width: 150,
+    visible: false
+  },
+  {
+    field: 'wjsylx',
+    title: '文件使用类型',
+    width: 150
+  },
+  {
+    field: 'status',
+    title: '状态',
+    width: 90,
+    align: 'center',
+    slots: {
+      default: 'status'
+    }
+  },
+  {
+    field: 'size',
+    title: '文件大小',
+    width: 100,
+    visible: false
+  },
+  {
+    field: 'uploadUser',
+    title: '上传人',
+    width: 100,
+    visible: false
+  },
+  {
+    field: 'updtime',
+    title: '最后修改日期',
+    width: 150,
+    visible: false
+  },
+  {
+    field: 'remark',
+    title: '备注',
+    minWidth: 300,
+    visible: false
+  },
   operationColumn
 ])
-
 const callBackHandle = (data: any) => data
-
 const getInusePageList = (params: any) => {
   const seq = ++tableReqSeq
   const nodeAtRequest = chooseNode.value
   loading.value = true
-  return getAttachByDirectory({ ...params, id: chooseNode.value, attachName: attachName.value })
+  return getAttachByDirectory({
+    ...params,
+    id: chooseNode.value,
+    attachName: attachName.value
+  })
     .then((res) => {
       if (seq !== tableReqSeq || nodeAtRequest !== chooseNode.value) {
         throw new Error('STALE_TABLE_REQUEST')
@@ -263,7 +331,6 @@ const getInusePageList = (params: any) => {
       throw err
     })
 }
-
 const columnStyle = ({ column }: any) => {
   if (column.field == 'attachName') {
     return {
@@ -272,34 +339,36 @@ const columnStyle = ({ column }: any) => {
     }
   }
 }
-
 const reloadActiveTable = () => {
   const table = inuseTableRef.value
   table?.clearSelection()
   table?.getTableList()
 }
-
 const handleSearch = () => {
   reloadActiveTable()
 }
-
 const refreshTable = () => {
   if (!chooseNode.value) return
   inuseTableRef.value?.getTableList()
 }
-
 const downloadReport = ({ row, column }: { row: any; column: any }) => {
   if (column.field == 'attachName') {
     downloadFile(row)
   }
 }
-
 const downloadFile = (row: any) => {
   try {
     const uuid: any = row.uuid
     const fileName: any = `${row.attachName}`
     if (!uuid) return ElMessage.warning('报告未维护，请勿重复点击！')
-    apiExportHandle({ uuid, fileName }, fileName, downloadAttach)
+    apiExportHandle(
+      {
+        uuid,
+        fileName
+      },
+      fileName,
+      downloadAttach
+    )
   } catch (e: any) {
     console.error(e.toString())
   }
@@ -315,23 +384,19 @@ const previewError = ref('')
 const previewRef = ref<InstanceType<typeof OfficePreview> | null>(null)
 const isImageViewerShow = ref(false)
 const imageUrl = ref<string>('')
-
 const revokeImageUrl = () => {
   if (imageUrl.value) {
     URL.revokeObjectURL(imageUrl.value)
     imageUrl.value = ''
   }
 }
-
 const closeImagePreview = () => {
   isImageViewerShow.value = false
   revokeImageUrl()
 }
-
 const handlePreviewError = (error: Error) => {
   previewError.value = error.message || '文件预览失败'
 }
-
 const handlePreview = async (row: any) => {
   if (!row.uuid) return ElMessage.warning('报告未维护，无法预览！')
   previewError.value = ''
@@ -344,7 +409,10 @@ const handlePreview = async (row: any) => {
   previewVisible.value = !isImage
   previewLoading.value = true
   try {
-    const blob: any = await downloadAttach({ uuid: row.uuid, fileName: row.attachName || '' })
+    const blob: any = await downloadAttach({
+      uuid: row.uuid,
+      fileName: row.attachName || ''
+    })
     if (!blob || !(blob instanceof Blob)) {
       throw new Error('文件下载失败，未获取到有效内容')
     }
@@ -383,14 +451,12 @@ const loadNode = async (node: any, resolve: (data: TreeNode[]) => void) => {
     resolve([])
   }
 }
-
 const reloadTree = () => {
   const tree = treeRef.value
   if (!tree) return
   tree.store.root.loaded = false
   tree.store.root.expand()
 }
-
 const expandNodeRecursive = async (node: any) => {
   if (!node) return
   if (node.isLeaf) return
@@ -405,7 +471,6 @@ const expandNodeRecursive = async (node: any) => {
     await expandNodeRecursive(child)
   }
 }
-
 const collapseNodeRecursive = (node: any) => {
   if (!node) return
   if (node.expanded) node.collapse()
@@ -414,14 +479,12 @@ const collapseNodeRecursive = (node: any) => {
     collapseNodeRecursive(child)
   }
 }
-
 const isAllExpanded = (node: any): boolean => {
   if (!node || node.isLeaf) return true
   if (!node.loaded || !node.expanded) return false
   const children = node.childNodes || []
   return children.every((child: any) => isAllExpanded(child))
 }
-
 const handleExpandAll = async () => {
   const tree = treeRef.value
   if (!tree || treeExpanding.value) return
@@ -439,14 +502,12 @@ const handleExpandAll = async () => {
     treeExpanding.value = false
   }
 }
-
 const handleRefreshTree = async () => {
   if (treeExpanding.value) return
   reloadTree()
   await nextTick()
   await handleExpandAll()
 }
-
 const handleNodeClick = (data: TreeNode) => {
   if (chooseNode.value === data.id) return
   chooseNode.value = data.id
@@ -466,7 +527,6 @@ const acceptParams = (params: { yssxIds: string[] }) => {
     handleExpandAll()
   })
 }
-
 const handleSave = async () => {
   const rows = inuseTableRef.value?.getCheckboxRecords?.() || []
   if (rows.length === 0) {
@@ -487,7 +547,10 @@ const handleSave = async () => {
   }
   saving.value = true
   try {
-    const res = await linkAttachFromDirectory({ yssxIds: currentYssxIds, attachIds })
+    const res = await linkAttachFromDirectory({
+      yssxIds: currentYssxIds,
+      attachIds
+    })
     if (res.success) {
       ElMessage.success('关联成功')
       emit('success')
@@ -501,7 +564,6 @@ const handleSave = async () => {
     saving.value = false
   }
 }
-
 const handleClose = () => {
   isShowModal.value = false
   chooseNode.value = ''
@@ -509,8 +571,9 @@ const handleClose = () => {
   attachName.value = ''
   inuseTableRef.value?.clearSelection?.()
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style scoped lang="less">

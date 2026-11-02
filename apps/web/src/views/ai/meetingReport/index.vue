@@ -58,16 +58,14 @@
 </template>
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/ai/meetingReport/index" })
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
+import userDialog from '@/components/select/userDialog.vue'
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { downloadReviewReport } from '@/api/service/jointReview'
 import { useRouter, useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
 import { useUser } from '@/hooks/useUser'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { apiExportHandle } from '@/utils/export'
 import xmTable from './components/xmTable.vue'
 import {
@@ -83,6 +81,10 @@ import { useMeeting } from '@/hooks/useMeeting'
 import { VXETable } from 'vxe-table'
 import { submitWorkflow, WFData, WFParam, WFUserInfo } from '@/hooks/useWorkflow'
 import baseService from '@/service/baseService'
+defineOptions({ name: "/ai/meetingReport/index" })
+ //权限弹框
+
+ //表格组件
 
 // 初始化页面
 const loading = ref(false) //接口调用加载中。。。

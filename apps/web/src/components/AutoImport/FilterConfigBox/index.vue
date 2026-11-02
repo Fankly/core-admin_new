@@ -38,98 +38,91 @@
   </el-form>
 </template>
 
-<script>
+<script setup>
 import { InfoFilled as EpInfoFilled } from '@element-plus/icons-vue'
-
 import ConfigItem from '../ConfigItem/index.vue'
 import FilterBox from '../FilterBox/index.vue'
 import _ from 'lodash'
-
-export default {
-  setup() {
-    return { EpInfoFilled }
+import { reactive, toRef, toRefs, computed, useTemplateRef } from 'vue'
+defineOptions({
+  name: 'FilterConfigBox'
+})
+const componentProps = defineProps({
+  type: {
+    type: String,
+    default: ''
   },
-  components: {
-    ConfigItem,
-    FilterBox
+  config: {
+    // 绑定值
+    type: Object,
+    default: () => ({
+      labelWidth: '100px',
+      span: 4
+    })
   },
-  props: {
-    type: {
-      type: String,
-      default: ''
-    },
-    config: {
-      // 绑定值
-      type: Object,
-      default: () => ({
-        labelWidth: '100px',
-        span: 4
-      })
-    },
-    options: {
-      // 表单项
-      type: Array,
-      default: () => []
-    },
-    value: {
-      // 绑定值
-      type: Object,
-      default: () => ({})
-    },
-    modelValue: {
-      // Vue 3 v-model
-      type: Object,
-      default: undefined
-    },
-    readonly: Boolean,
-    disabled: Boolean
+  options: {
+    // 表单项
+    type: Array,
+    default: () => []
   },
-  model: {
-    prop: 'value',
-    event: 'on-model-change'
+  value: {
+    // 绑定值
+    type: Object,
+    default: () => ({})
   },
-  name: 'FilterConfigBox',
-  data() {
-    return {
-      defaultConfig: {
-        labelWidth: '75px'
-      },
-      defaultValues: {}
-    }
+  modelValue: {
+    // Vue 3 v-model
+    type: Object,
+    default: undefined
   },
-  created() {
-    this.defaultValues = _.cloneDeep(this.formModel)
+  readonly: Boolean,
+  disabled: Boolean
+})
+const emit = defineEmits()
+const formRef = useTemplateRef('form')
+const componentData = reactive({
+  defaultConfig: {
+    labelWidth: '75px'
   },
-  mounted() {},
-  methods: {
-    handleSearch() {
-      this.emitModelChange(this.formModel)
-      this.$emit('search', this.formModel)
-    },
-    onReset() {
-      this.$refs.form.resetFields()
-      const newObj = _.cloneDeep(this.defaultValues)
-      this.emitModelChange(newObj)
-      this.$emit('onReset', newObj)
-    },
-    emitModelChange(value) {
-      this.$emit('update:modelValue', value)
-      this.$emit('on-model-change', value)
-    }
-  },
-  computed: {
-    formModel() {
-      return this.modelValue ?? this.value
-    },
-    _config() {
-      return {
-        ...this.defaultConfig,
-        ...this.config
-      }
-    }
-  },
-  watch: {}
+  defaultValues: {}
+})
+const defaultConfig = toRef(componentData, 'defaultConfig')
+const defaultValues = toRef(componentData, 'defaultValues')
+function handleSearch() {
+  emitModelChange(formModel.value)
+  emit('search', formModel.value)
 }
+function onReset() {
+  formRef.value.resetFields()
+  const newObj = _.cloneDeep(componentData.defaultValues)
+  emitModelChange(newObj)
+  emit('onReset', newObj)
+}
+function emitModelChange(value) {
+  emit('update:modelValue', value)
+  emit('on-model-change', value)
+}
+const formModel = computed(() => {
+  return componentProps.modelValue ?? componentProps.value
+})
+const _config = computed(() => {
+  return {
+    ...componentData.defaultConfig,
+    ...componentProps.config
+  }
+})
+;(() => {
+  componentData.defaultValues = _.cloneDeep(formModel.value)
+})()
+defineExpose({
+  EpInfoFilled,
+  handleSearch,
+  onReset,
+  emitModelChange,
+  ...toRefs(componentData),
+  formModel,
+  _config
+})
 </script>
 <style lang="less" scoped>
 .filterConfigBox {

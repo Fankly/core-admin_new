@@ -133,7 +133,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/service/approval/provinceLhhsMeeting/index" })
 import { nextTick, onMounted, reactive, ref, h, defineAsyncComponent, computed } from 'vue'
 import {
   addOrUpdateMeeting,
@@ -161,6 +160,7 @@ import { useRoute, useRouter } from 'vue-router'
 import selectModal from '@/views/service/approval/provinceLhhsMeeting/components/selectModal.vue'
 import { downloadExportBlob } from '@/views/service/approval/provinceLhhsMeeting/utils/download'
 import { REVIEW_MODE_ASSIGNED_CODE, useReviewModeCode } from '@/hooks/useReviewModeCode'
+defineOptions({ name: "/service/approval/provinceLhhsMeeting/index" })
 
 const ExpertManagementModal = defineAsyncComponent(
   () => import('@/views/service/approval/provinceLhhsMeeting/components/expertManagementModal/index.vue')

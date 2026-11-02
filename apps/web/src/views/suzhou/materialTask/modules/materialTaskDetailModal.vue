@@ -244,7 +244,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialTaskDetailModal" })
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
@@ -266,7 +265,7 @@ import { cleanQueryParams, getRoleQueryParams } from '@/views/suzhou/common/util
 import { useStore } from '@/store/business'
 import { getPublicCodesList, getParamValueMulti } from '@/api/common'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import MaterialTaskLog from '@/views/suzhou/materialTask/modules/materialTaskLog.vue'
 import materialTaskFile from '@/views/suzhou/materialTask/modules/materialTaskFile.vue'
 import materialTaskCkTkDetail from '@/views/suzhou/materialTask/modules/materialTaskCkTkDetail.vue'
@@ -274,6 +273,9 @@ import OfficePreview, { getOfficeFileExtension } from '@/components/OfficePrevie
 import type { OfficePreviewSource } from '@/components/OfficePreview'
 import { useRouter } from 'vue-router'
 import VXETable from 'vxe-table'
+defineOptions({ name: "materialTaskDetailModal" })
+
+ //导入组件
 
 interface MaterialFileItem {
   fileId: string

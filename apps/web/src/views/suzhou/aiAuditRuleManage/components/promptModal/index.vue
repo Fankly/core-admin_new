@@ -38,11 +38,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'promptModal'
-}
-</script>
 
 <style lang="less">
 @import '../../css/modal.less';
@@ -54,6 +49,9 @@ import { ElMessage } from 'element-plus'
 import { editPrompt } from '@/api/suzhou/aiAuditRuleManage'
 import { VXETable } from 'vxe-table'
 import { getPublicData } from '@/api/common'
+defineOptions({
+  name: 'promptModal'
+})
 
 /** 公共代码项 */
 interface CodeItem {
@@ -66,16 +64,18 @@ interface ModalParams {
   type: string
   searchParams: Record<string, any>
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
 const modalTitle = ref('')
-
 const ruleClassifyList = ref<CodeItem[]>([])
 const ruleLevel = ref<CodeItem[]>([])
 const ruleStatus = ref<CodeItem[]>([])
@@ -99,7 +99,6 @@ const handleClose = () => {
 const handleSave = () => {
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -111,13 +110,16 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
-      const res = await editPrompt({ ...searchParams.value })
+      const res = await editPrompt({
+        ...searchParams.value
+      })
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -155,6 +157,7 @@ const acceptParams = (params: ModalParams) => {
   isShowModal.value = true
   fetchOptions()
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>

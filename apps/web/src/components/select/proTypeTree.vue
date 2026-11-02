@@ -17,73 +17,86 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { Search as EpSearch } from '@element-plus/icons-vue'
-
-import { defineComponent, reactive } from "vue";
-import baseService from "@/service/baseService";
-import { ElMessage } from "element-plus";
-export default defineComponent({
-  components: { EpSearch },
-  computed: { EpSearch: () => EpSearch },
-  name: "/budget-process/process-33",
-
-  setup() {
-    return reactive({
-      loading: true,
-      data: [],
-      treeData: [],
-      treeId: "",
-      projectName: "",
-      filterText: "",
-      defaultProps: {
-        children: "child",
-        label: "name"
-      }
-    });
-  },
-  watch: {
-    filterText(val) {
-      this.$refs.tree.filter(val);
-    }
-  },
-  created() {
-    this.getTreeData("0");
-  },
-  methods: {
-    getTreeData(val, data) {
-      const params = {
-        parentId: val
-      };
-      baseService.post("/xmsxwh/getProTypeTreeAll", params).then((res) => {
-        if (res.success) {
-          this.treeData = res.data;
-          this.loading = false;
-        } else {
-          ElMessage({
-            type: "error",
-            message: "项目类别树数据获取失败"
-          });
-          this.loading = false;
-        }
-      });
-    },
-    treeCheck(node, list) {
-      if (list.checkedKeys.length == 2) {
-        this.$refs.tree.setCheckedKeys([node.id]);
-        this.treeId = node.id;
-        this.$emit("getName", node.name);
-      }
-      this.treeId = node.id;
-      this.$emit("getName", node.name);
-    },
-
-    filterNode(value, data) {
-      if (!value) return true;
-      return data.name.indexOf(value) !== -1;
-    }
+import { reactive, toRef, watch, useTemplateRef } from 'vue'
+import baseService from '@/service/baseService'
+import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/budget-process/process-33'
+})
+const emit = defineEmits()
+const treeRef = useTemplateRef('tree')
+const setupState = reactive({
+  loading: true,
+  data: [],
+  treeData: [],
+  treeId: '',
+  projectName: '',
+  filterText: '',
+  defaultProps: {
+    children: 'child',
+    label: 'name'
   }
-});
+})
+const loading = toRef(setupState, 'loading')
+const data = toRef(setupState, 'data')
+const treeData = toRef(setupState, 'treeData')
+const treeId = toRef(setupState, 'treeId')
+const projectName = toRef(setupState, 'projectName')
+const filterText = toRef(setupState, 'filterText')
+const defaultProps = toRef(setupState, 'defaultProps')
+function getTreeData(val, data) {
+  const params = {
+    parentId: val
+  }
+  baseService.post('/xmsxwh/getProTypeTreeAll', params).then((res) => {
+    if (res.success) {
+      setupState.treeData = res.data
+      setupState.loading = false
+    } else {
+      ElMessage({
+        type: 'error',
+        message: '项目类别树数据获取失败'
+      })
+      setupState.loading = false
+    }
+  })
+}
+function treeCheck(node, list) {
+  if (list.checkedKeys.length == 2) {
+    treeRef.value.setCheckedKeys([node.id])
+    setupState.treeId = node.id
+    emit('getName', node.name)
+  }
+  setupState.treeId = node.id
+  emit('getName', node.name)
+}
+function filterNode(value, data) {
+  if (!value) return true
+  return data.name.indexOf(value) !== -1
+}
+watch(
+  () => setupState.filterText,
+  function (val) {
+    treeRef.value.filter(val)
+  }
+)
+;(() => {
+  getTreeData('0')
+})()
+defineExpose({
+  loading,
+  data,
+  treeData,
+  treeId,
+  projectName,
+  filterText,
+  defaultProps,
+  getTreeData,
+  treeCheck,
+  filterNode
+})
 </script>
 
 <style lang="less" scoped>

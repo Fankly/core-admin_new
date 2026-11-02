@@ -86,8 +86,6 @@
 
 <script setup lang="ts">
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/xmInfo/ownRealEstate/index" })
 import { nextTick, onMounted, provide, reactive, ref, unref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
@@ -113,6 +111,7 @@ import { createOwnRealEstateTableColumns } from './tableColumns'
 import RealEstateFormDialog from './components/RealEstateFormDialog.vue'
 import RealEstateSearch from './components/RealEstateSearch.vue'
 import RealEstateToolbar from './components/RealEstateToolbar.vue'
+defineOptions({ name: "/xmInfo/ownRealEstate/index" })
 
 const store = useStore()
 const route = useRoute()

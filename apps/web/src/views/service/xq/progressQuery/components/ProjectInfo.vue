@@ -14,14 +14,11 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
-import type { ProjectInfo } from "../types";
-
+import type { ProjectInfo } from '../types'
 interface Props {
-  projectInfo: ProjectInfo;
+  projectInfo: ProjectInfo
 }
-
-defineProps<Props>();
+defineProps<Props>()
 </script>
 
 <style scoped>

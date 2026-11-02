@@ -1,19 +1,14 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
-
-/**
- * Switch开关组件
- */
-export default defineComponent({
-  name: 'SettingSwitch',
-  props: {
-    title: String,
-    value: Boolean,
-    onChange: Function
-  },
-  setup(props) {
-    return { props }
-  }
+<script setup lang="ts">
+defineOptions({
+  name: 'SettingSwitch'
+})
+const props = defineProps({
+  title: String,
+  value: Boolean,
+  onChange: Function
+})
+defineExpose({
+  props
 })
 </script>
 <template>

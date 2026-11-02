@@ -31,7 +31,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/ai/materialPriceLibrary/historyPrice/index" })
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useStore } from '@/store/business'
@@ -44,6 +43,7 @@ import { getPublicData } from '@/api/common'
 import { apiExportHandle } from '@/utils/export'
 import { formatNumValue } from '@/utils/utils'
 import { exportMaterialPriceHistory, getMaterialPriceHistoryPage, syncMaterialPriceHistory } from '@/api/ai/materialPriceLibrary'
+defineOptions({ name: "/ai/materialPriceLibrary/historyPrice/index" })
 
 const props = defineProps<{
   sharedUserInfo?: Record<string, any>

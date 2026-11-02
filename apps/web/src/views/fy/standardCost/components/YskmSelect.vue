@@ -6,73 +6,62 @@
   </el-select>
 </template>
 
-<script lang="ts">
-export default {
-  name: "YskmSelect"
-};
-</script>
 
 <script setup lang="ts">
-import { getDataList } from "@/api/fy/searchConfig";
-import { ElMessage } from "element-plus";
-import { reactive, defineProps, ref, defineExpose, computed } from "vue";
+import { getDataList } from '@/api/fy/searchConfig'
+import { ElMessage } from 'element-plus'
+import { reactive, ref, computed } from 'vue'
+defineOptions({
+  name: 'YskmSelect'
+})
 
 interface NodeData {
-  code: string;
-  id: string;
-  leaf: boolean;
-  leafString: string | null;
-  name: string;
-  nodeType: string;
-  parentId: string;
+  code: string
+  id: string
+  leaf: boolean
+  leafString: string | null
+  name: string
+  nodeType: string
+  parentId: string
 }
-
 interface Props {
-  nd: string;
+  nd: string
 }
-
-const props = defineProps<Props>();
-
-const yskmSelectRef = ref();
-
-const selectedAllData = computed(() => yskmSelectRef.value?.getCheckedNodes().map((item: any) => item.name));
-
+const props = defineProps<Props>()
+const yskmSelectRef = ref()
+const selectedAllData = computed(() => yskmSelectRef.value?.getCheckedNodes().map((item: any) => item.name))
 const dwProps = reactive({
-  label: "name",
-  isLeaf: "leaf"
-});
-
+  label: 'name',
+  isLeaf: 'leaf'
+})
 const clearHandle = () => {
-  yskmSelectRef.value.setCheckedNodes([]);
-};
-
+  yskmSelectRef.value.setCheckedNodes([])
+}
 const getCheckedDataHandle = (data: NodeData) => {
-  let node = yskmSelectRef.value.getNode(data);
-  expandTreeNodeHandle(node);
-};
-
+  let node = yskmSelectRef.value.getNode(data)
+  expandTreeNodeHandle(node)
+}
 const expandTreeNodeHandle = (node: any) => {
   if (node.checked && !node.expanded && !node.isLeaf) {
     node.expand(function () {
-      let childNodes = node.childNodes;
+      let childNodes = node.childNodes
       for (let i = 0; i < childNodes.length; i++) {
-        let childNode = childNodes[i];
+        let childNode = childNodes[i]
         if (!childNode.data.leaf) {
-          yskmSelectRef.value.$emit("check-change", childNode.data, childNode.checked, childNode.indeterminate);
+          yskmSelectRef.value.$emit('check-change', childNode.data, childNode.checked, childNode.indeterminate)
         }
       }
-    });
+    })
   }
-};
-
+}
 const lazyLoad = async (node: any, resolve: any) => {
-  let parentId = node.level === 0 ? "-1" : node.data.id;
+  let parentId = node.level === 0 ? '-1' : node.data.id
   let params = {
     nd: props.nd,
     pid: parentId,
-    templateCode: ""
-  };
-  let res = await getDataList(params);
+    templateCode: ''
+  }
+  let res = await getDataList(params)
   if (res.success) {
     const nodes = res.data.map((item: any) => {
       return {
@@ -80,19 +69,18 @@ const lazyLoad = async (node: any, resolve: any) => {
         name: item.name,
         leaf: !item.isleaf,
         pid: item.pid
-      };
-    });
-    resolve(nodes);
+      }
+    })
+    resolve(nodes)
   } else {
-    ElMessage.error(res.msg);
-    resolve([]);
+    ElMessage.error(res.msg)
+    resolve([])
   }
-};
-
+}
 defineExpose({
   yskmSelectRef,
   clearHandle
-});
+})
 </script>
 
 <style lang="less" scoped>

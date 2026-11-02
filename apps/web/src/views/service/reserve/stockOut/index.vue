@@ -132,11 +132,7 @@
   ></component>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/reserve/stockIn/index'
-}
-</script>
+
 <script setup lang="ts">
 import {
   getXqlrPage,
@@ -148,12 +144,12 @@ import {
   getDynamicSearchColumn,
   getTbcPage
 } from '@/api/service/requirement'
-import { ref, defineExpose, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
 import { ElMessage } from 'element-plus'
 import { submitWorkflow, WFData, WFParam, WFUserInfo } from '@/hooks/useWorkflow'
 import { useStore } from '@/store/business'
-import { Configs } from '@/views/service/xq/interface'
+import { Configs, MenuConfig } from '@/views/service/xq/interface'
 import VXETable, { VxeGridProps } from 'vxe-table'
 import TreeSelect from '@/components/TreeSelect/index.vue'
 import baseService from '@/service/baseService'
@@ -161,13 +157,14 @@ import Matter from '@/views/service/xq/components/Matter.vue'
 import { useProcess } from '@/hooks/useProcess'
 import { getAppMenu } from '@/api/menu/menuConfig'
 import userDialog from '@/components/select/userDialog.vue'
-import { MenuConfig } from '@/views/service/xq/interface'
 import DynamicReports from '@/components/DynamicReports/index.vue'
 import QueryProTypeModal from '@/views/service/xq/components/QueryProTypeModal.vue'
 import { formatNumValue } from '@/utils/utils'
-
 import { useUser } from '@/hooks/useUser'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
+defineOptions({
+  name: '/reserve/stockIn/index'
+})
 
 interface RowVo {
   id: string
@@ -212,29 +209,24 @@ const operationBtn = ref<MenuConfig[]>([])
 const searchBtn = ref<MenuConfig[]>([])
 const title = '高级设置'
 const activeName = ref('first')
-
 const processData = reactive({
   isShowDialog: false,
   compName: null,
   id: ''
 })
-
 const searchData = ref<{
   [key: string]: any
 }>({})
-
 const page = {
   total: 0,
   limit: 20,
   page: 1
 }
-
 const pageSec = {
   total: 0,
   limit: 20,
   page: 1
 }
-
 const secColumns = [
   {
     type: 'checkbox',
@@ -308,7 +300,6 @@ const secColumns = [
     width: 180
   }
 ]
-
 const openModal = () => {
   const $grid = gridSecRef.value
   if ($grid) {
@@ -326,7 +317,6 @@ const openModal = () => {
     queryProTypeModalRef.value.acceptParams(params)
   }
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   if (activeName.value === 'first') {
     page.page = currentPageNum
@@ -347,7 +337,6 @@ const limitChangeHandle = (currentLimitNum: number) => {
     getSecTableData()
   }
 }
-
 const handleFieldChange = async (prop: string, value: any, column: Configs) => {
   if (prop === 'yjdw') {
     if (value) {
@@ -369,7 +358,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
       }
     }
   }
-
   if (prop === 'yjfl') {
     if (value) {
       const findEjflData: any = dynamciSearch.value.find((search) => search.code === 'ejfl')
@@ -394,7 +382,6 @@ const handleFieldChange = async (prop: string, value: any, column: Configs) => {
       }
     }
   }
-
   if (prop === 'ejfl') {
     if (value) {
       const findData: any = dynamciSearch.value.find((search) => search.code === 'sjfl')
@@ -436,11 +423,9 @@ const searchDataHandle = async () => {
     loading.value = false
   }
 }
-
 const settingHandle = () => {
   dynamicReportsRef.value.isShowDrawer = true
 }
-
 const searchConfigHandle = async () => {
   linkLength.value = 0
   loading.value = true
@@ -476,7 +461,11 @@ const searchConfigHandle = async () => {
         filterable: true,
         multiple: item.multiple,
         options: [],
-        treeProps: { children: 'children', label: 'name', value: 'id' }
+        treeProps: {
+          children: 'children',
+          label: 'name',
+          value: 'id'
+        }
       }
     })
     for (const item of customData) {
@@ -502,7 +491,6 @@ const searchConfigHandle = async () => {
         }
       }
     }
-
     if (ggdms.length > 0) {
       const initData = await initParamsData('/commonCode/getCommonCode', {
         bmId: userInfo.value.deptId || '',
@@ -520,7 +508,6 @@ const searchConfigHandle = async () => {
     loading.value = false
   }
 }
-
 const initParamsData = async (method: any, params: any): Promise<any[]> => {
   const res = await baseService.post(method, params)
   if (res.success) {
@@ -530,7 +517,6 @@ const initParamsData = async (method: any, params: any): Promise<any[]> => {
     return []
   }
 }
-
 const editHandle = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -548,7 +534,6 @@ const editHandle = () => {
     editPageRef.value.isShowModal = true
   }
 }
-
 const deleteHandle = async () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -575,7 +560,6 @@ const deleteHandle = async () => {
     }
   }
 }
-
 const matterHandle = async () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -606,7 +590,6 @@ const matterHandle = async () => {
     }
   }
 }
-
 const submitWorkflowHandle = async () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -636,7 +619,6 @@ const submitWorkflowHandle = async () => {
       if (Number(record['sfxyxqsh']) === 1) workflowFlag = true
       else workflowFlag = false
     }
-
     const type = await VXETable.modal.confirm('确认是否提交?', '提示', {
       confirmButtonText: '是',
       cancelButtonText: '否'
@@ -666,7 +648,6 @@ const submitWorkflowHandle = async () => {
     }
   }
 }
-
 const resetHandle = () => {
   for (let valueKey in searchDatas.value) {
     let data = searchDatas.value[valueKey]
@@ -678,7 +659,6 @@ const resetHandle = () => {
   }
   searchDataHandle()
 }
-
 const resetSecHandle = () => {
   for (let valueKey in searchSecDatas.value) {
     let data = searchSecDatas.value[valueKey]
@@ -690,7 +670,6 @@ const resetSecHandle = () => {
   }
   getSecTableData()
 }
-
 const wfParam = ref<WFParam>({
   XMIDS: '',
   FQZZ: '',
@@ -700,7 +679,9 @@ const userDialogRef = ref()
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfo.value.specialorgid}`)
@@ -728,14 +709,12 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 const submitCbxqshWorkflowHandle = (submitListIds: any) => {
   const wfUserInfo: WFUserInfo = {
     userId: store.getters.getUserMsg.id,
     spOrgId: userInfo.value.deptId || '',
     spRoleId: userInfo.value.spRoleId || ''
   }
-
   wfParam.value.XMIDS = submitListIds
   wfParam.value.FQZZ = userInfo.value.fqzzFlag //市县 CITY OR COUNTY
   wfParam.value.FQBM = userInfo.value.specialorgcode === 'BM_CWZC' ? 'CWB' : 'YWB' //CWB
@@ -743,7 +722,6 @@ const submitCbxqshWorkflowHandle = (submitListIds: any) => {
   loading.value = true
   submitWorkflow(store.getters.getUserMsg.systemCode, 'WF_NEWCBXQSHLC', '', wfUserInfo, wfParam.value, {}, submitWFCallback)
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
   loading.value = true
   let spfrom = {
@@ -771,7 +749,6 @@ const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
     })
   }
 }
-
 const exportHandle = () => {
   loading.value = true
   const params = {
@@ -797,7 +774,6 @@ const exportHandle = () => {
     loading.value = false
   })
 }
-
 const processHandle = () => {
   const $grid = gridRef.value
   if ($grid) {
@@ -805,7 +781,6 @@ const processHandle = () => {
     useProcess(records, processData)
   }
 }
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   columnConfig: {
@@ -821,7 +796,6 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   },
   columns: []
 })
-
 const gridSecOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   columnConfig: {
@@ -837,7 +811,6 @@ const gridSecOptions = reactive<VxeGridProps<RowVo>>({
   },
   columns: []
 })
-
 const getDynamicTable = async () => {
   const res = await getDynamicTableByUser({
     searchCode: searchCode.value
@@ -864,7 +837,6 @@ const getDynamicTable = async () => {
     })
   }
 }
-
 const getSecTableData = async () => {
   try {
     loading.value = true
@@ -886,7 +858,6 @@ const getSecTableData = async () => {
     loading.value = false
   }
 }
-
 const showHandle = async () => {
   gridSecOptions.columns = secColumns
   await getSecTableData()
@@ -894,10 +865,8 @@ const showHandle = async () => {
   await searchDataHandle()
   await searchConfigHandle()
 }
-
 onMounted(async () => {
   var isRoel = await useUser()
-
   if (isRoel) {
     const xqGlobalInfo = store.getters.getXqGlobalInfo
     isShowPage.value = true
@@ -921,7 +890,6 @@ onMounted(async () => {
     await userDialogRef.value.getUser()
   }
 })
-
 defineExpose({
   isShowModal,
   loading

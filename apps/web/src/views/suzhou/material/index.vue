@@ -18,7 +18,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/suzhou/material/index" })
 import { ref, onMounted } from 'vue'
 import MaterialPage from '@/views/suzhou/common/components/MaterialPage.vue'
 import MaterialToolbar from '@/views/suzhou/material/modules/materialToolbar.vue'
@@ -26,6 +25,7 @@ import MaterialSearch from '@/views/suzhou/material/modules/materialSearch.vue'
 import { MATERIAL_PAGE_CONFIG } from '@/views/suzhou/material/config'
 import { getPublicCodesList } from '@/api/common'
 import { DEFAULT_MATERIAL_TITLE, MATERIAL_JUDGMENT_RESULT_NAME_CODE, resolveMaterialTitleConfig } from '@/views/suzhou/material/utils/titleConfig'
+defineOptions({ name: "/suzhou/material/index" })
 
 const pageTitle = ref(DEFAULT_MATERIAL_TITLE)
 const isPageReady = ref(false)

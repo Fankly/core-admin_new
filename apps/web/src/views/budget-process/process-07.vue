@@ -128,7 +128,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -137,9 +137,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import projectType from '@/components/select/projectType.vue'
@@ -149,295 +147,331 @@ import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { showHelpMsg } from '@/utils/message'
 import { getMaxLength } from '@/utils/utils'
-
-export default defineComponent({
-  name: '/budget-process/process-07',
-  components: {
-    projectType,
-    affiliatedUnit,
-    userDialog,
-    allProjectType
+defineOptions({
+  name: '/budget-process/process-07'
+})
+const typeRef = useTemplateRef('type')
+const companyRef = useTemplateRef('company')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  helpHandle,
+  store,
+  dataList: {
+    date: [],
+    select: 0
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+  columns: [
+    {
+      columnKey: 'preis',
+      columnValue: '招标金额'
+    },
+    {
+      columnKey: 'xqtbxz',
+      columnValue: '招标金额（修正）'
+    },
+    {
+      columnKey: 'zhszj',
+      columnValue: '中标金额'
+    },
+    {
+      columnKey: 'zbjgxz',
+      columnValue: '中标金额（修正）'
+    },
+    {
+      columnKey: 'zxqzbz',
+      columnValue: '需求招标中'
+    },
+    {
+      columnKey: 'dataMap.htje',
+      columnValue: '合同签订'
+    },
+    {
+      columnKey: 'htqdxz',
+      columnValue: '合同签订(修正)'
+    },
+    {
+      columnKey: 'zhtqdz',
+      columnValue: '合同签订中'
+    },
+    {
+      columnKey: 'zwzdhje',
+      columnValue: '物资到货'
+    },
+    {
+      columnKey: 'wzdhxz',
+      columnValue: '物资到货(修正)'
+    },
+    {
+      columnKey: 'zghzje',
+      columnValue: '在途物资'
+    },
+    {
+      columnKey: 'zwzlyje',
+      columnValue: '物资领用'
+    },
+    {
+      columnKey: 'zlyzje',
+      columnValue: '库存物资'
+    },
+    {
+      columnKey: 'ysmbz',
+      columnValue: '年度预算（万元）'
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      helpHandle,
-      store,
-      dataList: {
-        date: [],
-        select: 0
-      },
-      columns: [
-        {
-          columnKey: 'preis',
-          columnValue: '招标金额'
-        },
-        {
-          columnKey: 'xqtbxz',
-          columnValue: '招标金额（修正）'
-        },
-        {
-          columnKey: 'zhszj',
-          columnValue: '中标金额'
-        },
-        {
-          columnKey: 'zbjgxz',
-          columnValue: '中标金额（修正）'
-        },
-        {
-          columnKey: 'zxqzbz',
-          columnValue: '需求招标中'
-        },
-        {
-          columnKey: 'dataMap.htje',
-          columnValue: '合同签订'
-        },
-        {
-          columnKey: 'htqdxz',
-          columnValue: '合同签订(修正)'
-        },
-        {
-          columnKey: 'zhtqdz',
-          columnValue: '合同签订中'
-        },
-        {
-          columnKey: 'zwzdhje',
-          columnValue: '物资到货'
-        },
-        {
-          columnKey: 'wzdhxz',
-          columnValue: '物资到货(修正)'
-        },
-        {
-          columnKey: 'zghzje',
-          columnValue: '在途物资'
-        },
-        {
-          columnKey: 'zwzlyje',
-          columnValue: '物资领用'
-        },
-        {
-          columnKey: 'zlyzje',
-          columnValue: '库存物资'
-        },
-        {
-          columnKey: 'ysmbz',
-          columnValue: '年度预算（万元）'
-        }
-      ],
-      example: [],
-      searchShow: true,
-      segment: [
-        {
-          value: 'ztb',
-          label: '招投标',
-          checked: true
-        },
-        {
-          value: 'htqd',
-          label: '合同签订',
-          checked: true
-        },
-        {
-          value: 'htly',
-          label: '合同履约',
-          checked: true
-        }
-      ],
-      columnObj: {},
-      segmentIds: [],
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: ''
+  ],
+  example: [],
+  searchShow: true,
+  segment: [
+    {
+      value: 'ztb',
+      label: '招投标',
+      checked: true
+    },
+    {
+      value: 'htqd',
+      label: '合同签订',
+      checked: true
+    },
+    {
+      value: 'htly',
+      label: '合同履约',
+      checked: true
+    }
+  ],
+  columnObj: {},
+  segmentIds: [],
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const dataList = toRef(setupState, 'dataList')
+const columns = toRef(setupState, 'columns')
+const example = toRef(setupState, 'example')
+const searchShow = toRef(setupState, 'searchShow')
+const segment = toRef(setupState, 'segment')
+const columnObj = toRef(setupState, 'columnObj')
+const segmentIds = toRef(setupState, 'segmentIds')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+function compTableWidth() {
+  const tableData = setupState.example
+  setupState.columns = setupState.columns.map((value) => {
+    const arr = tableData.map((item) => {
+      if (item.dataMap[value.columnKey] && Number(item.dataMap[value.columnKey])) {
+        return item[value.columnKey]
+      } else {
+        return value.columnValue
+      }
     })
-  },
-  created() {
-    this.handleColumn()
-  },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.getTime()
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-    this.compTableWidth()
-  },
-  methods: {
-    compTableWidth() {
-      const tableData = this.example
-      this.columns = this.columns.map((value) => {
-        const arr = tableData.map((item) => {
-          if (item.dataMap[value.columnKey] && Number(item.dataMap[value.columnKey])) {
-            return item[value.columnKey]
-          } else {
-            return value.columnValue
-          }
-        })
-        if (!getMaxLength(arr)) {
-          value.width = 120
-        } else {
-          value.width = Math.round(getMaxLength(arr) + 20)
-        }
-        return value
+    if (!getMaxLength(arr)) {
+      value.width = 120
+    } else {
+      value.width = Math.round(getMaxLength(arr) + 20)
+    }
+    return value
+  })
+}
+function setTableHeight() {
+  if (setupState.searchShow) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 40 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 40 + 'px'
+  }
+}
+function getTime() {
+  let date = new Date()
+  let year = date.getFullYear()
+  let month = date.getMonth() + 1
+  let day = date.getDay()
+  month = month > 9 ? month : '0' + month
+  day = day > 9 ? day : '0' + day
+  let start = year + '-' + '01' + '-' + '01'
+  let last = year + '-' + month + '-' + day
+  setupState.dataList.date.push(start)
+  setupState.dataList.date.push(last)
+}
+function loadData() {
+  setupState.loading = true
+  const params = {
+    qkjxmlxbms: [],
+    qkjejdws: [],
+    sbadat: '',
+    ebadat: '',
+    wd: setupState.dataList.select,
+    specialorgid: setupState.specialorgid
+  }
+  if (typeRef.value.selectList.length > 0) {
+    params.qkjxmlxbms = typeRef.value.selectList
+  } else {
+    params.qkjxmlxbms = typeRef.value.allId
+  }
+  if (companyRef.value.selectList.length > 0) {
+    params.qkjejdws = companyRef.value.selectList
+  } else {
+    params.qkjejdws = companyRef.value.allId
+  }
+  if (setupState.dataList.date) {
+    params.sbadat = setupState.dataList.date[0]
+    params.ebadat = setupState.dataList.date[1]
+  }
+  baseService.post('/process/process07/', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example = res.data
+      compTableWidth()
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
       })
-    },
-    setTableHeight() {
-      if (this.searchShow) {
-        this.tableHeight = this.heightNum - this.topHeight - 40 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 40 + 'px'
-      }
-    },
-    getTime() {
-      let date = new Date()
-      let year = date.getFullYear()
-      let month = date.getMonth() + 1
-      let day = date.getDay()
-      month = month > 9 ? month : '0' + month
-      day = day > 9 ? day : '0' + day
-      let start = year + '-' + '01' + '-' + '01'
-      let last = year + '-' + month + '-' + day
-      this.dataList.date.push(start)
-      this.dataList.date.push(last)
-    },
-    loadData() {
-      this.loading = true
-      const params = {
-        qkjxmlxbms: [],
-        qkjejdws: [],
-        sbadat: '',
-        ebadat: '',
-        wd: this.dataList.select,
-        specialorgid: this.specialorgid
-      }
-
-      if (this.$refs.type.selectList.length > 0) {
-        params.qkjxmlxbms = this.$refs.type.selectList
-      } else {
-        params.qkjxmlxbms = this.$refs.type.allId
-      }
-
-      if (this.$refs.company.selectList.length > 0) {
-        params.qkjejdws = this.$refs.company.selectList
-      } else {
-        params.qkjejdws = this.$refs.company.allId
-      }
-      if (this.dataList.date) {
-        params.sbadat = this.dataList.date[0]
-        params.ebadat = this.dataList.date[1]
-      }
-      baseService.post('/process/process07/', params).then((res) => {
-        if (res.success == true) {
-          this.loading = false
-          this.example = res.data
-          this.compTableWidth()
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-
-    exportBtn() {
-      this.loading = true
-      const params = {
-        qkjxmlxbms: [],
-        qkjejdws: [],
-        sbadat: '',
-        ebadat: '',
-        wd: this.dataList.select,
-        specialorgid: this.specialorgid
-      }
-
-      if (this.$refs.type.selectList.length > 0) {
-        params.qkjxmlxbms = this.$refs.type.selectList
-      } else {
-        params.qkjxmlxbms = this.$refs.type.allId
-      }
-
-      if (this.$refs.company.selectList.length > 0) {
-        params.qkjejdws = this.$refs.company.selectList
-      } else {
-        params.qkjejdws = this.$refs.company.allId
-      }
-      if (this.dataList.date) {
-        params.sbadat = this.dataList.date[0]
-        params.ebadat = this.dataList.date[1]
-      }
-      baseService.export('/process/process07/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '通用物资执行总览.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.segmentIds.push(item.value)
-        this.columnObj[item.value] = item.checked
-      })
-    },
-
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked
-        }
-      }
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    //搜索按钮
-    search() {
-      this.loadData()
-    },
-    //重置按钮
-    reset() {
-      this.dataList.date = []
-      this.getTime()
-      this.dataList.select = 0
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.example = []
-      this.loadData()
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
+    }
+  })
+}
+function exportBtn() {
+  setupState.loading = true
+  const params = {
+    qkjxmlxbms: [],
+    qkjejdws: [],
+    sbadat: '',
+    ebadat: '',
+    wd: setupState.dataList.select,
+    specialorgid: setupState.specialorgid
+  }
+  if (typeRef.value.selectList.length > 0) {
+    params.qkjxmlxbms = typeRef.value.selectList
+  } else {
+    params.qkjxmlxbms = typeRef.value.allId
+  }
+  if (companyRef.value.selectList.length > 0) {
+    params.qkjejdws = companyRef.value.selectList
+  } else {
+    params.qkjejdws = companyRef.value.allId
+  }
+  if (setupState.dataList.date) {
+    params.sbadat = setupState.dataList.date[0]
+    params.ebadat = setupState.dataList.date[1]
+  }
+  baseService.export('/process/process07/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '通用物资执行总览.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.segmentIds.push(item.value)
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
     }
   }
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+//搜索按钮
+function search() {
+  loadData()
+}
+//重置按钮
+function reset() {
+  setupState.dataList.date = []
+  getTime()
+  setupState.dataList.select = 0
+  typeRef.value.clear()
+  companyRef.value.clear()
+  setupState.example = []
+  loadData()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  getTime()
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+  compTableWidth()
+})
+;(() => {
+  handleColumn()
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  helpHandle,
+  store,
+  dataList,
+  columns,
+  example,
+  searchShow,
+  segment,
+  columnObj,
+  segmentIds,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  compTableWidth,
+  setTableHeight,
+  getTime,
+  loadData,
+  exportBtn,
+  handleColumn,
+  listShow,
+  showSearch,
+  search,
+  reset,
+  loadCompany
 })
 </script>
 

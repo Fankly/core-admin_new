@@ -1,71 +1,59 @@
-<script lang="ts">
-export default {
-  name: "ExtensionForm"
-};
-</script>
+
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
-
-import { onMounted, ref, toRef, defineProps, defineExpose } from "vue";
-import { getYhzd, saveOrUpdateYhzd } from "@/api/matter";
-import { RowVo, DetailParams } from "../interface";
+import { onMounted, ref, toRef } from 'vue'
+import { getYhzd, saveOrUpdateYhzd } from '@/api/matter'
+import { RowVo, DetailParams } from '../interface'
+defineOptions({
+  name: 'ExtensionForm'
+})
 
 interface Props {
-  detailParams: RowVo & DetailParams;
+  detailParams: RowVo & DetailParams
 }
-
-const props = defineProps<Props>();
-
-const isShowSearch = ref(false);
-
+const props = defineProps<Props>()
+const isShowSearch = ref(false)
 const extensionData = ref<any>({
-  yssxId: "",
-  yhzd1: "",
-  yhzd2: "",
-  yhzd3: "",
-  yhzd4: "",
-  yhzd5: "",
-  yhzd6: "",
-  yhzd7: "",
-  yhzd8: "",
-  yhzd9: "",
-  yhzd10: ""
-});
-
+  yssxId: '',
+  yhzd1: '',
+  yhzd2: '',
+  yhzd3: '',
+  yhzd4: '',
+  yhzd5: '',
+  yhzd6: '',
+  yhzd7: '',
+  yhzd8: '',
+  yhzd9: '',
+  yhzd10: ''
+})
 onMounted(() => {
-  initEditParams();
-});
-
+  initEditParams()
+})
 const clearData = () => {
   for (const key in extensionData.value) {
-    extensionData.value[key] = "";
+    extensionData.value[key] = ''
   }
-};
-
-const baseMsgData = toRef(props, "detailParams");
-
-const isDisabled = ref(true);
-
+}
+const baseMsgData = toRef(props, 'detailParams')
+const isDisabled = ref(true)
 const initEditParams = async () => {
-  let res = await getYhzd(baseMsgData.value.id);
+  let res = await getYhzd(baseMsgData.value.id)
   if (res.success && res.data) {
-    extensionData.value = res.data;
+    extensionData.value = res.data
   }
-};
-
+}
 const saveExtensionData = (val: string) => {
-  extensionData.value.yssxId = baseMsgData.value.yssxId;
+  extensionData.value.yssxId = baseMsgData.value.yssxId
   saveOrUpdateYhzd({
     ...extensionData.value
-  });
-};
-
+  })
+}
 defineExpose({
   saveExtensionData,
   extensionData,
   clearData
-});
+})
 </script>
 
 <template>

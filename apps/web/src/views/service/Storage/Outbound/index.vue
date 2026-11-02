@@ -1,17 +1,12 @@
-<script lang="ts">
-export default {
-  name: '/service/Storage/Outbound/index'
-}
-</script>
+
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
 import GeneralReport from '@/views/service/Storage/components/GeneralReport/index.vue'
 import { ElMessage } from 'element-plus'
-import { UserInfo } from '@/views/service/Storage/interface'
+import { UserInfo, RowVo } from '@/views/service/Storage/interface'
 import { saveOrUpdateTXmThxxb } from '@/api/workflow/xm'
 import { exportData, stockOutData, getSqckPage, thData, unABTh } from '@/api/service/Storage/Outbound'
 import ModifyMatterModal from '@/views/service/Storage/components/ModifyMatterModal/index.vue'
-import { RowVo } from '@/views/service/Storage/interface'
 import { getInfo } from '@/api/service/Storage/PlannedOutbound/Declaration'
 import { getMenuMessage } from '@/api/process'
 import { onMounted, ref } from 'vue'
@@ -24,6 +19,9 @@ import { useStore } from '@/store/business'
 import { GlobalInfo } from '@/views/service/lkyptzl/interface'
 import { useGuide } from '@/hooks/useGuide'
 import baseService from '@/service/baseService'
+defineOptions({
+  name: '/service/Storage/Outbound/index'
+})
 
 const userInfo = ref<UserInfo>({
   deptId: '',
@@ -35,11 +33,9 @@ const userInfo = ref<UserInfo>({
   spRoleId: '',
   specialorgcode: ''
 })
-
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
-
 const provinceTargetAdjustSwitchKey = 'ZLYS_MBZTZ_QRCK'
 const provinceTargetAdjustSwitchDefaultValue = '0'
 const provinceTargetAdjustSwitchEnabledValue = '1'
@@ -52,24 +48,20 @@ const contributionIncentiveBudgetField = 'sfsygxjlys'
 const contributionIncentiveBudgetEnabledValue = '1'
 const projectPriorityField = 'xmyxj'
 const projectPriorityEmptyMessage = '项目优先级未维护，请维护！'
-
 const { startGuide } = useGuide({
   moduleKey: 'Outbound',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 const ndList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const xmYxjModalRef = ref<InstanceType<typeof XmYxjModal>>()
 const modifyMatterModalRef = ref<InstanceType<typeof ModifyMatterModal>>()
-
 const tab = ref<{
   type: string
   name: string
@@ -77,27 +69,34 @@ const tab = ref<{
   type: '',
   name: '省级统筹项目'
 })
-
 const formRef = ref()
 const generalReportRef = ref<InstanceType<typeof GeneralReport>>()
 const isShowPage = ref(false)
 const loading = ref(false)
 const modalVisible = ref(false)
 const xmIdList = ref<any[]>([])
-
 const ckFormData = ref({
   isYap: '',
   nd: '',
   xmIds: []
 })
-
 const formRules = ref({
-  isYap: [{ required: true, message: '请选择是否预安排', trigger: 'change' }],
-  nd: [{ required: true, message: '请选择年度', trigger: 'change' }]
+  isYap: [
+    {
+      required: true,
+      message: '请选择是否预安排',
+      trigger: 'change'
+    }
+  ],
+  nd: [
+    {
+      required: true,
+      message: '请选择年度',
+      trigger: 'change'
+    }
+  ]
 })
-
 const userDialogRef = ref<InstanceType<typeof userDialog>>()
-
 const getRoleHandle = async () => {
   try {
     if (userDialogRef.value) {
@@ -123,9 +122,7 @@ const getRoleHandle = async () => {
     console.error(e.message)
   }
 }
-
 const selectedDatas = ref<RowVo[]>([])
-
 const getProvinceTargetAdjustSwitch = async () => {
   try {
     const res = await getParamConfig(provinceTargetAdjustSwitchKey)
@@ -138,72 +135,58 @@ const getProvinceTargetAdjustSwitch = async () => {
   }
   return provinceTargetAdjustSwitchDefaultValue
 }
-
 const ensureProvinceTargetAdjustMenuPermission = async () => {
   const userId = store.getters.getUserMsg.id
   if (!userId) {
     throw new Error('获取当前用户信息失败')
   }
-
   const menuRes = await getMenuMessage(provinceTargetAdjustRoutePath)
   const menuCode = menuRes?.data?.outsideMenu
   if (!menuRes.success || !menuCode) {
     throw new Error('获取项目类型调整菜单信息失败')
   }
-
   const roleList = await baseService.get(`/getRoleByBusicode?userId=${userId}&busicode=${menuCode}`)
   if (!Array.isArray(roleList)) {
     throw new Error('获取项目类型调整菜单权限失败')
   }
-
   if (roleList.length === 0) {
     throw new Error(provinceTargetAdjustNoPermissionMessage)
   }
 }
-
 const getProvinceTargetAdjustRows = (list: RowVo[]) => {
   return list.filter((item) => item.ysly === provinceTargetAdjustSourceType)
 }
-
 const getRowValue = (row: RowVo, field: string) => {
   return (row as Record<string, any>)[field]
 }
-
 const normalizeConfigValue = (value: string | number | null | undefined) => {
   return String(value ?? '').trim()
 }
-
 const isSameContributionIncentiveBudget = (list: RowVo[]) => {
   if (!Array.isArray(list) || list.length === 0) return true
   const firstValue = normalizeConfigValue(getRowValue(list[0], contributionIncentiveBudgetField))
   return list.every((item) => normalizeConfigValue(getRowValue(item, contributionIncentiveBudgetField)) === firstValue)
 }
-
 const isContributionIncentiveBudgetEnabled = (list: RowVo[]) => {
   if (!Array.isArray(list) || list.length === 0) return false
   return normalizeConfigValue(getRowValue(list[0], contributionIncentiveBudgetField)) === contributionIncentiveBudgetEnabledValue
 }
-
 const isProvinceTargetAdjustSkip = (row: RowVo) => {
   return normalizeConfigValue(getRowValue(row, provinceTargetAdjustSkipField)) === provinceTargetAdjustSkipEnabledValue
 }
-
 const hasEmptyProjectPriority = (list: RowVo[]) => {
   if (!Array.isArray(list) || list.length === 0) return false
   return list.some((item) => normalizeConfigValue(getRowValue(item, projectPriorityField)) === '')
 }
-
 const isAllProvinceTargetAdjustSkip = (list: RowVo[]) => {
   if (!Array.isArray(list) || list.length === 0) return false
   return list.every((item) => isProvinceTargetAdjustSkip(item))
 }
-
 const isPartialProvinceTargetAdjustSkip = (list: RowVo[]) => {
   if (!Array.isArray(list) || list.length === 0) return false
   const matchCount = list.filter((item) => isProvinceTargetAdjustSkip(item)).length
   return matchCount > 0 && matchCount < list.length
 }
-
 const outboundHandle = async (list: RowVo[]) => {
   if (list && list.length === 0) {
     ElMessage.warning('请至少选择一条数据!')
@@ -246,14 +229,12 @@ const outboundHandle = async (list: RowVo[]) => {
     ElMessage.error((error as Error).message)
   }
 }
-
 const getPublicDataList = async () => {
   const res = await getPublicCodeList({
     codes: ['ZLYS_XMJHSSND']
   })
   ndList.value = res.data['ZLYS_XMJHSSND']
 }
-
 const submitHandle = async () => {
   try {
     await formRef.value.validate()
@@ -307,7 +288,9 @@ const returnHandle = async (records: any, type: any) => {
       const api = type == '1' ? thData : unABTh
       let res: any = await api(params)
       if (res.success) {
-        let thRes = await saveOrUpdateTXmThxxb({ list: thList })
+        let thRes = await saveOrUpdateTXmThxxb({
+          list: thList
+        })
         console.log(thRes)
         ElMessage.success('退回成功！')
         searchData()
@@ -326,7 +309,6 @@ const searchData = () => {
     generalReportRef.value.searchDataHandle()
   }
 }
-
 const closeHandle = () => {
   modalVisible.value = false
   formRef.value.resetFields()
@@ -363,7 +345,6 @@ const getXmType = async (dwId: string) => {
     tab.value = res.data
   }
 }
-
 const handleError = (error: Error, message = '操作失败'): void => {
   ElMessage({
     message: `${message}:${error.message}`,
@@ -371,7 +352,6 @@ const handleError = (error: Error, message = '操作失败'): void => {
     duration: 5000
   })
 }
-
 onMounted(async () => {
   try {
     // 获取公共代码

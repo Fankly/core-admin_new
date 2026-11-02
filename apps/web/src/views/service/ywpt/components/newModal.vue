@@ -146,14 +146,11 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, defineExpose, reactive } from 'vue'
+import { ref, reactive } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { getEjdwData, getBm } from '@/api/service/expertinformation'
-
 interface OptionItem {
   code: string | number
   name: string
@@ -239,8 +236,14 @@ const isShowModel = ref(false)
 // 弹框参数
 const rmarkData = ref<any>({})
 const gender = ref<any>([
-  { code: '0', name: '男' },
-  { code: '1', name: '女' }
+  {
+    code: '0',
+    name: '男'
+  },
+  {
+    code: '1',
+    name: '女'
+  }
 ])
 const levelOne = ref<any>([]) //一级单位
 const levelTwo = ref<any>([]) //二级单位
@@ -280,7 +283,10 @@ const pushMsgHandle = () => {
       type: 'warning'
     })
       .then(() => {
-        emit('showModal', { type: props.title, label: rmarkData })
+        emit('showModal', {
+          type: props.title,
+          label: rmarkData
+        })
       })
       .catch((error: any) => {
         console.log(error)

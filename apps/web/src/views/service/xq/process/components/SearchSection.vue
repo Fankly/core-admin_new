@@ -14,45 +14,43 @@
 </template>
 
 <script setup lang="ts">
-import HelpModal from "@/components/HelpModal/index.vue";
-import { defineEmits, defineProps, getCurrentInstance, ref } from "vue";
+import HelpModal from '@/components/HelpModal/index.vue'
+import { getCurrentInstance, ref } from 'vue'
 
 // Props定义
 const props = defineProps<{
-  placeholder?: string;
-  buttonText?: string;
-}>();
+  placeholder?: string
+  buttonText?: string
+}>()
 
 // Emits定义
-const emit = defineEmits(["search"]);
-
-const helpModalRef = ref();
+const emit = defineEmits(['search'])
+const helpModalRef = ref()
 
 // 获取当前实例以访问 $message
-const instance = getCurrentInstance();
+const instance = getCurrentInstance()
 if (!instance) {
-  throw new Error("getCurrentInstance() returned null");
+  throw new Error('getCurrentInstance() returned null')
 }
-const proxy = instance.proxy;
+const proxy = instance.proxy
 
 // 响应式数据
-const searchValue = ref("");
+const searchValue = ref('')
 
 // 处理搜索
 const handleSearch = () => {
   if (!searchValue.value.trim()) {
     proxy?.$message({
-      message: "请输入项目编码或项目名称进行查询",
-      type: "warning"
-    });
-    return;
+      message: '请输入项目编码或项目名称进行查询',
+      type: 'warning'
+    })
+    return
   }
-  emit("search", searchValue.value.trim());
-};
-
+  emit('search', searchValue.value.trim())
+}
 const handleHelp = () => {
-  helpModalRef.value.showModal = true;
-};
+  helpModalRef.value.showModal = true
+}
 </script>
 
 <style scoped>

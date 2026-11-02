@@ -312,7 +312,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -321,9 +321,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, watch, onMounted, getCurrentInstance, useTemplateRef } from 'vue'
 import { ElMessage } from 'element-plus'
 import baseService from '@/service/baseService'
 import projectType from '@/components/select/projectType.vue'
@@ -334,485 +332,553 @@ import projectnature from '@/components/select/projectnature.vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { showHelpMsg } from '@/utils/message'
-export default defineComponent({
-  name: '/budget-process/process-22',
-  components: {
-    projectType,
-    affiliatedUnit,
-    copyTextBox,
-    Centralized,
-    projectnature,
-    userDialog
+defineOptions({
+  name: '/budget-process/process-22'
+})
+const componentInstance = getCurrentInstance().proxy
+const xmbmRef = useTemplateRef('xmbm')
+const xmxzRef = useTemplateRef('xmxz')
+const gkbmRef = useTemplateRef('gkbm')
+const typeRef = useTemplateRef('type')
+const companyRef = useTemplateRef('company')
+const xmbm2Ref = useTemplateRef('xmbm2')
+const fksqbhRef = useTemplateRef('fksqbh')
+const company2Ref = useTemplateRef('company2')
+const gkbm2Ref = useTemplateRef('gkbm2')
+const type2Ref = useTemplateRef('type2')
+const xmxz2Ref = useTemplateRef('xmxz2')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  helpHandle,
+  dataList: {
+    post1: '',
+    month: new Date(),
+    xmb: ''
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
-    }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      helpHandle,
-      dataList: {
-        post1: '',
-        month: new Date(),
-        xmb: ''
-      },
-      dataList2: {
-        post1: '',
-        month: new Date(),
-        xmb: '',
-        fksqrq: '',
-        yqpzh: '',
-        bldat: ''
-      },
+  dataList2: {
+    post1: '',
+    month: new Date(),
+    xmb: '',
+    fksqrq: '',
+    yqpzh: '',
+    bldat: ''
+  },
+  activeName: 'first',
+  dataListLoading2: false,
+  spanArr: [],
+  // 用于存放需要合并的行的个数
+  spanIndex: 0,
+  // 记录spanArr数组的下标
 
-      activeName: 'first',
-      dataListLoading2: false,
+  spanArr1: [],
+  // 用于存放需要合并的行的个数
+  spanIndex1: 0,
+  // 记录spanArr数组的下标
 
-      spanArr: [], // 用于存放需要合并的行的个数
-      spanIndex: 0, // 记录spanArr数组的下标
-
-      spanArr1: [], // 用于存放需要合并的行的个数
-      spanIndex1: 0, // 记录spanArr数组的下标
-
-      example: [],
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      example2: [],
-      page2: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      searchShow: true,
-      titleHeight: '',
-      searchHeight: '',
-      heightNum: '',
-      tableHeight: '',
-      tableHeight2: '',
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: ''
+  example: [],
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
+  },
+  example2: [],
+  page2: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
+  },
+  searchShow: true,
+  titleHeight: '',
+  searchHeight: '',
+  heightNum: '',
+  tableHeight: '',
+  tableHeight2: '',
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const dataList = toRef(setupState, 'dataList')
+const dataList2 = toRef(setupState, 'dataList2')
+const activeName = toRef(setupState, 'activeName')
+const dataListLoading2 = toRef(setupState, 'dataListLoading2')
+const spanArr = toRef(setupState, 'spanArr')
+const spanIndex = toRef(setupState, 'spanIndex')
+const spanArr1 = toRef(setupState, 'spanArr1')
+const spanIndex1 = toRef(setupState, 'spanIndex1')
+const example = toRef(setupState, 'example')
+const page = toRef(setupState, 'page')
+const example2 = toRef(setupState, 'example2')
+const page2 = toRef(setupState, 'page2')
+const searchShow = toRef(setupState, 'searchShow')
+const titleHeight = toRef(setupState, 'titleHeight')
+const searchHeight = toRef(setupState, 'searchHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const tableHeight = toRef(setupState, 'tableHeight')
+const tableHeight2 = toRef(setupState, 'tableHeight2')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+//结算信息查询按钮
+function search() {
+  if (setupState.dataList.month) {
+    loadData()
+  } else {
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
     })
-  },
-  watch: {
-    'store.state.jsyzjzfData.pspid': {
-      handler: function (val) {
-        if (val) {
-          this.$refs.xmbm.ids = val
-          this.$refs.xmbm.text = val
-          this.$refs.xmbm.array.push(val)
-          this.specialorgid = JSON.parse(this.store.state.jsyzjzfData.specialorgid)
-          this.loadData()
-          // 清空vuex中的数据
-          this.store.commit('jsyzjzfData', {})
-        }
-      }
-    },
-    deep: true
-  },
-  mounted() {
-    this.titleHeight = document.querySelector('.title').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.setTableHeight()
-    this.setTableHeight2()
-    if (this.store.state.jsyzjzfData.pspid && this.store.state.jsyzjzfData.specialorgid) {
-      this.$refs.xmbm.ids = this.store.state.jsyzjzfData.pspid
-      this.$refs.xmbm.text = this.store.state.jsyzjzfData.pspid
-      this.$refs.xmbm.array.push(this.store.state.jsyzjzfData.pspid)
-      this.specialorgid = JSON.parse(this.store.state.jsyzjzfData.specialorgid)
-      this.loadData()
-      // 清空vuex中的数据
-      this.store.commit('jsyzjzfData', {})
+  }
+}
+//结算信息重置按钮
+function reset() {
+  xmbmRef.value.clear()
+  xmxzRef.value.clear()
+  gkbmRef.value.clear()
+  setupState.dataList.post1 = ''
+  setupState.dataList.xmb = ''
+  setupState.dataList.month = new Date()
+  typeRef.value.clear()
+  companyRef.value.clear()
+  setupState.example = []
+  search()
+}
+//结算信息获取数据
+function loadData() {
+  setupState.loading = true
+  const params = {
+    pspids: [],
+    zjsjd_mc: xmxzRef.value.value,
+    gkbms: [],
+    post1: setupState.dataList.post1,
+    xmb: setupState.dataList.xmb,
+    zyear: '',
+    zmonth: '',
+    qkjxmlxbms: [],
+    qkjejdws: [],
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+  //项目编码
+  params.pspids = xmbmRef.value.array
+  //归口部门
+  params.gkbms = gkbmRef.value.selectList
+  //截至日期
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  //项目类型
+  params.qkjxmlxbms = typeRef.value.selectList
+  //所属单位
+  params.qkjejdws = companyRef.value.selectList
+  baseService.post('/process/process22/tab1/', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example = res.data.list
+      setupState.page.total = res.data.total
+      getSpanArr(setupState.example)
     } else {
-      this.loading = true
-      this.$refs.userDialog.getUser()
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
     }
-  },
-  methods: {
-    //结算信息查询按钮
-    search() {
-      if (this.dataList.month) {
-        this.loadData()
-      } else {
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-    //结算信息重置按钮
-    reset() {
-      this.$refs.xmbm.clear()
-      this.$refs.xmxz.clear()
-      this.$refs.gkbm.clear()
-      this.dataList.post1 = ''
-      this.dataList.xmb = ''
-      this.dataList.month = new Date()
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.example = []
-      this.search()
-    },
-    //结算信息获取数据
-    loadData() {
-      this.loading = true
-      const params = {
-        pspids: [],
-        zjsjd_mc: this.$refs.xmxz.value,
-        gkbms: [],
-        post1: this.dataList.post1,
-        xmb: this.dataList.xmb,
-        zyear: '',
-        zmonth: '',
-        qkjxmlxbms: [],
-        qkjejdws: [],
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-      //项目编码
-      params.pspids = this.$refs.xmbm.array
-      //归口部门
-      params.gkbms = this.$refs.gkbm.selectList
-      //截至日期
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type.selectList
-      //所属单位
-      params.qkjejdws = this.$refs.company.selectList
-      baseService.post('/process/process22/tab1/', params).then((res) => {
-        if (res.success == true) {
-          this.loading = false
-          this.example = res.data.list
-          this.page.total = res.data.total
-          this.getSpanArr(this.example)
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
+  })
+}
+//结算信息导出
+async function exportBtn() {
+  setupState.loading = true
+  const params = {
+    pspids: [],
+    zjsjd_mc: xmxzRef.value.value,
+    gkbms: [],
+    post1: setupState.dataList.post1,
+    xmb: setupState.dataList.xmb,
+    zyear: '',
+    zmonth: '',
+    qkjxmlxbms: [],
+    qkjejdws: [],
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid
+  }
+  //项目编码
+  params.pspids = xmbmRef.value.array
+  //归口部门
+  params.gkbms = gkbmRef.value.selectList
+  //截至日期
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  //项目类型
+  params.qkjxmlxbms = typeRef.value.selectList
+  //所属单位
+  params.qkjejdws = companyRef.value.selectList
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  await baseService.export('/process/process22/export1', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '结算与资金支付环节穿透_结算信息.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.titleHeight - setupState.searchHeight - 155 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.titleHeight + setupState.searchHeight - 310 + 'px'
+  }
+}
+//资金支付信息查询按钮
+function search2() {
+  if (setupState.dataList2.month) {
+    loadData2()
+  } else {
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
+    })
+  }
+}
+//资金支付信息重置按钮
+function reset2() {
+  xmbm2Ref.value.clear()
+  fksqbhRef.value.clear()
+  company2Ref.value.clear()
+  setupState.dataList2.post1 = ''
+  setupState.dataList2.fksqrq = ''
+  gkbm2Ref.value.clear()
+  type2Ref.value.clear()
+  setupState.dataList2.yqpzh = ''
+  setupState.dataList2.month = new Date()
+  xmxz2Ref.value.clear()
+  setupState.dataList2.bldat = ''
+  setupState.dataList2.xmb = ''
+  setupState.example2 = []
+  search2()
+}
+//资金支付信息获取数据
+function loadData2() {
+  setupState.loading = true
+  setupState.spanArr1 = [] // 用于存放需要合并的行的个数
+  setupState.spanIndex1 = 0 // 记录spanArr数组的下标
+  const params = {
+    pspids: [],
+    zfksqs: [],
+    qkjejdws: [],
+    post1: setupState.dataList2.post1,
+    sfksqrq: '',
+    efksqrq: '',
+    gkbms: [],
+    qkjxmlxbms: [],
+    yqpzh: setupState.dataList2.yqpzh,
+    zyear: '',
+    zmonth: '',
+    zjsjd_mc: xmxz2Ref.value.value,
+    sbldat: '',
+    ebldat: '',
+    xmb: setupState.dataList2.xmb,
+    page: setupState.page2.page,
+    limit: setupState.page2.limit,
+    specialorgid: setupState.specialorgid
+  }
+  //项目编码
+  params.pspids = xmbm2Ref.value.array
+  //付款申请编码
+  params.zfksqs = fksqbhRef.value.array
+  //所属单位
+  params.qkjejdws = company2Ref.value.selectList
+  //付款申请日期
+  if (setupState.dataList2.fksqrq) {
+    params.sfksqrq = setupState.dataList2.fksqrq[0]
+    params.efksqrq = setupState.dataList2.fksqrq[1]
+  }
+  //归口部门
+  params.gkbms = gkbm2Ref.value.selectList
+  //项目类型
+  params.qkjxmlxbms = type2Ref.value.selectList
+  //截至日期
+  if (setupState.dataList2.month != '') {
+    let time = new Date(setupState.dataList2.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  //凭证日期
+  if (setupState.dataList2.bldat) {
+    params.sbldat = setupState.dataList2.bldat[0]
+    params.ebldat = setupState.dataList2.bldat[1]
+  }
+  baseService.post('/process/process22/tab2/', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example2 = res.data.list
+      setupState.page2.total = res.data.total
+      getSpanArr(res.data)
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
       })
-    },
-    //结算信息导出
-    async exportBtn() {
-      this.loading = true
-      const params = {
-        pspids: [],
-        zjsjd_mc: this.$refs.xmxz.value,
-        gkbms: [],
-        post1: this.dataList.post1,
-        xmb: this.dataList.xmb,
-        zyear: '',
-        zmonth: '',
-        qkjxmlxbms: [],
-        qkjejdws: [],
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid
-      }
-      //项目编码
-      params.pspids = this.$refs.xmbm.array
-      //归口部门
-      params.gkbms = this.$refs.gkbm.selectList
-      //截至日期
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type.selectList
-      //所属单位
-      params.qkjejdws = this.$refs.company.selectList
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      await baseService.export('/process/process22/export1', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '结算与资金支付环节穿透_结算信息.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.titleHeight - this.searchHeight - 155 + 'px'
+    }
+  })
+}
+//资金支付信息导出
+async function exportBtn2() {
+  setupState.loading = true
+  const params = {
+    pspids: [],
+    zfksqs: [],
+    qkjejdws: [],
+    post1: setupState.dataList2.post1,
+    sfksqrq: '',
+    efksqrq: '',
+    gkbms: [],
+    qkjxmlxbms: [],
+    yqpzh: setupState.dataList2.yqpzh,
+    zyear: '',
+    zmonth: '',
+    zjsjd_mc: xmxz2Ref.value.value,
+    sbldat: '',
+    ebldat: '',
+    xmb: setupState.dataList2.xmb,
+    page: setupState.page2.page,
+    limit: setupState.page2.limit,
+    specialorgid: setupState.specialorgid
+  }
+  //项目编码
+  params.pspids = xmbm2Ref.value.array
+  //付款申请编码
+  params.zfksqs = fksqbhRef.value.array
+  //所属单位
+  params.qkjejdws = company2Ref.value.selectList
+  //付款申请日期
+  if (setupState.dataList2.fksqrq) {
+    params.sfksqrq = setupState.dataList2.fksqrq[0]
+    params.efksqrq = setupState.dataList2.fksqrq[1]
+  }
+  //归口部门
+  params.gkbms = gkbm2Ref.value.selectList
+  //项目类型
+  params.qkjxmlxbms = type2Ref.value.selectList
+  //截至日期
+  if (setupState.dataList2.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  //凭证日期
+  if (setupState.dataList2.bldat) {
+    params.sbldat = setupState.dataList2.bldat[0]
+    params.ebldat = setupState.dataList2.bldat[1]
+  }
+  await baseService.export('/process/process22/export2', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '结算与资金支付环节穿透_资金支付信息.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+function setTableHeight2() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight2 = setupState.heightNum - setupState.titleHeight - setupState.searchHeight - 255 + 'px'
+  } else {
+    setupState.tableHeight2 = setupState.heightNum - setupState.titleHeight + setupState.searchHeight - 310 + 'px'
+  }
+}
+function handleClick() {
+  if (setupState.activeName == 'second') {
+    type2Ref.value.getProjectType(setupState.specialorgid)
+    company2Ref.value.getAffiliatedUnit(setupState.specialorgid)
+    gkbm2Ref.value.getProjectType(setupState.specialorgid)
+  }
+}
+function getSpanArr(data) {
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) {
+      setupState.spanArr.push(1)
+      setupState.spanIndex = 0
+      setupState.spanArr1.push(1)
+      setupState.spanIndex1 = 0
+    } else {
+      if (data[i].pspid === data[i - 1].pspid) {
+        setupState.spanArr1[setupState.spanIndex1] += 1
+        setupState.spanArr1.push(0)
       } else {
-        this.tableHeight = this.heightNum - this.titleHeight + this.searchHeight - 310 + 'px'
+        setupState.spanArr1.push(1)
+        setupState.spanIndex1 = i
       }
-    },
-
-    //资金支付信息查询按钮
-    search2() {
-      if (this.dataList2.month) {
-        this.loadData2()
-      } else {
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-    //资金支付信息重置按钮
-    reset2() {
-      this.$refs.xmbm2.clear()
-      this.$refs.fksqbh.clear()
-      this.$refs.company2.clear()
-      this.dataList2.post1 = ''
-      this.dataList2.fksqrq = ''
-      this.$refs.gkbm2.clear()
-      this.$refs.type2.clear()
-      this.dataList2.yqpzh = ''
-      this.dataList2.month = new Date()
-      this.$refs.xmxz2.clear()
-      this.dataList2.bldat = ''
-      this.dataList2.xmb = ''
-      this.example2 = []
-      this.search2()
-    },
-    //资金支付信息获取数据
-    loadData2() {
-      this.loading = true
-      this.spanArr1 = [] // 用于存放需要合并的行的个数
-      this.spanIndex1 = 0 // 记录spanArr数组的下标
-      const params = {
-        pspids: [],
-        zfksqs: [],
-        qkjejdws: [],
-        post1: this.dataList2.post1,
-        sfksqrq: '',
-        efksqrq: '',
-        gkbms: [],
-        qkjxmlxbms: [],
-        yqpzh: this.dataList2.yqpzh,
-        zyear: '',
-        zmonth: '',
-        zjsjd_mc: this.$refs.xmxz2.value,
-        sbldat: '',
-        ebldat: '',
-        xmb: this.dataList2.xmb,
-        page: this.page2.page,
-        limit: this.page2.limit,
-        specialorgid: this.specialorgid
-      }
-      //项目编码
-      params.pspids = this.$refs.xmbm2.array
-      //付款申请编码
-      params.zfksqs = this.$refs.fksqbh.array
-      //所属单位
-      params.qkjejdws = this.$refs.company2.selectList
-      //付款申请日期
-      if (this.dataList2.fksqrq) {
-        params.sfksqrq = this.dataList2.fksqrq[0]
-        params.efksqrq = this.dataList2.fksqrq[1]
-      }
-      //归口部门
-      params.gkbms = this.$refs.gkbm2.selectList
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type2.selectList
-      //截至日期
-      if (this.dataList2.month != '') {
-        let time = new Date(this.dataList2.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      //凭证日期
-      if (this.dataList2.bldat) {
-        params.sbldat = this.dataList2.bldat[0]
-        params.ebldat = this.dataList2.bldat[1]
-      }
-      baseService.post('/process/process22/tab2/', params).then((res) => {
-        if (res.success == true) {
-          this.loading = false
-          this.example2 = res.data.list
-          this.page2.total = res.data.total
-          this.getSpanArr(res.data)
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    //资金支付信息导出
-    async exportBtn2() {
-      this.loading = true
-      const params = {
-        pspids: [],
-        zfksqs: [],
-        qkjejdws: [],
-        post1: this.dataList2.post1,
-        sfksqrq: '',
-        efksqrq: '',
-        gkbms: [],
-        qkjxmlxbms: [],
-        yqpzh: this.dataList2.yqpzh,
-        zyear: '',
-        zmonth: '',
-        zjsjd_mc: this.$refs.xmxz2.value,
-        sbldat: '',
-        ebldat: '',
-        xmb: this.dataList2.xmb,
-        page: this.page2.page,
-        limit: this.page2.limit,
-        specialorgid: this.specialorgid
-      }
-      //项目编码
-      params.pspids = this.$refs.xmbm2.array
-      //付款申请编码
-      params.zfksqs = this.$refs.fksqbh.array
-      //所属单位
-      params.qkjejdws = this.$refs.company2.selectList
-      //付款申请日期
-      if (this.dataList2.fksqrq) {
-        params.sfksqrq = this.dataList2.fksqrq[0]
-        params.efksqrq = this.dataList2.fksqrq[1]
-      }
-      //归口部门
-      params.gkbms = this.$refs.gkbm2.selectList
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type2.selectList
-      //截至日期
-      if (this.dataList2.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      //凭证日期
-      if (this.dataList2.bldat) {
-        params.sbldat = this.dataList2.bldat[0]
-        params.ebldat = this.dataList2.bldat[1]
-      }
-      await baseService.export('/process/process22/export2', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '结算与资金支付环节穿透_资金支付信息.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-
-    setTableHeight2() {
-      if (this.searchShow == true) {
-        this.tableHeight2 = this.heightNum - this.titleHeight - this.searchHeight - 255 + 'px'
-      } else {
-        this.tableHeight2 = this.heightNum - this.titleHeight + this.searchHeight - 310 + 'px'
-      }
-    },
-    handleClick() {
-      if (this.activeName == 'second') {
-        this.$refs.type2.getProjectType(this.specialorgid)
-        this.$refs.company2.getAffiliatedUnit(this.specialorgid)
-        this.$refs.gkbm2.getProjectType(this.specialorgid)
-      }
-    },
-    getSpanArr(data) {
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) {
-          this.spanArr.push(1)
-          this.spanIndex = 0
-          this.spanArr1.push(1)
-          this.spanIndex1 = 0
-        } else {
-          if (data[i].pspid === data[i - 1].pspid) {
-            this.spanArr1[this.spanIndex1] += 1
-            this.spanArr1.push(0)
-          } else {
-            this.spanArr1.push(1)
-            this.spanIndex1 = i
-          }
-        }
-      }
-    },
-
-    // 分页控件当前页修改事件
-    pageChangeHandle2(currentPageNum) {
-      this.page2.page = currentPageNum
-      this.loadData2()
-    },
-    // 分页控件请求数量修改事件
-    limitChangeHandle2(currentLimitNum) {
-      this.page2.limit = currentLimitNum
-      this.loadData2()
-    },
-
-    // 分页控件当前页修改事件
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    // 分页控件请求数量修改事件
-    limitChangeHandle(currentLimitNum) {
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-
-    // objectSpanMethod1({ row, column, rowIndex, columnIndex }) {},
-
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-      this.setTableHeight2()
-    },
-
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
-      this.$refs.company2.getAffiliatedUnit(this.specialorgid)
-      this.$refs.gkbm.getProjectType(this.specialorgid)
-      this.$refs.gkbm2.getProjectType(this.specialorgid)
     }
   }
+}
+// 分页控件当前页修改事件
+function pageChangeHandle2(currentPageNum) {
+  setupState.page2.page = currentPageNum
+  loadData2()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle2(currentLimitNum) {
+  setupState.page2.limit = currentLimitNum
+  loadData2()
+}
+// 分页控件当前页修改事件
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+// objectSpanMethod1({ row, column, rowIndex, columnIndex }) {},
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+  setTableHeight2()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+  company2Ref.value.getAffiliatedUnit(setupState.specialorgid)
+  gkbmRef.value.getProjectType(setupState.specialorgid)
+  gkbm2Ref.value.getProjectType(setupState.specialorgid)
+}
+watch(
+  () => setupState.store.state.jsyzjzfData.pspid,
+  function (val) {
+    if (val) {
+      xmbmRef.value.ids = val
+      xmbmRef.value.text = val
+      xmbmRef.value.array.push(val)
+      setupState.specialorgid = JSON.parse(setupState.store.state.jsyzjzfData.specialorgid)
+      loadData()
+      // 清空vuex中的数据
+      setupState.store.commit('jsyzjzfData', {})
+    }
+  },
+  {}
+)
+watch(() => componentInstance.deep, true)
+onMounted(() => {
+  setupState.titleHeight = document.querySelector('.title').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setTableHeight()
+  setTableHeight2()
+  if (setupState.store.state.jsyzjzfData.pspid && setupState.store.state.jsyzjzfData.specialorgid) {
+    xmbmRef.value.ids = setupState.store.state.jsyzjzfData.pspid
+    xmbmRef.value.text = setupState.store.state.jsyzjzfData.pspid
+    xmbmRef.value.array.push(setupState.store.state.jsyzjzfData.pspid)
+    setupState.specialorgid = JSON.parse(setupState.store.state.jsyzjzfData.specialorgid)
+    loadData()
+    // 清空vuex中的数据
+    setupState.store.commit('jsyzjzfData', {})
+  } else {
+    setupState.loading = true
+    userDialogRef.value.getUser()
+  }
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  helpHandle,
+  dataList,
+  dataList2,
+  activeName,
+  dataListLoading2,
+  spanArr,
+  spanIndex,
+  spanArr1,
+  spanIndex1,
+  example,
+  page,
+  example2,
+  page2,
+  searchShow,
+  titleHeight,
+  searchHeight,
+  heightNum,
+  tableHeight,
+  tableHeight2,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  search,
+  reset,
+  loadData,
+  exportBtn,
+  setTableHeight,
+  search2,
+  reset2,
+  loadData2,
+  exportBtn2,
+  setTableHeight2,
+  handleClick,
+  getSpanArr,
+  pageChangeHandle2,
+  limitChangeHandle2,
+  pageChangeHandle,
+  limitChangeHandle,
+  showSearch,
+  loadCompany
 })
 </script>
 

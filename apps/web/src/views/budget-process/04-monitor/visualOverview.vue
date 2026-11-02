@@ -68,102 +68,102 @@
   </div>
 </template>
 
-<script>
-import { defineComponent, nextTick, reactive } from "vue";
-import overView from "@/views/budget-process/components/overview.vue";
-import reserveEntry from "@/views/budget-process/components/reserveEntry.vue";
-import Bidding from "@/views/budget-process/components/Bidding.vue";
-import Contract from "@/views/budget-process/components/Contract.vue";
-import projectImplementation from "@/views/budget-process/components/projectImplementation.vue";
-import projectAudit from "@/views/budget-process/components/projectAudit.vue";
-import settlementCapital from "@/views/budget-process/components/settlementCapital.vue";
-import CapitalIncrease from "@/views/budget-process/components/capitalIncrease.vue";
-import ProClose from "@/views/budget-process/components/proClose.vue";
-import { ElMessage } from "element-plus";
-import userDialog from "@/components/select/userDialog.vue";
-import baseService from "@/service/baseService";
-
-export default defineComponent({
-  name: "/budget-process/04-monitor/visualOverview",
-  components: {
-    userDialog,
-    ProClose,
-    CapitalIncrease,
-    Contract,
-    Bidding,
-    overView,
-    reserveEntry,
-    projectImplementation,
-    projectAudit,
-    settlementCapital
-  },
-  setup() {
-    return reactive({
-      temShow: "",
-      isShow: false,
-      loading: false,
-      dataObj: {}
-    });
-  },
-  mounted() {
-    this.loading = true;
-    this.$refs.userDialog.getUser(this.userId, this.userCode);
-    this.getData();
-  },
-  methods: {
-    getData() {
-      this.loading = true;
-      baseService.get("/testView/getData?code=ZLYS_CSSJ").then((res) => {
-        if (res.success) {
-          this.loading = false;
-          this.dataObj = res.data;
-        } else {
-          this.ElMessage({
-            type: "error",
-            message: res.msg
-          });
-        }
-      });
-    },
-    loadCompany() {
-      this.loading = false;
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid);
-      this.isShow = true;
-      if (this.$refs.userDialog.isQuery) {
-        nextTick(() => {
-          this.changeColor("box-1");
-        });
-      }
-    },
-    changeColor(name) {
-      //选中元素的样式
-      this.temShow = name;
-      let box = document.querySelector(`.${name}`);
-      box.classList.add("publicStyle");
-
-      let rightSon = box.querySelector(".box-right");
-      rightSon.classList.add("right");
-
-      if (box.querySelectorAll(".box-left").length > 0) {
-        box.querySelector(".box-left").classList.add("left");
-      }
-
-      //除选中元素外的其他元素
-      let domList = [];
-      let p = box.parentNode.children;
-      for (var i = 0, pl = p.length; i < pl; i++) {
-        if (p[i] !== box) domList.push(p[i]);
-      }
-      domList.forEach((item) => {
-        item.querySelector(".box-right").classList.remove("right");
-        item.classList.remove("publicStyle");
-        if (item.querySelectorAll(".left").length > 0) {
-          item.querySelector(".left").classList.remove("left");
-        }
-      });
+<script setup>
+import { nextTick, reactive, toRef, toRefs, onMounted, getCurrentInstance, useTemplateRef } from 'vue'
+import overView from '@/views/budget-process/components/overview.vue'
+import reserveEntry from '@/views/budget-process/components/reserveEntry.vue'
+import Bidding from '@/views/budget-process/components/Bidding.vue'
+import Contract from '@/views/budget-process/components/Contract.vue'
+import projectImplementation from '@/views/budget-process/components/projectImplementation.vue'
+import projectAudit from '@/views/budget-process/components/projectAudit.vue'
+import settlementCapital from '@/views/budget-process/components/settlementCapital.vue'
+import CapitalIncrease from '@/views/budget-process/components/capitalIncrease.vue'
+import ProClose from '@/views/budget-process/components/proClose.vue'
+import { ElMessage } from 'element-plus'
+import userDialog from '@/components/select/userDialog.vue'
+import baseService from '@/service/baseService'
+defineOptions({
+  name: '/budget-process/04-monitor/visualOverview'
+})
+const componentInstance = getCurrentInstance().proxy
+const userDialogRef = useTemplateRef('userDialog')
+const setupState = reactive({
+  temShow: '',
+  isShow: false,
+  loading: false,
+  dataObj: {}
+})
+const temShow = toRef(setupState, 'temShow')
+const isShow = toRef(setupState, 'isShow')
+const loading = toRef(setupState, 'loading')
+const dataObj = toRef(setupState, 'dataObj')
+const componentData = reactive({})
+componentData.specialorgid = undefined
+const specialorgid = toRef(componentData, 'specialorgid')
+function getData() {
+  setupState.loading = true
+  baseService.get('/testView/getData?code=ZLYS_CSSJ').then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.dataObj = res.data
+    } else {
+      componentInstance.ElMessage({
+        type: 'error',
+        message: res.msg
+      })
     }
+  })
+}
+function loadCompany() {
+  setupState.loading = false
+  componentData.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  setupState.isShow = true
+  if (userDialogRef.value.isQuery) {
+    nextTick(() => {
+      changeColor('box-1')
+    })
   }
-});
+}
+function changeColor(name) {
+  //选中元素的样式
+  setupState.temShow = name
+  let box = document.querySelector(`.${name}`)
+  box.classList.add('publicStyle')
+  let rightSon = box.querySelector('.box-right')
+  rightSon.classList.add('right')
+  if (box.querySelectorAll('.box-left').length > 0) {
+    box.querySelector('.box-left').classList.add('left')
+  }
+
+  //除选中元素外的其他元素
+  let domList = []
+  let p = box.parentNode.children
+  for (var i = 0, pl = p.length; i < pl; i++) {
+    if (p[i] !== box) domList.push(p[i])
+  }
+  domList.forEach((item) => {
+    item.querySelector('.box-right').classList.remove('right')
+    item.classList.remove('publicStyle')
+    if (item.querySelectorAll('.left').length > 0) {
+      item.querySelector('.left').classList.remove('left')
+    }
+  })
+}
+onMounted(() => {
+  setupState.loading = true
+  userDialogRef.value.getUser(componentInstance.userId, componentInstance.userCode)
+  getData()
+})
+defineExpose({
+  temShow,
+  isShow,
+  loading,
+  dataObj,
+  getData,
+  loadCompany,
+  changeColor,
+  ...toRefs(componentData)
+})
 </script>
 
 <style lang="less" scoped>

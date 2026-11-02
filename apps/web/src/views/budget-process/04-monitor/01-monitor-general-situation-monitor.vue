@@ -76,7 +76,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   Coin as EpCoin,
   CollectionTag as EpCollectionTag,
@@ -88,92 +88,98 @@ import {
   Reading as EpReading,
   TurnOff as EpTurnOff
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from "vue";
-import GeneralSituation from "@/components/general-situation/GeneralSituation.vue";
-import ReserveEstablishment from "@/components/general-situation/ReserveEstablishment.vue";
-import Bidding from "@/components/general-situation/Bidding.vue";
-import ContractSigning from "@/components/general-situation/ContractSigning.vue";
-import ProjectImplementation from "@/components/general-situation/ProjectImplementation.vue";
-import ProjectAudit from "@/components/general-situation/ProjectAudit.vue";
-import SettlementPayment from "@/components/general-situation/SettlementPayment.vue";
-import BinalAccounts from "@/components/general-situation/BinalAccounts.vue";
-import ProjectClosure from "@/components/general-situation/ProjectClosure.vue";
-import userDialog from "@/components/select/userDialog.vue";
-import { useStore } from '@/store/business';
-import { ElMessage } from "element-plus";
-
-export default defineComponent({
-  name: "/budget-process/04-monitor/01-monitor-general-situation-monitor",
-  components: {
-    GeneralSituation,
-    ReserveEstablishment,
-    Bidding,
-    ContractSigning,
-    ProjectImplementation,
-    ProjectAudit,
-    SettlementPayment,
-    BinalAccounts,
-    ProjectClosure,
-    userDialog
-  },
-  setup() {
-    const store = useStore();
-    return reactive({
-      EpCoin: markElementIconRaw(EpCoin),
-      EpCollectionTag: markElementIconRaw(EpCollectionTag),
-      EpCreditCard: markElementIconRaw(EpCreditCard),
-      EpDataAnalysis: markElementIconRaw(EpDataAnalysis),
-      EpDiscount: markElementIconRaw(EpDiscount),
-      EpFiles: markElementIconRaw(EpFiles),
-      EpPieChart: markElementIconRaw(EpPieChart),
-      EpReading: markElementIconRaw(EpReading),
-      EpTurnOff: markElementIconRaw(EpTurnOff),
-      store,
-      temShow: "",
-      loading: false,
-      userCode: "",
-      userId: "",
-      specialorgid: ""
-    });
-  },
-  mounted() {
-    this.loading = true;
-    this.$refs.userDialog.getUser(this.userId, this.userCode);
-  },
-  methods: {
-    loadCompany() {
-      this.loading = false;
-      sessionStorage.setItem("specialorgid", this.$refs.userDialog.specialorgid);
-      this.changeColor("box-1");
-    },
-    changeColor(name) {
-      //选中元素的样式
-      this.temShow = name;
-      let box = document.querySelector(`.${name}`);
-      box.classList.add("publicStyle");
-      let rightSon = box.querySelector(".box-right");
-      rightSon.classList.add("right");
-      if (box.querySelectorAll(".box-left").length > 0) {
-        box.querySelector(".box-left").classList.add("left");
-      }
-      // 除选中元素外的其他元素;
-      let domList = [];
-      let p = box.parentNode.children;
-      for (var i = 0, pl = p.length; i < pl; i++) {
-        if (p[i] !== box) domList.push(p[i]);
-      }
-      domList.forEach((item) => {
-        item.querySelector(".box-right").classList.remove("right");
-        item.classList.remove("publicStyle");
-        if (item.querySelectorAll(".left").length > 0) {
-          item.querySelector(".left").classList.remove("left");
-        }
-      });
-    }
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
+import GeneralSituation from '@/components/general-situation/GeneralSituation.vue'
+import ReserveEstablishment from '@/components/general-situation/ReserveEstablishment.vue'
+import Bidding from '@/components/general-situation/Bidding.vue'
+import ContractSigning from '@/components/general-situation/ContractSigning.vue'
+import ProjectImplementation from '@/components/general-situation/ProjectImplementation.vue'
+import ProjectAudit from '@/components/general-situation/ProjectAudit.vue'
+import SettlementPayment from '@/components/general-situation/SettlementPayment.vue'
+import BinalAccounts from '@/components/general-situation/BinalAccounts.vue'
+import ProjectClosure from '@/components/general-situation/ProjectClosure.vue'
+import userDialog from '@/components/select/userDialog.vue'
+import { useStore } from '@/store/business'
+import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/budget-process/04-monitor/01-monitor-general-situation-monitor'
+})
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const setupState = reactive({
+  EpCoin: markElementIconRaw(EpCoin),
+  EpCollectionTag: markElementIconRaw(EpCollectionTag),
+  EpCreditCard: markElementIconRaw(EpCreditCard),
+  EpDataAnalysis: markElementIconRaw(EpDataAnalysis),
+  EpDiscount: markElementIconRaw(EpDiscount),
+  EpFiles: markElementIconRaw(EpFiles),
+  EpPieChart: markElementIconRaw(EpPieChart),
+  EpReading: markElementIconRaw(EpReading),
+  EpTurnOff: markElementIconRaw(EpTurnOff),
+  store,
+  temShow: '',
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const temShow = toRef(setupState, 'temShow')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+function loadCompany() {
+  setupState.loading = false
+  sessionStorage.setItem('specialorgid', userDialogRef.value.specialorgid)
+  changeColor('box-1')
+}
+function changeColor(name) {
+  //选中元素的样式
+  setupState.temShow = name
+  let box = document.querySelector(`.${name}`)
+  box.classList.add('publicStyle')
+  let rightSon = box.querySelector('.box-right')
+  rightSon.classList.add('right')
+  if (box.querySelectorAll('.box-left').length > 0) {
+    box.querySelector('.box-left').classList.add('left')
   }
-});
+  // 除选中元素外的其他元素;
+  let domList = []
+  let p = box.parentNode.children
+  for (var i = 0, pl = p.length; i < pl; i++) {
+    if (p[i] !== box) domList.push(p[i])
+  }
+  domList.forEach((item) => {
+    item.querySelector('.box-right').classList.remove('right')
+    item.classList.remove('publicStyle')
+    if (item.querySelectorAll('.left').length > 0) {
+      item.querySelector('.left').classList.remove('left')
+    }
+  })
+}
+onMounted(() => {
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+})
+defineExpose({
+  EpCoin,
+  EpCollectionTag,
+  EpCreditCard,
+  EpDataAnalysis,
+  EpDiscount,
+  EpFiles,
+  EpPieChart,
+  EpReading,
+  EpTurnOff,
+  store,
+  temShow,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  loadCompany,
+  changeColor
+})
 </script>
 
 <style lang="less" scoped>

@@ -350,112 +350,137 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Search as EpSearch } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
+import { markRaw as markElementIconRaw, ref, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import VChart from 'vue-echarts'
-import { ref, defineComponent, reactive } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import { useStore } from '@/store/business'
 import process from '@/views/budget-process/js/process-data'
 import affiliatedUnit from '@/components/select/affiliatedUnit.vue'
-export default defineComponent({
-  name: '/budget-process/04-monitor/overview',
-  components: {
-    VChart,
-    userDialog,
-    affiliatedUnit
+defineOptions({
+  name: '/budget-process/04-monitor/overview'
+})
+const companyRef = useTemplateRef('company')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  loading: false,
+  dataList: {
+    month: new Date()
   },
-
-  setup() {
-    const store = useStore()
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      loading: false,
-      dataList: {
-        month: new Date()
-      },
-      projects: [],
-      //选中数据 页面直接调用即可
-      selectList: [],
-      allId: [],
-      allData: [],
-      searchShow: false,
-      one: '',
-      two: '',
-      three: '',
-      four: ''
-    })
-  },
-
-  mounted() {
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-  },
-  methods: {
-    search() {
-      setTimeout(() => {
-        this.loading = true
-        let params = {
-          qkjejdws: [],
-          year: '',
-          month: '',
-          specialorgid: this.specialorgid
-        }
-        if (this.$refs.company.selectList.length !== 0) {
-          params.qkjejdws = this.$refs.company.selectList
-        } else {
-          params.qkjejdws = this.$refs.company.allId
-        }
-
-        if (this.dataList.month) {
-          let time = new Date(this.dataList.month)
-          let zyear = time.getFullYear()
-          let zmonth = time.getMonth() + 1
-          params.year = JSON.stringify(zyear)
-          params.month = JSON.stringify(zmonth)
-        }
-        baseService.post('/process/view/', params).then((res) => {
-          this.loading = false
-          if (res.success) {
-            this.allData = res.data
-            this.one = res.data.ysjeChange.replace('%', '')
-            this.one = this.one / 1
-            this.two = res.data.ndyszeChange.replace('%', '')
-            this.two = this.two / 1
-            this.three = res.data.yszxjeChange.replace('%', '')
-            this.three = this.three / 1
-            this.four = res.data.yszxlChange.replace('%', '')
-            this.four = this.four / 1
-          } else {
-            ElMessage({
-              type: 'error',
-              message: res.msg
-            })
-          }
-        })
-      }, 1000)
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
-      this.search()
+  projects: [],
+  //选中数据 页面直接调用即可
+  selectList: [],
+  allId: [],
+  allData: [],
+  searchShow: false,
+  one: '',
+  two: '',
+  three: '',
+  four: ''
+})
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const loading = toRef(setupState, 'loading')
+const dataList = toRef(setupState, 'dataList')
+const projects = toRef(setupState, 'projects')
+const selectList = toRef(setupState, 'selectList')
+const allId = toRef(setupState, 'allId')
+const allData = toRef(setupState, 'allData')
+const searchShow = toRef(setupState, 'searchShow')
+const one = toRef(setupState, 'one')
+const two = toRef(setupState, 'two')
+const three = toRef(setupState, 'three')
+const four = toRef(setupState, 'four')
+function search() {
+  setTimeout(() => {
+    setupState.loading = true
+    let params = {
+      qkjejdws: [],
+      year: '',
+      month: '',
+      specialorgid: setupState.specialorgid
     }
-  }
+    if (companyRef.value.selectList.length !== 0) {
+      params.qkjejdws = companyRef.value.selectList
+    } else {
+      params.qkjejdws = companyRef.value.allId
+    }
+    if (setupState.dataList.month) {
+      let time = new Date(setupState.dataList.month)
+      let zyear = time.getFullYear()
+      let zmonth = time.getMonth() + 1
+      params.year = JSON.stringify(zyear)
+      params.month = JSON.stringify(zmonth)
+    }
+    baseService.post('/process/view/', params).then((res) => {
+      setupState.loading = false
+      if (res.success) {
+        setupState.allData = res.data
+        setupState.one = res.data.ysjeChange.replace('%', '')
+        setupState.one = setupState.one / 1
+        setupState.two = res.data.ndyszeChange.replace('%', '')
+        setupState.two = setupState.two / 1
+        setupState.three = res.data.yszxjeChange.replace('%', '')
+        setupState.three = setupState.three / 1
+        setupState.four = res.data.yszxlChange.replace('%', '')
+        setupState.four = setupState.four / 1
+      } else {
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
+    })
+  }, 1000)
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+  search()
+}
+onMounted(() => {
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpSearch,
+  store,
+  userCode,
+  userId,
+  specialorgid,
+  loading,
+  dataList,
+  projects,
+  selectList,
+  allId,
+  allData,
+  searchShow,
+  one,
+  two,
+  three,
+  four,
+  search,
+  showSearch,
+  loadCompany
 })
 </script>
 

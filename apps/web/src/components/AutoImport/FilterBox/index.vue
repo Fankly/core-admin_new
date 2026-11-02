@@ -13,74 +13,80 @@
   </el-row>
 </template>
 
-<script>
-export default {
-  name: 'FilterBox',
-  props: {
-    /**
-     * 每一个过滤项宽度（包含标题和输入框宽度总和）
-     */
-    itemWidth: {
-      type: Number
-    },
-    /**
-     * 每一项下间距
-     */
-    marginBottom: {
-      type: String,
-      default: '16px'
-    },
-    /**
-     * 按钮块最小宽度默认350，当每一行剩余空间大于此值，按钮块将不会折行
-     */
-    minMenuWidth: {
-      type: Number,
-      default: 0 // 350
-    },
-    /**
-     * 按钮位置，默认为end，可选值为start/end/center/space-around/space-between
-     */
-    operatorPosition: {
-      type: String,
-      default: 'end'
-    },
-    hasSearch: {
-      type: Boolean,
-      default: true
-    },
-    hasReset: {
-      type: Boolean,
-      default: true
-    }
+<script setup>
+import { reactive, toRef, toRefs, computed, onMounted, useSlots } from 'vue'
+defineOptions({
+  name: 'FilterBox'
+})
+const componentProps = defineProps({
+  /**
+   * 每一个过滤项宽度（包含标题和输入框宽度总和）
+   */
+  itemWidth: {
+    type: Number
   },
-  data() {
-    return {
-      tempDomWidth: undefined,
-      placeholderNumber: 0,
-      flexNumber: 1
-    }
+  /**
+   * 每一项下间距
+   */
+  marginBottom: {
+    type: String,
+    default: '16px'
   },
-  computed: {
-    getMenuBoxStyle() {
-      return {
-        width: '100%',
-        'margin-bottom': this.marginBottom,
-        'align-items': 'center'
-      }
-    }
+  /**
+   * 按钮块最小宽度默认350，当每一行剩余空间大于此值，按钮块将不会折行
+   */
+  minMenuWidth: {
+    type: Number,
+    default: 0 // 350
   },
-  mounted() {
-    console.log(this.$slots.default)
+  /**
+   * 按钮位置，默认为end，可选值为start/end/center/space-around/space-between
+   */
+  operatorPosition: {
+    type: String,
+    default: 'end'
   },
-  methods: {
-    search() {
-      this.$emit('search')
-    },
-    reset() {
-      this.$emit('reset')
-    }
+  hasSearch: {
+    type: Boolean,
+    default: true
+  },
+  hasReset: {
+    type: Boolean,
+    default: true
   }
+})
+const emit = defineEmits()
+const slots = useSlots()
+const componentData = reactive({
+  tempDomWidth: undefined,
+  placeholderNumber: 0,
+  flexNumber: 1
+})
+const tempDomWidth = toRef(componentData, 'tempDomWidth')
+const placeholderNumber = toRef(componentData, 'placeholderNumber')
+const flexNumber = toRef(componentData, 'flexNumber')
+function search() {
+  emit('search')
 }
+function reset() {
+  emit('reset')
+}
+const getMenuBoxStyle = computed(() => {
+  return {
+    width: '100%',
+    'margin-bottom': componentProps.marginBottom,
+    'align-items': 'center'
+  }
+})
+onMounted(() => {
+  console.log(slots.default)
+})
+defineExpose({
+  search,
+  reset,
+  ...toRefs(componentData),
+  getMenuBoxStyle
+})
 </script>
 
 <style lang="less" scoped>

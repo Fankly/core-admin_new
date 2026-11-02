@@ -46,8 +46,6 @@
 
 <script setup lang="tsx">
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
-
-defineOptions({ name: "BackLog" })
 import proTable from '@/components/ProTable/index.vue'
 import { ColumnProps } from '@/components/ProTable/interface'
 import { computed, onMounted, reactive, ref, toRefs } from 'vue'
@@ -57,6 +55,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { deleteAttachList, downloadAttachList, getAttachList, uploadAttachList } from '@/api/matter/matterAdjust'
 import emits from '@/utils/emits'
 import { getParamValue } from '@/api/common'
+defineOptions({ name: "BackLog" })
 
 interface Props {
   baseMsgData: BaseMsgData

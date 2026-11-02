@@ -118,11 +118,6 @@
   </el-dialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'unpassListModal'
-}
-</script>
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
@@ -139,12 +134,14 @@ import { useAuditDetailModal } from '../../hooks/useAuditDetailModal'
 import { apiExportHandle } from '@/utils/export'
 import { exportProTaskUnPassExcel, getProTaskUnPassDetail, saveOpsReviewInfo } from '@/api/suzhou/aiAuditRuleMonitoring'
 import type { ProTaskUnPassDetailRow } from '@/api/suzhou/aiAuditRuleMonitoring'
+defineOptions({
+  name: 'unpassListModal'
+})
 
 /** 审核结论/意见的公共代码：0 不通过 / 1 通过 / 2 待审核 / 3 不执行 */
 const REVIEW_OPINION_CODE = 'AI_AUDIT_REVIEW_OPINION_COM'
 /** AI运营复核的问题方向字典 */
 const PROBLEM_DIRECTION_CODE = 'AI_AUDIT_PROBLEM_DIRECTION_COM'
-
 interface UnpassTableRow extends ProTaskUnPassDetailRow {
   rowId: string
 }
@@ -154,7 +151,6 @@ interface RoleParams {
   bmId?: string
   dwId?: string
 }
-
 interface ModalParams {
   /** 规则Id（接口必传） */
   categoryRuleId?: string
@@ -162,13 +158,11 @@ interface ModalParams {
   ruleName?: string
   roleParams?: RoleParams
 }
-
 const isShowModal = ref(false)
 const modalTitle = ref('未通过清单')
 const categoryRuleId = ref('')
 const roleParams = ref<RoleParams>({})
 const tableRef = ref<RangeVxeTableExpose>()
-
 const yjdwOptions = reactive<Record<string, any>[]>([])
 const ejdwOptions = reactive<Record<string, any>[]>([])
 const yearOptions = reactive<Record<string, any>[]>([])
@@ -210,25 +204,144 @@ const opsReviewForm = reactive({
  * 分不清行的时候还能靠它们对位；其余列（审核规则往后）左右滑动。
  */
 const columns: VxeGridProps['columns'] = [
-  { type: 'seq', title: '序号', width: 60, headerAlign: 'center', fixed: 'left' },
-  { field: 'xmbm', title: '项目编码', width: 150, headerAlign: 'center', fixed: 'left' },
-  { field: 'xmmc', title: '项目名称', minWidth: 190, align: 'left', headerAlign: 'center', fixed: 'left' },
-  { field: 'yjdwName', title: '一级单位', width: 140, align: 'left', headerAlign: 'center', fixed: 'left' },
-  { field: 'ejdwName', title: '二级单位', width: 140, align: 'left', headerAlign: 'center', fixed: 'left' },
-  { field: 'jhssnd', title: '计划年度', width: 100, headerAlign: 'center', fixed: 'left' },
-  { field: 'ruleName', title: '审核规则', minWidth: 190, align: 'left', headerAlign: 'center' },
-  { field: 'auditPointName', title: '审核要点', minWidth: 150, align: 'left', headerAlign: 'center' },
-  { field: 'reviewOpinion', title: 'AI审核结论', width: 110, headerAlign: 'center', slots: { default: 'reviewResult' } },
-  { field: 'rgReviewOpinionName', title: '人工复核结论', width: 120, headerAlign: 'center', slots: { default: 'rgReviewResult' } },
-  { field: 'reviewConclude', title: 'AI审核意见', minWidth: 300, align: 'left', headerAlign: 'center' },
-  { field: 'rgReviewConclude', title: '人工复核意见', minWidth: 300, align: 'left', headerAlign: 'center' },
+  {
+    type: 'seq',
+    title: '序号',
+    width: 60,
+    headerAlign: 'center',
+    fixed: 'left'
+  },
+  {
+    field: 'xmbm',
+    title: '项目编码',
+    width: 150,
+    headerAlign: 'center',
+    fixed: 'left'
+  },
+  {
+    field: 'xmmc',
+    title: '项目名称',
+    minWidth: 190,
+    align: 'left',
+    headerAlign: 'center',
+    fixed: 'left'
+  },
+  {
+    field: 'yjdwName',
+    title: '一级单位',
+    width: 140,
+    align: 'left',
+    headerAlign: 'center',
+    fixed: 'left'
+  },
+  {
+    field: 'ejdwName',
+    title: '二级单位',
+    width: 140,
+    align: 'left',
+    headerAlign: 'center',
+    fixed: 'left'
+  },
+  {
+    field: 'jhssnd',
+    title: '计划年度',
+    width: 100,
+    headerAlign: 'center',
+    fixed: 'left'
+  },
+  {
+    field: 'ruleName',
+    title: '审核规则',
+    minWidth: 190,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'auditPointName',
+    title: '审核要点',
+    minWidth: 150,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'reviewOpinion',
+    title: 'AI审核结论',
+    width: 110,
+    headerAlign: 'center',
+    slots: {
+      default: 'reviewResult'
+    }
+  },
+  {
+    field: 'rgReviewOpinionName',
+    title: '人工复核结论',
+    width: 120,
+    headerAlign: 'center',
+    slots: {
+      default: 'rgReviewResult'
+    }
+  },
+  {
+    field: 'reviewConclude',
+    title: 'AI审核意见',
+    minWidth: 300,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'rgReviewConclude',
+    title: '人工复核意见',
+    minWidth: 300,
+    align: 'left',
+    headerAlign: 'center'
+  },
   // AI运营复核：问题方向 / 解决方案 / 复核时间由接口带回；状态开关紧挨操作列
-  { field: 'problemDirectionName', title: '问题方向', width: 140, headerAlign: 'center', slots: { default: 'problemDirection' } },
-  { field: 'solution', title: '解决方案', minWidth: 240, align: 'left', headerAlign: 'center', slots: { default: 'solution' } },
-  { field: 'reviewTime', title: '复核时间', width: 170, headerAlign: 'center', slots: { default: 'reviewTime' } },
-  { field: 'opsReviewStatus', title: 'AI运营复核状态', width: 170, headerAlign: 'center', slots: { default: 'opsReviewStatus' } },
+  {
+    field: 'problemDirectionName',
+    title: '问题方向',
+    width: 140,
+    headerAlign: 'center',
+    slots: {
+      default: 'problemDirection'
+    }
+  },
+  {
+    field: 'solution',
+    title: '解决方案',
+    minWidth: 240,
+    align: 'left',
+    headerAlign: 'center',
+    slots: {
+      default: 'solution'
+    }
+  },
+  {
+    field: 'reviewTime',
+    title: '复核时间',
+    width: 170,
+    headerAlign: 'center',
+    slots: {
+      default: 'reviewTime'
+    }
+  },
+  {
+    field: 'opsReviewStatus',
+    title: 'AI运营复核状态',
+    width: 170,
+    headerAlign: 'center',
+    slots: {
+      default: 'opsReviewStatus'
+    }
+  },
   // 操作列放最后：与「智能审核项目清单」列表的「查看」同一个动作（打开智能审核详情弹窗）
-  { title: '操作', width: 90, headerAlign: 'center', slots: { default: 'viewDetail' } }
+  {
+    title: '操作',
+    width: 90,
+    headerAlign: 'center',
+    slots: {
+      default: 'viewDetail'
+    }
+  }
 ]
 
 /**
@@ -251,7 +364,6 @@ const fillOptions = (target: Record<string, any>[], list: Record<string, any>[])
 /** 年度接口返回的是树（comPz/getNdTreeNode），拍平后再归一化，避免树形被当成单层 */
 const flattenYears = (list: any[]): any[] =>
   (list || []).flatMap((item) => [item, ...(Array.isArray(item.children) ? flattenYears(item.children) : [])])
-
 const buildRoleParams = () => ({
   bmId: roleParams.value.bmId || '',
   dwId: roleParams.value.dwId || ''
@@ -266,7 +378,11 @@ const handleYjdwChange = async (value: string) => {
   fillOptions(ejdwOptions, [])
   if (!value) return
   try {
-    const res = await getEjdw({ ...buildRoleParams(), YJDW: value, parentCode: value })
+    const res = await getEjdw({
+      ...buildRoleParams(),
+      YJDW: value,
+      parentCode: value
+    })
     fillOptions(ejdwOptions, res.success ? normalizeOptionList(res.data || []) : [])
   } catch (e) {
     ElMessage.error((e as Error)?.message || '二级单位获取失败')
@@ -288,7 +404,15 @@ const handleRuleNameChange = (value: string) => {
 const ruleNameColumn: ColumnProps = {
   prop: 'ruleName',
   label: '审核规则',
-  search: { el: 'input', order: 6, props: { clearable: true, placeholder: '请输入审核规则', onChange: handleRuleNameChange } }
+  search: {
+    el: 'input',
+    order: 6,
+    props: {
+      clearable: true,
+      placeholder: '请输入审核规则',
+      onChange: handleRuleNameChange
+    }
+  }
 }
 
 /**
@@ -303,22 +427,53 @@ const searchColumns = reactive<ColumnProps[]>([
     prop: 'yjdw',
     label: '一级单位',
     enum: yjdwOptions,
-    fieldNames: { label: 'name', value: 'code' },
-    search: { el: 'select', order: 1, props: { clearable: true, filterable: true, onChange: handleYjdwChange } }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
+    search: {
+      el: 'select',
+      order: 1,
+      props: {
+        clearable: true,
+        filterable: true,
+        onChange: handleYjdwChange
+      }
+    }
   },
   {
     prop: 'ejdw',
     label: '二级单位',
     enum: ejdwOptions,
-    fieldNames: { label: 'name', value: 'code' },
-    search: { el: 'select', order: 2, props: { clearable: true, filterable: true } }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
+    search: {
+      el: 'select',
+      order: 2,
+      props: {
+        clearable: true,
+        filterable: true
+      }
+    }
   },
   {
     prop: 'jhssnd',
     label: '计划年度',
     enum: yearOptions,
-    fieldNames: { label: 'name', value: 'code' },
-    search: { el: 'select', order: 3, props: { clearable: true, filterable: true } }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
+    search: {
+      el: 'select',
+      order: 3,
+      props: {
+        clearable: true,
+        filterable: true
+      }
+    }
   },
   {
     prop: 'xmbm',
@@ -326,13 +481,25 @@ const searchColumns = reactive<ColumnProps[]>([
     search: {
       order: 4,
       render: ReMultipleText as any,
-      props: { class: 'project-code-input', dialogTitle: '项目编码', tooltipText: '项目编码', placeholder: '请输入项目编码' }
+      props: {
+        class: 'project-code-input',
+        dialogTitle: '项目编码',
+        tooltipText: '项目编码',
+        placeholder: '请输入项目编码'
+      }
     }
   },
   {
     prop: 'xmmc',
     label: '项目名称',
-    search: { el: 'input', order: 5, props: { clearable: true, placeholder: '请输入项目名称' } }
+    search: {
+      el: 'input',
+      order: 5,
+      props: {
+        clearable: true,
+        placeholder: '请输入项目名称'
+      }
+    }
   },
   {
     /**
@@ -344,8 +511,18 @@ const searchColumns = reactive<ColumnProps[]>([
     prop: 'rgReviewOpinion',
     label: '人工复核结论',
     enum: reviewOpinionOptions,
-    fieldNames: { label: 'name', value: 'code' },
-    search: { el: 'select', order: 7, props: { clearable: true, filterable: true } }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
+    search: {
+      el: 'select',
+      order: 7,
+      props: {
+        clearable: true,
+        filterable: true
+      }
+    }
   },
   ruleNameColumn
 ])
@@ -357,26 +534,22 @@ const loadOptions = async () => {
   fillOptions(yearOptions, [])
   fillOptions(reviewOpinionOptions, [])
   fillOptions(problemDirectionOptions, [])
-
   const [yjdwRes, yearRes, opinionRes, problemDirectionRes] = await Promise.allSettled([
     getYjdw(buildRoleParams()),
     getYearData(),
     getPublicData(REVIEW_OPINION_CODE),
     getPublicData(PROBLEM_DIRECTION_CODE)
   ])
-
   if (yjdwRes.status === 'fulfilled' && yjdwRes.value.success) {
     fillOptions(yjdwOptions, normalizeOptionList(yjdwRes.value.data || []))
   } else {
     ElMessage.error(yjdwRes.status === 'fulfilled' ? yjdwRes.value.msg || '一级单位获取失败' : '一级单位获取失败')
   }
-
   if (yearRes.status === 'fulfilled' && yearRes.value.success) {
     fillOptions(yearOptions, normalizeYearList(flattenYears(yearRes.value.data || [])))
   } else {
     ElMessage.error(yearRes.status === 'fulfilled' ? yearRes.value.msg || '计划年度获取失败' : '计划年度获取失败')
   }
-
   if (opinionRes.status === 'fulfilled' && opinionRes.value.success) {
     // 本页面只展示「通过」与「不通过」，过滤掉字典里的其它选项（如待审核、不执行）
     const rgFilterCodes = ['0', '1']
@@ -385,7 +558,6 @@ const loadOptions = async () => {
       normalizeOptionList(opinionRes.value.data || []).filter((item: any) => rgFilterCodes.includes(String(item.code)))
     )
   }
-
   if (problemDirectionRes.status === 'fulfilled' && problemDirectionRes.value.success) {
     fillOptions(problemDirectionOptions, normalizeOptionList(problemDirectionRes.value.data || []))
   }
@@ -421,7 +593,6 @@ const reviewResultTagClass = (row: UnpassTableRow): string => {
   if (name.includes('待') || name.includes('复核')) return 'detail-tag--warning'
   return ''
 }
-
 const callBackHandle = (data: any) => data
 
 // 「查看」→ 智能审核详情（先按 proId 换 taskId 再开弹窗，逻辑与文件清单共用，见 hooks/useAuditDetailModal）
@@ -476,7 +647,14 @@ const handleOpsSwitch = (row: UnpassTableRow, value: boolean): void => {
 }
 
 /** 保存运营复核状态；开启时由弹窗补问题方向/解决方案，关闭时沿用行上已有值 */
-const saveOpsStatus = async (row: UnpassTableRow, status: '0' | '1', values?: { problemDirection: string; solution: string }): Promise<boolean> => {
+const saveOpsStatus = async (
+  row: UnpassTableRow,
+  status: '0' | '1',
+  values?: {
+    problemDirection: string
+    solution: string
+  }
+): Promise<boolean> => {
   const detailId = String(row.detailId || '').trim()
   if (!detailId) {
     ElMessage.warning('当前行缺少任务明细ID，无法保存复核状态')
@@ -516,7 +694,10 @@ const submitOpsReview = async (): Promise<void> => {
   // 解决方案选填，允许为空；问题方向仍为必填
   const solution = opsReviewForm.solution.trim()
   opsReviewDialog.saving = true
-  const saved = await saveOpsStatus(opsReviewDialog.row, '1', { problemDirection: opsReviewForm.problemDirection, solution })
+  const saved = await saveOpsStatus(opsReviewDialog.row, '1', {
+    problemDirection: opsReviewForm.problemDirection,
+    solution
+  })
   opsReviewDialog.saving = false
   if (saved) opsReviewDialog.visible = false
 }
@@ -548,16 +729,20 @@ const getList = async (params: Record<string, any>) => {
     rgReviewOpinion: params.rgReviewOpinion || undefined,
     ruleName: params.ruleName || undefined
   })
-
   const records = Array.isArray(res?.data?.records) ? res.data.records : []
   const offset = (Number(params.page ?? 1) - 1) * Number(params.limit ?? 20)
   const data = {
     ...res?.data,
-    records: records.map((item, index) => ({ ...item, rowId: `${categoryRuleId.value || 'all'}-${offset + index}` }))
+    records: records.map((item, index) => ({
+      ...item,
+      rowId: `${categoryRuleId.value || 'all'}-${offset + index}`
+    }))
   }
-  return { ...res, data }
+  return {
+    ...res,
+    data
+  }
 }
-
 const exportHandle = async () => {
   try {
     const searchParam = tableRef.value?.searchParam || {}
@@ -584,11 +769,9 @@ const exportHandle = async () => {
     ElMessage.error((e as Error)?.message || '导出失败')
   }
 }
-
 const handleClose = () => {
   isShowModal.value = false
 }
-
 const acceptParams = (params: ModalParams = {}) => {
   // 不传 categoryRuleId 即「查看全部」，标题也相应不挂规则名
   categoryRuleId.value = params.categoryRuleId || ''
@@ -600,8 +783,9 @@ const acceptParams = (params: ModalParams = {}) => {
   isShowModal.value = true
   loadOptions()
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

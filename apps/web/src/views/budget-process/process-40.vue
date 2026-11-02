@@ -131,7 +131,7 @@
   <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -140,351 +140,434 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, reactive as reactiveLocal, toRefs, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
 import copyTextBox from '@/components/select/copyTextBox.vue'
 import { showHelpMsg } from '@/utils/message'
-
-export default defineComponent({
-  name: '/budget-process/process-40',
-  components: { userDialog, copyTextBox },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+defineOptions({
+  name: '/budget-process/process-40'
+})
+const userDialogRef = useTemplateRef('userDialog')
+const cbbmRef = useTemplateRef('cbbm')
+const gwxmbmRef = useTemplateRef('gwxmbm')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  helpHandle,
+  loading: false,
+  searchShow: true,
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  example: [],
+  columnObj: {},
+  segmentIds: [],
+  segment: [
+    {
+      value: '一级单位',
+      label: 'yjdwName',
+      checked: true
+    },
+    {
+      value: '二级单位',
+      label: 'ejdwName',
+      checked: true
+    },
+    {
+      value: '项目名称',
+      label: 'xmmc',
+      checked: true
+    },
+    {
+      value: '项目编码',
+      label: 'xmbm',
+      checked: true
+    },
+    {
+      value: '国网项目编码',
+      label: 'gwxmbm',
+      checked: true
+    },
+    {
+      value: '项目分类(三级分类)',
+      label: 'sjflName',
+      checked: true
+    },
+    {
+      value: '项目包名称',
+      label: 'xmbmc',
+      checked: true
+    },
+    {
+      value: '项目包编码',
+      label: 'xmbbm',
+      checked: true
+    },
+    {
+      value: '当年预算(万元)',
+      label: 'dnys',
+      checked: true
+    },
+    {
+      value: '单项目',
+      label: 'dxm',
+      checked: true
+    },
+    {
+      value: '台区',
+      label: 'tq',
+      checked: true
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      helpHandle,
-      loading: false,
-      searchShow: true,
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      example: [],
-      columnObj: {},
-      segmentIds: [],
-      segment: [
-        {
-          value: '一级单位',
-          label: 'yjdwName',
-          checked: true
-        },
-        {
-          value: '二级单位',
-          label: 'ejdwName',
-          checked: true
-        },
-        {
-          value: '项目名称',
-          label: 'xmmc',
-          checked: true
-        },
-        {
-          value: '项目编码',
-          label: 'xmbm',
-          checked: true
-        },
-        {
-          value: '国网项目编码',
-          label: 'gwxmbm',
-          checked: true
-        },
-        {
-          value: '项目分类(三级分类)',
-          label: 'sjflName',
-          checked: true
-        },
-        {
-          value: '项目包名称',
-          label: 'xmbmc',
-          checked: true
-        },
-        {
-          value: '项目包编码',
-          label: 'xmbbm',
-          checked: true
-        },
-        {
-          value: '当年预算(万元)',
-          label: 'dnys',
-          checked: true
-        },
-        {
-          value: '单项目',
-          label: 'dxm',
-          checked: true
-        },
-        {
-          value: '台区',
-          label: 'tq',
-          checked: true
-        }
-      ],
-      dataList: {
-        month: new Date(),
-        post1: ''
-      },
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      //   跨行所需数据
-      spanArr: [], // 用于存放需要合并的行的个数
-      spanArr1: [], // 用于存放需要合并的行的个数
-      spanIndex: 0, // 记录spanArr数组的下标
-      spanIndex1: 0, // 记录spanArr数组的下标
-      //一级单位
-      yjdw: [],
-      yjdwValue: '',
-      //二级单位
-      ejdw: [],
-      ejdwValue: '',
-      // 项目名称
-      projectName: '',
-      //本地下拉数据
-      selectList: [
-        { code: '0', name: '否' },
-        { code: '1', name: '是' }
-      ],
-      // 年度
-      year: new Date().getFullYear().toString()
-    })
+  ],
+  dataList: {
+    month: new Date(),
+    post1: ''
   },
-  created() {
-    this.handleColumn()
-    //获取一级单位
-    baseService.get('/commonCode/getYjdw').then((res) => {
-      if (res.success) {
-        this.yjdw = res.data
-      } else {
-        this.loading = false
-        ElMessage({
-          type: 'error',
-          message: res.msg
-        })
-      }
-    })
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-  },
-
-  methods: {
-    //根据一级单位获取二级单位
-    getEjdw(code) {
-      baseService.get(`/commonCode/getEjdwByYjdw?yjdw=${code}`).then((res) => {
-        if (res.success) {
-          this.ejdw = res.data
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
+  //   跨行所需数据
+  spanArr: [],
+  // 用于存放需要合并的行的个数
+  spanArr1: [],
+  // 用于存放需要合并的行的个数
+  spanIndex: 0,
+  // 记录spanArr数组的下标
+  spanIndex1: 0,
+  // 记录spanArr数组的下标
+  //一级单位
+  yjdw: [],
+  yjdwValue: '',
+  //二级单位
+  ejdw: [],
+  ejdwValue: '',
+  // 项目名称
+  projectName: '',
+  //本地下拉数据
+  selectList: [
+    {
+      code: '0',
+      name: '否'
+    },
+    {
+      code: '1',
+      name: '是'
+    }
+  ],
+  // 年度
+  year: new Date().getFullYear().toString()
+})
+const loading = toRef(setupState, 'loading')
+const searchShow = toRef(setupState, 'searchShow')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const example = toRef(setupState, 'example')
+const columnObj = toRef(setupState, 'columnObj')
+const segmentIds = toRef(setupState, 'segmentIds')
+const segment = toRef(setupState, 'segment')
+const dataList = toRef(setupState, 'dataList')
+const page = toRef(setupState, 'page')
+const spanArr = toRef(setupState, 'spanArr')
+const spanArr1 = toRef(setupState, 'spanArr1')
+const spanIndex = toRef(setupState, 'spanIndex')
+const spanIndex1 = toRef(setupState, 'spanIndex1')
+const yjdw = toRef(setupState, 'yjdw')
+const yjdwValue = toRef(setupState, 'yjdwValue')
+const ejdw = toRef(setupState, 'ejdw')
+const ejdwValue = toRef(setupState, 'ejdwValue')
+const projectName = toRef(setupState, 'projectName')
+const selectList = toRef(setupState, 'selectList')
+const year = toRef(setupState, 'year')
+const componentData = reactiveLocal({})
+componentData.spanIndex2 = undefined
+const spanIndex2 = toRef(componentData, 'spanIndex2')
+//根据一级单位获取二级单位
+function getEjdw(code) {
+  baseService.get(`/commonCode/getEjdwByYjdw?yjdw=${code}`).then((res) => {
+    if (res.success) {
+      setupState.ejdw = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
       })
-    },
-    //计算表格高度
-    setTableHeight() {
-      if (this.searchShow === true) {
-        this.tableHeight = this.heightNum - this.topHeight - 80 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 80 + 'px'
-      }
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.segmentIds.push(item.label)
-        this.columnObj[item.label] = item.checked
-      })
-    },
-
-    //项目环节
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i === value) {
-          this.columnObj[i] = checked
-        }
-      }
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-    },
-    loadData() {
-      this.spanArr = []
-      this.spanArr1 = []
-      this.spanIndex = 0
-      this.spanIndex1 = 0
-      this.spanIndex2 = 0
-      this.example = []
-      this.loading = true
-      let params = {
-        specialorgid: this.specialorgid,
-        current: this.page.page,
-        size: this.page.limit,
-        yjdw: this.yjdwValue,
-        ejdw: this.ejdwValue,
-        xmbms: this.$refs.cbbm.array,
-        gwxmbms: this.$refs.gwxmbm.array,
-        xmmc: this.projectName,
-        nd: this.year
-      }
-      baseService.post('/process38/getDataPage', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.example = res.data.records
-          this.page.total = res.data.total
-          this.getSpanArr(this.example)
-          this.getSpanArr1(this.example)
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    exportBtn() {
-      this.loading = true
-      let params = {
-        specialorgid: this.specialorgid,
-        page: this.page.page,
-        limit: this.page.limit,
-        yjdw: this.yjdwValue,
-        ejdw: this.ejdwValue,
-        cbbms: this.$refs.cbbm.array,
-        gwxmbms: this.$refs.gwxmbm.array,
-        xmmc: this.projectName,
-        nd: this.year
-      }
-      baseService.export('/process38/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '项目建设规模查询报表.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-    getSpanArr(data) {
-      let len = 0
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) {
-          len += 1
-          this.spanArr.push(1)
-          this.spanIndex = 0
-        } else {
-          // 判断当前行与前一行内容是否相同
-          if (data[i].yjdwName === data[i - 1].yjdwName) {
-            this.spanArr[this.spanIndex] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
-            this.spanArr.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
-            len += 1
-          } else {
-            len = 1
-            this.spanArr.push(1) // 否则，依旧是一行
-            this.spanIndex = i
-          }
-        }
-      }
-    },
-    getSpanArr1(data) {
-      let len = 0
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) {
-          len += 1
-          this.spanArr1.push(1)
-          this.spanIndex1 = 0
-        } else {
-          // 判断当前行与前一行内容是否相同
-          if (data[i].ejdwName === data[i - 1].ejdwName) {
-            this.spanArr1[this.spanIndex1] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
-            this.spanArr1.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
-            len += 1
-          } else {
-            len = 1
-            this.spanArr1.push(1) // 否则，依旧是一行
-            this.spanIndex1 = i
-          }
-        }
-      }
-    },
-    objectSpanMethod({ rowIndex, columnIndex }) {
-      if (columnIndex == 0) {
-        const _row = this.spanArr[rowIndex] // 行数
-        const _col = _row > 0 ? 1 : 0 // 列数
-        return {
-          rowspan: _row,
-          colspan: _col
-        }
-      } else if (columnIndex === 1) {
-        const _row = this.spanArr1[rowIndex] // 行数
-        const _col = _row > 0 ? 1 : 0 // 列数
-        return {
-          rowspan: _row,
-          colspan: _col
-        }
-      }
-    },
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    limitChangeHandle(currentLimitNum) {
-      this.page.page = 1
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-    reset() {
-      this.page.page = 1
-      this.page.limit = 10
-      this.page.total = 0
-      this.yjdwValue = ''
-      this.ejdwValue = ''
-      this.ejdw = []
-      this.$refs.cbbm.clear()
-      this.$refs.gwxmbm.clear()
-      this.projectName = ''
-      this.year = new Date().getFullYear().toString()
-      this.example = []
-      this.loadData()
+    }
+  })
+}
+//计算表格高度
+function setTableHeight() {
+  if (setupState.searchShow === true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 80 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 80 + 'px'
+  }
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.segmentIds.push(item.label)
+    setupState.columnObj[item.label] = item.checked
+  })
+}
+//项目环节
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i === value) {
+      setupState.columnObj[i] = checked
     }
   }
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+}
+function loadData() {
+  setupState.spanArr = []
+  setupState.spanArr1 = []
+  setupState.spanIndex = 0
+  setupState.spanIndex1 = 0
+  componentData.spanIndex2 = 0
+  setupState.example = []
+  setupState.loading = true
+  let params = {
+    specialorgid: setupState.specialorgid,
+    current: setupState.page.page,
+    size: setupState.page.limit,
+    yjdw: setupState.yjdwValue,
+    ejdw: setupState.ejdwValue,
+    xmbms: cbbmRef.value.array,
+    gwxmbms: gwxmbmRef.value.array,
+    xmmc: setupState.projectName,
+    nd: setupState.year
+  }
+  baseService.post('/process38/getDataPage', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.example = res.data.records
+      setupState.page.total = res.data.total
+      getSpanArr(setupState.example)
+      getSpanArr1(setupState.example)
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function exportBtn() {
+  setupState.loading = true
+  let params = {
+    specialorgid: setupState.specialorgid,
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    yjdw: setupState.yjdwValue,
+    ejdw: setupState.ejdwValue,
+    cbbms: cbbmRef.value.array,
+    gwxmbms: gwxmbmRef.value.array,
+    xmmc: setupState.projectName,
+    nd: setupState.year
+  }
+  baseService.export('/process38/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '项目建设规模查询报表.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+function getSpanArr(data) {
+  let len = 0
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) {
+      len += 1
+      setupState.spanArr.push(1)
+      setupState.spanIndex = 0
+    } else {
+      // 判断当前行与前一行内容是否相同
+      if (data[i].yjdwName === data[i - 1].yjdwName) {
+        setupState.spanArr[setupState.spanIndex] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
+        setupState.spanArr.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
+        len += 1
+      } else {
+        len = 1
+        setupState.spanArr.push(1) // 否则，依旧是一行
+        setupState.spanIndex = i
+      }
+    }
+  }
+}
+function getSpanArr1(data) {
+  let len = 0
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) {
+      len += 1
+      setupState.spanArr1.push(1)
+      setupState.spanIndex1 = 0
+    } else {
+      // 判断当前行与前一行内容是否相同
+      if (data[i].ejdwName === data[i - 1].ejdwName) {
+        setupState.spanArr1[setupState.spanIndex1] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
+        setupState.spanArr1.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
+        len += 1
+      } else {
+        len = 1
+        setupState.spanArr1.push(1) // 否则，依旧是一行
+        setupState.spanIndex1 = i
+      }
+    }
+  }
+}
+function objectSpanMethod({ rowIndex, columnIndex }) {
+  if (columnIndex == 0) {
+    const _row = setupState.spanArr[rowIndex] // 行数
+    const _col = _row > 0 ? 1 : 0 // 列数
+    return {
+      rowspan: _row,
+      colspan: _col
+    }
+  } else if (columnIndex === 1) {
+    const _row = setupState.spanArr1[rowIndex] // 行数
+    const _col = _row > 0 ? 1 : 0 // 列数
+    return {
+      rowspan: _row,
+      colspan: _col
+    }
+  }
+}
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.page = 1
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+function reset() {
+  setupState.page.page = 1
+  setupState.page.limit = 10
+  setupState.page.total = 0
+  setupState.yjdwValue = ''
+  setupState.ejdwValue = ''
+  setupState.ejdw = []
+  cbbmRef.value.clear()
+  gwxmbmRef.value.clear()
+  setupState.projectName = ''
+  setupState.year = new Date().getFullYear().toString()
+  setupState.example = []
+  loadData()
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+})
+;(() => {
+  handleColumn()
+  //获取一级单位
+  baseService.get('/commonCode/getYjdw').then((res) => {
+    if (res.success) {
+      setupState.yjdw = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  helpHandle,
+  loading,
+  searchShow,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  userCode,
+  userId,
+  specialorgid,
+  example,
+  columnObj,
+  segmentIds,
+  segment,
+  dataList,
+  page,
+  spanArr,
+  spanArr1,
+  spanIndex,
+  spanIndex1,
+  yjdw,
+  yjdwValue,
+  ejdw,
+  ejdwValue,
+  projectName,
+  selectList,
+  year,
+  getEjdw,
+  setTableHeight,
+  showSearch,
+  handleColumn,
+  listShow,
+  loadCompany,
+  loadData,
+  exportBtn,
+  getSpanArr,
+  getSpanArr1,
+  objectSpanMethod,
+  pageChangeHandle,
+  limitChangeHandle,
+  reset,
+  ...toRefs(componentData)
 })
 </script>
 

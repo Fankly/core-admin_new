@@ -38,11 +38,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'yssxPointListModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -51,19 +46,20 @@ import type { VxeGridProps } from 'vxe-table'
 import RangeVxeTable from '@/components/RangeVxeTable/index.vue'
 import { getYssxRelaRulePage } from '@/api/suzhou/aiAuditRuleMonitoring'
 import type { YssxRelaRuleRow } from '@/api/suzhou/aiAuditRuleMonitoring'
+defineOptions({
+  name: 'yssxPointListModal'
+})
 
 /** 表格行：接口字段 + 表格要求的唯一 rowKey */
 interface YssxPointTableRow extends YssxRelaRuleRow {
   rowId: string
 }
-
 interface ModalParams {
   /** 预算事项编码，接口必传（上一级行的 zyssxbm） */
   zyssxbm?: string
   /** 预算事项名称，仅用于标题 */
   zyssxmc?: string
 }
-
 const isShowModal = ref(false)
 const modalTitle = ref('审核要点清单')
 const zyssxbm = ref('')
@@ -73,10 +69,34 @@ const zyssxbm = ref('')
  * 要点状态 ruleStatus + ruleStatusName（标签渲染名称、配色按码值，与要点清单弹层同一做法）。
  */
 const columns: VxeGridProps['columns'] = [
-  { type: 'seq', title: '序号', width: 70, headerAlign: 'center' },
-  { field: 'auditPointCode', title: '审核要点编码', width: 190, headerAlign: 'center' },
-  { field: 'auditPointName', title: '审核要点名称', minWidth: 240, align: 'left', headerAlign: 'center' },
-  { field: 'ruleStatus', title: '审核要点状态', width: 140, headerAlign: 'center', slots: { default: 'ruleStatus' } }
+  {
+    type: 'seq',
+    title: '序号',
+    width: 70,
+    headerAlign: 'center'
+  },
+  {
+    field: 'auditPointCode',
+    title: '审核要点编码',
+    width: 190,
+    headerAlign: 'center'
+  },
+  {
+    field: 'auditPointName',
+    title: '审核要点名称',
+    minWidth: 240,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'ruleStatus',
+    title: '审核要点状态',
+    width: 140,
+    headerAlign: 'center',
+    slots: {
+      default: 'ruleStatus'
+    }
+  }
 ]
 
 /**
@@ -94,7 +114,13 @@ const getList = async (params: Record<string, any>) => {
   })
   if (!res.success) {
     ElMessage.error(res.msg || '审核要点清单获取失败')
-    return { ...res, data: { records: [] as YssxPointTableRow[], total: '0' } }
+    return {
+      ...res,
+      data: {
+        records: [] as YssxPointTableRow[],
+        total: '0'
+      }
+    }
   }
   const records = Array.isArray(res?.data?.records) ? res.data.records : []
   const offset = (Number(params.page ?? 1) - 1) * Number(params.limit ?? 20)
@@ -102,22 +128,24 @@ const getList = async (params: Record<string, any>) => {
     ...res,
     data: {
       ...res?.data,
-      records: records.map((item, index) => ({ ...item, rowId: `${zyssxbm.value}-${offset + index}` }))
+      records: records.map((item, index) => ({
+        ...item,
+        rowId: `${zyssxbm.value}-${offset + index}`
+      }))
     }
   }
 }
-
 const handleClose = () => {
   isShowModal.value = false
 }
-
 const acceptParams = (params: ModalParams = {}) => {
   zyssxbm.value = params.zyssxbm || ''
   modalTitle.value = params.zyssxmc ? `${params.zyssxmc} · 审核要点清单` : '审核要点清单'
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

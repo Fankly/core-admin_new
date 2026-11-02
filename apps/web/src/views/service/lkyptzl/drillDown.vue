@@ -31,11 +31,7 @@
   </div>
   <sxTable ref="modalTbaleRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/service/lkyptzl/drillDown'
-}
-</script>
+
 <script setup lang="ts">
 import { reactive, ref, onMounted, onActivated, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -46,9 +42,14 @@ import sxTable from '@/views/service/lkyptzl/components/sxTable.vue'
 import { getCropLimitInfo, getCoreIndicator, getAppMenuData } from '@/api/lkyptzl/index'
 import { getAppListPageData } from '@/api/sys/appManager'
 import { useStore } from '@/store/business'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import { useRoute } from 'vue-router'
 import { decrypt } from '@/utils/crypto'
+defineOptions({
+  name: '/service/lkyptzl/drillDown'
+})
+
+ //公共代码
 
 const loading = ref(false)
 const modalTbaleRef = ref()
@@ -62,16 +63,24 @@ const isCity = ref<boolean>(false)
 const flag = ref('')
 const route = useRoute()
 const params = ref<any>({})
-const formData = reactive({ jhssnd: '', type: '0' })
+const formData = reactive({
+  jhssnd: '',
+  type: '0'
+})
 const cropLimitInfo = ref<any>()
 const ndDataList = ref<any[]>([])
 const appNo = ref<any>('XQK')
 const text = ref<string>('') //核心指标
 const btnList = [
-  { name: '按数量', code: 'xmsl' },
-  { name: '按金额', code: 'amount' }
+  {
+    name: '按数量',
+    code: 'xmsl'
+  },
+  {
+    name: '按金额',
+    code: 'amount'
+  }
 ]
-
 onMounted(() => {
   publicCode()
 })
@@ -94,7 +103,10 @@ const publicCode = async () => {
 // 核心指标
 const getCoreIndex = async () => {
   if (cropLimitInfo.value && cropLimitInfo.value.cropName && cropLimitInfo.value.cropFlag != 'COUNTY') {
-    let res: any = await getCoreIndicator({ dwId: cropLimitInfo.value.cropId, nd: formData.jhssnd })
+    let res: any = await getCoreIndicator({
+      dwId: cropLimitInfo.value.cropId,
+      nd: formData.jhssnd
+    })
     if (res.success) {
       const content: any = res.data
       const mbz = Number(content.cbxmmbz).toFixed(2)
@@ -110,7 +122,10 @@ const getCoreIndex = async () => {
 }
 // 是否县公司角色
 const getTryCounty = async (val: any) => {
-  let res: any = await getCropLimitInfo({ dwId: val, isUpLimit: false })
+  let res: any = await getCropLimitInfo({
+    dwId: val,
+    isUpLimit: false
+  })
   if (res.success) {
     cropLimitInfo.value = res.data
     eChartsDataRef.value.formData.cropFlag = res.data.cropFlag
@@ -178,7 +193,6 @@ const MenuList = async () => {
     console.log(error)
   }
 }
-
 const xmDataPage = async () => {
   try {
     params.value = {
@@ -194,22 +208,26 @@ const xmDataPage = async () => {
     console.log(error)
   }
 }
-
 const getHandlerTab = () => {
   if (isCity.value) {
-    isCountyRef.value.formData = { ...params.value, isClick: '2', appNo: appNo.value }
+    isCountyRef.value.formData = {
+      ...params.value,
+      isClick: '2',
+      appNo: appNo.value
+    }
     isCountyRef.value?.proTableRef.clearSelection()
     isCountyRef.value?.proTableRef.getTableList()
   } else {
     eChartsDataRef.value.showPage = false
     eChartsDataRef.value.appNo = appNo.value
     eChartsDataRef.value.isBMCW = userInfo.value.isBMCW
-    eChartsDataRef.value.formData = { ...params.value }
+    eChartsDataRef.value.formData = {
+      ...params.value
+    }
     eChartsDataRef.value.getDataChar()
     eChartsDataRef.value.showPage = true
   }
 }
-
 const clickHistroy = (item: any) => {
   modalTbaleRef.value.isShowTable = true
   modalTbaleRef.value.loading = true
@@ -221,7 +239,9 @@ const clickHistroy = (item: any) => {
     }
     modalTbaleRef.value.tableTitle = `${item.name}-事项明细`
     modalTbaleRef.value.apiType = '2'
-    modalTbaleRef.value.formData = { ...parmas }
+    modalTbaleRef.value.formData = {
+      ...parmas
+    }
     modalTbaleRef.value?.proTableRef.getTableList()
   })
 }

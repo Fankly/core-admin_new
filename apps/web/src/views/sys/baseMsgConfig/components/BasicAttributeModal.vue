@@ -843,8 +843,6 @@
 
 <script setup lang="ts">
 import { More as EpMore } from '@element-plus/icons-vue'
-
-defineOptions({ name: "BasicAttributeModal" })
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
 import MatterModal from '@/views/sys/baseMsgConfig/components/MatterModal.vue'
@@ -854,6 +852,7 @@ import { getDataByParent, getESJfl, getPublicCodeList } from '@/api/common'
 import { eidtBaseInfo } from '@/api/sys/proCategory'
 import VXETable from 'vxe-table'
 import { cloneDeep } from 'lodash'
+defineOptions({ name: "BasicAttributeModal" })
 
 interface AcceptParams {
   ids: string[]

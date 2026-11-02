@@ -4,44 +4,51 @@
   </el-select>
 </template>
 
-<script>
-import { defineComponent, reactive } from "vue";
-import { ElMessage } from "element-plus";
-import process from "@/views/budget-process/js/process-data";
-import baseService from "@/service/baseService";
-export default defineComponent({
-  setup() {
-    return reactive({
-      projects: [],
-      //选中数据 页面直接调用即可
-      value: ""
-    });
-  },
-  created() {
-    this.loadData();
-  },
-  methods: {
-    loadData() {
-      baseService.get(`/commonCode/getData?code=GWXMFL`).then((res) => {
-        if (res.success == true) {
-          this.projects = res.data;
-        } else {
-          ElMessage({
-            type: "error",
-            message: res.msg
-          });
-        }
-      });
-    },
-    changeParams() {
-      this.list = [];
-      this.list.push(this.value);
-    },
-    clear() {
-      this.value = "";
-      this.list = [];
+<script setup>
+import { reactive, toRef, toRefs } from 'vue'
+import { ElMessage } from 'element-plus'
+import process from '@/views/budget-process/js/process-data'
+import baseService from '@/service/baseService'
+const setupState = reactive({
+  projects: [],
+  //选中数据 页面直接调用即可
+  value: ''
+})
+const projects = toRef(setupState, 'projects')
+const value = toRef(setupState, 'value')
+const componentData = reactive({})
+componentData.list = undefined
+const list = toRef(componentData, 'list')
+function loadData() {
+  baseService.get(`/commonCode/getData?code=GWXMFL`).then((res) => {
+    if (res.success == true) {
+      setupState.projects = res.data
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
     }
-  }
-});
+  })
+}
+function changeParams() {
+  componentData.list = []
+  componentData.list.push(setupState.value)
+}
+function clear() {
+  setupState.value = ''
+  componentData.list = []
+}
+;(() => {
+  loadData()
+})()
+defineExpose({
+  projects,
+  value,
+  loadData,
+  changeParams,
+  clear,
+  ...toRefs(componentData)
+})
 </script>
 <style lang="less" scoped></style>

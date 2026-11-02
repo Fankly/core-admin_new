@@ -120,27 +120,26 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'YegddwpzBasicOperation'
-}
-</script>
+
 <script setup lang="ts">
-import { ref, defineExpose, defineEmits, defineProps, reactive, watch, nextTick } from 'vue'
+import { ref, reactive, watch, nextTick } from 'vue'
 import { saveMatterDwpzData, SaveYsdwMsg } from '@/api/matter/matterBasic'
 import { ElMessage } from 'element-plus'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
+defineOptions({
+  name: 'YegddwpzBasicOperation'
+})
+
+ //表格组件
 
 interface MatterBasicMsg {
   title: string
   opType: string
 }
-
 interface Props {
   matterBasicMsg: MatterBasicMsg
   selectedData: any
 }
-
 interface RowVO {
   code: string
   name: string
@@ -149,22 +148,15 @@ interface RowVO {
   unicode: any
   [key: string]: number | string
 }
-
 const props = defineProps<Props>()
-
 const emit = defineEmits(['saveData'])
-
 const xmlxRef = ref()
 const formRef = ref()
-
 const isShowModal = ref(false)
 const loading = ref(false)
-
 const checkCodes = ref<any>([])
-
 const isShowTable = ref<boolean>(false)
 const proTableRef = ref()
-
 const formData = reactive<SaveYsdwMsg>({
   code: '',
   name: '',
@@ -180,37 +172,124 @@ const formData = reactive<SaveYsdwMsg>({
   sgscydwAudit: '',
   bukrs: ''
 })
-
 const searchList = reactive({
   xgsgddwAuditOpt: [
-    {name: '是', code: 'Y'},
-    {name: '否', code: 'N'}
+    {
+      name: '是',
+      code: 'Y'
+    },
+    {
+      name: '否',
+      code: 'N'
+    }
   ],
   sgsgddwAuditOpt: [
-    {name: '是', code: 'Y'},
-    {name: '否', code: 'N'}
+    {
+      name: '是',
+      code: 'Y'
+    },
+    {
+      name: '否',
+      code: 'N'
+    }
   ],
   sgscydwAuditOpt: [
-    {name: '是', code: 'Y'},
-    {name: '否', code: 'N'}
+    {
+      name: '是',
+      code: 'Y'
+    },
+    {
+      name: '否',
+      code: 'N'
+    }
   ]
 })
-
 const rulesForm = reactive({
-  code: [{ required: true, message: '请输入单位编码', trigger: ['blur'] }],
-  name: [{ required: true, message: '请输入单位名称', trigger: ['blur'] }],
-  sx: [{ required: false, message: '请输入单位属性', trigger: ['blur'] }],
-  sgscydwCode: [{ required: false, message: '请输入市级产业单位编码', trigger: ['blur'] }],
-  sgscydwName: [{ required: false, message: '请输入市级产业单位名称', trigger: ['blur'] }],
-  xgsgddwCode: [{ required: false, message: '请输入县级供电单位编码', trigger: ['blur'] }],
-  xgsgddwName: [{ required: false, message: '请输入县级供电单位名称', trigger: ['blur'] }],
-  sgsgddwCode: [{ required: false, message: '请输入市级供电单位编码', trigger: ['blur'] }],
-  sgsgddwName: [{ required: false, message: '请输入市级供电单位名称', trigger: ['blur'] }],
-  xgsgddwAudit: [{ required: false, message: '请选择是否县级供电单位审核', trigger: ['change'] }],
-  sgsgddwAudit: [{ required: false, message: '请选择是否市级供电单位审核', trigger: ['change'] }],
-  sgscydwAudit: [{ required: false, message: '请选择是否市级产业单位审核', trigger: ['change'] }]
+  code: [
+    {
+      required: true,
+      message: '请输入单位编码',
+      trigger: ['blur']
+    }
+  ],
+  name: [
+    {
+      required: true,
+      message: '请输入单位名称',
+      trigger: ['blur']
+    }
+  ],
+  sx: [
+    {
+      required: false,
+      message: '请输入单位属性',
+      trigger: ['blur']
+    }
+  ],
+  sgscydwCode: [
+    {
+      required: false,
+      message: '请输入市级产业单位编码',
+      trigger: ['blur']
+    }
+  ],
+  sgscydwName: [
+    {
+      required: false,
+      message: '请输入市级产业单位名称',
+      trigger: ['blur']
+    }
+  ],
+  xgsgddwCode: [
+    {
+      required: false,
+      message: '请输入县级供电单位编码',
+      trigger: ['blur']
+    }
+  ],
+  xgsgddwName: [
+    {
+      required: false,
+      message: '请输入县级供电单位名称',
+      trigger: ['blur']
+    }
+  ],
+  sgsgddwCode: [
+    {
+      required: false,
+      message: '请输入市级供电单位编码',
+      trigger: ['blur']
+    }
+  ],
+  sgsgddwName: [
+    {
+      required: false,
+      message: '请输入市级供电单位名称',
+      trigger: ['blur']
+    }
+  ],
+  xgsgddwAudit: [
+    {
+      required: false,
+      message: '请选择是否县级供电单位审核',
+      trigger: ['change']
+    }
+  ],
+  sgsgddwAudit: [
+    {
+      required: false,
+      message: '请选择是否市级供电单位审核',
+      trigger: ['change']
+    }
+  ],
+  sgscydwAudit: [
+    {
+      required: false,
+      message: '请选择是否市级产业单位审核',
+      trigger: ['change']
+    }
+  ]
 })
-
 const showHandle = () => {
   if (['EDIT', 'VIEW'].includes(props.matterBasicMsg.opType)) {
     // 修改
@@ -260,7 +339,6 @@ const saveHandle = async () => {
     }
   })
 }
-
 defineExpose({
   isShowModal
 })

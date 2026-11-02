@@ -168,22 +168,17 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: "/fy/prearranged/release/provinceReview"
-};
-</script>
 
 <script setup lang="ts">
-import FyHeader from "@/views/fy/components/Header.vue";
-import userDialog from "@/components/select/userDialog.vue";
-import dwbzView from "@/views/fy/prearranged/release/components/dwbzView.vue";
-import reviewLayout from "@/views/fy/prearranged/release/components/reviewLayout.vue";
-import yskmView from "@/views/fy/prearranged/release/components/yskmView.vue";
-import type { TableMsg, Columns } from "@/views/fy/prearranged/interface";
-import { computed, onMounted, reactive, ref } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { VxeColumnProps } from "vxe-table";
+import FyHeader from '@/views/fy/components/Header.vue'
+import userDialog from '@/components/select/userDialog.vue'
+import dwbzView from '@/views/fy/prearranged/release/components/dwbzView.vue'
+import reviewLayout from '@/views/fy/prearranged/release/components/reviewLayout.vue'
+import yskmView from '@/views/fy/prearranged/release/components/yskmView.vue'
+import type { TableMsg, Columns } from '@/views/fy/prearranged/interface'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { VxeColumnProps } from 'vxe-table'
 import {
   getDataList,
   provinceSd,
@@ -201,444 +196,423 @@ import {
   getDataListByKm,
   provinceXd,
   exportData
-} from "@/api/fy/release/provinceReview";
-import { findPrevNode, formatValue } from "@/utils/utils";
+} from '@/api/fy/release/provinceReview'
+import { findPrevNode, formatValue } from '@/utils/utils'
+defineOptions({
+  name: '/fy/prearranged/release/provinceReview'
+})
 
-export type ToolButton = ("save" | "import" | "export" | "download" | "sd" | "close")[] | boolean;
-
-const userDialogRef = ref();
-const zyTableRef = ref();
-const ndTableRef = ref();
-const reviewLayoutRef = ref();
-const headerRef = ref();
-const dwbzViewRef = ref();
-const toolbarOneRef = ref();
-const toolbarTwoRef = ref();
-
-const isDiabledSd = computed(() => !(reviewLayoutRef.value.curChangeData?.row, reviewLayoutRef.value.curChangeData?.row.sbzt === "1"));
-
-const isDisabled = computed(() => userMsg.shxdzt === "1");
-
+export type ToolButton = ('save' | 'import' | 'export' | 'download' | 'sd' | 'close')[] | boolean
+const userDialogRef = ref()
+const zyTableRef = ref()
+const ndTableRef = ref()
+const reviewLayoutRef = ref()
+const headerRef = ref()
+const dwbzViewRef = ref()
+const toolbarOneRef = ref()
+const toolbarTwoRef = ref()
+const isDiabledSd = computed(() => !(reviewLayoutRef.value.curChangeData?.row, reviewLayoutRef.value.curChangeData?.row.sbzt === '1'))
+const isDisabled = computed(() => userMsg.shxdzt === '1')
 const userMsg = reactive<any>({
   userData: null,
-  specialorgid: "",
-  dwName: "",
+  specialorgid: '',
+  dwName: '',
   isShowPage: false,
   loading: false,
-  flag: "1",
-  busiId: "",
-  statusInfo: "",
-  shxdzt: ""
-});
-
+  flag: '1',
+  busiId: '',
+  statusInfo: '',
+  shxdzt: ''
+})
 const reviewMsg = reactive({
   isShowModal: false
-});
-
+})
 const dwMsg = reactive<{
-  isShowModal: boolean;
-  busiId: string;
-  dwId: string;
-  title: string;
-  toolButton: ToolButton;
-  showHeader: boolean;
-  opType: string;
-  dwData: any;
-  operationFlag: string;
-  sdzt: string;
+  isShowModal: boolean
+  busiId: string
+  dwId: string
+  title: string
+  toolButton: ToolButton
+  showHeader: boolean
+  opType: string
+  dwData: any
+  operationFlag: string
+  sdzt: string
 }>({
   isShowModal: false,
-  dwId: "",
-  title: "预安排审定 - 单位查看",
-  toolButton: ["export", "download", "close"],
+  dwId: '',
+  title: '预安排审定 - 单位查看',
+  toolButton: ['export', 'download', 'close'],
   showHeader: false,
-  opType: "",
-  busiId: "",
+  opType: '',
+  busiId: '',
   dwData: {},
-  operationFlag: "",
-  sdzt: ""
-});
-
+  operationFlag: '',
+  sdzt: ''
+})
 const tabMsg = reactive({
-  name: "1",
+  name: '1',
   isDisabled: true
-});
-
+})
 const kmMsg = reactive<{
-  isShowModal: boolean;
-  kmId: any;
-  title: string;
+  isShowModal: boolean
+  kmId: any
+  title: string
 }>({
   isShowModal: false,
   kmId: [],
-  title: "预安排审定 - 科目查看"
-});
-
+  title: '预安排审定 - 科目查看'
+})
 const tableMsg = reactive<TableMsg>({
   rowConfig: {
     height: 32
   },
-  nd: "",
-  xsws: "",
+  nd: '',
+  xsws: '',
   tableData: [],
   ndData: [],
   columns: [],
   ndColumns: [],
   zyTreeConfig: {
     lazy: true,
-    hasChildField: "leaf",
+    hasChildField: 'leaf',
     loadMethod({ row }: any) {
       let params = {
-        busiType: "YAP",
+        busiType: 'YAP',
         nd: tableMsg.nd,
         xsws: tableMsg.xsws,
         specialorgid: userMsg.specialorgid,
-        kmlx: "1",
+        kmlx: '1',
         parentId: row.id
-      };
+      }
       return new Promise((resolve: any) => {
         getDataList({
           ...params
         }).then((res: any) => {
           if (res.success) {
-            resolve(res.data);
+            resolve(res.data)
           } else {
-            ElMessage.error(res.msg);
-            resolve([]);
+            ElMessage.error(res.msg)
+            resolve([])
           }
-        });
-      });
+        })
+      })
     }
   },
   ndTreeConfig: {
     lazy: true,
-    hasChildField: "leaf",
+    hasChildField: 'leaf',
     loadMethod({ row }: any) {
       let params = {
         nd: tableMsg.nd,
         xsws: tableMsg.xsws,
         specialorgid: userMsg.specialorgid,
-        kmlx: "2",
+        kmlx: '2',
         parentId: row.id
-      };
+      }
       return new Promise((resolve: any) => {
         getDataList({
-          busiType: "YAP",
+          busiType: 'YAP',
           ...params
         }).then((res: any) => {
           if (res.success) {
-            resolve(res.data);
+            resolve(res.data)
           } else {
-            ElMessage.error(res.msg);
-            resolve([]);
+            ElMessage.error(res.msg)
+            resolve([])
           }
-        });
-      });
+        })
+      })
     }
   }
-});
-
+})
 const getDwData = async (specialorgid: string) => {
-  let res = await getCurrentPageData(specialorgid, tableMsg.nd, userMsg.flag);
+  let res = await getCurrentPageData(specialorgid, tableMsg.nd, userMsg.flag)
   if (res.success) {
-    userMsg.dwName = res.data.dwName;
-    userMsg.busiId = res.data.dwDetailId;
-    userMsg.shxdzt = res.data.shxdzt;
-    userMsg.statusInfo = res.data.statusInfo;
+    userMsg.dwName = res.data.dwName
+    userMsg.busiId = res.data.dwDetailId
+    userMsg.shxdzt = res.data.shxdzt
+    userMsg.statusInfo = res.data.statusInfo
   } else {
-    ElMessage.error(res.msg);
+    ElMessage.error(res.msg)
   }
-};
-
+}
 const closeDialog = (val: boolean) => {
-  reviewMsg.isShowModal = false;
-  getDwData(userMsg.specialorgid);
-};
-
+  reviewMsg.isShowModal = false
+  getDwData(userMsg.specialorgid)
+}
 const getTableList = (params: any) => {
-  params.specialorgid = userMsg.specialorgid;
-  return getDwStatus(params);
-};
-
+  params.specialorgid = userMsg.specialorgid
+  return getDwStatus(params)
+}
 const isDisabledBtn = async ({ props }: any) => {
-  userMsg.flag = props.name;
-  getTableData();
-  linkTable();
-};
+  userMsg.flag = props.name
+  getTableData()
+  linkTable()
+}
 
 // 关闭modal
 const closeModalHandle = (val: boolean, flag: string) => {
-  flag === "dw" ? (dwMsg.isShowModal = val) : (kmMsg.isShowModal = val);
-  dwMsg.dwId = "";
-  kmMsg.kmId.length = 0;
-};
+  flag === 'dw' ? (dwMsg.isShowModal = val) : (kmMsg.isShowModal = val)
+  dwMsg.dwId = ''
+  kmMsg.kmId.length = 0
+}
 
 // 审核
 const reviewHandle = () => {
-  reviewMsg.isShowModal = true;
-};
-
+  reviewMsg.isShowModal = true
+}
 const sdHandle = (params: any) => {
-  params.dwId = params.ejdw;
-  return provinceSd(params);
-};
-
+  params.dwId = params.ejdw
+  return provinceSd(params)
+}
 const saveHandle = (params: any) => {
-  const records: any[] = dwbzViewRef.value.element.getUpdateRecords();
-  const updateRecords = records.filter((item) => item.id && !item.leaf);
+  const records: any[] = dwbzViewRef.value.element.getUpdateRecords()
+  const updateRecords = records.filter((item) => item.id && !item.leaf)
   let mxList = updateRecords.map((item) => {
     return {
       sdje: item.sdje,
       yskmId: item.id,
-      detailId: item.detailId ? item.detailId : ""
-    };
-  });
-  params.lists = mxList;
-  return provinceSave(params);
-};
+      detailId: item.detailId ? item.detailId : ''
+    }
+  })
+  params.lists = mxList
+  return provinceSave(params)
+}
 
 // 审定
 const sdDataHandle = (opType: string) => {
-  let record = reviewLayoutRef.value.element.getCurrentRecord();
+  let record = reviewLayoutRef.value.element.getCurrentRecord()
   if (!record) {
-    ElMessage.warning("请选择一条数据进行操作！");
-    return;
+    ElMessage.warning('请选择一条数据进行操作！')
+    return
   }
-  dwMsg.isShowModal = true;
-  dwMsg.opType = opType;
-  opType === "edit" ? (dwMsg.title = "预安排审定 - 单位审定") : (dwMsg.title = "预安排审定 - 单位查看");
-  dwMsg.dwId = record.dwId;
-  dwMsg.busiId = record.dwDetailId;
-  dwMsg.sdzt = record.sdzt;
-  dwMsg.operationFlag = opType;
-  opType === "edit" ? (dwMsg.toolButton = ["save", "import", "export", "sd", "download", "close"]) : (dwMsg.toolButton = ["export", "close", "download"]);
-};
+  dwMsg.isShowModal = true
+  dwMsg.opType = opType
+  opType === 'edit' ? (dwMsg.title = '预安排审定 - 单位审定') : (dwMsg.title = '预安排审定 - 单位查看')
+  dwMsg.dwId = record.dwId
+  dwMsg.busiId = record.dwDetailId
+  dwMsg.sdzt = record.sdzt
+  dwMsg.operationFlag = opType
+  opType === 'edit'
+    ? (dwMsg.toolButton = ['save', 'import', 'export', 'sd', 'download', 'close'])
+    : (dwMsg.toolButton = ['export', 'close', 'download'])
+}
 
 // 下达
 const releaseHandle = async () => {
-  ElMessageBox.confirm("是否确认审定下达？", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "success"
+  ElMessageBox.confirm('是否确认审定下达？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'success'
   }).then(async () => {
     let res = await provinceXd({
       nd: tableMsg.nd,
       kmlx: userMsg.flag,
       dwId: userMsg.specialorgid
-    });
+    })
     if (res.success) {
-      getTableData();
-      ElMessage.success("审定下达成功!");
+      getTableData()
+      ElMessage.success('审定下达成功!')
     } else {
-      ElMessage.error(res.msg);
+      ElMessage.error(res.msg)
     }
-  });
-};
+  })
+}
 
 // 导出
 const exportTableDataHandle = () => {
-  userMsg.loading = true;
+  userMsg.loading = true
   exportData({
-    busiType: "YAP",
+    busiType: 'YAP',
     kmlx: userMsg.flag,
     nd: tableMsg.nd,
     xsws: tableMsg.xsws,
     specialorgid: userMsg.specialorgid,
-    parentId: "-1"
+    parentId: '-1'
   }).then((res: any) => {
-    const blob = res;
-    let dom = document.createElement("a");
-    let url = window.URL.createObjectURL(blob);
-    dom.href = url;
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
     // 获取文件名
-    let filename = res.headers["content-disposition"].split(";")[1].split("=")[1];
-    dom.download = `${decodeURI(decodeURI(filename))}`;
-    document.body.appendChild(dom);
-    dom.click();
-    document.body.removeChild(dom);
-    window.URL.revokeObjectURL(url);
-    userMsg.loading = false;
-  });
-};
-
+    let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
+    dom.download = `${decodeURI(decodeURI(filename))}`
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+    userMsg.loading = false
+  })
+}
 const headerDataHandle = (params: any) => {
-  dwMsg.opType === "edit" ? (params.opType = "1") : (params.opType = "0");
-  return getDynamicColumnDwDetail(params);
-};
+  dwMsg.opType === 'edit' ? (params.opType = '1') : (params.opType = '0')
+  return getDynamicColumnDwDetail(params)
+}
 
 // 判断表头是否可以点击
 const isClickHeader = (columns: Columns[], field: string) => {
-  return columns.find((item: Columns) => item.eidt && item.columnKey === field);
-};
+  return columns.find((item: Columns) => item.eidt && item.columnKey === field)
+}
 
 // 表头点击
 const headerCellClickHandle = ({ column }: any) => {
-  const isColumn = isClickHeader(tableMsg.columns as Columns[], column.field);
+  const isColumn = isClickHeader(tableMsg.columns as Columns[], column.field)
   if (isColumn) {
-    let opType = "view";
-    dwMsg.isShowModal = true;
-    dwMsg.busiId = isColumn.dwDetailId;
-    dwMsg.dwId = column.field;
-    dwMsg.isShowModal = true;
-    dwMsg.opType = opType;
-    opType === "edit" ? (dwMsg.title = "预安排审定 - 单位审定") : (dwMsg.title = "预安排审定 - 单位查看");
-    dwMsg.operationFlag = opType;
-    opType === "edit" ? (dwMsg.toolButton = ["save", "import", "export", "sd", "download", "close"]) : (dwMsg.toolButton = ["export", "close", "download"]);
+    let opType = 'view'
+    dwMsg.isShowModal = true
+    dwMsg.busiId = isColumn.dwDetailId
+    dwMsg.dwId = column.field
+    dwMsg.isShowModal = true
+    dwMsg.opType = opType
+    opType === 'edit' ? (dwMsg.title = '预安排审定 - 单位审定') : (dwMsg.title = '预安排审定 - 单位查看')
+    dwMsg.operationFlag = opType
+    opType === 'edit'
+      ? (dwMsg.toolButton = ['save', 'import', 'export', 'sd', 'download', 'close'])
+      : (dwMsg.toolButton = ['export', 'close', 'download'])
   }
-};
-
+}
 const headerCellStyle = ({ column }: any) => {
-  const isColumn = isClickHeader(tableMsg.columns as Columns[], column.field);
+  const isColumn = isClickHeader(tableMsg.columns as Columns[], column.field)
   if (isColumn) {
     return {
-      cursor: "pointer",
-      color: "rgb(0, 112, 107)",
-      padding: "8px 0",
-      lineHeight: "16px"
-    };
-  }
-  return {
-    cursor: "auto",
-    color: "#303133",
-    padding: "8px 0",
-    lineHeight: "16px"
-  };
-};
-
-const cellClickHandle = async ({ row, column }: any) => {
-  if (row.id && !row.leaf && column.field === "name") {
-    kmMsg.isShowModal = true;
-    const tableData = Number(userMsg.flag) === 1 ? tableMsg.tableData : tableMsg.ndData;
-    kmMsg.kmId = findPrevNode(tableData, row);
-  }
-};
-
-const cellStyle = ({ row, column }: any) => {
-  if (row.id && !row.leaf && column.field === "name") {
-    return {
-      cursor: "pointer",
-      backgroundColor: "rgba(232, 234, 236,0.5)",
-      color: "rgb(0, 112, 107)"
-    };
-  }
-  return {
-    cursor: "auto",
-    backgroundColor: "rgba(232, 234, 236,0.5)",
-    color: "rgb(96, 98, 102)"
-  };
-};
-
-const isNeedNum = (columns: any[], field: string) => {
-  let findIndex = columns.findIndex((item) => item.needSum && item.columnKey === field);
-  return findIndex > -1;
-};
-
-const formatterData = ({ column, cellValue }: any) => {
-  if (typeof cellValue === "undefined" || cellValue === null || cellValue === "") return "-";
-  if (tableMsg.columns) {
-    const isNum = isNeedNum(tableMsg.columns, column.field);
-    if (isNum) {
-      return formatValue(cellValue, Number(tableMsg.xsws));
+      cursor: 'pointer',
+      color: 'rgb(0, 112, 107)',
+      padding: '8px 0',
+      lineHeight: '16px'
     }
   }
-  return cellValue;
-};
-
+  return {
+    cursor: 'auto',
+    color: '#303133',
+    padding: '8px 0',
+    lineHeight: '16px'
+  }
+}
+const cellClickHandle = async ({ row, column }: any) => {
+  if (row.id && !row.leaf && column.field === 'name') {
+    kmMsg.isShowModal = true
+    const tableData = Number(userMsg.flag) === 1 ? tableMsg.tableData : tableMsg.ndData
+    kmMsg.kmId = findPrevNode(tableData, row)
+  }
+}
+const cellStyle = ({ row, column }: any) => {
+  if (row.id && !row.leaf && column.field === 'name') {
+    return {
+      cursor: 'pointer',
+      backgroundColor: 'rgba(232, 234, 236,0.5)',
+      color: 'rgb(0, 112, 107)'
+    }
+  }
+  return {
+    cursor: 'auto',
+    backgroundColor: 'rgba(232, 234, 236,0.5)',
+    color: 'rgb(96, 98, 102)'
+  }
+}
+const isNeedNum = (columns: any[], field: string) => {
+  let findIndex = columns.findIndex((item) => item.needSum && item.columnKey === field)
+  return findIndex > -1
+}
+const formatterData = ({ column, cellValue }: any) => {
+  if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
+  if (tableMsg.columns) {
+    const isNum = isNeedNum(tableMsg.columns, column.field)
+    if (isNum) {
+      return formatValue(cellValue, Number(tableMsg.xsws))
+    }
+  }
+  return cellValue
+}
 const getRoleHandle = async () => {
-  userMsg.userData = { ...userDialogRef.value.userMsg };
-  userMsg.specialorgid = userMsg.userData.org_id;
-  const isQuery = userDialogRef.value.isQuery;
-  tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString();
-  tableMsg.xsws = headerRef.value.formParams.xsws || "2";
+  userMsg.userData = {
+    ...userDialogRef.value.userMsg
+  }
+  userMsg.specialorgid = userMsg.userData.org_id
+  const isQuery = userDialogRef.value.isQuery
+  tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString()
+  tableMsg.xsws = headerRef.value.formParams.xsws || '2'
   if (isQuery) {
-    userMsg.isShowPage = true;
+    userMsg.isShowPage = true
     // 判断是否已经下达
     // 获取动态列和动态表头
-    await getTableData();
-    linkTable();
+    await getTableData()
+    linkTable()
   }
-};
-
+}
 const updateTableData = (val: string) => {
-  reviewLayoutRef.value.getTableList();
-  getDwData(userMsg.specialorgid);
-  getTableData();
-  if (val === "sd") closeModalHandle(false, "dw");
-};
-
+  reviewLayoutRef.value.getTableList()
+  getDwData(userMsg.specialorgid)
+  getTableData()
+  if (val === 'sd') closeModalHandle(false, 'dw')
+}
 const linkTable = () => {
-  const $table = Number(userMsg.flag) === 1 ? zyTableRef.value : ndTableRef.value;
-  const $toolBar = Number(userMsg.flag) === 1 ? toolbarOneRef.value : toolbarTwoRef.value;
+  const $table = Number(userMsg.flag) === 1 ? zyTableRef.value : ndTableRef.value
+  const $toolBar = Number(userMsg.flag) === 1 ? toolbarOneRef.value : toolbarTwoRef.value
   if ($table && $toolBar) {
-    $table.connect($toolBar);
+    $table.connect($toolBar)
   }
-};
-
+}
 const getTableData = async () => {
-  clearTableData();
-  getDwData(userMsg.specialorgid);
-  userMsg.loading = true;
+  clearTableData()
+  getDwData(userMsg.specialorgid)
+  userMsg.loading = true
   let params = {
     nd: tableMsg.nd,
     xsws: tableMsg.xsws,
     specialorgid: userMsg.specialorgid,
     kmlx: userMsg.flag,
-    parentId: "-1",
-    busiType: "YAP"
-  };
-  let res = await Promise.all([getDynamicColumn(params), getDataList(params)]);
+    parentId: '-1',
+    busiType: 'YAP'
+  }
+  let res = await Promise.all([getDynamicColumn(params), getDataList(params)])
   if (res[0].success && res[1].success) {
-    tableMsg.columns = res[0].data.filter((item: Columns) => item.visible);
-    Number(userMsg.flag) === 1 ? (tableMsg.tableData = res[1].data) : (tableMsg.ndData = res[1].data);
+    tableMsg.columns = res[0].data.filter((item: Columns) => item.visible)
+    Number(userMsg.flag) === 1 ? (tableMsg.tableData = res[1].data) : (tableMsg.ndData = res[1].data)
     // compTableWidth();
   } else {
-    ElMessage.error("请刷新页面进行重试！");
+    ElMessage.error('请刷新页面进行重试！')
   }
-  userMsg.loading = false;
-};
-
+  userMsg.loading = false
+}
 const initData = () => {
   // 调用角色modal
-  userDialogRef.value.getUser();
-};
-
+  userDialogRef.value.getUser()
+}
 const changeNdHandle = (val: string) => {
-  tableMsg.nd = val;
-  getTableData();
-};
-
+  tableMsg.nd = val
+  getTableData()
+}
 const changeXswsHandle = (val: string) => {
-  tableMsg.xsws = val;
-  getTableData();
-};
-
+  tableMsg.xsws = val
+  getTableData()
+}
 const clearTableData = () => {
-  if (tableMsg.columns) tableMsg.columns.length = 0;
-  if (tableMsg.tableData) tableMsg.tableData.length = 0;
-  if (tableMsg.ndData) tableMsg.ndData.length = 0;
-};
-
+  if (tableMsg.columns) tableMsg.columns.length = 0
+  if (tableMsg.tableData) tableMsg.tableData.length = 0
+  if (tableMsg.ndData) tableMsg.ndData.length = 0
+}
 const reviewColumns = reactive<VxeColumnProps[]>([
   {
-    type: "seq",
-    title: "序号",
+    type: 'seq',
+    title: '序号',
     width: 60
   },
   {
-    field: "dwName",
-    title: "上报单位"
+    field: 'dwName',
+    title: '上报单位'
   },
   {
-    field: "sbztName",
-    title: "上报状态",
+    field: 'sbztName',
+    title: '上报状态',
     width: 120
   },
   {
-    field: "sdztName",
-    title: "审核状态",
+    field: 'sdztName',
+    title: '审核状态',
     width: 120
   }
-]);
+])
 
 /* const compTableWidth = () => {
   const tableData = tabMsg.name === "1" ? tableMsg.tableData : tableMsg.ndData;
@@ -655,7 +629,7 @@ const reviewColumns = reactive<VxeColumnProps[]>([
   });
 }; */
 
-onMounted(initData);
+onMounted(initData)
 </script>
 
 <style scoped lang="less">

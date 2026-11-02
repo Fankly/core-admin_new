@@ -33,11 +33,7 @@
     <TbhbDeptModal ref="tbhbDeptModalRef" />
   </vxe-modal>
 </template>
-<script lang="tsx">
-export default {
-  name: 'detaildeptData'
-}
-</script>
+
 <script setup lang="tsx">
 import { ref, reactive, nextTick } from 'vue'
 import {
@@ -55,6 +51,9 @@ import { getParamConfig, getPublicData } from '@/api/common'
 import { formatNumValue } from '@/utils/utils'
 import TbhbDeptModal from './TbhbDeptModal/index.vue'
 import { getLeafColumns } from './TbhbDeptModal/columns'
+defineOptions({
+  name: 'detaildeptData'
+})
 
 const isShowModel = ref(false)
 const loading = ref(false)
@@ -67,28 +66,23 @@ const isTable = ref<boolean>(false)
 const isShowTable = ref<boolean>(false)
 const xswsList = ref<any[]>([])
 const xsws = ref<any>('2')
-
 const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
   if (!MERGE_PROPS.includes(column.property)) return
-
   const tableData = gridOptions.data
   if (!tableData?.length)
     return {
       rowspan: 1,
       colspan: 1
     }
-
   const isSameGroup = (a: any, b: any): boolean => {
     return MERGE_PROPS.every((prop) => a[prop] === b[prop])
   }
-
   if (rowIndex > 0 && isSameGroup(row, tableData[rowIndex - 1])) {
     return {
       rowspan: 0,
       colspan: 0
     }
   }
-
   let rowspan = 1
   for (let i = rowIndex + 1; i < tableData.length; i++) {
     if (isSameGroup(tableData[i], row)) {
@@ -97,7 +91,6 @@ const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
       break
     }
   }
-
   return {
     rowspan,
     colspan: 1
@@ -113,7 +106,6 @@ const objectSpanMethod = ({ row, column, rowIndex, columnIndex }: any) => {
 // 并置 fullCalcOnLoad，Excel 打开自动重算。
 const HJ_PREFIX = 'hj'
 const INLINE_SUM_VALUE_CODES = ['MBZ', 'DFJ', 'LXZ', 'WCZ']
-
 const buildInlineSumConfig = (columns: any[]): InlineSumOptions | undefined => {
   const leaves = getLeafColumns(columns)
   if (leaves.length === 0) return undefined
@@ -131,13 +123,17 @@ const buildInlineSumConfig = (columns: any[]): InlineSumOptions | undefined => {
       })
       .filter(Boolean)
     if (sourceFields.length === 0) return
-    specs.push({ targetField, sourceFields })
+    specs.push({
+      targetField,
+      sourceFields
+    })
   })
   if (specs.length === 0) return undefined
   // 不设 rowFilter：所有行（含「省公司」纵向合计行）均写横向求和公式
-  return { config: specs }
+  return {
+    config: specs
+  }
 }
-
 const exportTable = () => {
   const inlineSumOptions = buildInlineSumConfig(gridOptions.columns)
   vxeExportFormulaHandle(
@@ -146,12 +142,32 @@ const exportTable = () => {
     gridOptions.data,
     2,
     {
-      LXL: { type: 'ratio', valueField: 'LXZ', targetField: 'MBZ', skipField: 'MBZ' }, // 立项率 = 立项值/目标值*100
-      FJL: { type: 'ratio', valueField: 'DFJ', targetField: 'MBZ', skipField: 'MBZ', subtract: true }, // 分解率 = (目标值-待分解)/目标值*100
-      JSL: { type: 'ratio', valueField: 'WCZ', targetField: 'MBZ', skipField: 'MBZ' } // 完成率 = 完成值/目标值*100
+      LXL: {
+        type: 'ratio',
+        valueField: 'LXZ',
+        targetField: 'MBZ',
+        skipField: 'MBZ'
+      },
+      // 立项率 = 立项值/目标值*100
+      FJL: {
+        type: 'ratio',
+        valueField: 'DFJ',
+        targetField: 'MBZ',
+        skipField: 'MBZ',
+        subtract: true
+      },
+      // 分解率 = (目标值-待分解)/目标值*100
+      JSL: {
+        type: 'ratio',
+        valueField: 'WCZ',
+        targetField: 'MBZ',
+        skipField: 'MBZ'
+      } // 完成率 = 完成值/目标值*100
     },
-    undefined, // options
-    undefined, // sumConfig（垂直合计行不在本次需求内）
+    undefined,
+    // options
+    undefined,
+    // sumConfig（垂直合计行不在本次需求内）
     inlineSumOptions // 横向求和：合计列下 目标值/待分解/立项值/完成值 = 各 proTypeId 列同行累加
   )
 }
@@ -168,17 +184,16 @@ const openTbhbModal = (type: 'tb' | 'hb') => {
     deptId: p.deptId
   })
 }
-
 const handleTb = () => openTbhbModal('tb')
 const handleHb = () => openTbhbModal('hb')
-
 const closeHandle = () => {
   isShowModel.value = false
 }
-
 const getDeptData = async (param: any) => {
   const dataApi = isTable.value ? getStatDataByDept : getStatDataNewWithXmlx
-  const res = await dataApi({ ...param })
+  const res = await dataApi({
+    ...param
+  })
   loading.value = false
   isShowTable.value = true
   if (!res.success) return ElMessage.error(res.msg)
@@ -205,7 +220,6 @@ const getDeptData = async (param: any) => {
   gridOptions.data = res.data
   return
 }
-
 const getColumnsData = async (param: any) => {
   isShowTable.value = false
   loading.value = true
@@ -216,7 +230,9 @@ const getColumnsData = async (param: any) => {
   const codeList = await getPublicData('XSWS')
   xswsList.value = codeList.data
   const columnsApi = isTable.value ? getDynamicColumnByDept : getDynamicColumnByDeptWithXmlx
-  const record = await columnsApi({ ...param })
+  const record = await columnsApi({
+    ...param
+  })
   if (record.success) {
     gridOptions.columns = record.data.filter((column: any) => column.visible)
     editColumns(gridOptions.columns)
@@ -244,18 +260,22 @@ const editColumns = (data: any) => {
     }
   })
 }
-
 const acceptParams = (param: any) => {
   isShowModel.value = true
-  modalParmas.value = { ...param }
-  getColumnsData({ ...param })
+  modalParmas.value = {
+    ...param
+  }
+  getColumnsData({
+    ...param
+  })
 }
-
 const gridOptions = reactive<any>({
   border: true,
   stripe: true,
   loading: false,
-  toolbarConfig: { custom: true },
+  toolbarConfig: {
+    custom: true
+  },
   loadingConfig: {
     icon: 'vxe-icon-spinner roll',
     text: '正在加载中...'
@@ -276,12 +296,13 @@ const gridOptions = reactive<any>({
   rowStyle: ({ row }: any) => {
     if (row.dwName === '省公司') {
       console.log(row, 'row')
-      return { fontWeight: 'bolder' }
+      return {
+        fontWeight: 'bolder'
+      }
     }
     return {}
   }
 })
-
 defineExpose({
   acceptParams
 })

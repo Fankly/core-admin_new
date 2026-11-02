@@ -265,826 +265,912 @@
   <!-- <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog> -->
 </template>
 
-<script>
+<script setup>
 import { DeleteFilled as EpDeleteFilled, Eleme as EpEleme, ElemeFilled as EpElemeFilled } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from "vue";
-import baseService from "@/service/baseService";
-import userDialog from "@/components/select/userDialog.vue";
-import { useStore } from '@/store/business';
-import { ElMessage } from "element-plus";
-import projectType from "@/components/select/projectType.vue";
-import proTypeTree from "@/components/select/proTypeTree.vue";
-import { showHelpMsg } from "@/utils/message"
-
-export default defineComponent({
-  name: "/budget-process/process-33",
-  components: {
-    userDialog,
-    projectType,
-    proTypeTree
-  },
-  setup () {
-    const store = useStore();
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url;
-      showHelpMsg(url);
+import { markRaw as markElementIconRaw, reactive, toRef, watch, onMounted, useTemplateRef } from 'vue'
+import baseService from '@/service/baseService'
+import userDialog from '@/components/select/userDialog.vue'
+import { useStore } from '@/store/business'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import projectType from '@/components/select/projectType.vue'
+import proTypeTree from '@/components/select/proTypeTree.vue'
+import { showHelpMsg } from '@/utils/message'
+defineOptions({
+  name: '/budget-process/process-33'
+})
+const treeRef = useTemplateRef('tree')
+const tree2Ref = useTemplateRef('tree2')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpDeleteFilled: markElementIconRaw(EpDeleteFilled),
+  EpEleme: markElementIconRaw(EpEleme),
+  EpElemeFilled: markElementIconRaw(EpElemeFilled),
+  store,
+  helpHandle,
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  heightNum: '',
+  topHeight: '',
+  searchHeight: '',
+  tableHeight: '',
+  //搜索条件数据
+  options: [
+    {
+      value: '1',
+      label: '启用'
+    },
+    {
+      value: '0',
+      label: '停用'
     }
-    return reactive({
-      EpDeleteFilled: markElementIconRaw(EpDeleteFilled),
-      EpEleme: markElementIconRaw(EpEleme),
-      EpElemeFilled: markElementIconRaw(EpElemeFilled),
-      store,
-      helpHandle,
-      loading: false,
-      userCode: "",
-      userId: "",
-      specialorgid: "",
-      heightNum: "",
-      topHeight: "",
-      searchHeight: "",
-      tableHeight: "",
-
-      //搜索条件数据
-      options: [
-        {
-          value: "1",
-          label: "启用"
-        },
-        {
-          value: "0",
-          label: "停用"
-        }
-      ],
-      value: "",
-      templateName: "",
-
-      //新增、编辑
-      newlyDia: false,
-      modelName: "",
-      projectName: "",
-      projectId: "",
-      disTtile: "",
-      tId: "",
-
-      //属性明细
-      tableDataDia: [],
-      multipleSelectionDia: [],
-      zdlx: [],
-      kjlx: [],
-      sf: [
-        {
-          name: "是",
-          code: "1"
-        },
-        {
-          name: "否",
-          code: "0"
-        }
-      ],
-      newList: [],
-      editList: [],
-      deleteList: [],
-
-      saveLit: [],
-      listId: 1,
-
-      //分页
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: "1"
-      },
-
-      attributeDia: false,
-
-      display: true,
-      tableWidth: "80",
-      tableData: [],
-
-      multipleSelection: [],
-
-      columnObj: {},
-      segmentIds: [],
-      segment: [
-        {
-          value: "id",
-          label: "ID",
-          checked: false
-        },
-        {
-          value: "mbbm",
-          label: "模板编码",
-          checked: false
-        },
-        {
-          value: "mbmc",
-          label: "模板名称",
-          checked: true
-        },
-        {
-          value: "xmlx",
-          label: "项目类型",
-          checked: true
-        },
-        {
-          value: "xmlxid",
-          label: "项目类型ID",
-          checked: true
-        },
-        {
-          value: "gxsj",
-          label: "更新时间",
-          checked: true
-        },
-        {
-          value: "mbqyzt",
-          label: "模板启用状态",
-          checked: true
-        }
-      ],
-      columnObjDia: {},
-      segmentIdsDia: [],
-      columnObjDia: [
-        {
-          value: "id",
-          label: "ID",
-          checked: false
-        },
-        {
-          value: "xh",
-          label: "序号",
-          checked: true
-        },
-        {
-          value: "zdmc",
-          label: "字段名称",
-          checked: true
-        },
-        {
-          value: "zdbm",
-          label: "字段编码",
-          checked: true
-        },
-        {
-          value: "zdlx",
-          label: "字段类型",
-          checked: true
-        },
-        {
-          value: "kjlx",
-          label: "控件类型",
-          checked: true
-        },
-        {
-          value: "ggdm",
-          label: "公共代码",
-          checked: true
-        },
-        {
-          value: "dyff",
-          label: "调用方法",
-          checked: true
-        },
-        {
-          value: "sfbt",
-          label: "是否必填",
-          checked: true
-        },
-        {
-          value: "tabid",
-          label: "TABID",
-          checked: true
-        },
-        {
-          value: "dybm",
-          label: "对应表名",
-          checked: true
-        },
-        {
-          value: "sfzd",
-          label: "是否只读",
-          checked: true
-        },
-        {
-          value: "sflbxs",
-          label: "是否列表显示",
-          checked: true
-        },
-        {
-          value: "px",
-          label: "排序（按照输入数字排序）",
-          checked: true
-        },
-        {
-          value: "mez",
-          label: "默认值",
-          checked: true
-        },
-        {
-          value: "fzdbm",
-          label: "父子段编码",
-          checked: true
-        },
-        {
-          value: "kd",
-          label: "宽度",
-          checked: true
-        },
-        {
-          value: "template_id",
-          label: "TEMPLATE_ID",
-          checked: false
-        }
-      ]
-    });
-  },
-  watch: {
-    display (val) {
-      val == false ? (this.tableWidth = "99") : (this.tableWidth = "80");
+  ],
+  value: '',
+  templateName: '',
+  //新增、编辑
+  newlyDia: false,
+  modelName: '',
+  projectName: '',
+  projectId: '',
+  disTtile: '',
+  tId: '',
+  //属性明细
+  tableDataDia: [],
+  multipleSelectionDia: [],
+  zdlx: [],
+  kjlx: [],
+  sf: [
+    {
+      name: '是',
+      code: '1'
+    },
+    {
+      name: '否',
+      code: '0'
     }
+  ],
+  newList: [],
+  editList: [],
+  deleteList: [],
+  saveLit: [],
+  listId: 1,
+  //分页
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-  created () {
-    this.handleColumn();
-  },
-  mounted () {
-    this.heightNum = document.querySelector(".el-card").clientHeight;
-    this.topHeight = document.querySelector(".operation").clientHeight;
-    this.searchHeight = document.querySelector(".searchBox").clientHeight;
-    this.setTableHeight();
-  },
-
-  methods: {
-    //分页
-    handleSizeChange (currentLimitNum) {
-      this.page.limit = currentLimitNum;
-      this.loadData();
+  attributeDia: false,
+  display: true,
+  tableWidth: '80',
+  tableData: [],
+  multipleSelection: [],
+  columnObj: {},
+  segmentIds: [],
+  segment: [
+    {
+      value: 'id',
+      label: 'ID',
+      checked: false
     },
-    handleCurrentChange (currentPageNum) {
-      this.page.page = currentPageNum;
-      this.loadData();
+    {
+      value: 'mbbm',
+      label: '模板编码',
+      checked: false
     },
-
-    searchBtn () {
-      this.loading = true;
-      this.loadData();
+    {
+      value: 'mbmc',
+      label: '模板名称',
+      checked: true
     },
-
-    loadData () {
-      const params = {
-        id: this.$refs.tree.treeId,
-        name: this.templateName,
-        state: this.value,
-        page: this.page.page,
-        size: this.page.limit
-      };
-      baseService.post("/xmsxwh/getRecords", params).then((res) => {
-        if (res.success) {
-          this.tableData = res.data.records;
-          this.page.total = res.data.total;
-          this.loading = false;
-        } else {
-          ElMessage({
-            type: "error",
-            message: res.msg
-          });
-          this.loading = false;
-        }
-      });
+    {
+      value: 'xmlx',
+      label: '项目类型',
+      checked: true
     },
-    setTableHeight () {
-      this.tableHeight = this.heightNum - this.topHeight - this.searchHeight - 70 + "px";
+    {
+      value: 'xmlxid',
+      label: '项目类型ID',
+      checked: true
     },
-    //处理环节数据
-    handleColumn () {
-      this.segment.forEach((item) => {
-        this.segmentIds.push(item.value);
-        this.columnObj[item.value] = item.checked;
-      });
+    {
+      value: 'gxsj',
+      label: '更新时间',
+      checked: true
     },
-    //项目环节
-    listShow (value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked;
-        }
-      }
+    {
+      value: 'mbqyzt',
+      label: '模板启用状态',
+      checked: true
+    }
+  ],
+  columnObjDia: {},
+  segmentIdsDia: [],
+  columnObjDia: [
+    {
+      value: 'id',
+      label: 'ID',
+      checked: false
     },
-
-    //表格复选框
-    handleSelectionChange (val) {
-      this.multipleSelection = val;
+    {
+      value: 'xh',
+      label: '序号',
+      checked: true
     },
-
-    //新建
-    newly () {
-      this.newlyDia = true;
-      this.disTtile = "新建";
+    {
+      value: 'zdmc',
+      label: '字段名称',
+      checked: true
     },
-
-    getName (name) {
-      this.projectName = name;
+    {
+      value: 'zdbm',
+      label: '字段编码',
+      checked: true
     },
-    //编辑
-    translate () {
-      if (this.multipleSelection.length == 0) {
-        ElMessage({
-          type: "error",
-          message: "请选择一条需要编辑的数据"
-        });
-      } else if (this.multipleSelection.length > 1) {
-        ElMessage({
-          type: "error",
-          message: "请选择一条需要编辑的数据"
-        });
-      } else {
-        this.newlyDia = true;
-        this.disTtile = "编辑";
-        const params = {
-          id: this.multipleSelection[0].id
-        };
-        baseService.get("/xmsxwh/getRecord", params).then((res) => {
-          if (res.success) {
-            this.modelName = res.data.name;
-            this.projectName = res.data.xmlx;
-            this.$refs.tree2.treeId = res.data.xmlxId;
-            this.tId = res.data.id;
-          }
-        });
-      }
+    {
+      value: 'zdlx',
+      label: '字段类型',
+      checked: true
     },
-
-    //新建编辑保存按钮
-    newSave () {
-      let params = {};
-      if (this.disTtile == "新建") {
-        name = this.modelName;
-        params.xmlxId = this.$refs.tree2.treeId;
-      } else if (this.disTtile == "编辑") {
-        params.id = this.tId;
-        params.name = this.modelName;
-        params.xmlxId = this.$refs.tree2.treeId;
-      } else {
-        params.copyFlag = "1";
-        params.name = this.modelName;
-        params.id = this.tId;
-        params.copyId = this.multipleSelection[0].id;
-        params.xmlxId = this.multipleSelection[0].xmlxId;
-      }
-
-      baseService.post("/xmsxwh/saveRecord", params).then((res) => {
-        if (res.success) {
-          this.newlyDia = false;
-          this.loadData();
-        } else {
-          ElMessage({
-            type: "error",
-            message: res.msg
-          });
-        }
-      });
+    {
+      value: 'kjlx',
+      label: '控件类型',
+      checked: true
     },
-
-    //删除
-    removeBtn () {
-      this.loading = true;
-      if (this.multipleSelection.length == 0) {
-        ElMessage({
-          type: "error",
-          message: "请选择需要删除的数据"
-        });
-      } else {
-        this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            const params = {
-              ids: []
-            };
-            this.multipleSelection.forEach((item) => {
-              params.ids.push(item.id);
-            });
-            baseService.post("/xmsxwh/deleteRecords", params).then((res) => {
-              if (res.success) {
-                ElMessage({
-                  type: "success",
-                  message: "数据已删除"
-                });
-                this.loadData();
-              } else {
-                ElMessage({
-                  type: "error",
-                  message: res.msg
-                });
-                this.loading = false;
-              }
-            });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除"
-            });
-            this.loading = false;
-          });
-      }
+    {
+      value: 'ggdm',
+      label: '公共代码',
+      checked: true
     },
-
-    //属性明细
-    closeTableDialog () {
-      // this.newList = [];
-      // this.editList = [];
-      // this.deleteList = [];
-      this.saveLit = [];
+    {
+      value: 'dyff',
+      label: '调用方法',
+      checked: true
     },
-    attribute () {
-      if (this.multipleSelection.length == 0) {
-        ElMessage({
-          type: "error",
-          message: "请选择需要复制的数据"
-        });
-      } else if (this.multipleSelection.length > 1) {
-        ElMessage({
-          type: "error",
-          message: "请选择一条需要复制的数据"
-        });
-      } else {
-        const params = {
-          templateId: this.multipleSelection[0].id
-        };
-        baseService.get("/xmsxwh/getCommonCode", { comCodeId: "1020" }).then((res) => {
-          if (res.success) {
-            this.zdlx = res.data;
-          } else {
-            ElMessage({
-              type: "error",
-              message: res.success
-            });
-          }
-        });
-        baseService.get("/xmsxwh/getCommonCode", { comCodeId: "1427" }).then((res) => {
-          if (res.success) {
-            this.kjlx = res.data;
-          } else {
-            ElMessage({
-              type: "error",
-              message: res.success
-            });
-          }
-        });
-        baseService.get("/xmsxwh/getColumnRecords", params).then((res) => {
-          if (res.success) {
-            this.tableDataDia = res.data;
-            this.tableDataDia.forEach((item) => {
-              item.action = "";
-            });
-            this.attributeDia = true;
-            this.handleColumnDia();
-          } else {
-            ElMessage({
-              type: "error",
-              message: res.success
-            });
-          }
-        });
-      }
+    {
+      value: 'sfbt',
+      label: '是否必填',
+      checked: true
     },
-    handleSelectionChangeDia (val) {
-      this.multipleSelectionDia = val;
+    {
+      value: 'tabid',
+      label: 'TABID',
+      checked: true
     },
-    //新增按钮
-    addition (type) {
-      let object = {
-        action: type,
-        id: `新增${this.listId++}`,
-        name: "",
-        columnName: "",
-        columnType: "",
-        inputType: "",
-        commonCode: "",
-        jsCode: "",
-        isRequired: "",
-        tabid: "",
-        tableName: "",
-        isVisble: "",
-        isGrid: "",
-        plsx: "",
-        defvalue: "",
-        parentColumn: "",
-        width: "",
-        template_id: "",
-        templateId: ""
-      };
-
-      this.tableDataDia.push(object);
-      this.saveLit.push(object);
-      let el = document.querySelector(".attributeDia .el-table--scrollable-y .el-table__body-wrapper");
-      let el2 = document.querySelector(".attributeDia .el-table__body tbody");
-      setTimeout(() => {
-        object.template_id = this.multipleSelection[0].id;
-        object.templateId = this.multipleSelection[0].id;
-        const height = el2.clientHeight - el.clientHeight;
-        if (height > 0) {
-          el.scrollTop = height;
-        }
-      }, 200);
+    {
+      value: 'dybm',
+      label: '对应表名',
+      checked: true
     },
-    save () {
-      if (this.saveLit.length == 0) {
-        ElMessage({
-          type: "success",
-          message: "保存成功"
-        });
-      } else {
-        this.saveLit.forEach((item) => {
-          if (item.name == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请输入字段名称"
-            });
-          } else if (item.columnName == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请输入字段编码"
-            });
-          } else if (item.columnType == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请选择字段类型"
-            });
-          } else if (item.inputType == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请选择控件类型"
-            });
-          } else if (item.isRequired == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请选择是否必填"
-            });
-          } else if (item.tabid == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请输入TABID"
-            });
-          } else if (item.tableName == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请输入对应表名"
-            });
-          } else if (item.isVisble == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请选择是否只读"
-            });
-          } else if (item.isGrid == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请选择是否列表显示"
-            });
-          } else if (item.plsx == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请输入排序"
-            });
-          } else if (item.parentColumn == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请输入父子段编码"
-            });
-          } else if (item.width == "") {
-            ElMessage({
-              type: "info",
-              message: "新增数据请输入宽度"
-            });
-          } else {
-            const params = this.saveLit;
-            baseService.post("/xmsxwh/saveColumnRecords", params).then((res) => {
-              if (res.success) {
-                ElMessage({
-                  type: "success",
-                  message: "保存成功"
-                });
-                this.saveLit = [];
-                this.attribute();
-              } else {
-                ElMessage({
-                  type: "error",
-                  message: res.success
-                });
-              }
-            });
-          }
-        });
-      }
+    {
+      value: 'sfzd',
+      label: '是否只读',
+      checked: true
     },
-    //删除按钮
-    deletntion (type) {
-      if (this.multipleSelectionDia.length == "0") {
-        ElMessage({
-          type: "error",
-          message: "请选择需要删除的数据"
-        });
-      } else {
-        this.multipleSelectionDia.forEach((item) => {
-          //先删除表格里的数据
-          for (let i = 0; i < this.tableDataDia.length; i++) {
-            if (this.tableDataDia[i].id == item.id) {
-              this.tableDataDia.splice(i, 1);
-            }
-          }
-
-          //删除接口参数里的数据
-          for (let i = 0; i < this.saveLit.length; i++) {
-            if (this.saveLit[i].id == item.id) {
-              if (this.saveLit[i].action == "insert") {
-                this.saveLit.splice(i, 1);
-              } else if (this.saveLit[i].action == "update") {
-                this.saveLit[i].action = type;
-              } else {
-                item.action = "type";
-                this.saveLit.push(item);
-              }
-            }
-          }
-        });
-      }
+    {
+      value: 'sflbxs',
+      label: '是否列表显示',
+      checked: true
     },
-    //编辑
-    editTion (type, row) {
-      if (row.action == "") {
-        row.action = type;
-        this.saveLit.push(row);
-      }
+    {
+      value: 'px',
+      label: '排序（按照输入数字排序）',
+      checked: true
     },
-
-    //启用
-    enable () {
-      if (this.multipleSelection.length == 0) {
-        ElMessage({
-          type: "error",
-          message: "请选择一条需要启用的数据"
-        });
-      } else if (this.multipleSelection.length > 1) {
-        ElMessage({
-          type: "error",
-          message: "请选择一条需要启用的数据"
-        });
-      } else if (this.multipleSelection[0].state == "1") {
-        ElMessage({
-          type: "error",
-          message: "请选择一条需要启用的数据"
-        });
-      } else {
-        this.loading = true;
-        this.$confirm("此操作将启用该数据, 是否继续?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            baseService.get(`/xmsxwh/startRecords?id=${this.multipleSelection[0].id}&xmlxId=${this.multipleSelection[0].xmlxId}`).then((res) => {
-              if (res.success) {
-                ElMessage({
-                  type: "success",
-                  message: "数据启用成功"
-                });
-                this.loadData();
-              } else {
-                ElMessage({
-                  type: "error",
-                  message: "数据启用失败"
-                });
-                this.loading = false;
-              }
-            });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消启用"
-            });
-            this.loading = false;
-          });
-      }
+    {
+      value: 'mez',
+      label: '默认值',
+      checked: true
     },
-
-    //停用
-    deactivate () {
-      if (this.multipleSelection.length == 0) {
-        ElMessage({
-          type: "error",
-          message: "请选择需要停用的数据"
-        });
-      } else {
-        this.loading = true;
-        this.$confirm("此操作将停用该数据, 是否继续?", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            let array = [];
-            this.multipleSelection.forEach((item) => {
-              array.push(item.id);
-            });
-
-            if (array.indexOf("0") == -1) {
-              const params = {
-                ids: array
-              };
-              baseService.post("/xmsxwh/endRecords", params).then((res) => {
-                if (res.success) {
-                  ElMessage({
-                    type: "success",
-                    message: "数据停用成功"
-                  });
-                  this.loadData();
-                } else {
-                  ElMessage({
-                    type: "success",
-                    message: res.success
-                  });
-                  this.loading = false;
-                }
-              });
-            } else {
-              ElMessage({
-                type: "error",
-                message: "数据中携带以停用的数据"
-              });
-              this.loading = false;
-            }
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消停用"
-            });
-            this.loading = false;
-          });
-      }
+    {
+      value: 'fzdbm',
+      label: '父子段编码',
+      checked: true
     },
-
-    //复制
-    copy () {
-      if (this.multipleSelection.length == 0) {
-        ElMessage({
-          type: "error",
-          message: "请选择需要复制的数据"
-        });
-      } else if (this.multipleSelection.length > 1) {
-        ElMessage({
-          type: "error",
-          message: "请选择一条需要复制的数据"
-        });
-      } else {
-        this.newlyDia = true;
-        this.disTtile = "复制";
-        const params = {
-          id: this.multipleSelection[0].id
-        };
-        baseService.get("/xmsxwh/getRecord", params).then((res) => {
-          if (res.success) {
-            this.modelName = res.data.name;
-            this.projectName = res.data.xmlx;
-            this.$refs.tree2.treeId = res.data.xmlxId;
-            this.tId = res.data.id;
-          }
-        });
-      }
+    {
+      value: 'kd',
+      label: '宽度',
+      checked: true
     },
-
-    //处理环节数据
-    handleColumnDia () {
-      this.columnObjDia.forEach((item) => {
-        this.segmentIdsDia.push(item.value);
-        this.columnObjDia[item.value] = item.checked;
-      });
-    },
-    //项目环节
-    listShowDia (value, checked) {
-      for (let i in this.columnObjDia) {
-        if (i == value) {
-          this.columnObjDia[i] = checked;
-        }
-      }
-    },
-
-    close () {
-      this.display = !this.display;
-    },
-
-    loadCompany () {
-      this.loading = false;
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid);
+    {
+      value: 'template_id',
+      label: 'TEMPLATE_ID',
+      checked: false
+    }
+  ]
+})
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const heightNum = toRef(setupState, 'heightNum')
+const topHeight = toRef(setupState, 'topHeight')
+const searchHeight = toRef(setupState, 'searchHeight')
+const tableHeight = toRef(setupState, 'tableHeight')
+const options = toRef(setupState, 'options')
+const value = toRef(setupState, 'value')
+const templateName = toRef(setupState, 'templateName')
+const newlyDia = toRef(setupState, 'newlyDia')
+const modelName = toRef(setupState, 'modelName')
+const projectName = toRef(setupState, 'projectName')
+const projectId = toRef(setupState, 'projectId')
+const disTtile = toRef(setupState, 'disTtile')
+const tId = toRef(setupState, 'tId')
+const tableDataDia = toRef(setupState, 'tableDataDia')
+const multipleSelectionDia = toRef(setupState, 'multipleSelectionDia')
+const zdlx = toRef(setupState, 'zdlx')
+const kjlx = toRef(setupState, 'kjlx')
+const sf = toRef(setupState, 'sf')
+const newList = toRef(setupState, 'newList')
+const editList = toRef(setupState, 'editList')
+const deleteList = toRef(setupState, 'deleteList')
+const saveLit = toRef(setupState, 'saveLit')
+const listId = toRef(setupState, 'listId')
+const page = toRef(setupState, 'page')
+const attributeDia = toRef(setupState, 'attributeDia')
+const display = toRef(setupState, 'display')
+const tableWidth = toRef(setupState, 'tableWidth')
+const tableData = toRef(setupState, 'tableData')
+const multipleSelection = toRef(setupState, 'multipleSelection')
+const columnObj = toRef(setupState, 'columnObj')
+const segmentIds = toRef(setupState, 'segmentIds')
+const segment = toRef(setupState, 'segment')
+const columnObjDia = toRef(setupState, 'columnObjDia')
+const segmentIdsDia = toRef(setupState, 'segmentIdsDia')
+//分页
+function handleSizeChange(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+function handleCurrentChange(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+function searchBtn() {
+  setupState.loading = true
+  loadData()
+}
+function loadData() {
+  const params = {
+    id: treeRef.value.treeId,
+    name: setupState.templateName,
+    state: setupState.value,
+    page: setupState.page.page,
+    size: setupState.page.limit
+  }
+  baseService.post('/xmsxwh/getRecords', params).then((res) => {
+    if (res.success) {
+      setupState.tableData = res.data.records
+      setupState.page.total = res.data.total
+      setupState.loading = false
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+      setupState.loading = false
+    }
+  })
+}
+function setTableHeight() {
+  setupState.tableHeight = setupState.heightNum - setupState.topHeight - setupState.searchHeight - 70 + 'px'
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.segmentIds.push(item.value)
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+//项目环节
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
     }
   }
-});
+}
+//表格复选框
+function handleSelectionChange(val) {
+  setupState.multipleSelection = val
+}
+//新建
+function newly() {
+  setupState.newlyDia = true
+  setupState.disTtile = '新建'
+}
+function getName(name) {
+  setupState.projectName = name
+}
+//编辑
+function translate() {
+  if (setupState.multipleSelection.length == 0) {
+    ElMessage({
+      type: 'error',
+      message: '请选择一条需要编辑的数据'
+    })
+  } else if (setupState.multipleSelection.length > 1) {
+    ElMessage({
+      type: 'error',
+      message: '请选择一条需要编辑的数据'
+    })
+  } else {
+    setupState.newlyDia = true
+    setupState.disTtile = '编辑'
+    const params = {
+      id: setupState.multipleSelection[0].id
+    }
+    baseService.get('/xmsxwh/getRecord', params).then((res) => {
+      if (res.success) {
+        setupState.modelName = res.data.name
+        setupState.projectName = res.data.xmlx
+        tree2Ref.value.treeId = res.data.xmlxId
+        setupState.tId = res.data.id
+      }
+    })
+  }
+}
+//新建编辑保存按钮
+function newSave() {
+  let params = {}
+  if (setupState.disTtile == '新建') {
+    name = setupState.modelName
+    params.xmlxId = tree2Ref.value.treeId
+  } else if (setupState.disTtile == '编辑') {
+    params.id = setupState.tId
+    params.name = setupState.modelName
+    params.xmlxId = tree2Ref.value.treeId
+  } else {
+    params.copyFlag = '1'
+    params.name = setupState.modelName
+    params.id = setupState.tId
+    params.copyId = setupState.multipleSelection[0].id
+    params.xmlxId = setupState.multipleSelection[0].xmlxId
+  }
+  baseService.post('/xmsxwh/saveRecord', params).then((res) => {
+    if (res.success) {
+      setupState.newlyDia = false
+      loadData()
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+//删除
+function removeBtn() {
+  setupState.loading = true
+  if (setupState.multipleSelection.length == 0) {
+    ElMessage({
+      type: 'error',
+      message: '请选择需要删除的数据'
+    })
+  } else {
+    ElMessageBox.confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+      .then(() => {
+        const params = {
+          ids: []
+        }
+        setupState.multipleSelection.forEach((item) => {
+          params.ids.push(item.id)
+        })
+        baseService.post('/xmsxwh/deleteRecords', params).then((res) => {
+          if (res.success) {
+            ElMessage({
+              type: 'success',
+              message: '数据已删除'
+            })
+            loadData()
+          } else {
+            ElMessage({
+              type: 'error',
+              message: res.msg
+            })
+            setupState.loading = false
+          }
+        })
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '已取消删除'
+        })
+        setupState.loading = false
+      })
+  }
+}
+//属性明细
+function closeTableDialog() {
+  // this.newList = [];
+  // this.editList = [];
+  // this.deleteList = [];
+  setupState.saveLit = []
+}
+function attribute() {
+  if (setupState.multipleSelection.length == 0) {
+    ElMessage({
+      type: 'error',
+      message: '请选择需要复制的数据'
+    })
+  } else if (setupState.multipleSelection.length > 1) {
+    ElMessage({
+      type: 'error',
+      message: '请选择一条需要复制的数据'
+    })
+  } else {
+    const params = {
+      templateId: setupState.multipleSelection[0].id
+    }
+    baseService
+      .get('/xmsxwh/getCommonCode', {
+        comCodeId: '1020'
+      })
+      .then((res) => {
+        if (res.success) {
+          setupState.zdlx = res.data
+        } else {
+          ElMessage({
+            type: 'error',
+            message: res.success
+          })
+        }
+      })
+    baseService
+      .get('/xmsxwh/getCommonCode', {
+        comCodeId: '1427'
+      })
+      .then((res) => {
+        if (res.success) {
+          setupState.kjlx = res.data
+        } else {
+          ElMessage({
+            type: 'error',
+            message: res.success
+          })
+        }
+      })
+    baseService.get('/xmsxwh/getColumnRecords', params).then((res) => {
+      if (res.success) {
+        setupState.tableDataDia = res.data
+        setupState.tableDataDia.forEach((item) => {
+          item.action = ''
+        })
+        setupState.attributeDia = true
+        handleColumnDia()
+      } else {
+        ElMessage({
+          type: 'error',
+          message: res.success
+        })
+      }
+    })
+  }
+}
+function handleSelectionChangeDia(val) {
+  setupState.multipleSelectionDia = val
+}
+//新增按钮
+function addition(type) {
+  let object = {
+    action: type,
+    id: `新增${setupState.listId++}`,
+    name: '',
+    columnName: '',
+    columnType: '',
+    inputType: '',
+    commonCode: '',
+    jsCode: '',
+    isRequired: '',
+    tabid: '',
+    tableName: '',
+    isVisble: '',
+    isGrid: '',
+    plsx: '',
+    defvalue: '',
+    parentColumn: '',
+    width: '',
+    template_id: '',
+    templateId: ''
+  }
+  setupState.tableDataDia.push(object)
+  setupState.saveLit.push(object)
+  let el = document.querySelector('.attributeDia .el-table--scrollable-y .el-table__body-wrapper')
+  let el2 = document.querySelector('.attributeDia .el-table__body tbody')
+  setTimeout(() => {
+    object.template_id = setupState.multipleSelection[0].id
+    object.templateId = setupState.multipleSelection[0].id
+    const height = el2.clientHeight - el.clientHeight
+    if (height > 0) {
+      el.scrollTop = height
+    }
+  }, 200)
+}
+function save() {
+  if (setupState.saveLit.length == 0) {
+    ElMessage({
+      type: 'success',
+      message: '保存成功'
+    })
+  } else {
+    setupState.saveLit.forEach((item) => {
+      if (item.name == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请输入字段名称'
+        })
+      } else if (item.columnName == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请输入字段编码'
+        })
+      } else if (item.columnType == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请选择字段类型'
+        })
+      } else if (item.inputType == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请选择控件类型'
+        })
+      } else if (item.isRequired == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请选择是否必填'
+        })
+      } else if (item.tabid == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请输入TABID'
+        })
+      } else if (item.tableName == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请输入对应表名'
+        })
+      } else if (item.isVisble == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请选择是否只读'
+        })
+      } else if (item.isGrid == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请选择是否列表显示'
+        })
+      } else if (item.plsx == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请输入排序'
+        })
+      } else if (item.parentColumn == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请输入父子段编码'
+        })
+      } else if (item.width == '') {
+        ElMessage({
+          type: 'info',
+          message: '新增数据请输入宽度'
+        })
+      } else {
+        const params = setupState.saveLit
+        baseService.post('/xmsxwh/saveColumnRecords', params).then((res) => {
+          if (res.success) {
+            ElMessage({
+              type: 'success',
+              message: '保存成功'
+            })
+            setupState.saveLit = []
+            attribute()
+          } else {
+            ElMessage({
+              type: 'error',
+              message: res.success
+            })
+          }
+        })
+      }
+    })
+  }
+}
+//删除按钮
+function deletntion(type) {
+  if (setupState.multipleSelectionDia.length == '0') {
+    ElMessage({
+      type: 'error',
+      message: '请选择需要删除的数据'
+    })
+  } else {
+    setupState.multipleSelectionDia.forEach((item) => {
+      //先删除表格里的数据
+      for (let i = 0; i < setupState.tableDataDia.length; i++) {
+        if (setupState.tableDataDia[i].id == item.id) {
+          setupState.tableDataDia.splice(i, 1)
+        }
+      }
+
+      //删除接口参数里的数据
+      for (let i = 0; i < setupState.saveLit.length; i++) {
+        if (setupState.saveLit[i].id == item.id) {
+          if (setupState.saveLit[i].action == 'insert') {
+            setupState.saveLit.splice(i, 1)
+          } else if (setupState.saveLit[i].action == 'update') {
+            setupState.saveLit[i].action = type
+          } else {
+            item.action = 'type'
+            setupState.saveLit.push(item)
+          }
+        }
+      }
+    })
+  }
+}
+//编辑
+function editTion(type, row) {
+  if (row.action == '') {
+    row.action = type
+    setupState.saveLit.push(row)
+  }
+}
+//启用
+function enable() {
+  if (setupState.multipleSelection.length == 0) {
+    ElMessage({
+      type: 'error',
+      message: '请选择一条需要启用的数据'
+    })
+  } else if (setupState.multipleSelection.length > 1) {
+    ElMessage({
+      type: 'error',
+      message: '请选择一条需要启用的数据'
+    })
+  } else if (setupState.multipleSelection[0].state == '1') {
+    ElMessage({
+      type: 'error',
+      message: '请选择一条需要启用的数据'
+    })
+  } else {
+    setupState.loading = true
+    ElMessageBox.confirm('此操作将启用该数据, 是否继续?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+      .then(() => {
+        baseService
+          .get(`/xmsxwh/startRecords?id=${setupState.multipleSelection[0].id}&xmlxId=${setupState.multipleSelection[0].xmlxId}`)
+          .then((res) => {
+            if (res.success) {
+              ElMessage({
+                type: 'success',
+                message: '数据启用成功'
+              })
+              loadData()
+            } else {
+              ElMessage({
+                type: 'error',
+                message: '数据启用失败'
+              })
+              setupState.loading = false
+            }
+          })
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '已取消启用'
+        })
+        setupState.loading = false
+      })
+  }
+}
+//停用
+function deactivate() {
+  if (setupState.multipleSelection.length == 0) {
+    ElMessage({
+      type: 'error',
+      message: '请选择需要停用的数据'
+    })
+  } else {
+    setupState.loading = true
+    ElMessageBox.confirm('此操作将停用该数据, 是否继续?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+      .then(() => {
+        let array = []
+        setupState.multipleSelection.forEach((item) => {
+          array.push(item.id)
+        })
+        if (array.indexOf('0') == -1) {
+          const params = {
+            ids: array
+          }
+          baseService.post('/xmsxwh/endRecords', params).then((res) => {
+            if (res.success) {
+              ElMessage({
+                type: 'success',
+                message: '数据停用成功'
+              })
+              loadData()
+            } else {
+              ElMessage({
+                type: 'success',
+                message: res.success
+              })
+              setupState.loading = false
+            }
+          })
+        } else {
+          ElMessage({
+            type: 'error',
+            message: '数据中携带以停用的数据'
+          })
+          setupState.loading = false
+        }
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: '已取消停用'
+        })
+        setupState.loading = false
+      })
+  }
+}
+//复制
+function copy() {
+  if (setupState.multipleSelection.length == 0) {
+    ElMessage({
+      type: 'error',
+      message: '请选择需要复制的数据'
+    })
+  } else if (setupState.multipleSelection.length > 1) {
+    ElMessage({
+      type: 'error',
+      message: '请选择一条需要复制的数据'
+    })
+  } else {
+    setupState.newlyDia = true
+    setupState.disTtile = '复制'
+    const params = {
+      id: setupState.multipleSelection[0].id
+    }
+    baseService.get('/xmsxwh/getRecord', params).then((res) => {
+      if (res.success) {
+        setupState.modelName = res.data.name
+        setupState.projectName = res.data.xmlx
+        tree2Ref.value.treeId = res.data.xmlxId
+        setupState.tId = res.data.id
+      }
+    })
+  }
+}
+//处理环节数据
+function handleColumnDia() {
+  setupState.columnObjDia.forEach((item) => {
+    setupState.segmentIdsDia.push(item.value)
+    setupState.columnObjDia[item.value] = item.checked
+  })
+}
+//项目环节
+function listShowDia(value, checked) {
+  for (let i in setupState.columnObjDia) {
+    if (i == value) {
+      setupState.columnObjDia[i] = checked
+    }
+  }
+}
+function close() {
+  setupState.display = !setupState.display
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+}
+watch(
+  () => setupState.display,
+  function (val) {
+    val == false ? (setupState.tableWidth = '99') : (setupState.tableWidth = '80')
+  }
+)
+onMounted(() => {
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.topHeight = document.querySelector('.operation').clientHeight
+  setupState.searchHeight = document.querySelector('.searchBox').clientHeight
+  setTableHeight()
+})
+;(() => {
+  handleColumn()
+})()
+defineExpose({
+  EpDeleteFilled,
+  EpEleme,
+  EpElemeFilled,
+  store,
+  helpHandle,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  heightNum,
+  topHeight,
+  searchHeight,
+  tableHeight,
+  options,
+  value,
+  templateName,
+  newlyDia,
+  modelName,
+  projectName,
+  projectId,
+  disTtile,
+  tId,
+  tableDataDia,
+  multipleSelectionDia,
+  zdlx,
+  kjlx,
+  sf,
+  newList,
+  editList,
+  deleteList,
+  saveLit,
+  listId,
+  page,
+  attributeDia,
+  display,
+  tableWidth,
+  tableData,
+  multipleSelection,
+  columnObj,
+  segmentIds,
+  segment,
+  columnObjDia,
+  segmentIdsDia,
+  columnObjDia,
+  handleSizeChange,
+  handleCurrentChange,
+  searchBtn,
+  loadData,
+  setTableHeight,
+  handleColumn,
+  listShow,
+  handleSelectionChange,
+  newly,
+  getName,
+  translate,
+  newSave,
+  removeBtn,
+  closeTableDialog,
+  attribute,
+  handleSelectionChangeDia,
+  addition,
+  save,
+  deletntion,
+  editTion,
+  enable,
+  deactivate,
+  copy,
+  handleColumnDia,
+  listShowDia,
+  close,
+  loadCompany
+})
 </script>
 
 <style lang="less" scoped>

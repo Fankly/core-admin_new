@@ -21,36 +21,30 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: '/goalValue/versionCompare'
-}
-</script>
+
 
 <script setup lang="ts">
 import { getCompareData, getCompareColumn } from '@/api/xmInfo/mbz'
-
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getYearData } from '@/api/common'
+import { getYearData, getPublicData } from '@/api/common'
 import { useRoute } from 'vue-router'
 import { decrypt } from '@/utils/crypto'
-import { getPublicData } from '@/api/common' //公共代码
 import { TableCellColorMapper } from '@/utils/tableCellColorMapper'
 import { exportVxeGrid } from '@/utils/excelExport'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({
+  name: '/goalValue/versionCompare'
+})
+
+//公共代码
 
 const route = useRoute()
-
 const tableRef = ref()
-
 const disabled = computed(() => gridOptions.loading)
-
 const showPage = computed(() => pageInfo.isShowPage)
-
 const tabList = ref<any[]>([])
 const isZgs = ref<any>('0')
-
 const pageInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -65,11 +59,9 @@ const pageInfo = reactive<{
   pageFlag: false,
   ndDataList: []
 })
-
 const formData = reactive({
   nd: ''
 })
-
 const userInfo = reactive<{
   specialOrgId: string
   versionIds: string
@@ -77,18 +69,14 @@ const userInfo = reactive<{
   specialOrgId: '',
   versionIds: ''
 })
-
 const count = ref(0)
-
 const tableCellColorMapper = new TableCellColorMapper({
   mode: 'text',
   structure: 'tree'
 })
-
 const cellStyle = ({ row, column }: { row: any; column: any }) => {
   return tableCellColorMapper.getCellStyle(row, column?.field)
 }
-
 const gridOptions = reactive<any>({
   border: true,
   cellStyle: cellStyle,
@@ -138,7 +126,6 @@ const gridOptions = reactive<any>({
   columns: [],
   data: []
 })
-
 const getExportData = (newArr: any[], data: any[]) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -161,7 +148,6 @@ const expandHandle = async () => {
     await expandAllTree(gridOptions.data, $table)
   }
 }
-
 const expandAllTree = async (data: any[], $table: any) => {
   for (const row of data) {
     if (row.leaf) {
@@ -181,7 +167,6 @@ const exportHandle = async () => {
     colorMapper: tableCellColorMapper
   })
 }
-
 const getDataList = async () => {
   gridOptions.loading = true
   gridOptions.data.length = 0
@@ -203,7 +188,6 @@ const getDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getFlatColumns = (columns: any[]) => {
   if (!columns || columns.length === 0) {
     return []
@@ -222,7 +206,6 @@ const getFlatColumns = (columns: any[]) => {
     }
   })
 }
-
 const getHeaderData = async (specialOrgId: string, versionIds: string) => {
   let res = await getCompareColumn(specialOrgId, versionIds, isZgs.value)
   if (res.success) {
@@ -237,7 +220,6 @@ const getHeaderData = async (specialOrgId: string, versionIds: string) => {
       }
     })
     getFlatColumns(gridOptions.columns)
-
     pageInfo.pageFlag = true
     pageInfo.isShowPage = true
     return true
@@ -247,7 +229,6 @@ const getHeaderData = async (specialOrgId: string, versionIds: string) => {
     return false
   }
 }
-
 const getYearDataList = async () => {
   let res = await getYearData()
   if (res.success) {
@@ -262,7 +243,6 @@ const getYearDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getRoleHandle = async () => {
   gridOptions.loading = false
   const params = JSON.parse(decrypt(route.query.versionParams as string))
@@ -281,7 +261,6 @@ const handleTab = async () => {
   await getDataList()
   // if (tableRef.value) tableRef.value.setAllTreeExpand(true)
 }
-
 const initParamLists = async () => {
   // 获取公共代码
   const res = await getPublicData('MBZ_TAB_TYPE')
@@ -290,13 +269,11 @@ const initParamLists = async () => {
     isZgs.value = res.data[0].code
   }
 }
-
 const initData = () => {
   getYearDataList()
   getRoleHandle()
   initParamLists()
 }
-
 watch(
   () => route.query,
   () => {
@@ -311,7 +288,6 @@ watch(
     deep: true
   }
 )
-
 onMounted(initData)
 </script>
 

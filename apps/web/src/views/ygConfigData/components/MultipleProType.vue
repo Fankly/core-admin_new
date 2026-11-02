@@ -5,13 +5,12 @@
     </el-option>
   </el-select>
 </template>
-<script lang="ts">
-export default {
-  name: "/ygConfigData/components/MultipleProType"
-};
-</script>
+
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch } from 'vue'
+defineOptions({
+  name: '/ygConfigData/components/MultipleProType'
+})
 
 const props = defineProps({
   treeData: {
@@ -20,17 +19,17 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: "请选择"
+    default: '请选择'
   },
   modelValue: {
     type: String,
-    default: ""
+    default: ''
   },
   props: {
     type: Object,
     default: () => ({
-      children: "children",
-      label: "name"
+      children: 'children',
+      label: 'name'
     })
   },
   leafOnly: {
@@ -39,7 +38,7 @@ const props = defineProps({
   },
   valueKey: {
     type: String,
-    default: "id"
+    default: 'id'
   },
   clearable: {
     type: Boolean,
@@ -49,96 +48,88 @@ const props = defineProps({
     type: Boolean,
     default: false
   }
-});
-
-const emit = defineEmits(["update:modelValue"]);
-
-const selectedValues = ref<any[]>([]);
-const treeRef = ref();
-const selectRef = ref();
-
+})
+const emit = defineEmits(['update:modelValue'])
+const selectedValues = ref<any[]>([])
+const treeRef = ref()
+const selectRef = ref()
 const handleCheck = (data: any, { checkedNodes }: any): void => {
   if (props.leafOnly) {
-    const leafNodes = checkedNodes.filter((n: any) => !n[props.props.children]?.length);
-    const newValues = leafNodes.map((n: any) => n[props.valueKey]);
-    const newLabels = leafNodes.map((n: any) => n[props.props.label]);
-    selectedValues.value = newLabels;
-    emit("update:modelValue", newValues.join(","));
+    const leafNodes = checkedNodes.filter((n: any) => !n[props.props.children]?.length)
+    const newValues = leafNodes.map((n: any) => n[props.valueKey])
+    const newLabels = leafNodes.map((n: any) => n[props.props.label])
+    selectedValues.value = newLabels
+    emit('update:modelValue', newValues.join(','))
   } else {
-    const newValues = checkedNodes.map((n: any) => n[props.valueKey]);
-    const newLabels = checkedNodes.map((n: any) => n[props.props.label]);
-    selectedValues.value = newLabels;
-    emit("update:modelValue", newValues.join(","));
+    const newValues = checkedNodes.map((n: any) => n[props.valueKey])
+    const newLabels = checkedNodes.map((n: any) => n[props.props.label])
+    selectedValues.value = newLabels
+    emit('update:modelValue', newValues.join(','))
   }
-};
-
+}
 const findNodeByValue = (data: any[], value: string | number): any => {
   for (const node of data) {
     if (Number(node[props.valueKey]) === Number(value)) {
-      return node;
+      return node
     }
     if (node[props.props.children]) {
-      const found = findNodeByValue(node[props.props.children], value);
-      if (found) return found;
+      const found = findNodeByValue(node[props.props.children], value)
+      if (found) return found
     }
   }
-  return null;
-};
-
+  return null
+}
 const findNodesByValues = (data: any[], values: string | string[] | (string | number)[]): any[] => {
-  const nodes: any[] = [];
-  let processedValues: (string | number)[] = [];
-  if (typeof values === "string") {
-    processedValues = values.split(",").map((v) => v.trim());
+  const nodes: any[] = []
+  let processedValues: (string | number)[] = []
+  if (typeof values === 'string') {
+    processedValues = values.split(',').map((v) => v.trim())
   } else {
-    processedValues = values;
+    processedValues = values
   }
   processedValues.forEach((value) => {
-    const node = findNodeByValue(data, value);
-    if (node) nodes.push(node);
-  });
-  return nodes;
-};
-
+    const node = findNodeByValue(data, value)
+    if (node) nodes.push(node)
+  })
+  return nodes
+}
 watch(
   () => props.modelValue,
   (newValue) => {
-    if (!treeRef.value) return;
+    if (!treeRef.value) return
     if (!newValue?.length) {
-      treeRef.value?.setCheckedKeys([]);
-      selectedValues.value = [];
+      treeRef.value?.setCheckedKeys([])
+      selectedValues.value = []
     } else {
-      const checkedKeys = Array.isArray(newValue) ? newValue : newValue.split(",");
-      const nodes = findNodesByValues(props.treeData, newValue as unknown as (string | number)[]);
-      selectedValues.value = nodes.map((node) => node[props.props.label]);
-      treeRef.value.setCheckedKeys(checkedKeys);
+      const checkedKeys = Array.isArray(newValue) ? newValue : newValue.split(',')
+      const nodes = findNodesByValues(props.treeData, newValue as unknown as (string | number)[])
+      selectedValues.value = nodes.map((node) => node[props.props.label])
+      treeRef.value.setCheckedKeys(checkedKeys)
     }
   },
   {
     immediate: true
   }
-);
-
+)
 watch(
   () => props.treeData,
   (newTreeData) => {
-    if (!treeRef.value) return;
+    if (!treeRef.value) return
     if (newTreeData?.length && props.modelValue?.length) {
-      const checkedKeys = Array.isArray(props.modelValue) ? props.modelValue : props.modelValue.split(",");
-      const nodes = findNodesByValues(newTreeData, props.modelValue as unknown as (string | number)[]);
-      selectedValues.value = nodes.map((node) => node[props.props.label]);
-      treeRef.value.setCheckedKeys(checkedKeys);
+      const checkedKeys = Array.isArray(props.modelValue) ? props.modelValue : props.modelValue.split(',')
+      const nodes = findNodesByValues(newTreeData, props.modelValue as unknown as (string | number)[])
+      selectedValues.value = nodes.map((node) => node[props.props.label])
+      treeRef.value.setCheckedKeys(checkedKeys)
     }
   },
   {
     immediate: true
   }
-);
-
+)
 const clearHandle = () => {
-  selectedValues.value = [];
-  emit("update:modelValue", []);
-};
+  selectedValues.value = []
+  emit('update:modelValue', [])
+}
 </script>
 
 <style scoped lang="less">

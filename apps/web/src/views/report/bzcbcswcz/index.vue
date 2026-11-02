@@ -65,7 +65,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/report/bzcbcswcz/index" })
 import { nextTick, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useStore } from '@/store/business'
@@ -76,6 +75,7 @@ import type { ColumnProps } from '@/components/ProTable/interface'
 import { apiExportHandle } from '@/utils/export'
 import { formatNumValue } from '@/utils/utils'
 import { bzcbcxWczExportExcel, bzcbcxWczGetPage, bzcbcxXmwczExportExcel, bzcbcxXmwczGetPage } from '@/api/report/bzcbwcz'
+defineOptions({ name: "/report/bzcbcswcz/index" })
 
 // ========== 响应式状态 ==========
 const activeTab = ref('bzcbcxWcz')

@@ -215,8 +215,6 @@
 
 <script setup lang="ts">
 import { Document as EpDocument, Folder as EpFolder, FolderOpened as EpFolderOpened, Search as EpSearch } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/sys/baseMsgConfig/proCategory" })
 import { getProtypeTree, getPublicCodeList } from '@/api/common'
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import userDialog from '@/components/select/userDialog.vue'
@@ -235,6 +233,7 @@ import MbzYzxConfigModal from '@/views/sys/baseMsgConfig/components/MbzYzxConfig
 import AnnualKeyTaskAssociationModal from '@/views/sys/baseMsgConfig/components/AnnualKeyTaskAssociationModal.vue'
 import ViewAnnualKeyTaskModal from '@/views/sys/baseMsgConfig/components/ViewAnnualKeyTaskModal.vue'
 import LinkSchemeModal from '@/views/sys/baseMsgConfig/components/LinkSchemeModal.vue'
+defineOptions({ name: "/sys/baseMsgConfig/proCategory" })
 
 interface PageConfig extends ContextProps {
   loading: boolean

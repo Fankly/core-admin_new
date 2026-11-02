@@ -7,18 +7,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, ref, watch, defineEmits, PropType } from 'vue'
-
+import { computed, ref, watch, PropType } from 'vue'
 const emit = defineEmits(['update:modelValue'])
 const selectRef = ref()
 const treeRef = ref()
 const selectedValues = ref<string[]>([])
-
 interface TreeNode {
   [key: string]: any
   children?: TreeNode[]
 }
-
 const props = defineProps({
   treeData: {
     type: Array as PropType<TreeNode[]>,
@@ -48,13 +45,10 @@ const props = defineProps({
     default: 'id'
   }
 })
-
 const defaultProps = computed(() => props.props)
-
 const defaultCheckedKeys = computed(() => {
   return props.modelValue ? props.modelValue.split(',') : []
 })
-
 const findNodeByValue = (data: any[], value: string | number): TreeNode | null => {
   for (const node of data) {
     if (node[props.valueKey] === value) {
@@ -67,7 +61,6 @@ const findNodeByValue = (data: any[], value: string | number): TreeNode | null =
   }
   return null
 }
-
 const findNodesByValues = (data: TreeNode[], values: (string | number)[]): TreeNode[] => {
   const nodes: TreeNode[] = []
   values.forEach((value) => {
@@ -78,7 +71,6 @@ const findNodesByValues = (data: TreeNode[], values: (string | number)[]): TreeN
   })
   return nodes
 }
-
 watch(
   () => props.modelValue,
   (newValue) => {
@@ -96,7 +88,6 @@ watch(
     immediate: true
   }
 )
-
 watch(
   () => props.treeData,
   (newTreeData) => {
@@ -110,7 +101,6 @@ watch(
     immediate: true
   }
 )
-
 const handleCheck = () => {
   if (props.leafOnly) {
     const checkedNodes = treeRef.value.getCheckedNodes(false, true)
@@ -125,13 +115,11 @@ const handleCheck = () => {
     emit('update:modelValue', values.join(','))
   }
 }
-
 const clearHandle = () => {
   selectedValues.value = []
   emit('update:modelValue', '')
   treeRef.value?.setCheckedKeys([])
 }
-
 defineExpose({
   clearHandle
 })

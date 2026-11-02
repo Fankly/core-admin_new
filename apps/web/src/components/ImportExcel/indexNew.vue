@@ -44,11 +44,12 @@
 
 <script setup lang="ts">
 import { Upload as EpUpload } from '@element-plus/icons-vue'
-
-defineOptions({ name: "ImportExcelNew" })
-import { ref, defineExpose } from 'vue'
+import { ref } from 'vue'
 import { useDownload } from '@/hooks/useDownload'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: 'ImportExcelNew'
+})
 
 export interface ExcelParameterProps {
   title: string // 标题
@@ -58,7 +59,6 @@ export interface ExcelParameterProps {
   importApi?: (params: any) => Promise<any> // 导入的Api
   getTableList?: () => void // 获取表格数据的Api
 }
-
 const uploadRef = ref()
 const fromData = ref()
 // 是否覆盖数据
@@ -77,7 +77,10 @@ const parameter = ref<ExcelParameterProps>({
 
 // 接收父组件参数
 const acceptParams = (params: ExcelParameterProps) => {
-  parameter.value = { ...parameter.value, ...params }
+  parameter.value = {
+    ...parameter.value,
+    ...params
+  }
   dialogVisible.value = true
 }
 
@@ -168,7 +171,6 @@ const excelUploadSuccess = () => {
     type: 'success'
   })
 }
-
 defineExpose({
   acceptParams,
   fromData

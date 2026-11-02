@@ -298,7 +298,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -307,9 +307,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import projectType from '@/components/select/projectType.vue'
@@ -318,346 +316,382 @@ import affiliatedUnit from '@/components/select/affiliatedUnit.vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { showHelpMsg } from '@/utils/message'
-
-export default defineComponent({
-  name: '/budget-process/process-03',
-  components: {
-    projectType,
-    affiliatedUnit,
-    userDialog,
-    allProjectType
+defineOptions({
+  name: '/budget-process/process-03'
+})
+const typeRef = useTemplateRef('type')
+const companyRef = useTemplateRef('company')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  helpHandle,
+  store,
+  searchShow: true,
+  example: [],
+  dataList: {
+    select: 0,
+    month: new Date()
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+  segment: [
+    {
+      value: 'reserve',
+      label: '项目储备与立项',
+      checked: true
+    },
+    {
+      value: 'Bidding',
+      label: '招投标',
+      checked: true
+    },
+    {
+      value: 'contract',
+      label: '合同签订',
+      checked: true
+    },
+    {
+      value: 'implementation',
+      label: '项目实施',
+      checked: true
+    },
+    {
+      value: 'audit',
+      label: '项目审计',
+      checked: true
+    },
+    {
+      value: 'settlement',
+      label: '结算与资金支付',
+      checked: true
+    },
+    {
+      value: 'finalAccounts',
+      label: '决算与增资',
+      checked: true
+    },
+    {
+      value: 'close',
+      label: '项目关闭',
+      checked: true
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      helpHandle,
-      store,
-      searchShow: true,
-      example: [],
-      dataList: {
-        select: 0,
-        month: new Date()
-      },
-      segment: [
-        {
-          value: 'reserve',
-          label: '项目储备与立项',
-          checked: true
-        },
-        {
-          value: 'Bidding',
-          label: '招投标',
-          checked: true
-        },
-        {
-          value: 'contract',
-          label: '合同签订',
-          checked: true
-        },
-        {
-          value: 'implementation',
-          label: '项目实施',
-          checked: true
-        },
-        {
-          value: 'audit',
-          label: '项目审计',
-          checked: true
-        },
-        {
-          value: 'settlement',
-          label: '结算与资金支付',
-          checked: true
-        },
-        {
-          value: 'finalAccounts',
-          label: '决算与增资',
-          checked: true
-        },
-        {
-          value: 'close',
-          label: '项目关闭',
-          checked: true
-        }
-      ],
-      segmentIds: [],
-      columnObj: {},
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      loading: false,
-      //表格备足开关
-      remarks: false,
-      userCode: '',
-      userId: '',
-      specialorgid: ''
-    })
-  },
-  created() {
-    this.handleColumn()
-    this.remarksbtn()
-  },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser()
-  },
-  methods: {
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 40 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 40 + 'px'
-      }
-    },
-    loadData() {
-      this.loading = true
-      if (this.dataList.month) {
-        const params = {
-          qkjxmlxbms: [],
-          qkjejdws: [],
-          zyear: '',
-          zmonth: '',
-          wd: this.dataList.select,
-          specialorgid: this.specialorgid
-        }
-
-        if (this.$refs.type.selectList.length > 0) {
-          params.qkjxmlxbms = this.$refs.type.selectList
+  ],
+  segmentIds: [],
+  columnObj: {},
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  loading: false,
+  //表格备足开关
+  remarks: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const searchShow = toRef(setupState, 'searchShow')
+const example = toRef(setupState, 'example')
+const dataList = toRef(setupState, 'dataList')
+const segment = toRef(setupState, 'segment')
+const segmentIds = toRef(setupState, 'segmentIds')
+const columnObj = toRef(setupState, 'columnObj')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const loading = toRef(setupState, 'loading')
+const remarks = toRef(setupState, 'remarks')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 40 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 40 + 'px'
+  }
+}
+function loadData() {
+  setupState.loading = true
+  if (setupState.dataList.month) {
+    const params = {
+      qkjxmlxbms: [],
+      qkjejdws: [],
+      zyear: '',
+      zmonth: '',
+      wd: setupState.dataList.select,
+      specialorgid: setupState.specialorgid
+    }
+    if (typeRef.value.selectList.length > 0) {
+      params.qkjxmlxbms = typeRef.value.selectList
+    } else {
+      params.qkjxmlxbms = typeRef.value.allId
+    }
+    if (companyRef.value.selectList.length > 0) {
+      params.qkjejdws = companyRef.value.selectList
+    } else {
+      params.qkjejdws = companyRef.value.allId
+    }
+    if (setupState.dataList.month != '') {
+      let time = new Date(setupState.dataList.month)
+      let zyear = time.getFullYear()
+      let zmonth = time.getMonth() + 1
+      params.zyear = JSON.stringify(zyear)
+      params.zmonth = JSON.stringify(zmonth)
+    }
+    if (setupState.remarks == false) {
+      baseService.post('/process/process03/', params).then((res) => {
+        if (res.success == true) {
+          setupState.loading = false
+          setupState.example = res.data
         } else {
-          params.qkjxmlxbms = this.$refs.type.allId
-        }
-
-        if (this.$refs.company.selectList.length > 0) {
-          params.qkjejdws = this.$refs.company.selectList
-        } else {
-          params.qkjejdws = this.$refs.company.allId
-        }
-        if (this.dataList.month != '') {
-          let time = new Date(this.dataList.month)
-          let zyear = time.getFullYear()
-          let zmonth = time.getMonth() + 1
-          params.zyear = JSON.stringify(zyear)
-          params.zmonth = JSON.stringify(zmonth)
-        }
-        if (this.remarks == false) {
-          baseService.post('/process/process03/', params).then((res) => {
-            if (res.success == true) {
-              this.loading = false
-              this.example = res.data
-            } else {
-              this.loading = false
-              ElMessage({
-                type: 'error',
-                message: res.msg
-              })
-            }
-          })
-        } else {
-          this.example = []
-          this.remarksbtn()
-          baseService.post('/process/process03/', params).then((res) => {
-            if (res.success == true) {
-              this.loading = false
-              res.data.forEach((item) => {
-                item.auditSwitch = false
-                this.example.push(item)
-              })
-            } else {
-              this.loading = false
-              ElMessage({
-                type: 'error',
-                message: res.msg
-              })
-            }
+          setupState.loading = false
+          ElMessage({
+            type: 'error',
+            message: res.msg
           })
         }
-      } else {
-        this.loading = false
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-    exportBtn() {
-      this.loading = true
-      if (this.dataList.month) {
-        const params = {
-          qkjxmlxbms: [],
-          qkjejdws: [],
-          zyear: '',
-          zmonth: '',
-          wd: this.dataList.select,
-          specialorgid: this.specialorgid
-        }
-
-        if (this.$refs.type.selectList.length > 0) {
-          params.qkjxmlxbms = this.$refs.type.selectList
-        } else {
-          params.qkjxmlxbms = this.$refs.type.allId
-        }
-
-        if (this.$refs.company.selectList.length > 0) {
-          params.qkjejdws = this.$refs.company.selectList
-        } else {
-          params.qkjejdws = this.$refs.company.allId
-        }
-        if (this.dataList.month != '') {
-          let time = new Date(this.dataList.month)
-          let zyear = time.getFullYear()
-          let zmonth = time.getMonth() + 1
-          params.zyear = JSON.stringify(zyear)
-          params.zmonth = JSON.stringify(zmonth)
-        }
-        baseService.export('/process/process03/export', params).then((res) => {
-          this.loading = false
-          const blob = res
-          let dom = document.createElement('a')
-          let url = window.URL.createObjectURL(blob)
-          dom.href = url
-          dom.download = '预算全过程及时性监控总览.xlsx'
-          document.body.appendChild(dom)
-          dom.click()
-          document.body.removeChild(dom)
-          window.URL.revokeObjectURL(url)
-        })
-      } else {
-        this.loading = false
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-    //搜索按钮
-    search() {
-      this.loadData()
-    },
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.segmentIds.push(item.value)
-        this.columnObj[item.value] = item.checked
       })
-    },
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked
+    } else {
+      setupState.example = []
+      remarksbtn()
+      baseService.post('/process/process03/', params).then((res) => {
+        if (res.success == true) {
+          setupState.loading = false
+          res.data.forEach((item) => {
+            item.auditSwitch = false
+            setupState.example.push(item)
+          })
+        } else {
+          setupState.loading = false
+          ElMessage({
+            type: 'error',
+            message: res.msg
+          })
         }
-      }
-    },
-
-    //稽核规则开关
-    remarksbtn() {
-      if (this.remarks) {
-        let name = {
-          auditSwitch: true,
-          name: '指标名称',
-          jh_lxjsxys: '立项及时性',
-          jh_ztbjsxys: '招投标及时性',
-          jh_zbjgxdjsxys: '中标结果下达及时性',
-          jh_htqdjsxys: '合同签订的及时性',
-          jh_kgjsxys: '开工及时性',
-          jh_wzdhjsxys: '物资到货及时性',
-          jh_wzlyjsxys: '物资领用及时性',
-          jh_jgjsxys: '竣工及时性',
-          jh_jsssjsxys: '送审及时性',
-          jh_jssjjsxys: '审计及时性',
-          jh_zjzfjsxys: '资金支付及时性',
-          jh_jusssjsxys: '送审及时性',
-          jh_zgzzjsxys: '暂估转资及时性',
-          jh_zszzjsxys: '正式转资及时性',
-          jh_gbjsxys: '关闭及时性'
-        }
-        let calculation = {
-          auditSwitch: true,
-          name: '稽核规则（计算公式）',
-          jh_lxjsxys: '项目立项日期-预算下达日期',
-          jh_ztbjsxys: '首笔需求提报时间-项目立项时间',
-          jh_zbjgxdjsxys: '首个中标日期-对应需求上报日期',
-          jh_htqdjsxys: '首份合同签订日期-对应中标日期',
-          jh_kgjsxys: '实际开工日期-计划开工时间',
-          jh_wzdhjsxys: '首笔物资实际到货日期（同批次）-物资计划到货日期（同批次）',
-          jh_wzlyjsxys: '首笔物资领用日期（同批次）-物资到货日期（同批次）',
-          jh_jgjsxys: '实际竣工日期-计划竣工日期',
-          jh_jsssjsxys: '首次送审日期-对应实际竣工日期',
-          jh_jssjjsxys: '首次审定日期-对应收审日期',
-          jh_zjzfjsxys: '首笔资金支付日期-财务支出日期',
-          jh_jusssjsxys: '决算报告日期-最后一次结算审定日期',
-          jh_zgzzjsxys: '首笔增资过账日期-实际竣工日期',
-          jh_zszzjsxys: '最后一笔增资过账日期（项目关闭后判断）-决算报告日期',
-          jh_gbjsxys: '关闭时间-最后一笔财务支出'
-        }
-        let judge = {
-          auditSwitch: true,
-          name: '参照依据',
-          jh_lxjsxys: '15天（暂定）',
-          jh_ztbjsxys: '省招：60天;市招：30天',
-          jh_zbjgxdjsxys: '国招4个月;省招80-100天;市招40-50天',
-          jh_htqdjsxys: '30天',
-          jh_kgjsxys: '15天（暂定）',
-          jh_wzdhjsxys: '15天（暂定）',
-          jh_wzlyjsxys: '15天（暂定）',
-          jh_jgjsxys: '15天（暂定）',
-          jh_jsssjsxys: '220kV及以上基建项目60天；110kV及以上基建、技改项目40天；其他资本项目30天；成本性项目10天。',
-          jh_jssjjsxys: '220kV及以上基建项目40天；110kV及以上基建、技改项目20天；其他资本项目15天；成本性项目15天。',
-          jh_zjzfjsxys: '60天',
-          jh_jusssjsxys: '220kV及以上基建项目80天；110kV及以上基建、技改项目30天；其他资本性项目45天。',
-          jh_zgzzjsxys: '30天',
-          jh_zszzjsxys: '30天',
-          jh_gbjsxys: '15天'
-        }
-        this.example.unshift(judge)
-        this.example.unshift(calculation)
-        this.example.unshift(name)
-      } else {
-        this.example.splice(0, 3)
-      }
-    },
-    //切换维度
-    changeCompany() {
-      this.loadData()
-    },
-
-    //重置按钮
-    reset() {
-      this.dataList.month = new Date()
-      this.dataList.select = 0
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.example = []
-      this.loadData()
-    },
-
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
+      })
+    }
+  } else {
+    setupState.loading = false
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
+    })
+  }
+}
+function exportBtn() {
+  setupState.loading = true
+  if (setupState.dataList.month) {
+    const params = {
+      qkjxmlxbms: [],
+      qkjejdws: [],
+      zyear: '',
+      zmonth: '',
+      wd: setupState.dataList.select,
+      specialorgid: setupState.specialorgid
+    }
+    if (typeRef.value.selectList.length > 0) {
+      params.qkjxmlxbms = typeRef.value.selectList
+    } else {
+      params.qkjxmlxbms = typeRef.value.allId
+    }
+    if (companyRef.value.selectList.length > 0) {
+      params.qkjejdws = companyRef.value.selectList
+    } else {
+      params.qkjejdws = companyRef.value.allId
+    }
+    if (setupState.dataList.month != '') {
+      let time = new Date(setupState.dataList.month)
+      let zyear = time.getFullYear()
+      let zmonth = time.getMonth() + 1
+      params.zyear = JSON.stringify(zyear)
+      params.zmonth = JSON.stringify(zmonth)
+    }
+    baseService.export('/process/process03/export', params).then((res) => {
+      setupState.loading = false
+      const blob = res
+      let dom = document.createElement('a')
+      let url = window.URL.createObjectURL(blob)
+      dom.href = url
+      dom.download = '预算全过程及时性监控总览.xlsx'
+      document.body.appendChild(dom)
+      dom.click()
+      document.body.removeChild(dom)
+      window.URL.revokeObjectURL(url)
+    })
+  } else {
+    setupState.loading = false
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
+    })
+  }
+}
+//搜索按钮
+function search() {
+  loadData()
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.segmentIds.push(item.value)
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
     }
   }
+}
+//稽核规则开关
+function remarksbtn() {
+  if (setupState.remarks) {
+    let name = {
+      auditSwitch: true,
+      name: '指标名称',
+      jh_lxjsxys: '立项及时性',
+      jh_ztbjsxys: '招投标及时性',
+      jh_zbjgxdjsxys: '中标结果下达及时性',
+      jh_htqdjsxys: '合同签订的及时性',
+      jh_kgjsxys: '开工及时性',
+      jh_wzdhjsxys: '物资到货及时性',
+      jh_wzlyjsxys: '物资领用及时性',
+      jh_jgjsxys: '竣工及时性',
+      jh_jsssjsxys: '送审及时性',
+      jh_jssjjsxys: '审计及时性',
+      jh_zjzfjsxys: '资金支付及时性',
+      jh_jusssjsxys: '送审及时性',
+      jh_zgzzjsxys: '暂估转资及时性',
+      jh_zszzjsxys: '正式转资及时性',
+      jh_gbjsxys: '关闭及时性'
+    }
+    let calculation = {
+      auditSwitch: true,
+      name: '稽核规则（计算公式）',
+      jh_lxjsxys: '项目立项日期-预算下达日期',
+      jh_ztbjsxys: '首笔需求提报时间-项目立项时间',
+      jh_zbjgxdjsxys: '首个中标日期-对应需求上报日期',
+      jh_htqdjsxys: '首份合同签订日期-对应中标日期',
+      jh_kgjsxys: '实际开工日期-计划开工时间',
+      jh_wzdhjsxys: '首笔物资实际到货日期（同批次）-物资计划到货日期（同批次）',
+      jh_wzlyjsxys: '首笔物资领用日期（同批次）-物资到货日期（同批次）',
+      jh_jgjsxys: '实际竣工日期-计划竣工日期',
+      jh_jsssjsxys: '首次送审日期-对应实际竣工日期',
+      jh_jssjjsxys: '首次审定日期-对应收审日期',
+      jh_zjzfjsxys: '首笔资金支付日期-财务支出日期',
+      jh_jusssjsxys: '决算报告日期-最后一次结算审定日期',
+      jh_zgzzjsxys: '首笔增资过账日期-实际竣工日期',
+      jh_zszzjsxys: '最后一笔增资过账日期（项目关闭后判断）-决算报告日期',
+      jh_gbjsxys: '关闭时间-最后一笔财务支出'
+    }
+    let judge = {
+      auditSwitch: true,
+      name: '参照依据',
+      jh_lxjsxys: '15天（暂定）',
+      jh_ztbjsxys: '省招：60天;市招：30天',
+      jh_zbjgxdjsxys: '国招4个月;省招80-100天;市招40-50天',
+      jh_htqdjsxys: '30天',
+      jh_kgjsxys: '15天（暂定）',
+      jh_wzdhjsxys: '15天（暂定）',
+      jh_wzlyjsxys: '15天（暂定）',
+      jh_jgjsxys: '15天（暂定）',
+      jh_jsssjsxys: '220kV及以上基建项目60天；110kV及以上基建、技改项目40天；其他资本项目30天；成本性项目10天。',
+      jh_jssjjsxys: '220kV及以上基建项目40天；110kV及以上基建、技改项目20天；其他资本项目15天；成本性项目15天。',
+      jh_zjzfjsxys: '60天',
+      jh_jusssjsxys: '220kV及以上基建项目80天；110kV及以上基建、技改项目30天；其他资本性项目45天。',
+      jh_zgzzjsxys: '30天',
+      jh_zszzjsxys: '30天',
+      jh_gbjsxys: '15天'
+    }
+    setupState.example.unshift(judge)
+    setupState.example.unshift(calculation)
+    setupState.example.unshift(name)
+  } else {
+    setupState.example.splice(0, 3)
+  }
+}
+//切换维度
+function changeCompany() {
+  loadData()
+}
+//重置按钮
+function reset() {
+  setupState.dataList.month = new Date()
+  setupState.dataList.select = 0
+  typeRef.value.clear()
+  companyRef.value.clear()
+  setupState.example = []
+  loadData()
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser()
+})
+;(() => {
+  handleColumn()
+  remarksbtn()
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  helpHandle,
+  store,
+  searchShow,
+  example,
+  dataList,
+  segment,
+  segmentIds,
+  columnObj,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  loading,
+  remarks,
+  userCode,
+  userId,
+  specialorgid,
+  setTableHeight,
+  loadData,
+  exportBtn,
+  search,
+  handleColumn,
+  listShow,
+  remarksbtn,
+  changeCompany,
+  reset,
+  showSearch,
+  loadCompany
 })
 </script>
 

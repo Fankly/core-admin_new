@@ -17,13 +17,9 @@
 
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
-<script lang="ts">
-export default {
-  name: '/service/ywpt/jointReviewLeader'
-}
-</script>
+
 <script setup lang="ts">
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
+import userDialog from '@/components/select/userDialog.vue'
 import { ref, reactive, onMounted, nextTick, h } from 'vue'
 import { getExpertInfoByCurrentUser, startReview, closeReview, psfg } from '@/api/service/jointReview'
 import { useRouter, useRoute } from 'vue-router'
@@ -36,6 +32,10 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import proAssignedModal from '@/views/service/ywpt/components/proAssignedModal/review.vue'
 import { encrypt } from '@/utils/crypto'
 import { REVIEW_MODE_ASSIGNED_CODE, useReviewModeCode } from '@/hooks/useReviewModeCode'
+defineOptions({
+  name: '/service/ywpt/jointReviewLeader'
+})
+ //权限弹框
 
 // 初始化页面
 const loading = ref(false) //接口调用加载中。。。
@@ -85,7 +85,9 @@ const showModal = (val: any) => {
         showAssigned()
         return
       }
-      const res: any = await psfg({ ...params })
+      const res: any = await psfg({
+        ...params
+      })
       if (res.success) {
         ElMessage.success(`${value}`)
         selectModalRef.value.isShowModel = false
@@ -159,7 +161,9 @@ const handleReview = async (val: any) => {
       proAssignedRef.value.searchData.meetingId = val.selectedList[0].meetingId
     } else if (val.value == '添加退改需求') {
       const params = {
-        row: { meetingId: val.selectedList[0].meetingId },
+        row: {
+          meetingId: val.selectedList[0].meetingId
+        },
         getTableList: tableRef.value.proTableRef.getTableList
       }
       proAssignedModalRef.value.acceptParams(params)
@@ -193,7 +197,9 @@ const handleReview = async (val: any) => {
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     specialOrgId.value = userDialogRef.value.specialorgid
     if (isQuery) {
       isShowPage.value = true
@@ -215,8 +221,15 @@ onMounted(async () => {
   }
 })
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'meetingName',
     label: '会议名称',
@@ -231,9 +244,21 @@ const tableColumns = reactive<any>([
     label: '会议状态',
     tag: true,
     enum: [
-      { label: '未发布', value: '00', tagType: 'info' },
-      { label: '评审中', value: '01', tagType: 'warning' },
-      { label: '已结束', value: '02', tagType: 'success' }
+      {
+        label: '未发布',
+        value: '00',
+        tagType: 'info'
+      },
+      {
+        label: '评审中',
+        value: '01',
+        tagType: 'warning'
+      },
+      {
+        label: '已结束',
+        value: '02',
+        tagType: 'success'
+      }
     ],
     width: '80'
   },
@@ -253,9 +278,21 @@ const tableColumns = reactive<any>([
       }
     }
   },
-  { prop: 'major', label: '评审专业', width: '200' },
-  { prop: 'createUserName', label: '组织人', width: '80' },
-  { prop: 'leaderName', label: '专家组长', width: '80' },
+  {
+    prop: 'major',
+    label: '评审专业',
+    width: '200'
+  },
+  {
+    prop: 'createUserName',
+    label: '组织人',
+    width: '80'
+  },
+  {
+    prop: 'leaderName',
+    label: '专家组长',
+    width: '80'
+  },
   {
     prop: 'psms',
     label: '评审模式',
@@ -264,17 +301,61 @@ const tableColumns = reactive<any>([
       return row.psmsName || getReviewModeName(row.psms, '-')
     }
   },
-  { prop: 'startTime', label: '会议开始时间', width: '150' },
-  { prop: 'endTime', label: '会议结束时间', width: '150' },
-  { prop: 'sfkqpsName', label: '是否开启评审', width: '100' },
-  { prop: 'pskssj', label: '评审开始时间', width: '150' },
-  { prop: 'psjssj', label: '评审结束时间', width: '150' },
-  { prop: 'totalCount', label: '会审总条目数', width: '100' },
-  { prop: 'thCount', label: '退回条目数', width: '85' },
-  { prop: 'leaderReviewedCount', label: '组长已评审条目数', width: '120' },
-  { prop: 'pendingLeaderReviewCount', label: '待组长评审条目数', width: '120' },
-  { prop: 'pendingExpertReviewCount', label: '待专家审核条目数', width: '120' },
-  { prop: 'expertReviewedCount', label: '专家已审核条目数', width: '120' }
+  {
+    prop: 'startTime',
+    label: '会议开始时间',
+    width: '150'
+  },
+  {
+    prop: 'endTime',
+    label: '会议结束时间',
+    width: '150'
+  },
+  {
+    prop: 'sfkqpsName',
+    label: '是否开启评审',
+    width: '100'
+  },
+  {
+    prop: 'pskssj',
+    label: '评审开始时间',
+    width: '150'
+  },
+  {
+    prop: 'psjssj',
+    label: '评审结束时间',
+    width: '150'
+  },
+  {
+    prop: 'totalCount',
+    label: '会审总条目数',
+    width: '100'
+  },
+  {
+    prop: 'thCount',
+    label: '退回条目数',
+    width: '85'
+  },
+  {
+    prop: 'leaderReviewedCount',
+    label: '组长已评审条目数',
+    width: '120'
+  },
+  {
+    prop: 'pendingLeaderReviewCount',
+    label: '待组长评审条目数',
+    width: '120'
+  },
+  {
+    prop: 'pendingExpertReviewCount',
+    label: '待专家审核条目数',
+    width: '120'
+  },
+  {
+    prop: 'expertReviewedCount',
+    label: '专家已审核条目数',
+    width: '120'
+  }
 ])
 </script>
 <style scoped lang="less">

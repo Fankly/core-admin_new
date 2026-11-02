@@ -28,84 +28,74 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AnnuallyLayout"
-};
-</script>
 
 <script setup lang="ts">
-import AnnuallyTable from "@/views/fy/annually/components/AnnuallyTable.vue";
-import { onMounted, reactive, defineExpose, withDefaults, defineProps, ref } from "vue";
+import AnnuallyTable from '@/views/fy/annually/components/AnnuallyTable.vue'
+import { onMounted, reactive, ref } from 'vue'
+defineOptions({
+  name: 'AnnuallyLayout'
+})
 
 export interface LayoutProps {
-  userInfo: any;
-  initParams: any;
-  requestApi: (params: any) => Promise<any>;
-  dynamicColumnApi: (params: any) => Promise<any>;
-  getDynamicColumnByKm: (params: any) => Promise<any>;
-  getDataListByKm: (params: any) => Promise<any>;
-  exportForDw: (params: any) => Promise<any>;
-  exportForKm: (params: any) => Promise<any>;
-  hasChildField: string;
+  userInfo: any
+  initParams: any
+  requestApi: (params: any) => Promise<any>
+  dynamicColumnApi: (params: any) => Promise<any>
+  getDynamicColumnByKm: (params: any) => Promise<any>
+  getDataListByKm: (params: any) => Promise<any>
+  exportForDw: (params: any) => Promise<any>
+  exportForKm: (params: any) => Promise<any>
+  hasChildField: string
 }
-
-const props = withDefaults(defineProps<LayoutProps>(), {});
-
-const annallyTableRef = ref();
-const toolbarRef = ref();
-
+const props = withDefaults(defineProps<LayoutProps>(), {})
+const annallyTableRef = ref()
+const toolbarRef = ref()
 const tableInfo = reactive({
   columns: [],
   loading: false,
   tableData: []
-});
-
+})
 const initTableData = async () => {
-  tableInfo.loading = true;
-  tableInfo.tableData.length = 0;
-  tableInfo.columns.length = 0;
-  let requestApi = props.requestApi;
-  let dynamicColumnApi = props.dynamicColumnApi;
-  if (!requestApi && !dynamicColumnApi) return;
+  tableInfo.loading = true
+  tableInfo.tableData.length = 0
+  tableInfo.columns.length = 0
+  let requestApi = props.requestApi
+  let dynamicColumnApi = props.dynamicColumnApi
+  if (!requestApi && !dynamicColumnApi) return
   try {
     let params = {
       ...props.initParams
-    };
+    }
     let tableData = await requestApi({
       ...params
-    });
-    let headerData = await dynamicColumnApi(params);
-    tableInfo.tableData = tableData.data;
-    tableInfo.columns = headerData.data.filter((item: any) => item.visible);
-    tableInfo.loading = false;
-    linkTable();
+    })
+    let headerData = await dynamicColumnApi(params)
+    tableInfo.tableData = tableData.data
+    tableInfo.columns = headerData.data.filter((item: any) => item.visible)
+    tableInfo.loading = false
+    linkTable()
   } catch (error) {
-    tableInfo.loading = false;
+    tableInfo.loading = false
   }
-};
-
+}
 const linkTable = () => {
-  const $table = annallyTableRef.value.treeTableRef;
-  const $toolBar = toolbarRef.value;
+  const $table = annallyTableRef.value.treeTableRef
+  const $toolBar = toolbarRef.value
   if ($table && $toolBar) {
-    $table.connect($toolBar);
+    $table.connect($toolBar)
   }
-};
-
+}
 const clearData = () => {
-  tableInfo.tableData.length = 0;
-  tableInfo.columns.length = 0;
-};
-
-onMounted(initTableData);
-
+  tableInfo.tableData.length = 0
+  tableInfo.columns.length = 0
+}
+onMounted(initTableData)
 defineExpose({
   initTableData,
   clearData,
   tableInfo,
   annallyTableRef
-});
+})
 </script>
 
 <style scoped lang="less">

@@ -12,18 +12,21 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="tsx">
-export default {
-  name: '/service/detailQueryReport/decomposeBM'
-}
-</script>
+
 <script setup lang="tsx">
 import { onMounted, ref, reactive } from 'vue'
-import { getPublicData, getGkbmInProvince } from '@/api/common' //公共代码
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
-import otherTable from '@/views/service/detailQueryReport/components/table.vue' //表格组件
+import { getPublicData, getGkbmInProvince } from '@/api/common'
+import userDialog from '@/components/select/userDialog.vue'
+import otherTable from '@/views/service/detailQueryReport/components/table.vue'
 import { formatNumValue } from '@/utils/utils'
 import TreeSelect from '@/components/select/TreeSelectLazy.vue'
+defineOptions({
+  name: '/service/detailQueryReport/decomposeBM'
+})
+
+ //公共代码
+ //权限弹框
+ //表格组件
 
 const userDialogRef = ref() // 用户角色
 const isShowPage = ref(false) //未选择角色前不展示页面
@@ -78,7 +81,6 @@ const initParamLists = async () => {
     gkbmList.value.push(...data.data)
   }
 }
-
 const reset = (val: any) => {
   if (val.type == 'RESET') {
     proDwRef.value?.clearSelect()
@@ -99,9 +101,12 @@ const resetDwData = () => {
     $table.searchParam.bmIdList = ''
   }
 }
-
 const columns = reactive<any>([
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'nd',
     label: '年度',
@@ -120,17 +125,29 @@ const columns = reactive<any>([
     prop: 'busiType',
     label: '业务类型',
     isShow: false,
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: ywlxList.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'kmlx',
     label: '科目类型',
     isShow: false,
-    search: { el: 'select', order: 3 },
+    search: {
+      el: 'select',
+      order: 3
+    },
     enum: kmlxList.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'bmIdList',
@@ -160,11 +177,21 @@ const columns = reactive<any>([
     prop: 'status',
     label: '状态',
     isShow: false,
-    search: { el: 'select', order: 7 },
+    search: {
+      el: 'select',
+      order: 7
+    },
     enum: ztList.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
-  { prop: 'nd', label: '年度', width: '100' },
+  {
+    prop: 'nd',
+    label: '年度',
+    width: '100'
+  },
   {
     prop: 'cnxName',
     label: '承诺项名称',
@@ -174,19 +201,53 @@ const columns = reactive<any>([
       props: {
         maxlength: 20,
         showWordLimit: true,
-        inputStyle: { paddingRight: '80px' }
+        inputStyle: {
+          paddingRight: '80px'
+        }
       }
     },
     width: '240'
   },
-  { prop: 'dwName', label: '一级单位', width: '280' },
-  { prop: 'ejdw', label: '二级单位', width: '280' },
-  { prop: 'profitCenter', label: '利润中心', width: '280' },
-  { prop: 'applyCenter', label: '成本中心', width: '280' },
-  { prop: 'bmName', label: '部门', width: '280' },
-  { prop: 'pch', label: '批次号', width: '120' },
-  { prop: 'busiTypeName', label: '业务类型', width: '100' },
-  { prop: 'kmlxName', label: '科目类型', width: '100' },
+  {
+    prop: 'dwName',
+    label: '一级单位',
+    width: '280'
+  },
+  {
+    prop: 'ejdw',
+    label: '二级单位',
+    width: '280'
+  },
+  {
+    prop: 'profitCenter',
+    label: '利润中心',
+    width: '280'
+  },
+  {
+    prop: 'applyCenter',
+    label: '成本中心',
+    width: '280'
+  },
+  {
+    prop: 'bmName',
+    label: '部门',
+    width: '280'
+  },
+  {
+    prop: 'pch',
+    label: '批次号',
+    width: '120'
+  },
+  {
+    prop: 'busiTypeName',
+    label: '业务类型',
+    width: '100'
+  },
+  {
+    prop: 'kmlxName',
+    label: '科目类型',
+    width: '100'
+  },
   {
     prop: 'yskmName',
     label: '预算科目',
@@ -196,7 +257,9 @@ const columns = reactive<any>([
       props: {
         maxlength: 20,
         showWordLimit: true,
-        inputStyle: { paddingRight: '80px' }
+        inputStyle: {
+          paddingRight: '80px'
+        }
       }
     },
     width: '180'
@@ -213,12 +276,36 @@ const columns = reactive<any>([
       return formatNumValue(value, 4)
     }
   },
-  { prop: 'statusName', label: '状态', width: '80' },
-  { prop: 'auditStatus', label: '审批状态', width: '80' },
-  { prop: 'sbStatus', label: '上报状态', width: '100' },
-  { prop: 'sdStatus', label: '审定状态', width: '100' },
-  { prop: 'fjStatus', label: '分解状态', width: '100' },
-  { prop: 'description', label: '编制说明', width: '100' }
+  {
+    prop: 'statusName',
+    label: '状态',
+    width: '80'
+  },
+  {
+    prop: 'auditStatus',
+    label: '审批状态',
+    width: '80'
+  },
+  {
+    prop: 'sbStatus',
+    label: '上报状态',
+    width: '100'
+  },
+  {
+    prop: 'sdStatus',
+    label: '审定状态',
+    width: '100'
+  },
+  {
+    prop: 'fjStatus',
+    label: '分解状态',
+    width: '100'
+  },
+  {
+    prop: 'description',
+    label: '编制说明',
+    width: '100'
+  }
 ])
 // 选择角色
 const getRoleHandle = async () => {

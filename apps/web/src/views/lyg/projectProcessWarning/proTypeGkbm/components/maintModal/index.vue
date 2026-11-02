@@ -66,11 +66,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'maintModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
@@ -80,6 +75,9 @@ import { configSave } from '@/api/lyg/index'
 import { getYjdwNew, getSubProtypeTree } from '@/api/common'
 import { getSgbm } from '@/api/service/requirement'
 import ElTreeSelect from '@/components/ElTreeSelect/index'
+defineOptions({
+  name: 'maintModal'
+})
 
 /** 公共代码项 */
 interface CodeItem {
@@ -94,11 +92,14 @@ interface ModalParams {
   specialorgid: string
   org_id: string
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
@@ -131,7 +132,6 @@ const handleClose = () => {
 const handleSave = () => {
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -143,13 +143,16 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
-      const res = await configSave({ ...searchParams.value })
+      const res = await configSave({
+        ...searchParams.value
+      })
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -161,7 +164,6 @@ const handleSave = () => {
     }
   })
 }
-
 const selectChange = async (val: any) => {
   gkbmList.value.length = 0
   let gkbm: any = await getSgbm({
@@ -193,7 +195,9 @@ const fetchOptions = async (specialorgid: any) => {
 
 /** 打开弹窗 */
 const acceptParams = async (params: ModalParams) => {
-  userInfo.value = { ...params }
+  userInfo.value = {
+    ...params
+  }
   modalTitle.value = params.type
   searchParams.value = params.searchParams
   isShowModal.value = true
@@ -212,6 +216,7 @@ const acceptParams = async (params: ModalParams) => {
     searchParams.value.sortNo = undefined
   }
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>

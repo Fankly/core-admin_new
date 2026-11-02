@@ -7,9 +7,8 @@
 </template>
 
 <script setup lang="ts">
-import { ClassifyData } from "@/views/statistics/interface/CostRelatedItemsInterface";
-import { defineProps, ref, watch, defineEmits } from "vue";
-
+import { ClassifyData } from '@/views/statistics/interface/CostRelatedItemsInterface'
+import { ref, watch } from 'vue'
 const props = defineProps({
   treeData: {
     type: Array,
@@ -17,18 +16,18 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: "请选择"
+    default: '请选择'
   },
   modelValue: {
     type: String,
-    default: ""
+    default: ''
   },
   props: {
     type: Object,
     default: () => ({
-      children: "children",
-      isLeaf: "leaf",
-      label: "name"
+      children: 'children',
+      isLeaf: 'leaf',
+      label: 'name'
     })
   },
   leafOnly: {
@@ -37,7 +36,7 @@ const props = defineProps({
   },
   valueKey: {
     type: String,
-    default: "id"
+    default: 'id'
   },
   clearable: {
     type: Boolean,
@@ -55,68 +54,62 @@ const props = defineProps({
     type: Function,
     default: null
   }
-});
-
-const emit = defineEmits(["update:modelValue"]);
-
-const selectedValue = ref();
-const treeRef = ref();
-const selectRef = ref();
-const selectedNodeKey = ref();
-
+})
+const emit = defineEmits(['update:modelValue'])
+const selectedValue = ref()
+const treeRef = ref()
+const selectRef = ref()
+const selectedNodeKey = ref()
 const handleNodeClick = (node: any): void => {
   if (node.leaf) {
     if (props.leafOnly) {
-      selectedValue.value = node[props.props.label];
-      emit("update:modelValue", node[props.valueKey]);
-      selectRef.value?.blur();
-      selectedNodeKey.value = node[props.valueKey];
-    } 
+      selectedValue.value = node[props.props.label]
+      emit('update:modelValue', node[props.valueKey])
+      selectRef.value?.blur()
+      selectedNodeKey.value = node[props.valueKey]
+    }
   }
-};
-
+}
 watch(
   () => props.modelValue,
   (newValue) => {
     if (!newValue) {
-      treeRef.value?.setCurrentKey(null);
+      treeRef.value?.setCurrentKey(null)
     }
   }
-);
-
+)
 const loadNode = async (node: any, resolve: (data: any[]) => void) => {
   if (node.level === 0) {
-    resolve(props.treeData);
-    return;
+    resolve(props.treeData)
+    return
   }
   if (!props.loadMethod) {
-    resolve([]);
-    return;
+    resolve([])
+    return
   }
   try {
-    const nodeData = node.data;
-    const children = await props.loadMethod(nodeData);
+    const nodeData = node.data
+    const children = await props.loadMethod(nodeData)
     if (children.success) {
       const data = children.data.map((item: ClassifyData) => ({
         ...item,
         leaf: item.isleaf === 0 ? false : true
-      }));
-      resolve(data);
-      return;
+      }))
+      resolve(data)
+      return
     } else {
-      resolve([]);
-      return;
+      resolve([])
+      return
     }
   } catch (error) {
-    console.error("Failed to loaad node data:", error);
-    resolve([]);
+    console.error('Failed to loaad node data:', error)
+    resolve([])
   }
-};
-
+}
 const clearHandle = () => {
-  selectedValue.value = "";
-  emit("update:modelValue", "");
-};
+  selectedValue.value = ''
+  emit('update:modelValue', '')
+}
 </script>
 
 <style scoped lang="less">

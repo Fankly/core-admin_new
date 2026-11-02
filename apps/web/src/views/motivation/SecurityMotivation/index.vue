@@ -28,11 +28,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/motivation/SecurityMotivation/index" })
 import { onMounted, ref } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import ProtableCurd from '@/views/motivation/MarketingMotivation/components/ProtableCurd.vue'
-import { getEjdw, getYjdw, getPublicData } from '@/api/common' //公共代码
+import { getEjdw, getYjdw, getPublicData } from '@/api/common'
 import {
   fkffxxPage,
   fkffxxRemove,
@@ -52,6 +51,9 @@ import {
   zzbdxxExportExcel
 } from '@/api/motivation/SecurityMotivation/index'
 import { decimal2Rules, integerRules } from '@/utils/rules'
+defineOptions({ name: "/motivation/SecurityMotivation/index" })
+
+ //公共代码
 
 const userDialogRef = ref<InstanceType<typeof userDialog>>()
 const tabData = ref('1')

@@ -1,26 +1,23 @@
-<script lang="ts">
-export default {
-  name: '/service/Storage/Approval/index'
-}
-</script>
+
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
 import GeneralReport from '@/views/service/Storage/components/GeneralReport/index.vue'
 import BatchMaintenance from '@/views/service/Storage/components/BatchMaintenance/index.vue'
 import { ElMessage } from 'element-plus'
-import { UserInfo } from '@/views/service/Storage/interface'
-import { RowVo } from '@/views/service/Storage/interface'
+import { UserInfo, RowVo } from '@/views/service/Storage/interface'
 import { getInfo } from '@/api/service/Storage/PlannedOutbound/Declaration'
 import { nextTick, onMounted, ref } from 'vue'
 import { getPublicCodeList } from '@/api/common'
-import { exportData, getPageDataList, nrcbData, thData } from '@/api/service/Storage/Approval'
-import { pfwhwhData } from '@/api/service/Storage/Approval'
+import { exportData, getPageDataList, nrcbData, thData, pfwhwhData } from '@/api/service/Storage/Approval'
 import { VXETable } from 'vxe-table'
 import { useUser } from '@/hooks/useUser'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
 import { GlobalInfo } from '@/views/service/lkyptzl/interface'
 import { useGuide } from '@/hooks/useGuide'
+defineOptions({
+  name: '/service/Storage/Approval/index'
+})
 
 const userInfo = ref<UserInfo>({
   deptId: '',
@@ -32,24 +29,20 @@ const userInfo = ref<UserInfo>({
   spRoleId: '',
   specialorgcode: ''
 })
-
 const { startGuide } = useGuide({
   moduleKey: 'Review',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 const store = useStore()
 const route = useRoute()
-
 const ndList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const tab = ref<{
   type: string
   name: string
@@ -60,9 +53,7 @@ const tab = ref<{
 const generalReportRef = ref<InstanceType<typeof GeneralReport>>()
 const isShowPage = ref(false)
 const xmIdList = ref<any[]>([])
-
 const userDialogRef = ref<InstanceType<typeof userDialog>>()
-
 const getRoleHandle = async () => {
   try {
     if (userDialogRef.value) {
@@ -90,7 +81,6 @@ const getRoleHandle = async () => {
 }
 const selectedDatas = ref<RowVo[]>([])
 const batchMaintenanceRef = ref<InstanceType<typeof BatchMaintenance>>()
-
 const batchMaintenanceHandle = async (records: RowVo[]) => {
   if (records && records.length === 0) {
     ElMessage.warning('请至少选择一条数据进行操作!')
@@ -105,7 +95,6 @@ const batchMaintenanceHandle = async (records: RowVo[]) => {
   await nextTick()
   if (batchMaintenanceRef.value) batchMaintenanceRef.value?.openModal()
 }
-
 const reserveHandle = async (records: RowVo[]) => {
   const ztRes = records.some((record: any) => record.zt === '310')
   if (ztRes) {
@@ -177,7 +166,6 @@ const returnHandle = async (records: any) => {
     if (generalReportRef.value) generalReportRef.value.loading = false
   }
 }
-
 const getPublicDataList = async () => {
   const res = await getPublicCodeList({
     codes: ['ZLYS_XMJHSSND']
@@ -192,11 +180,9 @@ const getInfoData = async (dwId: string) => {
     tab.value = res.data
   }
 }
-
 const searchData = () => {
   if (generalReportRef.value) generalReportRef.value.searchDataHandle()
 }
-
 const handleError = (error: Error, message = '操作失败'): void => {
   ElMessage({
     message: `${message}:${error.message}`,
@@ -204,7 +190,6 @@ const handleError = (error: Error, message = '操作失败'): void => {
     duration: 5000
   })
 }
-
 onMounted(async () => {
   try {
     // 获取公共代码

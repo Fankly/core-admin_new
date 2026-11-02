@@ -42,7 +42,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialTaskSearch" })
 import { onMounted, ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getPublicCodesList } from '@/api/common'
@@ -50,6 +49,7 @@ import { useCrudSearch } from '@/views/suzhou/common/hooks/useCrudSearch'
 import { MATERIAL_TASK_STATUS_CODE } from '@/views/suzhou/materialTask/config'
 import { useStore } from '@/store/business'
 import { getEjdwList, getYjdwList } from '@/api/ai/smartTaskAudit'
+defineOptions({ name: "materialTaskSearch" })
 
 const statusOptions = ref<Array<{ code: string; name: string }>>([])
 const yjdwList = ref<any[]>([])

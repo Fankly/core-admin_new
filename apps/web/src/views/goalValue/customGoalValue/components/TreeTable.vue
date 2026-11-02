@@ -1,21 +1,19 @@
-<script lang="ts">
-export default {
-  name: '/goalValue/customGoalValue/components/TreeTable'
-}
-</script>
+
 
 <script setup lang="ts">
-import { ref, defineProps, onMounted, watch, defineEmits, reactive, defineExpose, nextTick } from 'vue'
+import { ref, onMounted, watch, reactive, nextTick } from 'vue'
 import { getConfigList } from '@/api/goalValue/customGoalValue'
 import { InitParams } from '@/views/goalValue/customGoalValue/config.vue'
 import { VxeTablePropTypes } from 'vxe-table'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/goalValue/customGoalValue/components/TreeTable'
+})
 
 interface Props {
   initParams: InitParams
   autoLoadOnMount?: boolean
 }
-
 interface RowVo {
   children?: RowVo[]
   hasChild?: boolean
@@ -28,18 +26,14 @@ interface RowVo {
   sfzgs?: string
   sort: number | string
 }
-
 const emits = defineEmits(['treeTableChange', 'mainTableData'])
-
 const props = defineProps<Props>()
-
 const treeRef = ref()
 const loading = ref(false)
 const treeData = ref<RowVo[]>([])
 const ROOT_PARENT_ID = '0'
 let currentTreeRequestToken = 0
 let currentTableRequestToken = 0
-
 const normalizeTreeRows = (data: RowVo[] = []): RowVo[] => {
   return data.map((item) => ({
     ...item,
@@ -47,7 +41,6 @@ const normalizeTreeRows = (data: RowVo[] = []): RowVo[] => {
     children: item.children ? normalizeTreeRows(item.children) : item.children
   }))
 }
-
 const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({
   rowField: 'id',
   parentField: 'parentId',
@@ -86,7 +79,6 @@ const rowConfig = reactive<VxeTablePropTypes.RowConfig>({
   isCurrent: true,
   keyField: 'id'
 })
-
 const treeNodeClickHandle = async () => {
   const $treeTable = treeRef.value
   if ($treeTable) {
@@ -97,7 +89,6 @@ const treeNodeClickHandle = async () => {
     emits('treeTableChange', curData)
   }
 }
-
 const getTableData = async (parentId: string) => {
   if (!props.initParams.nd || !parentId) {
     emits('mainTableData', [])
@@ -117,20 +108,16 @@ const getTableData = async (parentId: string) => {
 const collectAncestorPathIds = (row?: RowVo | null): string[] => {
   const $table = treeRef.value
   if (!row?.id || String(row.id) === ROOT_PARENT_ID) return []
-
   const pathIds: string[] = []
   let current: any = row
   const visited = new Set<string>()
-
   while (current?.id != null && String(current.id) !== ROOT_PARENT_ID) {
     const id = String(current.id)
     if (visited.has(id)) break
     visited.add(id)
     pathIds.unshift(id)
-
     const parentId = current.parentId
     if (parentId == null || parentId === '' || String(parentId) === ROOT_PARENT_ID) break
-
     const parentKey = String(parentId)
     current = $table?.getRowById?.(parentKey) || null
     if (!current) {
@@ -149,10 +136,8 @@ const collectAncestorPathIds = (row?: RowVo | null): string[] => {
 const restoreCurrentNode = async (selectId?: string | null, pathIds: string[] = []) => {
   const $table = treeRef.value
   if (!$table || treeData.value.length === 0) return null
-
   await nextTick()
   await expandData()
-
   const targetId = selectId != null && selectId !== '' ? String(selectId) : ROOT_PARENT_ID
   if (targetId === ROOT_PARENT_ID) {
     $table.setCurrentRow(treeData.value[0])
@@ -173,7 +158,6 @@ const restoreCurrentNode = async (selectId?: string | null, pathIds: string[] = 
       await nextTick()
     }
   }
-
   const targetRow = $table.getRowById?.(targetId)
   if (targetRow) {
     $table.setCurrentRow(targetRow)
@@ -186,7 +170,6 @@ const restoreCurrentNode = async (selectId?: string | null, pathIds: string[] = 
   emits('treeTableChange', treeData.value[0])
   return treeData.value[0]
 }
-
 const getTreeTable = async (options?: { selectId?: string | null; pathIds?: string[] }) => {
   // 清空数据前先记下要恢复的选中路径
   const selectId = options?.selectId != null && options.selectId !== '' ? String(options.selectId) : null
@@ -195,7 +178,6 @@ const getTreeTable = async (options?: { selectId?: string | null; pathIds?: stri
     : selectId
       ? collectAncestorPathIds(treeRef.value?.getCurrentRecord?.() || treeRef.value?.getRowById?.(selectId))
       : []
-
   const requestToken = ++currentTreeRequestToken
   loading.value = true
   treeData.value = []
@@ -235,7 +217,6 @@ const getTreeTable = async (options?: { selectId?: string | null; pathIds?: stri
     }
   }
 }
-
 const expandData = async () => {
   if (!treeRef.value || treeData.value.length === 0) return
   await nextTick()
@@ -243,39 +224,33 @@ const expandData = async () => {
   if (!rootNode) return
   await treeRef.value.setTreeExpand(rootNode, true)
 }
-
 const expandRowData = async (row: any) => {
   if (!treeRef.value || !row) return
   await nextTick()
   await treeRef.value.setTreeExpand(row, true)
 }
-
 const clearTreeData = () => {
   currentTreeRequestToken += 1
   currentTableRequestToken += 1
   treeData.value = []
   loading.value = false
 }
-
 const initData = async () => {
   if (!props.autoLoadOnMount) return
   await getTreeTable()
   await getTableData(ROOT_PARENT_ID)
 }
-
 const rowStyle = () => {
   return {
     cursor: 'pointer'
   }
 }
-
 watch(
   () => props.initParams.nd,
   () => {
     getTreeTable()
   }
 )
-
 defineExpose({
   clearTreeData,
   getTreeTable,
@@ -287,7 +262,6 @@ defineExpose({
   treeData,
   expandRowData
 })
-
 onMounted(initData)
 </script>
 

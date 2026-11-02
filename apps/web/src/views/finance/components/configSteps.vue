@@ -16,48 +16,44 @@
     </el-steps>
   </div>
 </template>
-<script>
-export default {
-  components: {},
-  props: {
-    options: {
-      type: Array,
-      default: () => []
-    },
-    value: {
-      type: Number,
-      default: 0
-    },
-    status: {
-      type: String
+<script setup>
+import { reactive, toRefs, computed } from 'vue'
+defineOptions({
+  name: 'configSteps'
+})
+const componentProps = defineProps({
+  options: {
+    type: Array,
+    default: () => []
+  },
+  value: {
+    type: Number,
+    default: 0
+  },
+  status: {
+    type: String
+  }
+})
+const componentData = reactive({})
+const _options = computed(() => {
+  return componentProps.options.map((item, index) => {
+    let status = ''
+    if (componentProps.value > index + 1) {
+      status = 'success'
     }
-  },
-  name: 'configSteps',
-  data() {
-    return {}
-  },
-  created() {},
-  mounted() {},
-  methods: {},
-  computed: {
-    _options() {
-      return this.options.map((item, index) => {
-        let status = ''
-        if (this.value > index + 1) {
-          status = 'success'
-        }
-        if (this.value == index + 1) {
-          status = this.status
-        }
-        return {
-          ...item,
-          status
-        }
-      })
+    if (componentProps.value == index + 1) {
+      status = componentProps.status
     }
-  },
-  watch: {}
-}
+    return {
+      ...item,
+      status
+    }
+  })
+})
+defineExpose({
+  ...toRefs(componentData),
+  _options
+})
 </script>
 <style lang="less" scoped>
 .configSteps {

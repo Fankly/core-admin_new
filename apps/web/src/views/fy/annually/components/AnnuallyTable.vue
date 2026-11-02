@@ -45,57 +45,49 @@
   ></yskmView>
 </template>
 
-<script lang="ts">
-export default {
-  name: "AnnuallyTable"
-};
-</script>
 
 <script setup lang="ts">
-import { getGroupSummary } from "@/utils/prearranged";
-import { findPrevNode, formatValue } from "@/utils/utils";
-import Decimal from "decimal.js";
-import { ElMessage } from "element-plus";
-import { reactive, withDefaults, defineProps, ref, defineExpose } from "vue";
-import { TableInfo, UserInfo } from "../interface";
-import yskmView from "@/views/fy/prearranged/release/components/yskmView.vue";
+import { getGroupSummary } from '@/utils/prearranged'
+import { findPrevNode, formatValue } from '@/utils/utils'
+import Decimal from 'decimal.js'
+import { ElMessage } from 'element-plus'
+import { reactive, ref } from 'vue'
+import { TableInfo, UserInfo } from '../interface'
+import yskmView from '@/views/fy/prearranged/release/components/yskmView.vue'
+defineOptions({
+  name: 'AnnuallyTable'
+})
 
 export interface TableProps {
-  userInfo: UserInfo;
-  columns: any[];
-  tableData: any[];
-  hasChildField: string;
-  initParams: any;
-  requestApi: (params: any) => Promise<any>;
-  getDataListByKm: (params: any) => Promise<any>;
-  getDynamicColumnByKm: (params: any) => Promise<any>;
-  exportForDw: (params: any) => Promise<any>;
-  exportForKm: (params: any) => Promise<any>;
+  userInfo: UserInfo
+  columns: any[]
+  tableData: any[]
+  hasChildField: string
+  initParams: any
+  requestApi: (params: any) => Promise<any>
+  getDataListByKm: (params: any) => Promise<any>
+  getDynamicColumnByKm: (params: any) => Promise<any>
+  exportForDw: (params: any) => Promise<any>
+  exportForKm: (params: any) => Promise<any>
 }
-
-const props = withDefaults(defineProps<TableProps>(), {});
-
-const treeTableRef = ref();
-
-const field = reactive(["cnx", "name", "sbDesc"]);
-
+const props = withDefaults(defineProps<TableProps>(), {})
+const treeTableRef = ref()
+const field = reactive(['cnx', 'name', 'sbDesc'])
 const kmInfo = reactive({
-  title: "预算科目-查看",
+  title: '预算科目-查看',
   kmId: [],
   isShowModal: false,
-  dwId: "",
-  kmlx: "",
-  xsws: "",
-  nd: ""
-});
-
+  dwId: '',
+  kmlx: '',
+  xsws: '',
+  nd: ''
+})
 const activeCellMethod = ({ row }: any) => {
   if (row.id && !row.leaf) {
-    return true;
+    return true
   }
-  return false;
-};
-
+  return false
+}
 const tableInfo = reactive<TableInfo>({
   rowConfig: {
     height: 32
@@ -105,102 +97,96 @@ const tableInfo = reactive<TableInfo>({
     lazy: true,
     hasChildField: props.hasChildField,
     loadMethod: ({ row }) => {
-      tableInfo.loading = true;
+      tableInfo.loading = true
       return new Promise((resolve: any) => {
-        let params = { ...props.initParams };
-        params.parentId = row.id;
+        let params = {
+          ...props.initParams
+        }
+        params.parentId = row.id
         props
           .requestApi({
             ...params
           })
           .then((res) => {
             if (res.success) {
-              resolve(res.data);
+              resolve(res.data)
             } else {
-              ElMessage.error(res.msg);
-              resolve([]);
+              ElMessage.error(res.msg)
+              resolve([])
             }
-            tableInfo.loading = false;
-          });
-      });
+            tableInfo.loading = false
+          })
+      })
     }
   },
   editConfig: {
-    trigger: "click",
-    mode: "cell",
+    trigger: 'click',
+    mode: 'cell',
     beforeEditMethod: activeCellMethod,
     enabled: true,
     showStatus: true
   }
-});
-
+})
 const headerCellStyle = () => {
   return {
-    padding: "8px 0",
-    lineHeight: "16px"
-  };
-};
-
-const closeModalHandle = (val: boolean) => {
-  kmInfo.isShowModal = val;
-};
-
-const cellClickHandle = async ({ row, column }: any) => {
-  if (row.cnx && !row.leaf && column.field === "name") {
-    kmInfo.isShowModal = true;
-    kmInfo.nd = props.initParams.nd;
-    kmInfo.xsws = props.initParams.xsws || "2";
-    kmInfo.dwId = props.initParams.dwId;
-    kmInfo.kmlx = props.initParams.kmlx;
-    kmInfo.kmId = findPrevNode(props.tableData, row);
+    padding: '8px 0',
+    lineHeight: '16px'
   }
-};
-
+}
+const closeModalHandle = (val: boolean) => {
+  kmInfo.isShowModal = val
+}
+const cellClickHandle = async ({ row, column }: any) => {
+  if (row.cnx && !row.leaf && column.field === 'name') {
+    kmInfo.isShowModal = true
+    kmInfo.nd = props.initParams.nd
+    kmInfo.xsws = props.initParams.xsws || '2'
+    kmInfo.dwId = props.initParams.dwId
+    kmInfo.kmlx = props.initParams.kmlx
+    kmInfo.kmId = findPrevNode(props.tableData, row)
+  }
+}
 const cellStyle = ({ row, column }: any) => {
-  if (row.cnx && !row.leaf && column.field === "name") {
+  if (row.cnx && !row.leaf && column.field === 'name') {
     return {
-      cursor: "pointer",
-      backgroundColor: "rgba(232, 234, 236,0.5)",
-      color: "rgb(0, 112, 107)"
-    };
+      cursor: 'pointer',
+      backgroundColor: 'rgba(232, 234, 236,0.5)',
+      color: 'rgb(0, 112, 107)'
+    }
   }
   return {
-    cursor: "auto",
-    backgroundColor: "rgba(232, 234, 236,0.5)",
-    color: "rgb(96, 98, 102)"
-  };
-};
-
+    cursor: 'auto',
+    backgroundColor: 'rgba(232, 234, 236,0.5)',
+    color: 'rgb(96, 98, 102)'
+  }
+}
 const inputSxysHandle = (event: any, isNumber: boolean) => {
   if (isNumber) {
-    let maxlength = Number(props.initParams.xsws) + 10;
-    let regex = new RegExp(`^[-]?\\d{0,${maxlength}}(?:\\.\\d{0,${Number(props.initParams.xsws)}})?`);
-    event.target.value = "" + event.target.value;
+    let maxlength = Number(props.initParams.xsws) + 10
+    let regex = new RegExp(`^[-]?\\d{0,${maxlength}}(?:\\.\\d{0,${Number(props.initParams.xsws)}})?`)
+    event.target.value = '' + event.target.value
     event.target.value =
       event.target.value
-        .replace(/[^\d^.-]+/g, "") // 包括负号的匹配
-        .replace(/^0+(\d)/, "$1")
-        .replace(/^\./, "0.")
-        .match(/regex/)[0] || "";
+        .replace(/[^\d^.-]+/g, '') // 包括负号的匹配
+        .replace(/^0+(\d)/, '$1')
+        .replace(/^\./, '0.')
+        .match(/regex/)[0] || ''
   }
-};
-
+}
 const sumhandle = (row: any, key: string) => {
-  row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(props.initParams.xsws)) : new Decimal(0).toFixed(Number(props.initParams.xsws));
-  getGroupSummary(props.tableData, tableInfo.treeConfig as any, key, Number(props.initParams.xsws), "leaf", "id");
-};
-
+  row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(props.initParams.xsws)) : new Decimal(0).toFixed(Number(props.initParams.xsws))
+  getGroupSummary(props.tableData, tableInfo.treeConfig as any, key, Number(props.initParams.xsws), 'leaf', 'id')
+}
 const formatterValue = ({ column, cellValue }: any) => {
   if (field.includes(column.field)) {
-    return cellValue;
+    return cellValue
   }
-  if (typeof cellValue === "undefined" || cellValue === null || cellValue === "") return "-";
-  return formatValue(cellValue, Number(props.initParams.xsws));
-};
-
+  if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
+  return formatValue(cellValue, Number(props.initParams.xsws))
+}
 defineExpose({
   treeTableRef
-});
+})
 </script>
 
 <style scoped></style>

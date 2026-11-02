@@ -5,11 +5,9 @@ import { ElMessage } from 'element-plus'
 import { submitWorkflow, WFData, WFParam, WFUserInfo } from '@/hooks/useWorkflow'
 import { useStore } from '@/store/business'
 import { formatValue } from '@/utils/utils'
-import { getDynamicTable, getYsbgshListPage } from '@/api/workflow/ysbg'
-import { finishActivity, rejectActivity } from '@/api/workflow/ysbg'
+import { getDynamicTable, getYsbgshListPage, finishActivity, rejectActivity } from '@/api/workflow/ysbg'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
 import { downloadAttach } from '@/api/service/requirement'
-
 interface Columns {
   columnKey: string
   columnValue: string
@@ -19,18 +17,18 @@ interface Columns {
   needSum: string
   visible: boolean
 }
-
 interface Params {
   [key: string]: any
 }
-
 onMounted(() => {
   const workItemId = getQueryString('workItemId')
   loadUserWfInfo(workItemId).then((res: any) => {
     if (res.success) {
       let data = res.data
       userInfo.value = data.user
-      wfDataString.value = { ...data.wfData }
+      wfDataString.value = {
+        ...data.wfData
+      }
       workItemIdString.value = workItemId
       wfInstIdString.value = data.wfInstId
       wfCodeString.value = data.wfCode
@@ -43,7 +41,6 @@ onMounted(() => {
     }
   })
 })
-
 const tableInfo = reactive<any>({
   tableData: [],
   columns: [],
@@ -73,7 +70,6 @@ const tableInfo = reactive<any>({
     }
   }
 })
-
 const loading = ref(false)
 const tableRef = ref()
 const editPageRef = ref()
@@ -90,7 +86,6 @@ const spRoleId = ref<string>('')
 const workItemIdString = ref<string>('')
 const wfInstIdString = ref<string>('')
 const wfCodeString = ref<string>('')
-
 const page = {
   total: 0,
   limit: 20,
@@ -111,14 +106,12 @@ const wfDataString = ref({
   FQZZ: '',
   SFGMB: ''
 })
-
 const getQueryString = (name: string): string => {
   const allParams = window.location.href.split('?').reduce((acc, part) => {
     const params = new URLSearchParams(part.split('#')[0])
     params.forEach((value, k) => acc.set(k, value))
     return acc
   }, new Map())
-
   if (window.location.hash.includes('?')) {
     const hashQuery = window.location.hash.split('?')[1]
     new URLSearchParams(hashQuery).forEach((value, k) => allParams.set(k, value))
@@ -131,10 +124,8 @@ const searchHandle = async () => {
   await getTableHeader(wfCodeString.value)
   await getDataList(wfCodeString.value)
 }
-
 const getTableHeader = async (flag: string) => {
   loading.value = true
-
   let func: any = {
     ['WF_MISXMYSBGLC']: getDynamicTable
   }
@@ -152,7 +143,6 @@ const getTableHeader = async (flag: string) => {
     ElMessage.error(res.msg)
   }
 }
-
 const getDataList = async (flag: string) => {
   loading.value = true
   let func: any = {
@@ -163,7 +153,9 @@ const getDataList = async (flag: string) => {
     limit: page.limit,
     page: page.page
   }
-  let res = await func[flag]({ ...parmas })
+  let res = await func[flag]({
+    ...parmas
+  })
   if (res.success) {
     loading.value = false
     tableInfo.tableData = res.data.records
@@ -173,7 +165,6 @@ const getDataList = async (flag: string) => {
     ElMessage.error(res.msg)
   }
 }
-
 const submitDecWorkflowHandle = () => {
   loading.value = true
   const wfUserInfo: WFUserInfo = {
@@ -186,9 +177,16 @@ const submitDecWorkflowHandle = () => {
   const wfNodeParam: WFParam = {
     IS_PASS: 'Y'
   }
-  submitWorkflow(store.getters.getUserMsg.systemCode, wfCodeString.value, workItemIdString.value, wfUserInfo, {}, wfNodeParam, submitWFCallback)
+  submitWorkflow(
+    store.getters.getUserMsg.systemCode,
+    wfCodeString.value,
+    workItemIdString.value,
+    wfUserInfo,
+    {},
+    wfNodeParam,
+    submitWFCallback
+  )
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
   const wfNodeParam: WFParam = {
     IS_PASS: 'Y'
@@ -260,12 +258,10 @@ const rejectDecWorkflowHandle = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const isNeedNum = (columns: Columns[], field: string) => {
   let findIndex = columns.findIndex((item: Columns) => item.needSum && item.columnKey === field)
   return findIndex > -1
 }
-
 const formatterData = ({ column, cellValue }: any) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   if (tableInfo.columns) {
@@ -276,12 +272,10 @@ const formatterData = ({ column, cellValue }: any) => {
   }
   return cellValue
 }
-
 const closeHandle = () => {
   spyjForm.value.spyj = ''
   spyjDialog.value.showDialog = false
 }
-
 const closeDialogHandle = () => {
   try {
     window.parent.Appframe.closePopWindow(window)
@@ -289,12 +283,10 @@ const closeDialogHandle = () => {
     window.parent.postMessage('close', '*')
   }
 }
-
 const isShowDialogHandle = (flag: string) => {
   spyjDialog.value.showDialog = true
   spyjDialog.value.flag = flag
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -304,10 +296,8 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchHandle()
 }
-
 const checkedData = ref<any[]>([])
 const hasSelectedProjects = computed(() => checkedData.value && checkedData.value.length === 0)
-
 const cellClickHandle = async ({ row }: any) => {
   checkedData.value = []
   checkedData.value.push({
@@ -316,7 +306,6 @@ const cellClickHandle = async ({ row }: any) => {
     xmlx: row['pro_type']
   })
 }
-
 const viewHandle = () => {
   const $grid = tableRef.value
   if ($grid) {
@@ -324,11 +313,9 @@ const viewHandle = () => {
       ElMessage.warning('请选择一条数据进行查看!')
       return
     }
-
     editPageRef.value.isShowModal = true
   }
 }
-
 const handleDownloadAttach = async (row: any) => {
   const uuid = row.uuid as string
   loading.value = true
@@ -353,7 +340,6 @@ const handleDownloadAttach = async (row: any) => {
     loading.value = false
   }
 }
-
 const handleError = (error: Error, message = '操作失败'): void => {
   console.error(`${message}`, error)
   ElMessage({
@@ -362,11 +348,9 @@ const handleError = (error: Error, message = '操作失败'): void => {
     duration: 5000
   })
 }
-
 const detailHandle = () => {
   spyjDialog.value.flag === '0' ? submitDecWorkflowHandle() : rejectDecWorkflowHandle()
 }
-
 const disabled = computed(() => loading.value)
 </script>
 

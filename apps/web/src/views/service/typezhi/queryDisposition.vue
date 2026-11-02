@@ -97,30 +97,29 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/typezhi/queryDisposition'
-}
-</script>
+
 <script setup lang="ts">
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
-import { getPublicData } from '@/api/common' //公共代码
+import userDialog from '@/components/select/userDialog.vue'
+import { getPublicData } from '@/api/common'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { onMounted, ref, reactive, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { xmSearchConfigGetList, searchSaveOrUpdate, deleteSearch, getSearchCodeData } from '@/api/service/expertinformation'
+defineOptions({
+  name: '/service/typezhi/queryDisposition'
+})
+ //权限弹框
+ //公共代码
 
 const searchForm = ref('') //输入框
 const chooseNode = ref('') //节点id
 const nodeName = ref('') //节点名称
 const treeRef = ref() //节点数
 const helpModalRef = ref()
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const tabBtn = ref('查询条件配置')
 const tabMsg = ref('1')
 // 用户角色
@@ -165,8 +164,14 @@ const editSate = ref<any>([
     placeholder: '请选择',
     value: 'multiple',
     options: [
-      { code: '1', name: '是' },
-      { code: '0', name: '否' }
+      {
+        code: '1',
+        name: '是'
+      },
+      {
+        code: '0',
+        name: '否'
+      }
     ]
   },
   {
@@ -197,11 +202,16 @@ const editSate = ref<any>([
     placeholder: '请选择',
     value: 'sfmrzs',
     options: [
-      { code: '1', name: '是' },
-      { code: '0', name: '否' }
+      {
+        code: '1',
+        name: '是'
+      },
+      {
+        code: '0',
+        name: '否'
+      }
     ]
   },
-
   {
     isShow: 0,
     name: '排序：',
@@ -210,7 +220,6 @@ const editSate = ref<any>([
     value: 'sort'
   }
 ])
-
 const editSate1 = ref([
   {
     isShow: 1,
@@ -233,11 +242,16 @@ const editSate1 = ref([
     placeholder: '请选择',
     value: 'sfmrzs',
     options: [
-      { code: '1', name: '是' },
-      { code: '0', name: '否' }
+      {
+        code: '1',
+        name: '是'
+      },
+      {
+        code: '0',
+        name: '否'
+      }
     ]
   },
-
   {
     isShow: 0,
     name: '排序：',
@@ -275,7 +289,6 @@ const defaultProps = {
   children: 'children',
   label: 'name'
 }
-
 const pageList = ref([])
 onMounted(async () => {
   await userDialogRef.value.getUser()
@@ -286,7 +299,6 @@ const searchDataHandle = async () => {
   try {
     loading.value = true
     const res = await xmSearchConfigGetList(chooseNode.value, 1)
-
     if (res.success) {
       res.data.forEach((item: any) => {
         item.multiple = item.multiple == 1 ? '是' : '否'
@@ -308,7 +320,6 @@ const searchDataHandle1 = async () => {
   try {
     loading.value = true
     const res = await xmSearchConfigGetList(chooseNode.value, 2)
-
     if (res.success) {
       res.data.forEach((item: any) => {
         item.sfmrzs = item.sfmrzs == 1 ? '是' : '否'
@@ -346,7 +357,6 @@ const selectSearchTree = async () => {
     await initParamLists()
   }
 }
-
 watch(
   () => searchForm.value,
   (val) => {
@@ -357,7 +367,6 @@ watch(
     treeRef.value.filter(val.trim())
   }
 )
-
 const filterTreeData = (val: string, data: any) => {
   if (!val) return true
   return data.name.indexOf(val) !== -1
@@ -372,7 +381,7 @@ const addMsgHandle = () => {
     return
   }
   dialogType.title = `${tabBtn.value}-新增`
-  ;(dialogType.type = 'add'), (dialogType.isShow = true)
+  ;((dialogType.type = 'add'), (dialogType.isShow = true))
 }
 //编辑
 const editMsgHandle = () => {
@@ -391,7 +400,7 @@ const editMsgHandle = () => {
     return
   }
   dialogType.title = `${tabBtn.value}-编辑`
-  ;(dialogType.type = 'edit'), (dialogType.isShow = true)
+  ;((dialogType.type = 'edit'), (dialogType.isShow = true))
   if (tabBtn.value == '查询条件配置') {
     formData.sort = parseInt(checkData.value[0].sort)
     formData.code = checkData.value[0].code
@@ -436,7 +445,6 @@ const delMsgHandle = () => {
   })
     .then(() => {
       loading.value = true
-
       deleteSearch(ids.value).then((res: any) => {
         if (res.success) {
           loading.value = false
@@ -472,7 +480,6 @@ const pushMsgHandle = () => {
     if (formData.type == null || formData.type.trim() == '') {
       return ElMessage.warning('类型不能为空')
     }
-
     if (formData.multiple == '' || formData.multiple == null) {
       return ElMessage.warning('是否多选不能为空')
     }
@@ -486,7 +493,6 @@ const pushMsgHandle = () => {
     if (formData1.name == null || formData1.name.trim() == '') {
       return ElMessage.warning('名称不能为空')
     }
-
     if (formData1.sfmrzs == '' || formData1.sfmrzs == null) {
       return ElMessage.warning('是否默认显示不能为空')
     }
@@ -503,14 +509,20 @@ const pushMsgHandle = () => {
     }).then((res: any) => {
       if (res.success) {
         loading.value = false
-        ElMessage({ type: 'success', message: '新增成功' })
+        ElMessage({
+          type: 'success',
+          message: '新增成功'
+        })
         searchDataHandle()
         searchDataHandle1()
         disabled.value = false
       } else {
         loading.value = false
         disabled.value = true
-        ElMessage({ type: 'error', message: res.msg })
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
       }
     })
   } else {
@@ -529,12 +541,18 @@ const pushMsgHandle = () => {
         }).then((res: any) => {
           if (res.success) {
             loading.value = false
-            ElMessage({ type: 'success', message: '编辑成功' })
+            ElMessage({
+              type: 'success',
+              message: '编辑成功'
+            })
             searchDataHandle()
             searchDataHandle1()
           } else {
             loading.value = false
-            ElMessage({ type: 'error', message: res.msg })
+            ElMessage({
+              type: 'error',
+              message: res.msg
+            })
           }
         })
       })
@@ -550,7 +568,6 @@ const handelCheckRow = (val: any) => {
   ids.value = val.map((row: any) => row.id)
   checkData.value = val
 }
-
 const initParamLists = async () => {
   // 获取公共代码
   const publicCodeList = await getPublicData('TYBBCXPZ_COM')
@@ -558,18 +575,18 @@ const initParamLists = async () => {
     pageList.value = publicCodeList.data
   }
 }
-
 const handleTab = ({ props }: any) => {
   tabBtn.value = props.label
 }
-
 const userInfo = ref<any>()
 
 // 选择角色
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       await initParamLists()
@@ -590,7 +607,6 @@ const closeHandle = () => {
   }
   dialogType.isShow = false
 }
-
 const closeHandle1 = () => {
   ids.value = []
   checkData.value = []

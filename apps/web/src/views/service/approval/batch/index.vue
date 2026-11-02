@@ -40,13 +40,13 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/service/approval/batch/index" })
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
 import { onMounted } from 'vue'
 import { useBatch } from './hooks/useBatch'
 import Operation from '@/views/service/approval/batch/components/Operation.vue'
 import Table from '@/views/service/approval/batch/components/Table.vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
+defineOptions({ name: "/service/approval/batch/index" })
 
 const { userRoleSelectorRef, getRoleHandle, isShowPage, searchForm, searchMainPageData, resetData, searchFormRef, loading, ndList } = useBatch()
 

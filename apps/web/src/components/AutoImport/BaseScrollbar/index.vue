@@ -7,65 +7,78 @@
     </el-scrollbar>
   </div>
 </template>
-<script>
+<script setup>
 import _ from 'lodash'
-
-export default {
-  components: {},
-  props: {},
-  name: 'BaseScrollbar',
-  data() {
-    return {
-      resizeObserver: undefined
-    }
-  },
-  created() {
-    this.throttleUpDate = _.throttle(this.update, 100)
-  },
-  mounted() {
-    this.listenUpdate()
-    this.update()
-    this.initMutationObserver()
-  },
-  methods: {
-    onChildNodesChange() {
-      this.throttleUpDate()
-    },
-    initMutationObserver() {
-      this.mutationObserver = new MutationObserver((mutations) => {
-        for (let mutation of mutations) {
-          if (mutation.type === 'childList') {
-            this.onChildNodesChange(mutation)
-          }
-        }
-      })
-      const config = { childList: true, subtree: true }
-      this.mutationObserver.observe(this.$refs.scrollbarRows, config)
-    },
-    listenUpdate() {
-      this.$nextTick(() => {
-        this.resizeObserver = new ResizeObserver(this.onChildNodesChange)
-        this.resizeObserver.observe(this.$refs['scrollbar-wrapper'])
-      })
-    },
-    update() {
-      this.$nextTick(() => {
-        if (this.$refs.scrollbar) {
-          this.$refs.scrollbar.update()
-        }
-      })
-    },
-    scrollToBottom() {
-      const scrollbar = this.$refs.scrollbar
-      scrollbar.$el.querySelector('.el-scrollbar__wrap').scrollTop = scrollbar.$el.querySelector('.el-scrollbar__wrap').scrollHeight
-    }
-  },
-  beforeUnmount() {
-    this.resizeObserver.disconnect()
-  },
-  computed: {},
-  watch: {}
+import { nextTick, reactive, toRef, toRefs, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
+defineOptions({
+  name: 'BaseScrollbar'
+})
+const scrollbarWrapperRef = useTemplateRef('scrollbar-wrapper')
+const scrollbarRowsRef = useTemplateRef('scrollbarRows')
+const scrollbarRef = useTemplateRef('scrollbar')
+const componentData = reactive({
+  resizeObserver: undefined
+})
+const resizeObserver = toRef(componentData, 'resizeObserver')
+componentData.throttleUpDate = undefined
+const throttleUpDate = toRef(componentData, 'throttleUpDate')
+componentData.mutationObserver = undefined
+const mutationObserver = toRef(componentData, 'mutationObserver')
+function onChildNodesChange() {
+  componentData.throttleUpDate()
 }
+function initMutationObserver() {
+  componentData.mutationObserver = new MutationObserver((mutations) => {
+    for (let mutation of mutations) {
+      if (mutation.type === 'childList') {
+        onChildNodesChange(mutation)
+      }
+    }
+  })
+  const config = {
+    childList: true,
+    subtree: true
+  }
+  componentData.mutationObserver.observe(scrollbarRowsRef.value, config)
+}
+function listenUpdate() {
+  nextTick(() => {
+    componentData.resizeObserver = new ResizeObserver(onChildNodesChange)
+    if (scrollbarWrapperRef.value) componentData.resizeObserver.observe(scrollbarWrapperRef.value)
+  })
+}
+function update() {
+  nextTick(() => {
+    if (scrollbarRef.value) {
+      scrollbarRef.value.update()
+    }
+  })
+}
+function scrollToBottom() {
+  const scrollbar = scrollbarRef.value
+  scrollbar.$el.querySelector('.el-scrollbar__wrap').scrollTop = scrollbar.$el.querySelector('.el-scrollbar__wrap').scrollHeight
+}
+onMounted(() => {
+  listenUpdate()
+  update()
+  initMutationObserver()
+})
+onBeforeUnmount(() => {
+  componentData.resizeObserver?.disconnect()
+  componentData.mutationObserver?.disconnect()
+  componentData.throttleUpDate?.cancel()
+})
+;(() => {
+  componentData.throttleUpDate = _.throttle(update, 100)
+})()
+defineExpose({
+  onChildNodesChange,
+  initMutationObserver,
+  listenUpdate,
+  update,
+  scrollToBottom,
+  ...toRefs(componentData)
+})
 </script>
 <style lang="less" scoped>
 .base-scrollbar {

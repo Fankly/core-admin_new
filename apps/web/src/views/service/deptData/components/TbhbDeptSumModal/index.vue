@@ -27,11 +27,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'TbhbDeptSumModal'
-}
-</script>
 
 <script setup lang="ts">
 import { h, ref, reactive, computed } from 'vue'
@@ -40,9 +35,11 @@ import { getProSlDataByDeptForTb, getProSlDataByDeptForHb, getFxbgByDeptForTb, g
 import { vxeExportFormulaHandle, apiExporFile } from '@/utils/export'
 import { formatNumValue } from '@/utils/utils'
 import TbhbDeptModal from '@/views/service/deptData/components/TbhbDeptModal/index.vue'
+defineOptions({
+  name: 'TbhbDeptSumModal'
+})
 
 type DeptTbhbType = 'tb' | 'hb'
-
 interface DeptTbhbSumModalParams {
   type: DeptTbhbType
   endDate: string
@@ -51,26 +48,21 @@ interface DeptTbhbSumModalParams {
   /** 当前角色信息（含 specialorgcode、specialorgid、org_id 等） */
   userInfo?: any
 }
-
 const VALUE_DIGITS = 2
 const RATE_DIGITS = 2
-
 const isEmptyValue = (v: any) => v === null || v === undefined || v === '' || v === '-'
-
 const valueFormatter = () => {
   return ({ cellValue }: any) => {
     if (isEmptyValue(cellValue)) return '-'
     return formatNumValue(cellValue, VALUE_DIGITS)
   }
 }
-
 const rateFormatter = () => {
   return ({ cellValue }: any) => {
     if (isEmptyValue(cellValue)) return '-'
     return formatNumValue(cellValue, RATE_DIGITS)
   }
 }
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const reportLoading = ref(false)
@@ -79,13 +71,18 @@ const modalType = ref<DeptTbhbType>('tb')
 const gridRef = ref()
 const tbhbDeptModalRef = ref()
 const userInfoData = ref<any>({})
-const currentParams = ref<{ endDate: string; currentUserDwId: string }>({ endDate: '', currentUserDwId: '' })
+const currentParams = ref<{
+  endDate: string
+  currentUserDwId: string
+}>({
+  endDate: '',
+  currentUserDwId: ''
+})
 
 // 当前角色是否为财务归口（specialorgcode 含 CW）
 const isCwRole = computed(() => (userInfoData.value?.specialorgcode ?? '').includes('CW'))
 // 当前行是否属于当前角色（财务归口或匹配部门）
 const isCurrentRoleRow = (row: any) => isCwRole.value || userInfoData.value?.specialorgid == row?.deptcode
-
 const gridOptions = reactive<any>({
   border: true,
   loading: false,
@@ -113,7 +110,9 @@ const gridOptions = reactive<any>({
   },
   rowStyle: ({ row }: any) => {
     if (isCurrentRoleRow(row) && row.deptname !== '省平均') {
-      return { cursor: 'pointer' }
+      return {
+        cursor: 'pointer'
+      }
     }
     return {}
   },
@@ -131,9 +130,20 @@ const renderFormulaHeader = (title: string, formula: string) => {
   return () =>
     h(
       ElTooltip,
-      { effect: 'dark', placement: 'top', content: formula },
       {
-        default: () => h('span', { style: 'display: inline-flex; align-items: center; gap: 2px' }, [title])
+        effect: 'dark',
+        placement: 'top',
+        content: formula
+      },
+      {
+        default: () =>
+          h(
+            'span',
+            {
+              style: 'display: inline-flex; align-items: center; gap: 2px'
+            },
+            [title]
+          )
       }
     )
 }
@@ -147,24 +157,53 @@ const buildColumns = (type: DeptTbhbType): any[] => {
   // 同比/环比差值字段
   const jeField = type === 'tb' ? 'tb_je' : 'hb_je'
   const lvField = type === 'tb' ? 'tb_bl' : 'hb_bl'
-
   return [
-    { field: 'rownumber', title: '序号', width: 60, fixed: 'left', align: 'center', headerAlign: 'center' },
-    { field: 'deptname', title: '归口部门', width: 160, fixed: 'left', align: 'center', headerAlign: 'center' },
+    {
+      field: 'rownumber',
+      title: '序号',
+      width: 60,
+      fixed: 'left',
+      align: 'center',
+      headerAlign: 'center'
+    },
+    {
+      field: 'deptname',
+      title: '归口部门',
+      width: 160,
+      fixed: 'left',
+      align: 'center',
+      headerAlign: 'center'
+    },
     {
       title: '本月合计',
       align: 'center',
       headerAlign: 'center',
       children: [
-        { field: 'by_mbz', title: '目标值(万元)', width: 130, align: 'right', headerAlign: 'center', formatter: valueFormatter() },
-        { field: 'by_wcz', title: '完成值(万元)', width: 130, align: 'right', headerAlign: 'center', formatter: valueFormatter() },
+        {
+          field: 'by_mbz',
+          title: '目标值(万元)',
+          width: 130,
+          align: 'right',
+          headerAlign: 'center',
+          formatter: valueFormatter()
+        },
+        {
+          field: 'by_wcz',
+          title: '完成值(万元)',
+          width: 130,
+          align: 'right',
+          headerAlign: 'center',
+          formatter: valueFormatter()
+        },
         {
           field: 'by_jsl',
           title: '完成率(%)',
           width: 110,
           align: 'center',
           headerAlign: 'center',
-          slots: { header: renderFormulaHeader('完成率(%)', '完成率(%)=完成值(万元)/目标值(万元)*100') },
+          slots: {
+            header: renderFormulaHeader('完成率(%)', '完成率(%)=完成值(万元)/目标值(万元)*100')
+          },
           formatter: rateFormatter()
         }
       ]
@@ -174,15 +213,31 @@ const buildColumns = (type: DeptTbhbType): any[] => {
       align: 'center',
       headerAlign: 'center',
       children: [
-        { field: `${cmpPrefix}_mbz`, title: '目标值(万元)', width: 130, align: 'right', headerAlign: 'center', formatter: valueFormatter() },
-        { field: `${cmpPrefix}_wcz`, title: '完成值(万元)', width: 130, align: 'right', headerAlign: 'center', formatter: valueFormatter() },
+        {
+          field: `${cmpPrefix}_mbz`,
+          title: '目标值(万元)',
+          width: 130,
+          align: 'right',
+          headerAlign: 'center',
+          formatter: valueFormatter()
+        },
+        {
+          field: `${cmpPrefix}_wcz`,
+          title: '完成值(万元)',
+          width: 130,
+          align: 'right',
+          headerAlign: 'center',
+          formatter: valueFormatter()
+        },
         {
           field: `${cmpPrefix}_jsl`,
           title: '完成率(%)',
           width: 110,
           align: 'center',
           headerAlign: 'center',
-          slots: { header: renderFormulaHeader('完成率(%)', '完成率(%)=完成值(万元)/目标值(万元)*100') },
+          slots: {
+            header: renderFormulaHeader('完成率(%)', '完成率(%)=完成值(万元)/目标值(万元)*100')
+          },
           formatter: rateFormatter()
         }
       ]
@@ -198,7 +253,9 @@ const buildColumns = (type: DeptTbhbType): any[] => {
           width: 130,
           align: 'right',
           headerAlign: 'center',
-          slots: { header: renderFormulaHeader('金额(万元)', `金额(万元)=本月合计完成值(万元)−${compareTitle}完成值(万元)`) },
+          slots: {
+            header: renderFormulaHeader('金额(万元)', `金额(万元)=本月合计完成值(万元)−${compareTitle}完成值(万元)`)
+          },
           formatter: valueFormatter()
         },
         {
@@ -207,22 +264,21 @@ const buildColumns = (type: DeptTbhbType): any[] => {
           width: 110,
           align: 'center',
           headerAlign: 'center',
-          slots: { header: renderFormulaHeader('比率(%)', `比率(%)=本月合计完成率(%)−${compareTitle}完成率(%)`) },
+          slots: {
+            header: renderFormulaHeader('比率(%)', `比率(%)=本月合计完成率(%)−${compareTitle}完成率(%)`)
+          },
           formatter: rateFormatter()
         }
       ]
     }
   ]
 }
-
 const getDataApi = (type: DeptTbhbType) => {
   return type === 'tb' ? getProSlDataByDeptForTb : getProSlDataByDeptForHb
 }
-
 const getFxbgApi = () => {
   return modalTitle.value === '同比分析' ? getFxbgByDeptForTb : getFxbgByDeptForHb
 }
-
 const fillRownumber = (rows: any[]) => {
   let seq = 1
   rows.forEach((row) => {
@@ -230,7 +286,6 @@ const fillRownumber = (rows: any[]) => {
     seq += 1
   })
 }
-
 const loadData = async (params: DeptTbhbSumModalParams) => {
   loading.value = true
   gridOptions.loading = true
@@ -263,12 +318,14 @@ const loadData = async (params: DeptTbhbSumModalParams) => {
     gridOptions.loading = false
   }
 }
-
 const open = (params: DeptTbhbSumModalParams) => {
   modalType.value = params.type
   modalTitle.value = `${params.title ?? ''}${params.type === 'tb' ? '同比分析' : '环比分析'}`
   userInfoData.value = params.userInfo ?? {}
-  currentParams.value = { endDate: params.endDate, currentUserDwId: params.currentUserDwId }
+  currentParams.value = {
+    endDate: params.endDate,
+    currentUserDwId: params.currentUserDwId
+  }
   gridOptions.columns = buildColumns(params.type)
   gridOptions.exportConfig = {
     ...gridOptions.exportConfig,
@@ -292,13 +349,11 @@ const handleCellClick = ({ row, column }: any) => {
     deptId: row.deptcode
   })
 }
-
 const handleClose = () => {
   isShowModal.value = false
   gridOptions.columns = []
   gridOptions.data = []
 }
-
 const exportDataHandle = () => {
   const $grid = gridRef.value
   if (!$grid) return
@@ -316,7 +371,13 @@ const exportDataHandle = () => {
     gridOptions.data,
     2,
     {
-      by_jsl: { type: 'ratio', valueField: 'by_wcz', targetField: 'by_mbz', skipField: 'by_mbz', matchMode: 'exact' },
+      by_jsl: {
+        type: 'ratio',
+        valueField: 'by_wcz',
+        targetField: 'by_mbz',
+        skipField: 'by_mbz',
+        matchMode: 'exact'
+      },
       [`${cmpPrefix}_jsl`]: {
         type: 'ratio',
         valueField: `${cmpPrefix}_wcz`,
@@ -337,10 +398,11 @@ const exportDataHandle = () => {
         matchMode: 'exact'
       }
     },
-    { tbhbMode: true }
+    {
+      tbhbMode: true
+    }
   )
 }
-
 const viewReportHandle = async () => {
   if (!currentParams.value) return
   if (reportLoading.value) return
@@ -355,8 +417,9 @@ const viewReportHandle = async () => {
     reportLoading.value = false
   }
 }
-
-defineExpose({ open })
+defineExpose({
+  open
+})
 </script>
 
 <style scoped lang="less">

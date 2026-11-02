@@ -24,12 +24,12 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/suzhou/sourceDirectory/index" })
 import { ref, reactive, nextTick, h } from 'vue'
 import ProTable from '@/components/ProTablePage/index.vue'
 import { materialSourceGetPage, materialSourceExportData } from '@/api/suzhou/sourceDirectory'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { apiExportHandle } from '@/utils/export'
+defineOptions({ name: "/suzhou/sourceDirectory/index" })
 
 // ========== 响应式状态 ==========
 const proTableRef = ref<any>(null)

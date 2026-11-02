@@ -228,13 +228,9 @@
   <DetailModal :modal="detailModal" :detail-row="detailRow" @close="closeDetailModal" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/ai/smartReviewHome/index'
-}
-</script>
 
 <script setup lang="ts">
+import './styles.css';
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, shallowRef, watch } from 'vue'
 import * as echarts from 'echarts'
 import type { EChartsOption } from 'echarts'
@@ -247,10 +243,11 @@ import documentIllustration from '@/assets/images/smart-review/smart-review-home
 import { useSmartReviewHome } from './hooks/useSmartReviewHome'
 import type { AuditRow, RiskItem } from './hooks/useSmartReviewHome'
 import { formatCount } from './utils'
-import './styles.css'
+defineOptions({
+  name: '/ai/smartReviewHome/index'
+})
 
 const capabilities = ['财力保障', '价值创造', '辅助决策', '风险防范']
-
 const {
   isShowPage,
   userRoleSelectorRef,
@@ -266,17 +263,14 @@ const {
   rankings,
   auditRows
 } = useSmartReviewHome()
-
 const levelChartRef = ref<HTMLElement | null>(null)
 const typeChartRef = ref<HTMLElement | null>(null)
 const gridRef = ref<VxeGridInstance>()
 let levelChart: echarts.ECharts | null = null
 let typeChart: echarts.ECharts | null = null
 let resizeObserver: ResizeObserver | null = null
-
 const levelChartAria = computed(() => riskLevels.value.map((item) => `${item.label} ${item.percent}`).join('，'))
 const typeChartAria = computed(() => riskTypes.value.map((item) => `${item.label} ${item.percent}`).join('，'))
-
 const gridOptions = reactive<VxeGridProps<AuditRow>>({
   border: 'inner',
   stripe: false,
@@ -294,37 +288,61 @@ const gridOptions = reactive<VxeGridProps<AuditRow>>({
     isHover: true
   },
   columns: [
-    { field: 'code', title: '项目编码', minWidth: 150 },
-    { field: 'name', title: '项目名称', minWidth: 220 },
-    { field: 'year', title: '计划实施年度', minWidth: 120 },
-    { field: 'status', title: 'AI审核状态', minWidth: 120 },
-    { field: 'audit_time', title: 'AI审核时间', minWidth: 180 },
+    {
+      field: 'code',
+      title: '项目编码',
+      minWidth: 150
+    },
+    {
+      field: 'name',
+      title: '项目名称',
+      minWidth: 220
+    },
+    {
+      field: 'year',
+      title: '计划实施年度',
+      minWidth: 120
+    },
+    {
+      field: 'status',
+      title: 'AI审核状态',
+      minWidth: 120
+    },
+    {
+      field: 'audit_time',
+      title: 'AI审核时间',
+      minWidth: 180
+    },
     {
       field: 'action',
       title: '操作',
       width: 100,
-      slots: { default: 'action_default' }
+      slots: {
+        default: 'action_default'
+      }
     }
   ],
   data: []
 })
-
 watch(
   loading,
   (value) => {
     gridOptions.loading = value
   },
-  { immediate: true }
+  {
+    immediate: true
+  }
 )
-
 watch(
   auditRows,
   (rows) => {
     gridOptions.data = rows
   },
-  { immediate: true, deep: true }
+  {
+    immediate: true,
+    deep: true
+  }
 )
-
 const detailModal = reactive({
   visible: false,
   loading: false
@@ -336,7 +354,6 @@ const showDetail = (row: AuditRow) => {
   detailRow.value = row || ({} as AuditRow)
   detailModal.visible = true
 }
-
 const closeDetailModal = () => {
   detailModal.visible = false
 }
@@ -367,8 +384,12 @@ const buildDonutOption = (items: RiskItem[], animate = true): EChartsOption => (
       radius: ['68%', '92%'],
       center: ['50%', '50%'],
       avoidLabelOverlap: false,
-      label: { show: false },
-      labelLine: { show: false },
+      label: {
+        show: false
+      },
+      labelLine: {
+        show: false
+      },
       animationType: 'scale',
       animationEasing: 'cubicOut',
       animationDuration: animate ? 1000 : 0,
@@ -394,19 +415,19 @@ const buildDonutOption = (items: RiskItem[], animate = true): EChartsOption => (
     }
   ]
 })
-
 const ensureChart = (chart: echarts.ECharts | null, element: HTMLElement | null, items: RiskItem[]) => {
   if (!element) return chart
   // 已存在实例说明是数据刷新：不重播动画、无需再 resize（尺寸由 ResizeObserver 维护）
   const isFirstRender = !chart
   if (!chart) {
-    chart = echarts.init(element, undefined, { renderer: 'canvas' })
+    chart = echarts.init(element, undefined, {
+      renderer: 'canvas'
+    })
   }
   chart.setOption(buildDonutOption(items, isFirstRender), true)
   if (isFirstRender) chart.resize()
   return chart
 }
-
 const resizeCharts = () => {
   levelChart?.resize()
   typeChart?.resize()
@@ -418,7 +439,6 @@ const observeCharts = () => {
   if (levelChartRef.value) resizeObserver.observe(levelChartRef.value)
   if (typeChartRef.value) resizeObserver.observe(typeChartRef.value)
 }
-
 const renderCharts = async () => {
   await nextTick()
   // 数据为空时容器卸载，需释放图表实例，避免残留引用
@@ -435,20 +455,19 @@ const renderCharts = async () => {
   typeChart = ensureChart(typeChart, typeChartRef.value, riskTypes.value)
   observeCharts()
 }
-
 watch(
   [riskLevels, riskTypes, isShowPage],
   () => {
     renderCharts()
   },
-  { deep: true }
+  {
+    deep: true
+  }
 )
-
 const handleRoleConfirmed = async () => {
   await getRoleHandle()
   await renderCharts()
 }
-
 onBeforeUnmount(() => {
   resizeObserver?.disconnect()
   resizeObserver = null
@@ -457,7 +476,6 @@ onBeforeUnmount(() => {
   levelChart = null
   typeChart = null
 })
-
 onMounted(() => {
   userRoleSelectorRef.value?.getUser()
 })

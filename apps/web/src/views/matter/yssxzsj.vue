@@ -1,9 +1,5 @@
 <!--年度预算事项基本信息/预算事项主数据-->
-<script lang="ts">
-export default {
-  name: '/matter/yssxzsj'
-}
-</script>
+
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
 import HelpModal from '@/components/HelpModal/index.vue'
@@ -27,19 +23,19 @@ import MatterBasicOperation from '@/views/matter/components/MatterBasicOperation
 import LinkShareFileDialog from '@/views/matter/components/LinkShareFileDialog/index.vue'
 import VXETable from 'vxe-table'
 import { useGuide } from '@/hooks/useGuide'
+defineOptions({
+  name: '/matter/yssxzsj'
+})
 
 interface InitParams {
   [key: string]: string
 }
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const loading = ref(false)
 const isShowPage = ref(false)
-
 const isDisabled = computed(() => loading.value)
 const initParams = ref<InitParams>({})
-
 const searchData = reactive<any>({
   zyssxbm: '',
   zyssxmc: '',
@@ -50,26 +46,21 @@ const searchData = reactive<any>({
   ejfl: '',
   nd: ''
 })
-
 const matterBasicMsg = reactive({
   title: '新增',
   opType: 'ADD'
 })
-
 const tableDataList = ref()
-
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1
 })
-
 const formRef = ref()
 const tableRef = ref()
 const proTypeRef = ref()
 const matterBasicOperationRef = ref()
 const selectedData = ref(null)
-
 const financialBasisModalVisible = ref(false)
 const financialBasisLoading = ref(false)
 const financialBasisTableRef = ref()
@@ -79,9 +70,7 @@ const financialBasisRecords = ref<any[]>([])
 const financialBasisRecord = ref<any>(null)
 let financialBasisUploadTimer: ReturnType<typeof setTimeout> | undefined
 const linkShareFileDialogRef = ref()
-
 const financialBasisFileTypes = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'zip', 'rar', '7z', 'ofd', 'wps', 'et']
-
 const searchList = reactive<any>({
   projectTypeList: [],
   gkbmList: [],
@@ -116,15 +105,12 @@ const getProGkbmData = async () => {
     })
   }
 }
-
 const getProjectTypeHandle = (value: string[]) => {
   searchData.xmlxs = value
 }
-
 const clearDataHandle = () => {
   if (searchData.xmlxs) searchData.xmlxs.length = 0
 }
-
 const getYjflData = async () => {
   const res = await getYjflList('GWXMFL')
   if (res.success) {
@@ -136,7 +122,6 @@ const getYjflData = async () => {
     })
   }
 }
-
 const getClassifyDataList = async (flag: string, code: string | number, dataList: ClassifyData[]) => {
   const findData = dataList.find((item) => item.code === code)
   if (findData) {
@@ -152,17 +137,14 @@ const getClassifyDataList = async (flag: string, code: string | number, dataList
     }
   }
 }
-
 const changeYjflDataHandle = (val: string) => {
   clearableHandle('EJFL')
   if (val) getClassifyDataList('EJFL', val, searchList.yjflList)
 }
-
 const changeEjflDataHandle = (val: string) => {
   clearableHandle('SJFL')
   if (val) getClassifyDataList('SJFL', val, searchList.ejflList)
 }
-
 const clearableHandle = (flag: string) => {
   if (flag === 'SJFL') {
     searchData.sjfls.length = 0
@@ -175,14 +157,12 @@ const clearableHandle = (flag: string) => {
     searchList.sjflList.length = 0
   }
 }
-
 const resetHandle = () => {
   proTypeRef.value.clearSelect()
   clearDataHandle()
   formRef.value.resetFields()
   searchHandle()
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -201,7 +181,6 @@ const cellClickHandle = ({ row, column }: any) => {
     tableRef.value?.setCheckboxRow?.(row, true)
   })
 }
-
 const searchHandle = async () => {
   loading.value = true
   try {
@@ -222,7 +201,6 @@ const searchHandle = async () => {
     loading.value = false
   }
 }
-
 const getRoleHandle = () => {
   loading.value = false
   initParams.value.specialorgid = userDialogRef.value.specialorgid
@@ -233,7 +211,6 @@ const getRoleHandle = () => {
     searchHandle()
   }
 }
-
 const addOrEditHandle = (flag: string) => {
   matterBasicMsg.opType = flag
   matterBasicMsg.title = flag === 'ADD' ? '新增' : '编辑'
@@ -245,10 +222,8 @@ const addOrEditHandle = (flag: string) => {
     }
     selectedData.value = records[0]
   }
-
   matterBasicOperationRef.value.isShowModal = true
 }
-
 const deleteHandle = async () => {
   const records = tableRef.value.getCheckboxRecords()
   if (records && records.length === 0) {
@@ -270,7 +245,6 @@ const deleteHandle = async () => {
     }
   }
 }
-
 const normalizeFinancialBasisRows = (data: any): any[] => {
   const rows =
     data?.attachLists ||
@@ -285,14 +259,11 @@ const normalizeFinancialBasisRows = (data: any): any[] => {
     data
   return Array.isArray(rows) ? rows : []
 }
-
 const getFinancialBasisFileName = (row: any) => row.fjmc || row.fileName || row.attachName || row.name || '未命名附件'
-
 const getFinancialBasisFileType = (row: any) => {
   const fileName = getFinancialBasisFileName(row)
   const extension = fileName.includes('.') ? fileName.split('.').pop()?.trim().toLowerCase() : ''
   if (!extension) return '-'
-
   const typeMap: Record<string, string> = {
     pdf: 'PDF',
     doc: 'Word',
@@ -311,16 +282,13 @@ const getFinancialBasisFileType = (row: any) => {
   }
   return typeMap[extension] || extension.toUpperCase()
 }
-
 const loadFinancialBasisRows = async () => {
   if (financialBasisRecords.value.length !== 1) {
     financialBasisRows.value = []
     return
   }
-
   const yssxId = financialBasisRecord.value?.id
   if (!yssxId) return
-
   financialBasisLoading.value = true
   try {
     const res = await getPsydAndfjByYssxId(String(yssxId))
@@ -333,21 +301,18 @@ const loadFinancialBasisRows = async () => {
     financialBasisLoading.value = false
   }
 }
-
 const financialBasisHandle = async () => {
   const records = tableRef.value.getCheckboxRecords()
   if (!records || records.length === 0) {
     ElMessage.warning('请至少选择一条数据进行主要制度依据管理!')
     return
   }
-
   financialBasisRecords.value = records
   financialBasisRecord.value = records.length === 1 ? records[0] : null
   financialBasisRows.value = []
   financialBasisModalVisible.value = true
   if (records.length === 1) await loadFinancialBasisRows()
 }
-
 const processFinancialBasisUploads = async (uploadFiles: any[]) => {
   const files = uploadFiles.map((item) => item?.raw || item).filter(Boolean)
   const yssxIds = financialBasisRecords.value
@@ -355,7 +320,6 @@ const processFinancialBasisUploads = async (uploadFiles: any[]) => {
     .filter(Boolean)
     .map(String)
   if (files.length === 0 || yssxIds.length === 0) return
-
   for (const file of files) {
     const extension = file.name?.split('.').pop()?.toLowerCase()
     if (!extension || !financialBasisFileTypes.includes(extension)) {
@@ -369,7 +333,6 @@ const processFinancialBasisUploads = async (uploadFiles: any[]) => {
       return
     }
   }
-
   financialBasisLoading.value = true
   try {
     const formData = new FormData()
@@ -389,7 +352,6 @@ const processFinancialBasisUploads = async (uploadFiles: any[]) => {
     financialBasisUploadRef.value?.clearFiles?.()
   }
 }
-
 const uploadFinancialBasis = (_uploadFile: any, uploadFiles: any[] = []) => {
   if (financialBasisUploadTimer) clearTimeout(financialBasisUploadTimer)
   financialBasisUploadTimer = setTimeout(() => {
@@ -397,19 +359,16 @@ const uploadFinancialBasis = (_uploadFile: any, uploadFiles: any[] = []) => {
     void processFinancialBasisUploads(uploadFiles)
   }, 0)
 }
-
 const deleteFinancialBasis = async () => {
   if (financialBasisRecords.value.length !== 1) {
     ElMessage.warning('请单选预算事项后删除附件')
     return
   }
-
   const records = financialBasisTableRef.value?.getCheckboxRecords?.() || []
   if (records.length === 0) {
     ElMessage.warning('请选择要删除的附件')
     return
   }
-
   const ids = records
     .map((row: any) => row.id)
     .filter(Boolean)
@@ -418,13 +377,15 @@ const deleteFinancialBasis = async () => {
     ElMessage.warning('未获取到附件id，无法删除')
     return
   }
-
-  const type = await VXETable.modal.confirm('确认删除选中的附件吗？', '提示', { status: 'warning' })
+  const type = await VXETable.modal.confirm('确认删除选中的附件吗？', '提示', {
+    status: 'warning'
+  })
   if (type !== 'confirm') return
-
   financialBasisLoading.value = true
   try {
-    const res = await deleteAttach({ ids })
+    const res = await deleteAttach({
+      ids
+    })
     if (!res.success) throw new Error(res.msg || '附件删除失败')
     ElMessage.success('附件删除成功')
     await loadFinancialBasisRows()
@@ -434,7 +395,6 @@ const deleteFinancialBasis = async () => {
     financialBasisLoading.value = false
   }
 }
-
 const handleFinancialBasisEditClosed = async ({ row, column }: any) => {
   if (column.field !== 'sortCode') return
   const id = row?.id
@@ -442,7 +402,10 @@ const handleFinancialBasisEditClosed = async ({ row, column }: any) => {
   const sortCode = row.sortCode ?? ''
   financialBasisLoading.value = true
   try {
-    const res = await updateAttachSort({ id: String(id), sortCode: String(sortCode) })
+    const res = await updateAttachSort({
+      id: String(id),
+      sortCode: String(sortCode)
+    })
     if (!res.success) throw new Error(res.msg || '排序保存失败')
     ElMessage.success('排序已更新')
     await loadFinancialBasisRows()
@@ -452,7 +415,6 @@ const handleFinancialBasisEditClosed = async ({ row, column }: any) => {
     financialBasisLoading.value = false
   }
 }
-
 const closeFinancialBasisModal = () => {
   if (financialBasisUploadTimer) {
     clearTimeout(financialBasisUploadTimer)
@@ -463,7 +425,6 @@ const closeFinancialBasisModal = () => {
   financialBasisRecord.value = null
   financialBasisRows.value = []
 }
-
 const openLinkShareFileDialog = () => {
   if (financialBasisRecords.value.length === 0) {
     ElMessage.warning('请至少选择一条预算事项后再关联共享文件')
@@ -477,9 +438,10 @@ const openLinkShareFileDialog = () => {
     ElMessage.warning('未获取到预算事项id，无法关联')
     return
   }
-  linkShareFileDialogRef.value?.acceptParams({ yssxIds })
+  linkShareFileDialogRef.value?.acceptParams({
+    yssxIds
+  })
 }
-
 const handleLinkShareFileSuccess = async () => {
   if (financialBasisRecords.value.length === 1) {
     await loadFinancialBasisRows()
@@ -487,7 +449,6 @@ const handleLinkShareFileSuccess = async () => {
     ElMessage.info('已为选中的预算事项关联共享文件，可在单选预算事项时查看附件列表')
   }
 }
-
 const exportHandle = async () => {
   try {
     loading.value = true
@@ -516,22 +477,22 @@ const exportHandle = async () => {
     console.error(e)
   }
 }
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
 
 // 是否类字段（1 是 / 0 否）列表展示
-const yesNoMap: Record<string, string> = { '1': '是', '0': '否' }
+const yesNoMap: Record<string, string> = {
+  '1': '是',
+  '0': '否'
+}
 const formatYesNo = ({ cellValue }: any) => yesNoMap[String(cellValue)] || ''
-
 const { startGuide } = useGuide({
   moduleKey: 'CentralizedModification',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 onMounted(() => {
   userDialogRef.value.getUser()
   getProjectData()

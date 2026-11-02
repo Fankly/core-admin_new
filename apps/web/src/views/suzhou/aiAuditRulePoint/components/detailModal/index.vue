@@ -146,11 +146,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'detailModal'
-}
-</script>
 
 <script setup lang="ts">
 import { nextTick, reactive, ref } from 'vue'
@@ -161,6 +156,9 @@ import type { VxeGridProps } from 'vxe-table'
 import RangeVxeTable from '@/components/RangeVxeTable/index.vue'
 import type { RangeVxeTableExpose } from '@/components/RangeVxeTable/interface'
 import { listRuleDetail, saveRuleDetail, removeRuleDetail } from '@/api/suzhou/aiAuditRuleManage'
+defineOptions({
+  name: 'detailModal'
+})
 
 interface DetailRow {
   detailId?: string
@@ -172,26 +170,69 @@ interface DetailRow {
   detailDesc: string
   prompt: string
 }
-
 interface ModalParams {
   ruleId: string
 }
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const tableRef = ref<RangeVxeTableExpose<DetailRow>>()
 const selectedList = ref<DetailRow[]>([])
 const ruleId = ref('')
-
 const detailColumns: VxeGridProps['columns'] = [
-  { type: 'checkbox', width: 50, headerAlign: 'center' },
-  { type: 'seq', title: '序号', width: 60, headerAlign: 'center' },
-  { field: 'detailCode', title: '子任务编码', width: 150, headerAlign: 'center' },
-  { field: 'detailName', title: '子任务名称', minWidth: 180, align: 'left', headerAlign: 'center' },
-  { field: 'yssxbm', title: '预算事项编码', width: 150, headerAlign: 'center' },
-  { field: 'prompt', title: '子任务提示词', minWidth: 360, align: 'left', headerAlign: 'center' },
-  { field: 'detailDesc', title: '子任务描述', minWidth: 220, align: 'left', headerAlign: 'center' },
-  { field: 'operation', title: '操作', width: 128, fixed: 'right', headerAlign: 'center', slots: { default: 'operation' } }
+  {
+    type: 'checkbox',
+    width: 50,
+    headerAlign: 'center'
+  },
+  {
+    type: 'seq',
+    title: '序号',
+    width: 60,
+    headerAlign: 'center'
+  },
+  {
+    field: 'detailCode',
+    title: '子任务编码',
+    width: 150,
+    headerAlign: 'center'
+  },
+  {
+    field: 'detailName',
+    title: '子任务名称',
+    minWidth: 180,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'yssxbm',
+    title: '预算事项编码',
+    width: 150,
+    headerAlign: 'center'
+  },
+  {
+    field: 'prompt',
+    title: '子任务提示词',
+    minWidth: 360,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'detailDesc',
+    title: '子任务描述',
+    minWidth: 220,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'operation',
+    title: '操作',
+    width: 128,
+    fixed: 'right',
+    headerAlign: 'center',
+    slots: {
+      default: 'operation'
+    }
+  }
 ]
 
 // 内层表单
@@ -210,15 +251,43 @@ const formData = reactive<DetailRow>({
   detailDesc: '',
   prompt: ''
 })
-
 const formRules: FormRules = {
-  detailCode: [{ required: true, message: '请输入子任务编码', trigger: 'blur' }],
-  detailName: [{ required: true, message: '请输入子任务名称', trigger: 'blur' }],
-  sort: [{ required: true, message: '请输入子任务排序', trigger: 'blur' }],
-  detailDesc: [{ required: true, message: '请输入子任务描述', trigger: 'blur' }],
-  prompt: [{ required: true, message: '请输入子任务提示词', trigger: 'blur' }]
+  detailCode: [
+    {
+      required: true,
+      message: '请输入子任务编码',
+      trigger: 'blur'
+    }
+  ],
+  detailName: [
+    {
+      required: true,
+      message: '请输入子任务名称',
+      trigger: 'blur'
+    }
+  ],
+  sort: [
+    {
+      required: true,
+      message: '请输入子任务排序',
+      trigger: 'blur'
+    }
+  ],
+  detailDesc: [
+    {
+      required: true,
+      message: '请输入子任务描述',
+      trigger: 'blur'
+    }
+  ],
+  prompt: [
+    {
+      required: true,
+      message: '请输入子任务提示词',
+      trigger: 'blur'
+    }
+  ]
 }
-
 const resetFormData = () => {
   formData.detailId = ''
   formData.ruleId = ruleId.value
@@ -229,30 +298,26 @@ const resetFormData = () => {
   formData.detailDesc = ''
   formData.prompt = ''
 }
-
 const handleSelectionChange = (rows: DetailRow[]) => {
   selectedList.value = rows
 }
-
 const getDetailList = async () => {
-  const res = await listRuleDetail({ ruleId: ruleId.value })
+  const res = await listRuleDetail({
+    ruleId: ruleId.value
+  })
   if (!res.success) throw new Error(res.msg || '明细加载失败，请稍后重试')
   return res
 }
-
 const handleListError = (error: unknown) => {
   ElMessage.error((error as Error)?.message || '明细加载失败，请稍后重试')
 }
-
 const getList = () => tableRef.value?.getTableList()
-
 const handleAdd = () => {
   isEdit.value = false
   formTitle.value = '新增明细'
   resetFormData()
   isShowFormModal.value = true
 }
-
 const handleEdit = (row: DetailRow) => {
   isEdit.value = true
   formTitle.value = '编辑明细'
@@ -268,12 +333,13 @@ const handleEdit = (row: DetailRow) => {
   })
   isShowFormModal.value = true
 }
-
 const handleSave = () => {
   ruleFormRef.value?.validate(async (valid: boolean) => {
     if (!valid) return
     try {
-      const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', { status: 'warning' })
+      const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
+        status: 'warning'
+      })
       if (type !== 'confirm') {
         ElMessage.info('已取消')
         return
@@ -281,10 +347,12 @@ const handleSave = () => {
     } catch {
       return
     }
-
     formLoading.value = true
     try {
-      const payload = { ...formData, ruleId: ruleId.value }
+      const payload = {
+        ...formData,
+        ruleId: ruleId.value
+      }
       const res = await saveRuleDetail(payload)
       if (res.success) {
         ElMessage.success('保存成功！')
@@ -300,16 +368,16 @@ const handleSave = () => {
     }
   })
 }
-
 const handleFormClose = () => {
   ruleFormRef.value?.resetFields()
   isShowFormModal.value = false
 }
-
 const handleDelete = async (row: DetailRow) => {
   if (!row.detailId) return
   try {
-    const confirmResult = await VXETable.modal.confirm('删除后无法恢复，请确定！', '提示', { status: 'warning' })
+    const confirmResult = await VXETable.modal.confirm('删除后无法恢复，请确定！', '提示', {
+      status: 'warning'
+    })
     if (confirmResult !== 'confirm') {
       ElMessage.info('已取消')
       return
@@ -317,7 +385,6 @@ const handleDelete = async (row: DetailRow) => {
   } catch {
     return
   }
-
   loading.value = true
   try {
     const res = await removeRuleDetail([row.detailId])
@@ -333,7 +400,6 @@ const handleDelete = async (row: DetailRow) => {
     loading.value = false
   }
 }
-
 const handleBatchDelete = async () => {
   if (selectedList.value.length === 0) return
   try {
@@ -347,7 +413,6 @@ const handleBatchDelete = async () => {
   } catch {
     return
   }
-
   loading.value = true
   try {
     const detailIdList = selectedList.value.map((item) => item.detailId).filter(Boolean) as string[]
@@ -365,21 +430,20 @@ const handleBatchDelete = async () => {
     loading.value = false
   }
 }
-
 const handleClose = () => {
   selectedList.value = []
   tableRef.value?.clearSelection()
   isShowModal.value = false
 }
-
 const acceptParams = async (params: ModalParams) => {
   ruleId.value = params.ruleId
   isShowModal.value = true
   await nextTick()
   await getList()
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

@@ -66,7 +66,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "RangeVxeTableStyle" })
 import { useSlots } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 import SearchForm from '@/components/SearchForm/index.vue'
@@ -77,6 +76,7 @@ import type { BreakPoint } from '@/components/Grid/interface'
 import type { ColumnProps } from '@/components/ProTable/interface'
 import type { RangeVxeTableAutoColumnWidthOptions, RangeVxeTableRowClickMode, RangeVxeTableToolButton } from './interface'
 import { useRangeVxeTable } from './useRangeVxeTable'
+defineOptions({ name: "RangeVxeTableStyle" })
 
 const props = withDefaults(
   defineProps<{

@@ -95,11 +95,6 @@
   <ChapterModal :modal="chapterModal" @close="closeChapterModal" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/ai/document/index'
-}
-</script>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
@@ -115,6 +110,9 @@ import AttachTypeEditModal from './components/AttachTypeEditModal.vue'
 import PriorityModal from './components/PriorityModal.vue'
 import ChapterModal from './components/ChapterModal.vue'
 import { useAiDocumentPage } from './hooks/useAiDocumentPage'
+defineOptions({
+  name: '/ai/document/index'
+})
 
 const {
   isShowPage,
@@ -189,7 +187,6 @@ const {
   syncSelectedRows,
   syncSelectedProjectRows
 } = useAiDocumentPage()
-
 onMounted(() => {
   userRoleSelectorRef.value?.getUser()
 })

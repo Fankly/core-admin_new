@@ -172,11 +172,7 @@
     </el-drawer>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'zzfile'
-}
-</script>
+
 <script setup lang="ts">
 import {
   Collection as EpCollection,
@@ -186,7 +182,6 @@ import {
   MagicStick as EpMagicStick,
   Paperclip as EpPaperclip
 } from '@element-plus/icons-vue'
-
 import { computed, ref, defineAsyncComponent } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Download, Eye } from '@lucide/vue'
@@ -205,6 +200,9 @@ import {
   getFinancialBasisFileName,
   getFinancialBasisFileType
 } from '@/views/service/jointReview/hooks/useFinancialReviewBasis'
+defineOptions({
+  name: 'zzfile'
+})
 
 const props = withDefaults(
   defineProps<{
@@ -235,21 +233,21 @@ const IS_LHHS = '1'
 // 附件行 sfzdsc === '1' 表示该附件由线上预审自动生成
 const AUTO_GEN_FLAG = '1'
 const AUTO_GEN_TIP = '初审报告由线上预审自动生成'
-
 const ReserveApprovalDetail = defineAsyncComponent(() => import('@/views/finance/reserveApprovalDetail/index.vue'))
-
 const loading = ref<boolean>(false)
 const materialDrawerVisible = ref<boolean>(false)
 const filePreviewVisible = ref<boolean>(false)
 const activePreviewFileKey = ref<string>('')
 const filePreviewOpenRequest = ref<number>(0)
-const reviewMaterialPreviewRef = ref<{ closeAll: () => void } | null>(null)
-
+const reviewMaterialPreviewRef = ref<{
+  closeAll: () => void
+} | null>(null)
 const xmFileColumns = ref<any[]>([]) //项目附件名称
 const xmFileList = ref<Record<string, any[]>>({}) //项目附件内容
 
 // 主要制度依据与财务审核要点（按预算事项id加载）
-const { financialBasisLoading, financialReviewPoint, financialBasisFiles, loadFinancialBasis, resetFinancialBasis } = useFinancialReviewBasis()
+const { financialBasisLoading, financialReviewPoint, financialBasisFiles, loadFinancialBasis, resetFinancialBasis } =
+  useFinancialReviewBasis()
 
 // AI智能审核相关
 const currentXmmc = ref<string>('') //当前项目名称
@@ -262,7 +260,6 @@ const materialGroups = computed(() => {
     if (Array.isArray(column?.children)) result.push(...column.children)
     return result
   }, [])
-
   return groupColumns
     .map((column) => ({
       prop: column.prop,
@@ -274,28 +271,23 @@ const materialGroups = computed(() => {
 
 // 按附件行独立判断，避免文件名或同组其他附件导致误标
 const isAutoGenFile = (file: ReviewMaterialFile) => props.showAutoGenMark && String(file.sfzdsc ?? '').trim() === AUTO_GEN_FLAG
-
 const materialCount = computed(() => materialGroups.value.reduce((count, group) => count + group.files.length, 0))
 const materialButtonLabel = computed(() => `查看评审佐证材料${materialCount.value ? `，共 ${materialCount.value} 份` : ''}`)
 const previewableFiles = computed<ReviewMaterialFile[]>(() => {
   const files: ReviewMaterialFile[] = []
   const seenKeys = new Set<string>()
-
   const appendFile = (file: ReviewMaterialFile) => {
     const key = getReviewMaterialFileKey(file)
     if (!key || seenKeys.has(key) || !isReviewMaterialPreviewable(file)) return
     seenKeys.add(key)
     files.push(file)
   }
-
   materialGroups.value.forEach((group) => {
     group.files.forEach(appendFile)
   })
   financialBasisFiles.value.forEach(appendFile)
-
   return files
 })
-
 const openMaterialDrawer = () => {
   if (!currentXmmc.value) {
     ElMessage.warning('暂无项目信息，无法查看评审佐证材料')
@@ -303,7 +295,6 @@ const openMaterialDrawer = () => {
   }
   materialDrawerVisible.value = true
 }
-
 const openFilePreview = (file: ReviewMaterialFile) => {
   if (!isReviewMaterialPreviewable(file)) {
     ElMessage.warning(REVIEW_MATERIAL_PREVIEW_TIP)
@@ -313,17 +304,14 @@ const openFilePreview = (file: ReviewMaterialFile) => {
   filePreviewVisible.value = true
   filePreviewOpenRequest.value += 1
 }
-
 const closeFilePreview = () => {
   filePreviewVisible.value = false
 }
-
 const resetFilePreview = () => {
   reviewMaterialPreviewRef.value?.closeAll()
   closeFilePreview()
   activePreviewFileKey.value = ''
 }
-
 const isActivePreviewFile = (file: ReviewMaterialFile) => getReviewMaterialFileKey(file) === activePreviewFileKey.value
 
 // 获取项目附件信息
@@ -354,7 +342,7 @@ const getXmFileList = async (xmId: any, pro_type_id: any, xmmc?: any, yssxId?: a
     const attachmentStep = (columns.data ?? []).find((item: any) => item.stepName == '附件信息')
     const xmColumns: any[] = attachmentStep?.columns ?? []
     xmFileColumns.value = xmColumns.filter((item: any) => item.label.includes('佐证'))
-    xmFileList.value = attachmentStep ? data.data?.[attachmentStep.stepId] ?? {} : {}
+    xmFileList.value = attachmentStep ? (data.data?.[attachmentStep.stepId] ?? {}) : {}
     await basisPromise
   } catch (e) {
     ElMessage.error((e as Error).message)
@@ -408,8 +396,10 @@ const downLoadFile = async (file: any) => {
     loading.value = false
   }
 }
-
-defineExpose({ getXmFileList, openAiAudit })
+defineExpose({
+  getXmFileList,
+  openAiAudit
+})
 </script>
 
 <style lang="less" scoped>

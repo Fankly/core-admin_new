@@ -48,7 +48,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/lyg/overviewMap/index" })
 import { ref, computed, onMounted, nextTick } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import Header from '@/views/lyg/overviewMap/components/Header.vue'
@@ -67,13 +66,13 @@ import {
   IMPLEMENTATION_DEPTS,
   PROJECT_TYPES
 } from '@/views/lyg/overviewMap/data/overviewData'
-
 import { getSubProtypeTreeByXmlx, getMbzWczData, getRegionYszxgk, getDwYszxgkTop3, getDeptYszxgk, getCkjdXms } from '@/api/lyg/index'
 import { ElMessage } from 'element-plus'
 import { formatNumValue } from '@/utils/utils'
 import { useRouter } from 'vue-router'
 import { getDeptData } from '@/api/common'
 import { getYjdwList } from '@/api/ai/smartTaskAudit'
+defineOptions({ name: "/lyg/overviewMap/index" })
 
 // Global filter state
 const now = new Date()

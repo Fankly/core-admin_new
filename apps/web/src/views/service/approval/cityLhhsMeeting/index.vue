@@ -123,9 +123,7 @@
 </template>
 
 <script setup lang="tsx">
-import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/service/approval/cityLhhsMeeting/index" })
+import { CurrentUserRoleInjectionKey, PermissionInjectionKey } from '@/components/UserRoleSelector/interface'
 import { nextTick, onMounted, reactive, ref, h, defineAsyncComponent, computed, provide } from 'vue'
 import {
   addOrUpdateMeeting,
@@ -146,7 +144,6 @@ import TheesMeetingEdit from '@/views/service/approval/cityLhhsMeeting/component
 import ReviewExpertModal from '@/views/service/approval/cityLhhsMeeting/components/ReViewModal/reviewExpertModal.vue'
 import ReviewProModal from '@/views/service/approval/cityLhhsMeeting/components/ReViewModal/reviewProModal.vue'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
-import { PermissionInjectionKey } from '@/components/UserRoleSelector/interface'
 import type { UserRole } from '@/components/UserRoleSelector/interface'
 import { useUser } from '@/hooks/useUser'
 import { useStore } from '@/store/business'
@@ -158,30 +155,29 @@ import { MeetingMajor, pickMeetingMajor } from '@/views/service/approval/cityLhh
 import { REVIEW_MODE_ASSIGNED_CODE, useReviewModeCode } from '@/hooks/useReviewModeCode'
 import { getYjdwList } from '@/api/ai/smartTaskAudit'
 import { getSgbm } from '@/api/service/requirement'
+defineOptions({
+  name: '/service/approval/cityLhhsMeeting/index'
+})
 
 const ExpertManagementModal = defineAsyncComponent(
   () => import('@/views/service/approval/cityLhhsMeeting/components/expertManagementModal/index.vue')
 )
-
-const TaskAssignmentModal = defineAsyncComponent(() => import('@/views/service/approval/cityLhhsMeeting/components/taskAssignmentModal/index.vue'))
-
+const TaskAssignmentModal = defineAsyncComponent(
+  () => import('@/views/service/approval/cityLhhsMeeting/components/taskAssignmentModal/index.vue')
+)
 const userRoleSelectorRef = ref<InstanceType<typeof UserRoleSelector>>()
 const isShowPage = ref(false)
 const route = useRoute()
-
 const proTableRef = ref<any>(null)
 const modalRef = ref<InstanceType<typeof TheesMeetingEdit> | null>(null)
 const reviewExpertModalRef = ref<InstanceType<typeof ReviewExpertModal>>()
-
 const expertManagementModalRef = ref()
 const taskAssignmentModalRef = ref()
 const reviewProModalRef = ref<InstanceType<typeof ReviewProModal>>()
 const yjdwList = ref<any[]>([])
 const gkbmList = ref<any[]>([])
-
 const isDisabled = ref(true)
 const loading = ref(false)
-
 const statusEnum = ref<any>([])
 const meetingId = ref<any>()
 const meetingMajor = ref<MeetingMajor>({})
@@ -194,7 +190,6 @@ const {
   getReviewModeUpdateMessage,
   checkReviewModeOptionsReady: checkPsmsOptionsReady
 } = useReviewModeCode()
-
 const store = useStore()
 const psms = ref<string>('')
 const selectModalRef = ref()
@@ -205,11 +200,9 @@ const bmInfo = ref<{
   name: '',
   code: ''
 })
-
 const isProvinceFinanceBudgetSpecialist = computed(
   () => userInfo.value && userInfo.value.roleCode === 'SCWYSZZ' && userInfo.value.specialorgcode === 'BM_CWZC'
 )
-
 const userInfo = ref<{
   deptId: string
   deptName: string
@@ -229,7 +222,6 @@ const userInfo = ref<{
   specialorgcode: '',
   roleId: ''
 })
-
 const currentUserRole = ref<UserRole>({
   bmName: '',
   dwName: '',
@@ -240,7 +232,6 @@ const currentUserRole = ref<UserRole>({
   specialOrgCode: '',
   spRoleId: ''
 })
-
 provide(CurrentUserRoleInjectionKey, currentUserRole)
 provide(PermissionInjectionKey, {
   get permissions() {
@@ -250,7 +241,6 @@ provide(PermissionInjectionKey, {
     return Boolean(userRoleSelectorRef.value?.loading)
   }
 })
-
 const buildUserInfoFromCurrentRole = () => ({
   deptId: currentUserRole.value.bmId,
   deptName: currentUserRole.value.bmName,
@@ -261,7 +251,6 @@ const buildUserInfoFromCurrentRole = () => ({
   spRoleId: currentUserRole.value.spRoleId,
   specialorgcode: currentUserRole.value.specialOrgCode
 })
-
 const setCurrentUserRoleFromUserInfo = (roleInfo: typeof userInfo.value) => {
   currentUserRole.value = {
     bmId: roleInfo.deptId,
@@ -274,7 +263,6 @@ const setCurrentUserRoleFromUserInfo = (roleInfo: typeof userInfo.value) => {
     specialOrgCode: roleInfo.specialorgcode
   }
 }
-
 const getCurrentRoleRequestParams = () =>
   buildRoleRequestParams({
     bmId: userInfo.value.deptId,
@@ -285,16 +273,13 @@ const getCurrentRoleRequestParams = () =>
 const clearSelect = () => {
   proTableRef.value?.clearSelection()
 }
-
 const resultSelect = () => {
   gkbmList.value.length = 0
   proTableRef.value?.clearSelection()
 }
-
 const searchMainPage = () => {
   proTableRef.value?.getTableList()
 }
-
 const rowClick = (row: any) => {
   clearSelect()
   proTableRef.value?.element.toggleRowSelection(row)
@@ -308,11 +293,9 @@ const getPageList = (params: any) => {
     loading.value = false
   })
 }
-
 const callBackHandle = (val: any) => {
   return val
 }
-
 const handleSelectionChange = (rows: any[]) => {
   if (rows.length === 1) isDisabled.value = false
   else {
@@ -326,7 +309,6 @@ const handleSelectionChange = (rows: any[]) => {
     isDisabled.value = true
   }
 }
-
 const getPublicCodeData = async () => {
   try {
     const res = await getPublicData('LHHS_MEETING_STATUS')
@@ -364,7 +346,9 @@ const showModal = (val: string) => {
         showAssigned(meetingId.value, meetingMajor.value)
         return
       }
-      const res: any = await updatePsms({ ...params })
+      const res: any = await updatePsms({
+        ...params
+      })
       if (res.success) {
         ElMessage.success(`${value}`)
         selectModalRef.value.isShowModel = false
@@ -401,7 +385,6 @@ const psmsView = async (row: any) => {
     taskAssignmentModalRef: taskAssignmentModalRef
   })
 }
-
 const showAssigned = (meetingId: string, meetingMajor: MeetingMajor) => {
   // 按事项分配（按事项统计项目数量）、按单位分配（按一级单位统计项目数量）、按项目分配
 
@@ -416,7 +399,6 @@ const showAssigned = (meetingId: string, meetingMajor: MeetingMajor) => {
     taskAssignmentModalRef: taskAssignmentModalRef
   })
 }
-
 const selectChange = async (val: any) => {
   const params = proTableRef.value?.searchParam
   params.zgkbmId = ''
@@ -427,14 +409,19 @@ const selectChange = async (val: any) => {
     dwId: userInfo.value.dwId,
     parentCode: val
   }
-  let gkbm: any = await getSgbm({ ...param })
+  let gkbm: any = await getSgbm({
+    ...param
+  })
   if (gkbm.success && gkbm.data.length !== 0) {
     gkbmList.value.push(...gkbm.data)
   }
 }
-
 const tableColumns = reactive<any[]>([
-  { type: 'selection', width: 50, fixed: 'left' },
+  {
+    type: 'selection',
+    width: 50,
+    fixed: 'left'
+  },
   {
     prop: 'nd',
     label: '年度',
@@ -489,18 +476,33 @@ const tableColumns = reactive<any[]>([
     prop: 'yjdw',
     label: '一级单位',
     width: 150,
-    search: { el: 'select', props: { onChange: selectChange }, order: 4 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: selectChange
+      },
+      order: 4
+    },
     enum: yjdwList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   },
   {
     prop: 'zgkbmId',
     label: '市归口部门',
     width: 150,
-    search: { el: 'select', order: 6 },
+    search: {
+      el: 'select',
+      order: 6
+    },
     enum: gkbmList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   },
   {
@@ -619,7 +621,6 @@ const tableColumns = reactive<any[]>([
     width: '180'
   }
 ])
-
 const openModal = async (flag: 'ADD' | 'EDIT' | 'VIEW', selectedData: any[] = []) => {
   const flagStr = {
     ADD: '创建',
@@ -631,7 +632,12 @@ const openModal = async (flag: 'ADD' | 'EDIT' | 'VIEW', selectedData: any[] = []
     ElMessage.warning('请选择一条数据进行' + title + '操作!')
     return
   }
-  const row: any = selectedData.length === 0 ? {} : { ...selectedData[0] }
+  const row: any =
+    selectedData.length === 0
+      ? {}
+      : {
+          ...selectedData[0]
+        }
   if (flag === 'EDIT') {
     if (row['status'] !== '00') {
       ElMessage.warning('仅状态为[未发布]状态才可进行编辑!')
@@ -660,21 +666,24 @@ const openModal = async (flag: 'ADD' | 'EDIT' | 'VIEW', selectedData: any[] = []
   const params = {
     title,
     isView: flag === 'VIEW',
-    row: { ...getCurrentRoleRequestParams(), ...row },
+    row: {
+      ...getCurrentRoleRequestParams(),
+      ...row
+    },
     api: flag !== 'VIEW' ? addOrUpdateMeeting : undefined,
     getTableList: proTableRef.value?.getTableList,
     ...getCurrentRoleRequestParams()
   }
-
   modalRef.value?.acceptParams(params)
 }
-
 const openReviewModal = (pageFlag: 'PROGRAM' | 'EXPERT', title: string, selectedData: any[] = []) => {
   if (selectedData && selectedData.length !== 1) {
     ElMessage.warning('请选择一条数据进行操作!')
     return
   }
-  const row = { ...selectedData[0] }
+  const row = {
+    ...selectedData[0]
+  }
   if (row['bmId'] !== bmInfo.value.code && !isProvinceFinanceBudgetSpecialist.value) {
     ElMessage.warning('当前记录所属的专业部门与您选择的专业部门不一致,仅拥有查看权限,无法进行其他操作!')
     return
@@ -695,7 +704,6 @@ const openReviewModal = (pageFlag: 'PROGRAM' | 'EXPERT', title: string, selected
     reviewExpertModalRef.value?.acceptParams(params)
   }
 }
-
 const handleDeleteFormData = async (meetingList: any[] = []) => {
   if (meetingList && meetingList.length === 0) {
     ElMessage.warning('请至少选择一条数据进行删除操作!')
@@ -733,7 +741,6 @@ const handleDeleteFormData = async (meetingList: any[] = []) => {
     }
   }
 }
-
 const choosePsms = (meetingList: any[] = []) => {
   if (meetingList && meetingList.length === 0) {
     ElMessage.warning('请至少选择一条数据进行评审分工操作!')
@@ -755,7 +762,6 @@ const choosePsms = (meetingList: any[] = []) => {
   meetingMajor.value = pickMeetingMajor(meetingList[0])
   psms.value = meetingList[0]?.psms
 }
-
 const handleExport = async () => {
   loading.value = true
   let params = {
@@ -774,7 +780,6 @@ const handleExport = async () => {
     loading.value = false
   }
 }
-
 const handlePublish = async (opType: string, title: string, meetingList: any[] = []) => {
   if (meetingList && meetingList.length === 0) {
     ElMessage.warning('请至少选择一条数据进行' + title + '操作!')
@@ -791,7 +796,6 @@ const handlePublish = async (opType: string, title: string, meetingList: any[] =
         .filter((item: any) => item.status !== '00')
         .map((item) => item.meetingName)
         .join(',')
-
       if (name) throw new Error('会议名称:' + '[' + name + ']' + '：状态不是初始状态，不允许发布')
     } else {
       const name = meetingList
@@ -824,12 +828,14 @@ const handlePublish = async (opType: string, title: string, meetingList: any[] =
 }
 const initParamLists = async () => {
   yjdwList.value.length = 0
-  let res: any = await getYjdwList({ bmId: userInfo.value.deptId, dwId: userInfo.value.dwId })
+  let res: any = await getYjdwList({
+    bmId: userInfo.value.deptId,
+    dwId: userInfo.value.dwId
+  })
   if (res.success && res.data.length !== 0) {
     yjdwList.value.push(...res.data)
   }
 }
-
 const getRoleHandle = async () => {
   if (!userRoleSelectorRef.value?.canRender || !currentUserRole.value.bmId) return
   const userInfoOthers = buildUserInfoFromCurrentRole()
@@ -839,7 +845,6 @@ const getRoleHandle = async () => {
   await initParamLists()
   isShowPage.value = true
 }
-
 const getBmInfoData = async (bmId: string) => {
   try {
     const res = await getBmInfo(bmId)
@@ -852,16 +857,13 @@ const getBmInfoData = async (bmId: string) => {
     ElMessage.error((error as Error).message)
   }
 }
-
 const initParams = () => {
   getPublicCodeData()
   loadReviewModeOptions()
 }
-
 const searchData = () => {
   expertManagementModalRef.value?.isRoleSearch()
 }
-
 onMounted(async () => {
   initParams()
   const isRoel = await useUser('getJRGlobalInfo')

@@ -146,453 +146,473 @@
   </vxe-modal>
   <!-- </base-scrollbar> -->
 </template>
-<script>
+
+<script setup>
+import { ASSET_PREVIEW_MODAL_Z_INDEX } from './projectView.module'
 import configText from '@/views/finance/components/configText.vue'
-
 import { DictionaryController, SysGlobalDictController } from '@/api'
-
 import { CwProjectApply, CwProjectDiff, IndicatorManagement, FinanceCalculationBasis } from '@/api/mainController'
-
 import projectViewItem from './projectViewItem.vue'
-
 import projectManagerTransfer from '@/views/finance/projectList/projectManagerTransfer.vue'
 
 // 关联附件功能已隐藏：download 方法被注释后 isImage 不再使用，一并注释其引入
 // import { isImage } from '@/core/mixins'
-
-const ASSET_PREVIEW_MODAL_Z_INDEX = 3010
-
-export default {
-  components: {
-    projectViewItem,
-    configText,
-    projectManagerTransfer
+import { nextTick, reactive, toRef, toRefs, computed, watch, onMounted, getCurrentInstance } from 'vue'
+defineOptions({
+  name: 'projectView'
+})
+const componentProps = defineProps({
+  projectId: {
+    type: [String, Number]
   },
-  props: {
-    projectId: {
-      type: [String, Number]
-    },
-    id: {
-      type: String
-    },
-    diffKey: {
-      type: String
-    },
-    diffData: {
-      type: Object
-    },
-    showScroll: {
-      type: Boolean
-    }
+  id: {
+    type: String
   },
-  name: 'projectView',
-  data() {
-    return {
-      dataValue: undefined,
-      detailValue: undefined,
-      tableBoxOptions: {
-        effectId: [],
-        calcId: []
-      },
-      approvalList: [],
-      rowHeight: 120,
-      assetPreviewVisible: false,
-      assetPreviewRow: null,
-      assetPreviewSelected: [],
-      assetPreviewKey: 0,
-      ASSET_PREVIEW_MODAL_Z_INDEX
-    }
+  diffKey: {
+    type: String
   },
-  created() {},
-  mounted() {
-    this.initFormData()
+  diffData: {
+    type: Object
   },
-
-  methods: {
-    initFormData() {
-      this.getIndicatorManagement()
-      this.getCalcTplId()
-      this.getFinanceCalculationBasis()
-      this.getInfo()
-    },
-    preview(row) {
-      if (!row) {
-        return
-      }
-      this.assetPreviewRow = row
-      this.assetPreviewSelected = Array.isArray(row.calculationDataAssetList) ? [...row.calculationDataAssetList] : []
-      this.assetPreviewKey += 1
-      this.assetPreviewVisible = true
-    },
-    handleAssetPreviewCancel(isSuccess = false, data) {
-      if (isSuccess && this.assetPreviewRow) {
-        this.assetPreviewRow.calculationDataAssetList = Array.isArray(data) ? data : []
-      }
-      this.handleAssetPreviewClose()
-    },
-    handleAssetPreviewClose() {
-      this.assetPreviewVisible = false
-      this.assetPreviewRow = null
-      this.assetPreviewSelected = []
-    },
-    getPreviewCheckTotalAmount({ calculationDataAssetList = [] } = {}) {
-      if (!this.dataValue || !this.detailValue) {
-        return Promise.resolve({})
-      }
-      const calcProcessList = (this.detailValue.calcProcessList || []).map((item) =>
-        item === this.assetPreviewRow ? { ...item, calculationDataAssetList } : item
-      )
-      const cwProjectDto = {
-        applyTaxExclusive: this.dataValue?.applyTaxExclusive
-      }
-      const cwProjectApplyDto = {
-        projectId: this.projectId,
-        calcProcessList
-      }
-      return CwProjectApply.compareAmount(this, { cwProjectTbDto: { cwProjectDto, cwProjectApplyDto } }, null, { showMask: false }).then(
-        (res) => res.data || {}
-      )
-    },
-    formatLabel(list = [], options = [], props = { label: 'label', value: 'value' }) {
-      if (list) {
-        return list
-          .map((value) => {
-            const item = options.find((item) => item[props.value] === value)
-            return item ? item[props.label] : value
-          })
-          .join(',')
-      }
-      return ''
-    },
-    // 获取指标成效
-    getIndicatorManagement() {
-      return IndicatorManagement.list(this, {
-        indicatorManagementDtoFilter: {}
-      }).then((res) => {
-        if (res.data?.dataList.length > 0) {
-          this.tableBoxOptions.effectId = [
-            {
-              indicatorId: 0,
-              indicatorName: '其他'
-            },
-            ...res.data?.dataList
-          ]
-        }
-      })
-    },
-    getCalcTplId() {
-      let params = {
-        dictCode: 'financeCalcTpl'
-      }
-      return SysGlobalDictController.listAll(this, params).then((res) => {
-        if (res) {
-          this.tableBoxOptions.calcTplId = [...res?.fullResultList?.filter((item) => item.status == 0)]
-        }
-      })
-    },
-
-    // 获取价格测算依据
-    getFinanceCalculationBasis() {
-      return FinanceCalculationBasis.list(this, {
-        financeCalculationBasisDtoFilter: {}
-      }).then((res) => {
-        if (res.data?.dataList.length > 0) {
-          this.tableBoxOptions.calcId = [
-            {
-              basisId: 1,
-              basis: '询价',
-              custom: true
-            },
-            {
-              basisId: 2,
-              basis: '历史经验往年费用',
-              custom: true
-            },
-            {
-              basisId: 3,
-              basis: '自定义',
-              custom: true
-            },
-            ...res.data?.dataList
-          ]
-        }
-      })
-    },
-    // 关联附件功能已隐藏：附件下载方法暂时注释
-    // download(filename) {
-    //   const obj = {
-    //     filename,
-    //     projectId: this.projectId,
-    //     fieldName: 'attachment',
-    //     asImage: isImage(filename)
-    //   }
-    //   CwProjectApply.download(this, obj, 'get')
-    // },
-    highlightInElements(parentSelector, keyword, className = 'context') {
-      if (keyword == null || keyword == '') {
-        return
-      }
-      const parent = document.querySelector(parentSelector)
-      if (!parent) return
-      // const elements = parent.querySelectorAll('*:not(script):not(style)'); // 避免影响脚本和样式
-      const elements = parent.querySelectorAll('.subtitle') // 避免影响脚本和样式
-      elements.forEach((el) => {
-        if (el.childNodes) {
-          const regex = new RegExp(`(${keyword})`, 'gi')
-          el.innerHTML = el.innerHTML.replace(regex, `<span class="${className}">$1</span>`)
-        }
-      })
-    },
-    clearHighlights(parentSelector, className = 'context') {
-      const parent = document.querySelector(parentSelector)
-      if (!parent) return
-
-      // 找到所有带有高亮类名的元素，但排除带有 neglect__text 类的元素
-      const highlightedElements = parent.querySelectorAll(`.${className}`)
-
-      highlightedElements.forEach((span) => {
-        // 跳过带有 neglect__text 类的元素（这是评分显示用的）
-        if (span.classList.contains('neglect__text')) {
-          return
-        }
-        // 创建一个文本节点，内容为高亮元素的原始文本
-        const textNode = document.createTextNode(span.textContent)
-        // 用文本节点替换高亮元素
-        span.parentNode.replaceChild(textNode, span)
-      })
-    },
-    clearDiff() {
-      // this.clearHighlights(`.projectView#${this.diffKey}`)
-    },
-    handleRerun(item) {
-      this.$emit('onRerun', item)
-    },
-    getDiff() {
-      this.$nextTick(() => {
-        if (this.dataValue && this.diffData) {
-          setTimeout(() => {
-            this.KeyValues.forEach((item) => {
-              if (item && item.diffProp && item.diffProp != null) {
-                const diffArrs = this.diffData[item.diffProp]
-                if (diffArrs != null && diffArrs.length > 0) {
-                  diffArrs.forEach((v) => {
-                    this.highlightInElements(`.projectView#${this.diffKey} #${item.value}`, v[this.diffKey], undefined)
-                  })
-                }
-              }
-            })
-          }, 0)
-        }
-      })
-    },
-    getInfo() {
-      if (!this.projectId) return
-      CwProjectApply.detailTb(this, {
-        projectId: this.projectId
-      }).then((res) => {
-        const { cwProjectVo, cwProjectApplyVo } = res.data
-        this.dataValue = cwProjectVo
-        this.detailValue = {
-          ...cwProjectApplyVo,
-          history: JSON.parse(cwProjectApplyVo?.history || '[]')
-          // 关联附件功能已隐藏：不再解析 attachment 字段
-          // attachment: JSON.parse(cwProjectApplyVo?.attachment || '[]').reduce((arr, item) => [...arr, { name: item }], [])
-        }
-        this.$nextTick(() => {
-          this.$emit('item-change')
-          this.$emit('update:data', res.data)
-        })
-        this.getDiff()
-      })
-    },
-    getHeight(val) {
-      const minHeight = 44 + this.rowHeight // 最小高度
-      const maxHeight = 400 // 最大高度
-      const calculatedHeight = val.length * this.rowHeight + 44
-      return Math.min(Math.max(calculatedHeight, minHeight), maxHeight)
-    }
-    // checkTotalAmount () {
-    //   this.totalAmount = {}
-    //   if (!this.theProjectId && this.detailValue?.calcProcessList.length == 0) {
-    //     return;
-    //   }
-    //   const cwProjectDto = {
-    //     applyTaxExclusive: this.dataValue?.applyTaxExclusive
-    //   }
-    //   const cwProjectApplyDto = {
-    //     projectId: this.projectId,
-    //     calcProcessList: this.detailVa9lue.calcProcessList
-    //   }
-    //   return CwProjectApply.compareAmount(this, { cwProjectTbDto: { cwProjectDto, cwProjectApplyDto } }, null, { showMask: false }).then((res) => {
-    //     this.totalAmount = res.data;
-    //   }).then(res => {
-    //     this.$nextTick(() => {
-    //       this.$refs.detailConfigBox.$refs.form.validateField('calcProcessList', (valid3) => { });
-    //     })
-    //   })
-    // }
-  },
-  computed: {
-    assetPreviewObserver() {
-      return {
-        cancel: this.handleAssetPreviewCancel
-      }
-    },
-    InfoKeyValues() {
-      return [
-        {
-          label: '归口部门',
-          prop: 'affiliateDeptName'
-        },
-        {
-          label: '二级单位',
-          prop: 'secondDeptName'
-        },
-        {
-          label: '实施部门',
-          prop: 'implDept'
-        },
-        {
-          label: '项目类型',
-          prop: 'categoryName'
-        },
-        {
-          label: '重点投向',
-          prop: 'keyInvestName'
-        },
-        {
-          label: '预算事项',
-          prop: 'courseTitleName'
-        },
-        {
-          label: '项目名称',
-          prop: 'name'
-        },
-        {
-          label: '申请总额(万元)',
-          prop: 'applyTaxExclusive'
-        },
-        /*  {
-          label: '招标方式',
-          prop: 'biddingMethod',
-          formatter: (value) => {
-            if (value == null) return ''
-            const map = {
-              1: '框架招标',
-              2: '单项招标',
-              3: '无需招标'
-            }
-            return map[+value] || ''
-          }
-        }, */
-        {
-          label: '是否预安排',
-          prop: 'preArranged',
-          formatter: (value) => {
-            return value != null ? (value == '1' ? '是' : '否') : ''
-          }
-        }
-      ]
-    },
-    KeyValues() {
-      return [
-        {
-          name: '基础信息',
-          value: 'baseInfo',
-          slot: true
-        },
-        {
-          name: '实施背景',
-          value: 'implBackground'
-          // rateProp: 'totalImplBackground',
-          // diffProp: 'diffImplBackgroundList',
-          // secTextProp: 'reasonImplBackground',
-          // secColorType: 'info'
-        },
-        {
-          name: '实施内容',
-          value: 'implContent',
-          rateProp: 'totalImplContent',
-          diffProp: 'diffImplContentList',
-          secTextProp: 'reasonImplContent',
-          showSec: true,
-          secColorType: (diffData) => {
-            // 根据 diffData 中的值动态判断颜色
-            // 示例：可以根据 rateProp 的值或者其他字段判断
-            const aiRiskLevel = diffData?.aiRiskLevel
-            if (aiRiskLevel == 1) return 'danger'
-            // if (rate >= 70) return 'warning';
-            // if (rate >= 50) return 'info';
-            return 'success'
-          }
-        },
-        {
-          name: '项目成效',
-          value: 'effectDataList',
-          // rateProp: 'totalProjectOutcome',
-          // diffProp: 'diffProjectOutcomeList',
-          slot: true
-        },
-        {
-          name: '计算过程',
-          value: 'calcProcess'
-        },
-        {
-          name: '量价关系',
-          value: 'calcProcessList',
-          slot: true
-        }
-        // 关联附件功能已隐藏：从详情项配置中移除「关联附件」入口
-        // {
-        //   name: '关联附件',
-        //   value: 'attachment',
-        //   slot: true
-        // },
-        /* {
-          name: '近3年费用',
-          value: 'history',
-          rateProp: 'totalHistory',
-          diffProp: 'diffHistoryList',
-          slot: true
-        }, */
-        /* this.detailValue.costDesc != null && this.detailValue.costDesc != ''
-          ? {
-              name: '费用补充说明',
-              value: 'costDesc'
-            }
-          : null,
-        this.detailValue.hasHistory == 0
-          ? {
-              name: '项目新增原因',
-              value: 'newReason'
-            }
-          : null,
-        {
-          value: 'remark',
-          name: '备注'
-        } */
-      ].filter((item) => item)
-    }
-  },
-  watch: {
-    projectId: {
-      handler(val, oldVal) {
-        if (val && oldVal && val != oldVal) {
-          this.initFormData()
-        }
-      },
-      deep: true
-    },
-    diffData: {
-      handler(val, oldVal) {
-        if (val && !oldVal) {
-          this.getDiff()
-        }
-      },
-      deep: true
-    }
+  showScroll: {
+    type: Boolean
   }
+})
+const emit = defineEmits()
+const componentInstance = getCurrentInstance().proxy
+const componentData = reactive({
+  dataValue: undefined,
+  detailValue: undefined,
+  tableBoxOptions: {
+    effectId: [],
+    calcId: []
+  },
+  approvalList: [],
+  rowHeight: 120,
+  assetPreviewVisible: false,
+  assetPreviewRow: null,
+  assetPreviewSelected: [],
+  assetPreviewKey: 0,
+  ASSET_PREVIEW_MODAL_Z_INDEX
+})
+const dataValue = toRef(componentData, 'dataValue')
+const detailValue = toRef(componentData, 'detailValue')
+const tableBoxOptions = toRef(componentData, 'tableBoxOptions')
+const approvalList = toRef(componentData, 'approvalList')
+const rowHeight = toRef(componentData, 'rowHeight')
+const assetPreviewVisible = toRef(componentData, 'assetPreviewVisible')
+const assetPreviewRow = toRef(componentData, 'assetPreviewRow')
+const assetPreviewSelected = toRef(componentData, 'assetPreviewSelected')
+const assetPreviewKey = toRef(componentData, 'assetPreviewKey')
+function initFormData() {
+  getIndicatorManagement()
+  getCalcTplId()
+  getFinanceCalculationBasis()
+  getInfo()
 }
+function preview(row) {
+  if (!row) {
+    return
+  }
+  componentData.assetPreviewRow = row
+  componentData.assetPreviewSelected = Array.isArray(row.calculationDataAssetList) ? [...row.calculationDataAssetList] : []
+  componentData.assetPreviewKey += 1
+  componentData.assetPreviewVisible = true
+}
+function handleAssetPreviewCancel(isSuccess = false, data) {
+  if (isSuccess && componentData.assetPreviewRow) {
+    componentData.assetPreviewRow.calculationDataAssetList = Array.isArray(data) ? data : []
+  }
+  handleAssetPreviewClose()
+}
+function handleAssetPreviewClose() {
+  componentData.assetPreviewVisible = false
+  componentData.assetPreviewRow = null
+  componentData.assetPreviewSelected = []
+}
+function getPreviewCheckTotalAmount({ calculationDataAssetList = [] } = {}) {
+  if (!componentData.dataValue || !componentData.detailValue) {
+    return Promise.resolve({})
+  }
+  const calcProcessList = (componentData.detailValue.calcProcessList || []).map((item) =>
+    item === componentData.assetPreviewRow
+      ? {
+          ...item,
+          calculationDataAssetList
+        }
+      : item
+  )
+  const cwProjectDto = {
+    applyTaxExclusive: componentData.dataValue?.applyTaxExclusive
+  }
+  const cwProjectApplyDto = {
+    projectId: componentProps.projectId,
+    calcProcessList
+  }
+  return CwProjectApply.compareAmount(
+    componentInstance,
+    {
+      cwProjectTbDto: {
+        cwProjectDto,
+        cwProjectApplyDto
+      }
+    },
+    null,
+    {
+      showMask: false
+    }
+  ).then((res) => res.data || {})
+}
+function formatLabel(
+  list = [],
+  options = [],
+  props = {
+    label: 'label',
+    value: 'value'
+  }
+) {
+  if (list) {
+    return list
+      .map((value) => {
+        const item = options.find((item) => item[props.value] === value)
+        return item ? item[props.label] : value
+      })
+      .join(',')
+  }
+  return ''
+}
+// 获取指标成效
+function getIndicatorManagement() {
+  return IndicatorManagement.list(componentInstance, {
+    indicatorManagementDtoFilter: {}
+  }).then((res) => {
+    if (res.data?.dataList.length > 0) {
+      componentData.tableBoxOptions.effectId = [
+        {
+          indicatorId: 0,
+          indicatorName: '其他'
+        },
+        ...res.data?.dataList
+      ]
+    }
+  })
+}
+function getCalcTplId() {
+  let params = {
+    dictCode: 'financeCalcTpl'
+  }
+  return SysGlobalDictController.listAll(componentInstance, params).then((res) => {
+    if (res) {
+      componentData.tableBoxOptions.calcTplId = [...res?.fullResultList?.filter((item) => item.status == 0)]
+    }
+  })
+}
+// 获取价格测算依据
+function getFinanceCalculationBasis() {
+  return FinanceCalculationBasis.list(componentInstance, {
+    financeCalculationBasisDtoFilter: {}
+  }).then((res) => {
+    if (res.data?.dataList.length > 0) {
+      componentData.tableBoxOptions.calcId = [
+        {
+          basisId: 1,
+          basis: '询价',
+          custom: true
+        },
+        {
+          basisId: 2,
+          basis: '历史经验往年费用',
+          custom: true
+        },
+        {
+          basisId: 3,
+          basis: '自定义',
+          custom: true
+        },
+        ...res.data?.dataList
+      ]
+    }
+  })
+}
+// 关联附件功能已隐藏：附件下载方法暂时注释
+// download(filename) {
+//   const obj = {
+//     filename,
+//     projectId: this.projectId,
+//     fieldName: 'attachment',
+//     asImage: isImage(filename)
+//   }
+//   CwProjectApply.download(this, obj, 'get')
+// },
+function highlightInElements(parentSelector, keyword, className = 'context') {
+  if (keyword == null || keyword == '') {
+    return
+  }
+  const parent = document.querySelector(parentSelector)
+  if (!parent) return
+  // const elements = parent.querySelectorAll('*:not(script):not(style)'); // 避免影响脚本和样式
+  const elements = parent.querySelectorAll('.subtitle') // 避免影响脚本和样式
+  elements.forEach((el) => {
+    if (el.childNodes) {
+      const regex = new RegExp(`(${keyword})`, 'gi')
+      el.innerHTML = el.innerHTML.replace(regex, `<span class="${className}">$1</span>`)
+    }
+  })
+}
+function clearHighlights(parentSelector, className = 'context') {
+  const parent = document.querySelector(parentSelector)
+  if (!parent) return
+
+  // 找到所有带有高亮类名的元素，但排除带有 neglect__text 类的元素
+  const highlightedElements = parent.querySelectorAll(`.${className}`)
+  highlightedElements.forEach((span) => {
+    // 跳过带有 neglect__text 类的元素（这是评分显示用的）
+    if (span.classList.contains('neglect__text')) {
+      return
+    }
+    // 创建一个文本节点，内容为高亮元素的原始文本
+    const textNode = document.createTextNode(span.textContent)
+    // 用文本节点替换高亮元素
+    span.parentNode.replaceChild(textNode, span)
+  })
+}
+function clearDiff() {
+  // this.clearHighlights(`.projectView#${this.diffKey}`)
+}
+function handleRerun(item) {
+  emit('onRerun', item)
+}
+function getDiff() {
+  nextTick(() => {
+    if (componentData.dataValue && componentProps.diffData) {
+      setTimeout(() => {
+        KeyValues.value.forEach((item) => {
+          if (item && item.diffProp && item.diffProp != null) {
+            const diffArrs = componentProps.diffData[item.diffProp]
+            if (diffArrs != null && diffArrs.length > 0) {
+              diffArrs.forEach((v) => {
+                highlightInElements(`.projectView#${componentProps.diffKey} #${item.value}`, v[componentProps.diffKey], undefined)
+              })
+            }
+          }
+        })
+      }, 0)
+    }
+  })
+}
+function getInfo() {
+  if (!componentProps.projectId) return
+  CwProjectApply.detailTb(componentInstance, {
+    projectId: componentProps.projectId
+  }).then((res) => {
+    const { cwProjectVo, cwProjectApplyVo } = res.data
+    componentData.dataValue = cwProjectVo
+    componentData.detailValue = {
+      ...cwProjectApplyVo,
+      history: JSON.parse(cwProjectApplyVo?.history || '[]')
+      // 关联附件功能已隐藏：不再解析 attachment 字段
+      // attachment: JSON.parse(cwProjectApplyVo?.attachment || '[]').reduce((arr, item) => [...arr, { name: item }], [])
+    }
+    nextTick(() => {
+      emit('item-change')
+      emit('update:data', res.data)
+    })
+    getDiff()
+  })
+}
+function getHeight(val) {
+  const minHeight = 44 + componentData.rowHeight // 最小高度
+  const maxHeight = 400 // 最大高度
+  const calculatedHeight = val.length * componentData.rowHeight + 44
+  return Math.min(Math.max(calculatedHeight, minHeight), maxHeight)
+}
+const assetPreviewObserver = computed(() => {
+  return {
+    cancel: handleAssetPreviewCancel
+  }
+})
+const InfoKeyValues = computed(() => {
+  return [
+    {
+      label: '归口部门',
+      prop: 'affiliateDeptName'
+    },
+    {
+      label: '二级单位',
+      prop: 'secondDeptName'
+    },
+    {
+      label: '实施部门',
+      prop: 'implDept'
+    },
+    {
+      label: '项目类型',
+      prop: 'categoryName'
+    },
+    {
+      label: '重点投向',
+      prop: 'keyInvestName'
+    },
+    {
+      label: '预算事项',
+      prop: 'courseTitleName'
+    },
+    {
+      label: '项目名称',
+      prop: 'name'
+    },
+    {
+      label: '申请总额(万元)',
+      prop: 'applyTaxExclusive'
+    },
+    /*  {
+  label: '招标方式',
+  prop: 'biddingMethod',
+  formatter: (value) => {
+    if (value == null) return ''
+    const map = {
+      1: '框架招标',
+      2: '单项招标',
+      3: '无需招标'
+    }
+    return map[+value] || ''
+  }
+  }, */
+    {
+      label: '是否预安排',
+      prop: 'preArranged',
+      formatter: (value) => {
+        return value != null ? (value == '1' ? '是' : '否') : ''
+      }
+    }
+  ]
+})
+const KeyValues = computed(() => {
+  return [
+    {
+      name: '基础信息',
+      value: 'baseInfo',
+      slot: true
+    },
+    {
+      name: '实施背景',
+      value: 'implBackground'
+      // rateProp: 'totalImplBackground',
+      // diffProp: 'diffImplBackgroundList',
+      // secTextProp: 'reasonImplBackground',
+      // secColorType: 'info'
+    },
+    {
+      name: '实施内容',
+      value: 'implContent',
+      rateProp: 'totalImplContent',
+      diffProp: 'diffImplContentList',
+      secTextProp: 'reasonImplContent',
+      showSec: true,
+      secColorType: (diffData) => {
+        // 根据 diffData 中的值动态判断颜色
+        // 示例：可以根据 rateProp 的值或者其他字段判断
+        const aiRiskLevel = diffData?.aiRiskLevel
+        if (aiRiskLevel == 1) return 'danger'
+        // if (rate >= 70) return 'warning';
+        // if (rate >= 50) return 'info';
+        return 'success'
+      }
+    },
+    {
+      name: '项目成效',
+      value: 'effectDataList',
+      // rateProp: 'totalProjectOutcome',
+      // diffProp: 'diffProjectOutcomeList',
+      slot: true
+    },
+    {
+      name: '计算过程',
+      value: 'calcProcess'
+    },
+    {
+      name: '量价关系',
+      value: 'calcProcessList',
+      slot: true
+    }
+    // 关联附件功能已隐藏：从详情项配置中移除「关联附件」入口
+    // {
+    //   name: '关联附件',
+    //   value: 'attachment',
+    //   slot: true
+    // },
+    /* {
+  name: '近3年费用',
+  value: 'history',
+  rateProp: 'totalHistory',
+  diffProp: 'diffHistoryList',
+  slot: true
+  }, */
+    /* this.detailValue.costDesc != null && this.detailValue.costDesc != ''
+  ? {
+      name: '费用补充说明',
+      value: 'costDesc'
+    }
+  : null,
+  this.detailValue.hasHistory == 0
+  ? {
+      name: '项目新增原因',
+      value: 'newReason'
+    }
+  : null,
+  {
+  value: 'remark',
+  name: '备注'
+  } */
+  ].filter((item) => item)
+})
+watch(
+  () => componentProps.projectId,
+  function (val, oldVal) {
+    if (val && oldVal && val != oldVal) {
+      initFormData()
+    }
+  },
+  {
+    deep: true
+  }
+)
+watch(
+  () => componentProps.diffData,
+  function (val, oldVal) {
+    if (val && !oldVal) {
+      getDiff()
+    }
+  },
+  {
+    deep: true
+  }
+)
+onMounted(() => {
+  initFormData()
+})
+defineExpose({
+  initFormData,
+  preview,
+  handleAssetPreviewCancel,
+  handleAssetPreviewClose,
+  getPreviewCheckTotalAmount,
+  formatLabel,
+  getIndicatorManagement,
+  getCalcTplId,
+  getFinanceCalculationBasis,
+  highlightInElements,
+  clearHighlights,
+  clearDiff,
+  handleRerun,
+  getDiff,
+  getInfo,
+  getHeight,
+  ...toRefs(componentData),
+  assetPreviewObserver,
+  InfoKeyValues,
+  KeyValues
+})
 </script>
 <style lang="less" scoped>
 .projectView {

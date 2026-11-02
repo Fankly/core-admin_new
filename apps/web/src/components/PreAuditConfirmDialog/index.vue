@@ -53,17 +53,15 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'PreAuditConfirmDialog'
-}
-</script>
 
 <script setup lang="ts">
 import { ElButton, ElTooltip } from 'element-plus'
 import { VxeModal } from 'vxe-pc-ui'
 import { computed, nextTick, onBeforeUnmount, onBeforeUpdate, onMounted, ref, watch } from 'vue'
 import type { ComponentPublicInstance } from 'vue'
+defineOptions({
+  name: 'PreAuditConfirmDialog'
+})
 
 interface Props {
   /** 是否显示，支持 v-model */
@@ -75,7 +73,6 @@ interface Props {
   cancelButtonText?: string
   width?: string
 }
-
 const props = withDefaults(defineProps<Props>(), {
   modelValue: false,
   msg: '',
@@ -84,14 +81,12 @@ const props = withDefaults(defineProps<Props>(), {
   cancelButtonText: '取消提交',
   width: '720px'
 })
-
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
   (e: 'confirm'): void
   (e: 'cancel'): void
   (e: 'closed', confirmed: boolean): void
 }>()
-
 const visible = ref(props.modelValue)
 /** 记录本次关闭是确认还是取消，供 closed 事件回传 */
 const confirmed = ref(false)
@@ -108,16 +103,13 @@ const messages = computed(() => {
   )
   return parsed.length > 0 ? parsed : ['未返回具体预审提示，请确认是否继续提交。']
 })
-
 const messageRefs = ref<HTMLElement[]>([])
 const overflowingIndexes = ref<Set<number>>(new Set())
-
 const setMessageRef = (element: Element | ComponentPublicInstance | null, index: number) => {
   if (element instanceof HTMLElement) {
     messageRefs.value[index] = element
   }
 }
-
 const updateOverflowingIndexes = () => {
   const nextIndexes = new Set<number>()
   messageRefs.value.forEach((element, index) => {
@@ -125,31 +117,24 @@ const updateOverflowingIndexes = () => {
       nextIndexes.add(index)
     }
   })
-
   const currentIndexes = overflowingIndexes.value
   const changed = nextIndexes.size !== currentIndexes.size || Array.from(nextIndexes).some((index) => !currentIndexes.has(index))
   if (changed) {
     overflowingIndexes.value = nextIndexes
   }
 }
-
 const scheduleOverflowCheck = () => nextTick(updateOverflowingIndexes)
-
 onBeforeUpdate(() => {
   messageRefs.value = []
 })
-
 onMounted(() => {
   scheduleOverflowCheck()
   window.addEventListener('resize', scheduleOverflowCheck)
 })
-
 onBeforeUnmount(() => {
   window.removeEventListener('resize', scheduleOverflowCheck)
 })
-
 watch(messages, scheduleOverflowCheck)
-
 watch(
   () => props.modelValue,
   (val) => {
@@ -159,25 +144,21 @@ watch(
     visible.value = val
   }
 )
-
 watch(visible, (val) => {
   if (val !== props.modelValue) {
     emit('update:modelValue', val)
   }
 })
-
 const handleConfirm = () => {
   confirmed.value = true
   visible.value = false
   emit('confirm')
 }
-
 const handleCancel = () => {
   confirmed.value = false
   visible.value = false
   emit('cancel')
 }
-
 const handleHidden = () => {
   emit('closed', confirmed.value)
 }

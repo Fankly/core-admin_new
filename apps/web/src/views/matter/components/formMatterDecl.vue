@@ -26,52 +26,42 @@
   </el-dialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: "FormMatterDecl"
-};
-</script>
+
 <script setup lang="ts">
 import { Close as EpClose } from '@element-plus/icons-vue'
-
-import { BaseMsgData, DialogData } from "../types/matterDecl";
-import MatterBaseMsg from "@/views/matter/components/MatterBaseMsg.vue";
-import BackLog from "@/views/matter/components/DialogBacklog.vue";
-import { computed, ref, defineEmits, defineProps, toRef } from "vue";
-import ExtensionForm from "@/views/matter/components/ExtensionForm/index.vue";
+import { BaseMsgData, DialogData } from '../types/matterDecl'
+import MatterBaseMsg from '@/views/matter/components/MatterBaseMsg.vue'
+import BackLog from '@/views/matter/components/DialogBacklog.vue'
+import { computed, ref, toRef } from 'vue'
+import ExtensionForm from '@/views/matter/components/ExtensionForm/index.vue'
+defineOptions({
+  name: 'FormMatterDecl'
+})
 
 interface Props {
-  diaLogData: DialogData;
-  baseMsgData: BaseMsgData;
+  diaLogData: DialogData
+  baseMsgData: BaseMsgData
 }
-
-const emits = defineEmits(["closeDialog", "updateTable"]);
-const props = defineProps<Props>();
-const matterBaseMsgRef = ref();
-const extensionRef = ref();
-
-const isShowPage = toRef(props.diaLogData, "isShowPage");
-
-const disabledShow = computed(() => props.baseMsgData.operationFlag === "VIEW" || props.baseMsgData.jd === "2");
-const isDisabledShow = computed(() => props.baseMsgData.operationFlag === "VIEW");
-
-const activeName = ref<string>("eventReserve");
-
+const emits = defineEmits(['closeDialog', 'updateTable'])
+const props = defineProps<Props>()
+const matterBaseMsgRef = ref()
+const extensionRef = ref()
+const isShowPage = toRef(props.diaLogData, 'isShowPage')
+const disabledShow = computed(() => props.baseMsgData.operationFlag === 'VIEW' || props.baseMsgData.jd === '2')
+const isDisabledShow = computed(() => props.baseMsgData.operationFlag === 'VIEW')
+const activeName = ref<string>('eventReserve')
 const updateTableHandle = () => {
-  emits("updateTable");
-};
-
+  emits('updateTable')
+}
 const closeHandle = () => {
-  matterBaseMsgRef.value.closeDialogHandle();
-};
-
+  matterBaseMsgRef.value.closeDialogHandle()
+}
 const submitHandle = () => {
-  matterBaseMsgRef.value.submitHandle(extensionRef.value.saveExtensionData);
-};
-
+  matterBaseMsgRef.value.submitHandle(extensionRef.value.saveExtensionData)
+}
 const closeDialogHandle = (val: boolean) => {
-  emits("closeDialog", val);
-};
+  emits('closeDialog', val)
+}
 </script>
 
 <style lang="less">

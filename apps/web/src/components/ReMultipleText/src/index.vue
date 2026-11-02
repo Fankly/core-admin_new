@@ -71,14 +71,13 @@
 </template>
 
 <script setup lang="ts">
-import { CirclePlus as EpCirclePlus } from '@element-plus/icons-vue'
-import type { Component } from 'vue'
-import { InfoFilled as EpInfoFilled } from '@element-plus/icons-vue'
-
-defineOptions({ name: "ReMultipleText" })
+import { CirclePlus as EpCirclePlus, InfoFilled as EpInfoFilled } from '@element-plus/icons-vue'
+import type { Component, PropType } from 'vue'
 import { ElMessage } from 'element-plus'
-import type { PropType } from 'vue'
 import { computed, nextTick, ref, watch } from 'vue'
+defineOptions({
+  name: 'ReMultipleText'
+})
 
 const props = defineProps({
   modelValue: {
@@ -142,68 +141,52 @@ const props = defineProps({
     default: 10000
   }
 })
-
 const emit = defineEmits(['update:modelValue', 'change'])
-
 const dialogVisible = ref(false)
 const ids = ref('')
 const inputValue = ref('')
 const textareaRef = ref<any>(null)
-
 const normalizeText = (value: string) => value.replace(/\r\n/g, '\n').replace(/，/g, ',')
-
 const splitValues = (value: string) =>
   normalizeText(value)
     .split(/[\n,]/)
     .map((item) => item.trim())
     .filter(Boolean)
-
 const joinValues = (value: string) => splitValues(value).join(',')
-
 const splitNonEmptyLines = (value: string) =>
   value
     .replace(/\r\n/g, '\n')
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean)
-
 const normalizeSingleInputValue = (value: string) => {
   const normalizedValue = value.replace(/，/g, ',')
   const max = normalizedMaxlength.value
-
   if (!max) {
     return normalizedValue
   }
-
   return normalizedValue
     .split(',')
     .map((item) => (item.length > max ? item.slice(0, max) : item))
     .join(',')
 }
-
 const normalizeTextareaValue = (value: string) => {
   const max = normalizedMaxlength.value
   const lines = value.replace(/\r\n/g, '\n').split('\n')
-
   if (!max) {
     return lines.join('\n')
   }
-
   return lines.map((line) => (line.length > max ? line.slice(0, max) : line)).join('\n')
 }
-
 const normalizedMaxlength = computed(() => {
   const length = Number(props.maxlength)
   return Number.isFinite(length) && length > 0 ? length : undefined
 })
-
 const currentLineCount = computed(() => splitNonEmptyLines(ids.value).length)
-
 const emitValue = (value: string) => {
   emit('update:modelValue', value)
   emit('change', value)
 }
-
 const validateLineLimit = (lineCount: number) => {
   if (lineCount > props.maxLines) {
     ElMessage.warning(`最多支持${props.maxLines}行数据`)
@@ -211,15 +194,15 @@ const validateLineLimit = (lineCount: number) => {
   }
   return true
 }
-
 watch(
   () => props.modelValue,
   (newVal) => {
     inputValue.value = joinValues(newVal || '')
   },
-  { immediate: true }
+  {
+    immediate: true
+  }
 )
-
 watch(dialogVisible, (newVal) => {
   if (newVal) {
     nextTick(() => {
@@ -228,38 +211,31 @@ watch(dialogVisible, (newVal) => {
     })
   }
 })
-
 const handleSingleInput = (value: string) => {
   const nextValue = normalizeSingleInputValue(value)
   if (nextValue !== inputValue.value) {
     inputValue.value = nextValue
   }
 }
-
 const handleInputChange = (value: string) => {
   const items = splitValues(normalizeSingleInputValue(value))
-
   const cleanedValue = items.join(',')
   inputValue.value = cleanedValue
   emitValue(cleanedValue)
 }
-
 const handleTextareaInput = (value: string) => {
   const nextValue = normalizeTextareaValue(value)
   if (nextValue !== ids.value) {
     ids.value = nextValue
   }
 }
-
 const addData = () => {
   ids.value = splitValues(inputValue.value || props.modelValue || '').join('\n')
   dialogVisible.value = true
 }
-
 const cancel = () => {
   dialogVisible.value = false
 }
-
 const determine = () => {
   ids.value = normalizeTextareaValue(ids.value)
   const lineCount = splitNonEmptyLines(ids.value).length
@@ -269,18 +245,15 @@ const determine = () => {
     dialogVisible.value = false
     return
   }
-
   if (!validateLineLimit(lineCount)) {
     return
   }
-
   const value = items.join(',')
   ids.value = items.join('\n')
   inputValue.value = value
   emitValue(value)
   dialogVisible.value = false
 }
-
 const clear = () => {
   emitValue('')
   ids.value = ''

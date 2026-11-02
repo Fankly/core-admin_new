@@ -63,11 +63,9 @@
     :api-params-type="'LHHS'"
   />
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
-import { ref, reactive, defineEmits, nextTick, defineExpose } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import {
   getOverviewDataByMeeting,
   getStatDataByMeetingDw,
@@ -80,7 +78,12 @@ import sxTable from '@/components/yssxTable/sxTable.vue'
 
 // 子组件
 const emit = defineEmits(['pageType'])
-const typeList = [{ name: '按单位展示', code: 'dw' }]
+const typeList = [
+  {
+    name: '按单位展示',
+    code: 'dw'
+  }
+]
 const typeCount = ref<any[]>([
   {
     name: '会审中',
@@ -120,14 +123,14 @@ const dwIdList = ref<any[]>([])
 const searchData = reactive<any>({
   dw: '按单位展示'
 })
-
 const closeSxModal = () => {
   isShowTable.value = false
   apiType.value = '1'
 }
-
 const getMeetingData = async () => {
-  let res = await getOverviewDataByMeeting({ ...formData.value })
+  let res = await getOverviewDataByMeeting({
+    ...formData.value
+  })
   if (res.success && res.data) {
     typeCount.value.forEach((item: any) => {
       for (const key in res.data) {
@@ -141,7 +144,6 @@ const getMeetingData = async () => {
     echartsData()
   }
 }
-
 const echartsData = async () => {
   let res = await getStatDataByMeetingDw({
     ...formData.value,
@@ -189,13 +191,14 @@ const handleActive = () => {
     const parmas = {
       ...formData.value,
       indicatorCode: countType.value.code
-    }    
+    }
     modalTbaleRef.value.tableTitle = `${countType.value.name}-事项明细`
-    modalTbaleRef.value.formData = { ...parmas }    
+    modalTbaleRef.value.formData = {
+      ...parmas
+    }
     modalTbaleRef.value?.proTableRef.getTableList()
   })
 }
-
 const dwOBarOptions = reactive<any>({
   tooltip: {
     trigger: 'axis',
@@ -279,7 +282,6 @@ const dwOBarOptions = reactive<any>({
     }
   ]
 })
-
 defineExpose({
   formData,
   tableTitle,

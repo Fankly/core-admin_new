@@ -47,7 +47,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/lyg/projectProcessWarning/zbxxwh/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -56,7 +55,10 @@ import ProTable from '@/components/ProTablePage/index.vue'
 import maintModal from '@/views/lyg/projectProcessWarning/zbxxwh/components/maintModal/index.vue'
 import { getPublicData } from '@/api/common'
 import { zbpcxxPage, zbpcxxRemove, zbpcxxImportExcel, zbpcxxGetImportTemplate } from '@/api/lyg/index'
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
+defineOptions({ name: "/lyg/projectProcessWarning/zbxxwh/index" })
+
+ //导入组件
 
 // ========== 类型定义 ==========
 

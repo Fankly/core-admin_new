@@ -56,11 +56,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'auditPointListModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -69,17 +64,18 @@ import type { VxeGridProps } from 'vxe-table'
 import RangeVxeTable from '@/components/RangeVxeTable/index.vue'
 import { getRuleByCategoryRulePage } from '@/api/suzhou/aiAuditRulePoint'
 import type { RuleByCategoryRuleRow } from '@/api/suzhou/aiAuditRulePoint'
+defineOptions({
+  name: 'auditPointListModal'
+})
 
 interface AuditPointTableRow extends RuleByCategoryRuleRow {
   rowId: string
 }
-
 interface ModalParams {
   ruleName?: string
   /** 规则Id，接口必传 */
   categoryRuleId?: string
 }
-
 const isShowModal = ref(false)
 const modalTitle = ref('审核要点清单')
 const categoryRuleId = ref('')
@@ -88,17 +84,54 @@ const ruleName = ref('')
 
 /** 列按文档十一的返参给：要点编码 auditPointCode / 要点名称 auditPointName / 要点状态 ruleStatusName */
 const columns: VxeGridProps['columns'] = [
-  { type: 'seq', title: '序号', width: 70, headerAlign: 'center' },
-  { field: 'auditPointCode', title: '审核要点编码', width: 170, headerAlign: 'center' },
-  { field: 'auditPointName', title: '审核要点名称', minWidth: 280, align: 'left', headerAlign: 'center' },
-  { field: 'ruleStatus', title: '审核要点状态', width: 130, headerAlign: 'center', slots: { default: 'ruleStatus' } },
+  {
+    type: 'seq',
+    title: '序号',
+    width: 70,
+    headerAlign: 'center'
+  },
+  {
+    field: 'auditPointCode',
+    title: '审核要点编码',
+    width: 170,
+    headerAlign: 'center'
+  },
+  {
+    field: 'auditPointName',
+    title: '审核要点名称',
+    minWidth: 280,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'ruleStatus',
+    title: '审核要点状态',
+    width: 130,
+    headerAlign: 'center',
+    slots: {
+      default: 'ruleStatus'
+    }
+  },
   // 已分配事项数：文档十一未列该字段，按需求补在末尾，点击开二级弹层（复用十二的已分配事项清单）
-  { field: 'yssxCnt', title: '已分配事项数', width: 140, headerAlign: 'center', slots: { default: 'yssxCnt' } }
+  {
+    field: 'yssxCnt',
+    title: '已分配事项数',
+    width: 140,
+    headerAlign: 'center',
+    slots: {
+      default: 'yssxCnt'
+    }
+  }
 ]
 
 /** 二级弹层：交给宿主页面去开已分配事项清单 */
 const emit = defineEmits<{
-  (event: 'open-item-list', payload: { ruleId: string }): void
+  (
+    event: 'open-item-list',
+    payload: {
+      ruleId: string
+    }
+  ): void
 }>()
 
 /**
@@ -108,7 +141,9 @@ const emit = defineEmits<{
 const openItemList = (row: AuditPointTableRow) => {
   const pointRuleId = String(row.ruleId || '')
   if (!pointRuleId) return
-  emit('open-item-list', { ruleId: pointRuleId })
+  emit('open-item-list', {
+    ruleId: pointRuleId
+  })
 }
 
 /** 分页由 RangeVxeTable 注入 page/limit，这里补上规则Id */
@@ -125,23 +160,25 @@ const getList = async (params: Record<string, any>) => {
     ...res,
     data: {
       ...res?.data,
-      records: records.map((item, index) => ({ ...item, rowId: `${categoryRuleId.value}-${offset + index}` }))
+      records: records.map((item, index) => ({
+        ...item,
+        rowId: `${categoryRuleId.value}-${offset + index}`
+      }))
     }
   }
 }
-
 const handleClose = () => {
   isShowModal.value = false
 }
-
 const acceptParams = (params: ModalParams = {}) => {
   categoryRuleId.value = params.categoryRuleId || ''
   ruleName.value = params.ruleName || ''
   modalTitle.value = ruleName.value ? `${ruleName.value} · 审核要点清单` : '审核要点清单'
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

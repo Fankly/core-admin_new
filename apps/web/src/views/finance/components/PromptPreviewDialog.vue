@@ -10,41 +10,47 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { CwProjectDiff } from '@/api/mainController'
-
-export default {
-  name: 'PromptPreviewDialog',
-  props: {
-    data: {
-      type: Object,
-      default: null
-    }
-  },
-  data() {
-    return {
-      content: '',
-      loading: false
-    }
-  },
-  mounted() {
-    this.getPrompt()
-  },
-  methods: {
-    getPrompt() {
-      if (!this.data) return
-      this.loading = true
-      CwProjectDiff.getPrompt(this, { cwAuditPromptDto: this.data, projectId: this.data.projectId })
-        .then((res) => {
-          this.content = res.data || ''
-        })
-        .catch(() => {})
-        .finally(() => {
-          this.loading = false
-        })
-    }
+import { reactive, toRef, toRefs, onMounted, getCurrentInstance } from 'vue'
+defineOptions({
+  name: 'PromptPreviewDialog'
+})
+const componentProps = defineProps({
+  data: {
+    type: Object,
+    default: null
   }
+})
+const componentInstance = getCurrentInstance().proxy
+const componentData = reactive({
+  content: '',
+  loading: false
+})
+const content = toRef(componentData, 'content')
+const loading = toRef(componentData, 'loading')
+function getPrompt() {
+  if (!componentProps.data) return
+  componentData.loading = true
+  CwProjectDiff.getPrompt(componentInstance, {
+    cwAuditPromptDto: componentProps.data,
+    projectId: componentProps.data.projectId
+  })
+    .then((res) => {
+      componentData.content = res.data || ''
+    })
+    .catch(() => {})
+    .finally(() => {
+      componentData.loading = false
+    })
 }
+onMounted(() => {
+  getPrompt()
+})
+defineExpose({
+  getPrompt,
+  ...toRefs(componentData)
+})
 </script>
 
 <style lang="less" scoped>

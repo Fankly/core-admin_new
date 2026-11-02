@@ -15,11 +15,9 @@
     <viewTable ref="viewsTableRef" :isCity="true" />
   </vxe-modal>
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
-import { ref, reactive, defineEmits, nextTick, defineExpose } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import proTable from '@/components/ProTable/index.vue' //表格组件
 import { pageYssxInfo, exportYssxInfo, pageYssxInfoForCard, exportYssxInfoForCard } from '@/api/lkyptzl/index'
 import viewTable from '@/views/service/lkyptzl/components/viewTable.vue'
@@ -44,8 +42,13 @@ const loading = ref<boolean>(false)
 const pageMeeting = (params: any) => {
   loading.value = true
   const api: any = apiType.value == '2' ? pageYssxInfoForCard : pageYssxInfo
-  params = { ...params, ...formData.value }
-  tableParams.value = { ...formData.value }
+  params = {
+    ...params,
+    ...formData.value
+  }
+  tableParams.value = {
+    ...formData.value
+  }
   return api(params)
 }
 // 数据回调
@@ -125,15 +128,45 @@ const handleExport = (val: any) => {
   })
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', label: '序号', width: 50 },
-  { prop: 'xmlxName', label: '项目类型' }, // width: "140"
-  { prop: 'zgkbmName', label: '归口部门' }, // width: "150"
-  { prop: 'zdtxName', label: '重点投向' },
-  { prop: 'yssxName', label: '事项名称' }, //, width: "180"
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: 50
+  },
+  {
+    prop: 'xmlxName',
+    label: '项目类型'
+  },
+  // width: "140"
+  {
+    prop: 'zgkbmName',
+    label: '归口部门'
+  },
+  // width: "150"
+  {
+    prop: 'zdtxName',
+    label: '重点投向'
+  },
+  {
+    prop: 'yssxName',
+    label: '事项名称'
+  },
+  //, width: "180"
   // { prop: "proTypeName", label: "预算主体", width: "200" },
-  { prop: 'nd', label: '年度', width: '80' },
-  { prop: 'xmsl', label: '项目数量', width: '100' },
+  {
+    prop: 'nd',
+    label: '年度',
+    width: '80'
+  },
+  {
+    prop: 'xmsl',
+    label: '项目数量',
+    width: '100'
+  },
   {
     prop: 'amount',
     label: '项目金额（万元）',

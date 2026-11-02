@@ -122,11 +122,6 @@
   <FxbgModal ref="fxbgModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/statistics/yszxfx'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -143,7 +138,18 @@ import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import TbhbModal from './components/TbhbModal/index.vue'
 import FxbgModal from './components/FxbgModal/index.vue'
 import { vxeExportFormulaHandle } from '@/utils/export'
-import type { FormulaConfig, SumFormulaConfig, SumRangeSpec, InlineSumConfig, InlineSumOptions, RankFormulaConfig, RankSpec } from '@/utils/export'
+import type {
+  FormulaConfig,
+  SumFormulaConfig,
+  SumRangeSpec,
+  InlineSumConfig,
+  InlineSumOptions,
+  RankFormulaConfig,
+  RankSpec
+} from '@/utils/export'
+defineOptions({
+  name: '/statistics/yszxfx'
+})
 
 type otherColumn = {
   id: string
@@ -152,7 +158,6 @@ type otherColumn = {
   parentId: string
   isNeedTotal: number
 }
-
 type OrgInfo = {
   attrCode: string
   cropId: string
@@ -162,31 +167,25 @@ type OrgInfo = {
   orgFlag: string
   dwInfos: string[]
 }
-
 type Column = VxeTableDefines.ColumnOptions & otherColumn
 type Columns = VxeGridPropTypes.Columns & otherColumn[]
-
 interface RowVo {
   [key: string]: any
 }
-
 interface ListValue {
   code: string
   name: string
 }
-
 interface GkbmValue {
   deptCode: string
   deptName: string
 }
-
 interface List {
   yjdwList: ListValue[]
   ejdwList: ListValue[]
   XSWS: ListValue[]
   gkbmList: GkbmValue[]
 }
-
 const orgInfo = ref<OrgInfo>({
   attrCode: '',
   cropId: '',
@@ -205,7 +204,6 @@ const userInfo = ref<any>()
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const yjdwDisabled = computed(() => orgInfo.value.attrCode !== 'BM_CWZC' || orgInfo.value.orgFlag !== 'PROVINCE')
 const ejdwDisabled = computed(() => orgInfo.value.attrCode !== 'BM_CWZC' || orgInfo.value.orgFlag === 'COUNTY')
 const gkbmDisabled = computed(() => orgInfo.value.attrCode !== 'BM_CWZC')
@@ -214,15 +212,12 @@ const isCityOrCounty = computed(() => ['CITY', 'COUNTY'].includes(orgInfo.value.
 const canViewDetail = computed(() => isCityOrCounty.value && !isDetailMode.value)
 const canBackOverview = computed(() => isCityOrCounty.value && isDetailMode.value)
 const isCityOrCountyOverview = computed(() => isCityOrCounty.value && !isDetailMode.value)
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const handleChangeXswsData = () => {
   getDataHandle()
 }
-
 const formList = reactive<List>({
   yjdwList: [],
   ejdwList: [],
@@ -232,13 +227,27 @@ const formList = reactive<List>({
 
 // 指标项选项（硬编码，非公共码）：目标值/完成值/立项值/完成率/立项率
 const sjxOptions = [
-  { label: '目标值', value: 'MBZ' },
-  { label: '完成值', value: 'WCZ' },
-  { label: '立项值', value: 'LXZ' },
-  { label: '完成率', value: 'WCL' },
-  { label: '立项率', value: 'LXL' }
+  {
+    label: '目标值',
+    value: 'MBZ'
+  },
+  {
+    label: '完成值',
+    value: 'WCZ'
+  },
+  {
+    label: '立项值',
+    value: 'LXZ'
+  },
+  {
+    label: '完成率',
+    value: 'WCL'
+  },
+  {
+    label: '立项率',
+    value: 'LXL'
+  }
 ]
-
 const formData = reactive<any>({
   month: '',
   year: '',
@@ -250,14 +259,10 @@ const formData = reactive<any>({
   gkbm: '',
   sjx: ['MBZ', 'WCZ', 'WCL']
 })
-
 const diabledDate = ref('')
 const dwType = ref<ListValue[]>([])
-
 const footerValue = ref<RowVo[]>([])
-
 const flatColumns = reactive<Columns>([])
-
 const getExportLeafColumns = (columns: any[] = []): any[] => {
   return columns.reduce((acc: any[], column: any) => {
     if (!column) return acc
@@ -272,7 +277,8 @@ const getExportLeafColumns = (columns: any[] = []): any[] => {
 
 // 比率列后缀 → 分子字段后缀；分母统一为目标值 Mbz（与 caclWclSum 的 RATE_SUFFIX_MAP 对齐）
 const RATE_NUMERATOR_SUFFIX: Record<string, string> = {
-  Wcl: 'Wcz', // 完成率 = 完成值 / 目标值
+  Wcl: 'Wcz',
+  // 完成率 = 完成值 / 目标值
   Lxl: 'Lxz' // 立项率 = 立项值 / 目标值
 }
 
@@ -322,7 +328,6 @@ const buildSumConfig = (columns: any[], data: RowVo[]): SumFormulaConfig | undef
   const isDfj = (r: RowVo) => r?.dwType === '-1' && String(r?.dwName || '') === '待分解'
   const isSubtotal = (r: RowVo) => r?.dwType === '-1' && !isTotal(r) && !isDfj(r)
   const isDetail = (r: RowVo) => r?.dwType !== '-1'
-
   const items: SumRangeSpec[] = []
 
   // 分组小计：小计行 i 的明细区间为紧随其后直到下一个 '-1' 行之前的连续 detail 行
@@ -331,7 +336,10 @@ const buildSumConfig = (columns: any[], data: RowVo[]): SumFormulaConfig | undef
     let j = i + 1
     while (j < data.length && isDetail(data[j])) j++
     if (j - 1 >= i + 1) {
-      items.push({ rowIndex: i, detailRanges: [[i + 1, j - 1]] })
+      items.push({
+        rowIndex: i,
+        detailRanges: [[i + 1, j - 1]]
+      })
     }
   }
 
@@ -356,11 +364,18 @@ const buildSumConfig = (columns: any[], data: RowVo[]): SumFormulaConfig | undef
       if (isDfj(data[p])) ranges.push([p, p])
     }
     if (ranges.length > 0) {
-      items.push({ rowIndex: totalIdx, detailRanges: ranges })
+      items.push({
+        rowIndex: totalIdx,
+        detailRanges: ranges
+      })
     }
   }
-
-  return items.length > 0 ? { fields, items } : undefined
+  return items.length > 0
+    ? {
+        fields,
+        items
+      }
+    : undefined
 }
 
 // 构造导出「成本小计」与「各类型合计」横向求和公式配置（依据动态列树结构）：
@@ -393,8 +408,16 @@ const isTypeHjField = (field: string, suffix: string): boolean => {
 //    step 1) 各类型合计因 hasTarget 防护对空 typePrefix 自动 no-op；step 2) 成本小计 subtotal 照常多收其叶子，
 //    否则会漏算该类型组（用户反馈「研究开发成本下没有合计，但成本小计没把它算进去」即此情形）。
 // guard：要求至少一片「以 Mbz/Wcz/Lxz 结尾且非 Hj 列」的叶子，避免 zbx/total/subtotal 等顶层组被误纳入。
-const collectTypeGroups = (columns: any[]): { typePrefix: string; subLeafFields: string[] }[] => {
-  const groups: { typePrefix: string; subLeafFields: string[] }[] = []
+const collectTypeGroups = (
+  columns: any[]
+): {
+  typePrefix: string
+  subLeafFields: string[]
+}[] => {
+  const groups: {
+    typePrefix: string
+    subLeafFields: string[]
+  }[] = []
   if (!Array.isArray(columns)) return groups
   columns.forEach((col: any) => {
     if (!col || !Array.isArray(col.children) || col.children.length === 0) return
@@ -435,11 +458,13 @@ const collectTypeGroups = (columns: any[]): { typePrefix: string; subLeafFields:
       (f) => INLINE_SUM_SUFFIXES.some((suffix) => f.endsWith(suffix)) && !INLINE_SUM_SUFFIXES.some((suffix) => isTypeHjField(f, suffix))
     )
     if (!hasSumLeaf) return // 既无 Hj 子组也无求和叶子 → 非成本组（zbx/total/subtotal 等），跳过
-    groups.push({ typePrefix, subLeafFields })
+    groups.push({
+      typePrefix,
+      subLeafFields
+    })
   })
   return groups
 }
-
 const buildInlineSumConfig = (columns: any[]): InlineSumOptions | undefined => {
   const leaves = getExportLeafColumns(columns)
   const typeGroups = collectTypeGroups(columns)
@@ -453,7 +478,10 @@ const buildInlineSumConfig = (columns: any[]): InlineSumOptions | undefined => {
       if (!hasTarget) return
       const sourceFields = subLeafFields.filter((f) => f.endsWith(suffix) && !isTypeHjField(f, suffix))
       if (sourceFields.length === 0) return
-      specs.push({ targetField, sourceFields })
+      specs.push({
+        targetField,
+        sourceFields
+      })
     })
   })
 
@@ -466,9 +494,11 @@ const buildInlineSumConfig = (columns: any[]): InlineSumOptions | undefined => {
     if (!hasTarget) return
     const sourceFields = allSubLeafFields.filter((f) => f.endsWith(suffix) && !isTypeHjField(f, suffix) && f !== targetField)
     if (sourceFields.length === 0) return
-    specs.push({ targetField, sourceFields })
+    specs.push({
+      targetField,
+      sourceFields
+    })
   })
-
   if (specs.length === 0) return undefined
   return {
     config: specs,
@@ -486,7 +516,6 @@ const buildInlineSumConfig = (columns: any[]): InlineSumOptions | undefined => {
 const PROVINCE_RANK_SUFFIX = 'Spm'
 const GROUP_RANK_SUFFIX = 'Gdgspm'
 const RANK_RATE_FIELD = 'subtotalWcl'
-
 const buildRankFormulaConfig = (columns: any[]): RankFormulaConfig | undefined => {
   const leaves = getExportLeafColumns(columns)
   let spmField = ''
@@ -517,11 +546,26 @@ const buildRankFormulaConfig = (columns: any[]): RankFormulaConfig | undefined =
     return Number(Decimal.div(wcz, mbz).mul(100).toFixed(2))
   }
   const specs: RankSpec[] = []
-  if (spmField) specs.push({ field: spmField, rateField: RANK_RATE_FIELD, scope: 'global', rankFieldHasValue: true, rateCalc })
-  if (gdgspmField) specs.push({ field: gdgspmField, rateField: RANK_RATE_FIELD, scope: 'segment' })
-  return specs.length > 0 ? { specs } : undefined
+  if (spmField)
+    specs.push({
+      field: spmField,
+      rateField: RANK_RATE_FIELD,
+      scope: 'global',
+      rankFieldHasValue: true,
+      rateCalc
+    })
+  if (gdgspmField)
+    specs.push({
+      field: gdgspmField,
+      rateField: RANK_RATE_FIELD,
+      scope: 'segment'
+    })
+  return specs.length > 0
+    ? {
+        specs
+      }
+    : undefined
 }
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   columnConfig: {
@@ -537,17 +581,14 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   },
   size: 'mini'
 })
-
 const rowClassName: VxeTablePropTypes.RowClassName<RowVo> = ({ row }: { row: RowVo }) => {
   const classNames: string[] = []
   if (row.dwType === '-1') {
     classNames.push('col-font')
   }
-
   if (canViewDetail.value && isValidDetailRow(row)) {
     classNames.push('row-clickable')
   }
-
   return classNames.length ? classNames.join(' ') : null
 }
 
@@ -556,13 +597,23 @@ const renderFormulaHeader = (title: string, formula: string) => {
   return () =>
     h(
       ElTooltip,
-      { effect: 'dark', placement: 'top', content: formula },
       {
-        default: () => h('span', { style: 'display: inline-flex; align-items: center; gap: 2px' }, [title])
+        effect: 'dark',
+        placement: 'top',
+        content: formula
+      },
+      {
+        default: () =>
+          h(
+            'span',
+            {
+              style: 'display: inline-flex; align-items: center; gap: 2px'
+            },
+            [title]
+          )
       }
     )
 }
-
 const getDynamicHeader = async () => {
   gridOptions.loading = true
   if (gridOptions.columns) gridOptions.columns.length = 0
@@ -592,7 +643,6 @@ const getDynamicHeader = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getDynamicData = async () => {
   gridOptions.loading = true
   footerValue.value.length = 0
@@ -614,9 +664,11 @@ const getDynamicData = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getRequestFormData = () => {
-  if (!isCityOrCountyOverview.value) return { ...formData }
+  if (!isCityOrCountyOverview.value)
+    return {
+      ...formData
+    }
   return {
     ...formData,
     indicators: formData.sjx.join(','),
@@ -626,12 +678,10 @@ const getRequestFormData = () => {
     gkbm: ''
   }
 }
-
 const getDisplayColumns = (columns: Columns) => {
   if (!isCityOrCountyOverview.value) return columns
   return columns.filter((item: Column) => item.field !== 'rownumber') as Columns
 }
-
 const getCurrentOrgOverviewData = (data: RowVo[] = []) => {
   if (!isCityOrCountyOverview.value || data.length === 0) return data
   const footerRows = data.filter((item) => item.dwName === '待分解')
@@ -641,11 +691,9 @@ const getCurrentOrgOverviewData = (data: RowVo[] = []) => {
   }
   return []
 }
-
 const getOrgDwInfos = () => {
   return Array.isArray(orgInfo.value.dwInfos) ? orgInfo.value.dwInfos : []
 }
-
 const isCurrentOrgRow = (row: RowVo) => {
   const currentIds = [userInfo.value?.org_id, userInfo.value?.specialorgid, orgInfo.value.cropId, ...getOrgDwInfos()]
     .filter(Boolean)
@@ -657,17 +705,14 @@ const isCurrentOrgRow = (row: RowVo) => {
   const rowName = row.dwName ? row.dwName.toString() : ''
   return currentIds.includes(rowCode) || currentNames.some((name) => rowName.includes(name) || name.includes(rowName))
 }
-
 const isValidDetailRow = (row?: RowVo) => {
   if (!row) return false
   if (row.dwType === '-1') return false
   return !['合计', '待分解'].includes(row.dwName)
 }
-
 const getFirstValidDetailRow = () => {
   return gridOptions.data?.find((row: RowVo) => isValidDetailRow(row))
 }
-
 const operationData = (data: RowVo[]) => {
   let columnsItems: Column[] = []
   let columnsItemsFields: string[] = []
@@ -811,7 +856,8 @@ const calcTotalSum = <T extends keyof RowVo>(totalItem: RowVo, item: RowVo, colu
 const caclWclSum = (calcValueArr: RowVo[] | RowVo, wclColumnItems: Column[]) => {
   // 比率列后缀 → 对应的分子字段后缀；分母统一为目标值 Mbz
   const RATE_SUFFIX_MAP: Record<string, string> = {
-    Wcl: 'Wcz', // 完成率 = 完成值 / 目标值
+    Wcl: 'Wcz',
+    // 完成率 = 完成值 / 目标值
     Lxl: 'Lxz' // 立项率 = 立项值 / 目标值
   }
   const setWclValue = (row: RowVo) => {
@@ -851,7 +897,9 @@ const caclWclSum = (calcValueArr: RowVo[] | RowVo, wclColumnItems: Column[]) => 
  * @param value 需要设置的默认值
  */
 const clearObjectOptimized = (obj: RowVo, keyStr: string, value: string) => {
-  const newObj = { ...obj }
+  const newObj = {
+    ...obj
+  }
   Object.keys(newObj).forEach((key) => {
     if (key === keyStr) newObj[key] = value
     else newObj[key] = ''
@@ -906,7 +954,6 @@ const disabledTime = (time: Date) => {
   return time.getFullYear() <= 2024
   // return false;
 }
-
 const changeYjdwDataHandle = async (yjdw: string) => {
   if (!yjdw) {
     formData.cxjb = '0'
@@ -919,7 +966,6 @@ const changeYjdwDataHandle = async (yjdw: string) => {
   formData.cxjb = '1'
   await getEjdwDataList(yjdw)
 }
-
 const changeEjdwDataHandle = async (ejdw: string) => {
   if (!ejdw) {
     formData.cxjb = '1'
@@ -930,7 +976,6 @@ const changeEjdwDataHandle = async (ejdw: string) => {
   formData.cxjb = '2'
   await getGkbmDataList(ejdw)
 }
-
 const changeGkbmDataHandle = async (ejdw: string) => {
   if (!ejdw) {
     formData.cxjb = '2'
@@ -938,7 +983,6 @@ const changeGkbmDataHandle = async (ejdw: string) => {
   }
   formData.cxjb = '3'
 }
-
 const clearOrgFilterData = () => {
   formData.yjdw = ''
   formData.ejdw = ''
@@ -947,7 +991,6 @@ const clearOrgFilterData = () => {
   formList.ejdwList.length = 0
   formList.gkbmList.length = 0
 }
-
 const setRoleDefaultFilterData = async () => {
   clearOrgFilterData()
   if (yjdwDisabled.value && orgInfo.value.orgFlag !== 'COUNTY') formData.yjdw = orgInfo.value.cropId
@@ -962,19 +1005,17 @@ const setRoleDefaultFilterData = async () => {
   if (formData.yjdw) {
     await changeYjdwDataHandle(formData.yjdw)
   }
-  if (ejdwDisabled.value && (orgInfo.value.orgFlag === 'COUNTY' || orgInfo.value.orgFlag === 'PROVINCE')) formData.ejdw = orgInfo.value.cropId
+  if (ejdwDisabled.value && (orgInfo.value.orgFlag === 'COUNTY' || orgInfo.value.orgFlag === 'PROVINCE'))
+    formData.ejdw = orgInfo.value.cropId
   if (ejdwDisabled.value && orgInfo.value.orgFlag === 'CITY') formData.ejdw = userInfo.value.org_id
-
   if (formData.ejdw) {
     await changeEjdwDataHandle(formData.ejdw)
     if (gkbmDisabled.value) getNameFindCode(userInfo.value.specialorgname)
   }
 }
-
 const applyRoleDetailFilterData = async () => {
   await setRoleDefaultFilterData()
 }
-
 const viewDetailHandle = async (row?: RowVo) => {
   if (!canViewDetail.value || gridOptions.loading) return
   const targetRow = row || getFirstValidDetailRow()
@@ -986,11 +1027,9 @@ const viewDetailHandle = async (row?: RowVo) => {
   await applyRoleDetailFilterData()
   await getDataHandle()
 }
-
 const cellClickHandle = async ({ row }: VxeTableDefines.CellClickParams) => {
   await viewDetailHandle(row as any)
 }
-
 const backOverviewHandle = async () => {
   if (!canBackOverview.value || gridOptions.loading) return
   isDetailMode.value = false
@@ -1012,7 +1051,9 @@ const exportDataHandle = () => {
     gridOptions.data,
     xsws,
     formulaConfig,
-    { tbhbMode: true },
+    {
+      tbhbMode: true
+    },
     sumConfig,
     inlineSumOptions,
     rankFormulaConfig
@@ -1034,12 +1075,13 @@ const openTbhbModal = (type: 'tb' | 'hb') => {
   if (gridOptions.loading) return
   tbhbModalRef.value?.open({
     type,
-    formData: { ...getRequestFormData() },
+    formData: {
+      ...getRequestFormData()
+    },
     dwId: userInfo.value?.org_id,
     xsws: formData.xsws
   })
 }
-
 const handleTb = () => openTbhbModal('tb')
 const handleHb = () => openTbhbModal('hb')
 
@@ -1098,20 +1140,22 @@ const resetDataHandle = async () => {
   formData.ysqj = formData.year + '-' + formData.month.padStart(2, '0')
   await getDataHandle()
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   if (isQuery) {
     initParams(userInfo.value.specialorgid, userInfo.value.org_id)
     pageInfo.isShowPage = true
   }
 }
-
 const getInitDataInfo = async (specialorgid: string, spOrgId: string) => {
   formData.cxjb = '0'
   let res = await getInitData(specialorgid, spOrgId)
-  orgInfo.value = { ...res.data } as OrgInfo
+  orgInfo.value = {
+    ...res.data
+  } as OrgInfo
   isDetailMode.value = false
   if (isCityOrCounty.value) {
     await setRoleDefaultFilterData()
@@ -1119,7 +1163,6 @@ const getInitDataInfo = async (specialorgid: string, spOrgId: string) => {
     await applyRoleDetailFilterData()
   }
 }
-
 const getPublicCodeData = async () => {
   const codes = ['YSZTZXQK_YSQJ_COM', 'YSZXFXDWLX', 'XSWS']
   let res = await getPublicCodeList({
@@ -1155,7 +1198,6 @@ const getPublicCodeData = async () => {
     diabledDate.value = '2025'
   }
 }
-
 const initParams = async (specialorgid: string, spOrgId: string) => {
   let date = new Date()
   if (date.getFullYear() <= 2024) {
@@ -1171,7 +1213,6 @@ const initParams = async (specialorgid: string, spOrgId: string) => {
   await getInitDataInfo(specialorgid, spOrgId)
   getDataHandle()
 }
-
 const getNameFindCode = (name: string) => {
   if (formList.gkbmList.length !== 0) {
     let res = formList.gkbmList.find((item: any) => item.deptName.includes(name))
@@ -1180,7 +1221,6 @@ const getNameFindCode = (name: string) => {
     }
   }
 }
-
 onMounted(() => {
   userDialogRef.value.getUser()
 })

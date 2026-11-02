@@ -36,18 +36,21 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/typezhi/cnxwh'
-}
-</script>
+
 <script setup lang="ts">
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
-import { getPublicData } from '@/api/common' //公共代码
+import userDialog from '@/components/select/userDialog.vue'
+import { getPublicData } from '@/api/common'
 import { onMounted, ref, reactive, nextTick } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { yszxfxcnxGetPage, yszxfxcnxSaveOrUpdate, yszxfxcnxDelete } from '@/api/service/expertinformation'
+defineOptions({
+  name: '/service/typezhi/cnxwh'
+})
+ //权限弹框
+ //公共代码
+
+ //表格组件
 
 const chooseNode = ref('') //节点id
 const treeRef = ref() //节点数
@@ -68,7 +71,6 @@ const dialogFormRef = ref('')
 const rmarkData = ref<any>({})
 const ruleFormRef = ref()
 const proTableRef = ref()
-
 const defaultProps = {
   children: 'children',
   label: 'name'
@@ -121,7 +123,6 @@ const pageListData = (val: any) => {
   loading.value = false
   return val
 }
-
 const filterTreeData = (val: string, data: any) => {
   if (!val) return true
   return data.name.indexOf(val) !== -1
@@ -139,13 +140,13 @@ const addMsgHandle = () => {
   if (chooseNode.value == '') return ElMessage.warning('请选择年份')
   rmarkData.value = {}
   dialogType.title = `新增`
-  ;(dialogType.type = 'add'), (dialogType.isShow = true)
+  ;((dialogType.type = 'add'), (dialogType.isShow = true))
 }
 //编辑
 const editMsgHandle = (selectedList: any) => {
   if (chooseNode.value == '') return ElMessage.warning('请选择年份')
   dialogType.title = `编辑`
-  ;(dialogType.type = 'edit'), (dialogType.isShow = true)
+  ;((dialogType.type = 'edit'), (dialogType.isShow = true))
   rmarkData.value = selectedList[0]
 }
 
@@ -161,7 +162,9 @@ const delMsgHandle = (selectedListIds: any) => {
     })
       .then(() => {
         loading.value = true
-        yszxfxcnxDelete({ ids: selectedListIds }).then((res: any) => {
+        yszxfxcnxDelete({
+          ids: selectedListIds
+        }).then((res: any) => {
           if (res.success) {
             loading.value = false
             ElMessage.success('删除成功')
@@ -191,16 +194,21 @@ const pushMsgHandle = () => {
     }).then((res: any) => {
       if (res.success) {
         loading.value = false
-        ElMessage({ type: 'success', message: '保存成功' })
+        ElMessage({
+          type: 'success',
+          message: '保存成功'
+        })
         closeHandle()
       } else {
         loading.value = false
-        ElMessage({ type: 'error', message: res.msg })
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
       }
     })
   })
 }
-
 const initParamLists = async () => {
   // 获取公共代码
   const publicCodeList = await getPublicData('NDCX')
@@ -208,14 +216,15 @@ const initParamLists = async () => {
     pageList.value = publicCodeList.data
   }
 }
-
 const userInfo = ref<any>()
 
 // 选择角色
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       await initParamLists()
@@ -224,7 +233,6 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 const closeHandle = () => {
   ruleFormRef.value.resetFields()
   proTableRef.value?.getTableList()
@@ -243,11 +251,30 @@ const handerClickTable = async (val: any) => {
   })
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'cnxId', label: '承诺项编码', width: '180' },
-  { prop: 'cnxName', label: '承诺项名称', width: '280' },
-  { prop: 'nd', label: '年度', width: '280' }
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'cnxId',
+    label: '承诺项编码',
+    width: '180'
+  },
+  {
+    prop: 'cnxName',
+    label: '承诺项名称',
+    width: '280'
+  },
+  {
+    prop: 'nd',
+    label: '年度',
+    width: '280'
+  }
 ])
 </script>
 

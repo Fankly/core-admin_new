@@ -91,11 +91,7 @@
   <DetailView :tzType="'1'" :ystzInfo="ystzInfo" :initParams="initParams" :yskmName="yskmName" :bzdw="initParams.dwName" ref="detailViewRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/fy/daily/province'
-}
-</script>
+
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
@@ -130,6 +126,9 @@ import { submitWorkflow, WFParam, WFUserInfo } from '@/hooks/useWorkflow'
 import { useStore } from '@/store/business'
 import { startRcProReportWf } from '@/api/workflow/fy'
 import { getWfTracking } from '@/api/workflow'
+defineOptions({
+  name: '/fy/daily/province'
+})
 
 const userDialogRef = ref()
 const headerRef = ref()
@@ -138,22 +137,17 @@ const tableRef = ref()
 const tzsmRef = ref()
 const detailViewRef = ref()
 const toolbarOneRef = ref()
-
 const store = useStore()
-
 const tabInfo = reactive({
   kmlx: '1'
 })
-
 const pageInfo = reactive({
   isShowPage: false,
   isProvince: true
 })
-
 const tzsmInfo = reactive({
   isShow: false
 })
-
 const initParams = reactive({
   busiType: 'RQ',
   kmlx: '',
@@ -164,29 +158,19 @@ const initParams = reactive({
   dwName: '',
   statusInfo: ''
 })
-
 const yskmName = ref('')
-
 const pageLoading = ref(false)
-
 const userInfo = ref()
-
 const isDisabled = computed(() => (rcActiveInfo.value && !rcActiveInfo.value.ndYsSd) || tableInfo.loading)
-
 const isRelease = computed(
   () => (rcActiveInfo.value && (rcActiveInfo.value.status !== '1' || rcActiveInfo.value.auditStatus === '2')) || tableInfo.loading
 )
-
 const isDwtz = computed(() => (rcActiveInfo.value && !rcActiveInfo.value.ndYsSd) || tableInfo.loading)
-
 const isKmtz = computed(() => (rcActiveInfo.value && !rcActiveInfo.value.ndYsSd) || tableInfo.loading)
-
 const isWfId = computed(() => rcActiveInfo.value && !rcActiveInfo.value.wfId)
-
 const activeCellMethod = ({ row }: any) => {
   return row.id && !row.leaf
 }
-
 const tableInfo: TableInfo = reactive({
   rowConfig: {
     height: 32
@@ -225,14 +209,12 @@ const tableInfo: TableInfo = reactive({
     }
   }
 })
-
 const headerCellStyle = () => {
   return {
     padding: '8px 0',
     lineHeight: '16px'
   }
 }
-
 const linkTable = async () => {
   const $table = tableRef.value
   const $toolBar = toolbarOneRef.value
@@ -240,7 +222,6 @@ const linkTable = async () => {
     await $table.connect($toolBar)
   }
 }
-
 const ystzInfo = reactive<YstzInfo>({
   isCity: false,
   title: '',
@@ -256,12 +237,12 @@ const ystzInfo = reactive<YstzInfo>({
   yskmPath: [],
   operation: 'edit'
 })
-
 const rcActiveInfo = ref()
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   initParams.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString()
   initParams.xsws = headerRef.value.formParams.xsws || '2'
   ystzInfo.xsws = initParams.xsws
@@ -274,12 +255,10 @@ const getRoleHandle = async () => {
     await linkTable()
   }
 }
-
 const isClickHeader = (columns: any, field: string) => {
   let column = columns.findIndex((item: any) => item.eidt && item.columnKey === field)
   return column > -1
 }
-
 const cellStyle = ({ row, column }: any) => {
   if (tableInfo.editConfig && !tableInfo.editConfig.enabled) {
     return {
@@ -293,7 +272,6 @@ const cellStyle = ({ row, column }: any) => {
       backgroundColor: 'rgba(232, 234, 236,0.5)'
     }
   }
-
   if (!row.id || row.leaf) {
     return {
       cursor: 'auto',
@@ -301,18 +279,15 @@ const cellStyle = ({ row, column }: any) => {
     }
   }
 }
-
 const formatterData = (item: Columns, column: any, cellValue: any) => {
   if (!item.needSum) return cellValue
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   return formatValue(cellValue, Number(initParams.xsws))
 }
-
 const sumhandle = (row: any, key: string) => {
   row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(initParams.xsws)) : new Decimal(0).toFixed(Number(initParams.xsws))
   getGroupSummary(tableInfo.tableData, tableInfo.treeConfig as any, key, Number(initParams.xsws), 'leaf', 'id')
 }
-
 const initTableData = async () => {
   tableInfo.loading = true
   let params = {
@@ -332,7 +307,6 @@ const initTableData = async () => {
   }
   tableInfo.loading = false
 }
-
 const tabClickHandle = () => {
   initParams.kmlx = tabInfo.kmlx
   // 初始化初始用户状态
@@ -343,7 +317,6 @@ const tabClickHandle = () => {
   ystzInfo.yskm = ''
   yskmName.value = ''
 }
-
 const currentChangeHandle: VxeTableEvents.CurrentRowChange = ({ newValue }) => {
   ystzInfo.yskm = null
   if (newValue.id && !newValue.leaf && newValue.cnx) {
@@ -351,7 +324,6 @@ const currentChangeHandle: VxeTableEvents.CurrentRowChange = ({ newValue }) => {
     yskmName.value = newValue.name
   }
 }
-
 const changeNdHandle = (val: string) => {
   initParams.nd = val
   // 初始化初始用户状态
@@ -361,7 +333,6 @@ const changeNdHandle = (val: string) => {
   if (ystzInfo.yskm) ystzInfo.yskm = null
   tableRef.value.clearCurrentRow()
 }
-
 const changeXswsHandle = (val: string) => {
   initParams.xsws = val
   // 初始化初始用户状态
@@ -371,11 +342,9 @@ const changeXswsHandle = (val: string) => {
   if (ystzInfo.yskm) ystzInfo.yskm = null
   tableRef.value.clearCurrentRow()
 }
-
 const tzReleaseHandle = () => {
   tzsmInfo.isShow = true
 }
-
 const releaseHandle = async (val: string) => {
   // 判断是否走工作流
   let paramFLag = '1' //0走工作流  1不走工作流
@@ -421,7 +390,6 @@ const releaseHandle = async (val: string) => {
       break
   }
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: any) => {
   const list: any[] = JSON.parse(wfData).WorkFlowDataList.WorkFlowData
   let obj: any = {}
@@ -451,14 +419,12 @@ const submitWFCallback = async (nextPersonAndPath: string, wfData: any) => {
     ElMessage.error(res.msg)
   }
 }
-
 const closeModalHandle = (val: boolean) => {
   tzsmRef.value.clearValue()
   tzsmInfo.isShow = val
   if (ystzInfo.yskm) ystzInfo.yskm = null
   tableRef.value.clearCurrentRow()
 }
-
 const ystzHandle = (flag: string) => {
   if ('km' === flag && !ystzInfo.yskm) {
     ElMessage.warning('请选择具有承诺项的数据!')
@@ -473,7 +439,6 @@ const ystzHandle = (flag: string) => {
   ystzInfo.dwId = initParams.dwId
   ystzRef.value.isShowModal = true
 }
-
 const isDwOrYskmInfo = (flag: string) => {
   if (flag === 'dw') {
     ystzInfo.title = '单位调整'
@@ -489,7 +454,6 @@ const isDwOrYskmInfo = (flag: string) => {
     ystzInfo.yskmPath = findPrevNode(tableInfo.tableData, ystzInfo.yskm)
   }
 }
-
 const saveHandle = async () => {
   const $table = tableRef.value.getUpdateRecords()
   if ($table.length === 0) {
@@ -551,7 +515,6 @@ const tzDetailViewHandle = () => {
   }
   detailViewRef.value.showModal = true
 }
-
 const openTodoTaskDesc = () => {
   if (rcActiveInfo.value.wfId) {
     const winWidth = screen.width
@@ -569,11 +532,9 @@ const openTodoTaskDesc = () => {
     })
   }
 }
-
 const updateValueHandle = (params: SaveData) => {
   saveData(params)
 }
-
 const exportDataHandle = async (params: SaveData) => {
   let res
   if (params.flag === 'km') {
@@ -595,9 +556,10 @@ const exportDataHandle = async (params: SaveData) => {
   tableInfo.loading = false
   ystzRef.value.disabled = false
 }
-
 const saveData = async (params: SaveData) => {
-  let newParams: any = { ...params }
+  let newParams: any = {
+    ...params
+  }
   const $table = ystzRef.value.table
   const records = $table.getUpdateRecords()
   if (records.length === 0) {
@@ -657,25 +619,24 @@ const saveData = async (params: SaveData) => {
     }
   }
 }
-
 const initData = async () => {
   userDialogRef.value.getUser()
 }
-
 const initRcActiveInfo = async () => {
   let res = await getRcActiveInfo(initParams.dwId, initParams.kmlx, initParams.nd, initParams.xsws)
   if (res.success) {
     initParams.dwId = res.data.dwId
     initParams.dwName = res.data.dwName
     initParams.statusInfo = res.data.statusInfo
-    rcActiveInfo.value = { ...res.data }
+    rcActiveInfo.value = {
+      ...res.data
+    }
     tableInfo.editConfig.enabled = rcActiveInfo.value.ndYsSd
   } else {
     pageInfo.isProvince = false
     ElMessage.error(res.msg)
   }
 }
-
 onMounted(() => {
   initData()
 })

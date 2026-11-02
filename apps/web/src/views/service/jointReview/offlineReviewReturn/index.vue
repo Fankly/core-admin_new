@@ -174,9 +174,7 @@
 </template>
 
 <script setup lang="ts">
-import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/service/jointReview/offlineReviewReturn/index" })
+import { CurrentUserRoleInjectionKey, PermissionInjectionKey } from '@/components/UserRoleSelector/interface'
 import { computed, defineAsyncComponent, nextTick, onMounted, provide, reactive, ref } from 'vue'
 import { pageSjtcMeetingInfo } from '@/api/service/IhhsMeeting/offlineReview'
 import { getPublicData, getGkbmInProvince } from '@/api/common'
@@ -185,7 +183,6 @@ import { ElForm, ElMessage } from 'element-plus'
 import type { VxeTableInstance } from 'vxe-table'
 import { checkPermission, formatNumValue } from '@/utils/utils'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
-import { PermissionInjectionKey } from '@/components/UserRoleSelector/interface'
 import type { UserRole } from '@/components/UserRoleSelector/interface'
 import { useUser } from '@/hooks/useUser'
 import { useStore } from '@/store/business'
@@ -194,13 +191,14 @@ import baseService from '@/service/baseService'
 import { encrypt } from '@/utils/crypto'
 import { useReviewModeCode } from '@/hooks/useReviewModeCode'
 import ExpertProcessModal from '@/views/service/jointReview/components/ExpertProcessModal.vue'
+defineOptions({
+  name: '/service/jointReview/offlineReviewReturn/index'
+})
 
 const ExpertManagementModal = defineAsyncComponent(
   () => import('@/views/service/approval/provinceLhhsMeeting/components/expertManagementModal/index.vue')
 )
-
 type MeetingRow = Record<string, any>
-
 interface JointReviewUserInfo {
   deptId: string
   deptName: string
@@ -212,7 +210,6 @@ interface JointReviewUserInfo {
   roleId: string
   fqzzFlag: string
 }
-
 const userRoleSelectorRef = ref<InstanceType<typeof UserRoleSelector>>()
 const searchFormRef = ref<InstanceType<typeof ElForm>>()
 const vxeTableRef = ref<VxeTableInstance>()
@@ -235,7 +232,6 @@ const bmInfo = ref({
   name: '',
   code: ''
 })
-
 const currentUserRole = ref<UserRole>({
   bmName: '',
   dwName: '',
@@ -246,7 +242,6 @@ const currentUserRole = ref<UserRole>({
   specialOrgCode: '',
   spRoleId: ''
 })
-
 const userInfo = ref<JointReviewUserInfo>({
   deptId: '',
   deptName: '',
@@ -258,7 +253,6 @@ const userInfo = ref<JointReviewUserInfo>({
   roleId: '',
   fqzzFlag: ''
 })
-
 const searchForm = reactive({
   meetingName: '',
   status: '',
@@ -268,22 +262,18 @@ const searchForm = reactive({
   pspcId: '',
   zgkbmId: ''
 })
-
 const page = reactive({
   page: 1,
   limit: 20,
   total: 0
 })
-
 const buttonPermissions = computed<string[]>(() => {
   const selectorPermissions = userRoleSelectorRef.value?.permissions || []
   return selectorPermissions.length ? selectorPermissions : store.state.permissions || []
 })
-
 const hasButtonPermission = (permission: string) => {
   return checkPermission(buttonPermissions.value, permission)
 }
-
 provide(CurrentUserRoleInjectionKey, currentUserRole)
 provide(PermissionInjectionKey, {
   get permissions() {
@@ -293,7 +283,6 @@ provide(PermissionInjectionKey, {
     return Boolean(userRoleSelectorRef.value?.loading)
   }
 })
-
 const statusMap = computed<Record<string, any>>(() => {
   const map: Record<string, any> = {}
   statusEnum.value.forEach((item) => {
@@ -301,7 +290,6 @@ const statusMap = computed<Record<string, any>>(() => {
   })
   return map
 })
-
 const getStatusTag = (status: unknown) => {
   const item = statusMap.value[String(status)] || {}
   return {
@@ -309,17 +297,14 @@ const getStatusTag = (status: unknown) => {
     type: item.tagType || 'primary'
   }
 }
-
 const formatAmount = (value: unknown) => {
   if (value === undefined || value === null || value === '') return '-'
   return formatNumValue(value as string | number, 6)
 }
-
 const clearSelect = () => {
   selectedRows.value = []
   vxeTableRef.value?.clearCheckboxRow()
 }
-
 const handleClickRow = async ({ row, column }: any) => {
   if (column?.type === 'checkbox') return
   await nextTick()
@@ -327,11 +312,9 @@ const handleClickRow = async ({ row, column }: any) => {
   await vxeTableRef.value?.setCheckboxRow(row, true)
   selectedRows.value = [row]
 }
-
 const handleSelectionChange = ({ records }: any) => {
   selectedRows.value = records || []
 }
-
 const buildPageParams = () => {
   const params: Record<string, any> = {
     meetingName: searchForm.meetingName,
@@ -354,7 +337,6 @@ const buildPageParams = () => {
   }
   return params
 }
-
 const loadTableData = async () => {
   loading.value = true
   try {
@@ -373,12 +355,10 @@ const loadTableData = async () => {
     loading.value = false
   }
 }
-
 const searchHandle = () => {
   page.page = 1
   loadTableData()
 }
-
 const resetSearch = () => {
   searchFormRef.value?.resetFields()
   searchForm.meetingName = ''
@@ -392,18 +372,15 @@ const resetSearch = () => {
   page.page = 1
   loadTableData()
 }
-
 const pageChangeHandle = (currentPage: number) => {
   page.page = currentPage
   loadTableData()
 }
-
 const limitChangeHandle = (limit: number) => {
   page.page = 1
   page.limit = limit
   loadTableData()
 }
-
 const getPublicCodeData = async () => {
   try {
     const res = await getPublicData('LHHS_MEETING_STATUS')
@@ -485,7 +462,6 @@ const psmsView = async (row: any) => {
     taskAssignmentModalRef: taskAssignmentModalRef
   })
 }
-
 const getDateStartTime = (dateValue?: string) => {
   if (!dateValue) return 0
   const dateText = String(dateValue).split(' ')[0].split('T')[0]
@@ -495,7 +471,6 @@ const getDateStartTime = (dateValue?: string) => {
   const time = date.getTime()
   return Number.isNaN(time) ? 0 : time
 }
-
 const isExceedLhhsOneEndTime = (meetingInfo: any) => {
   const endTime = getDateStartTime(meetingInfo?.lhhsOneEndTime)
   if (!endTime) return false
@@ -550,7 +525,6 @@ const openExpertProcess = (selectList: MeetingRow[] = []) => {
     }
   })
 }
-
 const setCurrentUserRoleFromGlobalInfo = (globalInfo: JointReviewUserInfo) => {
   currentUserRole.value = {
     bmId: globalInfo.deptId,
@@ -563,7 +537,6 @@ const setCurrentUserRoleFromGlobalInfo = (globalInfo: JointReviewUserInfo) => {
     specialOrgCode: globalInfo.specialorgcode
   }
 }
-
 const buildUserInfoFromCurrentRole = (fqzzFlag: string): JointReviewUserInfo => ({
   deptId: currentUserRole.value.bmId,
   deptName: currentUserRole.value.bmName,
@@ -575,7 +548,6 @@ const buildUserInfoFromCurrentRole = (fqzzFlag: string): JointReviewUserInfo => 
   specialorgcode: currentUserRole.value.specialOrgCode,
   fqzzFlag
 })
-
 const getRoleHandle = async () => {
   if (!userRoleSelectorRef.value?.canRender || !currentUserRole.value.bmId) return
   const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${currentUserRole.value.bmId}`)
@@ -590,19 +562,19 @@ const getRoleHandle = async () => {
     await loadTableData()
   }
 }
-
 const initParams = () => {
   getPublicCodeData()
   loadReviewModeOptions()
   loadNdOptions()
 }
-
 onMounted(async () => {
   initParams()
   const isRoel = await useUser('getJRGlobalInfo')
   if (isRoel && route.params.formJsc) {
     const jRGlobalInfo = store.getters.getJRGlobalInfo as JointReviewUserInfo
-    userInfo.value = { ...jRGlobalInfo }
+    userInfo.value = {
+      ...jRGlobalInfo
+    }
     setCurrentUserRoleFromGlobalInfo(jRGlobalInfo)
     await loadGkbmOptions()
     loadBatchOptions()

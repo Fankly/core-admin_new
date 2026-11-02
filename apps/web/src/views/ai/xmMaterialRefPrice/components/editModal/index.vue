@@ -83,11 +83,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'xmMaterialRefPriceEditModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -95,13 +90,15 @@ import { ElMessage } from 'element-plus'
 import { saveOrUpdateXmMaterialRefPrice } from '@/api/ai/xmMaterialRefPrice'
 import type { XmMaterialRefPriceEditParams } from '@/api/ai/xmMaterialRefPrice'
 import { VXETable } from 'vxe-table'
+defineOptions({
+  name: 'xmMaterialRefPriceEditModal'
+})
 
 /** 弹窗参数 */
 interface ModalParams {
   type: string
   searchParams: Partial<XmMaterialRefPriceEditParams>
 }
-
 interface EditFormData {
   id?: string
   materialMajor: string
@@ -113,16 +110,18 @@ interface EditFormData {
   priceExTax: string
   priceInTax: string
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
 const modalTitle = ref('')
-
 const createEmptyForm = (): EditFormData => ({
   id: undefined,
   materialMajor: '',
@@ -134,9 +133,7 @@ const createEmptyForm = (): EditFormData => ({
   priceExTax: '',
   priceInTax: ''
 })
-
 const formData = ref<EditFormData>(createEmptyForm())
-
 const handleClose = () => {
   ruleFormRef.value?.resetFields()
   formData.value = createEmptyForm()
@@ -150,12 +147,10 @@ const validateNumber = (_rule: any, value: string, callback: any) => {
   if (isNaN(Number(normalized))) return callback(new Error('请输入有效数字'))
   callback()
 }
-
 const handleSave = () => {
   if (loading.value) return
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -167,7 +162,6 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
       const payload: XmMaterialRefPriceEditParams = {
@@ -186,7 +180,9 @@ const handleSave = () => {
       const res = await saveOrUpdateXmMaterialRefPrice(payload)
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -198,7 +194,6 @@ const handleSave = () => {
     }
   })
 }
-
 const acceptParams = (params: ModalParams) => {
   modalTitle.value = params.type
   formData.value = {
@@ -214,8 +209,9 @@ const acceptParams = (params: ModalParams) => {
   }
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

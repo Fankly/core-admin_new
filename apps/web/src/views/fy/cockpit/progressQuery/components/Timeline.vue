@@ -7,28 +7,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps } from "vue";
-import type { ProcessStep } from "../types";
-import TimelineItem from "./TimelineItem.vue";
-
+import { computed } from 'vue'
+import type { ProcessStep } from '../types'
+import TimelineItem from './TimelineItem.vue'
 interface Props {
-  processSteps: ProcessStep[];
+  processSteps: ProcessStep[]
 }
-
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 const processHeight = computed(() => {
-  const totalSteps = props.processSteps.length;
-  if (totalSteps === 0) return "0%";
-
-  let lastActiveIndex = -1;
+  const totalSteps = props.processSteps.length
+  if (totalSteps === 0) return '0%'
+  let lastActiveIndex = -1
   for (let i = 0; i < props.processSteps.length; i++) {
-    if (props.processSteps[i].status === "1" || props.processSteps[i].status === "2") {
-      lastActiveIndex = i;
+    if (props.processSteps[i].status === '1' || props.processSteps[i].status === '2') {
+      lastActiveIndex = i
     }
   }
-  if (lastActiveIndex === -1) return "0%";
-  return `calc(${lastActiveIndex}* 125px + 42px)`;
-});
+  if (lastActiveIndex === -1) return '0%'
+  return `calc(${lastActiveIndex}* 125px + 42px)`
+})
 </script>
 
 <style scoped>

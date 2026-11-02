@@ -30,17 +30,13 @@
 </template>
 
 <script setup lang="ts">
-import {
-  searchCsParamList,
-  getDynamicTableByUser
-} from '@/api/service/requirement'
+import { searchCsParamList, getDynamicTableByUser } from '@/api/service/requirement'
 import { Configs, MenuConfig } from '@/views/service/xq/interface'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
-import { computed, defineExpose, onMounted, reactive, ref, defineProps } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
 import { VxeGridProps, VXETable } from 'vxe-table'
-
 interface RowVo {
   code: string
   name: string
@@ -64,9 +60,7 @@ interface RowVo {
   exemption_name: string
   zlzcsyksynx: string
 }
-
 const route = useRoute()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const gridRef = ref()
@@ -90,11 +84,9 @@ const userInfo = ref<{
   specialorgcode: '',
   spRoleId: ''
 })
-
 const store = useStore()
 const userInfOther = ref<any>()
 const defaultValueProp = ref<any>({})
-
 const searchData = ref<{
   [key: string]: any
 }>({})
@@ -103,21 +95,17 @@ const page = {
   limit: 20,
   page: 1
 }
-
 const props = defineProps({
   selectData: {
     type: Object as any,
     required: true
   }
 })
-
 const isShowPage = ref(false)
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchDataHandle()
 }
-
 const limitChangeHandle = (currentLimitNum: number) => {
   page.page = 1
   page.limit = currentLimitNum
@@ -144,7 +132,6 @@ const searchDataHandle = async () => {
     loading.value = false
   }
 }
-
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   columnConfig: {
@@ -160,7 +147,6 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
   },
   columns: []
 })
-
 const getDynamicTable = async () => {
   const res = await getDynamicTableByUser({
     searchCode: searchCode.value
@@ -184,22 +170,18 @@ const getDynamicTable = async () => {
     })
   }
 }
-
 const cellClickHandle = async ({ row, column }: any) => {
   if (column.type === 'checkbox') return
   await gridRef.value.clearCheckboxRow()
   gridRef.value.setCheckboxRow(row, true)
 }
-
 onMounted(async () => {
   showHandle()
 })
-
 const showHandle = async () => {
   await getDynamicTable()
   await searchDataHandle()
 }
-
 defineExpose({
   isShowModal,
   loading

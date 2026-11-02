@@ -129,11 +129,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'smartTaskProgress'
-}
-</script>
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
@@ -152,12 +147,14 @@ import pdfIcon03 from '@/assets/images/smart-review/task-progress/assets/icons/i
 import xlsIcon01 from '@/assets/images/smart-review/task-progress/assets/icons/icon-file-xls-01.png'
 import xlsIcon02 from '@/assets/images/smart-review/task-progress/assets/icons/icon-file-xls-02.png'
 import xlsIcon03 from '@/assets/images/smart-review/task-progress/assets/icons/icon-file-xls-03.png'
+defineOptions({
+  name: 'smartTaskProgress'
+})
 
 type StatusTone = 'waiting' | 'running' | 'done' | 'failed'
 type PanelKey = 'transcode' | 'parse' | 'review'
 type ProgressDataKey = 'transcode' | 'extract' | 'aiAudit'
 type IconOccurrence = 1 | 2 | 3
-
 interface ProcessRow {
   name?: string
   startTime?: string
@@ -166,18 +163,15 @@ interface ProcessRow {
   statusName?: string
   [key: string]: unknown
 }
-
 interface ProgressData {
   transcode: ProcessRow[]
   extract: ProcessRow[]
   aiAudit: ProcessRow[]
 }
-
 interface StageConfig {
   title: string
   subtitle: string
 }
-
 interface PanelConfig {
   key: PanelKey
   dataKey: ProgressDataKey
@@ -194,19 +188,16 @@ interface PanelConfig {
   initialDoneCount: number
   stages: StageConfig[]
 }
-
 interface TaskPanelStage extends StageConfig {
   state: StatusTone
   revealDelay: string
 }
-
 interface TaskPanel extends PanelConfig {
   rows: ProcessRow[]
   revealCount: number
   state: StatusTone
   stages: TaskPanelStage[]
 }
-
 const panelConfigs: PanelConfig[] = [
   {
     key: 'transcode',
@@ -219,10 +210,22 @@ const panelConfigs: PanelConfig[] = [
     activeStageIndex: 2,
     initialDoneCount: 1,
     stages: [
-      { title: '上传文档', subtitle: '文档上传成功' },
-      { title: '等待转码', subtitle: '任务排队中' },
-      { title: '转码中', subtitle: '文档转码进行中' },
-      { title: '转码完成', subtitle: '文档转码完成' }
+      {
+        title: '上传文档',
+        subtitle: '文档上传成功'
+      },
+      {
+        title: '等待转码',
+        subtitle: '任务排队中'
+      },
+      {
+        title: '转码中',
+        subtitle: '文档转码进行中'
+      },
+      {
+        title: '转码完成',
+        subtitle: '文档转码完成'
+      }
     ]
   },
   {
@@ -236,9 +239,18 @@ const panelConfigs: PanelConfig[] = [
     activeStageIndex: 1,
     initialDoneCount: 0,
     stages: [
-      { title: '等待解析', subtitle: '文档已就绪' },
-      { title: '解析中', subtitle: '智能解析进行中' },
-      { title: '解析完成', subtitle: '文档解析完成' }
+      {
+        title: '等待解析',
+        subtitle: '文档已就绪'
+      },
+      {
+        title: '解析中',
+        subtitle: '智能解析进行中'
+      },
+      {
+        title: '解析完成',
+        subtitle: '文档解析完成'
+      }
     ]
   },
   {
@@ -252,13 +264,21 @@ const panelConfigs: PanelConfig[] = [
     activeStageIndex: 1,
     initialDoneCount: 0,
     stages: [
-      { title: '待审核', subtitle: '规则待审核' },
-      { title: '审核中', subtitle: '审核进行中' },
-      { title: '审核完成', subtitle: '审核已完成' }
+      {
+        title: '待审核',
+        subtitle: '规则待审核'
+      },
+      {
+        title: '审核中',
+        subtitle: '审核进行中'
+      },
+      {
+        title: '审核完成',
+        subtitle: '审核已完成'
+      }
     ]
   }
 ]
-
 const fileIconMap: Record<string, string> = {
   'doc-1': docIcon01,
   'doc-2': docIcon02,
@@ -270,7 +290,6 @@ const fileIconMap: Record<string, string> = {
   'xls-2': xlsIcon02,
   'xls-3': xlsIcon03
 }
-
 const isShowTable = ref(false)
 const loading = ref(false)
 const dataReady = ref(false)
@@ -279,15 +298,21 @@ const stageCount = (states: StatusTone[]) => {
   return states.some((state) => state === 'running' || state === 'failed') ? done + 1 : done
 }
 /** 弹窗参数：taskId 取数；projectName 只用于标题（「智能审核轨迹(项目名)」） */
-const formData = ref<{ taskId?: string; projectName?: string }>({})
+const formData = ref<{
+  taskId?: string
+  projectName?: string
+}>({})
 /** 标题照需求（2026-10-13）：智能审核轨迹(项目名)；宿主没给项目名时退回「智能审核轨迹」 */
 const progressTitle = computed(() => {
   const projectName = String(formData.value.projectName || '').trim()
   return projectName ? `智能审核轨迹(${projectName})` : '智能审核轨迹'
 })
-const progressData = ref<ProgressData>({ transcode: [], extract: [], aiAudit: [] })
+const progressData = ref<ProgressData>({
+  transcode: [],
+  extract: [],
+  aiAudit: []
+})
 let requestSequence = 0
-
 const getStatusTone = (value: unknown): StatusTone => {
   const status = String(value ?? '').trim()
   if (/失败|错误|异常|不通过|终止/.test(status)) return 'failed'
@@ -296,22 +321,17 @@ const getStatusTone = (value: unknown): StatusTone => {
   if (/已完成|完成|成功|通过|结束/.test(status)) return 'done'
   return 'waiting'
 }
-
 const isTranscodeFailure = (row: ProcessRow, panelKey: PanelKey) => panelKey === 'transcode' && String(row.status ?? '').trim() === '4'
-
 const getRowStatusTone = (row: ProcessRow, panelKey: PanelKey): StatusTone => {
   if (isTranscodeFailure(row, panelKey)) return 'failed'
   return getStatusTone(row.statusName)
 }
-
 const getStageStates = (config: PanelConfig, rows: ProcessRow[]): StatusTone[] => {
   const states: StatusTone[] = config.stages.map(() => 'waiting')
   const tones = rows.map((row) => getRowStatusTone(row, config.key))
   const activeIndex = config.activeStageIndex
   const failureIndex = config.key === 'transcode' ? config.stages.length - 1 : activeIndex
-
   if (tones.length && tones.every((tone) => tone === 'done')) return states.map(() => 'done')
-
   for (let index = 0; index < config.initialDoneCount; index += 1) states[index] = 'done'
   if (tones.includes('failed')) {
     for (let index = 0; index < failureIndex; index += 1) states[index] = 'done'
@@ -322,23 +342,19 @@ const getStageStates = (config: PanelConfig, rows: ProcessRow[]): StatusTone[] =
   }
   return states
 }
-
 const getConnectorState = (fromState: StatusTone, toState: StatusTone): StatusTone => {
   if (toState === 'failed') return 'failed'
   if (toState === 'running') return 'running'
   if (fromState === 'done') return 'done'
   return 'waiting'
 }
-
 const getPanelState = (states: StatusTone[]): StatusTone => {
   if (states.includes('failed')) return 'failed'
   if (states.includes('running')) return 'running'
   if (states.length && states.every((state) => state === 'done')) return 'done'
   return 'waiting'
 }
-
 const REVEAL_STEP_MS = 140
-
 const taskPanels = computed<TaskPanel[]>(() => {
   let offset = 0
   return panelConfigs.map((config) => {
@@ -366,26 +382,26 @@ const taskPanels = computed<TaskPanel[]>(() => {
     return panel
   })
 })
-
 const displayValue = (value: unknown) => {
   const text = String(value ?? '').trim()
   return text || '--'
 }
-
-const workflowRevealStyle = (panel: { stages: { revealDelay: string }[] }) => {
+const workflowRevealStyle = (panel: {
+  stages: {
+    revealDelay: string
+  }[]
+}) => {
   const vars: Record<string, string> = {}
   panel.stages.forEach((stage, index) => {
     vars[`--stage-delay-${index + 1}`] = stage.revealDelay
   })
   return vars
 }
-
 const displayStatus = (row: ProcessRow, panelKey: PanelKey) => {
   if (isTranscodeFailure(row, panelKey)) return '转码失败'
   const text = String(row.statusName ?? '').trim()
   return text || '等待中'
 }
-
 const getFileIcon = (fileName: unknown, occurrence: IconOccurrence) => {
   const name = String(fileName ?? '')
     .toLowerCase()
@@ -394,14 +410,15 @@ const getFileIcon = (fileName: unknown, occurrence: IconOccurrence) => {
   const type = extension === 'pdf' ? 'pdf' : ['doc', 'docx'].includes(extension) ? 'doc' : ['xls', 'xlsx'].includes(extension) ? 'xls' : ''
   return type ? fileIconMap[`${type}-${occurrence}`] : ''
 }
-
 const toRows = (value: unknown): ProcessRow[] =>
   Array.isArray(value) ? value.filter((row): row is ProcessRow => Boolean(row && typeof row === 'object')) : []
-
 const clearProgressData = () => {
-  progressData.value = { transcode: [], extract: [], aiAudit: [] }
+  progressData.value = {
+    transcode: [],
+    extract: [],
+    aiAudit: []
+  }
 }
-
 const closeSxModal = () => {
   requestSequence += 1
   loading.value = false
@@ -410,14 +427,12 @@ const closeSxModal = () => {
   formData.value = {}
   clearProgressData()
 }
-
 const loadProgress = async () => {
   const taskId = String(formData.value.taskId || '').trim()
   if (!taskId) {
     ElMessage.warning('当前任务缺少任务ID')
     return
   }
-
   const currentRequest = ++requestSequence
   loading.value = true
   clearProgressData()
@@ -441,19 +456,20 @@ const loadProgress = async () => {
     if (currentRequest === requestSequence) loading.value = false
   }
 }
-
 const acceptParams = async (param: { taskId?: string; projectName?: string }) => {
-  formData.value = { ...param }
+  formData.value = {
+    ...param
+  }
   dataReady.value = false
   isShowTable.value = true
   await loadProgress()
 }
-
 onBeforeUnmount(() => {
   requestSequence += 1
 })
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style scoped lang="less">

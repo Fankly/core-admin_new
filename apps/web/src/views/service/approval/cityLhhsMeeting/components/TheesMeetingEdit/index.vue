@@ -95,11 +95,9 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "TheesMeetingEdit" })
 import ReviewExpertModal from '@/views/service/approval/cityLhhsMeeting/components/ReViewModal/reviewExpertModal.vue'
 import ReviewProModal from '@/views/service/approval/cityLhhsMeeting/components/ReViewModal/reviewProModal.vue'
-
-import { ref, defineExpose, reactive, defineEmits, computed } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { getPublicCodesList } from '@/api/common'
 import { ElMessage } from 'element-plus'
 import {
@@ -109,6 +107,9 @@ import {
   PszyCodeItem,
   resolveMajorPszyList
 } from '@/views/service/approval/cityLhhsMeeting/utils/pszy'
+defineOptions({
+  name: 'TheesMeetingEdit'
+})
 
 const loading = ref(false)
 const reviewExpertModalRef = ref<InstanceType<typeof ReviewExpertModal>>()
@@ -169,16 +170,16 @@ const rules = reactive({
     }
   ]
 })
-
 const emit = defineEmits(['clearSelect'])
-
 const viewDetailMsg = (pageFlag: 'PROGRAM' | 'EXPERT', title: string) => {
   const row = modalProps.value.row
   const params = {
     pageFlag,
     title,
     isView: row['status'] === '00',
-    row: { ...row },
+    row: {
+      ...row
+    },
     btnPermissions: ['EXPORT'],
     bmId: modalProps.value.bmId,
     dwId: modalProps.value.dwId,
@@ -191,7 +192,6 @@ const viewDetailMsg = (pageFlag: 'PROGRAM' | 'EXPERT', title: string) => {
     reviewExpertModalRef.value?.acceptParams(params)
   }
 }
-
 interface ModalProps {
   title: string
   isView: boolean
@@ -203,7 +203,6 @@ interface ModalProps {
   roleCode?: string
   dwId?: string
 }
-
 const majorList = ref<PszyCodeItem[]>([])
 const modalVisible = ref(false)
 const modalProps = ref<ModalProps>({
@@ -215,15 +214,15 @@ const modalProps = ref<ModalProps>({
   roleCode: '',
   dwId: ''
 })
-
 const isCreate = computed(() => modalProps.value.title === '创建')
-
 const handleSubmit = () => {
   ruleFormRef.value.validate(async (valid: any) => {
     if (!valid) return
     try {
       loading.value = true
-      const row: any = { ...modalProps.value.row }
+      const row: any = {
+        ...modalProps.value.row
+      }
       row['major'] = Array.isArray(row['major']) ? row['major'].join(',') : row['major']
       const res = await modalProps.value.api!(row)
       if (!res.success) throw new Error(res.msg)
@@ -240,7 +239,6 @@ const handleSubmit = () => {
     }
   })
 }
-
 const changeStartTime = (val: string) => {
   if (val && modalProps.value.row?.endTime) {
     const startTime = new Date(val).getTime()
@@ -263,7 +261,6 @@ const changeEndTime = (val: string) => {
     }
   }
 }
-
 const initParams = async () => {
   try {
     const res = await getPublicCodesList({
@@ -288,19 +285,16 @@ const initParams = async () => {
     ElMessage.error(e.toString())
   }
 }
-
 const normalizeDate = (value: unknown) => {
   if (value === undefined || value === null || value === '') return ''
   const dateText = String(value).trim().replace('T', ' ')
   return dateText.slice(0, 10)
 }
-
 const normalizeMeetingTimeRow = (row: Partial<any> = {}) => ({
   ...row,
   startTime: normalizeDate(row.startTime),
   endTime: normalizeDate(row.endTime)
 })
-
 const acceptParams = (params: ModalProps) => {
   modalProps.value = {
     ...params,
@@ -309,13 +303,10 @@ const acceptParams = (params: ModalProps) => {
   initParams()
   modalVisible.value = true
 }
-
 const closeHandle = () => {
   modalVisible.value = false
 }
-
 const ruleFormRef = ref()
-
 defineExpose({
   acceptParams
 })

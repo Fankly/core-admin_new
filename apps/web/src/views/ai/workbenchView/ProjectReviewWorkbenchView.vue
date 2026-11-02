@@ -150,11 +150,6 @@
   <UserRoleSelector ref="userRoleSelectorRef" @loadCompany="getRoleHandle" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/ai/workbenchView/ProjectReviewWorkbenchView'
-}
-</script>
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
@@ -175,6 +170,9 @@ import DocumentPreviewPanel from './components/DocumentPreviewPanel.vue'
 import { useDocumentPreviewDrawer } from './composables/useDocumentPreviewDrawer'
 import { ArrowLeft } from './icons'
 import { useProjectReviewWorkbench } from './useProjectReviewWorkbench'
+defineOptions({
+  name: '/ai/workbenchView/ProjectReviewWorkbenchView'
+})
 
 const {
   isShowPage,
@@ -251,14 +249,15 @@ const {
   yjflChangeHandle,
   ejflChangeHandle
 } = useProjectReviewWorkbench()
-
 const isLeftCollapsed = ref(false)
 const isProjectInfoExpanded = ref(false)
 const previewStageRef = ref<HTMLElement | null>(null)
 const previewPanelRef = ref<InstanceType<typeof DocumentPreviewPanel> | null>(null)
 const projectDetailRef = ref<InstanceType<typeof CentralizedModification> | null>(null)
-const projectDetailData = ref({ id: '', xmlx: '' })
-
+const projectDetailData = ref({
+  id: '',
+  xmlx: ''
+})
 const {
   visible: isPreviewOpen,
   loading: previewLoading,
@@ -282,11 +281,9 @@ const {
   handleResizeKeydown: handlePreviewResizeKeydown,
   handleError: handlePreviewError
 } = useDocumentPreviewDrawer(previewStageRef)
-
 const openMaterialPreview = (file: TXmAttach, trigger?: HTMLElement | null) => {
   void openPreview(file, trigger)
 }
-
 const showProjectInfo = async () => {
   const project = selectedProject.value
   const id = String(project.xmId || project.proId || project.id || '').trim()
@@ -294,39 +291,54 @@ const showProjectInfo = async () => {
     ElMessage.warning('请选择一条项目数据')
     return
   }
-
   const xmlx = String(project.pro_type_id || project.proType || project.proTypeId || '').trim()
   if (!xmlx) {
     ElMessage.warning('当前项目缺少项目类型，无法查看详情')
     return
   }
-
-  projectDetailData.value = { id, xmlx }
+  projectDetailData.value = {
+    id,
+    xmlx
+  }
   await nextTick()
   if (projectDetailRef.value) projectDetailRef.value.isShowModal = true
 }
-
 const PRICE_LIBRARY_PATH = '/ai/materialPriceLibrary/index'
 
 /** 点击 .gwPriceView / .materialNewestPriceView：新标签页打开物料价格库对应 tab，携带当前角色 spRoleId 供目标页比对 */
 const handlePriceViewNavigate = (payload: AuditPriceViewPayload) => {
   const tab = payload.type === 'gwPriceView' ? 'materialPriceLibrary' : 'historyPriceSummary'
   const spRoleId = currentUserRole.value?.spRoleId || ''
-  openPopPage(PRICE_LIBRARY_PATH, spRoleId ? { tab, spRoleId } : { tab })
+  openPopPage(
+    PRICE_LIBRARY_PATH,
+    spRoleId
+      ? {
+          tab,
+          spRoleId
+        }
+      : {
+          tab
+        }
+  )
 }
-
 watch(
   () => selectedProject.value.taskId,
   () => {
     isProjectInfoExpanded.value = false
-    closePreview({ restoreFocus: false })
+    closePreview({
+      restoreFocus: false
+    })
     // 换项目后附件集合整体换掉，单条 blob 缓存按 id 命中会跨项目误用，这里连带作废
     clearPreviewCache()
   }
 )
-
 watch(isPreviewOpen, (visible) => {
-  if (visible) void nextTick(() => previewPanelRef.value?.focus({ preventScroll: true }))
+  if (visible)
+    void nextTick(() =>
+      previewPanelRef.value?.focus({
+        preventScroll: true
+      })
+    )
 })
 </script>
 

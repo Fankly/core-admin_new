@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, toRef, defineProps, defineExpose, defineEmits, watchEffect } from "vue";
-
+import { ref, toRef, watchEffect } from 'vue'
 const props = defineProps({
   treeData: {
     type: Array,
@@ -9,18 +8,18 @@ const props = defineProps({
   cnxDatas: Array,
   modelValue: {
     type: Object,
-    default: ""
+    default: ''
   },
   valueKey: {
     type: String,
-    default: "id"
+    default: 'id'
   },
   props: {
     type: Object,
     default: () => ({
-      children: "children",
-      isLeaf: "leaf",
-      label: "cnxName"
+      children: 'children',
+      isLeaf: 'leaf',
+      label: 'cnxName'
     })
   },
   clearable: {
@@ -37,113 +36,102 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: "请选择"
+    default: '请选择'
   },
   loadMethod: {
     type: Function,
     default: null
   }
-});
-
-const emits = defineEmits(["update:modelValue"]);
-
-const cnxDatas: any = toRef(props, "cnxDatas");
-
-const selectedValues = ref<any[]>([]);
-
+})
+const emits = defineEmits(['update:modelValue'])
+const cnxDatas: any = toRef(props, 'cnxDatas')
+const selectedValues = ref<any[]>([])
 const clearHandle = () => {
-  tree.value.setCheckedKeys([]);
-  emits("update:modelValue", []);
-};
-
-const tree = ref();
-
+  tree.value.setCheckedKeys([])
+  emits('update:modelValue', [])
+}
+const tree = ref()
 const handleCheckChange = (node: any) => {
   // 获取选中的子节点
-  const curNode = tree.value.getNode(node[props.valueKey]);
-  expandTreeNodeHandle(curNode);
+  const curNode = tree.value.getNode(node[props.valueKey])
+  expandTreeNodeHandle(curNode)
   const checkChildNodes = (node: any, checked: boolean) => {
-    const childNodes = node.childNodes || [];
+    const childNodes = node.childNodes || []
     childNodes.forEach((childNode: any) => {
-      tree.value.setChecked(childNode.data[props.valueKey], checked);
-      checkChildNodes(childNode, checked);
-    });
-  };
-  if (curNode.checked) {
-    checkChildNodes(curNode, true);
-  } else {
-    checkChildNodes(curNode, false);
+      tree.value.setChecked(childNode.data[props.valueKey], checked)
+      checkChildNodes(childNode, checked)
+    })
   }
-  getCheckedDataHandle();
-};
-
+  if (curNode.checked) {
+    checkChildNodes(curNode, true)
+  } else {
+    checkChildNodes(curNode, false)
+  }
+  getCheckedDataHandle()
+}
 const getCheckedDataHandle = () => {
-  const selectedDatas: any[] = [];
-  const selectedLabels: any[] = [];
+  const selectedDatas: any[] = []
+  const selectedLabels: any[] = []
   if (tree.value) {
-    const childNodes = tree.value.getCheckedNodes(true, false);
+    const childNodes = tree.value.getCheckedNodes(true, false)
     childNodes.forEach((item: any) => {
       if (item.leaf) {
         selectedDatas.push({
           cnx: item.cnxId,
           cnxId: item.id
-        });
-        selectedLabels.push(item.name);
+        })
+        selectedLabels.push(item.name)
       }
-    });
-    selectedValues.value = selectedLabels;
+    })
+    selectedValues.value = selectedLabels
   }
-  emits("update:modelValue", selectedDatas);
-};
-
+  emits('update:modelValue', selectedDatas)
+}
 const expandTreeNodeHandle = (node: any) => {
   if (node.checked && !node.expanded && !node.isLeaf) {
     node.expand(function () {
-      const childNodes = node.childNodes;
+      const childNodes = node.childNodes
       for (let i = 0; i < childNodes.length; i++) {
-        const childNode = childNodes[i];
-        tree.value.setChecked(childNode.data[props.valueKey], node.checked);
+        const childNode = childNodes[i]
+        tree.value.setChecked(childNode.data[props.valueKey], node.checked)
         if (!childNode.data.leaf) {
-          tree.value.$emit("check-change", childNode.data, childNode.checked, childNode.indeterminate);
+          tree.value.$emit('check-change', childNode.data, childNode.checked, childNode.indeterminate)
         } else {
-          getCheckedDataHandle();
+          getCheckedDataHandle()
         }
       }
-    });
+    })
   }
-};
-
+}
 const loadNode = async (node: any, resolve: any) => {
   if (!props.loadMethod) {
-    resolve([]);
-    return;
+    resolve([])
+    return
   }
   try {
-    const nodeData = node.data;
-    const children = await props.loadMethod(nodeData);
+    const nodeData = node.data
+    const children = await props.loadMethod(nodeData)
     if (children.success) {
-      resolve(children.data);
-      return;
+      resolve(children.data)
+      return
     } else {
-      resolve([]);
-      return;
+      resolve([])
+      return
     }
   } catch (error) {
-    console.error("Failed to load node data:", error);
-    resolve([]);
+    console.error('Failed to load node data:', error)
+    resolve([])
   }
-};
-
+}
 watchEffect(() => {
   if (tree.value) {
-    if (cnxDatas && cnxDatas.length !== 0) getCheckedDataHandle();
+    if (cnxDatas && cnxDatas.length !== 0) getCheckedDataHandle()
   }
-});
-
+})
 defineExpose({
   clearHandle,
   handleCheckChange
-});
+})
 </script>
 
 <template>

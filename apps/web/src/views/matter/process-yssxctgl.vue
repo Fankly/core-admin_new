@@ -1,8 +1,4 @@
-<script lang="ts">
-export default {
-  name: '/matter/process-yssxctgl'
-}
-</script>
+
 
 <script setup lang="ts">
 import ProTable from '@/components/ProTable/index.vue'
@@ -26,16 +22,20 @@ import ImportExcel from '@/components/ImportExcel/index.vue'
 import DeptTreeSelect from '@/views/matter/components/DeptTreeSelect/index.vue'
 import DeptCascaser from '@/views/matter/components/DeptCascaser.vue'
 import { useGuide } from '@/hooks/useGuide'
+defineOptions({
+  name: '/matter/process-yssxctgl'
+})
 
 // ProTable 实例
 const proTable = ref<InstanceType<typeof ProTable>>()
-
 const loading = ref<boolean>(false)
 const deptTreeSelectRef = ref()
 const mainDeptTreeSelectRef = ref()
 const importRef = ref()
 // 如果表格需要初始化请求参数，直接定义传给 ProTable (之后每次请求都会自动带上该参数，此参数更改之后也会一直带上，改变此参数会自动刷新表格数据)
-const initParam: any = reactive({ type: 1 })
+const initParam: any = reactive({
+  type: 1
+})
 const ztListData: any = ref([
   {
     code: '1',
@@ -48,10 +48,25 @@ const ztListData: any = ref([
 ])
 // 表格配置项
 const columns = reactive<any[]>([
-  { type: 'selection', width: 80 },
-  { prop: 'id', label: 'ID' },
-  { prop: 'ctmc', label: '重点投向名称', search: { el: 'input' } },
-  { prop: 'bmdflag', label: '是否规模化' },
+  {
+    type: 'selection',
+    width: 80
+  },
+  {
+    prop: 'id',
+    label: 'ID'
+  },
+  {
+    prop: 'ctmc',
+    label: '重点投向名称',
+    search: {
+      el: 'input'
+    }
+  },
+  {
+    prop: 'bmdflag',
+    label: '是否规模化'
+  },
   {
     prop: 'gkbmName',
     label: '归口部门'
@@ -70,33 +85,42 @@ const columns = reactive<any[]>([
     isShow: false,
     width: '140'
   },
-  { prop: 'ywsm', label: '业务说明' },
+  {
+    prop: 'ywsm',
+    label: '业务说明'
+  },
   {
     prop: 'zt',
     label: '状态',
-    search: { el: 'select' },
+    search: {
+      el: 'select'
+    },
     enum: ztListData.value,
-    fieldNames: { label: 'value', value: 'code' }
+    fieldNames: {
+      label: 'value',
+      value: 'code'
+    }
   },
-  { prop: 'cjrName', label: '创建人名称' },
-  { prop: 'zhggrName', label: '最后更改人名称' }
+  {
+    prop: 'cjrName',
+    label: '创建人名称'
+  },
+  {
+    prop: 'zhggrName',
+    label: '最后更改人名称'
+  }
 ])
-
 const userDialogRef = ref<any>()
 //加载中
 const dialogLoading = ref<boolean>(false)
-
 const aecdialog = ref<boolean>(false)
-
 const bmddialog = ref<boolean>(false)
-
 const { startGuide } = useGuide({
   moduleKey: 'CentralizedModification',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 const deptDatas = reactive<{
   specialOrgId: string
   selectDatas: string[]
@@ -104,7 +128,6 @@ const deptDatas = reactive<{
   specialOrgId: '',
   selectDatas: []
 })
-
 const changeValid = (rule: any, value: any, callback: any) => {
   const selectValue = deptTreeSelectRef.value.selectData.params
   if (selectValue.length === 0) {
@@ -113,18 +136,44 @@ const changeValid = (rule: any, value: any, callback: any) => {
     callback()
   }
 }
-
 const dialogFormRules = reactive({
-  ctmc: [{ required: true, message: '重点投向名称必填', trigger: 'blur' }],
-  bmdflag: [{ required: true, message: '请选择是否规模化', trigger: 'change' }],
-  zt: [{ required: true, message: '请选择状态', trigger: 'change' }],
-  bmids: [{ required: true, validator: changeValid }]
+  ctmc: [
+    {
+      required: true,
+      message: '重点投向名称必填',
+      trigger: 'blur'
+    }
+  ],
+  bmdflag: [
+    {
+      required: true,
+      message: '请选择是否规模化',
+      trigger: 'change'
+    }
+  ],
+  zt: [
+    {
+      required: true,
+      message: '请选择状态',
+      trigger: 'change'
+    }
+  ],
+  bmids: [
+    {
+      required: true,
+      validator: changeValid
+    }
+  ]
 })
-
 const dialogFormBmdRules = reactive({
-  bmdflag: [{ required: true, message: '请选择是否规模化', trigger: 'change' }]
+  bmdflag: [
+    {
+      required: true,
+      message: '请选择是否规模化',
+      trigger: 'change'
+    }
+  ]
 })
-
 interface RuleForm {
   id: string
   ctmc: string
@@ -133,11 +182,9 @@ interface RuleForm {
   ywsm: string
   bmids: any[]
 }
-
 interface RuleBmdForm {
   bmdflag: string
 }
-
 const dialogForm = reactive<RuleForm>({
   id: '',
   ctmc: '',
@@ -146,15 +193,12 @@ const dialogForm = reactive<RuleForm>({
   ywsm: '',
   bmids: []
 })
-
 const dialogBmdForm = reactive<RuleBmdForm>({
   bmdflag: ''
 })
-
 const selectRolesHandle = () => {
   userDialogRef.value.getUser()
 }
-
 const specialOrgId = ref<string>('')
 const roleCode = ref<string>('')
 const isShowPage = ref<boolean>(false)
@@ -165,7 +209,6 @@ const form = reactive({
   zt: '',
   ywsm: ''
 })
-
 const getRoleHandle = () => {
   specialOrgId.value = userDialogRef.value.specialorgid
   roleCode.value = userDialogRef.value.roleCode
@@ -178,10 +221,8 @@ const getRoleHandle = () => {
     startGuide()
   }
 }
-
 const isSaveOrEdit = ref<string>('')
 const ruleFormRef = ref('')
-
 const ruleBmdFormRef = ref('')
 const titleName = ref<string>('')
 let idsString = ref<string>('')
@@ -196,7 +237,6 @@ const submitForm = async (formEl: any) => {
         dialogForm.bmids.length = 0
         const selectValue = deptTreeSelectRef.value.selectData.params
         dialogForm.bmids.push(...selectValue)
-
         if (isSaveOrEdit.value === 'add') {
           const res = await addMsgData({
             ...dialogForm
@@ -232,7 +272,6 @@ const submitForm = async (formEl: any) => {
     }
   })
 }
-
 const getDataList = (params: any) => {
   loading.value = true
   proTable.value?.clearSelection()
@@ -293,7 +332,6 @@ const delMsg = (ids: string[]) => {
         // 刷新表格
 
         proTable.value?.clearSelection()
-
         proTable.value?.search()
       } else {
         loading.value = false
@@ -301,7 +339,6 @@ const delMsg = (ids: string[]) => {
         // 刷新表格
 
         proTable.value?.clearSelection()
-
         proTable.value?.search()
       }
     })
@@ -309,7 +346,6 @@ const delMsg = (ids: string[]) => {
       loading.value = false
     })
 }
-
 const setDefaultBmData = async (id: string): Promise<string[]> => {
   let res = await getBmByYssxctId1(id)
   if (res.success) {
@@ -327,16 +363,13 @@ const setDefaultBmData = async (id: string): Promise<string[]> => {
     return []
   }
 }
-
 const setYjdwOrEjdwData = async (flag: string, selectedList: any) => {
   try {
     dialogLoading.value = true
     isSaveOrEdit.value = flag
     let selectDatas = await setDefaultBmData(selectedList.id)
     selectDatas.length === 2 ? deptDatas.selectDatas.push(...selectDatas) : []
-    selectDatas.length !== 0
-      ? dialogForm.bmids.push(...selectDatas[1])
-      : (dialogForm.bmids.length = 0)
+    selectDatas.length !== 0 ? dialogForm.bmids.push(...selectDatas[1]) : (dialogForm.bmids.length = 0)
     if (flag === 'edit') {
       dialogForm.id = selectedList.id
       dialogForm.ctmc = selectedList.ctmc
@@ -366,7 +399,6 @@ const importMsg = () => {
     tempApi: getImportTemplate,
     importApi: importData,
     specialorgid: specialOrgId.value,
-
     getTableList: proTable.value?.getTableList
   }
   importRef.value.acceptParams(params)
@@ -410,7 +442,6 @@ const enableMsg = (ids: string[]) => {
         // 刷新表格
 
         proTable.value?.clearSelection()
-
         proTable.value?.search()
       } else {
         loading.value = false
@@ -438,7 +469,6 @@ const stopMsg = (ids: string[]) => {
         // 刷新表格
 
         proTable.value?.clearSelection()
-
         proTable.value?.search()
       } else {
         loading.value = false
@@ -493,20 +523,16 @@ const submitBmdForm = async (formEl: any) => {
     }
   })
 }
-
 const resetHandle = () => {
   mainDeptTreeSelectRef.value.deptData = ''
 }
-
 onMounted(() => {
   selectRolesHandle()
 })
-
 const dataCallbackHandle = (data: any) => {
   loading.value = false
   return data
 }
-
 const searchHandle = () => {
   proTable.value?.clearSelection()
 }

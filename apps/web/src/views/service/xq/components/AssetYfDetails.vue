@@ -93,10 +93,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "AssetYfDetails" })
 import { onMounted, ref, nextTick, watch, onUnmounted, reactive } from 'vue'
 import { getYfsbzcByXmid } from '@/api/service/requirement'
 import { ElMessage } from 'element-plus'
+defineOptions({ name: "AssetYfDetails" })
 
 interface Props {
   selectData: any

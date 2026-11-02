@@ -15,18 +15,19 @@
     <xmTable :columns="xmColumns" ref="viewsTableRef" :getTableApi="xmGetTableApi" :exportApi="xmExportApi" :api-type="apiParamsType" />
   </vxe-modal>
 </template>
-<script lang="ts">
-export default {
-  name: 'sxTable'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive, nextTick } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import xmTable from '@/components/yssxTable/xmTable.vue'
 import { formatNumValue } from '@/utils/utils'
 import { ElMessage } from 'element-plus'
 import { apiExportHandle } from '@/utils/export'
+defineOptions({
+  name: 'sxTable'
+})
+
+ //表格组件
 
 interface propsVo {
   getTableApi: (params: any) => Promise<any>
@@ -36,7 +37,6 @@ interface propsVo {
   xmLsxt: boolean
   apiParamsType: string
 }
-
 const props = defineProps<propsVo>()
 // 子组件
 const emit = defineEmits(['pageType'])
@@ -54,8 +54,13 @@ const loading = ref<boolean>(false)
 // 列表查询
 const pageMeeting = (params: any) => {
   loading.value = true
-  params = { ...params, ...formData.value }
-  tableParams.value = { ...formData.value }
+  params = {
+    ...params,
+    ...formData.value
+  }
+  tableParams.value = {
+    ...formData.value
+  }
   return props.getTableApi(params)
 }
 // 数据回调
@@ -116,7 +121,9 @@ const handerClickTable = async (val: any) => {
 const handleExport = (val: any) => {
   try {
     loading.value = true
-    const params = { ...formData.value }
+    const params = {
+      ...formData.value
+    }
     const fileName = '事项明细表'
     apiExportHandle(params, fileName, props.exportApi)
     loading.value = false
@@ -127,14 +134,44 @@ const handleExport = (val: any) => {
   }
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', label: '序号', width: 50 },
-  { prop: 'xmlxName', label: '项目类型' }, // width: "140"
-  { prop: 'zgkbmName', label: '归口部门' }, // width: "150"
-  { prop: 'zdtxName', label: '重点投向' },
-  { prop: 'yssxName', label: '事项名称' }, //, width: "180"
-  { prop: 'nd', label: '年度', width: '80' },
-  { prop: 'xmsl', label: '项目数量', width: '100' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: 50
+  },
+  {
+    prop: 'xmlxName',
+    label: '项目类型'
+  },
+  // width: "140"
+  {
+    prop: 'zgkbmName',
+    label: '归口部门'
+  },
+  // width: "150"
+  {
+    prop: 'zdtxName',
+    label: '重点投向'
+  },
+  {
+    prop: 'yssxName',
+    label: '事项名称'
+  },
+  //, width: "180"
+  {
+    prop: 'nd',
+    label: '年度',
+    width: '80'
+  },
+  {
+    prop: 'xmsl',
+    label: '项目数量',
+    width: '100'
+  },
   {
     prop: 'amount',
     label: '项目金额（万元）',
@@ -148,18 +185,57 @@ const tableColumns = reactive<any>([
     }
   }
 ])
-
 const xmColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', label: '序号', width: '50' },
-  { prop: 'flowStatus', label: '流程状态', width: '180', isShow: props.xmLsxt },
-  { prop: 'jhssnd', label: '计划实施年度', width: '120' },
-  { prop: 'xmbm', label: '项目编码', width: '180' },
-  { prop: 'xmmc', label: '项目名称', width: '280' },
-  { prop: 'sfgmb', label: '是否规模包', width: '100' },
-  { prop: 'proTypeName', label: '项目类型', width: '200' },
-  { prop: 'yjdw', label: '一级单位', width: '280' },
-  { prop: 'ejdw', label: '二级单位', width: '280' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: '50'
+  },
+  {
+    prop: 'flowStatus',
+    label: '流程状态',
+    width: '180',
+    isShow: props.xmLsxt
+  },
+  {
+    prop: 'jhssnd',
+    label: '计划实施年度',
+    width: '120'
+  },
+  {
+    prop: 'xmbm',
+    label: '项目编码',
+    width: '180'
+  },
+  {
+    prop: 'xmmc',
+    label: '项目名称',
+    width: '280'
+  },
+  {
+    prop: 'sfgmb',
+    label: '是否规模包',
+    width: '100'
+  },
+  {
+    prop: 'proTypeName',
+    label: '项目类型',
+    width: '200'
+  },
+  {
+    prop: 'yjdw',
+    label: '一级单位',
+    width: '280'
+  },
+  {
+    prop: 'ejdw',
+    label: '二级单位',
+    width: '280'
+  },
   {
     prop: 'amount',
     label: '申报金额（万元）',
@@ -172,12 +248,27 @@ const xmColumns = reactive<any>([
       return formatNumValue(value, 6)
     }
   },
-  { prop: 'zdtx', label: '重点投向', width: '180' },
-  { prop: 'zgkbm', label: '省归口部门', width: '180' },
-  { prop: 'yssxmc', label: '预算事项名称', width: '200' },
-  { prop: 'sjfl', label: '三级分类', width: '140' }
+  {
+    prop: 'zdtx',
+    label: '重点投向',
+    width: '180'
+  },
+  {
+    prop: 'zgkbm',
+    label: '省归口部门',
+    width: '180'
+  },
+  {
+    prop: 'yssxmc',
+    label: '预算事项名称',
+    width: '200'
+  },
+  {
+    prop: 'sjfl',
+    label: '三级分类',
+    width: '140'
+  }
 ])
-
 defineExpose({
   proTableRef,
   formData,

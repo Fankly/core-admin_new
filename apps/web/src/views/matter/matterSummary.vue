@@ -25,11 +25,6 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/matter/matterSummary'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -38,16 +33,17 @@ import MatterSearchMain from '@/views/matter/components/search/MatterSearchMain.
 import { onMounted, reactive, ref } from 'vue'
 import { InitInfo } from './interface'
 import { getData, Params, getDynamicColumn } from '@/api/matter/search'
+defineOptions({
+  name: '/matter/matterSummary'
+})
 
 const userDialogRef = ref()
 const matterSearchMainRef = ref()
 const headerRef = ref()
-
 const initInfo = reactive<InitInfo>({
   isShowPage: false,
   userInfo: {}
 })
-
 const searchData = (params: Params) => {
   params.dwId = initInfo.userInfo.specialorgid
   return getData(params)
@@ -55,29 +51,27 @@ const searchData = (params: Params) => {
 const getDynamicColumnData = (params: string) => {
   return getDynamicColumn(params)
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
-  initInfo.userInfo = { ...userDialogRef.value.userMsg }
+  initInfo.userInfo = {
+    ...userDialogRef.value.userMsg
+  }
   if (isQuery) {
     initInfo.isShowPage = true
   }
 }
-
 const expandDataHandle = () => {
   const $matter = matterSearchMainRef.value
   if ($matter) {
     $matter.expandHandle()
   }
 }
-
 const DetailViewHandle = () => {
   const $matter = matterSearchMainRef.value
   if ($matter) {
     $matter.getDetailMsgHandle()
   }
 }
-
 const pageDataHandle = (flag: string) => {
   const $matter = matterSearchMainRef.value
   if ($matter) {
@@ -90,7 +84,6 @@ const pageDataHandle = (flag: string) => {
     }
   }
 }
-
 const isDisabledHandle = (val: boolean) => {
   const $header = headerRef.value
   if ($header) {
@@ -109,11 +102,9 @@ const isLoadHandle = (val: boolean) => {
     $header.isLoaded = val
   }
 }
-
 const initData = () => {
   userDialogRef.value.getUser()
 }
-
 onMounted(initData)
 </script>
 

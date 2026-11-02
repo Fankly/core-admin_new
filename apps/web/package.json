@@ -19,6 +19,7 @@
     "typecheck": "node --max-old-space-size=12288 ./node_modules/vue-tsc/bin/vue-tsc.js --noEmit",
     "typecheck:fast": "tsc --noEmit",
     "check:business": "node scripts/check-business-imports.mjs",
+    "check:vue": "node scripts/check-vue-modernization.mjs",
     "lint": "eslint \"src/**/*.{vue,ts}\" --fix",
     "lint:check": "eslint \"src/**/*.{vue,ts,tsx}\"",
     "format": "prettier --write \"src/**/*.{vue,ts,less}\"",
@@ -26,7 +27,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "e2e": "playwright test",
-    "check:architecture": "node --test scripts/architecture.test.mjs && node scripts/check-business-imports.mjs && node scripts/check-architecture.mjs"
+    "check:architecture": "node --test scripts/architecture.test.mjs && node scripts/check-business-imports.mjs && node scripts/check-architecture.mjs && pnpm run check:vue"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",

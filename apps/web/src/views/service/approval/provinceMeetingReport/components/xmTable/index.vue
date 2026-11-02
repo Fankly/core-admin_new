@@ -31,18 +31,20 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'xmTable'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive, nextTick } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { formatNumValue } from '@/utils/utils'
 import { ElMessage } from 'element-plus'
 import { apiExportHandle } from '@/utils/export'
 import { tjfxGetCtData, tjfxExportCtData } from '@/api/service/IhhsMeeting/approval/proviceIhhsMeeting'
+defineOptions({
+  name: 'xmTable'
+})
+
+ //表格组件
+
 const formData = ref<any>({})
 const proTableRef = ref() // 初始化页面
 const showXmModal = ref<boolean>(false)
@@ -57,7 +59,10 @@ const pageMeeting = (params: any) => {
   loading.value = true
   params['current'] = params['page']
   params['size'] = params['limit']
-  params = { ...params, ...formData.value }
+  params = {
+    ...params,
+    ...formData.value
+  }
   return tjfxGetCtData(params)
 }
 // 数据回调
@@ -79,7 +84,9 @@ const handerClickTable = async (val: any) => {
 const handleExport = (val: any) => {
   try {
     loading.value = true
-    const params = { ...formData.value }
+    const params = {
+      ...formData.value
+    }
     const fileName = '项目明细表'
     apiExportHandle(params, fileName, tjfxExportCtData)
     loading.value = false
@@ -91,7 +98,9 @@ const handleExport = (val: any) => {
 }
 const open = async (params: any) => {
   isShowTable.value = true
-  formData.value = { ...params }
+  formData.value = {
+    ...params
+  }
   await nextTick()
   if (proTableRef.value) {
     proTableRef.value?.getTableList()
@@ -99,15 +108,50 @@ const open = async (params: any) => {
   }
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', label: '序号', width: '50' },
-  { prop: 'meetingName', label: '会议名称', width: '280' },
-  { prop: 'xmmc', label: '项目名称', width: '280' },
-  { prop: 'xmbm', label: '项目编码', width: '180' },
-  { prop: 'yssx', label: '预算事项', width: '180' },
-  { prop: 'proType', label: '项目类别', width: '150' },
-  { prop: 'yjdw', label: '一级单位', width: '280' },
-  { prop: 'ejdw', label: '二级单位', width: '280' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: '50'
+  },
+  {
+    prop: 'meetingName',
+    label: '会议名称',
+    width: '280'
+  },
+  {
+    prop: 'xmmc',
+    label: '项目名称',
+    width: '280'
+  },
+  {
+    prop: 'xmbm',
+    label: '项目编码',
+    width: '180'
+  },
+  {
+    prop: 'yssx',
+    label: '预算事项',
+    width: '180'
+  },
+  {
+    prop: 'proType',
+    label: '项目类别',
+    width: '150'
+  },
+  {
+    prop: 'yjdw',
+    label: '一级单位',
+    width: '280'
+  },
+  {
+    prop: 'ejdw',
+    label: '二级单位',
+    width: '280'
+  },
   {
     prop: 'sbje',
     label: '初始申报金额\n(万元)',
@@ -145,7 +189,6 @@ const tableColumns = reactive<any>([
     }
   }
 ])
-
 defineExpose({
   open
 })

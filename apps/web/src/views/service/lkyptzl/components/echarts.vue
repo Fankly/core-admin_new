@@ -60,13 +60,9 @@
   </div>
   <sxTable ref="modalTbaleRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/lkyptzl/components/echarts'
-}
-</script>
+
 <script setup lang="ts">
-import { reactive, ref, defineExpose, watch, nextTick, defineEmits } from 'vue'
+import { reactive, ref, watch, nextTick } from 'vue'
 import VChart from 'vue-echarts'
 import { getStatDataByDw, getStatDataByZgkbm, getStatDataByZdtx } from '@/api/lkyptzl/index'
 import sxTable from '@/views/service/lkyptzl/components/sxTable.vue'
@@ -74,6 +70,9 @@ import { useRoute } from 'vue-router'
 import router from '@/router'
 import { encrypt } from '@/utils/crypto'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/lkyptzl/components/echarts'
+})
 
 const route = useRoute()
 const formData = ref<any>({})
@@ -114,7 +113,6 @@ const formatterFun = (params: any) => {
   }
   return str
 }
-
 const nullOptions = reactive<any>({
   title: {
     text: '暂无数据',
@@ -128,7 +126,6 @@ const nullOptions = reactive<any>({
     }
   }
 })
-
 const txOBarOptions = reactive<any>({
   tooltip: {
     trigger: 'axis',
@@ -197,7 +194,6 @@ const txOBarOptions = reactive<any>({
   },
   series: []
 })
-
 const bmOBarOptions = reactive<any>({
   tooltip: {
     trigger: 'axis',
@@ -389,7 +385,6 @@ const dwOBarOptions = reactive<any>({
 const handleLegnedChange = (e: any) => {
   console.log(e, 'ee')
 }
-
 const getDataChar = async () => {
   try {
     loading.value = true
@@ -431,7 +426,6 @@ const getDataChar = async () => {
       flowStatusLists.value = res.data.flowStatusLists
       dwIdList.value = res.data.dwIdList
     }
-
     if (isBMCW.value) {
       let root: any = await getStatDataByZgkbm(formData.value)
       if (root.success && root.data) {
@@ -512,7 +506,9 @@ const handleClick = (val: any) => {
     modalTbaleRef.value.loading = true
     nextTick(() => {
       modalTbaleRef.value.tableTitle = `${val.seriesName}-${val.name}-事项明细`
-      modalTbaleRef.value.formData = { ...formData.value }
+      modalTbaleRef.value.formData = {
+        ...formData.value
+      }
       modalTbaleRef.value.formData.dwId = dwIdList.value[val.dataIndex]
       modalTbaleRef.value.formData.flowStatusList = flowStatusLists.value[val.seriesIndex]
       modalTbaleRef.value?.proTableRef.getTableList()
@@ -540,7 +536,9 @@ const handleBar = (val: any) => {
   modalTbaleRef.value.loading = true
   nextTick(() => {
     modalTbaleRef.value.tableTitle = `${val.seriesName}-${val.name}-事项明细`
-    modalTbaleRef.value.formData = { ...formData.value }
+    modalTbaleRef.value.formData = {
+      ...formData.value
+    }
     modalTbaleRef.value.formData.zgkbmId = zgkbmIdList.value[val.dataIndex]
     modalTbaleRef.value.formData.flowStatusList = flowStatusLists.value[val.seriesIndex]
     modalTbaleRef.value?.proTableRef.getTableList()
@@ -551,19 +549,22 @@ const handleZdtx = (val: any) => {
   modalTbaleRef.value.loading = true
   nextTick(() => {
     modalTbaleRef.value.tableTitle = `${val.seriesName}-${val.name}-事项明细`
-    modalTbaleRef.value.formData = { ...formData.value }
+    modalTbaleRef.value.formData = {
+      ...formData.value
+    }
     modalTbaleRef.value.formData.zdtxId = zdtxIdList.value[val.dataIndex]
     modalTbaleRef.value.formData.flowStatusList = flowStatusLists.value[val.seriesIndex]
     modalTbaleRef.value?.proTableRef.getTableList()
   })
 }
-
 const handleNumber = (val: any, index: any, type: any) => {
   modalTbaleRef.value.isShowTable = true
   modalTbaleRef.value.loading = true
   nextTick(() => {
     modalTbaleRef.value.tableTitle = `${val.name}-事项明细`
-    modalTbaleRef.value.formData = { ...formData.value }
+    modalTbaleRef.value.formData = {
+      ...formData.value
+    }
     if (type == 'DW') {
       modalTbaleRef.value.formData.dwIdList = dwIdList.value
     } else if (type == 'GKBM') {
@@ -575,7 +576,6 @@ const handleNumber = (val: any, index: any, type: any) => {
     modalTbaleRef.value?.proTableRef.getTableList()
   })
 }
-
 defineExpose({
   formData,
   getDataChar,

@@ -42,8 +42,8 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "TargetControlAdjustmentModal" })
 import { useTargetControlAdjustmentModal } from './hooks/useTargetControlAdjustmentModal'
+defineOptions({ name: "TargetControlAdjustmentModal" })
 
 interface TargetControlAdjustmentModalProps {
   search: () => void | Promise<void>

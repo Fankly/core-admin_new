@@ -94,251 +94,358 @@
     </vxe-modal>
   </div>
 </template>
-<script>
+<script setup>
 import { DropdownWidget, TableWidget } from '@/utils/widget.js'
-
-import { uploadMixin, statsDateRangeMixin, cachePageMixin, cachedSinglePageMixin } from '@/core/mixins'
-
+import '@/core/mixins'
 import { CwProjectApprove, CwProjectApply, CwProject } from '@/api/mainController'
 import DictionaryController from '@/api/Controller/DictionaryController'
 import { treeDataTranslate } from '@/utils/index'
-
-import { categorysMixin } from '../mixin/categorysMixin.js'
-
+import '../mixin/categorysMixin.js'
 import exportDialog from '../reserveApproval/exportDialog.vue'
-
 import similarSetting from '../components/similarSetting.vue'
-
 import ReserveApprovalDetail from './index.vue'
-
-export default {
-  components: {
-    ReserveApprovalDetail
+import { useUpload, useStatsDateRange, useCachedPage, useCachedSinglePage, useCategorys } from '@/core/composables/useWorkspace'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { proxyRefs, toRef, reactive, toRefs, computed, onMounted, onActivated, getCurrentInstance } from 'vue'
+import { useRoute } from 'vue-router'
+defineOptions({
+  name: '/finance/reserveApprovalDetailTest/list'
+})
+const componentProps = defineProps({
+  // originCallback: {
+  //   type: [Function]
+  // }
+  _key: {
+    type: [Number, String],
+    default: undefined
   },
-  name: '/finance/reserveApprovalDetailTest/list',
-  mixins: [uploadMixin, statsDateRangeMixin, cachePageMixin, cachedSinglePageMixin, categorysMixin],
-  data() {
-    return {
-      tableImpl: new TableWidget(this.loadTableData, this.loadTableVerify, true, false, 'createTime', 1),
-      formFilter: {},
-      formFilterCopy: {},
-      listKey: '',
-      reserveStatus: [],
-      amount: '',
-      deptId: {
-        impl: new DropdownWidget(this.loadDeptIdDropdownList)
-      },
-      pageRoleMap: {
-        deptApproval: {
-          apiSuffix: 'dept',
-          detailPath: 'deptApprovalDetail',
-          vtSource: 1
-        },
-        financeApproval: {
-          apiSuffix: 'finance',
-          detailPath: 'financeApprovalDetail',
-          vtSource: 2
-        },
-        jysApproval: {
-          apiSuffix: 'jys',
-          detailPath: 'jysApprovalDetail',
-          vtSource: 4
-        },
-        fzbApproval: {
-          apiSuffix: 'fzb',
-          detailPath: 'fzbApprovalDetail',
-          vtSource: 3
-        }
-      },
-      // 详情弹窗相关
-      detailModalVisible: false,
-      currentApproveId: null,
-      encodedListKey: ''
+  _origin: {
+    type: String
+  }
+})
+const componentInstance = getCurrentInstance().proxy
+const route = useRoute()
+const UploadState = proxyRefs(useUpload())
+const parseUploadData = toRef(UploadState, 'parseUploadData')
+const getPictureList = toRef(UploadState, 'getPictureList')
+const fileListToJson = toRef(UploadState, 'fileListToJson')
+const getUploadFileUrl = toRef(UploadState, 'getUploadFileUrl')
+const filterEmptyValues = toRef(UploadState, 'filterEmptyValues')
+const getUploadFileUrlByFetch = toRef(UploadState, 'getUploadFileUrlByFetch')
+const getUploadActionUrl = toRef(UploadState, 'getUploadActionUrl')
+const pictureFile = toRef(UploadState, 'pictureFile')
+const getUploadHeaders = toRef(UploadState, 'getUploadHeaders')
+const StatsDateRangeState = proxyRefs(useStatsDateRange())
+const getDateRangeFilter = toRef(StatsDateRangeState, 'getDateRangeFilter')
+const formatDateByStatsType = toRef(StatsDateRangeState, 'formatDateByStatsType')
+const formatDateTime = toRef(StatsDateRangeState, 'formatDateTime')
+const getStatsTypeShowName = toRef(StatsDateRangeState, 'getStatsTypeShowName')
+const getAllowStatsTypeList = toRef(StatsDateRangeState, 'getAllowStatsTypeList')
+const CachedPageState = proxyRefs(useCachedPage(undefined))
+const addCachePage = toRef(CachedPageState, 'addCachePage')
+const removeCachePage = toRef(CachedPageState, 'removeCachePage')
+const onResume = toRef(CachedPageState, 'onResume')
+const CachedSinglePageState = proxyRefs(useCachedSinglePage(componentProps))
+const removeTag = toRef(CachedSinglePageState, 'removeTag')
+const getCurrentMenuId = toRef(CachedSinglePageState, 'getCurrentMenuId')
+const routerPush = toRef(CachedSinglePageState, 'routerPush')
+const singlePageReload = toRef(CachedSinglePageState, 'singlePageReload')
+const oncancel = toRef(CachedSinglePageState, 'oncancel')
+const refreshUrlParams = toRef(CachedSinglePageState, 'refreshUrlParams')
+const savedKey = toRef(CachedSinglePageState, 'savedKey')
+const CategorysState = proxyRefs(useCategorys())
+const handleCategoryEventChange = toRef(CategorysState, 'handleCategoryEventChange')
+const handleCategoryChange = toRef(CategorysState, 'handleCategoryChange')
+const getDefaultCategory = toRef(CategorysState, 'getDefaultCategory')
+const yearList = toRef(CategorysState, 'yearList')
+const getCategorys = toRef(CategorysState, 'getCategorys')
+const getFinanceReserveNotice = toRef(CategorysState, 'getFinanceReserveNotice')
+const getCwCategoryInvest = toRef(CategorysState, 'getCwCategoryInvest')
+const getCwCategoryInvestItemsList = toRef(CategorysState, 'getCwCategoryInvestItemsList')
+const getCategoryFilter = toRef(CategorysState, 'getCategoryFilter')
+const categorysKeyValue = toRef(CategorysState, 'categorysKeyValue')
+const selectImpl = toRef(CategorysState, 'selectImpl')
+const componentData = reactive({
+  tableImpl: new TableWidget(loadTableData, loadTableVerify, true, false, 'createTime', 1),
+  formFilter: {},
+  formFilterCopy: {},
+  listKey: '',
+  reserveStatus: [],
+  amount: '',
+  deptId: {
+    impl: new DropdownWidget(loadDeptIdDropdownList)
+  },
+  pageRoleMap: {
+    deptApproval: {
+      apiSuffix: 'dept',
+      detailPath: 'deptApprovalDetail',
+      vtSource: 1
+    },
+    financeApproval: {
+      apiSuffix: 'finance',
+      detailPath: 'financeApprovalDetail',
+      vtSource: 2
+    },
+    jysApproval: {
+      apiSuffix: 'jys',
+      detailPath: 'jysApprovalDetail',
+      vtSource: 4
+    },
+    fzbApproval: {
+      apiSuffix: 'fzb',
+      detailPath: 'fzbApprovalDetail',
+      vtSource: 3
     }
   },
-  created() {},
-  mounted() {
-    this.getReserveStatus()
-    this.initFormData()
-  },
-  activated() {
-    this.refreshTable(true)
-  },
-  methods: {
-    getReserveStatus() {
-      CwProject.reserveStatus(this, {}).then((res) => {
-        this.reserveStatus = res.data
-      })
-    },
-    getType(type) {
-      let _type = 'primary'
-      switch (+type) {
-        case this.StatusReserveDict.PENDING_SUBMIT:
-          _type = 'info'
-          break
-        case this.StatusReserveDict.REJECTED || this.StatusReserveDict.DELAYED:
-          _type = 'warning'
-          break
-        case this.StatusReserveDict.PRE_REVIEW_COMPLETED:
-          _type = 'success'
-          break
-      }
-      return _type
-    },
-    async handleApprove(projectId, approveId) {
-      await this.$confirm('确认审核通过?')
-      CwProjectApprove[`${this.currentPageRole.apiSuffix}Approve`](this, {
-        cwApproveDto: {
-          projectId: projectId,
-          id: approveId
-        }
-      }).then(() => {
-        this.$message.success('操作成功')
-        this.refreshTable(true)
-      })
-    },
-    async handleConfirm() {
-      await this.$confirm('确认全部审核通过?')
-      const { batchId, ...options } = this.formFilterCopy
-      CwProjectApprove[`${this.currentPageRole.apiSuffix}ApproveBatch`](this, {
-        cwProjectDtoFilter: {
-          ...options,
-          batchIds: batchId?.join(',')
-        }
-      }).then(() => {
-        this.$message.success('操作成功')
-        this.refreshTable(true)
-      })
-    },
-    async initFormData(bool = true) {
-      await this.onDeptIdVisibleChange(true)
-      this.formFilter = {}
-      this.formFilterCopy = {}
-      this.refreshTable(bool)
-    },
-    handleSetting() {
-      this.$dialog
-        .show(
-          '配置',
-          similarSetting,
-          {
-            area: ['800px']
-          },
-          {}
-        )
-        .then((res) => {
-          this.refreshTable(true)
-        })
-        .catch(() => {})
-    },
-    handleExport() {
-      this.$dialog
-        .show(
-          '导出',
-          exportDialog,
-          {
-            area: ['450px', 'auto']
-          },
-          {
-            vtSource: this.currentPageRole.vtSource,
-            exportOptions: ['financeApproval', 'deptApproval'].includes(this.$route.name) ? [1, 5] : [1]
-          }
-        )
-        .then((res) => {})
-        .catch((e) => {})
-    },
-    refreshTable(reloadData = false) {
-      if (reloadData) {
-        this.tableImpl.refreshTable(true, 1)
-      } else {
-        this.tableImpl.refreshTable()
-      }
-    },
-    // Call TableWidget methods with the reactive proxy so pagination state updates render.
-    onTableSortChange(sortInfo) {
-      return TableWidget.prototype.onSortChange.call(this.tableImpl, sortInfo)
-    },
-    onTableCurrentPageChange(newCurrentPage) {
-      return TableWidget.prototype.onCurrentPageChange.call(this.tableImpl, newCurrentPage)
-    },
-    onTablePageSizeChange(newPageSize) {
-      return TableWidget.prototype.onPageSizeChange.call(this.tableImpl, newPageSize)
-    },
-    loadTableData(params) {
-      const { batchId, ...options } = this.formFilterCopy
-      params.cwProjectApproveDtoFilter = {
-        ...options,
-        batchIds: batchId?.join(',')
-      }
-      return new Promise((resolve, reject) => {
-        CwProjectApprove[`${this.currentPageRole.apiSuffix}List`](this, params)
-          .then((res) => {
-            this.amount = res.data.amount
-            this.listKey = res.data.listKey
-            resolve({
-              dataList: res.data.dataList,
-              totalCount: res.data.totalCount
-            })
-          })
-          .catch((e) => {
-            reject(e)
-          })
-      })
-    },
-    loadTableVerify() {
-      this.formFilterCopy = {
-        ...this.formFilter
-      }
-      return true
-    },
-    // 修改为打开弹窗而不是跳转
-    onDetail(approveId) {
-      const jsonStr = JSON.stringify(this.listKey)
-      this.encodedListKey = encodeURIComponent(jsonStr)
-      this.currentApproveId = approveId
-      this.detailModalVisible = true
-    },
-    // 关闭详情弹窗
-    handleDetailModalClose() {
-      this.detailModalVisible = false
-      this.currentApproveId = null
-      this.encodedListKey = ''
-      // 刷新列表
-      this.refreshTable(false)
-    },
-    loadDeptIdDropdownList() {
-      return new Promise((resolve, reject) => {
-        DictionaryController.dictSysDept(this, {})
-          .then((res) => {
-            const treeData = treeDataTranslate(res.getList(), 'id')
-            const secondLevelData = []
-            treeData.forEach((topNode) => {
-              if (topNode.children && topNode.children.length > 0) {
-                secondLevelData.push(...topNode.children)
-              }
-            })
-            resolve(secondLevelData)
-          })
-          .catch((e) => {
-            reject(e)
-          })
-      })
-    },
-    onDeptIdVisibleChange() {
-      return this.deptId?.impl?.onVisibleChange(true).catch((e) => {})
-    }
-  },
-  computed: {
-    currentPageRole() {
-      const routeName = this.$route.name
-      return this.pageRoleMap[routeName] || this.pageRoleMap.deptApproval
-    },
-    isFinance() {
-      return this.$route.name === 'financeApproval'
-    }
-  },
-  watch: {}
+  // 详情弹窗相关
+  detailModalVisible: false,
+  currentApproveId: null,
+  encodedListKey: ''
+})
+const tableImpl = toRef(componentData, 'tableImpl')
+const formFilter = toRef(componentData, 'formFilter')
+const formFilterCopy = toRef(componentData, 'formFilterCopy')
+const listKey = toRef(componentData, 'listKey')
+const reserveStatus = toRef(componentData, 'reserveStatus')
+const amount = toRef(componentData, 'amount')
+const deptId = toRef(componentData, 'deptId')
+const pageRoleMap = toRef(componentData, 'pageRoleMap')
+const detailModalVisible = toRef(componentData, 'detailModalVisible')
+const currentApproveId = toRef(componentData, 'currentApproveId')
+const encodedListKey = toRef(componentData, 'encodedListKey')
+function getReserveStatus() {
+  CwProject.reserveStatus(componentInstance, {}).then((res) => {
+    componentData.reserveStatus = res.data
+  })
 }
+function getType(type) {
+  let _type = 'primary'
+  switch (+type) {
+    case componentInstance.StatusReserveDict.PENDING_SUBMIT:
+      _type = 'info'
+      break
+    case componentInstance.StatusReserveDict.REJECTED || componentInstance.StatusReserveDict.DELAYED:
+      _type = 'warning'
+      break
+    case componentInstance.StatusReserveDict.PRE_REVIEW_COMPLETED:
+      _type = 'success'
+      break
+  }
+  return _type
+}
+async function handleApprove(projectId, approveId) {
+  await ElMessageBox.confirm('确认审核通过?')
+  CwProjectApprove[`${currentPageRole.value.apiSuffix}Approve`](componentInstance, {
+    cwApproveDto: {
+      projectId: projectId,
+      id: approveId
+    }
+  }).then(() => {
+    ElMessage.success('操作成功')
+    refreshTable(true)
+  })
+}
+async function handleConfirm() {
+  await ElMessageBox.confirm('确认全部审核通过?')
+  const { batchId, ...options } = componentData.formFilterCopy
+  CwProjectApprove[`${currentPageRole.value.apiSuffix}ApproveBatch`](componentInstance, {
+    cwProjectDtoFilter: {
+      ...options,
+      batchIds: batchId?.join(',')
+    }
+  }).then(() => {
+    ElMessage.success('操作成功')
+    refreshTable(true)
+  })
+}
+async function initFormData(bool = true) {
+  await onDeptIdVisibleChange(true)
+  componentData.formFilter = {}
+  componentData.formFilterCopy = {}
+  refreshTable(bool)
+}
+function handleSetting() {
+  componentInstance.$dialog
+    .show(
+      '配置',
+      similarSetting,
+      {
+        area: ['800px']
+      },
+      {}
+    )
+    .then((res) => {
+      refreshTable(true)
+    })
+    .catch(() => {})
+}
+function handleExport() {
+  componentInstance.$dialog
+    .show(
+      '导出',
+      exportDialog,
+      {
+        area: ['450px', 'auto']
+      },
+      {
+        vtSource: currentPageRole.value.vtSource,
+        exportOptions: ['financeApproval', 'deptApproval'].includes(route.name) ? [1, 5] : [1]
+      }
+    )
+    .then((res) => {})
+    .catch((e) => {})
+}
+function refreshTable(reloadData = false) {
+  if (reloadData) {
+    componentData.tableImpl.refreshTable(true, 1)
+  } else {
+    componentData.tableImpl.refreshTable()
+  }
+}
+// Call TableWidget methods with the reactive proxy so pagination state updates render.
+function onTableSortChange(sortInfo) {
+  return TableWidget.prototype.onSortChange.call(componentData.tableImpl, sortInfo)
+}
+function onTableCurrentPageChange(newCurrentPage) {
+  return TableWidget.prototype.onCurrentPageChange.call(componentData.tableImpl, newCurrentPage)
+}
+function onTablePageSizeChange(newPageSize) {
+  return TableWidget.prototype.onPageSizeChange.call(componentData.tableImpl, newPageSize)
+}
+function loadTableData(params) {
+  const { batchId, ...options } = componentData.formFilterCopy
+  params.cwProjectApproveDtoFilter = {
+    ...options,
+    batchIds: batchId?.join(',')
+  }
+  return new Promise((resolve, reject) => {
+    CwProjectApprove[`${currentPageRole.value.apiSuffix}List`](componentInstance, params)
+      .then((res) => {
+        componentData.amount = res.data.amount
+        componentData.listKey = res.data.listKey
+        resolve({
+          dataList: res.data.dataList,
+          totalCount: res.data.totalCount
+        })
+      })
+      .catch((e) => {
+        reject(e)
+      })
+  })
+}
+function loadTableVerify() {
+  componentData.formFilterCopy = {
+    ...componentData.formFilter
+  }
+  return true
+}
+// 修改为打开弹窗而不是跳转
+function onDetail(approveId) {
+  const jsonStr = JSON.stringify(componentData.listKey)
+  componentData.encodedListKey = encodeURIComponent(jsonStr)
+  componentData.currentApproveId = approveId
+  componentData.detailModalVisible = true
+}
+// 关闭详情弹窗
+function handleDetailModalClose() {
+  componentData.detailModalVisible = false
+  componentData.currentApproveId = null
+  componentData.encodedListKey = ''
+  // 刷新列表
+  refreshTable(false)
+}
+function loadDeptIdDropdownList() {
+  return new Promise((resolve, reject) => {
+    DictionaryController.dictSysDept(componentInstance, {})
+      .then((res) => {
+        const treeData = treeDataTranslate(res.getList(), 'id')
+        const secondLevelData = []
+        treeData.forEach((topNode) => {
+          if (topNode.children && topNode.children.length > 0) {
+            secondLevelData.push(...topNode.children)
+          }
+        })
+        resolve(secondLevelData)
+      })
+      .catch((e) => {
+        reject(e)
+      })
+  })
+}
+function onDeptIdVisibleChange() {
+  return componentData.deptId?.impl?.onVisibleChange(true).catch((e) => {})
+}
+const currentPageRole = computed(() => {
+  const routeName = route.name
+  return componentData.pageRoleMap[routeName] || componentData.pageRoleMap.deptApproval
+})
+const isFinance = computed(() => {
+  return route.name === 'financeApproval'
+})
+onMounted(() => {
+  getReserveStatus()
+  initFormData()
+})
+onActivated(() => {
+  refreshTable(true)
+})
+defineExpose({
+  parseUploadData,
+  getPictureList,
+  fileListToJson,
+  getUploadFileUrl,
+  filterEmptyValues,
+  getUploadFileUrlByFetch,
+  getUploadActionUrl,
+  pictureFile,
+  getUploadHeaders,
+  getDateRangeFilter,
+  formatDateByStatsType,
+  formatDateTime,
+  getStatsTypeShowName,
+  getAllowStatsTypeList,
+  addCachePage,
+  removeCachePage,
+  onResume,
+  removeTag,
+  getCurrentMenuId,
+  routerPush,
+  singlePageReload,
+  oncancel,
+  refreshUrlParams,
+  savedKey,
+  handleCategoryEventChange,
+  handleCategoryChange,
+  getDefaultCategory,
+  yearList,
+  getCategorys,
+  getFinanceReserveNotice,
+  getCwCategoryInvest,
+  getCwCategoryInvestItemsList,
+  getCategoryFilter,
+  categorysKeyValue,
+  selectImpl,
+  getReserveStatus,
+  getType,
+  handleApprove,
+  handleConfirm,
+  initFormData,
+  handleSetting,
+  handleExport,
+  refreshTable,
+  onTableSortChange,
+  onTableCurrentPageChange,
+  onTablePageSizeChange,
+  loadTableData,
+  loadTableVerify,
+  onDetail,
+  handleDetailModalClose,
+  loadDeptIdDropdownList,
+  onDeptIdVisibleChange,
+  ...toRefs(componentData),
+  currentPageRole,
+  isFinance
+})
 </script>
 <style lang="less">
 .rr-view-ctx:has(.reserveApproval) {

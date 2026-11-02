@@ -32,27 +32,24 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'handleCopy'
-}
-</script>
+
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref, reactive } from 'vue'
+defineOptions({
+  name: 'handleCopy'
+})
 
 interface NdList {
   name: string
   code: string
 }
-
 interface Props {
   title: string
   nd: string
   ndList: NdList[]
   getApi: (params: any) => Promise<any>
 }
-
 const props = defineProps<Props>()
 const showModal = ref(false)
 const loading = ref(false)
@@ -60,7 +57,6 @@ const formData = reactive({
   sourceNd: '',
   targetNd: ''
 })
-
 const saveHandle = async () => {
   ElMessageBox.confirm('请确认', '提示', {
     confirmButtonText: '确定',
@@ -84,20 +80,17 @@ const saveHandle = async () => {
       }
     })
 }
-
 const cancelHandle = () => {
   formData.sourceNd = ''
   formData.targetNd = ''
   closeHandle()
 }
-
 const showHandle = async () => {
   formData.targetNd = props.nd
 }
 const closeHandle = () => {
   showModal.value = false
 }
-
 defineExpose({
   showModal
 })

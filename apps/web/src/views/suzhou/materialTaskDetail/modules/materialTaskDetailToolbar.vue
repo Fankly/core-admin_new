@@ -12,7 +12,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialTaskDetailToolbar" })
 import { inject, ref } from 'vue'
 import type { InjectionKey, Ref } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -25,6 +24,7 @@ import materialTaskCkTkDetail from '@/views/suzhou/materialTask/modules/material
 import VXETable from 'vxe-table'
 import { getParamValueMulti } from '@/api/common'
 import { getProfitCenter } from '@/api/suzhou/materialTask'
+defineOptions({ name: "materialTaskDetailToolbar" })
 
 const { hasPermission } = usePermission()
 const materialTableRef = inject(CrudTableRefInjectionKey, ref())

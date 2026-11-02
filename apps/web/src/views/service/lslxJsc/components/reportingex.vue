@@ -95,22 +95,34 @@
   </div>
   <ImportExcel ref="importRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/lslxJsc/components/reportingyx'
-}
-</script>
+
 
 <script setup lang="ts">
-import { reactive, ref, defineProps, defineExpose, defineEmits } from 'vue'
-import { summaryValue } from '@/utils/utils' //合计项目类型值
-import { getTableDataForEx, getDynamicColumnForEx, saveExhdje, getImportTemplateForEx, importExhdje, exportForEx, getYxGmSumData, saveYxqszgm, exhd } from '@/api/lslxJsc/index'
+import { reactive, ref } from 'vue'
+import { summaryValue, formatValue } from '@/utils/utils'
+import {
+  getTableDataForEx,
+  getDynamicColumnForEx,
+  saveExhdje,
+  getImportTemplateForEx,
+  importExhdje,
+  exportForEx,
+  getYxGmSumData,
+  saveYxqszgm,
+  exhd
+} from '@/api/lslxJsc/index'
 import { ElMessage, ElNotification, ElMessageBox } from 'element-plus'
 import { Decimal } from 'decimal.js'
-import { formatValue } from '@/utils/utils'
-import ImportExcel from '@/components/ImportExcel/indexNew.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexNew.vue'
 import { useRouter } from 'vue-router'
 import { apiExportHandle, vxeExportHandle } from '@/utils/export'
+defineOptions({
+  name: '/lslxJsc/components/reportingyx'
+})
+
+ //合计项目类型值
+
+ //导入组件
 
 //接收父组件传参
 const props = defineProps({
@@ -167,16 +179,13 @@ const pageInfo = reactive<{
   loading: true,
   isShowPage: false
 })
-
 const updateParams = reactive<any[]>([])
-
 const count = ref(0)
 const isShowModel = ref(false)
 const closeHandle = () => {
   rmarkData.viewMethod = '1'
   isShowModel.value = false
 }
-
 const tableInfo = reactive<any>({
   toolbarConfig: {
     custom: true
@@ -278,7 +287,6 @@ const tableInfo = reactive<any>({
     }
   }
 })
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -317,7 +325,6 @@ const getEditDataHandle = ({ column, row }: any) => {
   if (typeof row[column.field] == 'undefined' || row[column.field] == null || row[column.field] == '') return
   const id: string = row['id']
   const outIndex = updateParams.findIndex((item: any) => item.id === id)
-
   if (outIndex > -1) {
     const index = updateParams[outIndex].dwValueList.findIndex((item: any) => item.field === column.field)
     if (index > -1) {
@@ -404,7 +411,6 @@ const saveHandle = async () => {
   try {
     ruleFormRef.value.validate((valid: any) => {
       if (!valid) return
-
       if (updateParams.length === 0) {
         ElMessage.warning('请编辑二下核定金额后再进行保存！')
         return
@@ -478,11 +484,13 @@ const threeLevel = async () => {
 }
 // 初始化表格数据
 const newData = async () => {
-  await gmSumData({ versionId: props.formData?.versionId, nd: props.formData?.nd })
+  await gmSumData({
+    versionId: props.formData?.versionId,
+    nd: props.formData?.nd
+  })
   await getDataList()
   await threeLevel()
 }
-
 const isClickHeader = (columns: any, field: string) => {
   let columnsData = columns.filter((item: any) => item.edit)
   let column = columnsData.find((item: any) => item.field === field)
@@ -578,7 +586,6 @@ const handlePass = async () => {
       console.log(error)
     })
 }
-
 defineExpose({
   isShowModel,
   getHeaderData,

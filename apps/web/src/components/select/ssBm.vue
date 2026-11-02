@@ -4,45 +4,50 @@
   </el-select>
 </template>
 
-<script>
-import { defineComponent, reactive } from "vue";
-import { ElMessage } from "element-plus";
-import process from "@/views/budget-process/js/process-data";
-import baseService from "@/service/baseService";
-export default defineComponent({
-  setup() {
-    return reactive({
-      projects: [],
-      //选中数据 页面直接调用即可
-      value: "",
-      list: []
-    });
-  },
-  created() {
-    this.loadData();
-  },
-  methods: {
-    loadData() {
-      baseService.get(`/commonCode/getData?code=GKBM`).then((res) => {
-        if (res.success == true) {
-          this.projects = res.data;
-        } else {
-          ElMessage({
-            type: "error",
-            message: res.msg
-          });
-        }
-      });
-    },
-    changeParams() {
-      this.list = [];
-      this.list.push(this.value);
-    },
-    clear() {
-      this.value = "";
-      this.list = [];
+<script setup>
+import { reactive, toRef } from 'vue'
+import { ElMessage } from 'element-plus'
+import process from '@/views/budget-process/js/process-data'
+import baseService from '@/service/baseService'
+const setupState = reactive({
+  projects: [],
+  //选中数据 页面直接调用即可
+  value: '',
+  list: []
+})
+const projects = toRef(setupState, 'projects')
+const value = toRef(setupState, 'value')
+const list = toRef(setupState, 'list')
+function loadData() {
+  baseService.get(`/commonCode/getData?code=GKBM`).then((res) => {
+    if (res.success == true) {
+      setupState.projects = res.data
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
     }
-  }
-});
+  })
+}
+function changeParams() {
+  setupState.list = []
+  setupState.list.push(setupState.value)
+}
+function clear() {
+  setupState.value = ''
+  setupState.list = []
+}
+;(() => {
+  loadData()
+})()
+defineExpose({
+  projects,
+  value,
+  list,
+  loadData,
+  changeParams,
+  clear
+})
 </script>
 <style lang="less" scoped></style>

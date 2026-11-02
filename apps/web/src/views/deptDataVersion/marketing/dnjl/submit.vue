@@ -36,13 +36,17 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/deptDataVersion/marketing/dnjl/submit" })
 import { onMounted, ref } from 'vue'
-import userDialog from '@/components/select/userDialog.vue' //登陆权限
-import viewTable from '@/views/service/lslxJsc/components/table.vue' //表格组件
-import ProtableCurdModal from '@/views/deptDataVersion/components/index.vue' //填报弹窗组件
+import userDialog from '@/components/select/userDialog.vue'
+import viewTable from '@/views/service/lslxJsc/components/table.vue'
+import ProtableCurdModal from '@/views/deptDataVersion/components/index.vue'
 import { handleTable } from '@/views/deptDataVersion/hooks/version'
 import { tableForm } from '@/views/deptDataVersion/marketing/hooks'
+defineOptions({ name: "/deptDataVersion/marketing/dnjl/submit" })
+
+ //登陆权限
+ //表格组件
+ //填报弹窗组件
 
 const {
   yjdwList,

@@ -15,23 +15,28 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle" />
   <reportingyx ref="reportRef" @get-pass="getPass" :formData="formData" />
 </template>
-<script lang="ts">
-export default {
-  name: '/service/lslxJsc/yxyshd'
-}
-</script>
+
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, nextTick } from 'vue'
-import userDialog from '@/components/select/userDialog.vue' //登陆权限
-import viewTable from '@/views/service/lslxJsc/components/table.vue' //表格组件
+import userDialog from '@/components/select/userDialog.vue'
+import viewTable from '@/views/service/lslxJsc/components/table.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getPublicData } from '@/api/common' //公共代码
-import reportingyx from '@/views/service/lslxJsc/components/reportingyx.vue' //上报组件
+import { getPublicData } from '@/api/common'
+import reportingyx from '@/views/service/lslxJsc/components/reportingyx.vue'
 import { pageForProvince } from '@/api/lslxJsc/index'
 import { useStore } from '@/store/business'
 import { useRoute } from 'vue-router'
 import { useUser } from '@/hooks/useUser'
+defineOptions({
+  name: '/service/lslxJsc/yxyshd'
+})
+
+ //登陆权限
+ //表格组件
+
+ //公共代码
+ //上报组件
 
 const store = useStore()
 const route = useRoute()
@@ -47,7 +52,6 @@ const specialorgid = ref<any>() //单位id
 
 const lslxStatus = ref<any[]>([])
 const userInfo = ref<any>()
-
 const btnList = ref<any[]>([
   {
     label: 'AUDIT',
@@ -62,7 +66,6 @@ const btnList = ref<any[]>([
     type: 'normal'
   }
 ])
-
 onMounted(async () => {
   var isRoel = await useUser('getLSGlobalInfo')
   pageInfo.loading = true
@@ -101,7 +104,9 @@ const clickBtn = async (val: any) => {
       title: val.value,
       dwId: specialorgid.value
     }
-    formData.value = { ...params }
+    formData.value = {
+      ...params
+    }
     reportRef.value.userInfo = userInfo.value
     reportRef.value.isShowModel = true
     reportRef.value.getHeaderData(params)
@@ -109,7 +114,6 @@ const clickBtn = async (val: any) => {
     console.log(error)
   }
 }
-
 const isPass = async (val: any) => {
   try {
     if (val) {
@@ -138,7 +142,6 @@ const closeAll = () => {
   tableRef.value.proTableRef.clearSelection()
   pageInfo.loading = false
 }
-
 const getPass = (val: any) => {
   if (val) {
     tableRef.value.proTableRef.getTableList()
@@ -149,7 +152,9 @@ const getPass = (val: any) => {
 
 // 权限获取
 const getRoleHandle = () => {
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   if (isQuery) {
     specialorgid.value = userInfo.value.org_id
@@ -166,29 +171,63 @@ const getRoleHandle = () => {
     })
   }
 }
-
 const tableColumns = reactive([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'nd', label: '年度', width: '80' },
-  { prop: 'versionNo', label: '版本编号', width: '130' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'nd',
+    label: '年度',
+    width: '80'
+  },
+  {
+    prop: 'versionNo',
+    label: '版本编号',
+    width: '130'
+  },
   {
     prop: 'versionName',
     label: '版本名称',
     width: '300',
-    search: { el: 'input', order: 1 }
+    search: {
+      el: 'input',
+      order: 1
+    }
   },
   {
     prop: 'status',
     label: '版本状态',
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: lslxStatus.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     width: '200'
   },
-  { prop: 'createDate', label: '创建日期', width: '180' },
-  { prop: 'creatorName', label: '创建人', width: '80' },
-  { prop: 'remake', label: '备注' }
+  {
+    prop: 'createDate',
+    label: '创建日期',
+    width: '180'
+  },
+  {
+    prop: 'creatorName',
+    label: '创建人',
+    width: '80'
+  },
+  {
+    prop: 'remake',
+    label: '备注'
+  }
 ])
 </script>
 

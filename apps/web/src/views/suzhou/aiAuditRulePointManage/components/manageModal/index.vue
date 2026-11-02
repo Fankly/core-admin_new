@@ -118,11 +118,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'manageModal'
-}
-</script>
 
 <style lang="less">
 @import '../../css/modal.less';
@@ -131,10 +126,14 @@ export default {
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-// import { rulManageSaveRule } from '@/api/suzhou/aiAuditRuleManage'
 import { saveRule } from '@/api/suzhou/aiAuditRulePoint'
 import { VXETable } from 'vxe-table'
 import { getPublicData } from '@/api/common'
+defineOptions({
+  name: 'manageModal'
+})
+
+// import { rulManageSaveRule } from '@/api/suzhou/aiAuditRuleManage'
 
 /** 公共代码项 */
 interface CodeItem {
@@ -147,16 +146,18 @@ interface ModalParams {
   type: string
   searchParams: Record<string, any>
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
 const modalTitle = ref('')
-
 const ruleClassifyList = ref<CodeItem[]>([])
 const ruleLevel = ref<CodeItem[]>([])
 const ruleStatus = ref<CodeItem[]>([])
@@ -194,7 +195,6 @@ const handleClose = () => {
 const handleSave = () => {
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -206,15 +206,19 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
       // 应用阶段：按选中的码值回填名称，保证列表 subobjectName 与 subobject 一致
       const subobjectName = subobjectList.value.find((item) => String(item.code) === String(searchParams.value.subobject))?.name || ''
-      const res = await saveRule({ ...searchParams.value, subobjectName })
+      const res = await saveRule({
+        ...searchParams.value,
+        subobjectName
+      })
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -241,10 +245,8 @@ const fetchOptions = async () => {
     getPublicData('AI_HANDLER_COM')
   ])
   const [resClassify, resLevel, resStatus, resStage, resMajor, resSubobject, resExecuteMode, resHandler] = results
-
   const pickData = (r: PromiseSettledResult<any>): CodeItem[] =>
     r.status === 'fulfilled' && r.value?.success && Array.isArray(r.value.data) ? r.value.data : []
-
   ruleClassifyList.value = pickData(resClassify)
   ruleLevel.value = pickData(resLevel)
   ruleStatus.value = pickData(resStatus)
@@ -279,6 +281,7 @@ const acceptParams = (params: ModalParams) => {
   isShowModal.value = true
   fetchOptions()
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>

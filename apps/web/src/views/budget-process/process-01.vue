@@ -531,7 +531,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -540,9 +540,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import allProjectType from '@/components/select/allProjectType.vue'
@@ -551,297 +549,338 @@ import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import Sortable from 'sortablejs'
 import { showHelpMsg } from '@/utils/message'
-export default defineComponent({
-  name: '/budget-process/process-01',
-  components: {
-    allProjectType,
-    affiliatedUnit,
-    userDialog
-  },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+defineOptions({
+  name: '/budget-process/process-01'
+})
+const typeRef = useTemplateRef('type')
+const companyRef = useTemplateRef('company')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  helpHandle,
+  store,
+  detailedTable: false,
+  detailedTableJJb: false,
+  options: [
+    {
+      label: '总览表-简洁版',
+      value: 'jjb'
+    },
+    {
+      label: '总览表-详细表',
+      value: true
+    },
+    {
+      label: '总览表-默认显示字段',
+      value: false
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      helpHandle,
-      store,
-      detailedTable: false,
-      detailedTableJJb: false,
-      options: [
-        {
-          label: '总览表-简洁版',
-          value: 'jjb'
-        },
-        {
-          label: '总览表-详细表',
-          value: true
-        },
-        {
-          label: '总览表-默认显示字段',
-          value: false
-        }
-      ],
-      value: false,
-      columnObj: {},
-      segmentIds: [],
-      segment: [
-        {
-          value: 'cbylx',
-          label: '项目储备与立项',
-          checked: true
-        },
-        {
-          value: 'zybfxz',
-          label: '招投标（非修正）',
-          checked: true
-        },
-        {
-          value: 'zybxz',
-          label: '招投标（修正）',
-          checked: true
-        },
-        {
-          value: 'htqdfxz',
-          label: '合同签订（非修正）',
-          checked: true
-        },
-        {
-          value: 'htqd',
-          label: '合同签订',
-          checked: true
-        },
-        {
-          value: 'xmss',
-          label: '项目实施',
-          checked: true
-        },
-        {
-          value: 'xmsj',
-          label: '项目审计',
-          checked: true
-        },
-        {
-          value: 'jsyzjzf',
-          label: '结算与资金支付',
-          checked: true
-        },
-        {
-          value: 'jsyzz',
-          label: '决算与增资',
-          checked: true
-        },
-        {
-          value: 'xmgb',
-          label: '项目关闭',
-          checked: true
-        }
-      ],
-      example: [],
-      dataList: {
-        month: new Date(),
-        select: 0
-      },
-      searchShow: true,
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: ''
+  ],
+  value: false,
+  columnObj: {},
+  segmentIds: [],
+  segment: [
+    {
+      value: 'cbylx',
+      label: '项目储备与立项',
+      checked: true
+    },
+    {
+      value: 'zybfxz',
+      label: '招投标（非修正）',
+      checked: true
+    },
+    {
+      value: 'zybxz',
+      label: '招投标（修正）',
+      checked: true
+    },
+    {
+      value: 'htqdfxz',
+      label: '合同签订（非修正）',
+      checked: true
+    },
+    {
+      value: 'htqd',
+      label: '合同签订',
+      checked: true
+    },
+    {
+      value: 'xmss',
+      label: '项目实施',
+      checked: true
+    },
+    {
+      value: 'xmsj',
+      label: '项目审计',
+      checked: true
+    },
+    {
+      value: 'jsyzjzf',
+      label: '结算与资金支付',
+      checked: true
+    },
+    {
+      value: 'jsyzz',
+      label: '决算与增资',
+      checked: true
+    },
+    {
+      value: 'xmgb',
+      label: '项目关闭',
+      checked: true
+    }
+  ],
+  example: [],
+  dataList: {
+    month: new Date(),
+    select: 0
+  },
+  searchShow: true,
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const detailedTable = toRef(setupState, 'detailedTable')
+const detailedTableJJb = toRef(setupState, 'detailedTableJJb')
+const options = toRef(setupState, 'options')
+const value = toRef(setupState, 'value')
+const columnObj = toRef(setupState, 'columnObj')
+const segmentIds = toRef(setupState, 'segmentIds')
+const segment = toRef(setupState, 'segment')
+const example = toRef(setupState, 'example')
+const dataList = toRef(setupState, 'dataList')
+const searchShow = toRef(setupState, 'searchShow')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 40 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 40 + 'px'
+  }
+}
+function tableType() {
+  if (setupState.value == 'jjb') {
+    setupState.detailedTableJJb = true
+  } else {
+    setupState.detailedTableJJb = false
+    setupState.detailedTable = setupState.value
+  }
+}
+async function loadData() {
+  setupState.loading = true
+  if (setupState.dataList.month) {
+    const params = {
+      qkjxmlxbms: [],
+      qkjejdws: [],
+      zyear: '',
+      zmonth: '',
+      wd: setupState.dataList.select,
+      specialorgid: setupState.specialorgid
+    }
+    if (typeRef.value.selectList.length > 0) {
+      params.qkjxmlxbms = typeRef.value.selectList
+    } else {
+      params.qkjxmlxbms = typeRef.value.allId
+    }
+    if (companyRef.value.selectList.length > 0) {
+      params.qkjejdws = companyRef.value.selectList
+    } else {
+      params.qkjejdws = companyRef.value.allId
+    }
+    if (setupState.dataList.month != '') {
+      let time = new Date(setupState.dataList.month)
+      let zyear = time.getFullYear()
+      let zmonth = time.getMonth() + 1
+      params.zyear = JSON.stringify(zyear)
+      params.zmonth = JSON.stringify(zmonth)
+    }
+    await baseService.post('/process/process01/', params).then((res) => {
+      if (res.success == true) {
+        setupState.loading = false
+        setupState.example = res.data
+      } else {
+        setupState.loading = false
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
     })
-  },
-  created() {
-    this.handleColumn()
-  },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-  },
-  methods: {
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 40 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 40 + 'px'
-      }
-    },
-
-    tableType() {
-      if (this.value == 'jjb') {
-        this.detailedTableJJb = true
-      } else {
-        this.detailedTableJJb = false
-        this.detailedTable = this.value
-      }
-    },
-
-    async loadData() {
-      this.loading = true
-      if (this.dataList.month) {
-        const params = {
-          qkjxmlxbms: [],
-          qkjejdws: [],
-          zyear: '',
-          zmonth: '',
-          wd: this.dataList.select,
-          specialorgid: this.specialorgid
-        }
-        if (this.$refs.type.selectList.length > 0) {
-          params.qkjxmlxbms = this.$refs.type.selectList
-        } else {
-          params.qkjxmlxbms = this.$refs.type.allId
-        }
-        if (this.$refs.company.selectList.length > 0) {
-          params.qkjejdws = this.$refs.company.selectList
-        } else {
-          params.qkjejdws = this.$refs.company.allId
-        }
-        if (this.dataList.month != '') {
-          let time = new Date(this.dataList.month)
-          let zyear = time.getFullYear()
-          let zmonth = time.getMonth() + 1
-          params.zyear = JSON.stringify(zyear)
-          params.zmonth = JSON.stringify(zmonth)
-        }
-        await baseService.post('/process/process01/', params).then((res) => {
-          if (res.success == true) {
-            this.loading = false
-            this.example = res.data
-          } else {
-            this.loading = false
-            ElMessage({
-              type: 'error',
-              message: res.msg
-            })
-          }
-        })
-      } else {
-        this.loading = false
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-
-    exportBtn() {
-      this.loading = true
-      if (this.dataList.month) {
-        const params = {
-          qkjxmlxbms: [],
-          qkjejdws: [],
-          zyear: '',
-          zmonth: '',
-          wd: this.dataList.select,
-          specialorgid: this.specialorgid,
-          show_type: ''
-        }
-        if (this.value == 'jjb') {
-          params.show_type = 0
-        } else if (this.value == true) {
-          params.show_type = 1
-        } else {
-          params.show_type = 2
-        }
-        if (this.$refs.type.selectList.length > 0) {
-          params.qkjxmlxbms = this.$refs.type.selectList
-        } else {
-          params.qkjxmlxbms = this.$refs.type.allId
-        }
-
-        if (this.$refs.company.selectList.length > 0) {
-          params.qkjejdws = this.$refs.company.selectList
-        } else {
-          params.qkjejdws = this.$refs.company.allId
-        }
-        if (this.dataList.month != '') {
-          let time = new Date(this.dataList.month)
-          let zyear = time.getFullYear()
-          let zmonth = time.getMonth() + 1
-          params.zyear = JSON.stringify(zyear)
-          params.zmonth = JSON.stringify(zmonth)
-        }
-        baseService.export('/process/process01/export', params).then((res) => {
-          this.loading = false
-          const blob = res
-          let dom = document.createElement('a')
-          let url = window.URL.createObjectURL(blob)
-          dom.href = url
-          dom.download = '预算全过程总览.xlsx'
-          document.body.appendChild(dom)
-          dom.click()
-          document.body.removeChild(dom)
-          window.URL.revokeObjectURL(url)
-        })
-      } else {
-        this.loading = false
-        ElMessage({
-          message: '请选择日期查询',
-          icon: EpSearch,
-          customClass: 'tipsBox'
-        })
-      }
-    },
-
-    //查询按钮
-    search() {
-      this.loadData()
-    },
-
-    //重置按钮
-    reset() {
-      this.dataList.month = new Date()
-      this.dataList.select = 0
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.detailedTable = false
-      this.example = []
-      this.loadData()
-    },
-
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.segmentIds.push(item.value)
-        this.columnObj[item.value] = item.checked
-      })
-    },
-
-    //项目环节
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked
-        }
-      }
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
+  } else {
+    setupState.loading = false
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
+    })
+  }
+}
+function exportBtn() {
+  setupState.loading = true
+  if (setupState.dataList.month) {
+    const params = {
+      qkjxmlxbms: [],
+      qkjejdws: [],
+      zyear: '',
+      zmonth: '',
+      wd: setupState.dataList.select,
+      specialorgid: setupState.specialorgid,
+      show_type: ''
+    }
+    if (setupState.value == 'jjb') {
+      params.show_type = 0
+    } else if (setupState.value == true) {
+      params.show_type = 1
+    } else {
+      params.show_type = 2
+    }
+    if (typeRef.value.selectList.length > 0) {
+      params.qkjxmlxbms = typeRef.value.selectList
+    } else {
+      params.qkjxmlxbms = typeRef.value.allId
+    }
+    if (companyRef.value.selectList.length > 0) {
+      params.qkjejdws = companyRef.value.selectList
+    } else {
+      params.qkjejdws = companyRef.value.allId
+    }
+    if (setupState.dataList.month != '') {
+      let time = new Date(setupState.dataList.month)
+      let zyear = time.getFullYear()
+      let zmonth = time.getMonth() + 1
+      params.zyear = JSON.stringify(zyear)
+      params.zmonth = JSON.stringify(zmonth)
+    }
+    baseService.export('/process/process01/export', params).then((res) => {
+      setupState.loading = false
+      const blob = res
+      let dom = document.createElement('a')
+      let url = window.URL.createObjectURL(blob)
+      dom.href = url
+      dom.download = '预算全过程总览.xlsx'
+      document.body.appendChild(dom)
+      dom.click()
+      document.body.removeChild(dom)
+      window.URL.revokeObjectURL(url)
+    })
+  } else {
+    setupState.loading = false
+    ElMessage({
+      message: '请选择日期查询',
+      icon: EpSearch,
+      customClass: 'tipsBox'
+    })
+  }
+}
+//查询按钮
+function search() {
+  loadData()
+}
+//重置按钮
+function reset() {
+  setupState.dataList.month = new Date()
+  setupState.dataList.select = 0
+  typeRef.value.clear()
+  companyRef.value.clear()
+  setupState.detailedTable = false
+  setupState.example = []
+  loadData()
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.segmentIds.push(item.value)
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+//项目环节
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
     }
   }
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+})
+;(() => {
+  handleColumn()
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  helpHandle,
+  store,
+  detailedTable,
+  detailedTableJJb,
+  options,
+  value,
+  columnObj,
+  segmentIds,
+  segment,
+  example,
+  dataList,
+  searchShow,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  setTableHeight,
+  tableType,
+  loadData,
+  exportBtn,
+  search,
+  reset,
+  handleColumn,
+  listShow,
+  showSearch,
+  loadCompany
 })
 </script>
 

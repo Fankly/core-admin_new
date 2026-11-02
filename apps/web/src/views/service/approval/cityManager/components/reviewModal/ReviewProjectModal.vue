@@ -116,8 +116,7 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ManagerReviewProjectModal" })
-import { defineExpose, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import type { VxeGridInstance, VxeGridProps } from 'vxe-table'
@@ -127,6 +126,9 @@ import { deleteYnrxm, deleteYnrxmWhenPsz, exportYnrxm, getYnrhsxmPage } from '@/
 import { downloadExportBlob } from '@/views/service/approval/provinceLhhsMeeting/utils/download'
 import { formatNumValue } from '@/utils/utils'
 import PendingTrialProjectModal from '@/views/service/approval/cityManager/components/pendingTrialModal/PendingTrialProjectModal.vue'
+defineOptions({
+  name: 'ManagerReviewProjectModal'
+})
 
 interface ModalProps {
   title: string
@@ -136,7 +138,6 @@ interface ModalProps {
   row: Partial<any>
   btnPermissions: string[]
 }
-
 const gridRef = ref<VxeGridInstance>()
 const pendingTrialRef = ref<InstanceType<typeof PendingTrialProjectModal>>()
 const modalVisible = ref(false)
@@ -148,7 +149,6 @@ const ejdwListData = ref<any[]>([])
 const ndDataList = ref<any[]>([])
 const yslyListData = ref<any[]>([])
 const gkbmListData = ref<any[]>([])
-
 const modalProps = ref<ModalProps>({
   title: '',
   pageFlag: '',
@@ -156,7 +156,6 @@ const modalProps = ref<ModalProps>({
   row: {},
   btnPermissions: []
 })
-
 const searchForm = reactive<Record<string, any>>({
   xmbm: '',
   xmmc: '',
@@ -167,69 +166,220 @@ const searchForm = reactive<Record<string, any>>({
   zgkbmId: '',
   yssxmc: ''
 })
-
 const page = reactive({
   page: 1,
   limit: 20,
   total: 0
 })
-
-const centerConfig = { align: 'center', headerAlign: 'center' } as const
+const centerConfig = {
+  align: 'center',
+  headerAlign: 'center'
+} as const
 const gridOptions = reactive<VxeGridProps<any>>({
   border: true,
   height: '100%',
   showOverflow: true,
   showHeaderOverflow: true,
-  checkboxConfig: { trigger: 'row', highlight: true, range: true },
-  rowConfig: { isHover: true, height: 32 },
-  columnConfig: { resizable: true },
+  checkboxConfig: {
+    trigger: 'row',
+    highlight: true,
+    range: true
+  },
+  rowConfig: {
+    isHover: true,
+    height: 32
+  },
+  columnConfig: {
+    resizable: true
+  },
   columns: [
-    { type: 'checkbox', width: 50, fixed: 'left', ...centerConfig },
-    { type: 'seq', width: 60, title: '序号', fixed: 'left', ...centerConfig },
-    { field: 'meetingCode', title: '会议编号', width: 120, ...centerConfig },
-    { field: 'meetingName', title: '会议名称', width: 260, showOverflow: true, ...centerConfig },
-    { field: 'xmbm', title: '项目编码', width: 180, fixed: 'left', ...centerConfig },
-    { field: 'xmmc', title: '项目名称', minWidth: 260, fixed: 'left', showOverflow: true, ...centerConfig },
-    { field: 'isPackName', title: '是否打捆项目', width: 120, ...centerConfig },
-    { field: 'ysly', title: '预算来源', width: 100, ...centerConfig },
-    { field: 'yjdwName', title: '一级单位', width: 180, ...centerConfig },
-    { field: 'ejdwName', title: '二级单位', width: 180, ...centerConfig },
-    { field: 'applyCenter', title: '成本中心', width: 180, ...centerConfig },
-    { field: 'amount', title: '申报金额（万元）', width: 180, align: 'right', headerAlign: 'center', slots: { default: 'amountSlot' } },
-    { field: 'jhssndName', title: '计划实施年份', width: 140, ...centerConfig },
-    { field: 'zdtxName', title: '重点投向', width: 180, ...centerConfig },
-    { field: 'zgkbm', title: '专业部门', width: 180, ...centerConfig },
-    { field: 'yssxmc', title: '预算事项名称', width: 260, showOverflow: true, slots: { default: 'yssxmcSlot' }, ...centerConfig },
-    { field: 'remark', title: '预算事项说明', width: 280, showOverflow: true, ...centerConfig },
-    { field: 'yjfl', title: '一级分类', width: 140, ...centerConfig },
-    { field: 'ejfl', title: '二级分类', width: 140, ...centerConfig },
-    { field: 'sjfl', title: '三级分类', width: 140, ...centerConfig },
-    { field: 'fzrbh', title: '实施部门', width: 180, ...centerConfig },
-    { field: 'xmssr', title: '项目实施人', width: 180, ...centerConfig },
-    { field: 'ssnr', title: '项目实施内容', width: 280, showOverflow: true, ...centerConfig },
-    { field: 'xmjys', title: '项目建议书（数量）', width: 150, ...centerConfig },
-    { field: 'ky', title: '可研（数量）', width: 140, ...centerConfig },
-    { field: 'pfwj', title: '批复文件（数量）', width: 140, ...centerConfig }
+    {
+      type: 'checkbox',
+      width: 50,
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      type: 'seq',
+      width: 60,
+      title: '序号',
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      field: 'meetingCode',
+      title: '会议编号',
+      width: 120,
+      ...centerConfig
+    },
+    {
+      field: 'meetingName',
+      title: '会议名称',
+      width: 260,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'xmbm',
+      title: '项目编码',
+      width: 180,
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      field: 'xmmc',
+      title: '项目名称',
+      minWidth: 260,
+      fixed: 'left',
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'isPackName',
+      title: '是否打捆项目',
+      width: 120,
+      ...centerConfig
+    },
+    {
+      field: 'ysly',
+      title: '预算来源',
+      width: 100,
+      ...centerConfig
+    },
+    {
+      field: 'yjdwName',
+      title: '一级单位',
+      width: 180,
+      ...centerConfig
+    },
+    {
+      field: 'ejdwName',
+      title: '二级单位',
+      width: 180,
+      ...centerConfig
+    },
+    {
+      field: 'applyCenter',
+      title: '成本中心',
+      width: 180,
+      ...centerConfig
+    },
+    {
+      field: 'amount',
+      title: '申报金额（万元）',
+      width: 180,
+      align: 'right',
+      headerAlign: 'center',
+      slots: {
+        default: 'amountSlot'
+      }
+    },
+    {
+      field: 'jhssndName',
+      title: '计划实施年份',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'zdtxName',
+      title: '重点投向',
+      width: 180,
+      ...centerConfig
+    },
+    {
+      field: 'zgkbm',
+      title: '专业部门',
+      width: 180,
+      ...centerConfig
+    },
+    {
+      field: 'yssxmc',
+      title: '预算事项名称',
+      width: 260,
+      showOverflow: true,
+      slots: {
+        default: 'yssxmcSlot'
+      },
+      ...centerConfig
+    },
+    {
+      field: 'remark',
+      title: '预算事项说明',
+      width: 280,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'yjfl',
+      title: '一级分类',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'ejfl',
+      title: '二级分类',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'sjfl',
+      title: '三级分类',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'fzrbh',
+      title: '实施部门',
+      width: 180,
+      ...centerConfig
+    },
+    {
+      field: 'xmssr',
+      title: '项目实施人',
+      width: 180,
+      ...centerConfig
+    },
+    {
+      field: 'ssnr',
+      title: '项目实施内容',
+      width: 280,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'xmjys',
+      title: '项目建议书（数量）',
+      width: 150,
+      ...centerConfig
+    },
+    {
+      field: 'ky',
+      title: '可研（数量）',
+      width: 140,
+      ...centerConfig
+    },
+    {
+      field: 'pfwj',
+      title: '批复文件（数量）',
+      width: 140,
+      ...centerConfig
+    }
   ]
 })
-
 const formatAmount = (value: unknown) => {
   if (value === undefined || value === null || value === '') return '-'
   return formatNumValue(value as string | number, 6)
 }
-
 const clearSelection = () => {
   selectedRows.value = []
   gridRef.value?.clearCheckboxRow()
 }
-
 const normalizeRecords = (records: any[]) => {
   return records.map((item) => ({
     ...item,
     jhssndName: item.jhssndName || item.jhssnd
   }))
 }
-
 const loadTable = async () => {
   loading.value = true
   try {
@@ -255,12 +405,10 @@ const loadTable = async () => {
     loading.value = false
   }
 }
-
 const searchTable = () => {
   page.page = 1
   loadTable()
 }
-
 const resetSearch = () => {
   Object.keys(searchForm).forEach((key) => {
     searchForm[key] = ''
@@ -270,45 +418,40 @@ const resetSearch = () => {
   page.page = 1
   loadTable()
 }
-
 const pageChangeHandle = (currentPage: number) => {
   page.page = currentPage
   loadTable()
 }
-
 const limitChangeHandle = (limit: number) => {
   page.page = 1
   page.limit = limit
   loadTable()
 }
-
 const handleSelection = ({ records }: any) => {
   selectedRows.value = records || []
 }
-
 const handleCellClick = async ({ row, column }: any) => {
   if (column.type === 'checkbox') return
   await gridRef.value?.clearCheckboxRow()
   await gridRef.value?.setCheckboxRow(row, true)
   selectedRows.value = [row]
 }
-
 const handleAddPendingTrial = () => {
   pendingTrialRef.value?.acceptParams({
     title: '添加',
     pageFlag: modalProps.value.pageFlag,
     isView: false,
     isPsz: modalProps.value.isView,
-    row: { ...modalProps.value.row },
+    row: {
+      ...modalProps.value.row
+    },
     getTableList: loadTable
   })
 }
-
 const handleIncluded = () => {
   loadTable()
   modalProps.value.search?.()
 }
-
 const handleDeleteData = async () => {
   if (selectedRows.value.length === 0) {
     ElMessage.warning('请至少选择一条数据进行操作!')
@@ -336,7 +479,6 @@ const handleDeleteData = async () => {
     loading.value = false
   }
 }
-
 const handleExport = async () => {
   loading.value = true
   try {
@@ -355,7 +497,6 @@ const handleExport = async () => {
     loading.value = false
   }
 }
-
 const changeEjdwEnum = async (val: string) => {
   searchForm.ejdw = ''
   ejdwListData.value = []
@@ -370,7 +511,6 @@ const changeEjdwEnum = async (val: string) => {
     ElMessage.error(res.msg)
   }
 }
-
 const initOptions = async () => {
   const [yjdwRes, ndRes, yslyRes, gkbmRes] = await Promise.allSettled([
     getYjdwFromCm(),
@@ -383,7 +523,6 @@ const initOptions = async () => {
   if (yslyRes.status === 'fulfilled' && yslyRes.value.success) yslyListData.value = yslyRes.value.data || []
   if (gkbmRes.status === 'fulfilled' && gkbmRes.value.success) gkbmListData.value = gkbmRes.value.data || []
 }
-
 const closeHandle = () => {
   modalVisible.value = false
   tableData.value = []
@@ -392,9 +531,11 @@ const closeHandle = () => {
   page.total = 0
   clearSelection()
 }
-
 const acceptParams = (params: ModalProps) => {
-  modalProps.value = { ...modalProps.value, ...params }
+  modalProps.value = {
+    ...modalProps.value,
+    ...params
+  }
   searchForm.ysly = modalProps.value.row['ysly'] || ''
   searchForm.zgkbmId = modalProps.value.row['bmId'] || ''
   modalVisible.value = true
@@ -402,7 +543,6 @@ const acceptParams = (params: ModalProps) => {
     loadTable()
   })
 }
-
 defineExpose({
   acceptParams
 })

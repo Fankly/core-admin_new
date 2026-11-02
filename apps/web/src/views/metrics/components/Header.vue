@@ -16,83 +16,68 @@
   <copyStatConfig :busiType="props.busiType" ref="copyStatConfigRef" :ndList="pageInfo.ndDataList" :nd="formData.nd"></copyStatConfig>
 </template>
 
-<script lang="ts">
-export default {
-  name: "/metrics/components/Header"
-};
-</script>
+
 <script setup lang="ts">
-import { onMounted, reactive, defineExpose, defineEmits, watch, defineProps, computed, ref } from "vue";
-import { getYearData } from "@/api/common";
-import { ElMessage } from "element-plus";
-import copyStatConfig from "@/views/metrics/components/copyStatConfig.vue";
+import { onMounted, reactive, watch, computed, ref } from 'vue'
+import { getYearData } from '@/api/common'
+import { ElMessage } from 'element-plus'
+import copyStatConfig from '@/views/metrics/components/copyStatConfig.vue'
+defineOptions({
+  name: '/metrics/components/Header'
+})
 
 interface Props {
-  showPage: boolean;
-  busiType: string;
+  showPage: boolean
+  busiType: string
 }
-
 interface List {
-  yearCode: string;
-  yearName: string;
+  yearCode: string
+  yearName: string
 }
-const copyStatConfigRef = ref();
-
-const emits = defineEmits(["changeNd", "addData", "deleteData"]);
-
-const props = defineProps<Props>();
-
-const isShowPage = computed(() => props.showPage);
-
+const copyStatConfigRef = ref()
+const emits = defineEmits(['changeNd', 'addData', 'deleteData'])
+const props = defineProps<Props>()
+const isShowPage = computed(() => props.showPage)
 const formData = reactive({
-  nd: ""
-});
-
+  nd: ''
+})
 const pageInfo = reactive<{
-  [key: string]: List[];
+  [key: string]: List[]
 }>({
   ndDataList: []
-});
-
+})
 const getYearDataList = async () => {
-  let res = await getYearData();
+  let res = await getYearData()
   if (res.success) {
-    pageInfo.ndDataList = res.data;
-    formData.nd = new Date().getFullYear().toString();
+    pageInfo.ndDataList = res.data
+    formData.nd = new Date().getFullYear().toString()
   } else {
-    ElMessage.error(res.msg);
+    ElMessage.error(res.msg)
   }
-};
-
+}
 const copyHandle = () => {
-  copyStatConfigRef.value.showModal = true;
-};
-
+  copyStatConfigRef.value.showModal = true
+}
 const addOrEditDataHandle = (flag: string) => {
-  emits("addData", flag);
-};
-
+  emits('addData', flag)
+}
 const delDataHandle = () => {
-  emits("deleteData");
-};
-
+  emits('deleteData')
+}
 watch(
   () => formData.nd,
   (newVal) => {
-    emits("changeNd", newVal);
+    emits('changeNd', newVal)
   }
-);
-
+)
 const initParams = () => {
-  getYearDataList();
-};
-
+  getYearDataList()
+}
 defineExpose({
   pageInfo,
   formData
-});
-
-onMounted(initParams);
+})
+onMounted(initParams)
 </script>
 
 <style scoped lang="less">

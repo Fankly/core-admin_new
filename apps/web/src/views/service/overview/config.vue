@@ -54,7 +54,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/service/overview/config" })
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { TriangleAlert } from '@lucide/vue'
@@ -66,6 +65,7 @@ import type { XmzlConfig } from '@/api/overview'
 import ConfigStageTree from './components/ConfigStageTree.vue'
 import ConfigFormDialog from './components/ConfigFormDialog.vue'
 import { ROOT_NODE_ID, buildConfigTree, compareConfig, findConfigNode, hasValue, matchConfigNode, presetFromNode } from './data/config'
+defineOptions({ name: "/service/overview/config" })
 
 const userDialogRef = ref<InstanceType<typeof userDialog> | null>(null)
 const formDialogRef = ref<{ open: (mode: 'ADD' | 'EDIT', row?: XmzlConfig) => Promise<void> }>()

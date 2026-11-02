@@ -62,11 +62,6 @@
   <PendingTrialModal @include-in-review="clearSelect" ref="pendingTrialModalRef" />
 </template>
 
-<script lang="tsx">
-export default {
-  name: 'ReViewModal'
-}
-</script>
 
 <script setup lang="tsx">
 import { ref, reactive } from 'vue'
@@ -92,6 +87,9 @@ import { getCommonCodeByParentCode, getSubProtypeTree, getYjdwFromCm, getPublicD
 import ElTreeSelect from '@/components/ElTreeSelect/index'
 import PendingTrialModal from '@/views/service/jointReview/lhhsMeeting/components/PendingTrialModal/index.vue'
 import { VXETable } from 'vxe-table'
+defineOptions({
+  name: 'ReViewModal'
+})
 
 interface ModalProps {
   title: string
@@ -100,17 +98,14 @@ interface ModalProps {
   row: Partial<any>
   btnPermissions: string[]
 }
-
 const proTableRef = ref()
 const pendingTrialModalRef = ref()
 const modalVisible = ref(false)
-
 const yjdwListData: any = ref([])
 const ejdwListData: any = ref([])
 const pszyListData: any = ref([])
 const projectTypeList: any = ref([])
 const ndDataList: any = ref([])
-
 const modalProps = ref<ModalProps>({
   isView: false,
   title: '',
@@ -118,7 +113,6 @@ const modalProps = ref<ModalProps>({
   row: {},
   btnPermissions: []
 })
-
 const isShowBtn = (opType: string) => {
   return modalProps.value.btnPermissions.includes(opType)
 }
@@ -126,9 +120,7 @@ const rowClick = (row: any) => {
   clearSelectRow()
   proTableRef.value?.element.toggleRowSelection(row)
 }
-
 const loading = ref(false)
-
 const closeHandle = () => {
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
@@ -136,7 +128,6 @@ const closeHandle = () => {
   projectTypeList.value.length = 0
   ndDataList.value.length = 0
 }
-
 const getYjdwEnum = async () => {
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
@@ -155,7 +146,6 @@ const getYjdwEnum = async () => {
     ndDataList.value.push(...list.data)
   }
 }
-
 const getPublicCode = async () => {
   pszyListData.value.length = 0
   let list = await getPublicData('MAJOR_COM')
@@ -165,7 +155,6 @@ const getPublicCode = async () => {
     ElMessage.error(list.msg)
   }
 }
-
 const clearSelect = () => {
   ejdwListData.value.length = 0
   proTableRef.value?.clearSelection()
@@ -173,7 +162,6 @@ const clearSelect = () => {
 const clearSelectRow = () => {
   proTableRef.value?.clearSelection()
 }
-
 const changeEjdwEnum = async (val: string) => {
   loading.value = true
   ejdwListData.value.length = 0
@@ -197,7 +185,6 @@ const changeEjdwEnum = async (val: string) => {
     loading.value = false
   }
 }
-
 const proTypeProps = {
   label: 'name',
   children: 'children',
@@ -220,10 +207,16 @@ const getProjectData = () => {
     }
   })
 }
-
 const programColumns = reactive<any[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'meetingCode',
     label: '会议编号',
@@ -257,7 +250,11 @@ const programColumns = reactive<any[]>([
   // { prop: 'sfgmbName', label: '是否规模包', width: '100' },
   // { prop: 'gmbbm', label: '规模包编码', width: '180' },
   // { prop: 'gmbName', label: '规模包名称', width: '200' },
-  { prop: 'isPackName', label: '是否打捆项目', width: '100' },
+  {
+    prop: 'isPackName',
+    label: '是否打捆项目',
+    width: '100'
+  },
   {
     prop: 'proType',
     label: '项目类型',
@@ -265,7 +262,9 @@ const programColumns = reactive<any[]>([
     search: {
       order: 4,
       render: (scope: any) => {
-        return <ElTreeSelect clearable data={projectTypeList.value} props={proTypeProps} nodeKey={'middleId'} modelValue={scope.modelValue} />
+        return (
+          <ElTreeSelect clearable data={projectTypeList.value} props={proTypeProps} nodeKey={'middleId'} modelValue={scope.modelValue} />
+        )
       }
     }
   },
@@ -280,7 +279,10 @@ const programColumns = reactive<any[]>([
       }
     },
     enum: () => getPublicData('XMLB_YSLY'),
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     label: '预算来源',
     render: ({ row }: any) => {
       return row.ysly
@@ -292,9 +294,18 @@ const programColumns = reactive<any[]>([
     label: '一级单位',
     width: '180',
     isShow: false,
-    search: { el: 'select', props: { onChange: changeEjdwEnum }, order: 2 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: changeEjdwEnum
+      },
+      order: 2
+    },
     enum: yjdwListData.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'yjdwName',
@@ -305,9 +316,15 @@ const programColumns = reactive<any[]>([
     prop: 'ejdw',
     label: '二级单位',
     width: '180',
-    search: { el: 'select', order: 3 },
+    search: {
+      el: 'select',
+      order: 3
+    },
     enum: ejdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   },
   {
@@ -335,9 +352,15 @@ const programColumns = reactive<any[]>([
   {
     prop: 'jhssnd',
     label: '计划实施年份',
-    search: { el: 'select', order: 6 },
+    search: {
+      el: 'select',
+      order: 6
+    },
     enum: ndDataList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   },
   {
@@ -358,15 +381,24 @@ const programColumns = reactive<any[]>([
   {
     prop: 'zgkbmId',
     label: '省归口部门',
-    search: { el: 'select', order: 7 },
+    search: {
+      el: 'select',
+      order: 7
+    },
     enum: () => getGkbmInProvince(),
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   },
   {
     prop: 'yssxmc',
     label: '预算事项名称',
-    search: { el: 'input', order: 8 },
+    search: {
+      el: 'input',
+      order: 8
+    },
     width: '280',
     render: ({ row }: any) => {
       return row.zyssxmc
@@ -464,8 +496,15 @@ const programColumns = reactive<any[]>([
   }
 ])
 const expertColumns = reactive<any[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'majorName',
     label: '评审专业',
@@ -480,7 +519,10 @@ const expertColumns = reactive<any[]>([
       order: 5
     },
     enum: pszyListData.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'expertName',
@@ -527,10 +569,19 @@ const expertColumns = reactive<any[]>([
   {
     prop: 'yjdw',
     label: '一级单位',
-    search: { el: 'select', props: { onChange: changeEjdwEnum }, order: 1 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: changeEjdwEnum
+      },
+      order: 1
+    },
     enum: yjdwListData.value,
     isShow: false,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'yjdwName',
@@ -541,9 +592,15 @@ const expertColumns = reactive<any[]>([
     prop: 'ejdw',
     label: '二级单位',
     isShow: false,
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: ejdwListData.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'ejdwName',
@@ -565,19 +622,19 @@ const expertColumns = reactive<any[]>([
     }
   }
 ])
-
 const handleAddPendingTrial = (title: string) => {
   const params = {
     title,
     pageFlag: modalProps.value.pageFlag,
     isView: title === '查看',
     isPsz: modalProps.value.isView,
-    row: { ...modalProps.value.row },
+    row: {
+      ...modalProps.value.row
+    },
     getTableList: proTableRef.value?.getTableList
   }
   pendingTrialModalRef.value?.acceptParams(params)
 }
-
 const handleDeleteData = async (selectedList: any[]) => {
   const type = await VXETable.modal.confirm('确认是否删除？', '温馨提示', {
     status: 'warning'
@@ -586,7 +643,6 @@ const handleDeleteData = async (selectedList: any[]) => {
     try {
       loading.value = true
       let ids = modalProps.value.pageFlag === 'PROGRAM' ? selectedList.map((item) => item.xmId) : selectedList.map((item) => item.expertId)
-
       if (modalProps.value.pageFlag != 'PROGRAM') {
         let idZz = selectedList.some((item) => item.isLeader == '是')
         if (idZz) return ElMessage.warning('不能删除组长！')
@@ -597,8 +653,8 @@ const handleDeleteData = async (selectedList: any[]) => {
             ? deleteYnrxm
             : deleteYnrxmWhenPsz
           : modalProps.value.isView
-          ? deleteYnrzj
-          : deleteYnrzjWhenPsz
+            ? deleteYnrzj
+            : deleteYnrzjWhenPsz
       const res = await api({
         ids: ids,
         meetingId: modalProps.value.row['meetingId']
@@ -616,7 +672,6 @@ const handleDeleteData = async (selectedList: any[]) => {
     }
   }
 }
-
 const handleSetTeam = async (selectedList: any[]) => {
   const type = await VXETable.modal.confirm('确认设置为组长？', '温馨提示', {
     status: 'warning'
@@ -642,7 +697,6 @@ const handleSetTeam = async (selectedList: any[]) => {
     }
   }
 }
-
 const handleResetTeam = async (selectedList: any[]) => {
   const type = await VXETable.modal.confirm('确认重置组长状态？', '温馨提示', {
     status: 'warning'
@@ -668,7 +722,6 @@ const handleResetTeam = async (selectedList: any[]) => {
     }
   }
 }
-
 const handleExport = async () => {
   loading.value = true
   let params = {
@@ -698,7 +751,6 @@ const handleExport = async () => {
     loading.value = false
   }
 }
-
 const getPageList = (params: YnrhsxmPage & YnrhszjPage) => {
   loading.value = true
   params['current'] = params['page']
@@ -713,7 +765,6 @@ const getPageList = (params: YnrhsxmPage & YnrhszjPage) => {
   const api = modalProps.value.pageFlag === 'PROGRAM' ? getYnrhsxmPage : getYnrhszjPage
   return api(params)
 }
-
 const callBackHandle = (val: any) => {
   loading.value = false
   if (modalProps.value.pageFlag === 'PROGRAM') {
@@ -723,10 +774,12 @@ const callBackHandle = (val: any) => {
   }
   return val
 }
-
 const acceptParams = (params: ModalProps) => {
   getYjdwEnum()
-  modalProps.value = { ...modalProps.value, ...params }
+  modalProps.value = {
+    ...modalProps.value,
+    ...params
+  }
   if (params.pageFlag === 'PROGRAM') {
     programColumns.forEach((item: any) => {
       if (item.prop == 'ysly') {
@@ -740,7 +793,6 @@ const acceptParams = (params: ModalProps) => {
   }
   modalVisible.value = true
 }
-
 defineExpose({
   acceptParams
 })

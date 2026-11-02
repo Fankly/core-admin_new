@@ -178,7 +178,7 @@
   <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -187,9 +187,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
@@ -201,338 +199,383 @@ import Centralized from '@/components/select/Centralized.vue'
 import threeLevel from '@/components/select/threeLevel.vue'
 import ssBm from '@/components/select/ssBm.vue'
 import { showHelpMsg } from '@/utils/message'
-
-export default defineComponent({
-  name: '/budget-process/process-35',
-  components: {
-    userDialog,
-    copyTextBox,
-    affiliatedUnit,
-    allProjectType,
-    Centralized,
-    threeLevel,
-    ssBm
-  },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+defineOptions({
+  name: '/budget-process/process-35'
+})
+const userDialogRef = useTemplateRef('userDialog')
+const companyRef = useTemplateRef('company')
+const gkbmRef = useTemplateRef('gkbm')
+const xmbmRef = useTemplateRef('xmbm')
+const typeRef = useTemplateRef('type')
+const ssbmRef = useTemplateRef('ssbm')
+const sjflRef = useTemplateRef('sjfl')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  helpHandle,
+  loading: false,
+  searchShow: true,
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  example: [],
+  columnObj: {},
+  segmentIds: [],
+  segment: [
+    {
+      value: 'xmjbxx',
+      label: '项目基本信息',
+      checked: true
+    },
+    {
+      value: 'lxhj',
+      label: '立项环节',
+      checked: true
+    },
+    {
+      value: 'ztbhj',
+      label: '招投标环节',
+      checked: true
+    },
+    {
+      value: 'htqdhj',
+      label: '合同签订环节',
+      checked: true
+    },
+    {
+      value: 'xmsshj',
+      label: '项目实施环节',
+      checked: true
+    },
+    {
+      value: 'xmjssjhj',
+      label: '项目决算审计环节',
+      checked: true
+    },
+    {
+      value: 'zzsjhj',
+      label: '增资审计环节',
+      checked: true
+    },
+    {
+      value: 'xmgb',
+      label: '项目关闭',
+      checked: true
+    },
+    {
+      value: 'wzlybs',
+      label: '物资领用标识',
+      checked: true
+    },
+    {
+      value: 'ywbxbs',
+      label: '业务报销标识',
+      checked: true
+    },
+    {
+      value: 'fwqrbs',
+      label: '服务确认标识',
+      checked: true
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      helpHandle,
-      loading: false,
-      searchShow: true,
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      example: [],
-      columnObj: {},
-      segmentIds: [],
-      segment: [
-        {
-          value: 'xmjbxx',
-          label: '项目基本信息',
-          checked: true
-        },
-        {
-          value: 'lxhj',
-          label: '立项环节',
-          checked: true
-        },
-        {
-          value: 'ztbhj',
-          label: '招投标环节',
-          checked: true
-        },
-        {
-          value: 'htqdhj',
-          label: '合同签订环节',
-          checked: true
-        },
-        {
-          value: 'xmsshj',
-          label: '项目实施环节',
-          checked: true
-        },
-        {
-          value: 'xmjssjhj',
-          label: '项目决算审计环节',
-          checked: true
-        },
-        {
-          value: 'zzsjhj',
-          label: '增资审计环节',
-          checked: true
-        },
-        {
-          value: 'xmgb',
-          label: '项目关闭',
-          checked: true
-        },
-        {
-          value: 'wzlybs',
-          label: '物资领用标识',
-          checked: true
-        },
-        {
-          value: 'ywbxbs',
-          label: '业务报销标识',
-          checked: true
-        },
-        {
-          value: 'fwqrbs',
-          label: '服务确认标识',
-          checked: true
-        }
-      ],
-      dataList: {
-        month: new Date(),
-        post1: ''
-      },
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      projects: [
-        {
-          code: '01',
-          name: '项目已立项'
-        },
-        {
-          code: '02',
-          name: '需求提报中'
-        },
-        {
-          code: '03',
-          name: '项目招标中'
-        },
-        {
-          code: '04',
-          name: '合同签订中'
-        },
-        {
-          code: '05',
-          name: '合同已签订'
-        },
-        {
-          code: '06',
-          name: '项目实施中'
-        },
-        {
-          code: '07',
-          name: '项目已竣工'
-        },
-        {
-          code: '08',
-          name: '项目决算送审中'
-        },
-        {
-          code: '09',
-          name: '项目决算审计中'
-        },
-        {
-          code: '10',
-          name: '项目已决算审计'
-        },
-        {
-          code: '11',
-          name: '项目增资中'
-        },
-        {
-          code: '12',
-          name: '项目已关闭'
-        }
-      ],
-      value: ''
-    })
+  ],
+  dataList: {
+    month: new Date(),
+    post1: ''
   },
-  created() {
-    this.handleColumn()
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-  },
-
-  methods: {
-    //计算表格高度
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 80 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 80 + 'px'
-      }
+  projects: [
+    {
+      code: '01',
+      name: '项目已立项'
     },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
+    {
+      code: '02',
+      name: '需求提报中'
     },
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.segmentIds.push(item.value)
-        this.columnObj[item.value] = item.checked
-      })
+    {
+      code: '03',
+      name: '项目招标中'
     },
-
-    //项目环节
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked
-        }
-      }
+    {
+      code: '04',
+      name: '合同签订中'
     },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
-      this.$refs.gkbm.getProjectType(this.specialorgid)
+    {
+      code: '05',
+      name: '合同已签订'
     },
-    loadData() {
-      this.loading = true
-      const params = {
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid,
-        pspids: [],
-        post1: this.dataList.post1,
-        qkjejdws: [],
-        qkjxmlxbms: [],
-        gkbms: [],
-        ssbms: [],
-        sjfls: [],
-        xmjdzt: this.value,
-        zyear: '',
-        zmonth: ''
-      }
-      //项目编码
-      params.pspids = this.$refs.xmbm.array
-      //所属单位
-      params.qkjejdws = this.$refs.company.selectList
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type.selectList
-      //归口部门
-      params.gkbms = this.$refs.gkbm.selectList
-      //实施部门
-      params.ssbms = this.$refs.ssbm.list
-      //三级分类
-      params.sjfls = this.$refs.sjfl.list
-      //年月
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      baseService.post('/process33/', params).then((res) => {
-        if (res.success == true) {
-          this.loading = false
-          this.example = res.data.records
-          this.page.total = res.data.total
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
+    {
+      code: '06',
+      name: '项目实施中'
     },
-    async exportBtn() {
-      this.loading = true
-      const params = {
-        page: this.page.page,
-        limit: this.page.limit,
-        specialorgid: this.specialorgid,
-        pspids: [],
-        post1: this.dataList.post1,
-        qkjejdws: [],
-        qkjxmlxbms: [],
-        gkbms: [],
-        ssbms: [],
-        sjfls: [],
-        xmjdzt: this.value,
-        zyear: '',
-        zmonth: ''
-      }
-      //项目编码
-      params.pspids = this.$refs.xmbm.array
-      //所属单位
-      params.qkjejdws = this.$refs.company.selectList
-      //项目类型
-      params.qkjxmlxbms = this.$refs.type.selectList
-      //归口部门
-      params.gkbms = this.$refs.gkbm.selectList
-      //实施部门
-      params.ssbms = this.$refs.ssbm.list
-      //三级分类
-      params.sjfls = this.$refs.sjfl.list
-      //年月
-      if (this.dataList.month != '') {
-        let time = new Date(this.dataList.month)
-        let zyear = time.getFullYear()
-        let zmonth = time.getMonth() + 1
-        params.zyear = JSON.stringify(zyear)
-        params.zmonth = JSON.stringify(zmonth)
-      }
-      await baseService.export('/process33/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '项目执行进度监控.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
+    {
+      code: '07',
+      name: '项目已竣工'
     },
-    // 分页控件当前页修改事件
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
+    {
+      code: '08',
+      name: '项目决算送审中'
     },
-    // 分页控件请求数量修改事件
-    limitChangeHandle(currentLimitNum) {
-      this.page.limit = currentLimitNum
-      this.loadData()
+    {
+      code: '09',
+      name: '项目决算审计中'
     },
-    reset() {
-      this.$refs.xmbm.clear()
-      this.dataList.post1 = ''
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.$refs.gkbm.clear()
-      this.$refs.ssbm.clear()
-      this.$refs.sjfl.clear()
-      this.value = ''
-      this.dataList.month = new Date()
-      this.example = []
-      this.loadData()
+    {
+      code: '10',
+      name: '项目已决算审计'
+    },
+    {
+      code: '11',
+      name: '项目增资中'
+    },
+    {
+      code: '12',
+      name: '项目已关闭'
+    }
+  ],
+  value: ''
+})
+const loading = toRef(setupState, 'loading')
+const searchShow = toRef(setupState, 'searchShow')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const example = toRef(setupState, 'example')
+const columnObj = toRef(setupState, 'columnObj')
+const segmentIds = toRef(setupState, 'segmentIds')
+const segment = toRef(setupState, 'segment')
+const dataList = toRef(setupState, 'dataList')
+const page = toRef(setupState, 'page')
+const projects = toRef(setupState, 'projects')
+const value = toRef(setupState, 'value')
+//计算表格高度
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 80 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 80 + 'px'
+  }
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.segmentIds.push(item.value)
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+//项目环节
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
     }
   }
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+  gkbmRef.value.getProjectType(setupState.specialorgid)
+}
+function loadData() {
+  setupState.loading = true
+  const params = {
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid,
+    pspids: [],
+    post1: setupState.dataList.post1,
+    qkjejdws: [],
+    qkjxmlxbms: [],
+    gkbms: [],
+    ssbms: [],
+    sjfls: [],
+    xmjdzt: setupState.value,
+    zyear: '',
+    zmonth: ''
+  }
+  //项目编码
+  params.pspids = xmbmRef.value.array
+  //所属单位
+  params.qkjejdws = companyRef.value.selectList
+  //项目类型
+  params.qkjxmlxbms = typeRef.value.selectList
+  //归口部门
+  params.gkbms = gkbmRef.value.selectList
+  //实施部门
+  params.ssbms = ssbmRef.value.list
+  //三级分类
+  params.sjfls = sjflRef.value.list
+  //年月
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  baseService.post('/process33/', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example = res.data.records
+      setupState.page.total = res.data.total
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+async function exportBtn() {
+  setupState.loading = true
+  const params = {
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    specialorgid: setupState.specialorgid,
+    pspids: [],
+    post1: setupState.dataList.post1,
+    qkjejdws: [],
+    qkjxmlxbms: [],
+    gkbms: [],
+    ssbms: [],
+    sjfls: [],
+    xmjdzt: setupState.value,
+    zyear: '',
+    zmonth: ''
+  }
+  //项目编码
+  params.pspids = xmbmRef.value.array
+  //所属单位
+  params.qkjejdws = companyRef.value.selectList
+  //项目类型
+  params.qkjxmlxbms = typeRef.value.selectList
+  //归口部门
+  params.gkbms = gkbmRef.value.selectList
+  //实施部门
+  params.ssbms = ssbmRef.value.list
+  //三级分类
+  params.sjfls = sjflRef.value.list
+  //年月
+  if (setupState.dataList.month != '') {
+    let time = new Date(setupState.dataList.month)
+    let zyear = time.getFullYear()
+    let zmonth = time.getMonth() + 1
+    params.zyear = JSON.stringify(zyear)
+    params.zmonth = JSON.stringify(zmonth)
+  }
+  await baseService.export('/process33/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '项目执行进度监控.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+// 分页控件当前页修改事件
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+function reset() {
+  xmbmRef.value.clear()
+  setupState.dataList.post1 = ''
+  typeRef.value.clear()
+  companyRef.value.clear()
+  gkbmRef.value.clear()
+  ssbmRef.value.clear()
+  sjflRef.value.clear()
+  setupState.value = ''
+  setupState.dataList.month = new Date()
+  setupState.example = []
+  loadData()
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+})
+;(() => {
+  handleColumn()
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  helpHandle,
+  loading,
+  searchShow,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  userCode,
+  userId,
+  specialorgid,
+  example,
+  columnObj,
+  segmentIds,
+  segment,
+  dataList,
+  page,
+  projects,
+  value,
+  setTableHeight,
+  showSearch,
+  handleColumn,
+  listShow,
+  loadCompany,
+  loadData,
+  exportBtn,
+  pageChangeHandle,
+  limitChangeHandle,
+  reset
 })
 </script>
 

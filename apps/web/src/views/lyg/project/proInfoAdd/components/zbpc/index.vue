@@ -33,11 +33,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'zbpc'
-}
-</script>
 
 <script setup lang="ts">
 import { ref, reactive, nextTick, h } from 'vue'
@@ -45,9 +40,11 @@ import { zbpcxxPage } from '@/api/lyg/index'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
 import ProTable from '@/components/ProTablePage/index.vue'
+defineOptions({
+  name: 'zbpc'
+})
 
 const emit = defineEmits(['handlePcType'])
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const proTableRef = ref<any>(null)
@@ -64,19 +61,16 @@ const resetTable = () => {
 const resetHandle = () => {
   proTableRef.value?.clearSelection()
 }
-
 const handleClickRow = (row: any) => {
   nextTick(() => {
     proTableRef.value?.clearSelection()
     proTableRef.value?.element.toggleRowSelection(row)
   })
 }
-
 const callBackHandle = (data: any) => {
   loading.value = false
   return data
 }
-
 const getPageList = (param: any) => {
   loading.value = true
   param = {
@@ -108,31 +102,84 @@ const acceptParams = async (params: any) => {
 const handleConfirm = (selectedList: any[]) => {
   if (selectedList.length != 1) return ElMessage.warning('请选择一条数据！')
   const zbxx = selectedList[0]
-  emit('handlePcType', { zbpc: zbxx.pcId, zbpcName: zbxx.pcName, type: pcType.value })
+  emit('handlePcType', {
+    zbpc: zbxx.pcId,
+    zbpcName: zbxx.pcName,
+    type: pcType.value
+  })
   resetForm()
 }
-
 const tableColumns = reactive<any[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'nd',
     label: '年度',
     width: '120',
-    search: { el: 'date-picker', order: 3, props: { type: 'year', valueFormat: 'YYYY', multiple: true, collapseTags: true } }
+    search: {
+      el: 'date-picker',
+      order: 3,
+      props: {
+        type: 'year',
+        valueFormat: 'YYYY',
+        multiple: true,
+        collapseTags: true
+      }
+    }
   },
-  { prop: 'pcCode', label: '批次编码', width: '150', search: { el: 'input', order: 1 } },
-  { prop: 'pcName', label: '批次名称', width: '300', search: { el: 'input', order: 2 } },
-  { prop: 'pcTypeName', label: '批次类型', width: '120' },
+  {
+    prop: 'pcCode',
+    label: '批次编码',
+    width: '150',
+    search: {
+      el: 'input',
+      order: 1
+    }
+  },
+  {
+    prop: 'pcName',
+    label: '批次名称',
+    width: '300',
+    search: {
+      el: 'input',
+      order: 2
+    }
+  },
+  {
+    prop: 'pcTypeName',
+    label: '批次类型',
+    width: '120'
+  },
   {
     prop: 'jhsbjzsj',
     label: '计划申报截止时间',
     width: '150'
     // search: { el: 'date-picker', order: 4, props: { type: 'date', valueFormat: 'YYYY-MM-DD', multiple: true, collapseTags: true } }
   },
-  { prop: 'fbggsj', label: '发布公告时间', width: '150' },
-  { prop: 'kbsj', label: '开标时间', width: '150' },
-  { prop: 'dbsj', label: '定标时间', width: '150' }
+  {
+    prop: 'fbggsj',
+    label: '发布公告时间',
+    width: '150'
+  },
+  {
+    prop: 'kbsj',
+    label: '开标时间',
+    width: '150'
+  },
+  {
+    prop: 'dbsj',
+    label: '定标时间',
+    width: '150'
+  }
 ])
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>

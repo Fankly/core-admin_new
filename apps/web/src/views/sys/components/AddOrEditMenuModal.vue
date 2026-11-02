@@ -1,27 +1,25 @@
-<script lang="ts">
-export default {
-  name: "AddOrEditModal"
-};
-</script>
+
 
 <script setup lang="ts">
-import { ref, defineExpose, defineProps, reactive, defineEmits, computed } from "vue";
-import { appMenuSave, appMenuUpdate } from "@/api/sys/appManager";
-import { ElMessage } from "element-plus";
-import baseService from "@/service/baseService";
-import { IObject } from "@/types/interface";
+import { ref, reactive, computed } from 'vue'
+import { appMenuSave, appMenuUpdate } from '@/api/sys/appManager'
+import { ElMessage } from 'element-plus'
+import baseService from '@/service/baseService'
+import { IObject } from '@/types/interface'
+defineOptions({
+  name: 'AddOrEditModal'
+})
 
-const emit = defineEmits(["updateData"]);
-
+const emit = defineEmits(['updateData'])
 const props = defineProps({
   title: {
     type: String,
-    default: "Add Or Edit",
+    default: 'Add Or Edit',
     required: true
   },
   flag: {
     type: String,
-    default: "ADD",
+    default: 'ADD',
     required: true
   },
   selectData: {
@@ -32,111 +30,116 @@ const props = defineProps({
     type: Object as any,
     default: null
   }
-});
-
-const isShowModal = ref(false);
-const menuListVisible = ref(false);
-const formRef = ref();
-
+})
+const isShowModal = ref(false)
+const menuListVisible = ref(false)
+const formRef = ref()
 const formData = reactive({
-  appId: "",
-  id: "",
-  menuId: "",
-  label: "",
+  appId: '',
+  id: '',
+  menuId: '',
+  label: '',
   sort: 0,
-  name: "",
-  appName: ""
-});
-
-const menuList = ref([]);
-const loading = ref(false);
-
-const isDisabled = computed(() => props.flag === "VIEW");
-
+  name: '',
+  appName: ''
+})
+const menuList = ref([])
+const loading = ref(false)
+const isDisabled = computed(() => props.flag === 'VIEW')
 const showHandle = () => {
-  getMenuList();
-  if (props.outsideRowData && props.flag === "ADD") {
-    formData.appId = props.outsideRowData.appId;
-    formData.appName = props.outsideRowData.appName;
+  getMenuList()
+  if (props.outsideRowData && props.flag === 'ADD') {
+    formData.appId = props.outsideRowData.appId
+    formData.appName = props.outsideRowData.appName
   }
-  if ((props.flag === "EDIT" || props.flag === "VIEW") && props.selectData) {
-    formData.appId = props.selectData.appId;
-    formData.name = props.selectData.name;
-    formData.label = props.selectData.label;
-    formData.sort = props.selectData.sort;
-    formData.menuId = props.selectData.menuId;
-    formData.id = props.selectData.id;
-    formData.appName = props.selectData.appName;
+  if ((props.flag === 'EDIT' || props.flag === 'VIEW') && props.selectData) {
+    formData.appId = props.selectData.appId
+    formData.name = props.selectData.name
+    formData.label = props.selectData.label
+    formData.sort = props.selectData.sort
+    formData.menuId = props.selectData.menuId
+    formData.id = props.selectData.id
+    formData.appName = props.selectData.appName
   }
-};
+}
 
 // 获取菜单列表
 const getMenuList = () => {
-  return baseService.get("/sys/menu/list?type=0").then((res) => {
+  return baseService.get('/sys/menu/list?type=0').then((res) => {
     if (res.code !== 0) {
-      return this.$message.error(res.msg);
+      return this.$message.error(res.msg)
     }
     menuList.value = res.data.map((item) => ({
       ...item,
       menuId: item.id
-    }));
-  });
-};
-
+    }))
+  })
+}
 const rulesForm = reactive({
-  appId: { message: "请输入应用id", trigger: "blur", required: true },
-  menuId: { message: "请输入菜单id", trigger: "blur", required: true },
-  label: { message: "请选择标签", trigger: "change", required: true },
-  sort: { message: "请输入排序", trigger: "blur", required: true }
-});
-
+  appId: {
+    message: '请输入应用id',
+    trigger: 'blur',
+    required: true
+  },
+  menuId: {
+    message: '请输入菜单id',
+    trigger: 'blur',
+    required: true
+  },
+  label: {
+    message: '请选择标签',
+    trigger: 'change',
+    required: true
+  },
+  sort: {
+    message: '请输入排序',
+    trigger: 'blur',
+    required: true
+  }
+})
 const saveHandle = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
-      loading.value = true;
-      let api = appMenuSave;
-      let text = "新增";
-      if (props.flag === "EDIT") {
-        api = appMenuUpdate;
-        text = "编辑";
+      loading.value = true
+      let api = appMenuSave
+      let text = '新增'
+      if (props.flag === 'EDIT') {
+        api = appMenuUpdate
+        text = '编辑'
       }
       const res = await api({
         ...formData
-      });
+      })
       if (res.success) {
-        ElMessage.success(text + "成功");
-        closeHandle();
-        emit("updateData");
-        loading.value = false;
+        ElMessage.success(text + '成功')
+        closeHandle()
+        emit('updateData')
+        loading.value = false
       } else {
-        ElMessage.error(res.msg);
-        loading.value = false;
+        ElMessage.error(res.msg)
+        loading.value = false
       }
     }
-  });
-};
-
+  })
+}
 const menuListTreeCurrentChangeHandle = (data: IObject) => {
-  formData.menuId = data.id;
-  formData.name = data.name;
-  menuListVisible.value = false;
-};
-
+  formData.menuId = data.id
+  formData.name = data.name
+  menuListVisible.value = false
+}
 const deptListTreeSetDefaultHandle = () => {
-  formData.menuId = "0";
-  formData.name = "";
-};
-
+  formData.menuId = '0'
+  formData.name = ''
+}
 const closeHandle = () => {
-  formRef.value.resetFields();
-  isShowModal.value = false;
-  formData.menuId = "0";
-  formData.name = "";
-};
-
+  formRef.value.resetFields()
+  isShowModal.value = false
+  formData.menuId = '0'
+  formData.name = ''
+}
 defineExpose({
   isShowModal
-});
+})
 </script>
 
 <template>

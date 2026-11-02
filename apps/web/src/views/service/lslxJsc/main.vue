@@ -32,17 +32,15 @@
     </div>
   </div>
 </template>
-<script lang="tsx">
-export default {
-  name: '/service/lslxJsc/main'
-}
-</script>
+
 <script setup lang="tsx">
 import { SuccessFilled as EpSuccessFilled } from '@element-plus/icons-vue'
-
 import { ref } from 'vue'
-const allSteps = ref<any[]>([])
+defineOptions({
+  name: '/service/lslxJsc/main'
+})
 
+const allSteps = ref<any[]>([])
 allSteps.value = [
   {
     topSteps: [

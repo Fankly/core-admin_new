@@ -89,9 +89,9 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "SqckConfirmTypeModal" })
 import ElTreeSelect from '@/components/ElTreeSelect'
 import { useSqckConfirmType } from './hooks/useSqckConfirmType'
+defineOptions({ name: "SqckConfirmTypeModal" })
 
 const {
   wbsData,

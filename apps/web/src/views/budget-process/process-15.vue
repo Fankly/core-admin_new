@@ -164,7 +164,7 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -173,9 +173,7 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import copyTextBox from '@/components/select/copyTextBox.vue'
@@ -187,411 +185,460 @@ import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { showHelpMsg } from '@/utils/message'
 import { getMaxLength } from '@/utils/utils'
-
-export default defineComponent({
-  name: '/budget-process/process-15',
-  components: {
-    copyTextBox,
-    affiliatedUnit,
-    Centralized,
-    projectnature,
-    projectType,
-    userDialog
+import { useRoute } from 'vue-router'
+defineOptions({
+  name: '/budget-process/process-15'
+})
+const route = useRoute()
+const xmbmRef = useTemplateRef('xmbm')
+const gysbmRef = useTemplateRef('gysbm')
+const gkbmRef = useTemplateRef('gkbm')
+const xmxzRef = useTemplateRef('xmxz')
+const typeRef = useTemplateRef('type')
+const companyRef = useTemplateRef('company')
+const userDialogRef = useTemplateRef('userDialog')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  helpHandle,
+  dataList: {
+    post1: '',
+    lifnr_name: '',
+    year: new Date().getFullYear().toString(),
+    yearRange: [],
+    qkjxmb_mc: ''
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+  example: [],
+  colObj: {
+    one: true,
+    two: true,
+    three: true,
+    four: true
+  },
+  dropCol: [
+    {
+      label: '项目编码',
+      prop: 'pspid'
+    },
+    {
+      label: '项目名称',
+      prop: 'post1'
+    },
+    {
+      label: '项目类型',
+      prop: 'qkjxmlxmc'
+    },
+    {
+      label: '项目包',
+      prop: 'qkjxmb_mc'
+    },
+    {
+      label: '项目性质',
+      prop: 'zjsjd_mc'
+    },
+    {
+      label: '一级单位',
+      prop: 'qkjyjdw_name'
+    },
+    {
+      label: '二级单位',
+      prop: 'qkjejdw_name'
+    },
+    {
+      label: '归口部门',
+      prop: 'qkjgkbm_name'
+    },
+    {
+      label: '年度预算',
+      prop: 'erpjdys'
+    },
+    {
+      label: '当年财务支出（含税）',
+      prop: 'ndzc_hs'
+    },
+    {
+      label: '当年财务支出（不含税）',
+      prop: 'ndzcb_hs'
+    },
+    {
+      label: '供应商编码',
+      prop: 'lifnr'
+    },
+    {
+      label: '供应商名称',
+      prop: 'lifnr_name'
+    },
+    {
+      label: '供应商单位性质',
+      prop: 'zdwxz'
+    },
+    {
+      label: '期初余额',
+      prop: 'qcye'
+    },
+    {
+      label: '本期新增',
+      prop: 'bqxz'
+    },
+    {
+      label: '本期减少',
+      prop: 'bqjs'
+    },
+    {
+      label: '小计',
+      prop: 'qmye'
+    },
+    {
+      label: '1年内',
+      prop: 'zl01'
+    },
+    {
+      label: '1-2年',
+      prop: 'zl02'
+    },
+    {
+      label: '2-3年',
+      prop: 'zl03'
+    },
+    {
+      label: '3年以上',
+      prop: 'zl04'
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      helpHandle,
-      dataList: {
-        post1: '',
-        lifnr_name: '',
-        year: new Date().getFullYear().toString(),
-        yearRange: [],
-        qkjxmb_mc: ''
-      },
-      example: [],
-      colObj: {
-        one: true,
-        two: true,
-        three: true,
-        four: true
-      },
-      dropCol: [
-        {
-          label: '项目编码',
-          prop: 'pspid'
-        },
-        {
-          label: '项目名称',
-          prop: 'post1'
-        },
-        {
-          label: '项目类型',
-          prop: 'qkjxmlxmc'
-        },
-        {
-          label: '项目包',
-          prop: 'qkjxmb_mc'
-        },
-        {
-          label: '项目性质',
-          prop: 'zjsjd_mc'
-        },
-        {
-          label: '一级单位',
-          prop: 'qkjyjdw_name'
-        },
-        {
-          label: '二级单位',
-          prop: 'qkjejdw_name'
-        },
-        {
-          label: '归口部门',
-          prop: 'qkjgkbm_name'
-        },
-        {
-          label: '年度预算',
-          prop: 'erpjdys'
-        },
-        {
-          label: '当年财务支出（含税）',
-          prop: 'ndzc_hs'
-        },
-        {
-          label: '当年财务支出（不含税）',
-          prop: 'ndzcb_hs'
-        },
-        {
-          label: '供应商编码',
-          prop: 'lifnr'
-        },
-        {
-          label: '供应商名称',
-          prop: 'lifnr_name'
-        },
-        {
-          label: '供应商单位性质',
-          prop: 'zdwxz'
-        },
-        {
-          label: '期初余额',
-          prop: 'qcye'
-        },
-        {
-          label: '本期新增',
-          prop: 'bqxz'
-        },
-        {
-          label: '本期减少',
-          prop: 'bqjs'
-        },
-        {
-          label: '小计',
-          prop: 'qmye'
-        },
-        {
-          label: '1年内',
-          prop: 'zl01'
-        },
-        {
-          label: '1-2年',
-          prop: 'zl02'
-        },
-        {
-          label: '2-3年',
-          prop: 'zl03'
-        },
-        {
-          label: '3年以上',
-          prop: 'zl04'
-        }
-      ],
-      applicationId: [],
-      applications: [
-        {
-          label: '一年内',
-          value: 'one'
-        },
-        {
-          label: '1-2年',
-          value: 'two'
-        },
-        {
-          label: '2-3年',
-          value: 'three'
-        },
-        {
-          label: '3年以上',
-          value: 'four'
-        }
-      ],
-      searchShow: true,
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: ''
+  ],
+  applicationId: [],
+  applications: [
+    {
+      label: '一年内',
+      value: 'one'
+    },
+    {
+      label: '1-2年',
+      value: 'two'
+    },
+    {
+      label: '2-3年',
+      value: 'three'
+    },
+    {
+      label: '3年以上',
+      value: 'four'
+    }
+  ],
+  searchShow: true,
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
+  },
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: ''
+})
+const dataList = toRef(setupState, 'dataList')
+const example = toRef(setupState, 'example')
+const colObj = toRef(setupState, 'colObj')
+const dropCol = toRef(setupState, 'dropCol')
+const applicationId = toRef(setupState, 'applicationId')
+const applications = toRef(setupState, 'applications')
+const searchShow = toRef(setupState, 'searchShow')
+const page = toRef(setupState, 'page')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+function compTableWidth() {
+  const tableData = setupState.example
+  setupState.dropCol = setupState.dropCol.map((value) => {
+    const arr = tableData.map((item) => {
+      return item[value.prop]
     })
-  },
-  created() {
-    this.showall()
-  },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.getTime()
-    if (JSON.stringify(this.$route.query) != '{}') {
-      console.log(this.$route.query)
-      this.$refs.xmbm.ids = this.$route.query.pspid
-      this.$refs.xmbm.text = this.$route.query.pspid
-      this.$refs.xmbm.array.push(this.$route.query.pspid)
-      this.dataList.year = this.$route.query.year
-      this.dataList.yearRange = this.$route.query.time
-      this.specialorgid = JSON.parse(this.$route.query.specialorgid)
-      this.loadData()
+    arr.push(value.label)
+    let width = getMaxLength(arr)
+    if (value.prop === 'qkjxmb_mc' || value.prop === 'post1') {
+      value.width = 320
     } else {
-      this.loading = true
-      this.$refs.userDialog.getUser()
+      value.width = Math.round(width + 20)
     }
-    this.compTableWidth()
-  },
-  methods: {
-    compTableWidth() {
-      const tableData = this.example
-      this.dropCol = this.dropCol.map((value) => {
-        const arr = tableData.map((item) => {
-          return item[value.prop]
-        })
-        arr.push(value.label)
-        let width = getMaxLength(arr)
-        if (value.prop === 'qkjxmb_mc' || value.prop === 'post1') {
-          value.width = 320
-        } else {
-          value.width = Math.round(width + 20)
-        }
-        return value
-      })
-    },
-    showall() {
-      this.applications.forEach((item) => {
-        this.applicationId.push(item.value)
-      })
-    },
-    change() {
-      for (let i in this.colObj) {
-        if (this.applicationId.indexOf(i) == -1) {
-          this.colObj[i] = false
-        } else {
-          this.colObj[i] = true
-        }
-      }
-    },
-    getTime() {
-      let date = new Date()
-      let year = date.getFullYear()
-      let month = date.getMonth() + 1
-      month = month > 9 ? month : '0' + month
-      let start = year + '-' + '01'
-      let last = year + '-' + month
-      this.dataList.yearRange.push(start)
-      this.dataList.yearRange.push(last)
-    },
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 80 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 80 + 'px'
-      }
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-
-    search() {
-      if (this.dataList.yearRange.length > 0) {
-        this.loadData()
-      } else {
-        ElMessage({
-          type: 'error',
-          message: '请选择往来查询时间'
-        })
-      }
-    },
-
-    reset() {
-      this.$refs.xmbm.clear()
-      this.$refs.gysbm.clear()
-      this.dataList.post1 = ''
-      this.dataList.lifnr_name = ''
-      this.dataList.year = new Date().getFullYear().toString()
-      this.dataList.yearRange = []
-      this.getTime()
-      this.$refs.gkbm.clear()
-      this.$refs.xmxz.clear()
-      this.$refs.type.clear()
-      this.$refs.company.clear()
-      this.dataList.qkjxmb_mc = ''
-      this.example = []
-      this.search()
-    },
-
-    // 分页控件当前页修改事件
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    // 分页控件请求数量修改事件
-    limitChangeHandle(currentLimitNum) {
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-
-    loadData() {
-      this.loading = true
-      const params = {
-        pspids: [],
-        post1: this.dataList.post1,
-        lifnr_name: this.dataList.lifnr_name,
-        lifnrs: [],
-        year: this.dataList.year,
-        zyearStart: '',
-        zmonthStart: '',
-        zyearEnd: '',
-        zmonthEnd: '',
-        page: this.page.page,
-        limit: this.page.limit,
-        qkjxmlxmc: [], //类型
-        qkjejdw_name: [], //单位
-        gkbms: [],
-        xmb: this.dataList.qkjxmb_mc,
-        zjsjd_mc: this.$refs.xmxz.value,
-        specialorgid: this.specialorgid
-      }
-      params.pspids = this.$refs.xmbm.array
-      params.lifnrs = this.$refs.gysbm.array
-      params.qkjxmlxmc = this.$refs.type.selectList
-      params.qkjejdw_name = this.$refs.company.selectList
-      params.gkbms = this.$refs.gkbm.selectList
-      if (this.dataList.yearRange) {
-        let yearStart = this.dataList.yearRange[0].split('-')
-        let yearEnd = this.dataList.yearRange[1].split('-')
-        // 往来查询期间 起始年
-        params.zyearStart = yearStart[0]
-        // 往来查询期间 起始月
-        params.zmonthStart = yearStart[1]
-        // 往来查询期间 结束年
-        params.zyearEnd = yearEnd[0]
-        // 往来查询期间 结束月
-        params.zmonthEnd = yearEnd[1]
-      }
-      baseService.post('/process/process15/', params).then((res) => {
-        if (res.success == true) {
-          this.loading = false
-          this.example = res.data.list
-          this.page.total = res.data.total
-          this.compTableWidth()
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-
-    // 数据导出
-    exportData() {
-      if (this.dataList.yearRange.length > 0) {
-        this.loading = true
-        // 参数列表
-        const params = {
-          pspids: [],
-          post1: this.dataList.post1,
-          lifnr_name: this.dataList.lifnr_name,
-          lifnrs: [],
-          year: this.dataList.year,
-          zyearStart: '',
-          zmonthStart: '',
-          zyearEnd: '',
-          zmonthEnd: '',
-          page: this.page.page,
-          limit: this.page.limit,
-          qkjxmlxmc: [], //类型
-          qkjejdw_name: [], //单位
-          gkbms: [],
-          xmb: this.dataList.qkjxmb_mc,
-          zjsjd_mc: this.$refs.xmxz.value,
-          specialorgid: this.specialorgid
-        }
-        params.pspids = this.$refs.xmbm.array
-        params.lifnrs = this.$refs.gysbm.array
-        params.qkjxmlxmc = this.$refs.type.selectList
-        params.qkjejdw_name = this.$refs.company.selectList
-        params.gkbms = this.$refs.gkbm.selectList
-        if (this.dataList.yearRange) {
-          let yearStart = this.dataList.yearRange[0].split('-')
-          let yearEnd = this.dataList.yearRange[1].split('-')
-          // 往来查询期间 起始年
-          params.zyearStart = yearStart[0]
-          // 往来查询期间 起始月
-          params.zmonthStart = yearStart[1]
-          // 往来查询期间 结束年
-          params.zyearEnd = yearEnd[0]
-          // 往来查询期间 结束月
-          params.zmonthEnd = yearEnd[1]
-        }
-
-        baseService.export('/process/process15/export', params).then((res) => {
-          this.loading = false
-          const blob = res
-          let dom = document.createElement('a')
-          let url = window.URL.createObjectURL(blob)
-          dom.href = url
-          dom.download = '往来明细情况表(按项目)穿透.xlsx'
-          document.body.appendChild(dom)
-          dom.click()
-          document.body.removeChild(dom)
-          window.URL.revokeObjectURL(url)
-        })
-      } else {
-        ElMessage({
-          type: 'error',
-          message: '请选择往来查询时间'
-        })
-      }
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.$refs.company.getAffiliatedUnit(this.specialorgid)
-      this.$refs.gkbm.getProjectType(this.specialorgid)
+    return value
+  })
+}
+function showall() {
+  setupState.applications.forEach((item) => {
+    setupState.applicationId.push(item.value)
+  })
+}
+function change() {
+  for (let i in setupState.colObj) {
+    if (setupState.applicationId.indexOf(i) == -1) {
+      setupState.colObj[i] = false
+    } else {
+      setupState.colObj[i] = true
     }
   }
+}
+function getTime() {
+  let date = new Date()
+  let year = date.getFullYear()
+  let month = date.getMonth() + 1
+  month = month > 9 ? month : '0' + month
+  let start = year + '-' + '01'
+  let last = year + '-' + month
+  setupState.dataList.yearRange.push(start)
+  setupState.dataList.yearRange.push(last)
+}
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 80 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 80 + 'px'
+  }
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+function search() {
+  if (setupState.dataList.yearRange.length > 0) {
+    loadData()
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '请选择往来查询时间'
+    })
+  }
+}
+function reset() {
+  xmbmRef.value.clear()
+  gysbmRef.value.clear()
+  setupState.dataList.post1 = ''
+  setupState.dataList.lifnr_name = ''
+  setupState.dataList.year = new Date().getFullYear().toString()
+  setupState.dataList.yearRange = []
+  getTime()
+  gkbmRef.value.clear()
+  xmxzRef.value.clear()
+  typeRef.value.clear()
+  companyRef.value.clear()
+  setupState.dataList.qkjxmb_mc = ''
+  setupState.example = []
+  search()
+}
+// 分页控件当前页修改事件
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+function loadData() {
+  setupState.loading = true
+  const params = {
+    pspids: [],
+    post1: setupState.dataList.post1,
+    lifnr_name: setupState.dataList.lifnr_name,
+    lifnrs: [],
+    year: setupState.dataList.year,
+    zyearStart: '',
+    zmonthStart: '',
+    zyearEnd: '',
+    zmonthEnd: '',
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    qkjxmlxmc: [],
+    //类型
+    qkjejdw_name: [],
+    //单位
+    gkbms: [],
+    xmb: setupState.dataList.qkjxmb_mc,
+    zjsjd_mc: xmxzRef.value.value,
+    specialorgid: setupState.specialorgid
+  }
+  params.pspids = xmbmRef.value.array
+  params.lifnrs = gysbmRef.value.array
+  params.qkjxmlxmc = typeRef.value.selectList
+  params.qkjejdw_name = companyRef.value.selectList
+  params.gkbms = gkbmRef.value.selectList
+  if (setupState.dataList.yearRange) {
+    let yearStart = setupState.dataList.yearRange[0].split('-')
+    let yearEnd = setupState.dataList.yearRange[1].split('-')
+    // 往来查询期间 起始年
+    params.zyearStart = yearStart[0]
+    // 往来查询期间 起始月
+    params.zmonthStart = yearStart[1]
+    // 往来查询期间 结束年
+    params.zyearEnd = yearEnd[0]
+    // 往来查询期间 结束月
+    params.zmonthEnd = yearEnd[1]
+  }
+  baseService.post('/process/process15/', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example = res.data.list
+      setupState.page.total = res.data.total
+      compTableWidth()
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+// 数据导出
+function exportData() {
+  if (setupState.dataList.yearRange.length > 0) {
+    setupState.loading = true
+    // 参数列表
+    const params = {
+      pspids: [],
+      post1: setupState.dataList.post1,
+      lifnr_name: setupState.dataList.lifnr_name,
+      lifnrs: [],
+      year: setupState.dataList.year,
+      zyearStart: '',
+      zmonthStart: '',
+      zyearEnd: '',
+      zmonthEnd: '',
+      page: setupState.page.page,
+      limit: setupState.page.limit,
+      qkjxmlxmc: [],
+      //类型
+      qkjejdw_name: [],
+      //单位
+      gkbms: [],
+      xmb: setupState.dataList.qkjxmb_mc,
+      zjsjd_mc: xmxzRef.value.value,
+      specialorgid: setupState.specialorgid
+    }
+    params.pspids = xmbmRef.value.array
+    params.lifnrs = gysbmRef.value.array
+    params.qkjxmlxmc = typeRef.value.selectList
+    params.qkjejdw_name = companyRef.value.selectList
+    params.gkbms = gkbmRef.value.selectList
+    if (setupState.dataList.yearRange) {
+      let yearStart = setupState.dataList.yearRange[0].split('-')
+      let yearEnd = setupState.dataList.yearRange[1].split('-')
+      // 往来查询期间 起始年
+      params.zyearStart = yearStart[0]
+      // 往来查询期间 起始月
+      params.zmonthStart = yearStart[1]
+      // 往来查询期间 结束年
+      params.zyearEnd = yearEnd[0]
+      // 往来查询期间 结束月
+      params.zmonthEnd = yearEnd[1]
+    }
+    baseService.export('/process/process15/export', params).then((res) => {
+      setupState.loading = false
+      const blob = res
+      let dom = document.createElement('a')
+      let url = window.URL.createObjectURL(blob)
+      dom.href = url
+      dom.download = '往来明细情况表(按项目)穿透.xlsx'
+      document.body.appendChild(dom)
+      dom.click()
+      document.body.removeChild(dom)
+      window.URL.revokeObjectURL(url)
+    })
+  } else {
+    ElMessage({
+      type: 'error',
+      message: '请选择往来查询时间'
+    })
+  }
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  companyRef.value.getAffiliatedUnit(setupState.specialorgid)
+  gkbmRef.value.getProjectType(setupState.specialorgid)
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  getTime()
+  if (JSON.stringify(route.query) != '{}') {
+    console.log(route.query)
+    xmbmRef.value.ids = route.query.pspid
+    xmbmRef.value.text = route.query.pspid
+    xmbmRef.value.array.push(route.query.pspid)
+    setupState.dataList.year = route.query.year
+    setupState.dataList.yearRange = route.query.time
+    setupState.specialorgid = JSON.parse(route.query.specialorgid)
+    loadData()
+  } else {
+    setupState.loading = true
+    userDialogRef.value.getUser()
+  }
+  compTableWidth()
+})
+;(() => {
+  showall()
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  helpHandle,
+  dataList,
+  example,
+  colObj,
+  dropCol,
+  applicationId,
+  applications,
+  searchShow,
+  page,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  compTableWidth,
+  showall,
+  change,
+  getTime,
+  setTableHeight,
+  showSearch,
+  search,
+  reset,
+  pageChangeHandle,
+  limitChangeHandle,
+  loadData,
+  exportData,
+  loadCompany
 })
 </script>
 

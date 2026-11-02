@@ -59,17 +59,15 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/ai/documentParsing/index'
-}
-</script>
 
 <script setup lang="ts">
 import ParseSearch from './components/ParseSearch.vue'
 import AttachTypeEditModal from '@/views/ai/document/components/AttachTypeEditModal.vue'
 import { PARSE_TABS } from './constants'
 import { useDocumentParsing } from './hooks/useDocumentParsing'
+defineOptions({
+  name: '/ai/documentParsing/index'
+})
 
 const {
   activeTab,

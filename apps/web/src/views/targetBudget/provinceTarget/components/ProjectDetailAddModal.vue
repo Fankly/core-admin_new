@@ -104,9 +104,9 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ProjectDetailAddModal" })
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { useProjectDetailAddModal } from './hooks/useProjectDetailAddModal'
+defineOptions({ name: "ProjectDetailAddModal" })
 
 interface AdjustmentTypeOption {
   label: string

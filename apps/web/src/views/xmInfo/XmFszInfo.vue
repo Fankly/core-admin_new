@@ -162,15 +162,9 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/xmInfo/XmFszInfo'
-}
-</script>
-<script lang="ts" setup>
-import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Operation as EpOperation } from '@element-plus/icons-vue'
 
-// 是否显示搜索模块
+<script setup lang="ts">
+import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp, Operation as EpOperation } from '@element-plus/icons-vue'
 import { onMounted, reactive, ref, watch } from 'vue'
 import ColSetting from '@/components/ProTable/components/ColSetting.vue'
 import userDialog from '@/components/select/userDialog.vue'
@@ -185,6 +179,11 @@ import { VxeColumnPropTypes, VXETable, VxeTablePropTypes } from 'vxe-table'
 import { exportXmFszInfo, getXmFszInfo, getXmFszInfoTemplate, importXmFszInfo, saveXmFszInfo } from '@/api/xmInfo'
 import ImportExcel from '@/components/ImportExcel/index.vue'
 import Decimal from 'decimal.js'
+defineOptions({
+  name: '/xmInfo/XmFszInfo'
+})
+
+// 是否显示搜索模块
 
 const page = {
   total: 0,
@@ -202,14 +201,12 @@ const tableRef = ref()
 const gwxmbmRef = ref()
 const proTypeRef = ref()
 const openColSetting = () => colRef.value.openColSetting()
-
 const isShowSearch = ref(true)
 const loading = ref(false)
 const userInfo = reactive({
   specialOrgId: '',
   isShowPage: false
 })
-
 const selectData = reactive<{
   yjdwListData: {
     name: string
@@ -225,14 +222,12 @@ const selectData = reactive<{
   ejdwListData: [],
   projectType: []
 })
-
 const treeProps = reactive({
   projectTypeProps: {
     children: 'children',
     label: 'name'
   }
 })
-
 const formData = reactive<{
   xmmc: string
   gwxmbm: string[]
@@ -249,11 +244,9 @@ const formData = reactive<{
   xmlx: [],
   nd: ''
 })
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const tableInfo = reactive<{
   columns: {
     label: string
@@ -438,7 +431,6 @@ const tableInfo = reactive<{
     }
   ]
 })
-
 watch(
   () => tableInfo.columns,
   () => {
@@ -448,7 +440,6 @@ watch(
     deep: true
   }
 )
-
 const formatterHandle = (isFormmater: boolean, { column, cellValue }: any) => {
   if (!isFormmater) {
     return cellValue
@@ -477,11 +468,9 @@ const getProjectData = () => {
     }
   })
 }
-
 const clearDataHandle = () => {
   formData.xmlx.length = 0
 }
-
 const inputSxysHandle = (event: any) => {
   event.target.value = '' + event.target.value
   event.target.value =
@@ -491,18 +480,15 @@ const inputSxysHandle = (event: any) => {
       .replace(/^\./, '0.')
       .match(/^[-]?\d{0,12}(?:\.\d{0,6})?/)[0] || ''
 }
-
 const getProjectType = (value: any) => {
   formData.xmlx = value
 }
-
 const getYjdwEnum = async () => {
   let res: any = await getYjdwList(userInfo.specialOrgId)
   if (res.success) {
     selectData.yjdwListData.push(...res.data)
   }
 }
-
 const getEjdwData = async () => {
   let res: any = await getEjdwList({
     parentId: formData.yjdw,
@@ -514,12 +500,10 @@ const getEjdwData = async () => {
     selectData.ejdwListData.push(...res.data)
   }
 }
-
 const selectRolesHandle = () => {
   loading.value = true
   userDialogRef.value.getUser()
 }
-
 const getRoleHandle = () => {
   loading.value = false
   userInfo.specialOrgId = userDialogRef.value.specialorgid
@@ -531,7 +515,6 @@ const getRoleHandle = () => {
     searchData()
   }
 }
-
 const exportHandle = () => {
   loading.value = true
   exportXmFszInfo({
@@ -554,7 +537,6 @@ const exportHandle = () => {
     loading.value = false
   })
 }
-
 const saveHandle = async () => {
   const $table = tableRef.value.getUpdateRecords()
   if ($table.length === 0) {
@@ -598,12 +580,10 @@ const importHandle = () => {
   }
   importRef.value.acceptParams(params)
 }
-
 const searchTreeAndTableHandle = (ndValue: string) => {
   formData.nd = ndValue
   getProjectData()
 }
-
 const searchData = async () => {
   loading.value = true
   if (gwxmbmRef.value) formData.gwxmbm = gwxmbmRef.value.array
@@ -621,7 +601,6 @@ const searchData = async () => {
   }
   loading.value = false
 }
-
 const resetData = () => {
   formData.xmmc = ''
   formData.yjdw = ''
@@ -634,7 +613,6 @@ const resetData = () => {
   selectData.ejdwListData.length = 0
   searchData()
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchData()
@@ -644,12 +622,10 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchData()
 }
-
 const colSetting = tableInfo.columns.filter((item) => {
   const { prop, isShow } = item
   return prop !== 'operation' && isShow
 })
-
 const isShowSearchHandle = () => {
   isShowSearch.value = !isShowSearch.value
   if (isShowSearch.value) {
@@ -659,12 +635,10 @@ const isShowSearchHandle = () => {
     contentTables.value.style.height = '100%'
   }
 }
-
 const initData = () => {
   formData.nd = new Date().getFullYear().toString()
   selectRolesHandle()
 }
-
 onMounted(initData)
 </script>
 

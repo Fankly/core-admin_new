@@ -44,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/ai/xmAttachExtractSchemaMenu/index" })
 import { nextTick, onMounted, reactive, ref } from 'vue'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
@@ -55,6 +54,7 @@ import { getPublicCodeList } from '@/api/common'
 import { getXmAttachExtractSchemaMenu, removeSchema } from '@/api/ai/xmAttachExtractSchemaMenu'
 import type { SchemaRow } from '@/api/ai/xmAttachExtractSchemaMenu'
 import EditModal from './components/EditModal.vue'
+defineOptions({ name: "/ai/xmAttachExtractSchemaMenu/index" })
 
 const ATTACHMENT_TYPE_CODE = 'FJ_TYPE'
 

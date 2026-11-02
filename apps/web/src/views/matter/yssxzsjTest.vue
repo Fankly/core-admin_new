@@ -1,9 +1,5 @@
 <!--年度预算事项基本信息/预算事项主数据-->
-<script lang="ts">
-export default {
-  name: '/matter/yssxzsjTest'
-}
-</script>
+
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
 import HelpModal from '@/components/HelpModal/index.vue'
@@ -11,38 +7,34 @@ import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { onMounted, reactive, ref, nextTick } from 'vue'
 import { getMatterBasicData, SearchData } from '@/api/matter/matterBasic'
 import { useGuide } from '@/hooks/useGuide'
+defineOptions({
+  name: '/matter/yssxzsjTest'
+})
 
 interface InitParams {
   [key: string]: string
 }
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const loading = ref(false)
 const isShowPage = ref(false)
 const initParams = ref<InitParams>({})
-
 const searchData = reactive<any>({
   zyssxbm: '',
   zyssxmc: ''
 })
-
 const tableDataList = ref()
-
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1
 })
-
 const formRef = ref()
 const tableRef = ref()
-
 const resetHandle = () => {
   formRef.value.resetFields()
   searchHandle()
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -61,7 +53,6 @@ const cellClickHandle = ({ row, column }: any) => {
     tableRef.value?.setCheckboxRow?.(row, true)
   })
 }
-
 const searchHandle = async () => {
   loading.value = true
   try {
@@ -82,7 +73,6 @@ const searchHandle = async () => {
     loading.value = false
   }
 }
-
 const getRoleHandle = () => {
   loading.value = false
   initParams.value.specialorgid = userDialogRef.value.specialorgid
@@ -93,22 +83,22 @@ const getRoleHandle = () => {
     searchHandle()
   }
 }
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
 
 // 是否类字段（1 是 / 0 否）列表展示
-const yesNoMap: Record<string, string> = { '1': '是', '0': '否' }
+const yesNoMap: Record<string, string> = {
+  '1': '是',
+  '0': '否'
+}
 const formatYesNo = ({ cellValue }: any) => yesNoMap[String(cellValue)] || ''
-
 const { startGuide } = useGuide({
   moduleKey: 'CentralizedModification',
   tragetSelector: '.toolbar-guide-icon',
   onKnow: () => {},
   onNoMoreRemind: () => {}
 })
-
 onMounted(() => {
   userDialogRef.value.getUser()
 })

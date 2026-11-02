@@ -20,12 +20,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "projectDetailSearchSetting" })
 import { IObject } from '@/types/interface'
 import { reactive, ref } from 'vue'
 import { VxeGridProps } from 'vxe-table'
 import { BaseMethod } from '@/api/base/BaseMethod'
 import { ElMessage, ElMessageBox } from 'element-plus'
+defineOptions({ name: "projectDetailSearchSetting" })
 
 interface RowVO {
   dataType: string

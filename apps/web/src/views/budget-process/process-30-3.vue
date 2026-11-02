@@ -39,55 +39,69 @@
   </div>
 </template>
 
-<script>
-import { defineComponent, reactive } from "vue";
-import baseService from "@/service/baseService";
-import { ElMessage } from "element-plus";
-export default defineComponent({
-  name: "/budget-process/process-30-3",
-  setup() {
-    return reactive({
-      example: [],
-      loading: false,
-      tableHeight: "",
-      heightNum: ""
-    });
-  },
-  created() {
-    this.loadData();
-  },
-  mounted() {
-    this.heightNum = document.querySelector(".el-card").clientHeight;
-    this.topHeight = document.querySelector(".title").clientHeight;
-    this.setTableHeight();
-  },
-  methods: {
-    setTableHeight() {
-      this.tableHeight = this.heightNum - this.topHeight - 90 + "px";
-    },
-    loadData() {
-      this.loading = true;
-      let pspid = this.$route.query.pspid;
-      const params = {
-        pspid: pspid,
-        zyear: this.$route.query.zyear,
-        zmonth: this.$route.query.zmonth
-      };
-      baseService.post("/process/process30/ct3", params).then((res) => {
-        if (res.success == true) {
-          this.loading = false;
-          this.example = res.data;
-        } else {
-          this.loading = false;
-          ElMessage({
-            type: "error",
-            message: res.msg
-          });
-        }
-      });
-    }
+<script setup>
+import { reactive, toRef, toRefs, onMounted } from 'vue'
+import baseService from '@/service/baseService'
+import { ElMessage } from 'element-plus'
+import { useRoute } from 'vue-router'
+defineOptions({
+  name: '/budget-process/process-30-3'
+})
+const route = useRoute()
+const setupState = reactive({
+  example: [],
+  loading: false,
+  tableHeight: '',
+  heightNum: ''
+})
+const example = toRef(setupState, 'example')
+const loading = toRef(setupState, 'loading')
+const tableHeight = toRef(setupState, 'tableHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const componentData = reactive({})
+componentData.topHeight = undefined
+const topHeight = toRef(componentData, 'topHeight')
+function setTableHeight() {
+  setupState.tableHeight = setupState.heightNum - componentData.topHeight - 90 + 'px'
+}
+function loadData() {
+  setupState.loading = true
+  let pspid = route.query.pspid
+  const params = {
+    pspid: pspid,
+    zyear: route.query.zyear,
+    zmonth: route.query.zmonth
   }
-});
+  baseService.post('/process/process30/ct3', params).then((res) => {
+    if (res.success == true) {
+      setupState.loading = false
+      setupState.example = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+onMounted(() => {
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  componentData.topHeight = document.querySelector('.title').clientHeight
+  setTableHeight()
+})
+;(() => {
+  loadData()
+})()
+defineExpose({
+  example,
+  loading,
+  tableHeight,
+  heightNum,
+  setTableHeight,
+  loadData,
+  ...toRefs(componentData)
+})
 </script>
 
 <style lang="less" scoped>

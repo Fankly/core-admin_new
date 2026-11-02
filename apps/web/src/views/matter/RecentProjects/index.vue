@@ -266,7 +266,6 @@
 </template>
 
 <script lang="ts" setup>
-defineOptions({ name: "/matter/RecentProjects/index" })
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
 import Grid from '@/components/Grid/index.vue'
@@ -275,14 +274,12 @@ import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
 import { ElMessage } from 'element-plus'
 import userDialog from '@/components/select/userDialog.vue'
-import ImportExcel from '@/components/ImportExcel/index.vue' //导入组件
-
+import ImportExcel from '@/components/ImportExcel/index.vue'
 import type Node from 'element-plus/es/components/tree/src/model/node'
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { Project, PublicCode, PublicParams, RowVo, Tree } from './interface'
 import { useGuide } from '@/hooks/useGuide'
 import baseService from '@/service/baseService'
-
 import {
   getProtypeTreeYearCb,
   getRecords,
@@ -297,6 +294,9 @@ import {
 } from '@/api/matter/recentProjects/index'
 import VXETable from 'vxe-table'
 import { useRouter } from 'vue-router'
+defineOptions({ name: "/matter/RecentProjects/index" })
+
+ //导入组件
 
 const router = useRouter()
 const importRef = ref<any>() //导入类名

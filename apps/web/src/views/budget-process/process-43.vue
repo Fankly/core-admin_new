@@ -450,7 +450,7 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -459,10 +459,18 @@ import {
   Search as EpSearch,
   Upload as EpUpload
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive, ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import {
+  markRaw as markElementIconRaw,
+  reactive,
+  ref,
+  toRef,
+  reactive as reactiveLocal,
+  toRefs,
+  watch,
+  onMounted,
+  useTemplateRef
+} from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import copyTextBox from '@/components/select/copyTextBox.vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
@@ -470,796 +478,884 @@ import TreeSelect from '@/components/select/TreeSelect.vue'
 import baseService from '@/service/baseService'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
-
-export default defineComponent({
-  name: '/budget-process/process-43',
-  components: {
-    TreeSelect,
-    HelpModal,
-    ToolbarButtons,
-    copyTextBox,
-    userDialog
-  },
-  setup() {
-    const store = useStore()
-    const dialogFormRef = ref('')
-    // 只能输入中文、英文、数字,可以为空
-    const checkInput = (rule, value, callback) => {
-      if (value === '') {
-        callback()
-      } else {
-        const reg = /^[a-zA-Z0-9\u4e00-\u9fa5]+$/
-        if (!reg.test(value)) {
-          callback(new Error('只能输入中文、英文、数字'))
-        } else {
-          callback()
-        }
-      }
-    }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      EpUpload: markElementIconRaw(EpUpload),
-      store,
-      dialogFormRef,
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      isShowPage: false,
-      dialogUpload: true,
-      checkInput,
-      dialogFormRules: {
-        zywbz: [{ validator: checkInput, trigger: 'blur' }],
-        zzdrw: [{ validator: checkInput, trigger: 'blur' }]
-      },
-      dialogFormVisible: false,
-      isQuery: false,
-      searchShow: true,
-      segment: [],
-      example: [],
-      loading: false,
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      searchData: {
-        projectTypeData: [],
-        unitData: [],
-        yjfl: [],
-        ejfl: [],
-        sjfl: [],
-        projectPackName: [],
-        projectNature: [],
-        departmentData: []
-      },
-      dialogForm: {
-        zywbz: '',
-        zzdrw: '',
-        xmmc: '',
-        gwxmbm: '',
-        zbz1: '',
-        zbz2: '',
-        zbz3: '',
-        zbz4: '',
-        zbz5: '',
-        zbz6: '',
-        zbz7: '',
-        zbz8: '',
-        zbz9: '',
-        zbz10: ''
-      },
-      formData: {
-        yjfl: [],
-        ejfl: [],
-        sjfl: [],
-        yjdw: [],
-        ejdw: [],
-        xmxz: [],
-        xmlx: '',
-        xmmc: '',
-        gkbm: [],
-        xmbName: [],
-        year: new Date().getFullYear().toString()
-      },
-      columns: [
-        {
-          columnKey: 'xmmc',
-          columnName: '项目名称',
-          checked: true
-        },
-        {
-          columnKey: 'gwxmbm',
-          columnName: '国网项目编码',
-          checked: true
-        },
-        {
-          columnKey: 'zywbz',
-          columnName: '业务备注',
-          checked: true
-        },
-        {
-          columnKey: 'zzdrw',
-          columnName: '重点任务',
-          checked: true
-        },
-        {
-          columnKey: 'zbz1',
-          columnName: '备注1',
-          checked: true
-        },
-        {
-          columnKey: 'zbz2',
-          columnName: '备注2',
-          checked: true
-        },
-        {
-          columnKey: 'zbz3',
-          columnName: '备注3',
-          checked: true
-        },
-        {
-          columnKey: 'zbz4',
-          columnName: '备注4',
-          checked: true
-        },
-        {
-          columnKey: 'zbz5',
-          columnName: '备注5',
-          checked: true
-        },
-        {
-          columnKey: 'zbz6',
-          columnName: '备注6',
-          checked: true
-        },
-        {
-          columnKey: 'zbz7',
-          columnName: '备注7',
-          checked: true
-        },
-        {
-          columnKey: 'zbz8',
-          columnName: '备注8',
-          checked: true
-        },
-        {
-          columnKey: 'zbz9',
-          columnName: '备注9',
-          checked: true
-        },
-        {
-          columnKey: 'zbz10',
-          columnName: '备注10',
-          checked: true
-        },
-        {
-          columnKey: 'proType',
-          columnName: '项目类型',
-          checked: true
-        },
-        {
-          columnKey: 'xmbName',
-          columnName: '项目包名称',
-          checked: true
-        },
-        {
-          columnKey: 'nd',
-          columnName: '年度',
-          checked: true
-        },
-        {
-          columnKey: 'yjdw',
-          columnName: '一级单位',
-          checked: true
-        },
-        {
-          columnKey: 'ejdw',
-          columnName: '二级单位',
-          checked: true
-        },
-        {
-          columnKey: 'gkbm',
-          columnName: '归口部门',
-          checked: true
-        },
-        {
-          columnKey: 'dnys',
-          columnName: '当年预算（万元）',
-          checked: true
-        },
-        {
-          columnKey: 'dncwzc',
-          columnName: '当年结算(不含税)(万元)',
-          checked: true
-        },
-        {
-          columnKey: 'xmxz',
-          columnName: '项目性质',
-          checked: true
-        },
-        {
-          columnKey: 'saptime',
-          columnName: '立项时间',
-          checked: true
-        },
-        {
-          columnKey: 'yjfl',
-          columnName: '一级分类',
-          checked: true
-        },
-        {
-          columnKey: 'ejfl',
-          columnName: '二级分类',
-          checked: true
-        },
-        {
-          columnKey: 'sjfl',
-          columnName: '三级分类',
-          checked: true
-        },
-        {
-          columnKey: 'ztimestamp',
-          columnName: '更新时间',
-          checked: true
-        }
-      ],
-      defaultProps: {
-        children: 'children',
-        label: 'text'
-      },
-      projectTypeProps: {
-        children: 'children',
-        label: 'name'
-      },
-      fileList: [
-        {
-          name: 'food.jpeg',
-          url: 'https://jsonplaceholder.typicode.com/posts/'
-        }
-      ]
-    })
-  },
-  watch: {
-    // 监听三级分类
-    'formData.sjfl': {
-      handler: function (val) {
-        if (!val) {
-          // 清空项目包名称
-          this.formData.xmbName = []
-          // 调用项目包名称
-          this.getProjectPackName()
-        }
-      }
-    }
-  },
-  mounted() {
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-    this.getDeptData()
-    this.getProjectTypeData()
-    this.getUnitData()
-    this.getFirstLevelData()
-    this.getProjectPackName()
-    this.getComboData('projectNature', 'XMXZ')
-  },
-  methods: {
-    getHelpMessageHandle() {
-      this.$refs.helpModalRef.showModal = true
-    },
-    clearDataHandle() {
-      if (Array.isArray(this.formData.xmlx)) {
-        this.formData.xmlx.length = 0
-      } else {
-        this.formData.xmlx = ''
-      }
-    },
-    lazyHandle(node, resolve) {
-      if (node.level === 0) {
-        const params = {
-          parentCode: null,
-          rootCode: 'childtree:CBZX',
-          objId: -1,
-          level: 0
-        }
-        if (node.data.rootCode) {
-          params.rootCode = node.data.rootCode
-          params.parentCode = 'CBZX'
-        }
-        baseService.post('process40/getTreeNode/', params).then((res) => {
-          if (res.success) {
-            resolve(res.data)
-          } else {
-            ElMessage({
-              type: 'error',
-              message: res.msg
-            })
-          }
-        })
-      } else if (node.level >= 1) {
-        const params = {
-          parentCode: null,
-          rootCode: 'childtree:CBZX',
-          objId: node.data.objId,
-          level: node.level
-        }
-        baseService.post('process40/getTreeNode/', params).then((res) => {
-          if (res.success) {
-            res.data ? resolve(res.data) : resolve([])
-          } else {
-            ElMessage({
-              type: 'error',
-              message: res.msg
-            })
-          }
-        })
-      } else {
-        resolve([])
-      }
-    },
-    getDeptData(ejdw) {
-      const params = {
-        parentCode: null,
-        rootCode: 'childtree:CBZX',
-        objId: -1,
-        level: 0
-      }
-      if (ejdw) {
-        params.rootCode = ejdw
-        params.parentCode = 'CBZX'
-      }
-      baseService.post('process40/getTreeNodeCbzx/', params).then((res) => {
-        if (res.success) {
-          this.searchData.departmentData = res.data
-        } else {
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    uploadExcelFile(file, uuid) {
-      this.loading = true
-      const formData = new FormData()
-      formData.append('file', file.raw)
-      formData.append('uuid', uuid)
-      baseService.post('process41/import/', formData).then((res) => {
-        if (res.success) {
-          this.loading = false
-          ElMessage({
-            type: 'success',
-            message: '导入成功'
-          })
-          this.loadData()
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    handleChange(file) {
-      if (!file.raw.type.includes('.sheet') && !file.raw.type.includes('.ms-excel')) {
-        ElMessage.error('请上传Excel文件!')
-        return
-      }
-      // 实现excel导入
-      const formData = new FormData()
-      formData.append('file', file.raw)
-      baseService.post('process41/importCheck/', formData).then((res) => {
-        if (res.success) {
-          if (res.data.pass) {
-            this.uploadExcelFile(file, res.data.uuid)
-          } else {
-            this.$confirm('Excel文件中有存在未填写情况, 是否继续导入?', '提示', {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-            })
-              .then(() => {
-                this.uploadExcelFile(file, res.data.uuid)
-              })
-              .catch(() => {
-                this.$message({
-                  type: 'info',
-                  message: '取消导入'
-                })
-              })
-          }
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    updateLedgeHandle: function () {
-      const params = this.dialogForm
-      delete params.xmmc
-      baseService.post('process41/updateTZ/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.loadData()
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    updateMsgDataHandle: function () {
-      /*this.$refs.dialogFormRef.validate((valid) => {
-        if (valid) {
-          // 提交数据
-          this.updateLedgeHandle();
-          this.dialogFormVisible = false;
-        } else {
-          return false;
-        }
-      });*/
-      this.updateLedgeHandle()
-      this.dialogFormVisible = false
-    },
-    setAlignCenter(columnkey) {
-      const arr = ['yjdw', 'ejdw', 'yjfl', 'ejfl', 'sjfl']
-      return arr.includes(columnkey)
-    },
-    formatHandle(row, column, cellValue, columnKey) {
-      if (columnKey === 'dnys' || columnKey === 'dncwzc') {
-        return cellValue ? parseFloat(cellValue).toFixed(4) : '0.0000'
-      } else if (cellValue === null || cellValue === '') {
-        return '-'
-      }
-      return cellValue
-    },
-    // 归口部门
-    getChangeDepData(value) {
-      this.formData.gkbm = value
-    },
-    getComboData(flag, code) {
-      // 判断是否是数组
-      code = Array.isArray(code) ? code : [code]
-      const params = {
-        codes: code
-      }
-      baseService.post('process40/getComCodeByCode/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          res.data[code[0]].map((item) => {
-            this.searchData[flag].push({
-              value: item.code,
-              label: item.name
-            })
-          })
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    getProjectPackName() {
-      this.formData.xmbName = []
-      this.loading = true
-      let xmxzValue = ''
-      let sjflValue = ''
-      let xmlx = ''
-      if (this.formData.xmxz && this.formData.xmxz.length > 0) {
-        xmxzValue = this.formData.xmxz.join(',')
-      }
-      if (this.formData.sjfl) {
-        sjflValue = this.formData.sjfl.value
-      }
-      if (this.formData.year) {
-        // Wed Jan 01 2025 00:00:00 GMT+0800 (中国标准时间)获取年份
-        this.formData.year = new Date(this.formData.year).getFullYear().toString()
-      }
-      if (this.formData.xmlx) {
-        xmlx = this.formData.xmlx.join(',')
-      }
-      const params = {
-        year: this.formData.year,
-        xmlx: xmlx,
-        xmblx: '',
-        xmxz: xmxzValue,
-        sjfl: sjflValue,
-        xmbid: ''
-      }
-      baseService.post('process40/getXmbArr/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.searchData.projectPackName = res.data
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    getLevelData(levelValue, flag) {
-      if (flag === 'ejfl') {
-        this.searchData.ejfl = []
-        this.searchData.sjfl = []
-        this.formData.ejfl = ''
-        this.formData.sjfl = ''
-      } else if (flag === 'sjfl') {
-        this.searchData.sjfl = []
-        this.formData.sjfl = ''
-      }
-      if (!levelValue) {
-        return
-      }
-      this.loading = true
-      const params = {
-        parentId: levelValue.id
-      }
-      baseService.post('process40/getComCodeByParent/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          res.data.forEach((item) => {
-            this.searchData[flag].push({
-              value: item.code,
-              label: item.name,
-              id: item.id
-            })
-          })
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    getFirstLevelData() {
-      this.loading = true
-      const params = {
-        rootCode: 'GWXMFL'
-      }
-      baseService.post('process40/getRootComCode/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          res.data.forEach((item) => {
-            this.searchData.yjfl.push({
-              value: item.code,
-              label: item.name,
-              id: item.id
-            })
-          })
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    updateMaintenancePage(row) {
-      this.dialogFormVisible = true
-      /*     this.dialogForm.gwxmbm = row.gwxmbm;
-      this.dialogForm.xmmc = row.xmmc;
-      this.dialogForm.zywbz = row.zywbz;
-      this.dialogForm.zzdrw = row.zzdrw; */
-      for (const key in this.dialogForm) {
-        this.dialogForm[key] = row[key]
-      }
-    },
-    getChangeUnitData(value) {
-      // 设置一级单位和二级单位清空
-      this.formData.yjdw = []
-      this.formData.ejdw = []
-      let ejdw = ''
-      value.forEach((item) => {
-        if (item.level === 1) {
-          this.formData.yjdw.push(item.objCode)
-        } else if (item.level === 2) {
-          this.formData.ejdw.push(item.objCode)
-          ejdw += item.objCode + ','
-        }
-      })
-      ejdw = ejdw.substring(0, ejdw.length - 1)
-      this.$refs.dept.clearSelect()
-      this.getDeptData(ejdw)
-      /*this.lazyHandle({ level: 0, data: { rootCode: ejdw } }, (res) => {
-        this.searchData.departmentData = res;
-      });*/
-    },
-    getUnitData() {
-      this.loading = true
-      const params = {
-        parentCode: null,
-        rootCode: 'childtree:DW_COM',
-        objId: -1,
-        level: 0
-      }
-      baseService.post('process40/getTreeNode/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.searchData.unitData = res.data
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    getProjectTypeData() {
-      let startDate = new Date().getFullYear()
-      if (this.searchData.ND) {
-        startDate = this.searchData.ND
-      }
-      this.loading = true
-      const params = {
-        parentId: '0',
-        startDate: startDate
-      }
-      baseService.post('process40/getProTypeTreeNode/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.searchData.projectTypeData = res.data
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    getProjectType(value) {
-      this.formData.xmlx = value
-      this.getProjectPackName()
-    },
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    limitChangeHandle(currentLimitNum) {
-      this.page.page = 1
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-      this.roleCode = parseInt(this.$refs.userDialog.roleCode)
-      this.isQuery = this.$refs.userDialog.isQuery
-      if (this.isQuery) {
-        setTimeout(() => {
-          this.isShowPage = true
-        }, 500)
-      }
-    },
-    //项目环节
-    listShow(value, checked) {
-      this.columns.forEach((item) => {
-        if (item.columnKey === value) {
-          item.checked = checked
-        }
-      })
-    },
-    setTableHeight() {
-      if (this.searchShow) {
-        this.$refs.contentTables.style.height = 'calc(100% - 116px)'
-      } else {
-        this.$refs.contentTables.style.height = 'calc(100% - 17px)'
-      }
-    },
-    //搜索按钮
-    loadData() {
-      this.loading = true
-      const params = {
-        specialorgid: this.specialorgid,
-        roleCode: this.roleCode,
-        page: this.page.page,
-        limit: this.page.limit,
-        yjfl: this.formData.yjfl ? this.formData.yjfl.value : '',
-        ejfl: this.formData.ejfl ? this.formData.ejfl.value : '',
-        sjfl: this.formData.sjfl ? this.formData.sjfl.value : '',
-        yjdw: this.formData.yjdw ? this.formData.yjdw : [],
-        ejdw: this.formData.ejdw ? this.formData.ejdw : [],
-        xmxz: this.formData.xmxz ? this.formData.xmxz : '',
-        xmlx: this.formData.xmlx ? this.formData.xmlx : [],
-        xmmc: this.formData.xmmc ? this.formData.xmmc : '',
-        gkbm: this.formData.gkbm ? this.formData.gkbm : [],
-        nd: this.formData.year ? this.formData.year : new Date().getFullYear().toString(),
-        gwxmbm: this.$refs.gwxmbm.array ? this.$refs.gwxmbm.array : '',
-        xmbName: this.formData.xmbName ? this.formData.xmbName : []
-      }
-      baseService.post('process41/getList/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.page.total = res.data.total
-          this.example = res.data.records
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    //重置按钮
-    reset() {
-      this.formData.yjfl = ''
-      this.formData.ejfl = ''
-      this.formData.sjfl = ''
-      this.formData.yjdw = ''
-      this.formData.ejdw = ''
-      this.formData.xmxz = []
-      this.formData.xmlx = ''
-      this.formData.year = new Date().getFullYear().toString()
-      this.formData.xmmc = ''
-      this.formData.xmbName = []
-      this.$refs.gwxmbm.clear()
-      this.$refs.xmlx.clearSelect()
-      this.$refs.unit.clearSelect()
-      this.$refs.dept.clearSelect()
-      this.searchData.ejfl = []
-      this.searchData.sjfl = []
-      // 调用项目包名称
-      this.getProjectPackName()
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    // 数据导出
-    exportData() {
-      this.loading = true
-      this.loadData()
-      const params = {
-        specialorgid: this.specialorgid,
-        roleCode: this.roleCode,
-        page: this.page.page,
-        limit: this.page.limit,
-        yjfl: this.formData.yjfl ? this.formData.yjfl.value : '',
-        ejfl: this.formData.ejfl ? this.formData.ejfl.value : '',
-        sjfl: this.formData.sjfl ? this.formData.sjfl.value : '',
-        yjdw: this.formData.yjdw ? this.formData.yjdw : [],
-        ejdw: this.formData.ejdw ? this.formData.ejdw : [],
-        xmxz: this.formData.xmxz ? this.formData.xmxz : '',
-        xmlx: this.formData.xmlx ? this.formData.xmlx : [],
-        xmmc: this.formData.xmmc ? this.formData.xmmc : '',
-        gkbm: this.formData.gkbm ? this.formData.gkbm : [],
-        nd: this.formData.year ? this.formData.year : new Date().getFullYear().toString(),
-        gwxmbm: this.$refs.gwxmbm.array ? this.$refs.gwxmbm.array : '',
-        xmbName: this.formData.xmbName ? this.formData.xmbName : ''
-      }
-      baseService.export('/process41/export', params).then((res) => {
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '战略预算-项目台账备注管理清单.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-        this.loading = false
-      })
+defineOptions({
+  name: '/budget-process/process-43'
+})
+const helpModalRefRef = useTemplateRef('helpModalRef')
+const deptRef = useTemplateRef('dept')
+const userDialogRef = useTemplateRef('userDialog')
+const contentTablesRef = useTemplateRef('contentTables')
+const gwxmbmRef = useTemplateRef('gwxmbm')
+const xmlxRef = useTemplateRef('xmlx')
+const unitRef = useTemplateRef('unit')
+const store = useStore()
+const dialogFormRef = ref('')
+// 只能输入中文、英文、数字,可以为空
+const checkInput = (rule, value, callback) => {
+  if (value === '') {
+    callback()
+  } else {
+    const reg = /^[a-zA-Z0-9\u4e00-\u9fa5]+$/
+    if (!reg.test(value)) {
+      callback(new Error('只能输入中文、英文、数字'))
+    } else {
+      callback()
     }
   }
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  EpUpload: markElementIconRaw(EpUpload),
+  store,
+  dialogFormRef,
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
+  },
+  isShowPage: false,
+  dialogUpload: true,
+  checkInput,
+  dialogFormRules: {
+    zywbz: [
+      {
+        validator: checkInput,
+        trigger: 'blur'
+      }
+    ],
+    zzdrw: [
+      {
+        validator: checkInput,
+        trigger: 'blur'
+      }
+    ]
+  },
+  dialogFormVisible: false,
+  isQuery: false,
+  searchShow: true,
+  segment: [],
+  example: [],
+  loading: false,
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  searchData: {
+    projectTypeData: [],
+    unitData: [],
+    yjfl: [],
+    ejfl: [],
+    sjfl: [],
+    projectPackName: [],
+    projectNature: [],
+    departmentData: []
+  },
+  dialogForm: {
+    zywbz: '',
+    zzdrw: '',
+    xmmc: '',
+    gwxmbm: '',
+    zbz1: '',
+    zbz2: '',
+    zbz3: '',
+    zbz4: '',
+    zbz5: '',
+    zbz6: '',
+    zbz7: '',
+    zbz8: '',
+    zbz9: '',
+    zbz10: ''
+  },
+  formData: {
+    yjfl: [],
+    ejfl: [],
+    sjfl: [],
+    yjdw: [],
+    ejdw: [],
+    xmxz: [],
+    xmlx: '',
+    xmmc: '',
+    gkbm: [],
+    xmbName: [],
+    year: new Date().getFullYear().toString()
+  },
+  columns: [
+    {
+      columnKey: 'xmmc',
+      columnName: '项目名称',
+      checked: true
+    },
+    {
+      columnKey: 'gwxmbm',
+      columnName: '国网项目编码',
+      checked: true
+    },
+    {
+      columnKey: 'zywbz',
+      columnName: '业务备注',
+      checked: true
+    },
+    {
+      columnKey: 'zzdrw',
+      columnName: '重点任务',
+      checked: true
+    },
+    {
+      columnKey: 'zbz1',
+      columnName: '备注1',
+      checked: true
+    },
+    {
+      columnKey: 'zbz2',
+      columnName: '备注2',
+      checked: true
+    },
+    {
+      columnKey: 'zbz3',
+      columnName: '备注3',
+      checked: true
+    },
+    {
+      columnKey: 'zbz4',
+      columnName: '备注4',
+      checked: true
+    },
+    {
+      columnKey: 'zbz5',
+      columnName: '备注5',
+      checked: true
+    },
+    {
+      columnKey: 'zbz6',
+      columnName: '备注6',
+      checked: true
+    },
+    {
+      columnKey: 'zbz7',
+      columnName: '备注7',
+      checked: true
+    },
+    {
+      columnKey: 'zbz8',
+      columnName: '备注8',
+      checked: true
+    },
+    {
+      columnKey: 'zbz9',
+      columnName: '备注9',
+      checked: true
+    },
+    {
+      columnKey: 'zbz10',
+      columnName: '备注10',
+      checked: true
+    },
+    {
+      columnKey: 'proType',
+      columnName: '项目类型',
+      checked: true
+    },
+    {
+      columnKey: 'xmbName',
+      columnName: '项目包名称',
+      checked: true
+    },
+    {
+      columnKey: 'nd',
+      columnName: '年度',
+      checked: true
+    },
+    {
+      columnKey: 'yjdw',
+      columnName: '一级单位',
+      checked: true
+    },
+    {
+      columnKey: 'ejdw',
+      columnName: '二级单位',
+      checked: true
+    },
+    {
+      columnKey: 'gkbm',
+      columnName: '归口部门',
+      checked: true
+    },
+    {
+      columnKey: 'dnys',
+      columnName: '当年预算（万元）',
+      checked: true
+    },
+    {
+      columnKey: 'dncwzc',
+      columnName: '当年结算(不含税)(万元)',
+      checked: true
+    },
+    {
+      columnKey: 'xmxz',
+      columnName: '项目性质',
+      checked: true
+    },
+    {
+      columnKey: 'saptime',
+      columnName: '立项时间',
+      checked: true
+    },
+    {
+      columnKey: 'yjfl',
+      columnName: '一级分类',
+      checked: true
+    },
+    {
+      columnKey: 'ejfl',
+      columnName: '二级分类',
+      checked: true
+    },
+    {
+      columnKey: 'sjfl',
+      columnName: '三级分类',
+      checked: true
+    },
+    {
+      columnKey: 'ztimestamp',
+      columnName: '更新时间',
+      checked: true
+    }
+  ],
+  defaultProps: {
+    children: 'children',
+    label: 'text'
+  },
+  projectTypeProps: {
+    children: 'children',
+    label: 'name'
+  },
+  fileList: [
+    {
+      name: 'food.jpeg',
+      url: 'https://jsonplaceholder.typicode.com/posts/'
+    }
+  ]
+})
+const page = toRef(setupState, 'page')
+const isShowPage = toRef(setupState, 'isShowPage')
+const dialogUpload = toRef(setupState, 'dialogUpload')
+const dialogFormRules = toRef(setupState, 'dialogFormRules')
+const dialogFormVisible = toRef(setupState, 'dialogFormVisible')
+const isQuery = toRef(setupState, 'isQuery')
+const searchShow = toRef(setupState, 'searchShow')
+const segment = toRef(setupState, 'segment')
+const example = toRef(setupState, 'example')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const searchData = toRef(setupState, 'searchData')
+const dialogForm = toRef(setupState, 'dialogForm')
+const formData = toRef(setupState, 'formData')
+const columns = toRef(setupState, 'columns')
+const defaultProps = toRef(setupState, 'defaultProps')
+const projectTypeProps = toRef(setupState, 'projectTypeProps')
+const fileList = toRef(setupState, 'fileList')
+const componentData = reactiveLocal({})
+componentData.roleCode = undefined
+const roleCode = toRef(componentData, 'roleCode')
+function getHelpMessageHandle() {
+  helpModalRefRef.value.showModal = true
+}
+function clearDataHandle() {
+  if (Array.isArray(setupState.formData.xmlx)) {
+    setupState.formData.xmlx.length = 0
+  } else {
+    setupState.formData.xmlx = ''
+  }
+}
+function lazyHandle(node, resolve) {
+  if (node.level === 0) {
+    const params = {
+      parentCode: null,
+      rootCode: 'childtree:CBZX',
+      objId: -1,
+      level: 0
+    }
+    if (node.data.rootCode) {
+      params.rootCode = node.data.rootCode
+      params.parentCode = 'CBZX'
+    }
+    baseService.post('process40/getTreeNode/', params).then((res) => {
+      if (res.success) {
+        resolve(res.data)
+      } else {
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
+    })
+  } else if (node.level >= 1) {
+    const params = {
+      parentCode: null,
+      rootCode: 'childtree:CBZX',
+      objId: node.data.objId,
+      level: node.level
+    }
+    baseService.post('process40/getTreeNode/', params).then((res) => {
+      if (res.success) {
+        res.data ? resolve(res.data) : resolve([])
+      } else {
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
+    })
+  } else {
+    resolve([])
+  }
+}
+function getDeptData(ejdw) {
+  const params = {
+    parentCode: null,
+    rootCode: 'childtree:CBZX',
+    objId: -1,
+    level: 0
+  }
+  if (ejdw) {
+    params.rootCode = ejdw
+    params.parentCode = 'CBZX'
+  }
+  baseService.post('process40/getTreeNodeCbzx/', params).then((res) => {
+    if (res.success) {
+      setupState.searchData.departmentData = res.data
+    } else {
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function uploadExcelFile(file, uuid) {
+  setupState.loading = true
+  const formData = new FormData()
+  formData.append('file', file.raw)
+  formData.append('uuid', uuid)
+  baseService.post('process41/import/', formData).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      ElMessage({
+        type: 'success',
+        message: '导入成功'
+      })
+      loadData()
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function handleChange(file) {
+  if (!file.raw.type.includes('.sheet') && !file.raw.type.includes('.ms-excel')) {
+    ElMessage.error('请上传Excel文件!')
+    return
+  }
+  // 实现excel导入
+  const formData = new FormData()
+  formData.append('file', file.raw)
+  baseService.post('process41/importCheck/', formData).then((res) => {
+    if (res.success) {
+      if (res.data.pass) {
+        uploadExcelFile(file, res.data.uuid)
+      } else {
+        ElMessageBox.confirm('Excel文件中有存在未填写情况, 是否继续导入?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+          .then(() => {
+            uploadExcelFile(file, res.data.uuid)
+          })
+          .catch(() => {
+            ElMessage({
+              type: 'info',
+              message: '取消导入'
+            })
+          })
+      }
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function updateLedgeHandle() {
+  const params = setupState.dialogForm
+  delete params.xmmc
+  baseService.post('process41/updateTZ/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      loadData()
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function updateMsgDataHandle() {
+  /*this.$refs.dialogFormRef.validate((valid) => {
+    if (valid) {
+      // 提交数据
+      this.updateLedgeHandle();
+      this.dialogFormVisible = false;
+    } else {
+      return false;
+    }
+  });*/
+  updateLedgeHandle()
+  setupState.dialogFormVisible = false
+}
+function setAlignCenter(columnkey) {
+  const arr = ['yjdw', 'ejdw', 'yjfl', 'ejfl', 'sjfl']
+  return arr.includes(columnkey)
+}
+function formatHandle(row, column, cellValue, columnKey) {
+  if (columnKey === 'dnys' || columnKey === 'dncwzc') {
+    return cellValue ? parseFloat(cellValue).toFixed(4) : '0.0000'
+  } else if (cellValue === null || cellValue === '') {
+    return '-'
+  }
+  return cellValue
+}
+// 归口部门
+function getChangeDepData(value) {
+  setupState.formData.gkbm = value
+}
+function getComboData(flag, code) {
+  // 判断是否是数组
+  code = Array.isArray(code) ? code : [code]
+  const params = {
+    codes: code
+  }
+  baseService.post('process40/getComCodeByCode/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      res.data[code[0]].map((item) => {
+        setupState.searchData[flag].push({
+          value: item.code,
+          label: item.name
+        })
+      })
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function getProjectPackName() {
+  setupState.formData.xmbName = []
+  setupState.loading = true
+  let xmxzValue = ''
+  let sjflValue = ''
+  let xmlx = ''
+  if (setupState.formData.xmxz && setupState.formData.xmxz.length > 0) {
+    xmxzValue = setupState.formData.xmxz.join(',')
+  }
+  if (setupState.formData.sjfl) {
+    sjflValue = setupState.formData.sjfl.value
+  }
+  if (setupState.formData.year) {
+    // Wed Jan 01 2025 00:00:00 GMT+0800 (中国标准时间)获取年份
+    setupState.formData.year = new Date(setupState.formData.year).getFullYear().toString()
+  }
+  if (setupState.formData.xmlx) {
+    xmlx = setupState.formData.xmlx.join(',')
+  }
+  const params = {
+    year: setupState.formData.year,
+    xmlx: xmlx,
+    xmblx: '',
+    xmxz: xmxzValue,
+    sjfl: sjflValue,
+    xmbid: ''
+  }
+  baseService.post('process40/getXmbArr/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.searchData.projectPackName = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function getLevelData(levelValue, flag) {
+  if (flag === 'ejfl') {
+    setupState.searchData.ejfl = []
+    setupState.searchData.sjfl = []
+    setupState.formData.ejfl = ''
+    setupState.formData.sjfl = ''
+  } else if (flag === 'sjfl') {
+    setupState.searchData.sjfl = []
+    setupState.formData.sjfl = ''
+  }
+  if (!levelValue) {
+    return
+  }
+  setupState.loading = true
+  const params = {
+    parentId: levelValue.id
+  }
+  baseService.post('process40/getComCodeByParent/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      res.data.forEach((item) => {
+        setupState.searchData[flag].push({
+          value: item.code,
+          label: item.name,
+          id: item.id
+        })
+      })
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function getFirstLevelData() {
+  setupState.loading = true
+  const params = {
+    rootCode: 'GWXMFL'
+  }
+  baseService.post('process40/getRootComCode/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      res.data.forEach((item) => {
+        setupState.searchData.yjfl.push({
+          value: item.code,
+          label: item.name,
+          id: item.id
+        })
+      })
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function updateMaintenancePage(row) {
+  setupState.dialogFormVisible = true
+  /*     this.dialogForm.gwxmbm = row.gwxmbm;
+  this.dialogForm.xmmc = row.xmmc;
+  this.dialogForm.zywbz = row.zywbz;
+  this.dialogForm.zzdrw = row.zzdrw; */
+  for (const key in setupState.dialogForm) {
+    setupState.dialogForm[key] = row[key]
+  }
+}
+function getChangeUnitData(value) {
+  // 设置一级单位和二级单位清空
+  setupState.formData.yjdw = []
+  setupState.formData.ejdw = []
+  let ejdw = ''
+  value.forEach((item) => {
+    if (item.level === 1) {
+      setupState.formData.yjdw.push(item.objCode)
+    } else if (item.level === 2) {
+      setupState.formData.ejdw.push(item.objCode)
+      ejdw += item.objCode + ','
+    }
+  })
+  ejdw = ejdw.substring(0, ejdw.length - 1)
+  deptRef.value.clearSelect()
+  getDeptData(ejdw)
+  /*this.lazyHandle({ level: 0, data: { rootCode: ejdw } }, (res) => {
+    this.searchData.departmentData = res;
+  });*/
+}
+function getUnitData() {
+  setupState.loading = true
+  const params = {
+    parentCode: null,
+    rootCode: 'childtree:DW_COM',
+    objId: -1,
+    level: 0
+  }
+  baseService.post('process40/getTreeNode/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.searchData.unitData = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function getProjectTypeData() {
+  let startDate = new Date().getFullYear()
+  if (setupState.searchData.ND) {
+    startDate = setupState.searchData.ND
+  }
+  setupState.loading = true
+  const params = {
+    parentId: '0',
+    startDate: startDate
+  }
+  baseService.post('process40/getProTypeTreeNode/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.searchData.projectTypeData = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function getProjectType(value) {
+  setupState.formData.xmlx = value
+  getProjectPackName()
+}
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.page = 1
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+  componentData.roleCode = parseInt(userDialogRef.value.roleCode)
+  setupState.isQuery = userDialogRef.value.isQuery
+  if (setupState.isQuery) {
+    setTimeout(() => {
+      setupState.isShowPage = true
+    }, 500)
+  }
+}
+//项目环节
+function listShow(value, checked) {
+  setupState.columns.forEach((item) => {
+    if (item.columnKey === value) {
+      item.checked = checked
+    }
+  })
+}
+function setTableHeight() {
+  if (setupState.searchShow) {
+    contentTablesRef.value.style.height = 'calc(100% - 116px)'
+  } else {
+    contentTablesRef.value.style.height = 'calc(100% - 17px)'
+  }
+}
+//搜索按钮
+function loadData() {
+  setupState.loading = true
+  const params = {
+    specialorgid: setupState.specialorgid,
+    roleCode: componentData.roleCode,
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    yjfl: setupState.formData.yjfl ? setupState.formData.yjfl.value : '',
+    ejfl: setupState.formData.ejfl ? setupState.formData.ejfl.value : '',
+    sjfl: setupState.formData.sjfl ? setupState.formData.sjfl.value : '',
+    yjdw: setupState.formData.yjdw ? setupState.formData.yjdw : [],
+    ejdw: setupState.formData.ejdw ? setupState.formData.ejdw : [],
+    xmxz: setupState.formData.xmxz ? setupState.formData.xmxz : '',
+    xmlx: setupState.formData.xmlx ? setupState.formData.xmlx : [],
+    xmmc: setupState.formData.xmmc ? setupState.formData.xmmc : '',
+    gkbm: setupState.formData.gkbm ? setupState.formData.gkbm : [],
+    nd: setupState.formData.year ? setupState.formData.year : new Date().getFullYear().toString(),
+    gwxmbm: gwxmbmRef.value.array ? gwxmbmRef.value.array : '',
+    xmbName: setupState.formData.xmbName ? setupState.formData.xmbName : []
+  }
+  baseService.post('process41/getList/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.page.total = res.data.total
+      setupState.example = res.data.records
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+//重置按钮
+function reset() {
+  setupState.formData.yjfl = ''
+  setupState.formData.ejfl = ''
+  setupState.formData.sjfl = ''
+  setupState.formData.yjdw = ''
+  setupState.formData.ejdw = ''
+  setupState.formData.xmxz = []
+  setupState.formData.xmlx = ''
+  setupState.formData.year = new Date().getFullYear().toString()
+  setupState.formData.xmmc = ''
+  setupState.formData.xmbName = []
+  gwxmbmRef.value.clear()
+  xmlxRef.value.clearSelect()
+  unitRef.value.clearSelect()
+  deptRef.value.clearSelect()
+  setupState.searchData.ejfl = []
+  setupState.searchData.sjfl = []
+  // 调用项目包名称
+  getProjectPackName()
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+// 数据导出
+function exportData() {
+  setupState.loading = true
+  loadData()
+  const params = {
+    specialorgid: setupState.specialorgid,
+    roleCode: componentData.roleCode,
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    yjfl: setupState.formData.yjfl ? setupState.formData.yjfl.value : '',
+    ejfl: setupState.formData.ejfl ? setupState.formData.ejfl.value : '',
+    sjfl: setupState.formData.sjfl ? setupState.formData.sjfl.value : '',
+    yjdw: setupState.formData.yjdw ? setupState.formData.yjdw : [],
+    ejdw: setupState.formData.ejdw ? setupState.formData.ejdw : [],
+    xmxz: setupState.formData.xmxz ? setupState.formData.xmxz : '',
+    xmlx: setupState.formData.xmlx ? setupState.formData.xmlx : [],
+    xmmc: setupState.formData.xmmc ? setupState.formData.xmmc : '',
+    gkbm: setupState.formData.gkbm ? setupState.formData.gkbm : [],
+    nd: setupState.formData.year ? setupState.formData.year : new Date().getFullYear().toString(),
+    gwxmbm: gwxmbmRef.value.array ? gwxmbmRef.value.array : '',
+    xmbName: setupState.formData.xmbName ? setupState.formData.xmbName : ''
+  }
+  baseService.export('/process41/export', params).then((res) => {
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '战略预算-项目台账备注管理清单.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+    setupState.loading = false
+  })
+}
+watch(
+  () => setupState.formData.sjfl,
+  function (val) {
+    if (!val) {
+      // 清空项目包名称
+      setupState.formData.xmbName = []
+      // 调用项目包名称
+      getProjectPackName()
+    }
+  },
+  {}
+)
+onMounted(() => {
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+  getDeptData()
+  getProjectTypeData()
+  getUnitData()
+  getFirstLevelData()
+  getProjectPackName()
+  getComboData('projectNature', 'XMXZ')
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpRefreshRight,
+  EpSearch,
+  EpUpload,
+  store,
+  dialogFormRef,
+  page,
+  isShowPage,
+  dialogUpload,
+  checkInput,
+  dialogFormRules,
+  dialogFormVisible,
+  isQuery,
+  searchShow,
+  segment,
+  example,
+  loading,
+  userCode,
+  userId,
+  specialorgid,
+  searchData,
+  dialogForm,
+  formData,
+  columns,
+  defaultProps,
+  projectTypeProps,
+  fileList,
+  getHelpMessageHandle,
+  clearDataHandle,
+  lazyHandle,
+  getDeptData,
+  uploadExcelFile,
+  handleChange,
+  updateLedgeHandle,
+  updateMsgDataHandle,
+  setAlignCenter,
+  formatHandle,
+  getChangeDepData,
+  getComboData,
+  getProjectPackName,
+  getLevelData,
+  getFirstLevelData,
+  updateMaintenancePage,
+  getChangeUnitData,
+  getUnitData,
+  getProjectTypeData,
+  getProjectType,
+  pageChangeHandle,
+  limitChangeHandle,
+  loadCompany,
+  listShow,
+  setTableHeight,
+  loadData,
+  reset,
+  showSearch,
+  exportData,
+  ...toRefs(componentData)
 })
 </script>
 

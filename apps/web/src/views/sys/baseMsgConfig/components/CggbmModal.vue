@@ -36,12 +36,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "CggbmModal" })
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import VXETable from 'vxe-table'
 import { editSgk } from '@/api/sys/proCategory'
 import { getPublicData } from '@/api/common'
+defineOptions({ name: "CggbmModal" })
 
 interface AcceptParams {
   ids: string[]

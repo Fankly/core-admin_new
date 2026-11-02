@@ -68,17 +68,15 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'finishXmMaintModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { finishXmSave, finishXmPublish, finishXmStatByYear } from '@/api/lyg/finishXm'
+defineOptions({
+  name: 'finishXmMaintModal'
+})
 
 /** 弹窗参数 */
 interface ModalParams {
@@ -87,12 +85,21 @@ interface ModalParams {
   specialorgid?: string
   org_id?: string
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
-  (e: 'openXmDetail', val: { nd: string; rwName: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
+  (
+    e: 'openXmDetail',
+    val: {
+      nd: string
+      rwName: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
@@ -121,7 +128,9 @@ const fetchStatByYear = async (nd: string) => {
     return
   }
   try {
-    const res: any = await finishXmStatByYear({ nd })
+    const res: any = await finishXmStatByYear({
+      nd
+    })
     if (res.success) {
       const data = res.data || {}
       searchParams.value.xmSl = data.xmSl ?? ''
@@ -140,7 +149,10 @@ const handleYearChange = (val: string) => {
 
 /** 点击应填报项目数，打开项目明细弹窗 */
 const handleOpenXmDetail = () => {
-  emit('openXmDetail', { nd: searchParams.value.nd, rwName: searchParams.value.rwName })
+  emit('openXmDetail', {
+    nd: searchParams.value.nd,
+    rwName: searchParams.value.rwName
+  })
 }
 
 /** 表单校验，返回是否通过 */
@@ -156,7 +168,6 @@ const validateForm = (): Promise<boolean> =>
 /** 保存 */
 const handleSave = async () => {
   if (!(await validateForm())) return
-
   try {
     const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
       status: 'warning'
@@ -168,13 +179,16 @@ const handleSave = async () => {
   } catch {
     return
   }
-
   loading.value = true
   try {
-    const res = await finishXmSave({ ...searchParams.value })
+    const res = await finishXmSave({
+      ...searchParams.value
+    })
     if (res.success) {
       ElMessage.success('保存成功！')
-      emit('searchHandle', { param: 'success' })
+      emit('searchHandle', {
+        param: 'success'
+      })
       handleClose()
     } else {
       ElMessage.error(res.msg)
@@ -189,7 +203,6 @@ const handleSave = async () => {
 /** 发布任务：先保存，再用返回的 rwId 调用发布接口 */
 const handlePublish = async () => {
   if (!(await validateForm())) return
-
   try {
     const type = await VXETable.modal.confirm('发布任务后无法修改，请确认！', '提示', {
       status: 'warning'
@@ -201,29 +214,31 @@ const handlePublish = async () => {
   } catch {
     return
   }
-
   loading.value = true
   try {
-    const res: any = await finishXmSave({ ...searchParams.value })
+    const res: any = await finishXmSave({
+      ...searchParams.value
+    })
     if (!res.success) {
       ElMessage.error(res.msg)
       return
     }
-
     const rwId = res.data
     if (!rwId) {
       ElMessage.error('保存成功但未获取到任务ID，请重试')
       return
     }
-
-    const publishRes: any = await finishXmPublish({ rwId })
+    const publishRes: any = await finishXmPublish({
+      rwId
+    })
     if (!publishRes.success) {
       ElMessage.error(publishRes.msg)
       return
     }
-
     ElMessage.success('发布成功！')
-    emit('searchHandle', { param: 'success' })
+    emit('searchHandle', {
+      param: 'success'
+    })
     handleClose()
   } catch (e) {
     ElMessage.error((e as Error).message)
@@ -234,7 +249,9 @@ const handlePublish = async () => {
 
 /** 打开弹窗 */
 const acceptParams = async (params: ModalParams) => {
-  userInfo.value = { ...params }
+  userInfo.value = {
+    ...params
+  }
   modalTitle.value = params.type
   isEdit.value = modalTitle.value == '编辑'
   // 清空已有属性，保持 searchParams 引用不变（避免 el-form 的 model 引用失效导致校验失败）
@@ -254,8 +271,9 @@ const acceptParams = async (params: ModalParams) => {
   isShowModal.value = true
   await fetchStatByYear(searchParams.value.nd)
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style scoped lang="less">

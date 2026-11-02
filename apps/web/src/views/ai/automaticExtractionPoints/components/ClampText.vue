@@ -7,20 +7,17 @@
   </span>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AepClampText'
-}
-</script>
 
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from 'vue'
+defineOptions({
+  name: 'AepClampText'
+})
 
 const props = defineProps<{
   /** 单元格文本：最多展示两行，被截断时鼠标悬浮浮出完整内容 */
   text: string | number | null | undefined
 }>()
-
 const elRef = ref<HTMLElement>()
 const visible = ref(false)
 const tipStyle = ref<Record<string, string>>({})
@@ -38,11 +35,17 @@ const handleEnter = (): void => {
   // 靠近视口底部时向上翻转，避免浮层超出屏幕
   const flip = rect.bottom > window.innerHeight - 140
   tipStyle.value = flip
-    ? { left: `${left}px`, top: `${rect.top - 6}px`, transform: 'translateY(-100%)' }
-    : { left: `${left}px`, top: `${rect.bottom + 6}px` }
+    ? {
+        left: `${left}px`,
+        top: `${rect.top - 6}px`,
+        transform: 'translateY(-100%)'
+      }
+    : {
+        left: `${left}px`,
+        top: `${rect.bottom + 6}px`
+      }
   visible.value = true
 }
-
 const hide = (): void => {
   visible.value = false
 }
@@ -57,7 +60,6 @@ watch(visible, (show) => {
     window.removeEventListener('resize', hide, true)
   }
 })
-
 onBeforeUnmount(() => {
   window.removeEventListener('scroll', hide, true)
   window.removeEventListener('resize', hide, true)

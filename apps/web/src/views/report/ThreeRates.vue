@@ -170,23 +170,13 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/report/ThreeRates'
-}
-</script>
 
 <script setup lang="ts">
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
 import userDialog from '@/components/select/userDialog.vue'
-
 import { onMounted, reactive, ref, watch } from 'vue'
-import {
-  getDynamicColumnByTypeNew,
-  getProTypeTree,
-  getStatDataByTypeNew,
-} from '@/api/report'
+import { getDynamicColumnByTypeNew, getProTypeTree, getStatDataByTypeNew } from '@/api/report'
 import TreeSelect from '@/components/select/TreeSelect.vue'
 import { ElMessage } from 'element-plus'
 import { getPublicCodeList } from '@/api/common'
@@ -194,6 +184,9 @@ import DwTreeSelect from '@/views/report/components/DwTreeSelect.vue'
 import ThreeRatesModal from '@/views/report/components/ThreeRatesModal.vue'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
+defineOptions({
+  name: '/report/ThreeRates'
+})
 
 const userDialogRef = ref()
 const helpModalRef = ref()
@@ -205,7 +198,6 @@ const userInfo = ref<any>()
 const clickTableData = ref<any>()
 const dwId = ref('')
 const BATCH_SIZE = 3
-
 const searchForm = reactive<any>({
   currentUserDwId: '',
   endDate: '',
@@ -214,20 +206,16 @@ const searchForm = reactive<any>({
   indicatorList: ['fjl', 'lxl', 'wcl'],
   xmlxIdList: []
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const xmlxTreeData = ref([])
 const flatColumns = ref<any>([])
 const zbxDataList = ref<any>([])
-
 const projectTypeProps = {
   children: 'children',
   label: 'name'
 }
-
 const loadChildrenMethod = ({ row }: any) => {
   return new Promise((resolve: any) => {
     let api = getStatDataByTypeNew
@@ -254,7 +242,6 @@ const loadChildrenMethod = ({ row }: any) => {
     })
   })
 }
-
 const gridOptions = reactive<any>({
   border: true,
   stripe: true,
@@ -280,13 +267,18 @@ const gridOptions = reactive<any>({
       const nameCol = worksheet.getColumn('A')
       const newArr: any[] = []
       getExportData(newArr, gridOptions.data as any, 1)
-      nameCol.eachCell({ includeEmpty: false }, (cell: any, cellNumber: number) => {
-        if (cell.address !== 'A1' && cell.address !== 'A2') {
-          if (newArr[cellNumber - 3].cj > 1) {
-            cell.value = '    '.repeat(newArr[cellNumber - 3].cj - 1) + newArr[cellNumber - 3].name
+      nameCol.eachCell(
+        {
+          includeEmpty: false
+        },
+        (cell: any, cellNumber: number) => {
+          if (cell.address !== 'A1' && cell.address !== 'A2') {
+            if (newArr[cellNumber - 3].cj > 1) {
+              cell.value = '    '.repeat(newArr[cellNumber - 3].cj - 1) + newArr[cellNumber - 3].name
+            }
           }
         }
-      })
+      )
       worksheet.eachRow((row: any, rowNumber: any) => {
         row.eachCell((cell: any, cellNumber: any) => {
           if (rowNumber > 2 && newArr[rowNumber - 3].cj === 1) {
@@ -307,9 +299,7 @@ const gridOptions = reactive<any>({
     }
   },
   cellStyle: ({ row, column }: any) => {
-    const findData = flatColumns.value.find(
-      (item: any) => item.field === column.field && item.canBeCt
-    )
+    const findData = flatColumns.value.find((item: any) => item.field === column.field && item.canBeCt)
     if (findData) {
       return {
         cursor: 'pointer'
@@ -322,16 +312,13 @@ const gridOptions = reactive<any>({
   columns: [],
   data: []
 })
-
 const exportHandle = () => {
   const $table = gridRef.value
   if ($table) {
     $table.exportData(gridOptions.exportConfig)
   }
 }
-
 const allExpandedRows = ref(new Set())
-
 const expandHandle = async () => {
   try {
     gridOptions.loading = true
@@ -377,7 +364,6 @@ const expandHandle = async () => {
     gridOptions.loading = false
   }
 }
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = gridRef.value
   data.forEach((item) => {
@@ -392,11 +378,12 @@ const getExportData = (newArr: any[], data: any[], cj: number) => {
   })
   return newArr
 }
-
 const getRoleHandle = async () => {
   searchForm.currentUserDwId = userDialogRef.value.userMsg.org_id
   dwId.value = userDialogRef.value.userMsg.org_id
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   if (isQuery) {
     pageInfo.isShowPage = true
@@ -404,7 +391,6 @@ const getRoleHandle = async () => {
     await getDynamicColumnHeader()
   }
 }
-
 const startTimeHandle = (val: string) => {
   if (searchForm.endDate) {
     const endtTime = new Date(searchForm.endDate)
@@ -422,7 +408,6 @@ const startTimeHandle = (val: string) => {
     }
   }
 }
-
 const disabledEndMonth = (time: Date) => {
   if (!searchForm.startDate) return false
   const startTime = new Date(searchForm.startDate)
@@ -433,7 +418,6 @@ const disabledEndMonth = (time: Date) => {
   const monthDiff = (currentYear - startYear) * 12 + (currentMonth - startMonth)
   return currentYear !== startYear || monthDiff < 0
 }
-
 const searchData = () => {
   if (searchForm.indicatorList.length === 0) {
     ElMessage.error('指标项不能为空!')
@@ -442,11 +426,9 @@ const searchData = () => {
   searchHandle()
   getDynamicColumnHeader()
 }
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const flatColumnsMethod = (dynamicHeader: any[]) => {
   if (dynamicHeader.length !== 0) {
     for (const header of dynamicHeader) {
@@ -457,7 +439,6 @@ const flatColumnsMethod = (dynamicHeader: any[]) => {
     }
   }
 }
-
 const searchHandle = async () => {
   gridOptions.loading = true
   const res = await getStatDataByTypeNew({
@@ -477,7 +458,6 @@ const searchHandle = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getDynamicColumnHeader = async () => {
   flatColumns.value.length = 0
   gridOptions.loading = true
@@ -504,7 +484,6 @@ const getDynamicColumnHeader = async () => {
     gridOptions.loading = false
   }
 }
-
 const resetHandle = () => {
   const year = new Date().getFullYear().toString()
   const curMonth = new Date().getMonth() + 1
@@ -525,7 +504,6 @@ const resetHandle = () => {
   searchHandle()
   getDynamicColumnHeader()
 }
-
 watch(
   () => searchForm.startDate,
   (newVal) => {
@@ -533,10 +511,7 @@ watch(
       const startTime = new Date(newVal)
       const year = startTime.getFullYear().toString()
       const endTime = new Date(searchForm.endDate)
-      if (
-        endTime.getFullYear() !== startTime.getFullYear() ||
-        endTime.getMonth() < startTime.getMonth()
-      ) {
+      if (endTime.getFullYear() !== startTime.getFullYear() || endTime.getMonth() < startTime.getMonth()) {
         const curMonth = startTime.getMonth() + 1
         if (curMonth === 12) {
           searchForm.endDate = year + '-' + curMonth.toString().padStart(2, '0')
@@ -547,11 +522,8 @@ watch(
     }
   }
 )
-
 const handleCellClick = ({ row, column }: any) => {
-  const findData = flatColumns.value.find(
-    (item: any) => item.field === column.field && item.canBeCt
-  )
+  const findData = flatColumns.value.find((item: any) => item.field === column.field && item.canBeCt)
   if (findData) {
     processModalRef.value.isShowModal = true
     clickTableData.value = {
@@ -561,15 +533,12 @@ const handleCellClick = ({ row, column }: any) => {
     }
   }
 }
-
 const getProjectType = (value: any) => {
   searchForm.xmlxIdList = value
 }
-
 const clearDataHandle = () => {
   searchForm.xmlxIdList.length = 0
 }
-
 const initParams = async () => {
   await userDialogRef.value.getUser()
   const year = new Date().getFullYear().toString()
@@ -588,7 +557,6 @@ const initParams = async () => {
     xmlxTreeData.value = xmlxRes.data
   }
 }
-
 onMounted(initParams)
 </script>
 

@@ -16,11 +16,7 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'xmProcess'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
 import ProjectHeader from './ProjectHeader.vue'
@@ -30,6 +26,10 @@ import { ElMessage } from 'element-plus'
 import { createProjectHeader, createStages, amountProps, percentProp } from './data/progress-data'
 import type { ProjectHeaderItem, Stage } from './data/progress-data'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({
+  name: 'xmProcess'
+})
+
 const isShowModal = ref(false)
 const modalTitle = ref('项目进度')
 const xmData = ref<any>()
@@ -76,5 +76,7 @@ const acceptParams = async (params: any) => {
 //   if (!res.success) return ElMessage.error(res.msg)
 //   xmData.value = res.data.re
 // }
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>

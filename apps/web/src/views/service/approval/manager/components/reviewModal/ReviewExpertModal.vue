@@ -122,8 +122,7 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ManagerReviewExpertModal" })
-import { defineExpose, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import type { VxeGridInstance, VxeGridProps } from 'vxe-table'
@@ -134,6 +133,9 @@ import type { YnrhszjPage } from '@/api/service/IhhsMeeting/approval/proviceIhhs
 import { deleteExpert } from '@/api/service/approval/manager'
 import { downloadExportBlob } from '@/views/service/approval/provinceLhhsMeeting/utils/download'
 import PendingTrialExpertModal from '@/views/service/approval/manager/components/pendingTrialModal/PendingTrialExpertModal.vue'
+defineOptions({
+  name: 'ManagerReviewExpertModal'
+})
 
 interface ModalProps {
   search?: () => void
@@ -143,14 +145,12 @@ interface ModalProps {
   row: Partial<any>
   btnPermissions: string[]
 }
-
 interface ReviewExpertTabItem {
   code: string
   name: string
   expertCount: number
   [key: string]: any
 }
-
 const TAB_PUBLIC_CODE = 'SJTC_LHHS_PSZY'
 const gridRef = ref<VxeGridInstance>()
 const pendingTrialRef = ref<InstanceType<typeof PendingTrialExpertModal>>()
@@ -164,7 +164,6 @@ const pszyListData = ref<any[]>([])
 const tabList = ref<ReviewExpertTabItem[]>([])
 const activeTab = ref('')
 let tabCountRequestId = 0
-
 const modalProps = ref<ModalProps>({
   title: '',
   pageFlag: '',
@@ -172,7 +171,6 @@ const modalProps = ref<ModalProps>({
   row: {},
   btnPermissions: []
 })
-
 const searchForm = reactive<Record<string, any>>({
   yjdw: '',
   ejdw: '',
@@ -181,62 +179,135 @@ const searchForm = reactive<Record<string, any>>({
   major: '',
   remark: ''
 })
-
 const page = reactive({
   page: 1,
   limit: 20,
   total: 0
 })
-
-const centerConfig = { align: 'center', headerAlign: 'center' } as const
+const centerConfig = {
+  align: 'center',
+  headerAlign: 'center'
+} as const
 const gridOptions = reactive<VxeGridProps<any>>({
   border: true,
   height: '100%',
   showOverflow: true,
   showHeaderOverflow: true,
-  checkboxConfig: { trigger: 'row', highlight: true, range: true },
-  rowConfig: { isHover: true, height: 32 },
-  columnConfig: { resizable: true },
+  checkboxConfig: {
+    trigger: 'row',
+    highlight: true,
+    range: true
+  },
+  rowConfig: {
+    isHover: true,
+    height: 32
+  },
+  columnConfig: {
+    resizable: true
+  },
   columns: [
-    { type: 'checkbox', width: 50, fixed: 'left', ...centerConfig },
-    { type: 'seq', width: 60, title: '序号', fixed: 'left', ...centerConfig },
-    { field: 'majorName', title: '专家专业', width: 120, fixed: 'left', ...centerConfig },
-    { field: 'expertName', title: '专家姓名', width: 100, fixed: 'left', ...centerConfig },
-    { field: 'sex', title: '专家性别', width: 90, ...centerConfig },
-    { field: 'account', title: '统一权限账号', width: 130, ...centerConfig },
-    { field: 'phoneNo', title: '联系方式', width: 120, ...centerConfig },
-    { field: 'mail', title: '邮箱', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'yjdwName', title: '一级单位', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'ejdwName', title: '二级单位', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'deptName', title: '所属部门', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'remark', title: '备注', minWidth: 180, showOverflow: true, ...centerConfig }
+    {
+      type: 'checkbox',
+      width: 50,
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      type: 'seq',
+      width: 60,
+      title: '序号',
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      field: 'majorName',
+      title: '专家专业',
+      width: 120,
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      field: 'expertName',
+      title: '专家姓名',
+      width: 100,
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      field: 'sex',
+      title: '专家性别',
+      width: 90,
+      ...centerConfig
+    },
+    {
+      field: 'account',
+      title: '统一权限账号',
+      width: 130,
+      ...centerConfig
+    },
+    {
+      field: 'phoneNo',
+      title: '联系方式',
+      width: 120,
+      ...centerConfig
+    },
+    {
+      field: 'mail',
+      title: '邮箱',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'yjdwName',
+      title: '一级单位',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'ejdwName',
+      title: '二级单位',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'deptName',
+      title: '所属部门',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'remark',
+      title: '备注',
+      minWidth: 180,
+      showOverflow: true,
+      ...centerConfig
+    }
   ]
 })
-
 const splitMultipleText = (value: unknown) => {
   return String(value ?? '')
     .split(/[,，]/)
     .map((item) => item.trim())
     .filter(Boolean)
 }
-
 const normalizeRecords = (data: any) => {
   if (Array.isArray(data?.records)) return data.records
   if (Array.isArray(data)) return data
   return []
 }
-
 const resetSearchForm = () => {
   Object.keys(searchForm).forEach((key) => {
     searchForm[key] = ''
   })
 }
-
 const clearSelection = () => {
   selectedRows.value = []
   gridRef.value?.clearCheckboxRow()
 }
-
 const resetModalState = () => {
   yjdwListData.value = []
   ejdwListData.value = []
@@ -251,12 +322,10 @@ const resetModalState = () => {
   resetSearchForm()
   clearSelection()
 }
-
 const closeHandle = () => {
   modalVisible.value = false
   resetModalState()
 }
-
 const buildSearchParams = () => {
   return {
     ...searchForm,
@@ -270,7 +339,6 @@ const buildSearchParams = () => {
     pszyType: activeTab.value
   } as unknown as YnrhszjPage
 }
-
 const loadTable = async () => {
   if (!activeTab.value) {
     tableData.value = []
@@ -293,45 +361,37 @@ const loadTable = async () => {
     loading.value = false
   }
 }
-
 const searchTableHandle = () => {
   loadTable()
 }
-
 const searchTable = () => {
   page.page = 1
   loadTable()
 }
-
 const resetSearch = () => {
   resetSearchForm()
   ejdwListData.value = []
   page.page = 1
   loadTable()
 }
-
 const pageChangeHandle = (currentPage: number) => {
   page.page = currentPage
   loadTable()
 }
-
 const limitChangeHandle = (limit: number) => {
   page.page = 1
   page.limit = limit
   loadTable()
 }
-
 const handleSelection = ({ records }: any) => {
   selectedRows.value = records || []
 }
-
 const handleCellClick = async ({ row, column }: any) => {
   if (column.type === 'checkbox') return
   await gridRef.value?.clearCheckboxRow()
   await gridRef.value?.setCheckboxRow(row, true)
   selectedRows.value = [row]
 }
-
 const getYjdwEnum = async () => {
   yjdwListData.value = []
   ejdwListData.value = []
@@ -342,7 +402,6 @@ const getYjdwEnum = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getPublicCode = async () => {
   pszyListData.value = []
   const list = await getPublicData('MAJOR_COM')
@@ -352,22 +411,24 @@ const getPublicCode = async () => {
     ElMessage.error(list.msg)
   }
 }
-
 const resolveExpertCount = (data: unknown) => {
   if (Array.isArray(data)) return data.length
   const count = Number(data)
   return Number.isFinite(count) ? count : 0
 }
-
 const loadTabExpertCounts = async (tabs: ReviewExpertTabItem[] = tabList.value) => {
   const meetingId = modalProps.value.row['meetingId']
   if (!meetingId || tabs.length === 0) return
-
   const currentRequestId = ++tabCountRequestId
-  const responses = await Promise.allSettled(tabs.map((item) => getYnrhszjListNum({ meetingId, pszyType: item.code })))
-
+  const responses = await Promise.allSettled(
+    tabs.map((item) =>
+      getYnrhszjListNum({
+        meetingId,
+        pszyType: item.code
+      })
+    )
+  )
   if (currentRequestId !== tabCountRequestId) return
-
   let hasError = false
   tabList.value = tabs.map((item, index) => {
     const response = responses[index]
@@ -383,12 +444,10 @@ const loadTabExpertCounts = async (tabs: ReviewExpertTabItem[] = tabList.value) 
       expertCount: resolveExpertCount(response.value.data)
     }
   })
-
   if (hasError) {
     ElMessage.warning('部分评审专业人数加载失败')
   }
 }
-
 const getTabList = async () => {
   tabList.value = []
   const res = await getPublicData(TAB_PUBLIC_CODE)
@@ -404,25 +463,21 @@ const getTabList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const handleExpertDataChanged = () => {
   clearSelection()
   void loadTabExpertCounts()
   modalProps.value.search?.()
 }
-
 const handleTabChange = () => {
   clearSelection()
   page.page = 1
   loadTable()
 }
-
 const handleTabClick = (tabCode: string) => {
   if (activeTab.value === tabCode) return
   activeTab.value = tabCode
   handleTabChange()
 }
-
 const changeEjdwEnum = async (val: string) => {
   searchForm.ejdw = ''
   ejdwListData.value = []
@@ -442,7 +497,6 @@ const changeEjdwEnum = async (val: string) => {
     loading.value = false
   }
 }
-
 const handleAddPendingTrial = () => {
   pendingTrialRef.value?.acceptParams({
     title: '添加',
@@ -451,11 +505,12 @@ const handleAddPendingTrial = () => {
     isView: false,
     isPsz: modalProps.value.isView,
     pszyType: activeTab.value,
-    row: { ...modalProps.value.row },
+    row: {
+      ...modalProps.value.row
+    },
     getTableList: searchTableHandle
   })
 }
-
 const handleDeleteData = async () => {
   if (selectedRows.value.length === 0) {
     ElMessage.warning('请至少选择一条数据进行操作!')
@@ -484,7 +539,6 @@ const handleDeleteData = async () => {
     loading.value = false
   }
 }
-
 const handleExport = async () => {
   loading.value = true
   try {
@@ -496,20 +550,20 @@ const handleExport = async () => {
     loading.value = false
   }
 }
-
 const initOptions = async () => {
   await Promise.allSettled([getYjdwEnum(), getPublicCode(), getTabList()])
 }
-
 const acceptParams = (params: ModalProps) => {
   resetModalState()
-  modalProps.value = { ...modalProps.value, ...params }
+  modalProps.value = {
+    ...modalProps.value,
+    ...params
+  }
   modalVisible.value = true
   void initOptions().finally(() => {
     loadTable()
   })
 }
-
 defineExpose({
   acceptParams
 })

@@ -166,7 +166,6 @@
   <xmDetailModal ref="xmDetailModalRef" :exportApi="exportApi" :getTableList="getTableList" />
 </template>
 <script setup lang="ts">
-defineOptions({ name: "/lyg/overview/index" })
 import { nextTick, onMounted, ref, onUnmounted, reactive } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { overviewParam } from '@/views/lyg/overview/hooks/index'
@@ -179,6 +178,7 @@ import { ElMessage } from 'element-plus'
 import xmDetailModal from '@/views/lyg/overview/components/xmDetailModal.vue'
 import { useStore } from '@/store/business'
 import { useRouter } from 'vue-router'
+defineOptions({ name: "/lyg/overview/index" })
 
 const { isShowPage, loading, xmjdLoading, userDialogRef, ndList, cropFlag, userInfo, dataParams, getTryCounty, getPublicCode } = overviewParam()
 const { dataList, xmzs, xmzys, DETAIL_API_MAP, DETAIL_DATA_MAP, buildList } = proTypeParam()

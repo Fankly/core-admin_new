@@ -22,7 +22,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialToolbar" })
 import { computed, onMounted, reactive, ref } from 'vue'
 import FormModal from '@/components/FormModal'
 import { getPublicCodesList } from '@/api/common'
@@ -31,6 +30,7 @@ import { usePermission } from '@/hooks/usePermission'
 import { MATERIAL_TOOLBAR_CONFIG } from '@/views/suzhou/material/config'
 import MaterialTaskLog from '@/views/suzhou/material/modules/materialTaskLog.vue'
 import { DEFAULT_MATERIAL_TITLE, MATERIAL_JUDGMENT_RESULT_NAME_CODE, resolveMaterialTitleConfig } from '@/views/suzhou/material/utils/titleConfig'
+defineOptions({ name: "materialToolbar" })
 
 const { hasPermission } = usePermission()
 const formModalRef = ref<InstanceType<typeof FormModal>>()

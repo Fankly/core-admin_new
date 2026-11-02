@@ -39,11 +39,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'rangeModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -51,6 +46,9 @@ import { ElMessage } from 'element-plus'
 import { aiAuditEdit } from '@/api/suzhou/aiAuditInuseRange'
 import { VXETable } from 'vxe-table'
 import { getPublicData, commonCodeYjdw } from '@/api/common'
+defineOptions({
+  name: 'rangeModal'
+})
 
 /** 公共代码项 */
 interface CodeItem {
@@ -63,18 +61,20 @@ interface ModalParams {
   type: string
   searchParams: Record<string, any>
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
 const modalTitle = ref('')
 const enableTypeList = ref<CodeItem[]>([])
 const yjdwList = ref<CodeItem[]>([])
-
 const searchParams = ref<any>({})
 
 /** 关闭弹窗 */
@@ -100,13 +100,16 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
-      const res = await aiAuditEdit({ ...searchParams.value })
+      const res = await aiAuditEdit({
+        ...searchParams.value
+      })
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -147,8 +150,9 @@ const acceptParams = (params: ModalParams) => {
   isShowModal.value = true
   fetchOptions()
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

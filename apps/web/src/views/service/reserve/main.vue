@@ -1,12 +1,7 @@
-<script lang="ts">
-export default {
-  name: '/service/reserve/main'
-}
-</script>
+
 
 <script setup lang="ts">
 import { Search as EpSearch } from '@element-plus/icons-vue'
-
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -17,6 +12,10 @@ import { MenuConfig } from '@/views/service/xq/interface'
 import baseService from '@/service/baseService'
 import { getVal } from '@/api/service/expertinformation'
 import { useStore } from '@/store/business'
+defineOptions({
+  name: '/service/reserve/main'
+})
+
 const userDialogRef = ref()
 const userInfo = ref()
 const isShowPage = ref(false)
@@ -40,26 +39,24 @@ const handelGetVal = async () => {
     typeTotal.rejectVal = res.data.rejectVal
   }
 }
-
 const searchData = reactive({
   yjdw: '',
   ejdw: '',
   center: ''
 })
-
 const operationBtn = ref<MenuConfig[]>([])
 const searchBtn = ref<MenuConfig[]>([])
-
 const handleRequired = (url: string) => {
   router.push({
     name: url
   })
 }
-
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfo.value.specialorgid}`)
@@ -83,7 +80,6 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 const dwOBarOptions = reactive<any>({
   tooltip: {
     trigger: 'axis',
@@ -170,7 +166,6 @@ const dwOBarOptions = reactive<any>({
     }
   ]
 })
-
 const cbBarOptions = reactive<any>({
   title: {
     text: '单位:个',
@@ -215,7 +210,6 @@ const cbBarOptions = reactive<any>({
     }
   ]
 })
-
 const pieOptions = reactive<any>({
   tooltip: {
     trigger: 'item',
@@ -233,9 +227,18 @@ const pieOptions = reactive<any>({
         formatter: '{b}\n{d}%'
       },
       data: [
-        { value: 50, name: '已立项' },
-        { value: 30, name: '已储备' },
-        { value: 20, name: '未处理' }
+        {
+          value: 50,
+          name: '已立项'
+        },
+        {
+          value: 30,
+          name: '已储备'
+        },
+        {
+          value: 20,
+          name: '未处理'
+        }
       ],
       emphasis: {
         itemStyle: {
@@ -248,7 +251,6 @@ const pieOptions = reactive<any>({
   ],
   color: ['#01b998', '#3ba9fd', '#f4a05d']
 })
-
 onMounted(async () => {
   const operationRes = await getAppMenu({
     appNo: 'CBK',

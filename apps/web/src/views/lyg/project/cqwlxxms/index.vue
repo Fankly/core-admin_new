@@ -10,9 +10,9 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/lyg/project/cqwlxxms/index" })
 import CqxmBaseTable from '../components/CqxmBaseTable.vue'
 import { getCqwlxXmmxPage, exportCqwlxXmmx } from '@/api/lyg/index'
+defineOptions({ name: "/lyg/project/cqwlxxms/index" })
 
 const extraColumns = [
   { prop: 'xmckrq', label: '项目出库日期', width: 150 },

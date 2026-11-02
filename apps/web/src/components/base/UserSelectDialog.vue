@@ -137,366 +137,308 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { ArrowDown as EpArrowDown, Refresh as EpRefresh } from '@element-plus/icons-vue'
-
 import { getAppframeResponse } from '@/api/common'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
-import { defineComponent, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import { nextTick, onMounted, reactive, ref, watch } from 'vue'
 import splitpane, { ContextProps } from '@/components/ReSplitPane'
-
-export default defineComponent({
-  components: {
-    splitpane
+defineOptions({
+  name: 'UserSelectDialog'
+})
+const props = defineProps({
+  visible: {
+    type: Boolean,
+    default: false
   },
-  name: 'UserSelectDialog',
-  props: {
-    visible: {
-      type: Boolean,
-      default: false
-    },
-    multiple: {
-      type: Boolean,
-      default: true
-    },
-    defaultSelected: {
-      type: Array,
-      default: () => []
-    }
+  multiple: {
+    type: Boolean,
+    default: true
   },
-  emits: ['update:visible', 'confirm', 'close'],
-  setup(props, { emit, expose }) {
-    const dialogVisible = ref(false)
-
-    const settingLR: ContextProps = reactive({
-      minPercent: 20,
-      defaultPercent: 20,
-      split: 'vertical'
-    })
-
-    const searchForm = reactive<any>({
-      qry_nameCode: '',
-      qry_id: '',
-      qry_name: '',
-      onlyChild: ''
-    })
-
-    const parentOrgId = ref('')
-
-    const page = reactive({
-      total: 0,
-      limit: 50,
-      page: 1,
-      current: '1'
-    })
-
-    const url = ref('')
-
-    const acitveTab = ref('baseOrg')
-    const orgTreeData = ref<any[]>([])
-    const orgTree = ref()
-
-    const userList = ref<any[]>([])
-    const selectedUsers = ref<any[]>([])
-    const checkedRowKeys = ref<any[]>([])
-    const xTable = ref()
-
-    const getOrgTree = async () => {
-      try {
-        let basicOrgRes = await baseService.get('/workflow/declare/getParamValue?paramKey=BASIC_ORG')
-        if (basicOrgRes.success) {
-          url.value = basicOrgRes.data
-          const path = acitveTab.value === 'baseOrg' ? '/appframe-auth-ui/auth/framework/baseOrgTree/getTreeNode' : '/appframe-auth-ui/auth/framework/specialOrgTree/getTreeNode'
-          const appframeUrl = basicOrgRes.data + path
-          const params: any = {
-            id: 0,
-            node: 0,
-            appframeUrl: appframeUrl,
-            fnCode: 'SYSSPROLE'
-          }
-          if (acitveTab.value === 'baseOrg') {
-            params['treeType'] = 'baseOrgTree'
-            params['treeRoot'] = 'orgRoot'
-          } else {
-            params['treeType'] = 'specialOrgTree'
-            params['treeRoot'] = 'groupRoot'
-            params['viewType'] = 'sporgType'
-          }
-          const res = await getAppframeResponse(params)
-          if (res.success) {
-            orgTreeData.value = res.data || []
-            if (orgTreeData.value.length > 0) {
-              nextTick(() => {
-                const tree = orgTree.value
-                if (tree) {
-                  tree.setCurrentKey(orgTreeData.value[0].id)
-                  handleNodeClick(orgTreeData.value[0])
-                }
-              })
-            }
-          } else {
-            ElMessage.error(res.msg || '获取组织树失败')
-          }
-        } else {
-          ElMessage.error(basicOrgRes.msg || '获取组织树失败')
-        }
-      } catch (error) {
-        console.log('获取组织树出错', error)
-      }
-    }
-
-    const getUserList = async () => {
-      try {
-        const path = acitveTab.value === 'baseOrg' ? '/appframe-auth-ui/auth/sysUser/list' : '/appframe-auth-ui/auth/sysUser/getUserBySpOrg'
-        const appframeUrl = url.value + path
-        const params: any = {
-          appframeUrl: appframeUrl,
-          start: (page.page - 1) * page.limit,
-          limit: page.limit,
-          qry_userStatus: 1,
-          onlyChild: searchForm.onlyChild,
-          qry_nameCode: searchForm.qry_nameCode,
-          parentOrgId: parentOrgId.value,
-          qry_id: searchForm.qry_id,
-          qry_name: searchForm.qry_name
-        }
-        if (acitveTab.value === 'baseOrg') {
-          params['orgType'] = 'baseOrg'
-        } else {
-          params['orgType'] = 'spOrg'
-        }
-        const res = await getAppframeResponse({
-          appframeUrl: appframeUrl,
-          start: (page.page - 1) * page.limit,
-          limit: page.limit,
-          qry_userStatus: 1,
-          onlyChild: searchForm.onlyChild,
-          qry_nameCode: searchForm.qry_nameCode,
-          parentOrgId: parentOrgId.value,
-          qry_id: searchForm.qry_id,
-          qry_name: searchForm.qry_name,
-          orgType: 'baseOrg'
-        })
-
-        if (res.success) {
-          userList.value = res.data.rows || []
-          page.total = res.data.results || 0
-        } else {
-          ElMessage.error(res.msg || '获取用户列表出错')
-        }
-      } catch (error) {
-        ElMessage.error('获取用户列表出错')
-      }
-    }
-
-    const resetSearch = () => {
-      Object.keys(searchForm).forEach((key) => {
-        if (key !== 'orgId') {
-          searchForm[key] = ''
-        }
-      })
-      handleSearch()
-    }
-
-    const checkMethod = ({ row }: any) => {
-      if (!props.multiple && selectedUsers.value.length > 0) {
-        return selectedUsers.value.some((item) => item.id === row.id)
-      }
-      return true
-    }
-
-    const handleSearch = () => {
-      getUserList()
-    }
-
-    const refreshTree = () => {
-      orgTreeData.value = []
-      getOrgTree()
-    }
-
-    const handleTreeCommand = (command: string) => {
-      const currentNode = orgTree.value?.getCurrentNode()
-      if (!currentNode) {
-        ElMessage.warning('请选择一个组织节点')
-        return
-      }
-      switch (command) {
-        case 'unitUsers':
-          searchForm.onlyChild = false
-          break
-        case 'currentAndChildren':
-          searchForm.onlyChild = false
-          break
-        case 'currentOnly':
-          searchForm.onlyChild = true
-          break
-        case 'allChildren':
-          searchForm.onlyChild = 'all'
-          break
-      }
-      page.page = 1
-      getUserList()
-    }
-
-    const handleTabClick = () => {
-      getOrgTree()
-      getUserList()
-    }
-
-    const handleNodeClick = (data: any) => {
-      parentOrgId.value = data.id
-      getUserList()
-    }
-
-    const handleSelectionChange = ({ row, checked }: any) => {
-      if (checked) {
-        if (!props.multiple) {
-          selectedUsers.value = [row]
-          checkedRowKeys.value = [row.id]
-        } else {
-          selectedUsers.value.push(row)
-          checkedRowKeys.value.push(row.id)
-        }
-      } else {
-        selectedUsers.value = selectedUsers.value.filter((item) => item.id !== row.id)
-        checkedRowKeys.value = checkedRowKeys.value.filter((id) => id !== row.id)
-      }
-    }
-
-    const handleSelectAll = ({ checked, rows }: any) => {
-      if (checked) {
-        if (!props.multiple) {
-          ElMessage.warning('单选模式不能全选')
-          return
-        }
-        selectedUsers.value = [...rows]
-        checkedRowKeys.value = rows.map((row: any) => row.id)
-      } else {
-        selectedUsers.value = []
-        checkedRowKeys.value = []
-      }
-    }
-
-    const pageChangeHandle = (currentPageNum: number) => {
-      page.page = currentPageNum
-      getUserList()
-    }
-    const limitChangeHandle = (currentLimitNum: number) => {
-      page.page = 1
-      page.limit = currentLimitNum
-      getUserList()
-    }
-
-    const loadNode = (node: any, resolve: (data: any[]) => void) => {
-      if (node.level === 0) {
-        return resolve(orgTreeData.value)
-      }
-
-      const parentId = node.data.id
-      const path = acitveTab.value === 'baseOrg' ? '/appframe-auth-ui/auth/framework/baseOrgTree/getTreeNode' : '/appframe-auth-ui/auth/framework/specialOrgTree/getTreeNode'
-      const appframeUrl = url.value + path
+  defaultSelected: {
+    type: Array,
+    default: () => []
+  }
+})
+const emit = defineEmits(['update:visible', 'confirm', 'close'])
+const dialogVisible = ref(false)
+const settingLR: ContextProps = reactive({
+  minPercent: 20,
+  defaultPercent: 20,
+  split: 'vertical'
+})
+const searchForm = reactive<any>({
+  qry_nameCode: '',
+  qry_id: '',
+  qry_name: '',
+  onlyChild: ''
+})
+const parentOrgId = ref('')
+const page = reactive({
+  total: 0,
+  limit: 50,
+  page: 1,
+  current: '1'
+})
+const url = ref('')
+const acitveTab = ref('baseOrg')
+const orgTreeData = ref<any[]>([])
+const orgTree = ref()
+const userList = ref<any[]>([])
+const selectedUsers = ref<any[]>([])
+const checkedRowKeys = ref<any[]>([])
+const xTable = ref()
+const getOrgTree = async () => {
+  try {
+    let basicOrgRes = await baseService.get('/workflow/declare/getParamValue?paramKey=BASIC_ORG')
+    if (basicOrgRes.success) {
+      url.value = basicOrgRes.data
+      const path =
+        acitveTab.value === 'baseOrg'
+          ? '/appframe-auth-ui/auth/framework/baseOrgTree/getTreeNode'
+          : '/appframe-auth-ui/auth/framework/specialOrgTree/getTreeNode'
+      const appframeUrl = basicOrgRes.data + path
       const params: any = {
-        id: parentId,
-        node: parentId,
+        id: 0,
+        node: 0,
         appframeUrl: appframeUrl,
         fnCode: 'SYSSPROLE'
       }
       if (acitveTab.value === 'baseOrg') {
-        params['treeType'] = 'baseOrgTree'
-        params['treeRoot'] = 'orgRoot'
+        params.treeType = 'baseOrgTree'
+        params.treeRoot = 'orgRoot'
       } else {
-        params['treeType'] = 'specialOrgTree'
-        params['treeRoot'] = 'groupRoot'
-        params['viewType'] = 'sporgType'
+        params.treeType = 'specialOrgTree'
+        params.treeRoot = 'groupRoot'
+        params.viewType = 'sporgType'
       }
-      getAppframeResponse(params)
-        .then((res) => {
-          if (res.success) {
-            resolve(res.data || [])
-          } else {
-            ElMessage.error(res.msg || '获取子节点失败')
-            resolve([])
-          }
-        })
-        .catch((error) => {
-          ElMessage.error('获取子节点失败' + error)
-          resolve([])
-        })
-    }
-
-    const handleShow = () => {
-      getOrgTree()
-    }
-
-    const handleClose = () => {
-      searchForm.qry_nameCode = ''
-      searchForm.qry_id = ''
-      searchForm.qry_name = ''
-      searchForm.onlyChild = ''
-      parentOrgId.value = ''
-      url.value = ''
-      page.total = 0
-      page.limit = 50
-      page.page = 1
-      page.current = '1'
-      selectedUsers.value = []
-      checkedRowKeys.value = []
-      userList.value = []
-      orgTreeData.value = []
-      dialogVisible.value = false
-      emit('update:visible', false)
-      emit('close')
-    }
-
-    const handleConfirm = () => {
-      if (selectedUsers.value.length === 0) {
-        ElMessage.warning('请至少选择一个用户')
-        return
+      const res = await getAppframeResponse(params)
+      if (res.success) {
+        orgTreeData.value = res.data || []
+        if (orgTreeData.value.length > 0) {
+          nextTick(() => {
+            const tree = orgTree.value
+            if (tree) {
+              tree.setCurrentKey(orgTreeData.value[0].id)
+              handleNodeClick(orgTreeData.value[0])
+            }
+          })
+        }
+      } else {
+        ElMessage.error(res.msg || '获取组织树失败')
       }
-      if (!props.multiple && selectedUsers.value.length > 0) {
-        ElMessage.warning('只能选择一个用户')
-        return
-      }
-      emit('confirm', props.multiple ? selectedUsers.value : selectedUsers.value[0])
-      handleClose()
+    } else {
+      ElMessage.error(basicOrgRes.msg || '获取组织树失败')
     }
-
-    expose({
-      dialogVisible
-    })
-
-    return {
-      EpArrowDown,
-      EpRefresh,
-      settingLR,
-      dialogVisible,
-      searchForm,
-      acitveTab,
-      orgTreeData,
-      orgTree,
-      userList,
-      selectedUsers,
-      checkedRowKeys,
-      xTable,
-      refreshTree,
-      handleTreeCommand,
-      loadNode,
-      handleNodeClick,
-      handleSelectionChange,
-      handleSelectAll,
-      handleShow,
-      resetSearch,
-      handleClose,
-      handleSearch,
-      handleConfirm,
-      checkMethod,
-      handleTabClick,
-      page,
-      limitChangeHandle,
-      pageChangeHandle
-    }
+  } catch (error) {
+    console.log('获取组织树出错', error)
   }
+}
+const getUserList = async () => {
+  try {
+    const path = acitveTab.value === 'baseOrg' ? '/appframe-auth-ui/auth/sysUser/list' : '/appframe-auth-ui/auth/sysUser/getUserBySpOrg'
+    const appframeUrl = url.value + path
+    const params: any = {
+      appframeUrl: appframeUrl,
+      start: (page.page - 1) * page.limit,
+      limit: page.limit,
+      qry_userStatus: 1,
+      onlyChild: searchForm.onlyChild,
+      qry_nameCode: searchForm.qry_nameCode,
+      parentOrgId: parentOrgId.value,
+      qry_id: searchForm.qry_id,
+      qry_name: searchForm.qry_name
+    }
+    if (acitveTab.value === 'baseOrg') {
+      params.orgType = 'baseOrg'
+    } else {
+      params.orgType = 'spOrg'
+    }
+    const res = await getAppframeResponse({
+      appframeUrl: appframeUrl,
+      start: (page.page - 1) * page.limit,
+      limit: page.limit,
+      qry_userStatus: 1,
+      onlyChild: searchForm.onlyChild,
+      qry_nameCode: searchForm.qry_nameCode,
+      parentOrgId: parentOrgId.value,
+      qry_id: searchForm.qry_id,
+      qry_name: searchForm.qry_name,
+      orgType: 'baseOrg'
+    })
+    if (res.success) {
+      userList.value = res.data.rows || []
+      page.total = res.data.results || 0
+    } else {
+      ElMessage.error(res.msg || '获取用户列表出错')
+    }
+  } catch (error) {
+    ElMessage.error('获取用户列表出错')
+  }
+}
+const resetSearch = () => {
+  Object.keys(searchForm).forEach((key) => {
+    if (key !== 'orgId') {
+      searchForm[key] = ''
+    }
+  })
+  handleSearch()
+}
+const checkMethod = ({ row }: any) => {
+  if (!props.multiple && selectedUsers.value.length > 0) {
+    return selectedUsers.value.some((item) => item.id === row.id)
+  }
+  return true
+}
+const handleSearch = () => {
+  getUserList()
+}
+const refreshTree = () => {
+  orgTreeData.value = []
+  getOrgTree()
+}
+const handleTreeCommand = (command: string) => {
+  const currentNode = orgTree.value?.getCurrentNode()
+  if (!currentNode) {
+    ElMessage.warning('请选择一个组织节点')
+    return
+  }
+  switch (command) {
+    case 'unitUsers':
+      searchForm.onlyChild = false
+      break
+    case 'currentAndChildren':
+      searchForm.onlyChild = false
+      break
+    case 'currentOnly':
+      searchForm.onlyChild = true
+      break
+    case 'allChildren':
+      searchForm.onlyChild = 'all'
+      break
+  }
+  page.page = 1
+  getUserList()
+}
+const handleTabClick = () => {
+  getOrgTree()
+  getUserList()
+}
+const handleNodeClick = (data: any) => {
+  parentOrgId.value = data.id
+  getUserList()
+}
+const handleSelectionChange = ({ row, checked }: any) => {
+  if (checked) {
+    if (!props.multiple) {
+      selectedUsers.value = [row]
+      checkedRowKeys.value = [row.id]
+    } else {
+      selectedUsers.value.push(row)
+      checkedRowKeys.value.push(row.id)
+    }
+  } else {
+    selectedUsers.value = selectedUsers.value.filter((item) => item.id !== row.id)
+    checkedRowKeys.value = checkedRowKeys.value.filter((id) => id !== row.id)
+  }
+}
+const handleSelectAll = ({ checked, rows }: any) => {
+  if (checked) {
+    if (!props.multiple) {
+      ElMessage.warning('单选模式不能全选')
+      return
+    }
+    selectedUsers.value = [...rows]
+    checkedRowKeys.value = rows.map((row: any) => row.id)
+  } else {
+    selectedUsers.value = []
+    checkedRowKeys.value = []
+  }
+}
+const pageChangeHandle = (currentPageNum: number) => {
+  page.page = currentPageNum
+  getUserList()
+}
+const limitChangeHandle = (currentLimitNum: number) => {
+  page.page = 1
+  page.limit = currentLimitNum
+  getUserList()
+}
+const loadNode = (node: any, resolve: (data: any[]) => void) => {
+  if (node.level === 0) {
+    return resolve(orgTreeData.value)
+  }
+  const parentId = node.data.id
+  const path =
+    acitveTab.value === 'baseOrg'
+      ? '/appframe-auth-ui/auth/framework/baseOrgTree/getTreeNode'
+      : '/appframe-auth-ui/auth/framework/specialOrgTree/getTreeNode'
+  const appframeUrl = url.value + path
+  const params: any = {
+    id: parentId,
+    node: parentId,
+    appframeUrl: appframeUrl,
+    fnCode: 'SYSSPROLE'
+  }
+  if (acitveTab.value === 'baseOrg') {
+    params.treeType = 'baseOrgTree'
+    params.treeRoot = 'orgRoot'
+  } else {
+    params.treeType = 'specialOrgTree'
+    params.treeRoot = 'groupRoot'
+    params.viewType = 'sporgType'
+  }
+  getAppframeResponse(params)
+    .then((res) => {
+      if (res.success) {
+        resolve(res.data || [])
+      } else {
+        ElMessage.error(res.msg || '获取子节点失败')
+        resolve([])
+      }
+    })
+    .catch((error) => {
+      ElMessage.error('获取子节点失败' + error)
+      resolve([])
+    })
+}
+const handleShow = () => {
+  getOrgTree()
+}
+const handleClose = () => {
+  searchForm.qry_nameCode = ''
+  searchForm.qry_id = ''
+  searchForm.qry_name = ''
+  searchForm.onlyChild = ''
+  parentOrgId.value = ''
+  url.value = ''
+  page.total = 0
+  page.limit = 50
+  page.page = 1
+  page.current = '1'
+  selectedUsers.value = []
+  checkedRowKeys.value = []
+  userList.value = []
+  orgTreeData.value = []
+  dialogVisible.value = false
+  emit('update:visible', false)
+  emit('close')
+}
+const handleConfirm = () => {
+  if (selectedUsers.value.length === 0) {
+    ElMessage.warning('请至少选择一个用户')
+    return
+  }
+  if (!props.multiple && selectedUsers.value.length > 0) {
+    ElMessage.warning('只能选择一个用户')
+    return
+  }
+  emit('confirm', props.multiple ? selectedUsers.value : selectedUsers.value[0])
+  handleClose()
+}
+defineExpose({
+  dialogVisible
 })
 </script>
 

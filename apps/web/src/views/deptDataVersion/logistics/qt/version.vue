@@ -37,14 +37,20 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/deptDataVersion/logistics/qt/version" })
 import { onMounted } from 'vue'
-import userDialog from '@/components/select/userDialog.vue' //登陆权限
-import viewTable from '@/views/service/lslxJsc/components/table.vue' //表格组件
-import viewModal from '@/views/service/balanceReporting/components/modal.vue' //新增弹窗组件
+import userDialog from '@/components/select/userDialog.vue'
+import viewTable from '@/views/service/lslxJsc/components/table.vue'
+import viewModal from '@/views/service/balanceReporting/components/modal.vue'
 import { handleTable } from '@/views/deptDataVersion/hooks/version'
-import ProtableCurdModal from '@/views/deptDataVersion/components/index.vue' //填报弹窗组件
+import ProtableCurdModal from '@/views/deptDataVersion/components/index.vue'
 import { tableForm } from '@/views/deptDataVersion/logistics/hooks'
+defineOptions({ name: "/deptDataVersion/logistics/qt/version" })
+
+ //登陆权限
+ //表格组件
+ //新增弹窗组件
+
+ //填报弹窗组件
 
 const { userInfo, protableCurdRef, yjdwList, versionId, userDialogRef, tableRef, modalRef, pageInfo, btnList, tableColumns, clickBtn, pageType, getPage, getRoleHandle, showModal, title, nd } = handleTable('11')
 const { tableRow } = tableForm(userInfo, protableCurdRef, yjdwList)

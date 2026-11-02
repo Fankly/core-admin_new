@@ -1,15 +1,14 @@
-<script lang="ts">
-export default {
-  name: '/statistics/components/MainTable'
-}
-</script>
+
 
 <script setup lang="ts">
-import { computed, defineProps, onMounted, reactive, ref, defineExpose, nextTick, watch } from 'vue'
+import { computed, onMounted, reactive, ref, nextTick, watch } from 'vue'
 import { InitParams } from '@/views/statistics/budgetStatisticsConfig.vue'
 import { VxeColumnPropTypes } from 'vxe-table'
 import { getPublicCodeList, getPublicData } from '@/api/common'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/statistics/components/MainTable'
+})
 
 interface Props {
   mainTableData: any[]
@@ -18,63 +17,63 @@ interface Props {
   showBoldField?: boolean
   clickRowSelect?: boolean
 }
-
 const props = defineProps<Props>()
 
 // 分析报告节点类型、普通分析节点：预算统计配置 / 预算执行分析配置两个页面展示
 const showJdFields = computed(() => Boolean(props.showBoldField || props.showExecutionFields))
-
 const publicList = ref([])
 const bgjdTypeList = ref([])
 const bgjdValueList = ref([])
 const mainTableRef = ref()
 const mainLoading = ref(false)
-
 const statusList = reactive([
-  { label: '是', value: '1' },
-  { label: '否', value: '0' }
+  {
+    label: '是',
+    value: '1'
+  },
+  {
+    label: '否',
+    value: '0'
+  }
 ])
-
 const recList = reactive([
-  { label: '启用', value: '1' },
-  { label: '停用', value: '0' }
+  {
+    label: '启用',
+    value: '1'
+  },
+  {
+    label: '停用',
+    value: '0'
+  }
 ])
-
 const formatterStatus: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
   const item = statusList.find((item: any) => item.value === cellValue)
   return item ? item.label : cellValue
 }
-
 const formatterRrc: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
   const item = recList.find((item: any) => item.value === cellValue)
   return item ? item.label : cellValue
 }
-
 const formatterStatMethod: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
   const item: any = publicList.value.find((item: any) => item.code === cellValue)
   return item ? item.name : cellValue
 }
-
 const formatterBgjdType: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
   const item: any = bgjdTypeList.value.find((item: any) => String(item.code) === String(cellValue))
   return item ? item.name : cellValue
 }
-
 const formatterBgjdValue: VxeColumnPropTypes.Formatter<any> = ({ cellValue }) => {
   const item: any = bgjdValueList.value.find((item: any) => String(item.code) === String(cellValue))
   return item ? item.name : cellValue
 }
-
 const clearCheckboxSelection = async () => {
   await mainTableRef.value?.clearCheckboxRow()
 }
-
 const cellClickHandle = async ({ row, column }: any) => {
   if (!props.clickRowSelect || column.type === 'checkbox') return
   await clearCheckboxSelection()
   await mainTableRef.value?.setCheckboxRow(row, true)
 }
-
 const getPublicDataList = async (code: string) => {
   let res = await getPublicData(code)
   if (res.success && res.data) {
@@ -83,9 +82,10 @@ const getPublicDataList = async (code: string) => {
     ElMessage.error(res.msg)
   }
 }
-
 const getJdTypeDataList = async () => {
-  const res = await getPublicCodeList({ codes: ['YSZXFXBG_JDTYPE', 'YSZXFX_PTJDTYPE'] })
+  const res = await getPublicCodeList({
+    codes: ['YSZXFXBG_JDTYPE', 'YSZXFX_PTJDTYPE']
+  })
   if (res.success && res.data) {
     bgjdTypeList.value = res.data['YSZXFXBG_JDTYPE'] || []
     bgjdValueList.value = res.data['YSZXFX_PTJDTYPE'] || []
@@ -93,18 +93,15 @@ const getJdTypeDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const initParams = () => {
   getPublicDataList('YSTJPZ_TJFS')
   if (showJdFields.value) {
     getJdTypeDataList()
   }
 }
-
 onMounted(() => {
   initParams()
 })
-
 watch(
   () => props.mainTableData,
   async () => {
@@ -113,7 +110,6 @@ watch(
     await clearCheckboxSelection()
   }
 )
-
 defineExpose({
   mainTableRef,
   mainLoading

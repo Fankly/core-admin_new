@@ -34,7 +34,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/lyg/zbxmWcqk/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -46,6 +45,7 @@ import { zbxmWcqkPage, zbxmWcqkRemove, zbxmWcqkExportExcel, zbxmWcqkGetImportTem
 import { getPublicData } from '@/api/common'
 import { apiExportHandle } from '@/utils/export'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({ name: "/lyg/zbxmWcqk/index" })
 
 // ========== 类型定义 ==========
 interface SelectedRow {

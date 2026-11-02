@@ -49,7 +49,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/service/approval/provinceMeetingReport/index" })
 import { nextTick, onMounted, reactive, ref, h, defineAsyncComponent, computed } from 'vue'
 import { tjfxGetPage, tjfxExportPage } from '@/api/service/IhhsMeeting/approval/proviceIhhsMeeting'
 import { getPublicData, getGkbmInProvince, getSubProtypeTree } from '@/api/common'
@@ -69,6 +68,7 @@ import { useReviewModeCode } from '@/hooks/useReviewModeCode'
 import { downloadExportBlob } from '@/views/service/approval/provinceLhhsMeeting/utils/download'
 import { getEjdwList, getYjdwList } from '@/api/ai/smartTaskAudit'
 import ElTreeSelect from '@/components/ElTreeSelect/index'
+defineOptions({ name: "/service/approval/provinceMeetingReport/index" })
 
 interface bmInfoVo {
   name: string

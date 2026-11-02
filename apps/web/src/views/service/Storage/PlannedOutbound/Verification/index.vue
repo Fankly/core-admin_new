@@ -95,11 +95,6 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/Storage/PlannedOutbound/Verification/index'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -110,19 +105,16 @@ import PrimaryTable from '../components/PrimaryTable.vue'
 import ViewAdvice from '../components/ViewAdvice.vue'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
 import { RowVo } from '../interface/index'
-
 import { reactive, ref, onMounted, computed } from 'vue'
-import {
-  getPage,
-  SearchData,
-  viewAdvice,
-  exportData
-} from '@/api/service/Storage/PlannedOutbound/Verification'
+import { getPage, SearchData, viewAdvice, exportData } from '@/api/service/Storage/PlannedOutbound/Verification'
 import { cloneDeep } from 'lodash'
 import { ElMessage } from 'element-plus'
 import { formatValue } from '@/utils/utils'
 import { useProcess } from '@/hooks/useProcess'
 import { getPublicCodeList } from '@/api/common'
+defineOptions({
+  name: '/service/Storage/PlannedOutbound/Verification/index'
+})
 
 const userDialogRef = ref<any>()
 const helpModalRef = ref<InstanceType<typeof HelpModal>>()
@@ -140,24 +132,18 @@ const processData = reactive({
   compName: null,
   id: ''
 })
-
-const disabled = computed(
-  () => formRefs.value.length !== 0 && formRefs.value[globalParams.selTab].gridOptions.loading
-)
+const disabled = computed(() => formRefs.value.length !== 0 && formRefs.value[globalParams.selTab].gridOptions.loading)
 const isSelected = computed(
   () =>
     formRefs.value.length !== 0 &&
     formRefs.value[globalParams.selTab].gridRef &&
-    formRefs.value[globalParams.selTab].gridRef.getCheckboxRecords().filter((item: any) => item.id)
-      .length === 0
+    formRefs.value[globalParams.selTab].gridRef.getCheckboxRecords().filter((item: any) => item.id).length === 0
 )
-
 const setFormRef = (index: any) => (el: any) => {
   if (el) {
     formRefs.value[index] = el
   }
 }
-
 const userInfo = ref<{
   deptId: string
   deptName: string
@@ -169,11 +155,9 @@ const userInfo = ref<{
   dwId: '',
   dwName: ''
 })
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const globalParams = reactive<any>({
   bmId: '',
   dwId: '',
@@ -187,11 +171,9 @@ const globalParams = reactive<any>({
   infoType: '省级统筹项目',
   tabs: []
 })
-
 const changeTabs = (val: string) => {
   getPageData()
 }
-
 const columns = reactive<any>([
   {
     type: 'checkbox',
@@ -320,9 +302,7 @@ const columns = reactive<any>([
     field: 'pfwj'
   }
 ])
-
 const tableData = ref([])
-
 const handleProMsgView = () => {
   const $grid = formRefs.value[globalParams.selTab].gridRef
   if ($grid) {
@@ -338,7 +318,6 @@ const handleProMsgView = () => {
     if (editPageRef.value) editPageRef.value.isShowModal = true
   }
 }
-
 const handleViewAdvice = async () => {
   const $grid = formRefs.value[globalParams.selTab].gridRef
   if ($grid) {
@@ -364,7 +343,6 @@ const handleViewAdvice = async () => {
     }
   }
 }
-
 const handleSubmitData = async (flag: string) => {
   const $grid = formRefs.value[globalParams.selTab].gridRef
   const msg = flag === 'Y' ? '通过' : '驳回'
@@ -396,7 +374,6 @@ const handleSubmitData = async (flag: string) => {
     })
   }
 }
-
 const handleViewProcess = async () => {
   const $grid = formRefs.value[globalParams.selTab].gridRef
   if ($grid) {
@@ -408,7 +385,6 @@ const handleViewProcess = async () => {
     useProcess(records, processData)
   }
 }
-
 const handleExportData = async () => {
   formRefs.value[globalParams.selTab]!.gridOptions.loading = true
   if (searchCriteriaRef.value) {
@@ -445,7 +421,6 @@ const handleExportData = async () => {
     })
   }
 }
-
 const getRoleHandle = async () => {
   try {
     if (userDialogRef.value) {
@@ -477,7 +452,6 @@ const getPageData = async (): Promise<boolean> => {
       if (formRefs.value[globalParams.selTab]) {
         formRefs.value[globalParams.selTab].gridOptions.loading = true
       }
-
       const searchParams = cloneDeep(searchCriteriaRef.value.formData as SearchData)
       if (typeof searchParams['xmbms'] === 'string') {
         if (searchParams['xmbms']) {
@@ -499,7 +473,6 @@ const getPageData = async (): Promise<boolean> => {
       if (res.success && res.data) {
         tableData.value = res.data.records
         globalParams.total = res.data.total
-
         formRefs.value[globalParams.selTab].acceptParams({
           columns: columns,
           data: tableData.value,
@@ -523,7 +496,6 @@ const getPageData = async (): Promise<boolean> => {
     formRefs.value[globalParams.selTab]!.gridOptions.loading = false
   }
 }
-
 const getPublicCodeData = async () => {
   const res = await getPublicCodeList({
     codes: ['XMLB_YSLY']
@@ -532,13 +504,11 @@ const getPublicCodeData = async () => {
     globalParams.tabs = res.data['XMLB_YSLY']
   }
 }
-
 const initData = () => {
   if (userDialogRef.value) {
     userDialogRef.value.getUser()
   }
 }
-
 onMounted(() => {
   getPublicCodeData()
   initData()

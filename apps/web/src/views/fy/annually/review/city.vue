@@ -191,11 +191,6 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/fy/annually/review/city'
-}
-</script>
 
 <script setup lang="ts">
 import FyHeader from '@/views/fy/components/Header.vue'
@@ -204,7 +199,6 @@ import dwbzView from '@/views/fy/components/dwbzView.vue'
 import reviewLayout from '@/views/fy/components/reviewLayout.vue'
 import yskmView from '@/views/fy/components/yskmView.vue'
 import type { TableMsg } from '@/views/fy/prearranged/interface'
-
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
@@ -229,9 +223,11 @@ import { VxeColumnProps } from 'vxe-table'
 import { findPrevNode, formatValue } from '@/utils/utils'
 import { containsNd } from '@/api/fy/common'
 import { getWfTracking } from '@/api/workflow'
+defineOptions({
+  name: '/fy/annually/review/city'
+})
 
 export type ToolButton = ('save' | 'import' | 'export' | 'download' | 'sd' | 'close')[] | boolean
-
 const userDialogRef = ref()
 const treeTableRef = ref()
 const treeNdTableRef = ref()
@@ -240,20 +236,14 @@ const dwbzViewRef = ref()
 const headerRef = ref()
 const toolbarOneRef = ref()
 const toolbarTwoRef = ref()
-
 const isCity = ref(true)
 const isHidenTab = ref(false)
-
 const isDisabled = computed(() => userMsg.loading)
-
 const isWfId = computed(() => userInfo.value && !userInfo.value.wfId)
-
 const isSbDisabled = computed(() => {
   return userInfo.value.status !== '11' || userMsg.loading
 })
-
 const isDiabledSd = computed(() => !(reviewLayoutRef.value.curChangeData?.row, reviewLayoutRef.value.curChangeData?.row.sbStatusbm === '1'))
-
 const userMsg = reactive<any>({
   userData: null,
   specialorgid: '',
@@ -262,16 +252,13 @@ const userMsg = reactive<any>({
   loading: false,
   flag: '1'
 })
-
 const userInfo = ref<any>({
   statusInfo: '',
   status: ''
 })
-
 const reviewMsg = reactive({
   isShowModal: false
 })
-
 const dwMsg = reactive<{
   isShowModal: boolean
   dwId: string
@@ -289,12 +276,10 @@ const dwMsg = reactive<{
   operationFlag: '',
   busiId: ''
 })
-
 const tabMsg = reactive({
   name: '1',
   isDisabled: true
 })
-
 const kmMsg = reactive<{
   isShowModal: boolean
   kmId: any
@@ -304,7 +289,6 @@ const kmMsg = reactive<{
   kmId: [],
   title: '年度审定 - 科目查看'
 })
-
 const tableMsg = reactive<TableMsg>({
   rowConfig: {
     height: 32
@@ -368,7 +352,6 @@ const tableMsg = reactive<TableMsg>({
     }
   }
 })
-
 const openTodoTaskDesc = () => {
   if (userInfo.value.wfId.wfId) {
     const winWidth = screen.width
@@ -386,30 +369,28 @@ const openTodoTaskDesc = () => {
     })
   }
 }
-
 const getUserInfo = async () => {
   let res = await getCurrentPageData('ND', userMsg.flag, tableMsg.nd, userMsg.specialorgid)
   if (res.success) {
     isCity.value = true
-    userInfo.value = { ...res.data }
+    userInfo.value = {
+      ...res.data
+    }
   } else {
     isCity.value = false
     ElMessage.error(res.msg)
   }
 }
-
 const closeDialog = () => {
   reviewMsg.isShowModal = false
   getUserInfo()
 }
-
 const updateTableData = (val: string) => {
   reviewLayoutRef.value.getTableList()
   getUserInfo()
   getTableData()
   if (val === 'sd') closeModalHandle(false, 'dw')
 }
-
 const saveByDwHandle = (params: any) => {
   const records: any[] = dwbzViewRef.value.element.getUpdateRecords()
   const updateRecords = records.filter((item) => !item.leaf && item.id)
@@ -423,7 +404,6 @@ const saveByDwHandle = (params: any) => {
   params.mxList = mxList
   return saveByDw(params)
 }
-
 const linkTable = () => {
   const $table = Number(userMsg.flag) === 1 ? treeTableRef.value : treeNdTableRef.value
   const $toolBar = Number(userMsg.flag) === 1 ? toolbarOneRef.value : toolbarTwoRef.value
@@ -431,11 +411,9 @@ const linkTable = () => {
     $table.connect($toolBar)
   }
 }
-
 const getTableList = (params: any) => {
   return getDwStatus(params)
 }
-
 const isDisabledBtn = ({ props }: any) => {
   userMsg.flag = props.name
   getTableData()
@@ -517,7 +495,6 @@ const exportTableDataHandle = (flag: string) => {
     userMsg.loading = false
   })
 }
-
 const cellClickHandle = async ({ row, columnIndex, column }: any, flag: string) => {
   if (!row.leaf && columnIndex === 0) {
     kmMsg.isShowModal = true
@@ -547,7 +524,6 @@ const headerCellClickHandle = ({ column }: any) => {
     dwMsg.toolButton = ['download', 'close', 'export']
   }
 }
-
 const headerCellStyle = ({ column }: any) => {
   const isColumn = isClickHeader(tableMsg.columns as any[], column.field)
   if (isColumn) {
@@ -565,7 +541,6 @@ const headerCellStyle = ({ column }: any) => {
     lineHeight: '16px'
   }
 }
-
 const cellStyle = ({ row, columnIndex }: any) => {
   if (row.id && !row.leaf && columnIndex === 0) {
     return {
@@ -580,7 +555,6 @@ const cellStyle = ({ row, columnIndex }: any) => {
     color: 'rgb(96, 98, 102)'
   }
 }
-
 const formatterData = ({ column, cellValue }: any) => {
   if (column.field === 'cnx' || column.field === 'name') {
     return cellValue
@@ -596,9 +570,10 @@ const isHideTab = async (dwId: string) => {
     isHidenTab.value = res.data
   }
 }
-
 const getRoleHandle = async () => {
-  userMsg.userData = { ...userDialogRef.value.userMsg }
+  userMsg.userData = {
+    ...userDialogRef.value.userMsg
+  }
   userMsg.dwName = userDialogRef.value.userMsg.org_name
   userMsg.specialorgid = userMsg.userData.org_id
   isHideTab(userMsg.userData.org_id)
@@ -612,7 +587,6 @@ const getRoleHandle = async () => {
     linkTable()
   }
 }
-
 const getTableData = async () => {
   clearTableData()
   userMsg.loading = true
@@ -634,30 +608,25 @@ const getTableData = async () => {
   }
   userMsg.loading = false
 }
-
 const initData = async () => {
   // 调用角色modal
   userDialogRef.value.getUser()
 }
-
 const changeNdHandle = (val: string) => {
   tableMsg.nd = val
   getTableData()
   getUserInfo()
 }
-
 const changeXswsHandle = (val: string) => {
   tableMsg.xsws = val
   getTableData()
   getUserInfo()
 }
-
 const clearTableData = () => {
   if (tableMsg.columns) tableMsg.columns.length = 0
   if (tableMsg.tableData) tableMsg.tableData.length = 0
   if (tableMsg.ndData) tableMsg.ndData.length = 0
 }
-
 const reviewColumns = reactive<VxeColumnProps[]>([
   {
     type: 'seq',
@@ -679,7 +648,6 @@ const reviewColumns = reactive<VxeColumnProps[]>([
     width: 120
   }
 ])
-
 onMounted(initData)
 </script>
 

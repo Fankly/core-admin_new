@@ -34,11 +34,9 @@
     :flag="'VIEW'"
   />
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
-import { ref, reactive, nextTick, defineEmits, defineExpose } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import proTable from '@/components/ProTable/index.vue' //表格组件
 import {
   pageXmInfo,
@@ -51,7 +49,6 @@ import {
 import { formatNumValue } from '@/utils/utils'
 import { ElNotification } from 'element-plus'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
-
 defineProps({
   isCity: {
     type: Boolean,
@@ -70,14 +67,11 @@ const userInfo = ref<any>() // 用户角色
 // 列表查询
 const pageMeeting = (params: any) => {
   loading.value = true
-
-  const api: any =
-    formData.value.isClick == '2'
-      ? pageXmInfo
-      : formData.value.isClick == '3'
-      ? pageXmInfoByYssxForCard
-      : pageXmInfoByYssx
-  params = { ...params, ...formData.value }
+  const api: any = formData.value.isClick == '2' ? pageXmInfo : formData.value.isClick == '3' ? pageXmInfoByYssxForCard : pageXmInfoByYssx
+  params = {
+    ...params,
+    ...formData.value
+  }
   return api(params)
 }
 // 数据回调
@@ -107,11 +101,7 @@ const handleExport = (val: any) => {
     duration: 3000
   })
   const api: any =
-    formData.value.isClick == '2'
-      ? exportXmInfo
-      : formData.value.isClick == '3'
-      ? exportXmInfoByYssxForCard
-      : exportXmInfoByYssx
+    formData.value.isClick == '2' ? exportXmInfo : formData.value.isClick == '3' ? exportXmInfoByYssxForCard : exportXmInfoByYssx
   api(formData.value).then((res: any) => {
     const blob = res
     let dom = document.createElement('a')
@@ -127,19 +117,58 @@ const handleExport = (val: any) => {
   })
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', label: '序号', width: '50' },
-  { prop: 'flowStatus', label: '流程状态', width: '180' },
-  { prop: 'jhssnd', label: '计划实施年度', width: '120' },
-  { prop: 'xmbm', label: '项目编码', width: '180' },
-  { prop: 'xmmc', label: '项目名称', width: '280' },
-  { prop: 'sfgmb', label: '是否规模包', width: '100' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: '50'
+  },
+  {
+    prop: 'flowStatus',
+    label: '流程状态',
+    width: '180'
+  },
+  {
+    prop: 'jhssnd',
+    label: '计划实施年度',
+    width: '120'
+  },
+  {
+    prop: 'xmbm',
+    label: '项目编码',
+    width: '180'
+  },
+  {
+    prop: 'xmmc',
+    label: '项目名称',
+    width: '280'
+  },
+  {
+    prop: 'sfgmb',
+    label: '是否规模包',
+    width: '100'
+  },
   // { prop: "gmbbm", label: "规模包编码", width: "180" },
   // { prop: "gmbmc", label: "规模包名称", width: "200" },
   // { prop: "isPackName", label: "是否打捆项目", width: "100" },
-  { prop: 'proTypeName', label: '项目类型', width: '200' },
-  { prop: 'yjdw', label: '一级单位', width: '280' },
-  { prop: 'ejdw', label: '二级单位', width: '280' },
+  {
+    prop: 'proTypeName',
+    label: '项目类型',
+    width: '200'
+  },
+  {
+    prop: 'yjdw',
+    label: '一级单位',
+    width: '280'
+  },
+  {
+    prop: 'ejdw',
+    label: '二级单位',
+    width: '280'
+  },
   // { prop: "apply_center", label: "成本中心", width: "280" },
   {
     prop: 'amount',
@@ -154,13 +183,29 @@ const tableColumns = reactive<any>([
     }
   },
   // { prop: "jhssnd", label: "计划实施年份", width: "140" },
-  { prop: 'zdtx', label: '重点投向', width: '180' },
-  { prop: 'zgkbm', label: '省归口部门', width: '180' },
-  { prop: 'yssxmc', label: '预算事项名称', width: '200' },
+  {
+    prop: 'zdtx',
+    label: '重点投向',
+    width: '180'
+  },
+  {
+    prop: 'zgkbm',
+    label: '省归口部门',
+    width: '180'
+  },
+  {
+    prop: 'yssxmc',
+    label: '预算事项名称',
+    width: '200'
+  },
   // { prop: "yssx_remark", label: "预算事项说明", width: "280" },
   // { prop: "yjfl", label: "一级分类", width: "140" },
   // { prop: "ejfl", label: "二级分类", width: "140" },
-  { prop: 'sjfl', label: '三级分类', width: '140' }
+  {
+    prop: 'sjfl',
+    label: '三级分类',
+    width: '140'
+  }
   // { prop: "ssbm", label: "实施部门", width: "180" },
   // { prop: "xmssr", label: "项目实施人", width: "180" },
   // { prop: "zyfjftrtjfw", label: "研发投入统计范围", width: "180" },

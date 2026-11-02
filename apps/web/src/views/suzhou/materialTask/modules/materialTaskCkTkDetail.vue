@@ -20,11 +20,11 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialTaskCkTkDetail" })
 import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { VxeGridProps } from 'vxe-table'
 import { getCkTkDetail } from '@/api/suzhou/materialTask'
+defineOptions({ name: "materialTaskCkTkDetail" })
 
 interface CkTkDetailRow {
   pspid?: string

@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits, defineProps, onBeforeUnmount, ref, defineExpose } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from '@/store/business'
 
@@ -64,7 +64,6 @@ interface StepAction {
   url: string
   outsideMenu: string
 }
-
 interface Step {
   appId: string
   appName: string
@@ -73,16 +72,13 @@ interface Step {
   menus: StepAction[]
   userInfo: any
 }
-
 const props = defineProps<{
   step: Step
 }>()
 
 // Emits定义
 const emit = defineEmits(['action-click'])
-
 const userInfo = ref<any>({})
-
 const store = useStore()
 
 // 获取路由实例
@@ -111,12 +107,13 @@ const hideDropdown = () => {
 
 // 处理操作点击
 const handleActionClick = async (action: StepAction) => {
-
   // 如果有URL，进行页面跳转
   if (action.url) {
     router.push({
       name: action.url,
-      params: { formJsc: '1' }
+      params: {
+        formJsc: '1'
+      }
     })
   } else {
     // 否则触发事件给父组件处理
@@ -130,7 +127,6 @@ onBeforeUnmount(() => {
     clearTimeout(hideTimeout.value)
   }
 })
-
 defineExpose({
   userInfo
 })

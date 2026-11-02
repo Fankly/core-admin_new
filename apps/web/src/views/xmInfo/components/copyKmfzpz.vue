@@ -19,66 +19,57 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "copyKmfzpz"
-};
-</script>
+
 <script setup lang="ts">
-import { copyData } from "@/api/xmInfo/kmfzpz";
-import { ElMessage } from "element-plus";
-import { defineProps, ref, defineEmits, defineExpose, reactive } from "vue";
+import { copyData } from '@/api/xmInfo/kmfzpz'
+import { ElMessage } from 'element-plus'
+import { ref, reactive } from 'vue'
+defineOptions({
+  name: 'copyKmfzpz'
+})
 
 interface NdList {
-  yearName: string;
-  yearCode: string;
+  yearName: string
+  yearCode: string
 }
-
 interface Props {
-  nd: string;
-  ndList: NdList[];
+  nd: string
+  ndList: NdList[]
 }
-
-const props = defineProps<Props>();
-const emit = defineEmits(["close", "copy"]);
-
-const showModal = ref(false);
-const loading = ref(false);
-const modalTitle = ref("预算科目-复制");
-
+const props = defineProps<Props>()
+const emit = defineEmits(['close', 'copy'])
+const showModal = ref(false)
+const loading = ref(false)
+const modalTitle = ref('预算科目-复制')
 const formData = reactive({
-  sourceNd: "",
-  targetNd: ""
-});
-
+  sourceNd: '',
+  targetNd: ''
+})
 const saveHandle = async () => {
-  let res = await copyData(formData);
+  let res = await copyData(formData)
   if (res.success) {
-    ElMessage.success("复制成功！");
-    emit("copy");
-    cancelHandle();
+    ElMessage.success('复制成功！')
+    emit('copy')
+    cancelHandle()
   } else {
-    ElMessage.error(res.msg);
+    ElMessage.error(res.msg)
   }
-};
-
+}
 const cancelHandle = () => {
-  formData.sourceNd = "";
-  formData.targetNd = "";
-  closeHandle();
-};
-
+  formData.sourceNd = ''
+  formData.targetNd = ''
+  closeHandle()
+}
 const showHandle = async () => {
-  formData.targetNd = props.nd;
-};
+  formData.targetNd = props.nd
+}
 const closeHandle = () => {
-  showModal.value = false;
-  emit("close", showModal.value);
-};
-
+  showModal.value = false
+  emit('close', showModal.value)
+}
 defineExpose({
   showModal
-});
+})
 </script>
 
 <style scoped>

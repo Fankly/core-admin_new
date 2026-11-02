@@ -19,18 +19,19 @@
   </vxe-modal>
   <UserManager :special-org-id="modalParam?.specialorgid" v-model="dialogVisible" ref="userManagerRef" @close="getGkbmEnum" />
 </template>
-<script lang="tsx">
-export default {
-  name: 'todoModal'
-}
-</script>
+
 <script setup lang="tsx">
 import { ref, reactive, nextTick } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
 import UserManager from '@/views/service/deptData/components/UserManager.vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
-import { ElMessage } from 'element-plus'
+import proTable from '@/components/ProTable/index.vue'
 import { sendNotify, listGroupByDept } from '@/api/service/deptData/index'
+defineOptions({
+  name: 'todoModal'
+})
+
+ //表格组件
+
 const proTableRef = ref()
 const isShowModel = ref(false)
 const dialogVisible = ref(false)
@@ -43,7 +44,6 @@ const handerClickTable = async (val: any) => {
     proTableRef.value?.element.toggleRowSelection(val)
   })
 }
-
 const sendDb = async (selectedList: any) => {
   const deptIds = selectedList.map(({ deptId }: any) => deptId)
   const handlerUserIds = selectedList.map(({ userId }: any) => userId)
@@ -71,7 +71,6 @@ const sendDb = async (selectedList: any) => {
       console.log(error)
     })
 }
-
 const getGkbmEnum = async () => {
   if (modalParam.value.specialorgid) {
     deptList.value.length = 0
@@ -82,27 +81,38 @@ const getGkbmEnum = async () => {
     deptList.value = record.data
   }
 }
-
 const seetingPerson = () => {
   dialogVisible.value = true
 }
-
 const closeHandle = () => {
   isShowModel.value = false
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', label: '序号', width: 50 },
-  { prop: 'deptName', label: '归口部门' },
-  { prop: 'username', label: '推送人员' }
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    label: '序号',
+    width: 50
+  },
+  {
+    prop: 'deptName',
+    label: '归口部门'
+  },
+  {
+    prop: 'username',
+    label: '推送人员'
+  }
 ])
-
 const acceptParams = (param: any) => {
   isShowModel.value = true
-  modalParam.value = { ...param }
+  modalParam.value = {
+    ...param
+  }
   getGkbmEnum()
 }
-
 defineExpose({
   acceptParams
 })

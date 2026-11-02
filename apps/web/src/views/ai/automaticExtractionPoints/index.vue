@@ -51,15 +51,10 @@
   <UserRoleSelector ref="userRoleSelectorRef" @loadCompany="getRoleHandle" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/ai/automaticExtractionPoints/index'
-}
-</script>
 
 <script setup lang="ts">
+import './styles.css';
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
 import { computed, nextTick, onMounted, provide, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
@@ -87,9 +82,11 @@ import ConfirmModal from './components/ConfirmModal.vue'
 import ExtractModal from './components/ExtractModal.vue'
 import KnowledgeListModal from './components/KnowledgeListModal.vue'
 import previewModal from '@/views/sys/fileShare/components/previewModal/index.vue'
-import './styles.css'
 import { CardDrillType, ConfirmPreviewFile, FileFilters, KnowledgeFilters, KnowledgeListQuery, LegendDrillPayload, ListTab } from './types'
 import { usePointSourceDict } from './hooks/usePointSourceDict'
+defineOptions({
+  name: '/ai/automaticExtractionPoints/index'
+})
 
 /** 当前页签 */
 const activeTab = ref<ListTab>('file')
@@ -102,7 +99,11 @@ const pageSize = ref(20)
 const loading = ref(false)
 
 /** 文件列表筛选 */
-const fileFilter = ref<FileFilters>({ attachName: '', fwYear: '', fwbm: '' })
+const fileFilter = ref<FileFilters>({
+  attachName: '',
+  fwYear: '',
+  fwbm: ''
+})
 /** 知识管理筛选 */
 const knowledgeFilter = ref<KnowledgeFilters>({
   sourceFile: '',
@@ -114,7 +115,6 @@ const knowledgeFilter = ref<KnowledgeFilters>({
   isSolidify: '',
   isImplement: ''
 })
-
 const listPanelRef = ref<InstanceType<typeof ListPanel>>()
 const previewModalRef = ref()
 /** 页面权限：多角色选择弹窗 */
@@ -264,7 +264,6 @@ const handlePageChange = (current: number): void => {
   page.value = current
   reloadAll()
 }
-
 const handlePageSizeChange = (size: number): void => {
   pageSize.value = size
   page.value = 1
@@ -276,12 +275,14 @@ const handleRefresh = (): void => {
   page.value = 1
   reloadAll()
 }
-
 const resetFileFilter = (): void => {
-  fileFilter.value = { attachName: '', fwYear: '', fwbm: '' }
+  fileFilter.value = {
+    attachName: '',
+    fwYear: '',
+    fwbm: ''
+  }
   page.value = 1
 }
-
 const resetKnowledgeFilter = (): void => {
   knowledgeFilter.value = {
     sourceFile: '',
@@ -323,12 +324,18 @@ const handleCardDrilldown = (type: CardDrillType): void => {
   } else if (type === 'translate') {
     switchTab('knowledge')
     resetKnowledgeFilter()
-    knowledgeFilter.value = { ...knowledgeFilter.value, isConfirm: '1' }
+    knowledgeFilter.value = {
+      ...knowledgeFilter.value,
+      isConfirm: '1'
+    }
     loadPointPage()
   } else {
     switchTab('knowledge')
     resetKnowledgeFilter()
-    knowledgeFilter.value = { ...knowledgeFilter.value, isSolidify: '1' }
+    knowledgeFilter.value = {
+      ...knowledgeFilter.value,
+      isSolidify: '1'
+    }
     loadPointPage()
   }
   scrollToList()
@@ -339,12 +346,19 @@ const handleLegendDrilldown = (payload: LegendDrillPayload): void => {
   if (payload.tab === 'file') {
     switchTab('file')
     resetFileFilter()
-    fileFilter.value = { ...fileFilter.value, fwbm: payload.value }
+    fileFilter.value = {
+      ...fileFilter.value,
+      fwbm: payload.value
+    }
     loadFilePage()
   } else {
     switchTab('knowledge')
     resetKnowledgeFilter()
-    knowledgeFilter.value = { ...knowledgeFilter.value, ...payload.extra, [payload.field]: payload.value }
+    knowledgeFilter.value = {
+      ...knowledgeFilter.value,
+      ...payload.extra,
+      [payload.field]: payload.value
+    }
     loadPointPage()
   }
   scrollToList()
@@ -353,15 +367,16 @@ const handleLegendDrilldown = (payload: LegendDrillPayload): void => {
 /** 列表滚动到可视区域（与设计稿一致） */
 const scrollToList = (): void => {
   const el = document.querySelector('.aep-panel')
-  el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  el?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  })
 }
-
 const toggleFullscreen = (): void => {
   isFullscreen.value = !isFullscreen.value
   page.value = 1
   reloadAll()
 }
-
 const handleOpenExtract = (): void => {
   extractVisible.value = true
 }
@@ -389,7 +404,9 @@ const handleStartExtract = async (attachIds: Array<string | number>): Promise<vo
     return
   }
   try {
-    const res = await startExtractApi({ attachIds })
+    const res = await startExtractApi({
+      attachIds
+    })
     // http 层只透传响应，业务失败（success=false）要在这里拦下，否则会把失败当成功
     if (!res?.success) {
       ElMessage.error(res?.msg || '提交提取失败')
@@ -524,7 +541,15 @@ const handleApplyClick = (): void => {
 /** 导出：按当前页签导出对应列表（文件列表 / 知识管理） */
 const handleExport = (): void => {
   const isFile = activeTab.value === 'file'
-  const params = compactParams(isFile ? { ...fileFilter.value } : { ...knowledgeFilter.value })
+  const params = compactParams(
+    isFile
+      ? {
+          ...fileFilter.value
+        }
+      : {
+          ...knowledgeFilter.value
+        }
+  )
   apiExportHandle(params, isFile ? '审核要点-文件列表' : '审核要点-知识管理', isFile ? exportFile : exportPoint).catch(() => {
     ElMessage.error('导出失败，请稍后重试')
   })
@@ -610,7 +635,10 @@ const handlePreviewFile = (row: KnowledgeFileVO): void => {
     ElMessage.warning('该文件缺少预览标识，无法预览')
     return
   }
-  previewModalRef.value?.acceptParams({ uuid: row.uuid, attachName: row.attachName })
+  previewModalRef.value?.acceptParams({
+    uuid: row.uuid,
+    attachName: row.attachName
+  })
 }
 
 /** 文件下载：与「文件共享」页一致，走 downloadAttach 文件流 */
@@ -620,7 +648,14 @@ const handleDownloadFile = (row: KnowledgeFileVO): void => {
     return
   }
   const fileName = row.attachName || ''
-  apiExporFile({ uuid: row.uuid, fileName }, fileName, downloadAttach)
+  apiExporFile(
+    {
+      uuid: row.uuid,
+      fileName
+    },
+    fileName,
+    downloadAttach
+  )
 }
 
 /** 点击文件行的计数药丸：带上该行文件与对应列的条件打开知识列表 */
@@ -641,7 +676,6 @@ const getRoleHandle = async (): Promise<void> => {
   // 知识管理页签的数据也先取一次，避免切页签时空白
   loadPointPage()
 }
-
 onMounted(() => {
   userRoleSelectorRef.value?.getUser()
 })

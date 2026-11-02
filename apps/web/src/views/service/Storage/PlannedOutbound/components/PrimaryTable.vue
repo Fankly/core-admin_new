@@ -19,36 +19,31 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: "PrimaryTable"
-};
-</script>
 
-<script lang="ts" setup>
-import { defineExpose, reactive, ref } from "vue";
-import { RowVo } from "../interface/index";
-import { VxeGridProps } from "vxe-table";
+<script setup lang="ts">
+import { reactive, ref } from 'vue'
+import { RowVo } from '../interface/index'
+import { VxeGridProps } from 'vxe-table'
+defineOptions({
+  name: 'PrimaryTable'
+})
 
 interface InitParams {
-  columns: any;
-  data: RowVo[];
-  page: number;
-  limit: number;
-  total: number;
-  getTableList?: () => void;
+  columns: any
+  data: RowVo[]
+  page: number
+  limit: number
+  total: number
+  getTableList?: () => void
 }
-
-const gridRef = ref();
-
+const gridRef = ref()
 const tableProps = ref<InitParams>({
   columns: [],
   data: [],
   page: 1,
   limit: 20,
   total: 0
-});
-
+})
 const gridOptions = reactive<VxeGridProps<RowVo>>({
   border: true,
   showOverflow: true,
@@ -57,56 +52,52 @@ const gridOptions = reactive<VxeGridProps<RowVo>>({
     height: 32
   },
   checkboxConfig: {
-    trigger: "row",
+    trigger: 'row',
     highlight: true,
     visibleMethod({ row }: any) {
-      return row["id"];
+      return row['id']
     }
   },
   rowStyle: ({ row }: any) => {
-    if (!row["id"] && row["xmbm"] === "合计") {
+    if (!row['id'] && row['xmbm'] === '合计') {
       return {
-        fontWeight: "bold",
-        color: "#303133",
-        backgroundColor: "#f8f8f9"
-      };
+        fontWeight: 'bold',
+        color: '#303133',
+        backgroundColor: '#f8f8f9'
+      }
     }
   },
-  height: "100%",
+  height: '100%',
   columnConfig: {
     resizable: true
   }
-});
-
+})
 const pageChangeHandle = (currentPageNum: number) => {
-  tableProps.value.page = currentPageNum;
-  tableProps.value.getTableList?.();
-};
+  tableProps.value.page = currentPageNum
+  tableProps.value.getTableList?.()
+}
 const limitChangeHandle = (currentLimitNum: number) => {
-  tableProps.value.page = 1;
-  tableProps.value.limit = currentLimitNum;
-  tableProps.value.getTableList?.();
-};
-
+  tableProps.value.page = 1
+  tableProps.value.limit = currentLimitNum
+  tableProps.value.getTableList?.()
+}
 const acceptParams = (initParams: InitParams) => {
-  tableProps.value = initParams;
+  tableProps.value = initParams
   gridOptions.columns = initParams.columns.map((column: any) => {
     return {
       ...column,
-      align: column.align ? column.align : "center",
-      headerAlign: "center",
-      width: column.width ? column.width : "160"
-    };
-  });
-
-  gridOptions.data = initParams.data;
-};
-
+      align: column.align ? column.align : 'center',
+      headerAlign: 'center',
+      width: column.width ? column.width : '160'
+    }
+  })
+  gridOptions.data = initParams.data
+}
 defineExpose({
   gridRef,
   acceptParams,
   gridOptions
-});
+})
 </script>
 
 <style scoped lang="less">

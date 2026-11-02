@@ -37,22 +37,19 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/statistics/budgetExecutionAnalysis/components/IndicatorRelationDialog'
-}
-</script>
 
 <script setup lang="ts">
 import { getPublicCodeList } from '@/api/common'
 import { getIndicatorCodeByBusiType, updateIndicator } from '@/api/statistics/budgetStatisticsConfig'
 import { ElMessage } from 'element-plus'
-import { defineExpose, defineProps, ref } from 'vue'
+import { ref } from 'vue'
+defineOptions({
+  name: '/statistics/budgetExecutionAnalysis/components/IndicatorRelationDialog'
+})
 
 interface Props {
   busiType: string
 }
-
 interface IndicatorItem {
   code: string
   name: string
@@ -62,15 +59,12 @@ interface IndicatorItem {
   unicode?: string
   [key: string]: any
 }
-
 const props = defineProps<Props>()
-
 const showModal = ref(false)
 const loading = ref(false)
 const indicatorList = ref<IndicatorItem[]>([])
 const selectedCodes = ref<string[]>([])
 const selectedIndicators = ref<IndicatorItem[]>([])
-
 const normalizeIndicatorCodes = (data: any): string[] => {
   if (Array.isArray(data)) {
     return Array.from(
@@ -105,7 +99,6 @@ const normalizeIndicatorCodes = (data: any): string[] => {
   }
   return []
 }
-
 const normalizeIndicatorItems = (data: any): IndicatorItem[] => {
   if (Array.isArray(data)) {
     return data.filter((item): item is IndicatorItem => !!item && typeof item === 'object' && !!item.code)
@@ -120,13 +113,11 @@ const normalizeIndicatorItems = (data: any): IndicatorItem[] => {
   }
   return []
 }
-
 const resetState = () => {
   indicatorList.value = []
   selectedCodes.value = []
   selectedIndicators.value = []
 }
-
 const loadIndicatorData = async () => {
   if (!props.busiType) {
     resetState()
@@ -161,7 +152,6 @@ const loadIndicatorData = async () => {
     loading.value = false
   }
 }
-
 const showHandle = async () => {
   if (!props.busiType) {
     showModal.value = false
@@ -170,19 +160,15 @@ const showHandle = async () => {
   }
   await loadIndicatorData()
 }
-
 const closeHandle = () => {
   showModal.value = false
 }
-
 const selectAllHandle = () => {
   selectedCodes.value = indicatorList.value.map((item) => item.code)
 }
-
 const clearSelectedHandle = () => {
   selectedCodes.value = []
 }
-
 const saveHandle = async () => {
   if (!props.busiType) {
     ElMessage.warning('请先选择展示维度！')
@@ -227,7 +213,6 @@ const saveHandle = async () => {
     loading.value = false
   }
 }
-
 defineExpose({
   showModal
 })

@@ -21,59 +21,51 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "dwbzView"
-};
-</script>
+
 <script setup lang="ts">
-import { reactive, ref, withDefaults, defineProps, defineEmits, toRef } from "vue";
-import { KmDataMsg, TableMsg } from "../../interface";
-import { ElMessage } from "element-plus";
-import { getYskmTree } from "@/api/common";
-import { formatValue } from "@/utils/utils";
+import { reactive, ref, toRef } from 'vue'
+import { KmDataMsg, TableMsg } from '../../interface'
+import { ElMessage } from 'element-plus'
+import { getYskmTree } from '@/api/common'
+import { formatValue } from '@/utils/utils'
+defineOptions({
+  name: 'dwbzView'
+})
 
 export interface ModalProps {
-  isShowModal: boolean;
-  kmId: number[];
-  nd: string;
-  specialorgid: string;
-  kmlx: string;
-  flag: string;
-  tableApi: (params: any) => Promise<any>;
-  headerApi: (params: any) => Promise<any>;
-  exportApi?: (params: any) => Promise<any>;
-  title: string;
-  busiType: string;
-  xsws: string;
+  isShowModal: boolean
+  kmId: number[]
+  nd: string
+  specialorgid: string
+  kmlx: string
+  flag: string
+  tableApi: (params: any) => Promise<any>
+  headerApi: (params: any) => Promise<any>
+  exportApi?: (params: any) => Promise<any>
+  title: string
+  busiType: string
+  xsws: string
 }
-
-const treeTableRef = ref();
-
+const treeTableRef = ref()
 const props = withDefaults(defineProps<ModalProps>(), {
   isShowModal: false,
   nd: new Date().getFullYear().toString(),
-  specialorgid: ""
-});
-
-const showModal = toRef(props, "isShowModal");
-
-const emit = defineEmits(["closeDialog", "updateTable"]);
-
-const loading = ref(false);
-
+  specialorgid: ''
+})
+const showModal = toRef(props, 'isShowModal')
+const emit = defineEmits(['closeDialog', 'updateTable'])
+const loading = ref(false)
 const kmMsg = reactive<KmDataMsg>({
   kmId: [],
   kmList: []
-});
-
+})
 const yskmProps = reactive({
   lazy: true,
-  leaf: "leaf",
+  leaf: 'leaf',
   async lazyLoad(node: any, resolve: any) {
-    let id = node.level === 0 ? "-1" : node.data.value;
-    let nd = tableMsg.nd ? tableMsg.nd : props.nd;
-    let res = await getYskmTree(props.kmlx, nd, id, tableMsg.xsws);
+    let id = node.level === 0 ? '-1' : node.data.value
+    let nd = tableMsg.nd ? tableMsg.nd : props.nd
+    let res = await getYskmTree(props.kmlx, nd, id, tableMsg.xsws)
     if (res.success) {
       const nodes = res.data.map((item: any) => {
         return {
@@ -82,64 +74,57 @@ const yskmProps = reactive({
           leaf: item.leaf,
           parentId: item.pid,
           busiType: props.busiType
-        };
-      });
-      resolve(nodes);
+        }
+      })
+      resolve(nodes)
     } else {
-      ElMessage.error(res.msg);
-      resolve([]);
+      ElMessage.error(res.msg)
+      resolve([])
     }
   }
-});
-
+})
 const getTableDataHandle = (val: any[]) => {
   if (val.length !== 0) {
-    changeDwHandle(val);
+    changeDwHandle(val)
   }
-};
-
+}
 const tableMsg = reactive<TableMsg>({
-  xsws: "",
+  xsws: '',
   rowConfig: {
     height: 32
   },
   tableData: [],
-  nd: "",
+  nd: '',
   columns: []
-});
-
+})
 const formatterData = ({ column, cellValue }: any) => {
-  const fields = ["cbzxName", "dwName", "yj", "js"];
-  if (fields.includes(column.field)) return cellValue;
-  if (typeof cellValue === "undefined" || cellValue === null || cellValue === "") return "-";
-  return formatValue(cellValue, Number(tableMsg.xsws));
-};
-
+  const fields = ['cbzxName', 'dwName', 'yj', 'js']
+  if (fields.includes(column.field)) return cellValue
+  if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
+  return formatValue(cellValue, Number(tableMsg.xsws))
+}
 const showHandle = () => {
-  kmMsg.kmId = props.kmId;
-  tableMsg.nd = props.nd;
-  tableMsg.xsws = props.xsws || "2";
-  initTableData();
-};
-
+  kmMsg.kmId = props.kmId
+  tableMsg.nd = props.nd
+  tableMsg.xsws = props.xsws || '2'
+  initTableData()
+}
 const changeDwHandle = async (val: any) => {
-  kmMsg.kmId = val;
-  initTableData();
-};
-
+  kmMsg.kmId = val
+  initTableData()
+}
 const headerCellStyle = () => {
   return {
-    padding: "8px 0",
-    lineHeight: "16px"
-  };
-};
-
+    padding: '8px 0',
+    lineHeight: '16px'
+  }
+}
 const initTableData = async () => {
-  loading.value = true;
-  let kmId = kmMsg.kmId[kmMsg.kmId.length - 1];
-  let api = props.tableApi;
-  let headerApi = props.headerApi;
-  if (!api && !headerApi) return;
+  loading.value = true
+  let kmId = kmMsg.kmId[kmMsg.kmId.length - 1]
+  let api = props.tableApi
+  let headerApi = props.headerApi
+  if (!api && !headerApi) return
   try {
     let params = {
       kmId: kmId,
@@ -149,23 +134,23 @@ const initTableData = async () => {
       specialorgid: props.specialorgid,
       dwId: props.specialorgid,
       busiType: props.busiType
-    };
-    let tableData = await api(params);
-    let headerData = await headerApi(params);
-    tableMsg.tableData = tableData.data;
-    tableMsg.columns = headerData.data.filter((item: any) => !item.hidden);
-    loading.value = false;
+    }
+    let tableData = await api(params)
+    let headerData = await headerApi(params)
+    tableMsg.tableData = tableData.data
+    tableMsg.columns = headerData.data.filter((item: any) => !item.hidden)
+    loading.value = false
   } catch (error) {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 // 导出
 const exportHandle = async () => {
-  loading.value = true;
-  let kmId = kmMsg.kmId[kmMsg.kmId.length - 1];
-  let api = props.exportApi;
-  if (!api) return;
+  loading.value = true
+  let kmId = kmMsg.kmId[kmMsg.kmId.length - 1]
+  let api = props.exportApi
+  if (!api) return
   let params = {
     kmId: kmId,
     kmlx: props.kmlx,
@@ -174,28 +159,27 @@ const exportHandle = async () => {
     dwId: props.specialorgid,
     busiType: props.busiType,
     xsws: tableMsg.xsws
-  };
+  }
   api(params).then((res: any) => {
-    const blob = res;
-    let dom = document.createElement("a");
-    let url = window.URL.createObjectURL(blob);
-    dom.href = url;
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
     // 获取文件名
-    let filename = res.headers["content-disposition"].split(";")[1].split("=")[1];
-    dom.download = `${decodeURI(decodeURI(filename))}`;
-    document.body.appendChild(dom);
-    dom.click();
-    document.body.removeChild(dom);
-    window.URL.revokeObjectURL(url);
-    loading.value = false;
-  });
-};
-
+    let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
+    dom.download = `${decodeURI(decodeURI(filename))}`
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+    loading.value = false
+  })
+}
 const closeHandle = () => {
   // 重置数据
-  if (tableMsg.tableData) tableMsg.tableData.length = 0;
-  emit("closeDialog", !props.isShowModal);
-};
+  if (tableMsg.tableData) tableMsg.tableData.length = 0
+  emit('closeDialog', !props.isShowModal)
+}
 </script>
 
 <style lang="less" scoped>

@@ -139,11 +139,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ProjectScale" })
 import { ref, reactive, onMounted } from 'vue'
 import VXETable from 'vxe-table'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
+defineOptions({ name: "ProjectScale" })
+
 interface Props {
   selectData: any
   globalParams: any

@@ -159,11 +159,7 @@
   ></component>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'RequirementCartWorkbench'
-}
-</script>
+
 <script setup lang="ts">
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import DynamicReports from '@/components/DynamicReports/index.vue'
@@ -175,6 +171,9 @@ import Matter from '@/views/service/xq/components/Matter.vue'
 import QueryProTypeModal from '@/views/service/xq/components/QueryProTypeModal.vue'
 import { useRequirementCartWorkbench } from '@/views/service/xq/composables/useRequirementCartWorkbench'
 import { computed } from 'vue'
+defineOptions({
+  name: 'RequirementCartWorkbench'
+})
 
 const props = defineProps({
   userInfo: {
@@ -186,11 +185,8 @@ const props = defineProps({
     default: false
   }
 })
-
 const emit = defineEmits(['help', 'reloaded'])
-
 const submitLevel = computed(() => props.userInfo?.fqzzFlag)
-
 const {
   activeName,
   backHandle,
@@ -238,16 +234,13 @@ const {
   userInfo: computed(() => props.userInfo),
   submitLevel
 })
-
 const reloadAfterSetting = async () => {
   await reload()
   emit('reloaded')
 }
-
 const gridCellClickHandle = ({ row, column }: any, selectedGrid: string) => {
   cellClickHandle(row, column, selectedGrid)
 }
-
 defineExpose({
   loading,
   reload

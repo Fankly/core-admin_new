@@ -4,66 +4,67 @@
   </el-select>
 </template>
 
-<script>
-import { defineComponent, reactive } from "vue";
-import { ElMessage } from "element-plus";
-export default defineComponent({
-  setup() {
-    return reactive({
-      value: "",
-      options: [
-        {
-          value: "项目已立项",
-          label: "项目已立项"
-        },
-        {
-          value: "需求招标中",
-          label: "需求招标中"
-        },
-        {
-          value: "合同签订中",
-          label: "合同签订中"
-        },
-        {
-          value: "合同已签订",
-          label: "合同已签订"
-        },
-        {
-          value: "项目实施中",
-          label: "项目实施中"
-        },
-        {
-          value: "项目已竣工",
-          label: "项目已竣工"
-        },
-        {
-          value: "项目送审中",
-          label: "项目送审中"
-        },
-        {
-          value: "项目审计中",
-          label: "项目审计中"
-        },
-        {
-          value: "项目已审定",
-          label: "项目已审定"
-        },
-        {
-          value: "项目增资中",
-          label: "项目增资中"
-        },
-        {
-          value: "项目已关闭",
-          label: "项目已关闭"
-        },
-      ]
-    });
-  },
-  methods: {
-    clear() {
-      this.value = "";
+<script setup>
+import { reactive, toRef } from 'vue'
+import { ElMessage } from 'element-plus'
+const setupState = reactive({
+  value: '',
+  options: [
+    {
+      value: '项目已立项',
+      label: '项目已立项'
+    },
+    {
+      value: '需求招标中',
+      label: '需求招标中'
+    },
+    {
+      value: '合同签订中',
+      label: '合同签订中'
+    },
+    {
+      value: '合同已签订',
+      label: '合同已签订'
+    },
+    {
+      value: '项目实施中',
+      label: '项目实施中'
+    },
+    {
+      value: '项目已竣工',
+      label: '项目已竣工'
+    },
+    {
+      value: '项目送审中',
+      label: '项目送审中'
+    },
+    {
+      value: '项目审计中',
+      label: '项目审计中'
+    },
+    {
+      value: '项目已审定',
+      label: '项目已审定'
+    },
+    {
+      value: '项目增资中',
+      label: '项目增资中'
+    },
+    {
+      value: '项目已关闭',
+      label: '项目已关闭'
     }
-  }
-});
+  ]
+})
+const value = toRef(setupState, 'value')
+const options = toRef(setupState, 'options')
+function clear() {
+  setupState.value = ''
+}
+defineExpose({
+  value,
+  options,
+  clear
+})
 </script>
 <style lang="less" scoped></style>

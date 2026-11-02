@@ -2,14 +2,9 @@
   <RequirementFormBase cart-modal-component="ZlMyCartNew" business-type="sfzl" />
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
 import RequirementFormBase from './components/RequirementFormBaseNew.vue'
-
-export default defineComponent({
-  name: '/service/xq/RequirementZLNew',
-  components: {
-    RequirementFormBase
-  }
+defineOptions({
+  name: '/service/xq/RequirementZLNew'
 })
 </script>

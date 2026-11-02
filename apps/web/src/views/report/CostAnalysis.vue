@@ -84,7 +84,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/report/CostAnalysis" })
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
 import userDialog from '@/components/select/userDialog.vue'
@@ -95,6 +94,7 @@ import { onMounted, reactive, ref, watch } from 'vue'
 import { getGkbmDynamicColumn, getGkbmStatData, GkbmData, exportStatData } from '@/api/report'
 import { ElMessage } from 'element-plus'
 import { getPublicCodeList } from '@/api/common'
+defineOptions({ name: "/report/CostAnalysis" })
 
 const userDialogRef = ref()
 const helpModalRef = ref()

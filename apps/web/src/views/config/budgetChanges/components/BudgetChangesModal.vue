@@ -29,12 +29,13 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "BudgetChangesModal" })
-// 父组件传过来的参数
 import { reactive, ref } from 'vue'
 import { editData } from '@/api/config/continueCarryover'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
+defineOptions({ name: "BudgetChangesModal" })
+// 父组件传过来的参数
+
 interface RowVO {
   protypeName: string
   protypeId: string

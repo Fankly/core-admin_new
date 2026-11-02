@@ -77,11 +77,6 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/report/PlanInformation'
-}
-</script>
 
 <script setup lang="ts">
 import GridItem from '@/components/Grid/components/GridItem.vue'
@@ -95,6 +90,9 @@ import { formatValue } from '@/utils/utils'
 import { ElMessage } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
+defineOptions({
+  name: '/report/PlanInformation'
+})
 
 const userDialogRef = ref()
 const helpModalRef = ref()
@@ -106,23 +104,19 @@ const ndList = ref<
     yearCode: string
   }[]
 >([])
-
 const searchForm = reactive({
   nd: '',
   gwxmbm: ''
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1,
   current: '1'
 })
-
 const gridOptions = reactive<any>({
   border: true,
   stripe: true,
@@ -196,21 +190,20 @@ const gridOptions = reactive<any>({
   ],
   data: []
 })
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const getRoleHandle = async () => {
   dwId.value = userDialogRef.value.userMsg.org_id
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   if (isQuery) {
     pageInfo.isShowPage = true
     await searchHandle()
   }
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -220,7 +213,6 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchHandle()
 }
-
 const searchHandle = async () => {
   gridOptions.loading = true
   const res = await getProPlanInfoPage({
@@ -239,7 +231,6 @@ const searchHandle = async () => {
     gridOptions.loading = false
   }
 }
-
 const exportHandle = async () => {
   gridOptions.loading = true
   const params = {
@@ -267,13 +258,11 @@ const exportHandle = async () => {
     gridOptions.loading = false
   })
 }
-
 const resetHandle = () => {
   searchForm.nd = new Date().getFullYear().toString()
   searchForm.gwxmbm = ''
   searchHandle()
 }
-
 const initParams = async () => {
   await userDialogRef.value.getUser()
   let res = await getYearData()
@@ -284,7 +273,6 @@ const initParams = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 onMounted(initParams)
 </script>
 

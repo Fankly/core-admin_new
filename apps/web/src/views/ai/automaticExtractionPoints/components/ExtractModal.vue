@@ -111,11 +111,6 @@
   </ModalShell>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AepExtractModal'
-}
-</script>
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
@@ -123,12 +118,14 @@ import { KnowledgePickerFileVO, getPickerFileList } from '@/api/ai/automaticExtr
 import { debounce } from 'lodash'
 import { vResizableTable } from '../directives/resizableTable'
 import ModalShell from './ModalShell.vue'
+defineOptions({
+  name: 'AepExtractModal'
+})
 
 const props = defineProps<{
   /** 是否显示 */
   visible: boolean
 }>()
-
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'start', attachIds: Array<string | number>): void
@@ -137,10 +134,16 @@ const emit = defineEmits<{
 /** 处理步骤（当前处于第 2 步） */
 const STEPS = ['文件智能解析', '审核要点提取', '审核要点确认', '审核要点应用']
 const ACTIVE_STEP = 2
-
 const progressWidth = computed(() => `${(100 * (ACTIVE_STEP - 1)) / (STEPS.length - 1)}%`)
-
-const filters = reactive<{ keyword: string; fwbm: string; fwYear: string | null }>({ keyword: '', fwbm: '', fwYear: null })
+const filters = reactive<{
+  keyword: string
+  fwbm: string
+  fwYear: string | null
+}>({
+  keyword: '',
+  fwbm: '',
+  fwYear: null
+})
 /** 选中的来源文件 attachId（int64，保持字符串） */
 const selectedId = ref<string | number | null>(null)
 
@@ -203,6 +206,5 @@ watch(
     loadPickerList()
   }
 )
-
 const start = (): void => emit('start', selectedId.value === null ? [] : [selectedId.value])
 </script>

@@ -25,61 +25,72 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { DocumentCopy as EpDocumentCopy } from '@element-plus/icons-vue'
-
-import { uploadMixin } from '@/core/mixins'
-export default {
-  setup() {
-    return { EpDocumentCopy }
+import { useUpload } from '@/core/composables/useWorkspace'
+import { proxyRefs, toRef, reactive, toRefs } from 'vue'
+defineOptions({
+  name: 'configText'
+})
+const componentProps = defineProps({
+  options: [],
+  config: {
+    type: Object,
+    default: () => ({})
   },
-  components: {},
-  mixins: [uploadMixin],
-  props: {
-    options: [],
-    config: {
-      type: Object,
-      default: () => ({})
-    },
-    itemStyle: {
-      type: [String, Object],
-      default: ''
-    },
-    itemWidth: {
-      type: String,
-      default: ''
-    },
-    wrapNumber: {
-      type: Number,
-      default: 1
-    },
-    dataValue: Object
+  itemStyle: {
+    type: [String, Object],
+    default: ''
   },
-  name: 'configText',
-  data() {
-    return {}
+  itemWidth: {
+    type: String,
+    default: ''
   },
-  created() {},
-  mounted() {},
-  methods: {
-    // getImageUrl (url) {
-    //   if (url) {
-    //     let temp = this.getUploadFileUrl({downloadUri: '/admin/commonext/util/downloadImage'}, {
-    //       filename: url
-    //     });
-    //     return temp;
-    //   } else {
-    //     return null;
-    //   }
-    // },
-    getText(item) {
-      const value = item.formatter ? item.formatter(this.dataValue[item.prop]) : this.dataValue[item.prop]
-      return value === null || value === undefined || value === '' ? '-' : value
-    }
+  wrapNumber: {
+    type: Number,
+    default: 1
   },
-  computed: {},
-  watch: {}
+  dataValue: Object
+})
+const UploadState = proxyRefs(useUpload())
+const parseUploadData = toRef(UploadState, 'parseUploadData')
+const getPictureList = toRef(UploadState, 'getPictureList')
+const fileListToJson = toRef(UploadState, 'fileListToJson')
+const getUploadFileUrl = toRef(UploadState, 'getUploadFileUrl')
+const filterEmptyValues = toRef(UploadState, 'filterEmptyValues')
+const getUploadFileUrlByFetch = toRef(UploadState, 'getUploadFileUrlByFetch')
+const getUploadActionUrl = toRef(UploadState, 'getUploadActionUrl')
+const pictureFile = toRef(UploadState, 'pictureFile')
+const getUploadHeaders = toRef(UploadState, 'getUploadHeaders')
+const componentData = reactive({})
+// getImageUrl (url) {
+//   if (url) {
+//     let temp = this.getUploadFileUrl({downloadUri: '/admin/commonext/util/downloadImage'}, {
+//       filename: url
+//     });
+//     return temp;
+//   } else {
+//     return null;
+//   }
+// },
+function getText(item) {
+  const value = item.formatter ? item.formatter(componentProps.dataValue[item.prop]) : componentProps.dataValue[item.prop]
+  return value === null || value === undefined || value === '' ? '-' : value
 }
+defineExpose({
+  EpDocumentCopy,
+  parseUploadData,
+  getPictureList,
+  fileListToJson,
+  getUploadFileUrl,
+  filterEmptyValues,
+  getUploadFileUrlByFetch,
+  getUploadActionUrl,
+  pictureFile,
+  getUploadHeaders,
+  getText,
+  ...toRefs(componentData)
+})
 </script>
 <style lang="less" scoped>
 .configText__view {

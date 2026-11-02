@@ -34,11 +34,7 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="tsx">
-export default {
-  name: '/purchase/process-51'
-}
-</script>
+
 <script setup lang="tsx">
 import { ref, reactive, onMounted, computed } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
@@ -50,6 +46,10 @@ import { ProTableInstance, ColumnProps } from '@/components/ProTable/interface'
 import { exportWz, exportXm, getCglx, getDcl, getPage } from '@/api/purchase'
 import { getProTypeTreeNode, getUnit } from '@/api/process'
 import { PurchaseDatas, PurchaseData } from './types'
+defineOptions({
+  name: '/purchase/process-51'
+})
+
 // 设置用户信息
 const loading = ref<boolean>(true)
 const isShowPage = ref<boolean>(false)
@@ -64,12 +64,10 @@ onMounted(() => {
   getProjectData()
   getUnitData()
 })
-
 const selectRolesHandle = () => {
   loading.value = true
   userDialogRef.value.getUser()
 }
-
 const cellStyle = (data: any) => {
   if (data.row.sfqr === '0' && data.row.sfgl === '0') {
     return {
@@ -82,14 +80,11 @@ const cellStyle = (data: any) => {
     }
   }
 }
-
 const showDiaglog = ref<boolean>(false)
-
 const closeDialog = (val: boolean) => {
   showDiaglog.value = val
   proTable.value?.getTableList()
 }
-
 const getRoleHandle = () => {
   loading.value = false
   specialOrgId.value = userDialogRef.value.specialorgid
@@ -101,7 +96,6 @@ const getRoleHandle = () => {
     isShowPage.value = true
   }
 }
-
 const selectedTableData = ref()
 
 // 新增
@@ -110,8 +104,10 @@ const addMsg = async (selectedList: any[]) => {
     ElMessage.error('只能选择一条数据进行编辑')
     return
   }
-  selectedTableData.value = { ...selectedList[0], specialorgid: specialOrgId.value }
-
+  selectedTableData.value = {
+    ...selectedList[0],
+    specialorgid: specialOrgId.value
+  }
   showDiaglog.value = true
 }
 
@@ -157,7 +153,6 @@ const exportPurchaseMsg = () => {
     loading.value = false
   })
 }
-
 const resetParams = () => {
   unitRef.value.clearSelect()
   proTypeRef.value.clearSelect()
@@ -180,7 +175,9 @@ const dataCallbackHandle = (data: any) => {
 const proTable = ref<ProTableInstance>()
 
 // 如果表格需要初始化请求参数，直接定义传给 ProTable (之后每次请求都会自动带上该参数，此参数更改之后也会一直带上，改变此参数会自动刷新表格数据)
-const initParam: any = reactive({ type: 1 })
+const initParam: any = reactive({
+  type: 1
+})
 
 // 获取选择的数据
 const selectedData = (value: any, flag: string) => {
@@ -201,7 +198,6 @@ const selectData: any = reactive({
   projectType: [],
   unitData: []
 })
-
 const currentYear = ref(new Date().getFullYear().toString())
 
 // 获取项目类型
@@ -258,14 +254,12 @@ const treeProps = reactive({
     label: 'name'
   }
 })
-
 const purchaseData = computed<PurchaseDatas>(() => {
   return {
     wzlb: proTable.value?.enumMap.get('wzlb') as PurchaseData[],
     fwlb: proTable.value?.enumMap.get('fwlb') as PurchaseData[]
   }
 })
-
 const clearDataHandle = () => {
   const $table = proTable.value
   if ($table) {
@@ -279,7 +273,10 @@ const clearDataHandle = () => {
 
 // 表格配置项
 const columns = reactive<ColumnProps<any>[]>([
-  { type: 'selection', width: 80 },
+  {
+    type: 'selection',
+    width: 80
+  },
   {
     prop: 'xmmc',
     label: '项目名称',
@@ -320,8 +317,16 @@ const columns = reactive<ColumnProps<any>[]>([
       }
     }
   },
-  { prop: 'wzName', width: 140, label: '物资采购类别' },
-  { prop: 'fwName', width: 140, label: '服务采购类别' },
+  {
+    prop: 'wzName',
+    width: 140,
+    label: '物资采购类别'
+  },
+  {
+    prop: 'fwName',
+    width: 140,
+    label: '服务采购类别'
+  },
   {
     prop: 'wzlb',
     label: '物资采购类别',
@@ -331,7 +336,10 @@ const columns = reactive<ColumnProps<any>[]>([
     },
     isShow: false,
     enum: () => getCglx('1'),
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'fwlb',
@@ -342,9 +350,16 @@ const columns = reactive<ColumnProps<any>[]>([
     },
     enum: () => getCglx('2'),
     isShow: false,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
-  { prop: 'xmbName', width: 240, label: '项目包名称' },
+  {
+    prop: 'xmbName',
+    width: 240,
+    label: '项目包名称'
+  },
   {
     prop: 'nd',
     label: '年度',
@@ -382,16 +397,59 @@ const columns = reactive<ColumnProps<any>[]>([
       }
     }
   },
-  { prop: 'yjdw', label: '一级单位', width: 140 },
-  { prop: 'ejdw', label: '二级单位', width: 200 },
-  { prop: 'gkbm', label: '归口部门', width: 200 },
-  { prop: 'zys', label: '总预算(万元)', headerAlign: 'center', align: 'right', width: 140 },
-  { prop: 'dnys', label: '当年预算(万元)', headerAlign: 'center', align: 'right', width: 140 },
-  { prop: 'xmxz', label: '项目性质' },
-  { prop: 'lxsj', label: '立项时间', width: 180 },
-  { prop: 'yjfl', label: '一级分类', width: 300 },
-  { prop: 'ejfl', label: '二级分类', width: 300 },
-  { prop: 'sjfl', label: '三级分类', width: 300 },
+  {
+    prop: 'yjdw',
+    label: '一级单位',
+    width: 140
+  },
+  {
+    prop: 'ejdw',
+    label: '二级单位',
+    width: 200
+  },
+  {
+    prop: 'gkbm',
+    label: '归口部门',
+    width: 200
+  },
+  {
+    prop: 'zys',
+    label: '总预算(万元)',
+    headerAlign: 'center',
+    align: 'right',
+    width: 140
+  },
+  {
+    prop: 'dnys',
+    label: '当年预算(万元)',
+    headerAlign: 'center',
+    align: 'right',
+    width: 140
+  },
+  {
+    prop: 'xmxz',
+    label: '项目性质'
+  },
+  {
+    prop: 'lxsj',
+    label: '立项时间',
+    width: 180
+  },
+  {
+    prop: 'yjfl',
+    label: '一级分类',
+    width: 300
+  },
+  {
+    prop: 'ejfl',
+    label: '二级分类',
+    width: 300
+  },
+  {
+    prop: 'sjfl',
+    label: '三级分类',
+    width: 300
+  },
   {
     prop: 'dcl',
     label: '待处理',
@@ -400,7 +458,10 @@ const columns = reactive<ColumnProps<any>[]>([
       el: 'select'
     },
     enum: getDcl,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   }
 ])

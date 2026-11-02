@@ -67,7 +67,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "reViewExpertProModal" })
 import { nextTick, ref, reactive } from 'vue'
 import {
   deleteYnrzjWhenPsz,
@@ -86,6 +85,7 @@ import { VXETable } from 'vxe-table'
 import { downloadExportBlob } from '@/views/service/approval/cityLhhsMeeting/utils/download'
 import { buildRoleRequestParams, appendRoleRequestParams } from '@/views/service/approval/cityLhhsMeeting/utils/roleParams'
 import { CITY_PSZY_PUBLIC_CODE, pickMeetingMajor, resolveMajorPszyList } from '@/views/service/approval/cityLhhsMeeting/utils/pszy'
+defineOptions({ name: "reViewExpertProModal" })
 
 interface ModalProps {
   search?: () => void

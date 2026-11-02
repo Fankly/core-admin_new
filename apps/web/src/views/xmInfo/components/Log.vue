@@ -92,39 +92,33 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'Log'
-}
-</script>
+
 <script setup lang="ts">
 import { getLog } from '@/api/xmInfo/mbz'
 import { ElMessage } from 'element-plus'
-import { reactive, withDefaults, defineProps, defineEmits, ref, toRef, defineExpose } from 'vue'
+import { reactive, ref, toRef } from 'vue'
+defineOptions({
+  name: 'Log'
+})
 
 interface Props {
   title: string
   nd: string
   specialorgid: string
 }
-
 const emit = defineEmits(['close'])
-
 const props = withDefaults(defineProps<Props>(), {
   title: '目标总控制维护日志'
 })
-
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1,
   current: '1'
 })
-
 const title = toRef(props, 'title')
 const showModal = ref(false)
 const loading = ref(false)
-
 const modalData = reactive<{
   [key: string]: any
 }>({
@@ -169,7 +163,6 @@ const tableInfo = reactive({
     }
   ]
 })
-
 const showHandle = () => {
   modalData.nd = props.nd
   searchHandle()
@@ -179,7 +172,6 @@ const closeHandle = () => {
   resetParams()
   emit('close')
 }
-
 const updateTimeHandle = (val: any[]) => {
   // modalData.xgsjStart =
   if (val && val.length) {
@@ -190,7 +182,6 @@ const updateTimeHandle = (val: any[]) => {
     modalData.xgsjEnd = ''
   }
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -200,7 +191,6 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchHandle()
 }
-
 const resetParams = () => {
   page.total = 0
   page.limit = 10
@@ -212,12 +202,10 @@ const resetParams = () => {
   modalData.nd = props.nd
   tableInfo.tableData.length = 0
 }
-
 const resetHandle = () => {
   resetParams()
   searchHandle()
 }
-
 const searchHandle = async () => {
   loading.value = true
   tableInfo.tableData.length = 0
@@ -236,7 +224,6 @@ const searchHandle = async () => {
   }
   loading.value = false
 }
-
 defineExpose({
   showModal
 })

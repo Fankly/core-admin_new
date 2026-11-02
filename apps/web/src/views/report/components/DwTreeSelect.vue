@@ -7,9 +7,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, ref, watch, defineEmits, defineExpose } from "vue";
-import { getBizOrgXzTreeExcludeBm } from "@/api/common";
-
+import { computed, ref, watch } from 'vue'
+import { getBizOrgXzTreeExcludeBm } from '@/api/common'
 const props = defineProps({
   dwId: {
     type: String,
@@ -17,21 +16,21 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: "请选择"
+    default: '请选择'
   },
   modelValue: {
     type: Object,
     default: () => ({
-      id: "",
-      name: ""
+      id: '',
+      name: ''
     })
   },
   props: {
     type: Object,
     default: () => ({
-      leaf: "leaf",
-      value: "id",
-      label: "name"
+      leaf: 'leaf',
+      value: 'id',
+      label: 'name'
     })
   },
   leafOnly: {
@@ -40,69 +39,61 @@ const props = defineProps({
   },
   valueKey: {
     type: String,
-    default: "id"
+    default: 'id'
   }
-});
-
-const emit = defineEmits(["update:modelValue"]);
-
-const defaultProps = computed(() => props.props);
-
-const selectedValue = ref();
-const treeRef = ref();
-const selectRef = ref();
-
+})
+const emit = defineEmits(['update:modelValue'])
+const defaultProps = computed(() => props.props)
+const selectedValue = ref()
+const treeRef = ref()
+const selectRef = ref()
 const handleNodeClick = (node: any): void => {
   if (props.leafOnly && node[props.props.children]?.length) {
-    return;
+    return
   }
-  selectedValue.value = node[props.props.label];
-  emit("update:modelValue", node[props.valueKey]);
-  selectRef.value?.blur();
-};
-
+  selectedValue.value = node[props.props.label]
+  emit('update:modelValue', node[props.valueKey])
+  selectRef.value?.blur()
+}
 const loadData = async (node: any, resolve: any) => {
   if (node.level === 0) {
     const dwListRes = await getBizOrgXzTreeExcludeBm({
       dwId: props.dwId as string,
-      parentId: "-1"
-    });
+      parentId: '-1'
+    })
     if (dwListRes.success) {
-      resolve(dwListRes.data);
+      resolve(dwListRes.data)
     } else {
-      resolve([]);
+      resolve([])
     }
   } else {
     const dwListRes = await getBizOrgXzTreeExcludeBm({
       dwId: props.dwId as string,
       parentId: node.data.id,
       nodeType: node.data.nodeType
-    });
+    })
     if (dwListRes.success) {
-      resolve(dwListRes.data);
+      resolve(dwListRes.data)
     } else {
-      resolve([]);
+      resolve([])
     }
   }
-};
-
+}
 watch(
   () => props.modelValue,
   (newValue) => {
     if (!newValue) {
-      treeRef.value?.setCurrentKey(null);
+      treeRef.value?.setCurrentKey(null)
     }
   }
-);
-
+)
 const clearHandle = () => {
-  selectedValue.value = "";
-  emit("update:modelValue", "");
-};
-
+  selectedValue.value = ''
+  emit('update:modelValue', '')
+}
 defineExpose({
   clearHandle
-});
+})
 </script>
 
 <style scoped lang="less">

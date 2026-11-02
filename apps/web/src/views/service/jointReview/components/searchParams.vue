@@ -97,11 +97,7 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'searchParams'
-}
-</script>
+
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
@@ -109,6 +105,9 @@ import ElTreeSelect from '@/components/ElTreeSelect'
 import { getEjdwData } from '@/api/service/expertinformation'
 import { getPublicData, getSubProtypeTree } from '@/api/common'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: 'searchParams'
+})
 
 const props = withDefaults(
   defineProps<{
@@ -120,8 +119,12 @@ const props = withDefaults(
     showYsjl: false
   }
 )
-
-const createEmptySearchParams = () => (props.showOfflineFields ? { protypeIds: [] } : {})
+const createEmptySearchParams = () =>
+  props.showOfflineFields
+    ? {
+        protypeIds: []
+      }
+    : {}
 const searchParams = ref<any>(createEmptySearchParams())
 const levelOne = ref<any>([]) // 一级单位
 const levelTwo = ref<any>([]) // 二级单位
@@ -135,19 +138,35 @@ const proTypeProps = {
   value: 'middleId'
 }
 const reviewOpinionOptions = [
-  { code: '0', name: '不通过' },
-  { code: '1', name: '通过' }
+  {
+    code: '0',
+    name: '不通过'
+  },
+  {
+    code: '1',
+    name: '通过'
+  }
 ]
 // 预审结论
 const preReviewConclusionOptions = [
-  { code: '1', name: '全部通过' },
-  { code: '2', name: '部分通过' },
-  { code: '3', name: '全部退回' },
-  { code: '4', name: '部分退回' }
+  {
+    code: '1',
+    name: '全部通过'
+  },
+  {
+    code: '2',
+    name: '部分通过'
+  },
+  {
+    code: '3',
+    name: '全部退回'
+  },
+  {
+    code: '4',
+    name: '部分退回'
+  }
 ]
-
 const emits = defineEmits(['searchHandle'])
-
 const getBudgetStatusOptions = async () => {
   const res: any = await getPublicData('LHHS_YSZT')
   if (res.success) {
@@ -156,7 +175,6 @@ const getBudgetStatusOptions = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getProjectTypeOptions = async () => {
   const res: any = await getSubProtypeTree()
   if (res.success) {
@@ -165,7 +183,6 @@ const getProjectTypeOptions = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getEjdw = (val: any) => {
   searchParams.value.ejdw = ''
   levelTwo.value.length = 0
@@ -197,7 +214,10 @@ const search = () => {
     } else {
       searchParams.value.ejdwName = ''
     }
-    emits('searchHandle', { param: searchParams.value, type: 'search' })
+    emits('searchHandle', {
+      param: searchParams.value,
+      type: 'search'
+    })
   } catch (e) {
     console.log((e as Error).message)
   }
@@ -206,19 +226,20 @@ const search = () => {
 // 重置
 const reset = () => {
   clear()
-  emits('searchHandle', { param: searchParams.value, type: 'reset' })
+  emits('searchHandle', {
+    param: searchParams.value,
+    type: 'reset'
+  })
 }
 // 清空
 const clear = () => {
   searchParams.value = createEmptySearchParams()
   levelTwo.value.length = 0
 }
-
 defineExpose({
   levelOne,
   isShowTable
 })
-
 onMounted(() => {
   getBudgetStatusOptions()
   if (props.showOfflineFields) {

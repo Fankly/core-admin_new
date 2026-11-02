@@ -6,18 +6,21 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="tsx">
-export default {
-  name: '/service/detailQueryReport/erpDeplete'
-}
-</script>
+
 <script setup lang="tsx">
 import { onMounted, ref, reactive, nextTick, onActivated, watch } from 'vue'
-import { getPublicData, getDeptData, getYjdwFromCm, getEjdwByYjdw } from '@/api/common' //公共代码
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
-import otherTable from '@/views/service/detailQueryReport/components/table.vue' //表格组件
+import { getPublicData, getDeptData, getYjdwFromCm, getEjdwByYjdw } from '@/api/common'
+import userDialog from '@/components/select/userDialog.vue'
+import otherTable from '@/views/service/detailQueryReport/components/table.vue'
 import { formatNumValue } from '@/utils/utils'
 import TreeSelect from '@/components/select/TreeSelectLazy.vue'
+defineOptions({
+  name: '/service/detailQueryReport/erpDeplete'
+})
+
+ //公共代码
+ //权限弹框
+ //表格组件
 
 const loading = ref<boolean>(false)
 const userDialogRef = ref() // 用户角色
@@ -81,7 +84,6 @@ const changyjdw = (val: any) => {
     }
   })
 }
-
 const reset = (val: any) => {
   if (val.type == 'RESET') {
     levelTwo.value.length = 0
@@ -105,9 +107,21 @@ const reset = (val: any) => {
 // }
 
 const columns = reactive<any>([
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'nd', label: '年度', width: '100' },
-  { prop: 'yd', label: '月度', width: '80' },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'nd',
+    label: '年度',
+    width: '100'
+  },
+  {
+    prop: 'yd',
+    label: '月度',
+    width: '80'
+  },
   {
     prop: 'nd',
     label: '年度',
@@ -125,20 +139,59 @@ const columns = reactive<any>([
   {
     prop: 'yd',
     label: '月度',
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: [
-      { value: '1', label: '1' },
-      { value: '2', label: '2' },
-      { value: '3', label: '3' },
-      { value: '4', label: '4' },
-      { value: '5', label: '5' },
-      { value: '6', label: '6' },
-      { value: '7', label: '7' },
-      { value: '8', label: '8' },
-      { value: '9', label: '9' },
-      { value: '10', label: '10' },
-      { value: '11', label: '11' },
-      { value: '12', label: '12' }
+      {
+        value: '1',
+        label: '1'
+      },
+      {
+        value: '2',
+        label: '2'
+      },
+      {
+        value: '3',
+        label: '3'
+      },
+      {
+        value: '4',
+        label: '4'
+      },
+      {
+        value: '5',
+        label: '5'
+      },
+      {
+        value: '6',
+        label: '6'
+      },
+      {
+        value: '7',
+        label: '7'
+      },
+      {
+        value: '8',
+        label: '8'
+      },
+      {
+        value: '9',
+        label: '9'
+      },
+      {
+        value: '10',
+        label: '10'
+      },
+      {
+        value: '11',
+        label: '11'
+      },
+      {
+        value: '12',
+        label: '12'
+      }
     ],
     isShow: false
   },
@@ -152,11 +205,16 @@ const columns = reactive<any>([
       props: {
         maxlength: 20,
         showWordLimit: true,
-        inputStyle: { paddingRight: '80px' }
+        inputStyle: {
+          paddingRight: '80px'
+        }
       }
     }
   },
-  { prop: 'cnxmc', label: '承诺项名称' },
+  {
+    prop: 'cnxmc',
+    label: '承诺项名称'
+  },
   // {
   //   prop: 'yjdw',
   //   label: '一级单位',
@@ -205,7 +263,9 @@ const columns = reactive<any>([
       props: {
         maxlength: 64,
         showWordLimit: true,
-        inputStyle: { paddingRight: '80px' }
+        inputStyle: {
+          paddingRight: '80px'
+        }
       }
     }
   },
@@ -213,9 +273,18 @@ const columns = reactive<any>([
   // { prop: "ejdwName", label: "二级单位" },
   // { prop: "cbzxName", label: "成本中心" },
   // { prop: 'jjzxName', label: '基金中心' },
-  { prop: 'xmxh', label: '项目消耗' },
-  { prop: 'fyxh', label: '费用消耗' },
-  { prop: 'zxh', label: '总消耗' }
+  {
+    prop: 'xmxh',
+    label: '项目消耗'
+  },
+  {
+    prop: 'fyxh',
+    label: '费用消耗'
+  },
+  {
+    prop: 'zxh',
+    label: '总消耗'
+  }
 ])
 
 // 选择角色

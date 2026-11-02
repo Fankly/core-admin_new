@@ -41,12 +41,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "TargetBudgetAttachments" })
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import OfficePreview, { getOfficeFileExtension } from '@/components/OfficePreview'
 import { deleteAttachByUUID, downloadAttach, getAttachList, TargetBudgetAttachment, uploadAttachBatch } from '@/api/targetBudget/provinceTarget'
+defineOptions({ name: "TargetBudgetAttachments" })
 
 interface AttachmentProps {
   versionId?: string | number

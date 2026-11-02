@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { getPublicData } from '@/api/common'
-import { ref, defineExpose, defineProps, reactive, defineEmits } from 'vue'
+import { ref, reactive } from 'vue'
 import { getYssxBasicList, linkYssx } from '@/api/service/requirement'
 import { ElMessage } from 'element-plus'
-
 const props = defineProps({
   selectDatas: {
     type: Object as any,
@@ -23,16 +22,13 @@ const formData = ref({
   yssxId: '',
   nd: ''
 })
-
 const emit = defineEmits(['updateTable'])
-
 const yssxList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const formRuls = reactive({
   yssxId: {
     required: true,
@@ -45,7 +41,6 @@ const formRuls = reactive({
     trigger: 'change'
   }
 })
-
 const matterHandle = async () => {
   try {
     const result = await formRef.value.validate()
@@ -71,7 +66,6 @@ const matterHandle = async () => {
     loading.value = false
   }
 }
-
 const getPublicCodeData = async () => {
   try {
     loading.value = true
@@ -86,7 +80,6 @@ const getPublicCodeData = async () => {
     loading.value = false
   }
 }
-
 const getMatterDataList = async () => {
   try {
     loading.value = true
@@ -105,13 +98,11 @@ const getMatterDataList = async () => {
     loading.value = false
   }
 }
-
 const showHandle = async () => {
   formData.value.nd = new Date().getFullYear().toString()
   getPublicCodeData()
   getMatterDataList()
 }
-
 const closeHandle = () => {
   formData.value.yssxId = ''
   formData.value.nd = new Date().getFullYear().toString()
@@ -119,7 +110,6 @@ const closeHandle = () => {
   yssxList.value = []
   isShowModal.value = false
 }
-
 defineExpose({
   isShowModal
 })

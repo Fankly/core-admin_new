@@ -84,13 +84,9 @@
   <ndCopy ref="ndCpoyRef" @handler-copy="handlerCopy" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/xmInfo/xmysConfig/index'
-}
-</script>
+
 <script setup lang="ts">
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { onMounted, ref, reactive, nextTick } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -100,6 +96,10 @@ import { Result } from '@/api/types'
 import tableBtn from '@/views/metrics/components/tableBtn.vue'
 import ndCopy from '@/views/metrics/components/ndCopy.vue'
 import ElTreeSelect from '@/components/ElTreeSelect'
+defineOptions({
+  name: '/xmInfo/xmysConfig/index'
+})
+ //表格组件
 
 /** 阶段节点 */
 interface StageNode {
@@ -118,7 +118,6 @@ interface DictItem {
   code: string
   name: string
 }
-
 const chooseNode = ref<StageNode | null>(null) //当前选中树节点
 const treeRef = ref() //树ref
 const treeKey = ref(0)
@@ -132,14 +131,25 @@ const dialogFormRef = ref()
 const ruleFormRef = ref()
 /** 刷新进行中标记，防止重复触发 */
 const treeExpanding = ref(false)
-const modalParams = reactive<{ isShow: boolean; title: string }>({
+const modalParams = reactive<{
+  isShow: boolean
+  title: string
+}>({
   isShow: false,
   title: '新增'
 })
-const rmarkData = ref<StageNode>({ nd: new Date().getFullYear().toString() } as StageNode) //FORM表单
+const rmarkData = ref<StageNode>({
+  nd: new Date().getFullYear().toString()
+} as StageNode) //FORM表单
 const leafOptions = ref<DictItem[]>([
-  { code: '1', name: '是' },
-  { code: '0', name: '否' }
+  {
+    code: '1',
+    name: '是'
+  },
+  {
+    code: '0',
+    name: '否'
+  }
 ])
 const defaultProps = {
   label: 'name',
@@ -161,7 +171,6 @@ const getRoleHandle = async () => {
   await nextTick()
   await initParamLists()
 }
-
 onMounted(async () => {
   await userDialogRef.value?.getUser()
 })
@@ -190,7 +199,6 @@ const loadNode = async (node: any, resolve: (data: any[]) => void) => {
     resolve([])
   }
 }
-
 const handlerClick = async (val: any) => {
   if (val === 'EDIT' && proTableRef.value?.selectedList.length !== 1) {
     return ElMessage.warning('请选择一条数据')
@@ -217,7 +225,9 @@ const handlerClick = async (val: any) => {
     })
       .then(async () => {
         const ids: string[] = proTableRef.value?.selectedList.map(({ id }: any) => id)
-        const res: Result = await deleteApi({ ids: ids })
+        const res: Result = await deleteApi({
+          ids: ids
+        })
         if (res.success) {
           ElMessage.success('删除成功！')
           await menuData()
@@ -295,7 +305,6 @@ const pushMsgHandle = () => {
     if (modalParams.title === '新增') {
       rmarkData.value.parentId = chooseNode.value?.id || '0'
     }
-
     const res: Result = await addApi(rmarkData.value)
     if (res.success) {
       ElMessage.success(modalParams.title === '编辑' ? '编辑成功' : '新增成功')
@@ -314,9 +323,19 @@ const closeHandle = () => {
   modalParams.isShow = false
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'name', label: '名称' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'name',
+    label: '名称'
+  },
   {
     prop: 'leaf',
     label: '是否末级节点',
@@ -325,9 +344,18 @@ const tableColumns = reactive<any>([
       return item ? item.name : row.leaf
     }
   },
-  { prop: 'protypeName', label: '项目类型' },
-  { prop: 'nd', label: '年度' },
-  { prop: 'sortCode', label: '排序' }
+  {
+    prop: 'protypeName',
+    label: '项目类型'
+  },
+  {
+    prop: 'nd',
+    label: '年度'
+  },
+  {
+    prop: 'sortCode',
+    label: '排序'
+  }
 ])
 
 // 页签数据

@@ -130,7 +130,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/suzhou/aiAuditRuleManage/index" })
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
@@ -145,6 +144,7 @@ import relateProtType from '@/views/suzhou/aiAuditRuleManage/components/relatePr
 import budgetItemModal from '@/views/suzhou/aiAuditRuleManage/components/budgetItemModal/index.vue'
 import { rulManageGeGetRulePage, rulManageRemoveRule, rulManageSaveRule } from '@/api/suzhou/aiAuditRuleManage'
 import { getPublicData } from '@/api/common'
+defineOptions({ name: "/suzhou/aiAuditRuleManage/index" })
 
 interface SelectedRow {
   ruleId: string

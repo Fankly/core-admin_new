@@ -73,11 +73,6 @@
   <xmDetailModal ref="xmDetailModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/lyg/finishXm/xmyjwcstbtjb/index'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -92,12 +87,14 @@ import { formatNumValue } from '@/utils/utils'
 import { usePage } from '@/hooks/useUser'
 import { useStore } from '@/store/business'
 import { useRoute } from 'vue-router'
+defineOptions({
+  name: '/lyg/finishXm/xmyjwcstbtjb/index'
+})
 
 interface ListValue {
   code: string
   name: string
 }
-
 const userDialogRef = ref()
 const gridRef = ref()
 const xmDetailModalRef = ref()
@@ -110,14 +107,12 @@ const ejdwList = ref<ListValue[]>([])
 const exportParams = ref<any>({})
 const store = useStore()
 const route = useRoute()
-
 const formData = reactive<any>({
   nd: new Date().getFullYear().toString(),
   rwId: '',
   yjdw: '',
   ejdw: ''
 })
-
 const gridOptions = reactive<VxeGridProps<any>>({
   border: true,
   loading: false,
@@ -125,8 +120,12 @@ const gridOptions = reactive<VxeGridProps<any>>({
   align: 'center',
   showOverflow: true,
   height: '100%',
-  rowConfig: { height: 32 },
-  columnConfig: { resizable: true },
+  rowConfig: {
+    height: 32
+  },
+  columnConfig: {
+    resizable: true
+  },
   size: 'mini',
   treeConfig: {
     lazy: true,
@@ -137,10 +136,20 @@ const gridOptions = reactive<VxeGridProps<any>>({
     loadMethod: ({ row }: any) => requestTableRowsByParent(row.id)
   }
 })
-
 const tableColumns = reactive<any[]>([
-  { field: 'name', title: '归口部门', minWidth: 160, treeNode: true, headerAlign: 'center', align: 'left' },
-  { field: 'xmlxmc', title: '项目类型', minWidth: 160 },
+  {
+    field: 'name',
+    title: '归口部门',
+    minWidth: 160,
+    treeNode: true,
+    headerAlign: 'center',
+    align: 'left'
+  },
+  {
+    field: 'xmlxmc',
+    title: '项目类型',
+    minWidth: 160
+  },
   {
     field: 'ndys',
     title: '项目年度预算',
@@ -157,9 +166,21 @@ const tableColumns = reactive<any[]>([
     align: 'right',
     formatter: ({ cellValue }: any) => formatNumValue(cellValue, 2)
   },
-  { field: 'xmsl', title: '项目数量', width: 110 },
-  { field: 'ytbsl', title: '应填报数量', width: 120 },
-  { field: 'ytbslDone', title: '已填报数量', width: 120 },
+  {
+    field: 'xmsl',
+    title: '项目数量',
+    width: 110
+  },
+  {
+    field: 'ytbsl',
+    title: '应填报数量',
+    width: 120
+  },
+  {
+    field: 'ytbslDone',
+    title: '已填报数量',
+    width: 120
+  },
   {
     field: 'yjwcz',
     title: '预计完成值',
@@ -173,7 +194,10 @@ const tableColumns = reactive<any[]>([
 /** 应填报/已填报数量列渲染为可点击链接 */
 const cellStyle = ({ row, column }: any) => {
   if ((column.field === 'ytbsl' || column.field === 'ytbslDone') && row.id != 'TOTAL') {
-    return { color: '#00706b', cursor: 'pointer' }
+    return {
+      color: '#00706b',
+      cursor: 'pointer'
+    }
   }
   return {}
 }
@@ -181,7 +205,9 @@ const cellStyle = ({ row, column }: any) => {
 /** 总计行加粗 */
 const rowStyle = ({ row }: any) => {
   if (row?.id === 'TOTAL') {
-    return { fontWeight: 'bold' }
+    return {
+      fontWeight: 'bold'
+    }
   }
   return {}
 }
@@ -198,10 +224,18 @@ const mapTableRows = (rows: any[] = []) =>
   }))
 
 /** 按父级 id 查询子节点（供根查询、懒加载、一键展开复用） */
-const requestTableRowsByParent = async (parentId: string, options: { showError?: boolean } = {}): Promise<any[]> => {
+const requestTableRowsByParent = async (
+  parentId: string,
+  options: {
+    showError?: boolean
+  } = {}
+): Promise<any[]> => {
   const { showError = true } = options
   try {
-    const res: any = await finishXmTjData({ ...formData, parentId })
+    const res: any = await finishXmTjData({
+      ...formData,
+      parentId
+    })
     if (res.success) return mapTableRows(res.data || [])
     if (showError) ElMessage.error(res.msg)
     return []
@@ -211,17 +245,17 @@ const requestTableRowsByParent = async (parentId: string, options: { showError?:
     return []
   }
 }
-
 const getDataHandle = async () => {
   gridOptions.loading = true
-  exportParams.value = { ...formData }
+  exportParams.value = {
+    ...formData
+  }
   try {
     tableData.value = await requestTableRowsByParent(ROOT_PARENT_ID)
   } finally {
     gridOptions.loading = false
   }
 }
-
 const resetDataHandle = async () => {
   formData.nd = new Date().getFullYear().toString()
   formData.rwId = ''
@@ -234,19 +268,22 @@ const resetDataHandle = async () => {
 // ========== 单位联动 ==========
 const getYjdwDataList = async () => {
   try {
-    const res: any = await getYjdwList({ bmId: userInfo.value?.specialorgid, dwId: userInfo.value?.org_id })
+    const res: any = await getYjdwList({
+      bmId: userInfo.value?.specialorgid,
+      dwId: userInfo.value?.org_id
+    })
     if (res.success) yjdwList.value = res.data
   } catch (e) {
     console.error(e)
   }
 }
-
 const changeNdHandle = async () => {
   formData.rwId = ''
-  const task: any = await listRwByNd({ nd: formData.nd })
+  const task: any = await listRwByNd({
+    nd: formData.nd
+  })
   if (task.success) taskList.value = task.data
 }
-
 const changeYjdwHandle = async (val: string) => {
   formData.ejdw = ''
   ejdwList.value = []
@@ -269,17 +306,25 @@ const isExpanding = ref(false)
 const EXPAND_YIELD_INTERVAL = 40
 const EXPAND_PRELOAD_CONCURRENCY = 4
 const expandTaskId = ref(0)
-
 const isExpandTaskCanceled = (taskId: number) => taskId !== expandTaskId.value
-
 const yieldToMainThread = () => new Promise<void>((resolve) => setTimeout(resolve, 0))
 
 /** 并发预加载各级子节点写入 row.children，避免逐行触发懒加载造成的卡顿 */
-const preloadLazyDataByLevel = async (data: any[], state: { count: number }, taskId: number): Promise<void> => {
-  const queue: Array<{ row: any }> = []
+const preloadLazyDataByLevel = async (
+  data: any[],
+  state: {
+    count: number
+  },
+  taskId: number
+): Promise<void> => {
+  const queue: Array<{
+    row: any
+  }> = []
   for (const row of data) {
     if (row && typeof row === 'object' && row.leaf) {
-      queue.push({ row })
+      queue.push({
+        row
+      })
     }
   }
   let cursor = 0
@@ -289,7 +334,9 @@ const preloadLazyDataByLevel = async (data: any[], state: { count: number }, tas
       if (cursor >= queue.length) return
       const current = queue[cursor]
       cursor += 1
-      const children = await requestTableRowsByParent(current.row.id, { showError: false })
+      const children = await requestTableRowsByParent(current.row.id, {
+        showError: false
+      })
       if (isExpandTaskCanceled(taskId)) return
       current.row.children = children
       state.count += 1
@@ -298,17 +345,34 @@ const preloadLazyDataByLevel = async (data: any[], state: { count: number }, tas
       }
       for (const child of children) {
         if (child && typeof child === 'object' && child.leaf) {
-          queue.push({ row: child })
+          queue.push({
+            row: child
+          })
         }
       }
     }
   }
   const workerCount = Math.max(1, Math.min(EXPAND_PRELOAD_CONCURRENCY, queue.length || 1))
-  await Promise.all(Array.from({ length: workerCount }, () => worker()))
+  await Promise.all(
+    Array.from(
+      {
+        length: workerCount
+      },
+      () => worker()
+    )
+  )
 }
 
 /** 递归展开已预加载的行 */
-const expandToLevel = async (data: any[], $table: any, state: { count: number }, visitedRows: WeakSet<object>, taskId: number): Promise<void> => {
+const expandToLevel = async (
+  data: any[],
+  $table: any,
+  state: {
+    count: number
+  },
+  visitedRows: WeakSet<object>,
+  taskId: number
+): Promise<void> => {
   for (const row of data) {
     if (isExpandTaskCanceled(taskId)) return
     if (!row || typeof row !== 'object') continue
@@ -326,16 +390,23 @@ const expandToLevel = async (data: any[], $table: any, state: { count: number },
     }
   }
 }
-
 const handleExpandAll = async () => {
   if (isExpanding.value) return
   const taskId = ++expandTaskId.value
   isExpanding.value = true
   gridOptions.loading = true
   try {
-    const rootRows = await requestTableRowsByParent(ROOT_PARENT_ID, { showError: false })
+    const rootRows = await requestTableRowsByParent(ROOT_PARENT_ID, {
+      showError: false
+    })
     if (isExpandTaskCanceled(taskId)) return
-    await preloadLazyDataByLevel(rootRows, { count: 0 }, taskId)
+    await preloadLazyDataByLevel(
+      rootRows,
+      {
+        count: 0
+      },
+      taskId
+    )
     if (isExpandTaskCanceled(taskId)) return
     tableData.value = rootRows
     await nextTick()
@@ -343,7 +414,15 @@ const handleExpandAll = async () => {
     const $table = gridRef.value
     if (!$table) return
     await $table.clearTreeExpand()
-    await expandToLevel(rootRows, $table, { count: 0 }, new WeakSet<object>(), taskId)
+    await expandToLevel(
+      rootRows,
+      $table,
+      {
+        count: 0
+      },
+      new WeakSet<object>(),
+      taskId
+    )
   } finally {
     if (!isExpandTaskCanceled(taskId)) {
       gridOptions.loading = false
@@ -354,7 +433,13 @@ const handleExpandAll = async () => {
 
 // ========== 导出 ==========
 const handleExport = () => {
-  apiExportHandle({ ...exportParams.value }, '项目预计完成数填报统计表', finishXmTjExport)
+  apiExportHandle(
+    {
+      ...exportParams.value
+    },
+    '项目预计完成数填报统计表',
+    finishXmTjExport
+  )
 }
 
 // ========== 明细弹窗 ==========
@@ -379,7 +464,9 @@ const cellClickHandle = ({ row, column }: VxeTableDefines.CellClickParams) => {
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value?.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       await getYjdwDataList()
@@ -420,7 +507,6 @@ const initByRouteParams = async () => {
     await userDialogRef.value?.getUser()
   }
 }
-
 onMounted(async () => {
   if (JSON.stringify(route.params) != '{}') {
     await initByRouteParams()
@@ -429,7 +515,6 @@ onMounted(async () => {
     await userDialogRef.value?.getUser()
   }
 })
-
 watch(
   () => route.params,
   (newParams, oldParams) => {
@@ -437,7 +522,9 @@ watch(
     if (JSON.stringify(newParams) === JSON.stringify(oldParams)) return
     initByRouteParams()
   },
-  { deep: true }
+  {
+    deep: true
+  }
 )
 </script>
 

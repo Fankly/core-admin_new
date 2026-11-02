@@ -10,11 +10,11 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/suzhou/aiAuditRulePoint/index" })
 import { onMounted, ref } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import leftPanel from './components/left.vue'
 import rightPanel from './components/right.vue'
+defineOptions({ name: "/suzhou/aiAuditRulePoint/index" })
 
 interface PointItem {
   categoryRuleId: string

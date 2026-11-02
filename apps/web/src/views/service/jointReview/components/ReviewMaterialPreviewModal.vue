@@ -85,7 +85,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ReviewMaterialPreviewModal" })
 import { computed, onBeforeUnmount, onMounted, reactive, shallowReactive, watch } from 'vue'
 import type { PropType } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -95,6 +94,7 @@ import OfficePreview from '@/components/OfficePreview'
 import type { OfficePdfOptions, OfficePreviewSource, OfficeToolbarOptions } from '@/components/OfficePreview'
 import { getReviewMaterialFileKey, getReviewMaterialFileName, resolveReviewMaterialPreviewBlob } from './reviewMaterialPreview'
 import type { ReviewMaterialFile } from './reviewMaterialPreview'
+defineOptions({ name: "ReviewMaterialPreviewModal" })
 
 type ResizeDirection = 'n' | 'e' | 's' | 'w' | 'ne' | 'nw' | 'se' | 'sw'
 

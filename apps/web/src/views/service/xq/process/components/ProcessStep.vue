@@ -25,80 +25,71 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits, defineProps, onBeforeUnmount, ref,defineExpose } from "vue";
-import { useRouter } from "vue-router";
-import baseService from "@/service/baseService";
-import { useStore } from '@/store/business';
-
-
+import { onBeforeUnmount, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import baseService from '@/service/baseService'
+import { useStore } from '@/store/business'
 
 // Props定义
 interface StepAction {
-  id: string;
-  name: string;
-  hasPermision: boolean;
-  url: string;
-  outsideMenu:string
+  id: string
+  name: string
+  hasPermision: boolean
+  url: string
+  outsideMenu: string
 }
-
 interface Step {
-  appId: string;
-  appName: string;
-  appIcon: string;
-  icon: string;
-  menus: StepAction[];
-  userInfo:any
+  appId: string
+  appName: string
+  appIcon: string
+  icon: string
+  menus: StepAction[]
+  userInfo: any
 }
-
 const props = defineProps<{
-  step: Step;
-}>();
+  step: Step
+}>()
 
 // Emits定义
-const emit = defineEmits(["action-click"]);
-
-const userInfo=ref<any>({})
-
-const store = useStore();
-
+const emit = defineEmits(['action-click'])
+const userInfo = ref<any>({})
+const store = useStore()
 
 // 获取路由实例
-const router = useRouter();
+const router = useRouter()
 
 // 响应式数据
-const dropdownVisible = ref(false);
-const hideTimeout = ref(null as ReturnType<typeof setTimeout> | null);
+const dropdownVisible = ref(false)
+const hideTimeout = ref(null as ReturnType<typeof setTimeout> | null)
 
 // 显示下拉菜单
 const showDropdown = () => {
   if (hideTimeout.value) {
-    clearTimeout(hideTimeout.value);
-    hideTimeout.value = null;
+    clearTimeout(hideTimeout.value)
+    hideTimeout.value = null
   }
-  dropdownVisible.value = true;
-};
+  dropdownVisible.value = true
+}
 
 // 隐藏下拉菜单
 const hideDropdown = () => {
   hideTimeout.value = setTimeout(() => {
-    dropdownVisible.value = false;
-    hideTimeout.value = null;
-  }, 200);
-};
+    dropdownVisible.value = false
+    hideTimeout.value = null
+  }, 200)
+}
 
 // 处理操作点击
-const handleActionClick =async (action: StepAction) => {
+const handleActionClick = async (action: StepAction) => {
   if (!action.hasPermision) {
-    return;
+    return
   }
-  console.log(action,'actionaction');
-  console.log(props.step.userInfo,'props.stepprops.step');
-
-
-  let res = await baseService.get(`/sysMenu/getButtonList?menuCode=${action.outsideMenu}&spRoleId=${props.step.userInfo.id}`);
+  console.log(action, 'actionaction')
+  console.log(props.step.userInfo, 'props.stepprops.step')
+  let res = await baseService.get(`/sysMenu/getButtonList?menuCode=${action.outsideMenu}&spRoleId=${props.step.userInfo.id}`)
   if (res.success) {
     if (res.success) {
-      store.commit("setPermissions", res.data);
+      store.commit('setPermissions', res.data)
     }
   }
 
@@ -106,21 +97,22 @@ const handleActionClick =async (action: StepAction) => {
   if (action.url) {
     router.push({
       name: action.url,
-      params: { formJsc: "1" }
-    });
+      params: {
+        formJsc: '1'
+      }
+    })
   } else {
     // 否则触发事件给父组件处理
-    emit("action-click", action, props.step);
+    emit('action-click', action, props.step)
   }
-};
+}
 
 // 组件卸载前清理定时器
 onBeforeUnmount(() => {
   if (hideTimeout.value) {
-    clearTimeout(hideTimeout.value);
+    clearTimeout(hideTimeout.value)
   }
-});
-
+})
 defineExpose({
   userInfo
 })

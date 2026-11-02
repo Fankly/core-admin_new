@@ -147,28 +147,23 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/matter/gyssjpz'
-}
-</script>
+
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, reactive, ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
-import {
-  gyspzDelete,
-  getList
-} from '@/api/matter/matterBasic'
+import { gyspzDelete, getList } from '@/api/matter/matterBasic'
 import GyssjpzBasicOperation from '@/views/matter/components/GyssjpzBasicOperation/index.vue'
 import VXETable from 'vxe-table'
+defineOptions({
+  name: '/matter/gyssjpz'
+})
 
 interface InitParams {
   [key: string]: string
 }
-
 const searchDatas = ref<any>({
   akont: '',
   bukrs: '',
@@ -179,23 +174,18 @@ const userDialogRef = ref()
 const helpModalRef = ref()
 const loading = ref(false)
 const isShowPage = ref(false)
-
 const isDisabled = computed(() => loading.value)
 const initParams = ref<InitParams>({})
-
 const matterBasicMsg = reactive({
   title: '新增',
   opType: 'ADD'
 })
-
 const tableDataList = ref()
-
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1
 })
-
 const formRef = ref()
 const tableRef = ref()
 const GyssjpzBasicOperationRef = ref()
@@ -227,7 +217,6 @@ const resetHandle = () => {
   formRef.value.resetFields()
   searchHandle()
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -237,7 +226,6 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchHandle()
 }
-
 const getRoleHandle = () => {
   loading.value = false
   initParams.value.specialorgid = userDialogRef.value.specialorgid
@@ -266,7 +254,6 @@ const addOrEditHandle = (flag: string) => {
     }
     selectedData.value = records[0]
   }
-
   GyssjpzBasicOperationRef.value.isShowModal = true
 }
 
@@ -292,11 +279,9 @@ const deleteHandle = async () => {
     }
   }
 }
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 onMounted(() => {
   userDialogRef.value.getUser()
 })

@@ -147,179 +147,220 @@
   </dialogContainer>
 </template>
 
-<script>
+<script setup>
 import { AssetManagement } from '@/api/mainController'
+import { reactive, toRef, toRefs, computed, onMounted, getCurrentInstance } from 'vue'
+defineOptions({
+  name: 'projectManagerTransfer'
+})
+const componentProps = defineProps({
+  selected: {
+    type: Array
+  },
+  getCheckTotalAmount: {
+    type: Function,
+    default: () => Promise.resolve({})
+  },
+  observer: Object,
+  readOnly: Boolean
+})
+const componentInstance = getCurrentInstance().proxy
+const componentData = reactive({
+  buttonLoading: false,
+  pageParam: {
+    pageNum: 1,
+    pageSize: 10
+  },
+  totalItems: 0,
+  searchString: '',
+  tableData: [],
+  selectedData: [],
+  filters: {
+    searchString: '',
+    sapAssetCategoryDesc: '',
+    assetSubcategoryDesc: '',
+    accountDesc: ''
+  },
+  // ================== 下拉框预留数据 ==================
+  sapAssetCategoryOptions: [],
+  // SAP资产类别描述下拉字典
+  assetSubcategoryOptions: [],
+  // 资产细类描述下拉字典
+  accountDescOptions: [],
+  // 科目描述下拉字典
 
-export default {
-  name: 'projectManagerTransfer',
+  // ================== 展示框文字数据 ==================
+  budgetInfo: {
+    totalBudget: '40.63',
+    currentYearBudget: '0',
+    ratio: '8.4300'
+  },
   props: {
-    selected: {
-      type: Array
-    },
-    getCheckTotalAmount: {
-      type: Function,
-      default: () => Promise.resolve({})
-    },
-    observer: Object,
-    readOnly: Boolean
+    key: 'id'
   },
-  data() {
-    return {
-      buttonLoading: false,
-      pageParam: {
-        pageNum: 1,
-        pageSize: 10
-      },
-      totalItems: 0,
-      searchString: '',
-      tableData: [],
-      selectedData: [],
-      filters: {
-        searchString: '',
-        sapAssetCategoryDesc: '',
-        assetSubcategoryDesc: '',
-        accountDesc: ''
-      },
-
-      // ================== 下拉框预留数据 ==================
-      sapAssetCategoryOptions: [], // SAP资产类别描述下拉字典
-      assetSubcategoryOptions: [], // 资产细类描述下拉字典
-      accountDescOptions: [], // 科目描述下拉字典
-
-      // ================== 展示框文字数据 ==================
-      budgetInfo: {
-        totalBudget: '40.63',
-        currentYearBudget: '0',
-        ratio: '8.4300'
-      },
-
-      props: {
-        key: 'id'
-      },
-      totalAmount: {}
-    }
-  },
-  computed: {
-    leftData() {
-      const selectedIds = this.selectedData.map((item) => item[this.props.key])
-      return this.tableData.map((item) => ({
-        ...item,
-        selected: selectedIds.includes(item[this.props.key])
-      }))
-    }
-  },
-  mounted() {
-    this.getInfo()
-    this.fetchLeftPage()
-    this.loadSelectOptions() // 组件加载时获取下拉框的字典数据
-    this.getAnalyseAsset()
-  },
-  methods: {
-    /**
-     * 预留的查询下拉框数据函数
-     * 在这里调用后端接口给 options 赋值
-     */
-    async loadSelectOptions() {
-      // TODO: 替换为你实际的接口请求，例如：
-      // this.sapAssetCategoryOptions = await dictApi.get('sap_category');
-      const searchKeyOption = {
-        sap: 'sapAssetCategoryOptions',
-        detail: 'assetSubcategoryOptions',
-        subject: 'accountDescOptions'
+  totalAmount: {}
+})
+const buttonLoading = toRef(componentData, 'buttonLoading')
+const pageParam = toRef(componentData, 'pageParam')
+const totalItems = toRef(componentData, 'totalItems')
+const searchString = toRef(componentData, 'searchString')
+const tableData = toRef(componentData, 'tableData')
+const selectedData = toRef(componentData, 'selectedData')
+const filters = toRef(componentData, 'filters')
+const sapAssetCategoryOptions = toRef(componentData, 'sapAssetCategoryOptions')
+const assetSubcategoryOptions = toRef(componentData, 'assetSubcategoryOptions')
+const accountDescOptions = toRef(componentData, 'accountDescOptions')
+const budgetInfo = toRef(componentData, 'budgetInfo')
+const props = toRef(componentData, 'props')
+const totalAmount = toRef(componentData, 'totalAmount')
+/**
+ * 预留的查询下拉框数据函数
+ * 在这里调用后端接口给 options 赋值
+ */
+async function loadSelectOptions() {
+  // TODO: 替换为你实际的接口请求，例如：
+  // this.sapAssetCategoryOptions = await dictApi.get('sap_category');
+  const searchKeyOption = {
+    sap: 'sapAssetCategoryOptions',
+    detail: 'assetSubcategoryOptions',
+    subject: 'accountDescOptions'
+  }
+  const searchPull = (searchKey) => {
+    AssetManagement.searchPull(componentInstance, {
+      search: searchKey
+    }).then((res) => {
+      console.log(res)
+      if (res.data) {
+        componentData[searchKeyOption[searchKey]] = res.data.map((item) => ({
+          label: item,
+          value: item
+        }))
       }
-      const searchPull = (searchKey) => {
-        AssetManagement.searchPull(this, { search: searchKey }).then((res) => {
-          console.log(res)
-          if (res.data) {
-            this[searchKeyOption[searchKey]] = res.data.map((item) => ({
-              label: item,
-              value: item
-            }))
-          }
-        })
-      }
-      Object.keys(searchKeyOption).forEach((searchKey) => {
-        searchPull(searchKey)
-      })
-    },
-
-    pageChange(number) {
-      this.fetchLeftPage(number)
-    },
-    addSelected(row) {
-      if (!this.selectedData.some((item) => item.id === row.id)) {
-        this.selectedData.push(row)
-        this.getAnalyseAsset()
-      }
-    },
-    getAnalyseAsset() {
-      const calculationDataAssetList = this.selectedData.map((item) => ({ assetId: item.id }))
-      return this.getCheckTotalAmount({ calculationDataAssetList }).then((res) => {
-        this.totalAmount = res
-      })
-    },
-    removeSelected(row) {
-      this.selectedData = this.selectedData.filter((item) => item.id != row.id)
-      this.getAnalyseAsset()
-    },
-    getInfo() {
-      const selectIds = this.selected?.map((item) => item.assetId) || []
-      if (selectIds.length > 0) {
-        this.getAssetManagements({ assetManagementDtoFilter: { idIn: selectIds } }).then((res) => {
-          if (res.data?.dataList.length > 0) {
-            this.selectedData = res.data?.dataList
-          }
-        })
-      }
-    },
-    getList(params) {
-      return this.getAssetManagements({
-        ...params,
-        assetManagementDtoFilter: {
-          searchString: this.searchString,
-          ...this.filters
-        }
-      }).then((res) => {
-        if (res.data?.dataList) {
-          this.tableData = res.data.dataList
-          this.totalItems = res.data.totalCount
-        }
-      })
-    },
-    getAssetManagements(params) {
-      return AssetManagement.list(this, params).then((res) => res)
-    },
-    async fetchLeftPage(pageNum = 1) {
-      this.pageParam.pageNum = pageNum
-      await this.getList({
-        pageParam: { ...this.pageParam }
-      })
-    },
-    async handleSubmit() {
-      this.onCancel(
-        true,
-        this.selectedData.map((item) => ({ assetId: item.id }))
-      )
-    },
-    handleCancel() {
-      this.onCancel(false)
-    },
-    onCancel(isSuccess = false, data) {
-      if (this.observer != null) {
-        this.observer.cancel(isSuccess, data)
-      }
-    },
-    resetFilters() {
-      this.filters = {
-        sapAssetCategoryDesc: '',
-        assetSubcategoryDesc: '',
-        accountDesc: '',
-        searchString: ''
-      }
-      this.fetchLeftPage()
-    }
+    })
+  }
+  Object.keys(searchKeyOption).forEach((searchKey) => {
+    searchPull(searchKey)
+  })
+}
+function pageChange(number) {
+  fetchLeftPage(number)
+}
+function addSelected(row) {
+  if (!componentData.selectedData.some((item) => item.id === row.id)) {
+    componentData.selectedData.push(row)
+    getAnalyseAsset()
   }
 }
+function getAnalyseAsset() {
+  const calculationDataAssetList = componentData.selectedData.map((item) => ({
+    assetId: item.id
+  }))
+  return componentProps
+    .getCheckTotalAmount({
+      calculationDataAssetList
+    })
+    .then((res) => {
+      componentData.totalAmount = res
+    })
+}
+function removeSelected(row) {
+  componentData.selectedData = componentData.selectedData.filter((item) => item.id != row.id)
+  getAnalyseAsset()
+}
+function getInfo() {
+  const selectIds = componentProps.selected?.map((item) => item.assetId) || []
+  if (selectIds.length > 0) {
+    getAssetManagements({
+      assetManagementDtoFilter: {
+        idIn: selectIds
+      }
+    }).then((res) => {
+      if (res.data?.dataList.length > 0) {
+        componentData.selectedData = res.data?.dataList
+      }
+    })
+  }
+}
+function getList(params) {
+  return getAssetManagements({
+    ...params,
+    assetManagementDtoFilter: {
+      searchString: componentData.searchString,
+      ...componentData.filters
+    }
+  }).then((res) => {
+    if (res.data?.dataList) {
+      componentData.tableData = res.data.dataList
+      componentData.totalItems = res.data.totalCount
+    }
+  })
+}
+function getAssetManagements(params) {
+  return AssetManagement.list(componentInstance, params).then((res) => res)
+}
+async function fetchLeftPage(pageNum = 1) {
+  componentData.pageParam.pageNum = pageNum
+  await getList({
+    pageParam: {
+      ...componentData.pageParam
+    }
+  })
+}
+async function handleSubmit() {
+  onCancel(
+    true,
+    componentData.selectedData.map((item) => ({
+      assetId: item.id
+    }))
+  )
+}
+function handleCancel() {
+  onCancel(false)
+}
+function onCancel(isSuccess = false, data) {
+  if (componentProps.observer != null) {
+    componentProps.observer.cancel(isSuccess, data)
+  }
+}
+function resetFilters() {
+  componentData.filters = {
+    sapAssetCategoryDesc: '',
+    assetSubcategoryDesc: '',
+    accountDesc: '',
+    searchString: ''
+  }
+  fetchLeftPage()
+}
+const leftData = computed(() => {
+  const selectedIds = componentData.selectedData.map((item) => item[componentData.props.key])
+  return componentData.tableData.map((item) => ({
+    ...item,
+    selected: selectedIds.includes(item[componentData.props.key])
+  }))
+})
+onMounted(() => {
+  getInfo()
+  fetchLeftPage()
+  loadSelectOptions() // 组件加载时获取下拉框的字典数据
+  getAnalyseAsset()
+})
+defineExpose({
+  loadSelectOptions,
+  pageChange,
+  addSelected,
+  getAnalyseAsset,
+  removeSelected,
+  getInfo,
+  getList,
+  getAssetManagements,
+  fetchLeftPage,
+  handleSubmit,
+  handleCancel,
+  onCancel,
+  resetFilters,
+  ...toRefs(componentData),
+  leftData
+})
 </script>
 
 <style lang="less" scoped>

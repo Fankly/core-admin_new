@@ -32,14 +32,13 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'reviewModal'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+defineOptions({
+  name: 'reviewModal'
+})
 
 interface propsVo {
   title: string
@@ -58,8 +57,14 @@ const rmarkData = reactive({
   reason: ''
 })
 const options = ref([
-  { code: '1', name: '通过' },
-  { code: '0', name: '不通过' }
+  {
+    code: '1',
+    name: '通过'
+  },
+  {
+    code: '0',
+    name: '不通过'
+  }
 ])
 
 // 关闭

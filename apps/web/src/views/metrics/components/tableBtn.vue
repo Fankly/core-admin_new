@@ -16,15 +16,14 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/metrics/components/tableBtn'
-}
-</script>
+
 <script setup lang="ts">
-import { onMounted, reactive, defineExpose, defineEmits, watch, ref } from 'vue'
+import { onMounted, reactive, watch, ref } from 'vue'
 import { getYearData } from '@/api/common'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/metrics/components/tableBtn'
+})
 
 interface List {
   yearCode: string
@@ -32,14 +31,14 @@ interface List {
 }
 const copyStatConfigRef = ref()
 const emits = defineEmits(['handlerClick', 'changeNd', 'ndList'])
-const formData = reactive({ nd: '' })
-
+const formData = reactive({
+  nd: ''
+})
 const pageInfo = reactive<{
   [key: string]: List[]
 }>({
   ndDataList: []
 })
-
 const getYearDataList = async () => {
   let res = await getYearData()
   if (res.success) {
@@ -50,28 +49,26 @@ const getYearDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const handlerClick = (val: any) => {
   emits('handlerClick', val)
 }
-
 watch(
   () => formData.nd,
   (newVal) => {
     emits('changeNd', newVal)
   },
-  { deep: true, immediate: true }
+  {
+    deep: true,
+    immediate: true
+  }
 )
-
 const initParams = () => {
   getYearDataList()
 }
-
 defineExpose({
   pageInfo,
   formData
 })
-
 onMounted(initParams)
 </script>
 

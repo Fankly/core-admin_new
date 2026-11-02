@@ -7,8 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps, ref, watch, defineEmits } from "vue";
-
+import { computed, ref, watch } from 'vue'
 const props = defineProps({
   treeData: {
     type: Array,
@@ -16,20 +15,20 @@ const props = defineProps({
   },
   placeholder: {
     type: String,
-    default: "请选择"
+    default: '请选择'
   },
   modelValue: {
     type: Object,
     default: () => ({
-      id: "",
-      name: ""
+      id: '',
+      name: ''
     })
   },
   props: {
     type: Object,
     default: () => ({
-      children: "children",
-      label: "label"
+      children: 'children',
+      label: 'label'
     })
   },
   leafOnly: {
@@ -38,43 +37,37 @@ const props = defineProps({
   },
   valueKey: {
     type: String,
-    default: "id"
+    default: 'id'
   }
-});
-
-const emit = defineEmits(["update:modelValue"]);
-
-const defaultProps = computed(() => props.props);
-
-const selectedValue = ref();
-const treeRef = ref();
-const selectRef = ref();
-
+})
+const emit = defineEmits(['update:modelValue'])
+const defaultProps = computed(() => props.props)
+const selectedValue = ref()
+const treeRef = ref()
+const selectRef = ref()
 const handleNodeClick = (node: any): void => {
   if (props.leafOnly && node[props.props.children]?.length) {
-    return;
+    return
   }
-  selectedValue.value = node[props.props.label];
-  emit("update:modelValue", {
+  selectedValue.value = node[props.props.label]
+  emit('update:modelValue', {
     id: node[props.valueKey],
     name: node[props.props.label]
-  });
-  selectRef.value?.blur();
-};
-
+  })
+  selectRef.value?.blur()
+}
 watch(
   () => props.modelValue,
   (newValue) => {
     if (!newValue) {
-      treeRef.value?.setCurrentKey(null);
+      treeRef.value?.setCurrentKey(null)
     }
   }
-);
-
+)
 const clearHandle = () => {
-  selectedValue.value = "";
-  emit("update:modelValue", "");
-};
+  selectedValue.value = ''
+  emit('update:modelValue', '')
+}
 </script>
 
 <style scoped lang="less">

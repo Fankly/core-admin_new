@@ -45,7 +45,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/lyg/projectProcessWarning/maintenance/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, nextTick, watch } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -54,6 +53,7 @@ import ProTable from '@/components/ProTablePage/index.vue'
 import maintModal from '@/views/lyg/projectProcessWarning/maintenance/components/maintModal/index.vue'
 import { getPublicData } from '@/api/common'
 import { yjyzPage, yjyzSave, yjyzRemove } from '@/api/lyg/index'
+defineOptions({ name: "/lyg/projectProcessWarning/maintenance/index" })
 
 // ========== 类型定义 ==========
 

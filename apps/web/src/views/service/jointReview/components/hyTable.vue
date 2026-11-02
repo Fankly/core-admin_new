@@ -43,11 +43,9 @@
   </div>
   <hymxEcharts ref="hymxRef" />
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
-import { ref, reactive, defineEmits, nextTick, defineExpose } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import proTable from '@/components/ProTable/index.vue' //表格组件
 import hymxEcharts from '@/views/service/jointReview/components/hymxEcharts.vue'
 import { lhhsStatPageMeetingInfo, lhhsStatExportMeetingInfo } from '@/api/service/expertinformation'
@@ -68,8 +66,6 @@ const isShowTable = ref<boolean>(false)
 const apiType = ref<any>('1')
 const loading = ref<boolean>(false)
 const statusEnum = ref<any>([])
-
-
 const handerClickTable = async (val: any) => {
   nextTick(() => {
     proTableRef.value?.clearSelection()
@@ -80,8 +76,13 @@ const handerClickTable = async (val: any) => {
 const pageMeeting = (params: any) => {
   loading.value = true
   const api: any = lhhsStatPageMeetingInfo
-  params = { ...params, ...formData.value }
-  tableParams.value = { ...formData.value }
+  params = {
+    ...params,
+    ...formData.value
+  }
+  tableParams.value = {
+    ...formData.value
+  }
   return api(params)
 }
 // 数据回调
@@ -107,7 +108,9 @@ const showProView = (selecList: any) => {
         meetingIdList: selecList.map((item: any) => item.meetingId)
       }
       hymxRef.value.tableTitle = `组织会审-会议明细`
-      hymxRef.value.formData = { ...parmas }
+      hymxRef.value.formData = {
+        ...parmas
+      }
       hymxRef.value.getMeetingData()
     })
   } else {
@@ -118,7 +121,9 @@ const showProView = (selecList: any) => {
 const handleExport = (val: any) => {
   try {
     loading.value = true
-    const params = { ...formData.value }
+    const params = {
+      ...formData.value
+    }
     const fileName = '会议列表'
     apiExportHandle(params, fileName, lhhsStatExportMeetingInfo)
     loading.value = false
@@ -128,7 +133,6 @@ const handleExport = (val: any) => {
     ElMessage.error(error.message)
   }
 }
-
 const getPublicCodeData = async () => {
   try {
     statusEnum.value.length = 0
@@ -150,10 +154,16 @@ const getPublicCodeData = async () => {
     ElMessage.error(e.toString())
   }
 }
-
 const tableColumns = reactive<any[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'status',
     label: '会议状态',

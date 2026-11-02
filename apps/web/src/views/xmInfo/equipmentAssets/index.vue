@@ -85,8 +85,6 @@
 
 <script setup lang="ts">
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/xmInfo/equipmentAssets/index" })
 import { computed, nextTick, onMounted, provide, reactive, ref, watch } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 import { ElMessage } from 'element-plus'
@@ -98,6 +96,7 @@ import { addEquipmentAsset, editEquipmentAsset, getEquipmentAsset, listEquipment
 import type { AssetId, AssetKind, AssetRecord } from '@/api/xmInfo/equipmentAssets'
 import { assetKindConfigs, assetKinds } from './config'
 import AssetFormDialog from './components/AssetFormDialog.vue'
+defineOptions({ name: "/xmInfo/equipmentAssets/index" })
 
 const activeKind = ref<AssetKind>('pmsEquip')
 const projectKeys = reactive<Record<AssetKind, string>>({ pmsEquip: '', gjsb: '', glsb: '' })

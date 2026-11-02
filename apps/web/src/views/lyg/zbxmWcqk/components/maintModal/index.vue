@@ -75,11 +75,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'zbxmWcqkMaintModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -88,6 +83,9 @@ import { VXETable } from 'vxe-table'
 import { zbxmWcqkAdd, zbxmWcqkUpdate } from '@/api/lyg/zbxmWcqk'
 import { getYjdwNew, getEjdwByYjdw, getPublicData } from '@/api/common'
 import { getSgbm } from '@/api/service/requirement'
+defineOptions({
+  name: 'zbxmWcqkMaintModal'
+})
 
 /** 公共代码项 */
 interface CodeItem {
@@ -102,11 +100,14 @@ interface ModalParams {
   specialorgid: string
   org_id: string
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
@@ -137,7 +138,6 @@ const handleSave = () => {
   }
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -149,14 +149,17 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
       const saveApi = modalTitle.value === '编辑' ? zbxmWcqkUpdate : zbxmWcqkAdd
-      const res = await saveApi({ ...searchParams.value })
+      const res = await saveApi({
+        ...searchParams.value
+      })
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -231,7 +234,9 @@ const fetchZcblx = async () => {
 
 /** 打开弹窗 */
 const acceptParams = async (params: ModalParams) => {
-  userInfo.value = { ...params }
+  userInfo.value = {
+    ...params
+  }
   modalTitle.value = params.type
   // 清空已有属性，保持 searchParams 引用不变（避免 el-form 的 model 引用失效导致校验失败）
   Object.keys(searchParams.value).forEach((key) => {
@@ -263,6 +268,7 @@ const acceptParams = async (params: ModalParams) => {
     searchParams.value.gkbm = gkbm
   }
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>

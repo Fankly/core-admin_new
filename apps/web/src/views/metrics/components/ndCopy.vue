@@ -29,23 +29,20 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: '/metrics/components/ndCopy'
-}
-</script>
+
 <script setup lang="ts">
-import { onMounted, ref, reactive, nextTick, computed, defineExpose, defineEmits, handleError } from 'vue'
+import { onMounted, ref, reactive, nextTick, computed, handleError } from 'vue'
 import { ElMessageBox, ElMessage, ElInput } from 'element-plus'
+defineOptions({
+  name: '/metrics/components/ndCopy'
+})
 
 const emit = defineEmits(['handlerCopy'])
-
 const ndList = ref<any[]>([])
 const formData = reactive({
   sourceNd: '',
   targetNd: ''
 })
-
 const treeModal = ref<boolean>(false)
 const title = ref<any>('弹窗') //弹窗标题
 const treeDataList = ref<any[]>([]) // 单位树结构

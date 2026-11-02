@@ -1,80 +1,68 @@
-<script lang="ts">
-export default {
-  name: "ExtensionForm"
-};
-</script>
+
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
-
-import { computed, onMounted, ref, toRef, defineProps, defineExpose } from "vue";
-import { BaseMsgData } from "@/views/matter/types/matterDecl";
-import { getYhzd, saveOrUpdateYhzd } from "@/api/matter";
+import { computed, onMounted, ref, toRef } from 'vue'
+import { BaseMsgData } from '@/views/matter/types/matterDecl'
+import { getYhzd, saveOrUpdateYhzd } from '@/api/matter'
+defineOptions({
+  name: 'ExtensionForm'
+})
 
 interface Props {
-  baseMsgData: BaseMsgData;
+  baseMsgData: BaseMsgData
 }
-
-const props = defineProps<Props>();
-
-const isShowSearch = ref(false);
-
+const props = defineProps<Props>()
+const isShowSearch = ref(false)
 const extensionData = ref<any>({
-  yssxId: "",
-  yhzd1: "",
-  yhzd2: "",
-  yhzd3: "",
-  yhzd4: "",
-  yhzd5: "",
-  yhzd6: "",
-  yhzd7: "",
-  yhzd8: "",
-  yhzd9: "",
-  yhzd10: ""
-});
-
+  yssxId: '',
+  yhzd1: '',
+  yhzd2: '',
+  yhzd3: '',
+  yhzd4: '',
+  yhzd5: '',
+  yhzd6: '',
+  yhzd7: '',
+  yhzd8: '',
+  yhzd9: '',
+  yhzd10: ''
+})
 onMounted(() => {
-  if (props.baseMsgData.operationFlag !== "ADD") {
-    initEditParams();
+  if (props.baseMsgData.operationFlag !== 'ADD') {
+    initEditParams()
   }
-});
-
+})
 const clearData = () => {
   for (const key in extensionData.value) {
-    extensionData.value[key] = "";
+    extensionData.value[key] = ''
   }
-};
-
-const baseMsgData = toRef(props, "baseMsgData");
-
-const isDisabled = computed(() => baseMsgData.value.operationFlag === "VIEW");
-
+}
+const baseMsgData = toRef(props, 'baseMsgData')
+const isDisabled = computed(() => baseMsgData.value.operationFlag === 'VIEW')
 const initEditParams = async () => {
-  let res = await getYhzd(props.baseMsgData.selectedData.id);
+  let res = await getYhzd(props.baseMsgData.selectedData.id)
   if (res.success && res.data) {
-    extensionData.value = res.data;
+    extensionData.value = res.data
   }
-};
-
+}
 const saveExtensionData = (val: string) => {
-  if (props.baseMsgData.operationFlag === "ADD") {
-    extensionData.value.yssxId = val;
+  if (props.baseMsgData.operationFlag === 'ADD') {
+    extensionData.value.yssxId = val
     saveOrUpdateYhzd({
       ...extensionData.value
-    });
+    })
   } else {
-    extensionData.value.yssxId = props.baseMsgData.selectedData.yssxId;
+    extensionData.value.yssxId = props.baseMsgData.selectedData.yssxId
     saveOrUpdateYhzd({
       ...extensionData.value
-    });
+    })
   }
-};
-
+}
 defineExpose({
   saveExtensionData,
   extensionData,
   clearData
-});
+})
 </script>
 
 <template>

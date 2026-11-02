@@ -440,961 +440,1131 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { DASHBOARD_YJDW_PARAM, strategyMap } from './index.module'
 // 以下 JS 逻辑代码完全保留，一字未动
 import * as echarts from 'echarts'
-
 import { CwProject, CwProjectCount, CwProjectApprove, CwProjectApply } from '@/api/mainController'
-
 import { getYjdwFromCm, getParamValueMulti } from '@/api/common'
-
-import { projectConfigMixin, uploadMixin, statsDateRangeMixin, cachePageMixin, cachedSinglePageMixin } from '@/core/mixins'
-
-import { mapGetters } from '@/store/business'
-
+import '@/core/mixins'
 import { ApprovedTypeDict, StatusReserveDict } from '@/staticDict/index.js'
-
 import exportDialog from '@/views/finance/reserveApproval/exportDialog.vue'
-
 import similarSetting from '../components/similarSetting.vue'
 
 // 财务首页默认一级单位的配置参数Key（如需调整请同步后台 sysParam 配置，值为一级单位 code）
-const DASHBOARD_YJDW_PARAM = 'DASHBOARD_YJDW'
-
-// --- 新增：抽离审批人通用的参数构造逻辑，避免下面的代码重复写4遍 ---
-const buildApproveParams = (pageNum) => ({
-  orderParam: [{ fieldName: 'createTime', asc: 1 }],
-  pageParam: { pageNum: pageNum, pageSize: 20 },
-  cwProjectApproveDtoFilter: {
-    // 如果未来需要针对某个具体审批人传特定参数，也可以在这里处理
-    status: ApprovedTypeDict.UNAPPROVED,
-    noticeRunning: 1
+import componentStore from '@/store/business'
+import { useUpload, useStatsDateRange, useCachedPage, useCachedSinglePage, useProjectConfig } from '@/core/composables/useWorkspace'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  computed,
+  proxyRefs,
+  toRef,
+  nextTick,
+  reactive,
+  toRefs,
+  onMounted,
+  onBeforeUnmount,
+  onActivated,
+  onDeactivated,
+  getCurrentInstance,
+  useTemplateRef
+} from 'vue'
+defineOptions({
+  name: '/finance/dashboard/index'
+})
+const componentProps = defineProps({
+  // originCallback: {
+  //   type: [Function]
+  // }
+  _key: {
+    type: [Number, String],
+    default: undefined
+  },
+  _origin: {
+    type: String
   }
 })
-
-const strategyMap = {
-  reporter: {
-    apiMethod: CwProject.list,
-    detailPath: 'projectDetail',
-    // 填报人专属参数构造器
-    getParams: (pageNum) => ({
-      orderParam: [{ fieldName: 'createTime', asc: 1 }],
-      pageParam: { pageNum: pageNum, pageSize: 20 },
-      cwProjectDtoFilter: {
-        // 填报人特有的过滤条件放这里
-        reserveStatus: `${StatusReserveDict.DEPARTMENT_REVIEWING},${StatusReserveDict.FINANCE_REVIEWING},${StatusReserveDict.JOINT_REVIEWING}`,
-        noticeRunning: 1
-      }
-    })
+const componentInstance = getCurrentInstance().proxy
+const scrollingContainerRef = useTemplateRef('scrollingContainer')
+const originalListRef = useTemplateRef('originalList')
+const sciFiPieChartRef = useTemplateRef('sciFiPieChart')
+const UploadState = proxyRefs(useUpload())
+const parseUploadData = toRef(UploadState, 'parseUploadData')
+const getPictureList = toRef(UploadState, 'getPictureList')
+const fileListToJson = toRef(UploadState, 'fileListToJson')
+const getUploadFileUrl = toRef(UploadState, 'getUploadFileUrl')
+const filterEmptyValues = toRef(UploadState, 'filterEmptyValues')
+const getUploadFileUrlByFetch = toRef(UploadState, 'getUploadFileUrlByFetch')
+const getUploadActionUrl = toRef(UploadState, 'getUploadActionUrl')
+const pictureFile = toRef(UploadState, 'pictureFile')
+const getUploadHeaders = toRef(UploadState, 'getUploadHeaders')
+const StatsDateRangeState = proxyRefs(useStatsDateRange())
+const getDateRangeFilter = toRef(StatsDateRangeState, 'getDateRangeFilter')
+const formatDateByStatsType = toRef(StatsDateRangeState, 'formatDateByStatsType')
+const formatDateTime = toRef(StatsDateRangeState, 'formatDateTime')
+const getStatsTypeShowName = toRef(StatsDateRangeState, 'getStatsTypeShowName')
+const getAllowStatsTypeList = toRef(StatsDateRangeState, 'getAllowStatsTypeList')
+const CachedPageState = proxyRefs(useCachedPage(undefined))
+const addCachePage = toRef(CachedPageState, 'addCachePage')
+const removeCachePage = toRef(CachedPageState, 'removeCachePage')
+const onResume = toRef(CachedPageState, 'onResume')
+const CachedSinglePageState = proxyRefs(useCachedSinglePage(componentProps))
+const removeTag = toRef(CachedSinglePageState, 'removeTag')
+const getCurrentMenuId = toRef(CachedSinglePageState, 'getCurrentMenuId')
+const routerPush = toRef(CachedSinglePageState, 'routerPush')
+const singlePageReload = toRef(CachedSinglePageState, 'singlePageReload')
+const oncancel = toRef(CachedSinglePageState, 'oncancel')
+const refreshUrlParams = toRef(CachedSinglePageState, 'refreshUrlParams')
+const savedKey = toRef(CachedSinglePageState, 'savedKey')
+const ProjectConfigState = proxyRefs(useProjectConfig())
+const openAdmin = toRef(ProjectConfigState, 'openAdmin')
+const componentData = reactive({
+  activeTab: 'audit',
+  // 默认选中 '审核中'
+  chartInstance: null,
+  chartClickHandler: null,
+  chartLegendSelectHandler: null,
+  shouldScroll: false,
+  aiLoading: {
+    ratioAnalysis: true,
+    assetComparison: true,
+    necessityAnalysis: true
   },
-  deptApproval: {
-    vtSource: 1,
-    apiMethod: CwProjectApprove.deptList,
-    detailPath: 'deptApprovalDetail',
-    getParams: buildApproveParams // 使用通用审批参数
+  // 左侧AI实时分析长列表数据源
+  aiAnalysisList: [],
+  riskCount: {},
+  prevRiskCount: {},
+  // 用于对比的旧数据
+  count: {},
+  // 已注释：原 AI 初审分析结论状态，结论卡不展示，仅保留代码
+  // analyseReview: '',
+  pollTimer: null,
+  // 轮询定时器
+  numberKey: 0,
+  // 用于触发数字重渲染的 key
+  // ========= 完全独立的 4 个页签状态对象 (修复无用引用) =========
+  // 加入 total 字段以便对接接口返回的真实总数
+  // ======= 加入下拉刷新状态对象 =======
+  pullRefresh: {
+    startY: 0,
+    distance: 0,
+    isDragging: false,
+    isRefreshing: false,
+    canPull: false,
+    statusText: '下拉刷新'
   },
-  financeApproval: {
-    vtSource: 2,
-    apiMethod: CwProjectApprove.financeList,
-    detailPath: 'financeApprovalDetail',
-    getParams: buildApproveParams
+  auditData: {
+    list: [],
+    page: 1,
+    loading: false,
+    finished: false,
+    total: 0
   },
-  jysApproval: {
-    vtSource: 3,
-    apiMethod: CwProjectApprove.jysList,
-    detailPath: 'jysApprovalDetail',
-    getParams: buildApproveParams
+  todoData: {
+    list: [],
+    page: 1,
+    loading: false,
+    finished: false,
+    total: 0
   },
-  fzbApproval: {
-    vtSource: 4,
-    apiMethod: CwProjectApprove.fzbList,
-    detailPath: 'fzbApprovalDetail',
-    getParams: buildApproveParams
+  rejectData: {
+    list: [],
+    page: 1,
+    loading: false,
+    finished: false,
+    total: 0
+  },
+  doneData: {
+    list: [],
+    page: 1,
+    loading: false,
+    finished: false,
+    total: 0
+  },
+  listKey: '',
+  showFloatingBtn: true,
+  // 控制悬浮球显隐
+  // ======= 一级单位下拉（默认值取配置参数，仅默认值可选） =======
+  yjdwList: [],
+  // 一级单位下拉选项
+  yjdwValue: '',
+  // 当前选中（v-model）
+  defaultYjdw: '' // 配置参数中的默认一级单位（唯一可选项）
+})
+const activeTab = toRef(componentData, 'activeTab')
+const chartInstance = toRef(componentData, 'chartInstance')
+const chartClickHandler = toRef(componentData, 'chartClickHandler')
+const chartLegendSelectHandler = toRef(componentData, 'chartLegendSelectHandler')
+const shouldScroll = toRef(componentData, 'shouldScroll')
+const aiLoading = toRef(componentData, 'aiLoading')
+const aiAnalysisList = toRef(componentData, 'aiAnalysisList')
+const riskCount = toRef(componentData, 'riskCount')
+const prevRiskCount = toRef(componentData, 'prevRiskCount')
+const count = toRef(componentData, 'count')
+const pollTimer = toRef(componentData, 'pollTimer')
+const numberKey = toRef(componentData, 'numberKey')
+const pullRefresh = toRef(componentData, 'pullRefresh')
+const auditData = toRef(componentData, 'auditData')
+const todoData = toRef(componentData, 'todoData')
+const rejectData = toRef(componentData, 'rejectData')
+const doneData = toRef(componentData, 'doneData')
+const listKey = toRef(componentData, 'listKey')
+const showFloatingBtn = toRef(componentData, 'showFloatingBtn')
+const yjdwList = toRef(componentData, 'yjdwList')
+const yjdwValue = toRef(componentData, 'yjdwValue')
+const defaultYjdw = toRef(componentData, 'defaultYjdw')
+function onDragStart(e) {
+  // 防止误触 PC 端的按钮或输入框时触发下拉
+  const isInput = e.target.closest('button, a, input, [role="button"]')
+  if (isInput && e.type === 'mousedown') return
+  if (componentData.pullRefresh.isRefreshing) return
+  const activeList = componentInstance.$refs[componentData.activeTab + 'List']
+  // 只有在滚动条位于最顶部才能触发下拉手势
+  if (activeList && activeList.scrollTop > 0) {
+    componentData.pullRefresh.canPull = false
+    return
+  }
+  componentData.pullRefresh.canPull = true
+  componentData.pullRefresh.isDragging = true
+  componentData.pullRefresh.startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY
+  componentData.pullRefresh.distance = 0
+}
+function onDragMove(e) {
+  if (!componentData.pullRefresh.isDragging || !componentData.pullRefresh.canPull) return
+  const currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY
+  const diff = currentY - componentData.pullRefresh.startY
+  if (diff > 0) {
+    if (e.cancelable && e.type.includes('touch')) e.preventDefault() // 防止网页原生滚动
+    // 使用 0.4 的阻尼系数，最大拉取高度 80px
+    componentData.pullRefresh.distance = Math.min(diff * 0.4, 80)
+    componentData.pullRefresh.statusText = componentData.pullRefresh.distance > 50 ? '释放立即刷新' : '下拉刷新'
+  } else {
+    componentData.pullRefresh.distance = 0
   }
 }
+function onDragEnd() {
+  if (!componentData.pullRefresh.isDragging) return
+  componentData.pullRefresh.isDragging = false
+  if (componentData.pullRefresh.distance > 50) {
+    componentData.pullRefresh.isRefreshing = true
+    componentData.pullRefresh.statusText = '正在刷新...'
+    componentData.pullRefresh.distance = 50 // 悬停在刷新区
 
-export default {
-  name: '/finance/dashboard/index',
-  mixins: [uploadMixin, statsDateRangeMixin, cachePageMixin, cachedSinglePageMixin, projectConfigMixin],
-  data() {
-    return {
-      activeTab: 'audit', // 默认选中 '审核中'
-      chartInstance: null,
-      chartClickHandler: null,
-      chartLegendSelectHandler: null,
-      shouldScroll: false,
-      aiLoading: {
-        ratioAnalysis: true,
-        assetComparison: true,
-        necessityAnalysis: true
-      },
-
-      // 左侧AI实时分析长列表数据源
-      aiAnalysisList: [],
-      riskCount: {},
-      prevRiskCount: {}, // 用于对比的旧数据
-      count: {},
-      // 已注释：原 AI 初审分析结论状态，结论卡不展示，仅保留代码
-      // analyseReview: '',
-      pollTimer: null, // 轮询定时器
-      numberKey: 0, // 用于触发数字重渲染的 key
-      // ========= 完全独立的 4 个页签状态对象 (修复无用引用) =========
-      // 加入 total 字段以便对接接口返回的真实总数
-      // ======= 加入下拉刷新状态对象 =======
-      pullRefresh: {
-        startY: 0,
-        distance: 0,
-        isDragging: false,
-        isRefreshing: false,
-        canPull: false,
-        statusText: '下拉刷新'
-      },
-      auditData: {
-        list: [],
-        page: 1,
-        loading: false,
-        finished: false,
-        total: 0
-      },
-      todoData: {
-        list: [],
-        page: 1,
-        loading: false,
-        finished: false,
-        total: 0
-      },
-      rejectData: {
-        list: [],
-        page: 1,
-        loading: false,
-        finished: false,
-        total: 0
-      },
-      doneData: {
-        list: [],
-        page: 1,
-        loading: false,
-        finished: false,
-        total: 0
-      },
-
-      listKey: '',
-      showFloatingBtn: true, // 控制悬浮球显隐
-      // ======= 一级单位下拉（默认值取配置参数，仅默认值可选） =======
-      yjdwList: [], // 一级单位下拉选项
-      yjdwValue: '', // 当前选中（v-model）
-      defaultYjdw: '' // 配置参数中的默认一级单位（唯一可选项）
+    executeRefresh()
+      .then(() => {
+        componentData.pullRefresh.statusText = '刷新成功'
+        setTimeout(() => {
+          componentData.pullRefresh.distance = 0
+          componentData.pullRefresh.isRefreshing = false
+        }, 500)
+      })
+      .catch(() => {
+        componentData.pullRefresh.statusText = '刷新失败'
+        setTimeout(() => {
+          componentData.pullRefresh.distance = 0
+          componentData.pullRefresh.isRefreshing = false
+        }, 500)
+      })
+  } else {
+    componentData.pullRefresh.distance = 0
+  }
+}
+async function executeRefresh() {
+  try {
+    componentData.pullRefresh.isRefreshing = true
+    await refreshTab(componentData.activeTab)
+    getRefresh() // 同步刷新左侧整体概览数据
+  } catch (e) {
+    console.error(e)
+    throw e
+  } finally {
+    // PC端点击按钮刷新时收尾
+    if (!componentData.pullRefresh.isDragging && componentData.pullRefresh.distance === 0) {
+      componentData.pullRefresh.isRefreshing = false
     }
-  },
-  mounted() {
-    window.addEventListener('resize', this.handleResize)
+  }
+}
+// ======================================
+function handleFloatingClick() {
+  // 1. 隐藏悬浮球
+  componentData.showFloatingBtn = false
 
-    // 初始化加载第一个页签
-    this.triggerLoad(this.activeTab)
+  // 2. 调用弹窗
+  componentInstance.$dialog
+    .show(
+      'AI 智能穿透分析报告',
+      similarSetting,
+      {
+        area: ['800px', '600px'],
+        end: () => {
+          componentData.showFloatingBtn = true
+        }
+      },
+      {
+        projectId: 'AI_ANALYZE_MODE'
+      }
+    )
+    .then(() => {})
+    .catch(() => {
+      componentData.showFloatingBtn = true
+    })
+}
+function handleRouterPush(path) {
+  if (roleKey.value !== 'financeApproval') {
+    return ElMessage({
+      message: '无权限',
+      type: 'warning'
+    })
+  }
+  CachedSinglePageState.routerPush({
+    path
+  })
+}
+function getRiskChartAiRiskLevel(name) {
+  const riskLevelMap = {
+    问题项目: componentInstance.AIRiskLevelDict.RISK_HIGH,
+    隐患项目: componentInstance.AIRiskLevelDict.RISK_MEDIUM,
+    异常项目: componentInstance.AIRiskLevelDict.RISK_LOW
+  }
+  return riskLevelMap[name]
+}
+function handleRiskChartDrilldown(name) {
+  const aiRiskLevel = getRiskChartAiRiskLevel(name)
+  if (aiRiskLevel == null) return
+  CachedSinglePageState.routerPush({
+    path: '/finance/reserveApproval',
+    query: {
+      aiRiskLevel
+    }
+  })
+}
+function bindRiskChartEvents() {
+  if (!componentData.chartInstance) return
+  if (componentData.chartClickHandler) {
+    componentData.chartInstance.off('click', componentData.chartClickHandler)
+  }
+  if (componentData.chartLegendSelectHandler) {
+    componentData.chartInstance.off('legendselectchanged', componentData.chartLegendSelectHandler)
+  }
+  componentData.chartClickHandler = (params) => {
+    if (params?.seriesType !== 'pie') return
+    handleRiskChartDrilldown(params.name)
+  }
+  componentData.chartLegendSelectHandler = (params) => {
+    handleRiskChartDrilldown(params.name)
+  }
+  componentData.chartInstance.on('click', componentData.chartClickHandler)
+  componentData.chartInstance.on('legendselectchanged', componentData.chartLegendSelectHandler)
+}
+function handleSetting() {
+  if (roleKey.value !== 'financeApproval') {
+    return ElMessage({
+      message: '无权限',
+      type: 'warning'
+    })
+  }
+  componentInstance.$dialog
+    .show(
+      '配置',
+      similarSetting,
+      {
+        area: ['800px']
+      },
+      {}
+    )
+    .then((res) => {
+      componentInstance.refreshTable(true)
+    })
+    .catch(() => {})
+}
+function handleExport() {
+  if (roleKey.value == 'reporter') {
+    return ElMessage({
+      message: '无权限',
+      type: 'warning'
+    })
+  }
+  componentInstance.$dialog
+    .show(
+      '导出',
+      exportDialog,
+      {
+        area: ['450px', 'auto']
+      },
+      {
+        vtSource: strategyMap[roleKey.value].vtSource,
+        exportOptions: ['financeApproval', 'deptApproval'].includes(roleKey.value) ? [1, 5] : [1]
+      }
+    )
+    .then((res) => {})
+    .catch((e) => {})
+}
+function onDetail(id, roleKey) {
+  const jsonStr = JSON.stringify(componentData.listKey)
+  const encodedStr = encodeURIComponent(jsonStr)
+  CachedSinglePageState.routerPush({
+    path: `${strategyMap[roleKey || roleKey.value].detailPath}/${id}`,
+    query: {
+      listKey: encodedStr
+    }
+  })
+}
+function updateSingleRowLocally(projectId) {
+  const tabName = componentData.activeTab
+  const targetData = componentData[`${tabName}Data`]
+  if (!targetData) return
+  const index = targetData.list.findIndex((item) => item.projectId === projectId || item.id === projectId)
+  if (index === -1) return
+  CwProject.view(componentInstance, {
+    projectId
+  })
+    .then((res) => {
+      if (res.data) {
+        targetData.list.splice(index, 1, res.data)
+      }
+    })
+    .catch((e) => {
+      console.error('局部更新失败:', e)
+    })
+}
+function removeRowLocally(projectId) {
+  const targetData = componentData[`${componentData.activeTab}Data`]
+  if (!targetData) return
+  const index = targetData.list.findIndex((item) => item.projectId === projectId || item.id === projectId)
+  if (index !== -1) {
+    targetData.list.splice(index, 1)
+    if (targetData.total > 0) targetData.total--
+  }
+}
+function onDeleteRow(row) {
+  if (+row.reserveStatus != componentInstance.ReserveTypeDict.CREATE && +row.reserveStatus != componentInstance.ReserveTypeDict.DELAYED) {
+    ElMessage.warning(
+      `无法删除【${componentInstance.ReserveTypeDict.getValue(componentInstance.ReserveTypeDict.CREATE)}】和【${componentInstance.ReserveTypeDict.getValue(componentInstance.ReserveTypeDict.DELAYED)}】之外的数据`
+    )
+    return
+  }
+  if (
+    [
+      componentInstance.StatusRealDict.CREATE,
+      componentInstance.StatusRealDict.CREATE_FINISH,
+      componentInstance.StatusRealDict.REJECT_DEPT,
+      componentInstance.StatusRealDict.REJECT_FINANCE
+    ].indexOf(row.status) == -1
+  ) {
+    ElMessage.warning('无法删除')
+    return
+  }
+  const params = {
+    projectIdList: [row.projectId]
+  }
+  ElMessageBox.confirm('是否删除此数据？')
+    .then((res) => {
+      return CwProject.deleteBatch(componentInstance, params)
+    })
+    .then((res) => {
+      ElMessage.success('删除成功')
+      refreshTab(componentData.activeTab)
+      getRefresh()
+    })
+    .catch((e) => {})
+}
+function handleSubmit(projectId) {
+  if (!projectId) {
+    return
+  }
+  return ElMessageBox.confirm('是否提交?').then(() => {
+    return CwProjectApply.submit(componentInstance, {
+      projectId
+    })
+      .then((res) => {
+        ElMessage.success('提交成功')
+        refreshTab(componentData.activeTab)
+        getRefresh()
+      })
+      .catch((e) => {
+        if (projectId) {
+          updateSingleRowLocally(projectId)
+        } else {
+          refreshTab(componentData.activeTab)
+        }
+        getRefresh()
+      })
+  })
+}
+function getRefresh() {
+  // this.getChartRiskCount();
+  // 已注释：原 AI 初审分析结论请求，结论卡不展示，仅保留代码
+  // this.getAnalyseReview()
+  getCount()
+  getAiAnalysisList()
+}
+// 加载一级单位下拉：选项取 getYjdwFromCm，默认值取配置参数 DASHBOARD_YJDW_PARAM
+async function loadYjdwOptions() {
+  try {
+    const [listRes, paramRes] = await Promise.all([getYjdwFromCm(), getParamValueMulti([DASHBOARD_YJDW_PARAM])])
+    componentData.yjdwList = (listRes && listRes.data) || []
+    const paramVal = paramRes && paramRes.data ? paramRes.data[DASHBOARD_YJDW_PARAM] : ''
+    // 默认值优先取配置参数；缺省时兜底取列表第一项，保证始终有一个可选项
+    componentData.defaultYjdw = paramVal || (componentData.yjdwList[0] && componentData.yjdwList[0].code) || ''
+    componentData.yjdwValue = componentData.defaultYjdw
+  } catch (e) {
+    console.error('加载一级单位下拉失败:', e)
+  }
+}
+function getChartRiskCount() {
+  CwProjectCount.riskCount(componentInstance, {}).then((res) => {
+    const newData = res.data
+    const isValChanged = checkDataChanged(componentData.riskCount, newData)
+    if (isValChanged) {
+      componentData.numberKey++
+    }
+    componentData.riskCount = {
+      ...newData
+    }
+    initChart()
+  })
+}
+function checkDataChanged(prev, curr) {
+  const keys = ['monthRiskCount', 'problemCount', 'hiddenDangerCount', 'exceptionCount']
+  return keys.some((key) => prev[key] !== curr[key])
+}
+// 1. 优化后的启动逻辑
+function startPolling() {
+  // 强制清理现有的，确保不重复启动
+  stopPolling()
+  console.log('启动定时器 - 智审数据监控')
 
-    // 同时加载审核中、待提交、已驳回这三个页签，以获取各自的 total
-    this.triggerLoad('todo')
-    this.triggerLoad('reject')
+  // 立即执行一次获取最新数据
+  getChartRiskCount()
 
-    this.getRefresh()
-
-    // 加载一级单位下拉（默认值来自配置参数）
-    this.loadYjdwOptions()
-
-    // 【兜底】确保图表初始化 - 在DOM准备好后先尝试初始化一次
-    this.$nextTick(() => {
-      this.prevRiskCount = { ...this.riskCount }
+  // 开启定时任务
+  componentData.pollTimer = setInterval(() => {
+    console.log('定时轮询中...')
+    getChartRiskCount()
+  }, 30 * 1000) // 30秒一次
+}
+// 2. 停止逻辑
+function stopPolling() {
+  if (componentData.pollTimer) {
+    console.log('停止并清理定时器')
+    clearInterval(componentData.pollTimer)
+    componentData.pollTimer = null
+  }
+}
+function getCount() {
+  CwProjectCount.count(componentInstance, {}).then((res) => {
+    componentData.count = res.data
+  })
+}
+// 已注释：原 AI 初审分析结论请求方法，结论卡不展示，仅保留代码
+// getAnalyseReview() {
+//   CwProjectCount.analyseReview(this, {}).then((res) => {
+//     this.analyseReview = res.data
+//   })
+// },
+function getAiAnalysisList() {
+  const params = {
+    orderParam: [
+      {
+        fieldName: 'createTime',
+        asc: 1
+      }
+    ],
+    pageParam: {
+      pageNum: 1,
+      pageSize: 20
+    },
+    cwProjectDtoFilter: {
+      aiRiskLevel: `${componentInstance.AIRiskLevelDict.RISK_HIGH},${componentInstance.AIRiskLevelDict.RISK_MEDIUM},${componentInstance.AIRiskLevelDict.RISK_LOW}`,
+      noticeRunning: 1
+    }
+  }
+  return new Promise((resolve, reject) => {
+    CwProject.list(componentInstance, params, {
+      headers: {
+        MenuId: '1896798431855251456'
+      }
+    })
+      .then((res) => {
+        componentData.aiAnalysisList = [...res.data.dataList]
+        nextTick(() => {
+          checkScrollable()
+        })
+      })
+      .catch((e) => {
+        reject(e)
+      })
+  })
+}
+function refreshTab(tabName) {
+  const targetData = componentData[`${tabName}Data`]
+  if (!targetData) return
+  targetData.list = []
+  targetData.page = 1
+  targetData.finished = false
+  targetData.total = 0
+  targetData.loading = false
+  triggerLoad(tabName)
+}
+function switchTab(tab) {
+  componentData.activeTab = tab
+  const targetData = componentData[`${tab}Data`]
+  if (targetData && targetData.list.length === 0 && !targetData.finished) {
+    triggerLoad(tab)
+  }
+}
+function handleScroll(tabName, e) {
+  const { scrollTop, clientHeight, scrollHeight } = e.target
+  if (scrollTop + clientHeight >= scrollHeight - 20) {
+    triggerLoad(tabName)
+  }
+}
+function triggerLoad(tabName) {
+  if (tabName === 'audit' && !componentData.auditData.loading && !componentData.auditData.finished) {
+    fetchAuditList()
+  }
+  if (tabName === 'todo' && !componentData.todoData.loading && !componentData.todoData.finished) {
+    fetchTodoList()
+  }
+  if (tabName === 'reject' && !componentData.rejectData.loading && !componentData.rejectData.finished) {
+    fetchRejectList()
+  }
+  if (tabName === 'done' && !componentData.doneData.loading && !componentData.doneData.finished) {
+    fetchDoneList()
+  }
+}
+function fetchAuditList() {
+  componentData.auditData.loading = true
+  const currentStrategy = strategyMap[roleKey.value]
+  const params = currentStrategy.getParams(componentData.auditData.page)
+  return new Promise((resolve, reject) => {
+    currentStrategy
+      .apiMethod(
+        componentInstance,
+        params,
+        {
+          headers: {
+            MenuId: '1896798431855251456'
+          }
+        },
+        {
+          showMask: false
+        }
+      )
+      .then((res) => {
+        const listData = res.data?.dataList || []
+        componentData.listKey = res.data.listKey
+        componentData.auditData.total = res.data?.totalCount || res.data?.total || 0
+        const mappedList = listData.map((item) => ({
+          ...item,
+          aiLoading: true
+        }))
+        componentData.auditData.list.push(...mappedList)
+        componentData.auditData.page++
+        if (componentData.auditData.list.length >= componentData.auditData.total || listData.length === 0) {
+          componentData.auditData.finished = true
+        }
+        nextTick(() => {
+          setTimeout(() => {
+            mappedList.forEach((item) => {
+              item.aiLoading = false
+            })
+          }, 1000)
+        })
+        resolve(res)
+      })
+      .catch((e) => {
+        reject(e)
+      })
+      .finally(() => {
+        componentData.auditData.loading = false
+      })
+  })
+}
+function fetchTodoList() {
+  componentData.todoData.loading = true
+  const params = {
+    orderParam: [
+      {
+        fieldName: 'createTime',
+        asc: 1
+      }
+    ],
+    pageParam: {
+      pageNum: componentData.todoData.page,
+      pageSize: 20
+    },
+    cwProjectDtoFilter: {
+      reserveStatus: StatusReserveDict.PENDING_SUBMIT
+    }
+  }
+  return new Promise((resolve, reject) => {
+    CwProject.list(
+      componentInstance,
+      params,
+      {
+        headers: {
+          MenuId: '1896798431855251456'
+        }
+      },
+      {
+        showMask: false
+      }
+    )
+      .then((res) => {
+        const listData = res.data?.dataList || []
+        componentData.todoData.total = res.data?.totalCount || res.data?.total || 0
+        const mappedList = listData.map((item) => ({
+          ...item
+        }))
+        componentData.todoData.list.push(...mappedList)
+        componentData.todoData.page++
+        if (componentData.todoData.list.length >= componentData.todoData.total || listData.length === 0) {
+          componentData.todoData.finished = true
+        }
+        resolve(res)
+      })
+      .catch((e) => {
+        reject(e)
+      })
+      .finally(() => {
+        componentData.todoData.loading = false
+      })
+  })
+}
+function fetchRejectList() {
+  componentData.rejectData.loading = true
+  const params = {
+    orderParam: [
+      {
+        fieldName: 'createTime',
+        asc: 1
+      }
+    ],
+    pageParam: {
+      pageNum: componentData.rejectData.page,
+      pageSize: 20
+    },
+    cwProjectDtoFilter: {
+      reserveStatus: StatusReserveDict.REJECTED
+    }
+  }
+  return new Promise((resolve, reject) => {
+    CwProject.list(
+      componentInstance,
+      params,
+      {
+        headers: {
+          MenuId: '1896798431855251456'
+        }
+      },
+      {
+        showMask: false
+      }
+    )
+      .then((res) => {
+        const listData = res.data?.dataList || []
+        componentData.rejectData.total = res.data?.totalCount || res.data?.total || 0
+        const mappedList = listData.map((item) => ({
+          ...item
+        }))
+        componentData.rejectData.list.push(...mappedList)
+        componentData.rejectData.page++
+        if (componentData.rejectData.list.length >= componentData.rejectData.total || listData.length === 0) {
+          componentData.rejectData.finished = true
+        }
+        resolve(res)
+      })
+      .catch((e) => {
+        reject(e)
+      })
+      .finally(() => {
+        componentData.rejectData.loading = false
+      })
+  })
+}
+function fetchDoneList() {
+  componentData.doneData.loading = true
+  const params = {
+    orderParam: [
+      {
+        fieldName: 'createTime',
+        asc: 1
+      }
+    ],
+    pageParam: {
+      pageNum: componentData.doneData.page,
+      pageSize: 20
+    },
+    cwProjectDtoFilter: {
+      reserveStatus: StatusReserveDict.PRE_REVIEW_COMPLETED
+    }
+  }
+  return new Promise((resolve, reject) => {
+    CwProject.list(
+      componentInstance,
+      params,
+      {
+        headers: {
+          MenuId: '1896798431855251456'
+        }
+      },
+      {
+        showMask: false
+      }
+    )
+      .then((res) => {
+        const listData = res.data?.dataList || []
+        componentData.doneData.total = res.data?.totalCount || res.data?.total || 0
+        const mappedList = listData.map((item) => ({
+          ...item
+        }))
+        componentData.doneData.list.push(...mappedList)
+        componentData.doneData.page++
+        if (componentData.doneData.list.length >= componentData.doneData.total || listData.length === 0) {
+          componentData.doneData.finished = true
+        }
+        resolve(res)
+      })
+      .catch((e) => {
+        reject(e)
+      })
+      .finally(() => {
+        componentData.doneData.loading = false
+      })
+  })
+}
+function getAuditBorderClass(level) {
+  const val = level != null ? +level : null
+  const map = {
+    [componentInstance.AIRiskLevelDict.RISK_HIGH]: 'tw-bg-gradient-to-b tw-from-red-500 tw-to-red-700',
+    [componentInstance.AIRiskLevelDict.RISK_MEDIUM]: 'tw-bg-gradient-to-b tw-from-orange-400 tw-to-orange-600',
+    [componentInstance.AIRiskLevelDict.RISK_LOW]: 'tw-bg-gradient-to-b tw-from-yellow-400 tw-to-yellow-600',
+    [componentInstance.AIRiskLevelDict.UNANALYZED]: 'tw-bg-gradient-to-b tw-from-slate-300 tw-to-slate-400',
+    [componentInstance.AIRiskLevelDict.ANALYZING]: 'tw-bg-gradient-to-b tw-from-blue-400 tw-to-blue-600',
+    [componentInstance.AIRiskLevelDict.AI_APPROVED]: 'tw-bg-gradient-to-b tw-from-emerald-400 tw-to-emerald-600'
+  }
+  return map[val] || 'tw-bg-gradient-to-b tw-from-slate-300 tw-to-slate-400'
+}
+function getStatusDotClass(status) {
+  const map = {
+    [componentInstance.AIRiskLevelDict.RISK_HIGH]: 'tw-bg-red-500 tw-shadow-[0_0_5px_red]',
+    [componentInstance.AIRiskLevelDict.RISK_MEDIUM]: 'tw-bg-orange-500 tw-shadow-[0_0_5px_orange]',
+    [componentInstance.AIRiskLevelDict.RISK_LOW]: 'tw-bg-yellow-400 tw-shadow-[0_0_5px_yellow]',
+    [componentInstance.AIRiskLevelDict.UNANALYZED]: 'tw-bg-gray-400',
+    [componentInstance.AIRiskLevelDict.ANALYZING]: 'tw-bg-blue-500',
+    [componentInstance.AIRiskLevelDict.AI_APPROVED]: 'tw-bg-emerald-500'
+  }
+  return map[status] || map[componentInstance.AIRiskLevelDict.UNANALYZED]
+}
+function getStatusBadgeClass(status) {
+  if (status != null) {
+    status = +status
+  }
+  const map = {
+    [componentInstance.AIRiskLevelDict.RISK_HIGH]: 'tw-bg-red-50 tw-border-red-200 tw-text-red-600',
+    [componentInstance.AIRiskLevelDict.RISK_MEDIUM]: 'tw-bg-orange-50 tw-border-orange-200 tw-text-orange-600',
+    [componentInstance.AIRiskLevelDict.RISK_LOW]: 'tw-bg-yellow-50 tw-border-yellow-200 tw-text-yellow-600',
+    [componentInstance.AIRiskLevelDict.UNANALYZED]: 'tw-bg-gray-50 tw-border-gray-200 tw-text-gray-600',
+    [componentInstance.AIRiskLevelDict.ANALYZING]: 'tw-bg-blue-50 tw-border-blue-200 tw-text-blue-600',
+    [componentInstance.AIRiskLevelDict.AI_APPROVED]: 'tw-bg-emerald-50 tw-border-emerald-200 tw-text-emerald-600'
+  }
+  return map[status] || map[componentInstance.AIRiskLevelDict.UNANALYZED]
+}
+function getRiskLevelText(level) {
+  if (level != null) {
+    level = +level
+  }
+  return componentInstance.AIRiskLevelDict.getValue(level) || '未知'
+}
+function formatNumber(num) {
+  if (num == null || num === 0) return '0'
+  return Number(num).toLocaleString('en-US')
+}
+function formatPercent(value, total) {
+  const numerator = Number(value) || 0
+  const denominator = Number(total) || 0
+  if (denominator === 0) return '0%'
+  return Math.round((numerator / denominator) * 100) + '%'
+}
+function checkScrollable() {
+  nextTick(() => {
+    const container = scrollingContainerRef.value
+    const list = originalListRef.value
+    if (container && list) {
+      componentData.shouldScroll = list.offsetHeight > container.offsetHeight
+    }
+  })
+}
+function initChart() {
+  nextTick(() => {
+    nextTick(() => {
       setTimeout(() => {
-        this.tryInitChart()
-      }, 200)
+        tryInitChart()
+      }, 50)
     })
-
-    // 启动轮询
-    this.startPolling()
-  },
-  // 👇 新增：处理 keep-alive 缓存页面的恢复逻辑
-  activated() {
-    window.addEventListener('resize', this.handleResize)
-    this.startPolling() // 页面恢复可见时重新启动轮询
-  },
-
-  // 👇 新增：处理 keep-alive 缓存页面的挂起逻辑
-  deactivated() {
-    window.removeEventListener('resize', this.handleResize)
-    this.stopPolling() // 页面被隐藏缓存时，务必清理定时器！
-  },
-  beforeUnmount() {
-    // 兼容 Vue3
-    if (this.chartInstance) {
-      this.chartInstance.dispose()
-      this.chartInstance = null
-    }
-    window.removeEventListener('resize', this.handleResize)
-    // 停止轮询
-    this.stopPolling()
-  },
-
-  beforeUnmount() {
-    // 兼容 Vue2
-    if (this.chartInstance) {
-      this.chartInstance.dispose()
-      this.chartInstance = null
-    }
-    window.removeEventListener('resize', this.handleResize)
-    // 停止轮询
-    this.stopPolling()
-  },
-  methods: {
-    onDragStart(e) {
-      // 防止误触 PC 端的按钮或输入框时触发下拉
-      const isInput = e.target.closest('button, a, input, [role="button"]')
-      if (isInput && e.type === 'mousedown') return
-
-      if (this.pullRefresh.isRefreshing) return
-
-      const activeList = this.$refs[this.activeTab + 'List']
-      // 只有在滚动条位于最顶部才能触发下拉手势
-      if (activeList && activeList.scrollTop > 0) {
-        this.pullRefresh.canPull = false
-        return
-      }
-
-      this.pullRefresh.canPull = true
-      this.pullRefresh.isDragging = true
-      this.pullRefresh.startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY
-      this.pullRefresh.distance = 0
-    },
-    onDragMove(e) {
-      if (!this.pullRefresh.isDragging || !this.pullRefresh.canPull) return
-      const currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY
-      const diff = currentY - this.pullRefresh.startY
-
-      if (diff > 0) {
-        if (e.cancelable && e.type.includes('touch')) e.preventDefault() // 防止网页原生滚动
-        // 使用 0.4 的阻尼系数，最大拉取高度 80px
-        this.pullRefresh.distance = Math.min(diff * 0.4, 80)
-        this.pullRefresh.statusText = this.pullRefresh.distance > 50 ? '释放立即刷新' : '下拉刷新'
-      } else {
-        this.pullRefresh.distance = 0
-      }
-    },
-    onDragEnd() {
-      if (!this.pullRefresh.isDragging) return
-      this.pullRefresh.isDragging = false
-
-      if (this.pullRefresh.distance > 50) {
-        this.pullRefresh.isRefreshing = true
-        this.pullRefresh.statusText = '正在刷新...'
-        this.pullRefresh.distance = 50 // 悬停在刷新区
-
-        this.executeRefresh()
-          .then(() => {
-            this.pullRefresh.statusText = '刷新成功'
-            setTimeout(() => {
-              this.pullRefresh.distance = 0
-              this.pullRefresh.isRefreshing = false
-            }, 500)
-          })
-          .catch(() => {
-            this.pullRefresh.statusText = '刷新失败'
-            setTimeout(() => {
-              this.pullRefresh.distance = 0
-              this.pullRefresh.isRefreshing = false
-            }, 500)
-          })
-      } else {
-        this.pullRefresh.distance = 0
-      }
-    },
-    async executeRefresh() {
-      try {
-        this.pullRefresh.isRefreshing = true
-        await this.refreshTab(this.activeTab)
-        this.getRefresh() // 同步刷新左侧整体概览数据
-      } catch (e) {
-        console.error(e)
-        throw e
-      } finally {
-        // PC端点击按钮刷新时收尾
-        if (!this.pullRefresh.isDragging && this.pullRefresh.distance === 0) {
-          this.pullRefresh.isRefreshing = false
-        }
-      }
-    },
-    // ======================================
-    handleFloatingClick() {
-      // 1. 隐藏悬浮球
-      this.showFloatingBtn = false
-
-      // 2. 调用弹窗
-      this.$dialog
-        .show(
-          'AI 智能穿透分析报告',
-          similarSetting,
-          {
-            area: ['800px', '600px'],
-            end: () => {
-              this.showFloatingBtn = true
-            }
-          },
-          {
-            projectId: 'AI_ANALYZE_MODE'
-          }
-        )
-        .then(() => {})
-        .catch(() => {
-          this.showFloatingBtn = true
-        })
-    },
-    handleRouterPush(path) {
-      if (this.roleKey !== 'financeApproval') {
-        return this.$message({
-          message: '无权限',
-          type: 'warning'
-        })
-      }
-      this.routerPush({
-        path
-      })
-    },
-    getRiskChartAiRiskLevel(name) {
-      const riskLevelMap = {
-        问题项目: this.AIRiskLevelDict.RISK_HIGH,
-        隐患项目: this.AIRiskLevelDict.RISK_MEDIUM,
-        异常项目: this.AIRiskLevelDict.RISK_LOW
-      }
-      return riskLevelMap[name]
-    },
-    handleRiskChartDrilldown(name) {
-      const aiRiskLevel = this.getRiskChartAiRiskLevel(name)
-      if (aiRiskLevel == null) return
-
-      this.routerPush({
-        path: '/finance/reserveApproval',
-        query: {
-          aiRiskLevel
-        }
-      })
-    },
-    bindRiskChartEvents() {
-      if (!this.chartInstance) return
-
-      if (this.chartClickHandler) {
-        this.chartInstance.off('click', this.chartClickHandler)
-      }
-      if (this.chartLegendSelectHandler) {
-        this.chartInstance.off('legendselectchanged', this.chartLegendSelectHandler)
-      }
-
-      this.chartClickHandler = (params) => {
-        if (params?.seriesType !== 'pie') return
-        this.handleRiskChartDrilldown(params.name)
-      }
-      this.chartLegendSelectHandler = (params) => {
-        this.handleRiskChartDrilldown(params.name)
-      }
-
-      this.chartInstance.on('click', this.chartClickHandler)
-      this.chartInstance.on('legendselectchanged', this.chartLegendSelectHandler)
-    },
-    handleSetting() {
-      if (this.roleKey !== 'financeApproval') {
-        return this.$message({
-          message: '无权限',
-          type: 'warning'
-        })
-      }
-      this.$dialog
-        .show(
-          '配置',
-          similarSetting,
-          {
-            area: ['800px']
-          },
-          {}
-        )
-        .then((res) => {
-          this.refreshTable(true)
-        })
-        .catch(() => {})
-    },
-
-    handleExport() {
-      if (this.roleKey == 'reporter') {
-        return this.$message({
-          message: '无权限',
-          type: 'warning'
-        })
-      }
-      this.$dialog
-        .show(
-          '导出',
-          exportDialog,
-          {
-            area: ['450px', 'auto']
-          },
-          {
-            vtSource: strategyMap[this.roleKey].vtSource,
-            exportOptions: ['financeApproval', 'deptApproval'].includes(this.roleKey) ? [1, 5] : [1]
-          }
-        )
-        .then((res) => {})
-        .catch((e) => {})
-    },
-    onDetail(id, roleKey) {
-      const jsonStr = JSON.stringify(this.listKey)
-      const encodedStr = encodeURIComponent(jsonStr)
-
-      this.routerPush({
-        path: `${strategyMap[roleKey || this.roleKey].detailPath}/${id}`,
-        query: {
-          listKey: encodedStr
-        }
-      })
-    },
-    updateSingleRowLocally(projectId) {
-      const tabName = this.activeTab
-      const targetData = this[`${tabName}Data`]
-      if (!targetData) return
-
-      const index = targetData.list.findIndex((item) => item.projectId === projectId || item.id === projectId)
-      if (index === -1) return
-
-      CwProject.view(this, { projectId })
-        .then((res) => {
-          if (res.data) {
-            targetData.list.splice(index, 1, res.data)
-          }
-        })
-        .catch((e) => {
-          console.error('局部更新失败:', e)
-        })
-    },
-
-    removeRowLocally(projectId) {
-      const targetData = this[`${this.activeTab}Data`]
-      if (!targetData) return
-      const index = targetData.list.findIndex((item) => item.projectId === projectId || item.id === projectId)
-      if (index !== -1) {
-        targetData.list.splice(index, 1)
-        if (targetData.total > 0) targetData.total--
-      }
-    },
-    onDeleteRow(row) {
-      if (+row.reserveStatus != this.ReserveTypeDict.CREATE && +row.reserveStatus != this.ReserveTypeDict.DELAYED) {
-        this.$message.warning(
-          `无法删除【${this.ReserveTypeDict.getValue(this.ReserveTypeDict.CREATE)}】和【${this.ReserveTypeDict.getValue(
-            this.ReserveTypeDict.DELAYED
-          )}】之外的数据`
-        )
-        return
-      }
-      if (
-        [this.StatusRealDict.CREATE, this.StatusRealDict.CREATE_FINISH, this.StatusRealDict.REJECT_DEPT, this.StatusRealDict.REJECT_FINANCE].indexOf(
-          row.status
-        ) == -1
-      ) {
-        this.$message.warning('无法删除')
-        return
-      }
-      const params = {
-        projectIdList: [row.projectId]
-      }
-      this.$confirm('是否删除此数据？')
-        .then((res) => {
-          return CwProject.deleteBatch(this, params)
-        })
-        .then((res) => {
-          this.$message.success('删除成功')
-          this.refreshTab(this.activeTab)
-          this.getRefresh()
-        })
-        .catch((e) => {})
-    },
-    handleSubmit(projectId) {
-      if (!projectId) {
-        return
-      }
-      return this.$confirm('是否提交?').then(() => {
-        return CwProjectApply.submit(this, { projectId })
-          .then((res) => {
-            this.$message.success('提交成功')
-            this.refreshTab(this.activeTab)
-            this.getRefresh()
-          })
-          .catch((e) => {
-            if (projectId) {
-              this.updateSingleRowLocally(projectId)
-            } else {
-              this.refreshTab(this.activeTab)
-            }
-            this.getRefresh()
-          })
-      })
-    },
-    getRefresh() {
-      // this.getChartRiskCount();
-      // 已注释：原 AI 初审分析结论请求，结论卡不展示，仅保留代码
-      // this.getAnalyseReview()
-      this.getCount()
-      this.getAiAnalysisList()
-    },
-    // 加载一级单位下拉：选项取 getYjdwFromCm，默认值取配置参数 DASHBOARD_YJDW_PARAM
-    async loadYjdwOptions() {
-      try {
-        const [listRes, paramRes] = await Promise.all([getYjdwFromCm(), getParamValueMulti([DASHBOARD_YJDW_PARAM])])
-        this.yjdwList = (listRes && listRes.data) || []
-        const paramVal = paramRes && paramRes.data ? paramRes.data[DASHBOARD_YJDW_PARAM] : ''
-        // 默认值优先取配置参数；缺省时兜底取列表第一项，保证始终有一个可选项
-        this.defaultYjdw = paramVal || (this.yjdwList[0] && this.yjdwList[0].code) || ''
-        this.yjdwValue = this.defaultYjdw
-      } catch (e) {
-        console.error('加载一级单位下拉失败:', e)
-      }
-    },
-    getChartRiskCount() {
-      CwProjectCount.riskCount(this, {}).then((res) => {
-        const newData = res.data
-        const isValChanged = this.checkDataChanged(this.riskCount, newData)
-
-        if (isValChanged) {
-          this.numberKey++
-        }
-
-        this.riskCount = { ...newData }
-        this.initChart()
-      })
-    },
-    checkDataChanged(prev, curr) {
-      const keys = ['monthRiskCount', 'problemCount', 'hiddenDangerCount', 'exceptionCount']
-      return keys.some((key) => prev[key] !== curr[key])
-    },
-    // 1. 优化后的启动逻辑
-    startPolling() {
-      // 强制清理现有的，确保不重复启动
-      this.stopPolling()
-
-      console.log('启动定时器 - 智审数据监控')
-
-      // 立即执行一次获取最新数据
-      this.getChartRiskCount()
-
-      // 开启定时任务
-      this.pollTimer = setInterval(() => {
-        console.log('定时轮询中...')
-        this.getChartRiskCount()
-      }, 30 * 1000) // 30秒一次
-    },
-
-    // 2. 停止逻辑
-    stopPolling() {
-      if (this.pollTimer) {
-        console.log('停止并清理定时器')
-        clearInterval(this.pollTimer)
-        this.pollTimer = null
-      }
-    },
-    getCount() {
-      CwProjectCount.count(this, {}).then((res) => {
-        this.count = res.data
-      })
-    },
-    // 已注释：原 AI 初审分析结论请求方法，结论卡不展示，仅保留代码
-    // getAnalyseReview() {
-    //   CwProjectCount.analyseReview(this, {}).then((res) => {
-    //     this.analyseReview = res.data
-    //   })
-    // },
-    getAiAnalysisList() {
-      const params = {
-        orderParam: [{ fieldName: 'createTime', asc: 1 }],
-        pageParam: { pageNum: 1, pageSize: 20 },
-        cwProjectDtoFilter: {
-          aiRiskLevel: `${this.AIRiskLevelDict.RISK_HIGH},${this.AIRiskLevelDict.RISK_MEDIUM},${this.AIRiskLevelDict.RISK_LOW}`,
-          noticeRunning: 1
-        }
-      }
-      return new Promise((resolve, reject) => {
-        CwProject.list(this, params, {
-          headers: { MenuId: '1896798431855251456' }
-        })
-          .then((res) => {
-            this.aiAnalysisList = [...res.data.dataList]
-            this.$nextTick(() => {
-              this.checkScrollable()
-            })
-          })
-          .catch((e) => {
-            reject(e)
-          })
-      })
-    },
-    refreshTab(tabName) {
-      const targetData = this[`${tabName}Data`]
-      if (!targetData) return
-      targetData.list = []
-      targetData.page = 1
-      targetData.finished = false
-      targetData.total = 0
-      targetData.loading = false
-      this.triggerLoad(tabName)
-    },
-    switchTab(tab) {
-      this.activeTab = tab
-      const targetData = this[`${tab}Data`]
-      if (targetData && targetData.list.length === 0 && !targetData.finished) {
-        this.triggerLoad(tab)
-      }
-    },
-    handleScroll(tabName, e) {
-      const { scrollTop, clientHeight, scrollHeight } = e.target
-      if (scrollTop + clientHeight >= scrollHeight - 20) {
-        this.triggerLoad(tabName)
-      }
-    },
-    triggerLoad(tabName) {
-      if (tabName === 'audit' && !this.auditData.loading && !this.auditData.finished) {
-        this.fetchAuditList()
-      }
-      if (tabName === 'todo' && !this.todoData.loading && !this.todoData.finished) {
-        this.fetchTodoList()
-      }
-      if (tabName === 'reject' && !this.rejectData.loading && !this.rejectData.finished) {
-        this.fetchRejectList()
-      }
-      if (tabName === 'done' && !this.doneData.loading && !this.doneData.finished) {
-        this.fetchDoneList()
-      }
-    },
-    fetchAuditList() {
-      this.auditData.loading = true
-      const currentStrategy = strategyMap[this.roleKey]
-      const params = currentStrategy.getParams(this.auditData.page)
-
-      return new Promise((resolve, reject) => {
-        currentStrategy
-          .apiMethod(this, params, { headers: { MenuId: '1896798431855251456' } }, { showMask: false })
-          .then((res) => {
-            const listData = res.data?.dataList || []
-            this.listKey = res.data.listKey
-            this.auditData.total = res.data?.totalCount || res.data?.total || 0
-
-            const mappedList = listData.map((item) => ({
-              ...item,
-              aiLoading: true
-            }))
-
-            this.auditData.list.push(...mappedList)
-            this.auditData.page++
-
-            if (this.auditData.list.length >= this.auditData.total || listData.length === 0) {
-              this.auditData.finished = true
-            }
-
-            this.$nextTick(() => {
-              setTimeout(() => {
-                mappedList.forEach((item) => {
-                  item.aiLoading = false
-                })
-              }, 1000)
-            })
-            resolve(res)
-          })
-          .catch((e) => {
-            reject(e)
-          })
-          .finally(() => {
-            this.auditData.loading = false
-          })
-      })
-    },
-    fetchTodoList() {
-      this.todoData.loading = true
-      const params = {
-        orderParam: [{ fieldName: 'createTime', asc: 1 }],
-        pageParam: { pageNum: this.todoData.page, pageSize: 20 },
-        cwProjectDtoFilter: { reserveStatus: StatusReserveDict.PENDING_SUBMIT }
-      }
-
-      return new Promise((resolve, reject) => {
-        CwProject.list(this, params, { headers: { MenuId: '1896798431855251456' } }, { showMask: false })
-          .then((res) => {
-            const listData = res.data?.dataList || []
-            this.todoData.total = res.data?.totalCount || res.data?.total || 0
-            const mappedList = listData.map((item) => ({ ...item }))
-
-            this.todoData.list.push(...mappedList)
-            this.todoData.page++
-
-            if (this.todoData.list.length >= this.todoData.total || listData.length === 0) {
-              this.todoData.finished = true
-            }
-            resolve(res)
-          })
-          .catch((e) => {
-            reject(e)
-          })
-          .finally(() => {
-            this.todoData.loading = false
-          })
-      })
-    },
-    fetchRejectList() {
-      this.rejectData.loading = true
-      const params = {
-        orderParam: [{ fieldName: 'createTime', asc: 1 }],
-        pageParam: { pageNum: this.rejectData.page, pageSize: 20 },
-        cwProjectDtoFilter: { reserveStatus: StatusReserveDict.REJECTED }
-      }
-
-      return new Promise((resolve, reject) => {
-        CwProject.list(this, params, { headers: { MenuId: '1896798431855251456' } }, { showMask: false })
-          .then((res) => {
-            const listData = res.data?.dataList || []
-            this.rejectData.total = res.data?.totalCount || res.data?.total || 0
-            const mappedList = listData.map((item) => ({ ...item }))
-
-            this.rejectData.list.push(...mappedList)
-            this.rejectData.page++
-
-            if (this.rejectData.list.length >= this.rejectData.total || listData.length === 0) {
-              this.rejectData.finished = true
-            }
-            resolve(res)
-          })
-          .catch((e) => {
-            reject(e)
-          })
-          .finally(() => {
-            this.rejectData.loading = false
-          })
-      })
-    },
-    fetchDoneList() {
-      this.doneData.loading = true
-      const params = {
-        orderParam: [{ fieldName: 'createTime', asc: 1 }],
-        pageParam: { pageNum: this.doneData.page, pageSize: 20 },
-        cwProjectDtoFilter: { reserveStatus: StatusReserveDict.PRE_REVIEW_COMPLETED }
-      }
-
-      return new Promise((resolve, reject) => {
-        CwProject.list(this, params, { headers: { MenuId: '1896798431855251456' } }, { showMask: false })
-          .then((res) => {
-            const listData = res.data?.dataList || []
-            this.doneData.total = res.data?.totalCount || res.data?.total || 0
-            const mappedList = listData.map((item) => ({ ...item }))
-
-            this.doneData.list.push(...mappedList)
-            this.doneData.page++
-
-            if (this.doneData.list.length >= this.doneData.total || listData.length === 0) {
-              this.doneData.finished = true
-            }
-            resolve(res)
-          })
-          .catch((e) => {
-            reject(e)
-          })
-          .finally(() => {
-            this.doneData.loading = false
-          })
-      })
-    },
-    getAuditBorderClass(level) {
-      const val = level != null ? +level : null
-      const map = {
-        [this.AIRiskLevelDict.RISK_HIGH]: 'tw-bg-gradient-to-b tw-from-red-500 tw-to-red-700',
-        [this.AIRiskLevelDict.RISK_MEDIUM]: 'tw-bg-gradient-to-b tw-from-orange-400 tw-to-orange-600',
-        [this.AIRiskLevelDict.RISK_LOW]: 'tw-bg-gradient-to-b tw-from-yellow-400 tw-to-yellow-600',
-        [this.AIRiskLevelDict.UNANALYZED]: 'tw-bg-gradient-to-b tw-from-slate-300 tw-to-slate-400',
-        [this.AIRiskLevelDict.ANALYZING]: 'tw-bg-gradient-to-b tw-from-blue-400 tw-to-blue-600',
-        [this.AIRiskLevelDict.AI_APPROVED]: 'tw-bg-gradient-to-b tw-from-emerald-400 tw-to-emerald-600'
-      }
-      return map[val] || 'tw-bg-gradient-to-b tw-from-slate-300 tw-to-slate-400'
-    },
-    getStatusDotClass(status) {
-      const map = {
-        [this.AIRiskLevelDict.RISK_HIGH]: 'tw-bg-red-500 tw-shadow-[0_0_5px_red]',
-        [this.AIRiskLevelDict.RISK_MEDIUM]: 'tw-bg-orange-500 tw-shadow-[0_0_5px_orange]',
-        [this.AIRiskLevelDict.RISK_LOW]: 'tw-bg-yellow-400 tw-shadow-[0_0_5px_yellow]',
-        [this.AIRiskLevelDict.UNANALYZED]: 'tw-bg-gray-400',
-        [this.AIRiskLevelDict.ANALYZING]: 'tw-bg-blue-500',
-        [this.AIRiskLevelDict.AI_APPROVED]: 'tw-bg-emerald-500'
-      }
-      return map[status] || map[this.AIRiskLevelDict.UNANALYZED]
-    },
-    getStatusBadgeClass(status) {
-      if (status != null) {
-        status = +status
-      }
-      const map = {
-        [this.AIRiskLevelDict.RISK_HIGH]: 'tw-bg-red-50 tw-border-red-200 tw-text-red-600',
-        [this.AIRiskLevelDict.RISK_MEDIUM]: 'tw-bg-orange-50 tw-border-orange-200 tw-text-orange-600',
-        [this.AIRiskLevelDict.RISK_LOW]: 'tw-bg-yellow-50 tw-border-yellow-200 tw-text-yellow-600',
-        [this.AIRiskLevelDict.UNANALYZED]: 'tw-bg-gray-50 tw-border-gray-200 tw-text-gray-600',
-        [this.AIRiskLevelDict.ANALYZING]: 'tw-bg-blue-50 tw-border-blue-200 tw-text-blue-600',
-        [this.AIRiskLevelDict.AI_APPROVED]: 'tw-bg-emerald-50 tw-border-emerald-200 tw-text-emerald-600'
-      }
-      return map[status] || map[this.AIRiskLevelDict.UNANALYZED]
-    },
-    getRiskLevelText(level) {
-      if (level != null) {
-        level = +level
-      }
-      return this.AIRiskLevelDict.getValue(level) || '未知'
-    },
-    formatNumber(num) {
-      if (num == null || num === 0) return '0'
-      return Number(num).toLocaleString('en-US')
-    },
-    formatPercent(value, total) {
-      const numerator = Number(value) || 0
-      const denominator = Number(total) || 0
-      if (denominator === 0) return '0%'
-      return Math.round((numerator / denominator) * 100) + '%'
-    },
-    checkScrollable() {
-      this.$nextTick(() => {
-        const container = this.$refs.scrollingContainer
-        const list = this.$refs.originalList
-        if (container && list) {
-          this.shouldScroll = list.offsetHeight > container.offsetHeight
-        }
-      })
-    },
-    initChart() {
-      this.$nextTick(() => {
-        this.$nextTick(() => {
-          setTimeout(() => {
-            this.tryInitChart()
-          }, 50)
-        })
-      })
-    },
-    tryInitChart(retryCount = 0) {
-      // 【防泄漏校验】如果组件已被销毁，终止一切后续操作
-      if (this._isDestroyed || this._isBeingDestroyed || this._isUnmounted) return
-
-      const chartDom = this.$refs.sciFiPieChart
-      if (!chartDom || chartDom.offsetHeight === 0) {
-        if (retryCount < 3) {
-          setTimeout(() => {
-            this.tryInitChart(retryCount + 1)
-          }, 100 * (retryCount + 1))
-        }
-        return
-      }
-
-      try {
-        if (this.chartInstance) {
-          this.chartInstance.setOption(this.chartOption, { notMerge: true })
-          this.chartInstance.resize()
-          this.bindRiskChartEvents()
-          return
-        }
-        this.chartInstance = echarts.init(chartDom)
-        this.chartTrigger++
-        this.chartInstance.setOption(this.chartOption)
-        this.bindRiskChartEvents()
-      } catch (error) {
-        console.error('图表初始化失败:', error)
-      }
-    },
-    handleResize() {
-      if (this.chartInstance) this.chartInstance.resize()
-      this.checkScrollable()
-    }
-  },
-  computed: {
-    ...mapGetters(['getUserMsg']),
-    // 角色判断已去除：user 对象不含 roleId，统一按 financeApproval 处理（与原本兜底行为一致）
-    roleKey() {
-      return 'financeApproval'
-    },
-    splitNumbers() {
-      const numStr = this.formatNumber(this.riskCount?.monthRiskCount || 0)
-      return numStr.toString().split('')
-    },
-    // 完全重构后的新版浅色图表配置，动态绑定原始真实数据
-    chartOption() {
-      const _trigger = this.chartTrigger
-
-      // 动态获取数值
-      const problem = Number(this.riskCount.problemCount) || 0
-      const exception = Number(this.riskCount.exceptionCount) || 0
-      const hidden = Number(this.riskCount.hiddenDangerCount) || 0
-      const total = problem + exception + hidden
-
-      const getPercent = (val) => this.formatPercent(val, total)
-
-      return {
-        tooltip: {
-          trigger: 'item',
-          formatter: (params) => `${params.name}: ${this.formatNumber(params.value)}个，占比${getPercent(params.value)}`,
-          backgroundColor: 'rgba(255,255,255,0.95)',
-          textStyle: { color: '#333', fontSize: 12 },
-          borderWidth: 1,
-          borderColor: '#eee'
+  })
+}
+function tryInitChart(retryCount = 0) {
+  // 【防泄漏校验】如果组件已被销毁，终止一切后续操作
+  if (componentInstance._isDestroyed || componentInstance._isBeingDestroyed || componentInstance._isUnmounted) return
+  const chartDom = sciFiPieChartRef.value
+  if (!chartDom || chartDom.offsetHeight === 0) {
+    if (retryCount < 3) {
+      setTimeout(
+        () => {
+          tryInitChart(retryCount + 1)
         },
-        legend: {
-          orient: 'vertical',
-          right: '4%',
-          top: 'center',
-          icon: 'circle',
-          itemWidth: 8,
-          itemGap: 22,
-          textStyle: {
-            color: '#334155',
-            fontSize: 12,
-            fontWeight: 'bold',
-            fontFamily: 'system-ui, -apple-system, sans-serif'
-          },
-          formatter: (name) => {
-            const dataMap = {
-              问题项目: problem,
-              异常项目: exception,
-              隐患项目: hidden
-            }
-            const value = dataMap[name] || 0
-            return `${name}   ${this.formatNumber(value)}个，占比 ${getPercent(value)}`
-          }
-        },
-        series: [
-          {
-            name: '风险项目成分',
-            type: 'pie',
-            radius: ['52%', '95%'],
-            center: ['25%', '50%'],
-            itemStyle: {
-              borderRadius: 6,
-              borderColor: '#fff',
-              borderWidth: 2,
-              shadowColor: 'rgba(0, 0, 0, 0.04)',
-              shadowBlur: 4
-            },
-            label: {
-              show: true,
-              position: 'center',
-              formatter: '风险分布',
-              fontSize: 11,
-              color: '#64748b',
-              fontWeight: 'bold'
-            },
-            labelLine: { show: false },
-            data: [
-              { value: problem, name: '问题项目', itemStyle: { color: '#ef4444' } },
-              { value: exception, name: '异常项目', itemStyle: { color: '#eab308' } },
-              { value: hidden, name: '隐患项目', itemStyle: { color: '#f97316' } }
-            ],
-            animationType: 'scale',
-            animationEasing: 'elasticOut'
-          }
-        ]
-      }
+        100 * (retryCount + 1)
+      )
     }
+    return
+  }
+  try {
+    if (componentData.chartInstance) {
+      componentData.chartInstance.setOption(chartOption.value, {
+        notMerge: true
+      })
+      componentData.chartInstance.resize()
+      bindRiskChartEvents()
+      return
+    }
+    componentData.chartInstance = echarts.init(chartDom)
+    componentInstance.chartTrigger++
+    componentData.chartInstance.setOption(chartOption.value)
+    bindRiskChartEvents()
+  } catch (error) {
+    console.error('图表初始化失败:', error)
   }
 }
+function handleResize() {
+  if (componentData.chartInstance) componentData.chartInstance.resize()
+  checkScrollable()
+}
+const getUserMsg = computed(() => componentStore.getters.getUserMsg)
+const roleKey = computed(() => {
+  return 'financeApproval'
+})
+const splitNumbers = computed(() => {
+  const numStr = formatNumber(componentData.riskCount?.monthRiskCount || 0)
+  return numStr.toString().split('')
+})
+const chartOption = computed(() => {
+  const _trigger = componentInstance.chartTrigger
+
+  // 动态获取数值
+  const problem = Number(componentData.riskCount.problemCount) || 0
+  const exception = Number(componentData.riskCount.exceptionCount) || 0
+  const hidden = Number(componentData.riskCount.hiddenDangerCount) || 0
+  const total = problem + exception + hidden
+  const getPercent = (val) => formatPercent(val, total)
+  return {
+    tooltip: {
+      trigger: 'item',
+      formatter: (params) => `${params.name}: ${formatNumber(params.value)}个，占比${getPercent(params.value)}`,
+      backgroundColor: 'rgba(255,255,255,0.95)',
+      textStyle: {
+        color: '#333',
+        fontSize: 12
+      },
+      borderWidth: 1,
+      borderColor: '#eee'
+    },
+    legend: {
+      orient: 'vertical',
+      right: '4%',
+      top: 'center',
+      icon: 'circle',
+      itemWidth: 8,
+      itemGap: 22,
+      textStyle: {
+        color: '#334155',
+        fontSize: 12,
+        fontWeight: 'bold',
+        fontFamily: 'system-ui, -apple-system, sans-serif'
+      },
+      formatter: (name) => {
+        const dataMap = {
+          问题项目: problem,
+          异常项目: exception,
+          隐患项目: hidden
+        }
+        const value = dataMap[name] || 0
+        return `${name}   ${formatNumber(value)}个，占比 ${getPercent(value)}`
+      }
+    },
+    series: [
+      {
+        name: '风险项目成分',
+        type: 'pie',
+        radius: ['52%', '95%'],
+        center: ['25%', '50%'],
+        itemStyle: {
+          borderRadius: 6,
+          borderColor: '#fff',
+          borderWidth: 2,
+          shadowColor: 'rgba(0, 0, 0, 0.04)',
+          shadowBlur: 4
+        },
+        label: {
+          show: true,
+          position: 'center',
+          formatter: '风险分布',
+          fontSize: 11,
+          color: '#64748b',
+          fontWeight: 'bold'
+        },
+        labelLine: {
+          show: false
+        },
+        data: [
+          {
+            value: problem,
+            name: '问题项目',
+            itemStyle: {
+              color: '#ef4444'
+            }
+          },
+          {
+            value: exception,
+            name: '异常项目',
+            itemStyle: {
+              color: '#eab308'
+            }
+          },
+          {
+            value: hidden,
+            name: '隐患项目',
+            itemStyle: {
+              color: '#f97316'
+            }
+          }
+        ],
+        animationType: 'scale',
+        animationEasing: 'elasticOut'
+      }
+    ]
+  }
+})
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+
+  // 初始化加载第一个页签
+  triggerLoad(componentData.activeTab)
+
+  // 同时加载审核中、待提交、已驳回这三个页签，以获取各自的 total
+  triggerLoad('todo')
+  triggerLoad('reject')
+  getRefresh()
+
+  // 加载一级单位下拉（默认值来自配置参数）
+  loadYjdwOptions()
+
+  // 【兜底】确保图表初始化 - 在DOM准备好后先尝试初始化一次
+  nextTick(() => {
+    componentData.prevRiskCount = {
+      ...componentData.riskCount
+    }
+    setTimeout(() => {
+      tryInitChart()
+    }, 200)
+  })
+
+  // 启动轮询
+  startPolling()
+})
+onBeforeUnmount(() => {
+  // 兼容 Vue2
+  if (componentData.chartInstance) {
+    componentData.chartInstance.dispose()
+    componentData.chartInstance = null
+  }
+  window.removeEventListener('resize', handleResize)
+  // 停止轮询
+  stopPolling()
+})
+onActivated(() => {
+  window.addEventListener('resize', handleResize)
+  startPolling() // 页面恢复可见时重新启动轮询
+})
+onDeactivated(() => {
+  window.removeEventListener('resize', handleResize)
+  stopPolling() // 页面被隐藏缓存时，务必清理定时器！
+})
+defineExpose({
+  getUserMsg,
+  parseUploadData,
+  getPictureList,
+  fileListToJson,
+  getUploadFileUrl,
+  filterEmptyValues,
+  getUploadFileUrlByFetch,
+  getUploadActionUrl,
+  pictureFile,
+  getUploadHeaders,
+  getDateRangeFilter,
+  formatDateByStatsType,
+  formatDateTime,
+  getStatsTypeShowName,
+  getAllowStatsTypeList,
+  addCachePage,
+  removeCachePage,
+  onResume,
+  removeTag,
+  getCurrentMenuId,
+  routerPush,
+  singlePageReload,
+  oncancel,
+  refreshUrlParams,
+  savedKey,
+  openAdmin,
+  onDragStart,
+  onDragMove,
+  onDragEnd,
+  executeRefresh,
+  handleFloatingClick,
+  handleRouterPush,
+  getRiskChartAiRiskLevel,
+  handleRiskChartDrilldown,
+  bindRiskChartEvents,
+  handleSetting,
+  handleExport,
+  onDetail,
+  updateSingleRowLocally,
+  removeRowLocally,
+  onDeleteRow,
+  handleSubmit,
+  getRefresh,
+  loadYjdwOptions,
+  getChartRiskCount,
+  checkDataChanged,
+  startPolling,
+  stopPolling,
+  getCount,
+  getAiAnalysisList,
+  refreshTab,
+  switchTab,
+  handleScroll,
+  triggerLoad,
+  fetchAuditList,
+  fetchTodoList,
+  fetchRejectList,
+  fetchDoneList,
+  getAuditBorderClass,
+  getStatusDotClass,
+  getStatusBadgeClass,
+  getRiskLevelText,
+  formatNumber,
+  formatPercent,
+  checkScrollable,
+  initChart,
+  tryInitChart,
+  handleResize,
+  ...toRefs(componentData),
+  roleKey,
+  splitNumbers,
+  chartOption
+})
 </script>
 
 <style lang="less">

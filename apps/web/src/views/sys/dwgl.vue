@@ -73,19 +73,23 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/sys/dwgl'
-}
-</script>
+
 <script setup lang="ts">
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
+import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, nextTick } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getNodeTree, getDwList, updateDwsx, exportFy } from '@/api/sys/dwgl'
 import { apiExportHandle } from '@/utils/export'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
+defineOptions({
+  name: '/sys/dwgl'
+})
+ //权限弹框
+
+ //表格组件
+
+ //公共代码
 
 const chooseNode = ref('') //节点id
 const treeRef = ref() //节点数
@@ -111,7 +115,6 @@ const paramsData = ref<any>()
 const pageList = ref([])
 const DWXZList = ref<any>([])
 const GSSXList = ref<any[]>([])
-
 const defaultProps = {
   children: 'children',
   label: 'name'
@@ -127,7 +130,6 @@ const rules = reactive({
     }
   ]
 })
-
 onMounted(async () => {
   await userDialogRef.value.getUser()
 })
@@ -141,10 +143,12 @@ const handlerNodeClick = async (data: any) => {
 
 // 列表查询
 const pageMeeting = (params: any) => {
-  paramsData.value = { ...params, parentId: chooseNode.value }
+  paramsData.value = {
+    ...params,
+    parentId: chooseNode.value
+  }
   return getDwList(paramsData.value)
 }
-
 const loadChildren = async (node: any, resolve: any, reject: any) => {
   let id = node.level === 0 ? '-1' : node.data.id
   let res = await getNodeTree(id)
@@ -174,16 +178,21 @@ const pushMsgHandle = () => {
     }).then((res: any) => {
       if (res.success) {
         loading.value = false
-        ElMessage({ type: 'success', message: '保存成功' })
+        ElMessage({
+          type: 'success',
+          message: '保存成功'
+        })
         closeHandle()
       } else {
         loading.value = false
-        ElMessage({ type: 'error', message: res.msg })
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
       }
     })
   })
 }
-
 const initParamLists = async () => {
   chooseNode.value = ''
   const nodeTree = await getNodeTree('')
@@ -205,7 +214,6 @@ const initParamLists = async () => {
     GSSXList.value.push(...item.data)
   }
 }
-
 const reset = () => {
   initParamLists()
 }
@@ -240,7 +248,6 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 const closeHandle = async () => {
   proTableRef.value?.clearSelection()
   proTableRef.value.getTableList()
@@ -272,23 +279,52 @@ const pageListData = (val: any) => {
   return val
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'id', label: 'ID' },
-  { prop: 'name', label: '单位名称', search: { el: 'input', order: 1 } },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'id',
+    label: 'ID'
+  },
+  {
+    prop: 'name',
+    label: '单位名称',
+    search: {
+      el: 'input',
+      order: 1
+    }
+  },
   {
     prop: 'dwsxId',
     label: '单位属性',
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: GSSXList.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'unicode',
     label: '单位性质',
-    search: { el: 'select', order: 3 },
+    search: {
+      el: 'select',
+      order: 3
+    },
     enum: DWXZList.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'unicodeName',
@@ -300,16 +336,29 @@ const tableColumns = reactive<any>([
   {
     prop: 'state',
     label: '状态',
-    search: { el: 'select', order: 4, defaultValue: 'Y' },
+    search: {
+      el: 'select',
+      order: 4,
+      defaultValue: 'Y'
+    },
     enum: [
-      { label: '启用', value: 'Y' },
-      { label: '停用', value: 'N' }
+      {
+        label: '启用',
+        value: 'Y'
+      },
+      {
+        label: '停用',
+        value: 'N'
+      }
     ],
     render: ({ row }: any) => {
       return row.state == 'Y' ? '启用' : '停用'
     }
   },
-  { prop: 'shortname', label: '简称' }
+  {
+    prop: 'shortname',
+    label: '简称'
+  }
 ])
 </script>
 

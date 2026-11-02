@@ -88,11 +88,6 @@
   <ImportExcel ref="importRef" />
 </template>
 
-<script lang="tsx">
-export default {
-  name: '/matter/matterDecl'
-}
-</script>
 
 <script setup lang="tsx">
 import userDialog from '@/components/select/userDialog.vue'
@@ -119,26 +114,28 @@ import { submitWorkflow, WFUserInfo, WFParam, WFData } from '@/hooks/useWorkflow
 import { useStore } from '@/store/business'
 import { useProcess } from '@/hooks/useProcess'
 import baseService from '@/service/baseService'
-import ImportExcel from '@/components/ImportExcel/indexSy.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexSy.vue'
+defineOptions({
+  name: '/matter/matterDecl'
+})
+
+ //导入组件
 
 const userDialogRef = ref()
 const proTableRef = ref()
 const proTypeRef = ref()
 const importRef = ref()
 const store = useStore()
-
 const isShowPage = ref<boolean>(false)
 const specialOrgId = ref<string>('')
 const spRoleId = ref<string>('')
 const roleCode = ref<string>('')
-
 const loading = ref<boolean>(false)
 const processData = reactive({
   isShowDialog: false,
   compName: null,
   id: ''
 })
-
 let idsList = ref<any>()
 
 // 查询选择框数据
@@ -181,7 +178,6 @@ const getProjectData = () => {
     }
   })
 }
-
 const getAllProTypeList: any = (list: any[]) => {
   return list.map((item: any) => {
     // 如果没有children属性
@@ -200,7 +196,6 @@ const getAllProTypeList: any = (list: any[]) => {
     }
   })
 }
-
 const diaLogData = reactive<DialogData>({
   title: '',
   isShowPage: false
@@ -211,11 +206,9 @@ const initParam = reactive<InitParams>({
   specialorgid: '',
   roleCode: ''
 })
-
 const yjdwListData: any = ref([])
 const ejdwListData: any = ref([])
 const gkbmListData: any = ref([])
-
 const getYjdwEnum = async () => {
   let res: any = await getYjdwList(specialOrgId.value)
   if (res.success) {
@@ -253,7 +246,6 @@ const changeEjdwEnum = async (val: string) => {
     loading.value = false
   }
 }
-
 const changeGkbmEnum = async (val: string) => {
   loading.value = true
   gkbmListData.value.length = 0
@@ -274,7 +266,6 @@ const changeGkbmEnum = async (val: string) => {
     loading.value = false
   }
 }
-
 const isListEnum = reactive([
   {
     label: '是',
@@ -285,27 +276,22 @@ const isListEnum = reactive([
     value: '0'
   }
 ])
-
 const getPageList = (params: any) => {
   loading.value = true
   return getPage(params)
 }
-
 const callBackHandle = (val: any) => {
   loading.value = false
   return val
 }
-
 const resetHandle = () => {
   ejdwListData.value.length = 0
   proTypeRef.value.clearSelect()
   proTableRef.value?.clearSelection()
 }
-
 const searchHandle = () => {
   proTableRef.value?.clearSelection()
 }
-
 const baseMsgData = reactive<BaseMsgData>({
   yjdwListData: [],
   isYapListData: isListEnum,
@@ -319,7 +305,6 @@ const baseMsgData = reactive<BaseMsgData>({
   selectedData: {},
   jd: '1'
 })
-
 const resetProTypeData = () => {
   const $table = proTableRef.value
   if (Array.isArray($table.searchParam.xmlx)) {
@@ -328,10 +313,16 @@ const resetProTypeData = () => {
     $table.searchParam.xmlx = ''
   }
 }
-
 const tableColumns = reactive<any[]>([
-  { type: 'selection', width: 80 },
-  { type: 'index', width: 80, label: '序号' },
+  {
+    type: 'selection',
+    width: 80
+  },
+  {
+    type: 'index',
+    width: 80,
+    label: '序号'
+  },
   {
     prop: 'yssxbm',
     label: '事项编码',
@@ -362,7 +353,10 @@ const tableColumns = reactive<any[]>([
     },
     enum: getYslxct,
     isShow: false,
-    fieldNames: { label: 'ctmc', value: 'id' },
+    fieldNames: {
+      label: 'ctmc',
+      value: 'id'
+    },
     width: '140'
   },
   {
@@ -440,9 +434,18 @@ const tableColumns = reactive<any[]>([
     prop: 'yjdw',
     label: '一级单位',
     isShow: false,
-    search: { el: 'select', props: { onChange: changeEjdwEnum }, order: 5 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: changeEjdwEnum
+      },
+      order: 5
+    },
     enum: yjdwListData.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'yjdwName',
@@ -452,10 +455,19 @@ const tableColumns = reactive<any[]>([
   {
     prop: 'ejdw',
     label: '二级单位',
-    search: { el: 'select', order: 6, props: { onChange: changeGkbmEnum } },
+    search: {
+      el: 'select',
+      order: 6,
+      props: {
+        onChange: changeGkbmEnum
+      }
+    },
     enum: ejdwListData.value,
     isShow: false,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'ejdwName',
@@ -479,7 +491,10 @@ const tableColumns = reactive<any[]>([
         collapseTags: true
       }
     },
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     enum: gkbmListData.value,
     width: '180'
   },
@@ -518,7 +533,10 @@ const tableColumns = reactive<any[]>([
     label: '事项性质',
     width: '140',
     enum: () => getPublicData('ZLYS_YSSX_SXXZ'),
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'zdtx',
@@ -526,7 +544,10 @@ const tableColumns = reactive<any[]>([
     isShow: false,
     width: '140',
     enum: () => getPublicData('ZLYS_YSSX_ZDTX'),
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'zt',
@@ -543,26 +564,55 @@ const tableColumns = reactive<any[]>([
       defaultValue: ['00', '01', '03', '04']
     },
     enum: () => getPublicData('ZLYS_YSSXZT'),
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'ztName',
     label: '状态',
     width: '140'
   },
-  { prop: 'zscflag', label: '删除标识', width: '140' },
-  { prop: 'ztimestamp', label: '创建时间', width: '180' },
-  { prop: 'cjrName', label: '创建人', width: '140' },
-  { prop: 'zhggrq', label: '最后更改日期', width: '180' },
-  { prop: 'zhggrName', label: '最后更改人', width: '140' },
-  { prop: 'xjjzbs', label: '续建结转标识', width: '140' },
-  { prop: 'middleId', label: '子类型', isShow: false }
+  {
+    prop: 'zscflag',
+    label: '删除标识',
+    width: '140'
+  },
+  {
+    prop: 'ztimestamp',
+    label: '创建时间',
+    width: '180'
+  },
+  {
+    prop: 'cjrName',
+    label: '创建人',
+    width: '140'
+  },
+  {
+    prop: 'zhggrq',
+    label: '最后更改日期',
+    width: '180'
+  },
+  {
+    prop: 'zhggrName',
+    label: '最后更改人',
+    width: '140'
+  },
+  {
+    prop: 'xjjzbs',
+    label: '续建结转标识',
+    width: '140'
+  },
+  {
+    prop: 'middleId',
+    label: '子类型',
+    isShow: false
+  }
 ])
-
 const selectRolesHandle = () => {
   userDialogRef.value.getUser()
 }
-
 const randomStr = (len: number) => {
   len = len || 10
   var $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -573,7 +623,6 @@ const randomStr = (len: number) => {
   }
   return 'YSCT-' + pwd
 }
-
 const getRoleHandle = () => {
   specialOrgId.value = userDialogRef.value.specialorgid
   spRoleId.value = userDialogRef.value.spRoleId
@@ -587,14 +636,12 @@ const getRoleHandle = () => {
     isShowPage.value = true
   }
 }
-
 const addMsgHandle = () => {
   diaLogData.isShowPage = true
   diaLogData.title = '预算事项-新增'
   baseMsgData.operationFlag = 'ADD'
   baseMsgData.yssxbm = randomStr(10)
 }
-
 const editMsgHandle = (selectedList: List[]) => {
   if (selectedList.length !== 1) {
     ElMessage.warning('请选择一条数据进行编辑！')
@@ -604,13 +651,11 @@ const editMsgHandle = (selectedList: List[]) => {
     ElMessage.warning('事项状态非初始、驳回或退回状态，不允许编辑！')
     return
   }
-
   diaLogData.isShowPage = true
   diaLogData.title = '预算事项-编辑'
   baseMsgData.operationFlag = 'EDIT'
   baseMsgData.selectedData = selectedList[0]
 }
-
 const wfParam = ref<WFParam>({
   SXIDS: '',
   FQZZ: '',
@@ -623,9 +668,7 @@ const wfParam = ref<WFParam>({
  * @param selectedList
  */
 const submitDecWorkflowHandle = (selectedList: List[]) => {
-  let isDelFilter = selectedList.filter(
-    (item: any) => item.zt !== '00' && item.zt !== '03' && item.zt !== '04'
-  )
+  let isDelFilter = selectedList.filter((item: any) => item.zt !== '00' && item.zt !== '03' && item.zt !== '04')
   if (isDelFilter.length !== 0) {
     ElMessage.error('事项状态非初始、驳回或退回状态，不允许提交！')
     return
@@ -639,36 +682,21 @@ const submitDecWorkflowHandle = (selectedList: List[]) => {
       return
     }
   }
-
   var submitListIds = selectedList.map((item) => item.id).join(',')
-
   const wfUserInfo: WFUserInfo = {
     userId: store.getters.getUserMsg.id,
     spOrgId: specialOrgId.value,
     spRoleId: spRoleId.value
   }
-
   wfParam.value.SXIDS = submitListIds
   wfParam.value.FQZZ = 'Province'
   wfParam.value.GKCS = selectedList[0].csId
   wfParam.value.GKBM = selectedList[0].zgkbmId
-
   loading.value = true
-
-  submitWorkflow(
-    store.getters.getUserMsg.systemCode,
-    'WF_MATTERDECLARELC',
-    '',
-    wfUserInfo,
-    wfParam.value,
-    {},
-    submitWFCallback
-  )
+  submitWorkflow(store.getters.getUserMsg.systemCode, 'WF_MATTERDECLARELC', '', wfUserInfo, wfParam.value, {}, submitWFCallback)
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
   loading.value = false
-
   loading.value = true
   let spfrom = {
     userId: store.getters.getUserMsg.id,
@@ -701,17 +729,12 @@ const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
     })
   }
 }
-
 const submitWorkflowHandle = (selectedList: List[]) => {
-  let isDelFilter = selectedList.filter(
-    (item: any) => item.zt !== '00' && item.zt !== '03' && item.zt !== '04'
-  )
-
+  let isDelFilter = selectedList.filter((item: any) => item.zt !== '00' && item.zt !== '03' && item.zt !== '04')
   if (selectedList.length > 100) {
     ElMessage.warning('系统最多支持提交100条数据,建议您分批操作!')
     return
   }
-
   if (isDelFilter.length !== 0) {
     ElMessage.error('事项状态非初始、驳回或退回状态，不允许提交！')
     return
@@ -726,30 +749,25 @@ const submitWorkflowHandle = (selectedList: List[]) => {
     }
   }
   var paramFLag = '0' //0走工作流  1不走工作流
-  baseService
-    .get('/workflow/declare/getParamValue?paramKey=MATTER_DECLARE_WORKFLOW')
-    .then((res) => {
-      if (res.data != null) {
-        paramFLag = res.data
-        if (selectedList[0].zjly == '0' && paramFLag === '0') {
-          submitDecWorkflowHandle(selectedList)
-        } else {
-          submitNoWorkflowHandle(selectedList)
-        }
+  baseService.get('/workflow/declare/getParamValue?paramKey=MATTER_DECLARE_WORKFLOW').then((res) => {
+    if (res.data != null) {
+      paramFLag = res.data
+      if (selectedList[0].zjly == '0' && paramFLag === '0') {
+        submitDecWorkflowHandle(selectedList)
       } else {
-        if (selectedList[0].zjly == '0') {
-          submitDecWorkflowHandle(selectedList)
-        } else {
-          submitNoWorkflowHandle(selectedList)
-        }
+        submitNoWorkflowHandle(selectedList)
       }
-    })
+    } else {
+      if (selectedList[0].zjly == '0') {
+        submitDecWorkflowHandle(selectedList)
+      } else {
+        submitNoWorkflowHandle(selectedList)
+      }
+    }
+  })
 }
-
 const submitNoWorkflowHandle = (selectedList: List[]) => {
-  let isDelFilter = selectedList.filter(
-    (item: any) => item.zt !== '00' && item.zt !== '03' && item.zt !== '04'
-  )
+  let isDelFilter = selectedList.filter((item: any) => item.zt !== '00' && item.zt !== '03' && item.zt !== '04')
   if (isDelFilter.length !== 0) {
     ElMessage.error('事项状态非初始、驳回或退回状态，不允许提交！')
     return
@@ -782,11 +800,8 @@ const submitNoWorkflowHandle = (selectedList: List[]) => {
       loading.value = false
     })
 }
-
 const delMsgHandle = (selectedList: any[]) => {
-  let isDelFilter = selectedList.filter(
-    (item: any) => item.zt !== '00' && item.zt !== '03' && item.zt !== '04'
-  )
+  let isDelFilter = selectedList.filter((item: any) => item.zt !== '00' && item.zt !== '03' && item.zt !== '04')
   if (isDelFilter.length !== 0) {
     ElMessage.error('事项状态非初始、驳回或退回状态，不允许删除！')
     return
@@ -814,7 +829,6 @@ const delMsgHandle = (selectedList: any[]) => {
       loading.value = false
     })
 }
-
 const viewMsgHandle = (selectedList: List[]) => {
   if (selectedList.length !== 1) {
     ElMessage.warning('请选择一条数据进行查看！')
@@ -860,7 +874,6 @@ const importMsgHandle = () => {
   }
   importRef.value.acceptParams(params)
 }
-
 const exportMsgHandle = () => {
   loading.value = true
   exportMsg({
@@ -881,17 +894,14 @@ const exportMsgHandle = () => {
     loading.value = false
   })
 }
-
 const closeDialogHandle = (val: boolean) => {
   baseMsgData.selectedData = {}
   proTableRef.value?.clearSelection()
   diaLogData.isShowPage = val
 }
-
 const searchTableHandle = () => {
   proTableRef.value?.search()
 }
-
 onMounted(() => {
   selectRolesHandle()
   getProjectData()

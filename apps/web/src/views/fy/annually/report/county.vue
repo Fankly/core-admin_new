@@ -187,11 +187,6 @@
   <ImportExcel ref="importRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/fy/annually/report/county'
-}
-</script>
 
 <script setup lang="ts">
 import FyHeader from '@/views/fy/components/Header.vue'
@@ -216,6 +211,9 @@ import { getGroupSummary } from '@/utils/prearranged'
 import { Decimal } from 'decimal.js'
 import { VXETable } from 'vxe-table'
 import { formatValue } from '@/utils/utils'
+defineOptions({
+  name: '/fy/annually/report/county'
+})
 
 const userDialogRef = ref()
 const treeTableRef = ref()
@@ -224,18 +222,15 @@ const headerRef = ref()
 const importRef = ref()
 const toolbarOneRef = ref()
 const toolbarTwoRef = ref()
-
 const userMsg = reactive<any>({
   userData: '',
   dwName: '',
   isShowPage: false,
   isDisabled: false
 })
-
 const uploadFileIsDisabled = computed(() => {
   return userMsg.isDisabled || tableLoading.value || !tabMsg.busiId
 })
-
 watch(
   () => userMsg.isDisabled,
   (newValue) => {
@@ -245,40 +240,32 @@ watch(
     deep: true
   }
 )
-
 const isDisabled = computed(() => {
   return userMsg.isDisabled || tableLoading.value
 })
-
 const uploadMsg = reactive({
   isShowModal: false
 })
-
 const pageMsg = reactive<any>({
   pageData: ''
 })
-
 const tabMsg = reactive({
   name: '1',
   busiId: ''
 })
-
 const tableLoading = ref(false)
-
 const activeCellMethod = ({ column, columnIndex, row }: any) => {
   if (row.id && !row.leaf) {
     return true
   }
   return false
 }
-
 const headerCellStyle = () => {
   return {
     padding: '8px 0',
     lineHeight: '16px'
   }
 }
-
 const tableMsg = reactive<TableMsg>({
   rowConfig: {
     height: 32
@@ -322,7 +309,6 @@ const tableMsg = reactive<TableMsg>({
     }
   }
 })
-
 const exportHandle = () => {
   tableLoading.value = true
   let params = {
@@ -349,7 +335,6 @@ const exportHandle = () => {
     tableLoading.value = false
   })
 }
-
 const importHandle = async () => {
   let newParmas = {
     kmlx: tabMsg.name,
@@ -375,18 +360,15 @@ const importHandle = async () => {
   }
   importRef.value.acceptParams(params)
 }
-
 const uploadHandle = () => {
   uploadMsg.isShowModal = true
 }
-
 const getTabNameHandle = ({ props }: any) => {
   tabMsg.name = props.name
   initDisabledBtn()
   getTableData()
   linkTable()
 }
-
 const escalationHandle = () => {
   const $table = tabMsg.name === '1' ? treeTableRef.value : treendTableRef.value
   let msg = ''
@@ -416,7 +398,6 @@ const escalationHandle = () => {
     }
   })
 }
-
 const getCurData = async () => {
   let res = await getCurrentPageData({
     nd: tableMsg.nd,
@@ -427,7 +408,6 @@ const getCurData = async () => {
   tabMsg.busiId = res.data.dwDetailId
   pageMsg.pageData = res.data
 }
-
 const saveHandle = async () => {
   const $table = tabMsg.name === '1' ? treeTableRef.value : treendTableRef.value
   if ($table) {
@@ -450,7 +430,6 @@ const saveHandle = async () => {
           sbDesc: item.sbDesc
         }
       })
-
       let params = {
         busiType: 'ND',
         ejdw: userMsg.userData.org_id,
@@ -470,19 +449,16 @@ const saveHandle = async () => {
     }
   }
 }
-
 const changeNdHandle = (val: string) => {
   tableMsg.nd = val
   initDisabledBtn()
   getTableData()
 }
-
 const changeXswsHandle = (val: string) => {
   tableMsg.xsws = val
   initDisabledBtn()
   getTableData()
 }
-
 const formatterHandle = ({ column, cellValue }: any) => {
   if (column.field === 'cnx' || column.field === 'name' || column.field === 'sbDesc') {
     return cellValue
@@ -490,9 +466,10 @@ const formatterHandle = ({ column, cellValue }: any) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   return formatValue(cellValue, Number(tableMsg.xsws))
 }
-
 const getRoleHandle = async () => {
-  userMsg.userData = { ...userDialogRef.value.userMsg }
+  userMsg.userData = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString()
   tableMsg.xsws = headerRef.value.formParams.xsws || '2'
@@ -503,7 +480,6 @@ const getRoleHandle = async () => {
     linkTable()
   }
 }
-
 const linkTable = () => {
   const $table = Number(tabMsg.name) === 1 ? treeTableRef.value : treendTableRef.value
   const $toolBar = Number(tabMsg.name) === 1 ? toolbarOneRef.value : toolbarTwoRef.value
@@ -511,14 +487,12 @@ const linkTable = () => {
     $table.connect($toolBar)
   }
 }
-
 const isClickHeader = (columns: any, field: string) => {
   let columnsData = columns.filter((item: any) => item.eidt)
   let column = columnsData.find((item: any) => item.columnKey === field)
   if (column) return true
   return false
 }
-
 const cellStyle = ({ row, column }: any) => {
   if (tableMsg.editConfig && !tableMsg.editConfig.enabled) {
     return {
@@ -532,7 +506,6 @@ const cellStyle = ({ row, column }: any) => {
       backgroundColor: 'rgba(232, 234, 236,0.5)'
     }
   }
-
   if (!row.id || row.leaf) {
     return {
       cursor: 'auto',
@@ -540,31 +513,26 @@ const cellStyle = ({ row, column }: any) => {
     }
   }
 }
-
 const sumhandle = (row: any) => {
   row.sbje = row.sbje ? new Decimal(row.sbje).toFixed(Number(tableMsg.xsws)) : new Decimal(0).toFixed(Number(tableMsg.xsws))
   const config: any = tabMsg.name === '1' ? tableMsg.zyTreeConfig : tableMsg.ndTreeConfig
   const tableData = Number(tabMsg.name) === 1 ? tableMsg.tableData : tableMsg.ndData
   getGroupSummary(tableData, config, 'sbje', Number(tableMsg.xsws), 'leaf', 'id')
 }
-
 const initDisabledBtn = async () => {
   let res = await judgeIsSd('ND', tabMsg.name, tableMsg.nd, userMsg.userData.org_id)
   userMsg.isDisabled = res.data
   if (tableMsg.editConfig) tableMsg.editConfig.enabled = !res.data
 }
-
 const initData = async () => {
   userDialogRef.value.getUser()
   getTableHeaderName()
 }
-
 const clearTableData = () => {
   if (tableMsg.columns && tableMsg.columns.length > 0) tableMsg.columns.length = 0
   if (tableMsg.tableData) tableMsg.tableData.length = 0
   if (tableMsg.ndData) tableMsg.ndData.length = 0
 }
-
 const getTableData = async () => {
   tableLoading.value = true
   clearTableData()
@@ -593,12 +561,10 @@ const getTableData = async () => {
   }
   tableLoading.value = false
 }
-
 const getTableHeaderName = () => {
   let curYear = new Date().getFullYear() // 当年
   return [curYear - 3, curYear - 2, curYear - 1, curYear]
 }
-
 const getDataList = async (val?: string) => {
   tableLoading.value = true
   tableMsg.nd = val ? val : tableMsg.nd
@@ -616,7 +582,6 @@ const getDataList = async (val?: string) => {
   }
   tableLoading.value = false
 }
-
 onMounted(() => {
   initData()
 })

@@ -37,12 +37,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "PriceDetailDialog" })
 import { computed, nextTick, reactive, ref } from 'vue'
 import type { VxeGridProps } from 'vxe-table'
 import RangeVxeTable from '@/components/RangeVxeTable/index.vue'
 import { formatNumValue } from '@/utils/utils'
 import { getPageDetail } from '@/api/ai/materialPriceLibrary'
+defineOptions({ name: "PriceDetailDialog" })
 
 const props = defineProps<{
   modelValue: boolean

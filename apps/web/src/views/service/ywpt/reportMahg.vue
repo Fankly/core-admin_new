@@ -5,13 +5,9 @@
   </div>
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
-<script lang="ts">
-export default {
-  name: '/service/ywpt/reportMahg'
-}
-</script>
+
 <script setup lang="ts">
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
+import userDialog from '@/components/select/userDialog.vue'
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { endMeeting, startMeeting, generateReviewReport, removeFinalReport } from '@/api/service/jointReview'
@@ -20,6 +16,10 @@ import { useStore } from '@/store/business'
 import { useUser } from '@/hooks/useUser'
 import viewTable from '@/views/service/ywpt/components/viewTable.vue'
 import { encrypt } from '@/utils/crypto'
+defineOptions({
+  name: '/service/ywpt/reportMahg'
+})
+ //权限弹框
 
 // 初始化页面
 const loading = ref(false) //接口调用加载中。。。
@@ -47,7 +47,10 @@ const handleReview = async (val: any) => {
   const isOverMeeting = val.selectedList.every((item: any) => item.finalReportUuid)
   if (['结束会议', '评审报告生成'].includes(val.value)) {
     val.selectedList.forEach((item: any) => {
-      meetingInfoList.push({ meetingId: item.meetingId, meetingName: item.meetingName })
+      meetingInfoList.push({
+        meetingId: item.meetingId,
+        meetingName: item.meetingName
+      })
     })
   }
   if (val.value == '重新打开会议') {
@@ -70,7 +73,7 @@ const handleReview = async (val: any) => {
     router.push({
       name: '/service/ywpt/reportReview',
       query: {
-        Meetingparams:str
+        Meetingparams: str
       }
     })
   } else {
@@ -83,20 +86,32 @@ const handleReview = async (val: any) => {
       .then(async () => {
         let res: any =
           val.value == '结束会议'
-            ? await endMeeting({ meetingInfoList: meetingInfoList })
+            ? await endMeeting({
+                meetingInfoList: meetingInfoList
+              })
             : val.value == '重新打开会议'
-            ? await startMeeting({ meetingIdList: meetingIdList })
-            : val.value == '评审报告删除'
-            ? await removeFinalReport(val.selectedList[0].meetingId)
-            : await generateReviewReport({ meetingInfoList: meetingInfoList })
+              ? await startMeeting({
+                  meetingIdList: meetingIdList
+                })
+              : val.value == '评审报告删除'
+                ? await removeFinalReport(val.selectedList[0].meetingId)
+                : await generateReviewReport({
+                    meetingInfoList: meetingInfoList
+                  })
         if (res.success) {
-          ElMessage({ type: 'success', message: `${val.value}成功` })
+          ElMessage({
+            type: 'success',
+            message: `${val.value}成功`
+          })
           meetingInfoList.length == 0
           meetingIdList.length == 0
           tableRef.value?.proTableRef.getTableList()
           tableRef.value?.proTableRef.clearSelection()
         } else {
-          ElMessage({ type: 'error', message: res.msg })
+          ElMessage({
+            type: 'error',
+            message: res.msg
+          })
         }
       })
       .catch((error: any) => {
@@ -108,7 +123,9 @@ const handleReview = async (val: any) => {
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfo.value = { ...userDialogRef.value.userMsg }
+    userInfo.value = {
+      ...userDialogRef.value.userMsg
+    }
     specialOrgId.value = userDialogRef.value.specialorgid
     sessionStorage.setItem(
       'jointInfoLeader',
@@ -146,8 +163,15 @@ onMounted(async () => {
   }
 })
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'meetingName',
     label: '会议名称',
@@ -177,35 +201,106 @@ const tableColumns = reactive<any>([
     label: '会议状态',
     tag: true,
     enum: [
-      { label: '未发布', value: '00', tagType: 'info' },
-      { label: '评审中', value: '01', tagType: 'warning' },
-      { label: '已结束', value: '02', tagType: 'success' }
+      {
+        label: '未发布',
+        value: '00',
+        tagType: 'info'
+      },
+      {
+        label: '评审中',
+        value: '01',
+        tagType: 'warning'
+      },
+      {
+        label: '已结束',
+        value: '02',
+        tagType: 'success'
+      }
     ],
     width: '80'
   },
-  { prop: 'isLeaderReview', label: '是否完成终评', width: '100' },
+  {
+    prop: 'isLeaderReview',
+    label: '是否完成终评',
+    width: '100'
+  },
   {
     prop: 'reportStatus',
     label: '评审报告状态',
     width: '100',
     tag: true,
     enum: [
-      { label: '已生成', value: '已生成', tagType: 'success' },
-      { label: '生成中', value: '生成中', tagType: 'warning' },
-      { label: '未生成', value: '未生成', tagType: 'info' }
+      {
+        label: '已生成',
+        value: '已生成',
+        tagType: 'success'
+      },
+      {
+        label: '生成中',
+        value: '生成中',
+        tagType: 'warning'
+      },
+      {
+        label: '未生成',
+        value: '未生成',
+        tagType: 'info'
+      }
     ]
   },
-  { prop: 'major', label: '评审专业' },
-  { prop: 'createUserName', label: '组织人', width: '80' },
-  { prop: 'leaderName', label: '专家组长', width: '80' },
-  { prop: 'startTime', label: '会议开始时间', width: '150' },
-  { prop: 'endTime', label: '会议结束时间', width: '150' },
-  { prop: 'reportType', label: '评审意见报告(初稿)', width: '140' },
-  { prop: 'finalReportName', label: '评审意见报告(定稿)', width: '140' },
-  { prop: 'totalCount', label: '评审总条目数', width: '100' },
-  { prop: 'thCount', label: '退回条目数', width: '85' },
-  { prop: 'passCount', label: '通过条目数', width: '85' },
-  { prop: 'rejectCount', label: '驳回条目数', width: '85' }
+  {
+    prop: 'major',
+    label: '评审专业'
+  },
+  {
+    prop: 'createUserName',
+    label: '组织人',
+    width: '80'
+  },
+  {
+    prop: 'leaderName',
+    label: '专家组长',
+    width: '80'
+  },
+  {
+    prop: 'startTime',
+    label: '会议开始时间',
+    width: '150'
+  },
+  {
+    prop: 'endTime',
+    label: '会议结束时间',
+    width: '150'
+  },
+  {
+    prop: 'reportType',
+    label: '评审意见报告(初稿)',
+    width: '140'
+  },
+  {
+    prop: 'finalReportName',
+    label: '评审意见报告(定稿)',
+    width: '140'
+  },
+  {
+    prop: 'totalCount',
+    label: '评审总条目数',
+    width: '100'
+  },
+  {
+    prop: 'thCount',
+    label: '退回条目数',
+    width: '85'
+  },
+  {
+    prop: 'passCount',
+    label: '通过条目数',
+    width: '85'
+  },
+  {
+    prop: 'rejectCount',
+    label: '驳回条目数',
+    width: '85'
+  }
 ])
 </script>
 <style scoped lang="less">

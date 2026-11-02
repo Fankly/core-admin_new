@@ -41,11 +41,9 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, defineExpose, reactive } from 'vue'
+import { ref, reactive } from 'vue'
 import { ElMessageBox } from 'element-plus'
 
 //接收父组件传参
@@ -86,7 +84,10 @@ const pushMsgHandle = () => {
   ruleFormRef.value.validate((valid: any) => {
     if (!valid) return
     rmarkData.value.nd = props.nd
-    emit('showModal', { title: props.title, rmarkData: rmarkData.value })
+    emit('showModal', {
+      title: props.title,
+      rmarkData: rmarkData.value
+    })
   })
 }
 // 子组件暴露方法到父组件

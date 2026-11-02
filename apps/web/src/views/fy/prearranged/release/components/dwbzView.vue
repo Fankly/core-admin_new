@@ -48,110 +48,98 @@
   <ImportExcel ref="importRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: "dwbzView"
-};
-</script>
+
 <script setup lang="ts">
-import FileUpload from "@/views/fy/components/FileUpload.vue";
-import ImportExcel from "@/components/ImportExcel/index.vue";
-import { computed, reactive, ref, defineExpose, defineEmits, withDefaults, defineProps, toRef } from "vue";
-import { DwDataMsg, TableMsg } from "../../interface";
-import { getDwJc } from "@/api/fy/release";
-import { ElMessage } from "element-plus";
-import { VXETable } from "vxe-table";
-import { getGroupSummary } from "@/utils/prearranged";
-import { useStore } from '@/store/business';
-import { Decimal } from "decimal.js";
-import { judgeSaved } from "@/api/fy/release/provinceReview";
-import { judgeSaved as cityjudgeSaved } from "@/api/fy/release/city";
-import { formatValue } from "@/utils/utils";
+import FileUpload from '@/views/fy/components/FileUpload.vue'
+import ImportExcel from '@/components/ImportExcel/index.vue'
+import { computed, reactive, ref, toRef } from 'vue'
+import { DwDataMsg, TableMsg } from '../../interface'
+import { getDwJc } from '@/api/fy/release'
+import { ElMessage } from 'element-plus'
+import { VXETable } from 'vxe-table'
+import { getGroupSummary } from '@/utils/prearranged'
+import { useStore } from '@/store/business'
+import { Decimal } from 'decimal.js'
+import { judgeSaved } from '@/api/fy/release/provinceReview'
+import { judgeSaved as cityjudgeSaved } from '@/api/fy/release/city'
+import { formatValue } from '@/utils/utils'
+defineOptions({
+  name: 'dwbzView'
+})
 
 export interface ModalProps {
-  isShowModal: boolean;
-  dwId: string;
-  nd: string;
-  specialorgid: string;
-  kmlx: string;
-  flag: string;
-  operationFlag: string;
-  templateApi?: (params: any) => Promise<any>;
-  importDataApi?: (params: any) => Promise<any>;
-  tableApi: (params: any) => Promise<any>;
-  headerApi: (params: any) => Promise<any>;
-  saveApi?: (params: any) => Promise<any> | null;
-  sdApi?: (params: any) => Promise<any>;
-  exportApi?: (params: any) => Promise<any>;
-  toolButton?: ("save" | "import" | "export" | "download" | "sd" | "close")[] | boolean; // 是否显示
-  title: string;
-  showHeader: boolean;
-  busiId?: string;
-  busiType: string;
-  sdzt?: string;
-  xsws: string;
+  isShowModal: boolean
+  dwId: string
+  nd: string
+  specialorgid: string
+  kmlx: string
+  flag: string
+  operationFlag: string
+  templateApi?: (params: any) => Promise<any>
+  importDataApi?: (params: any) => Promise<any>
+  tableApi: (params: any) => Promise<any>
+  headerApi: (params: any) => Promise<any>
+  saveApi?: (params: any) => Promise<any> | null
+  sdApi?: (params: any) => Promise<any>
+  exportApi?: (params: any) => Promise<any>
+  toolButton?: ('save' | 'import' | 'export' | 'download' | 'sd' | 'close')[] | boolean // 是否显示
+  title: string
+  showHeader: boolean
+  busiId?: string
+  busiType: string
+  sdzt?: string
+  xsws: string
 }
-
-const treeTableRef = ref();
-const importRef = ref();
-
-const isDisabled = computed(() => (props.flag === "ProvinceReview" || props.flag === "CityReView") && props.operationFlag !== "view");
-
+const treeTableRef = ref()
+const importRef = ref()
+const isDisabled = computed(() => (props.flag === 'ProvinceReview' || props.flag === 'CityReView') && props.operationFlag !== 'view')
 const uploadMsg = reactive({
   isShowModal: false
-});
-
-const store = useStore();
-
+})
+const store = useStore()
 const props = withDefaults(defineProps<ModalProps>(), {
   isShowModal: false,
-  dwId: "",
+  dwId: '',
   nd: new Date().getFullYear().toString(),
-  specialorgid: "",
+  specialorgid: '',
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   toolButton: true,
   showHeader: false,
-  operationFlag: "edit",
-  sdzt: ""
-});
-
-const showModal = toRef(props, "isShowModal");
-
-const emit = defineEmits(["closeDialog", "updateTable", "viewFile"]);
-
-const loading = ref(false);
-
+  operationFlag: 'edit',
+  sdzt: ''
+})
+const showModal = toRef(props, 'isShowModal')
+const emit = defineEmits(['closeDialog', 'updateTable', 'viewFile'])
+const loading = ref(false)
 const dwMsg = reactive<DwDataMsg>({
-  dwId: "",
+  dwId: '',
   dwList: []
-});
-
+})
 const activeCellMethod = ({ column, columnIndex, row }: any) => {
   if (row.id && !row.leaf) {
-    return true;
+    return true
   }
-  return false;
-};
-
+  return false
+}
 const tableMsg = reactive<TableMsg>({
   rowConfig: {
     height: 32
   },
-  xsws: "",
+  xsws: '',
   tableData: [],
-  nd: "",
+  nd: '',
   columns: [],
   editConfig: {
-    trigger: "click",
-    mode: "cell",
+    trigger: 'click',
+    mode: 'cell',
     showStatus: true,
     enabled: true,
     beforeEditMethod: activeCellMethod
   },
   ndTreeConfig: {
     lazy: true,
-    hasChildField: "leaf",
+    hasChildField: 'leaf',
     loadMethod({ row }: any) {
       let params = {
         dwId: dwMsg.dwId,
@@ -161,122 +149,111 @@ const tableMsg = reactive<TableMsg>({
         kmlx: props.kmlx,
         parentId: row.id,
         opType: props.operationFlag
-      };
-      let api = props.tableApi;
+      }
+      let api = props.tableApi
       return new Promise((resolve: any) => {
         api(params).then((res) => {
           if (res.success) {
-            resolve(res.data);
+            resolve(res.data)
           } else {
-            ElMessage.error(res.msg);
-            resolve([]);
+            ElMessage.error(res.msg)
+            resolve([])
           }
-        });
-      });
+        })
+      })
     }
   }
-});
-
+})
 const isClickHeader = (columns: any, field: string) => {
-  let column = columns.find((item: any) => item.eidt && item.columnKey === field);
-  return !!column;
-};
-
+  let column = columns.find((item: any) => item.eidt && item.columnKey === field)
+  return !!column
+}
 const headerCellStyle = () => {
   return {
-    padding: "8px 0",
-    lineHeight: "16px"
-  };
-};
-
+    padding: '8px 0',
+    lineHeight: '16px'
+  }
+}
 const cellStyle = ({ row, column }: any) => {
   if (tableMsg.editConfig && !tableMsg.editConfig.enabled) {
     return {
-      cursor: "auto",
-      backgroundColor: "rgba(232, 234, 236,0.5)"
-    };
+      cursor: 'auto',
+      backgroundColor: 'rgba(232, 234, 236,0.5)'
+    }
   }
   if (!isClickHeader(tableMsg.columns, column.field)) {
     return {
-      cursor: "auto",
-      backgroundColor: "rgba(232, 234, 236,0.5)"
-    };
-  }
-
-  if (!row.id || row.leaf) {
-    return {
-      cursor: "auto",
-      backgroundColor: "rgba(232, 234, 236,0.5)"
-    };
-  }
-};
-
-const showToolButton = (key: "save" | "export" | "download" | "import" | "sd" | "close") => {
-  return Array.isArray(props.toolButton) ? props.toolButton.includes(key) : props.toolButton;
-};
-
-const formatterData = ({ column, cellValue }: any) => {
-  const keys = ["name", "cnx", "sbsm", "sbDesc"];
-  if (keys.includes(column.field)) return cellValue;
-  if (typeof cellValue === "undefined" || cellValue === null || cellValue === "") {
-    if (props.operationFlag === "view" && props.sdzt && props.sdzt === "0") {
-      return new Decimal(0).toFixed(Number(tableMsg.xsws));
-    } else {
-      return "-";
+      cursor: 'auto',
+      backgroundColor: 'rgba(232, 234, 236,0.5)'
     }
   }
-  return formatValue(cellValue, Number(tableMsg.xsws));
-};
-
-const showHandle = () => {
-  dwMsg.dwId = props.dwId;
-  store.commit("setOldDwId", props.dwId);
-  tableMsg.nd = props.nd;
-  tableMsg.xsws = props.xsws || "2";
-  if (props.operationFlag === "view") {
-    if (tableMsg.editConfig) tableMsg.editConfig.enabled = false;
-  } else {
-    if (tableMsg.editConfig) tableMsg.editConfig.enabled = true;
+  if (!row.id || row.leaf) {
+    return {
+      cursor: 'auto',
+      backgroundColor: 'rgba(232, 234, 236,0.5)'
+    }
   }
-  initDwData();
-  initTableData();
-};
-
+}
+const showToolButton = (key: 'save' | 'export' | 'download' | 'import' | 'sd' | 'close') => {
+  return Array.isArray(props.toolButton) ? props.toolButton.includes(key) : props.toolButton
+}
+const formatterData = ({ column, cellValue }: any) => {
+  const keys = ['name', 'cnx', 'sbsm', 'sbDesc']
+  if (keys.includes(column.field)) return cellValue
+  if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') {
+    if (props.operationFlag === 'view' && props.sdzt && props.sdzt === '0') {
+      return new Decimal(0).toFixed(Number(tableMsg.xsws))
+    } else {
+      return '-'
+    }
+  }
+  return formatValue(cellValue, Number(tableMsg.xsws))
+}
+const showHandle = () => {
+  dwMsg.dwId = props.dwId
+  store.commit('setOldDwId', props.dwId)
+  tableMsg.nd = props.nd
+  tableMsg.xsws = props.xsws || '2'
+  if (props.operationFlag === 'view') {
+    if (tableMsg.editConfig) tableMsg.editConfig.enabled = false
+  } else {
+    if (tableMsg.editConfig) tableMsg.editConfig.enabled = true
+  }
+  initDwData()
+  initTableData()
+}
 const sumhandle = (row: any, key: string) => {
-  row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(tableMsg.xsws)) : new Decimal("0").toFixed(Number(tableMsg.xsws));
-  getGroupSummary(tableMsg.tableData, tableMsg.ndTreeConfig as any, key, Number(tableMsg.xsws), "leaf", "id");
-};
-
+  row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(tableMsg.xsws)) : new Decimal('0').toFixed(Number(tableMsg.xsws))
+  getGroupSummary(tableMsg.tableData, tableMsg.ndTreeConfig as any, key, Number(tableMsg.xsws), 'leaf', 'id')
+}
 const changeDwHandle = async ({ value }: any) => {
   // 判断是否存在修改值,如果修改值,提示是否保存
-  const $table = treeTableRef.value;
+  const $table = treeTableRef.value
   if ($table) {
-    const updateRecordsLength = $table.getUpdateRecords().length;
+    const updateRecordsLength = $table.getUpdateRecords().length
     if (updateRecordsLength > 0) {
-      const type = await VXETable.modal.confirm("存在数据未保存,是否进行保存？", "提示");
-      if ("cancel" !== type) {
-        saveHandle();
+      const type = await VXETable.modal.confirm('存在数据未保存,是否进行保存？', '提示')
+      if ('cancel' !== type) {
+        saveHandle()
       }
     }
   }
-  store.commit("setOldDwId", value);
-  initTableData();
-};
-
+  store.commit('setOldDwId', value)
+  initTableData()
+}
 const initDwData = async () => {
-  let res = await getDwJc(props.specialorgid, props.busiType, props.kmlx);
+  let res = await getDwJc(props.specialorgid, props.busiType, props.kmlx)
   if (res.success) {
-    dwMsg.dwList = res.data;
+    dwMsg.dwList = res.data
   } else {
-    ElMessage.error("请刷新页面进行重试！");
+    ElMessage.error('请刷新页面进行重试！')
   }
-};
-
+}
 const initTableData = async () => {
-  loading.value = true;
-  let api = props.tableApi;
-  let headerApi = props.headerApi;
-  if (!api && !headerApi) return;
+  loading.value = true
+  let api = props.tableApi
+  let headerApi = props.headerApi
+  if (!api && !headerApi) return
   try {
     let params = {
       opType: props.operationFlag,
@@ -285,55 +262,54 @@ const initTableData = async () => {
       nd: tableMsg.nd,
       xsws: tableMsg.xsws,
       specialorgid: props.specialorgid
-    };
+    }
     let tableData = await api({
       ...params,
-      parentId: "-1"
-    });
-    let headerData = await headerApi(params);
-    tableMsg.tableData = tableData.data;
-    tableMsg.columns = headerData.data.filter((item: any) => !item.hidden);
-    loading.value = false;
+      parentId: '-1'
+    })
+    let headerData = await headerApi(params)
+    tableMsg.tableData = tableData.data
+    tableMsg.columns = headerData.data.filter((item: any) => !item.hidden)
+    loading.value = false
   } catch (error) {
-    loading.value = false;
+    loading.value = false
   }
-};
-
+}
 const sdHandle = async () => {
-  if (props.sdzt && props.sdzt === "0") {
+  if (props.sdzt && props.sdzt === '0') {
     let params = {
       busiType: props.busiType,
       dwId: dwMsg.dwId,
       kmlx: props.kmlx,
       nd: tableMsg.nd
-    };
+    }
     let apiParams: any = {
       ProvinceReview: judgeSaved,
       CityReView: cityjudgeSaved
-    };
+    }
     // 调用保存接口
-    if (props.busiType === "YAP") {
-      let saveRes = await apiParams[props.flag](params);
+    if (props.busiType === 'YAP') {
+      let saveRes = await apiParams[props.flag](params)
       if (!saveRes.data) {
-        ElMessage.warning("请保存后,再进行审定");
-        return;
+        ElMessage.warning('请保存后,再进行审定')
+        return
       }
     }
   }
-  const $table = treeTableRef.value;
-  const updateRecordsLength = $table.getUpdateRecords().length;
+  const $table = treeTableRef.value
+  const updateRecordsLength = $table.getUpdateRecords().length
   if (updateRecordsLength > 0) {
-    const type = await VXETable.modal.confirm("存在数据未保存,是否继续进行审定？", "提示");
-    if ("cancel" === type) {
-      return;
+    const type = await VXETable.modal.confirm('存在数据未保存,是否继续进行审定？', '提示')
+    if ('cancel' === type) {
+      return
     }
   }
-  const type = await VXETable.modal.confirm("是否确定审定？", "提示", {
-    status: "warning"
-  });
-  if (type === "confirm") {
-    let api = props.sdApi;
-    if (!api) return;
+  const type = await VXETable.modal.confirm('是否确定审定？', '提示', {
+    status: 'warning'
+  })
+  if (type === 'confirm') {
+    let api = props.sdApi
+    if (!api) return
     try {
       if ($table) {
         let params = {
@@ -341,38 +317,36 @@ const sdHandle = async () => {
           ejdw: dwMsg.dwId,
           kmlx: props.kmlx,
           nd: tableMsg.nd
-        };
+        }
         let res = await api({
           ...params
-        });
+        })
         if (res.success) {
-          ElMessage.success("审定成功");
-          emit("updateTable", "sd");
+          ElMessage.success('审定成功')
+          emit('updateTable', 'sd')
         } else {
-          ElMessage.error(res.msg);
+          ElMessage.error(res.msg)
         }
       }
-      loading.value = false;
+      loading.value = false
     } catch (error) {
-      loading.value = false;
+      loading.value = false
     }
   }
-};
-
+}
 const viewFileHandle = () => {
-  uploadMsg.isShowModal = true;
-  emit("viewFile");
-};
-
+  uploadMsg.isShowModal = true
+  emit('viewFile')
+}
 const saveHandle = async () => {
-  const type = await VXETable.modal.confirm("是否确定保存？", "提示", {
-    status: "warning"
-  });
-  if (type === "confirm") {
-    loading.value = true;
-    const $table = treeTableRef.value;
-    let api = props.saveApi;
-    if (!api) return;
+  const type = await VXETable.modal.confirm('是否确定保存？', '提示', {
+    status: 'warning'
+  })
+  if (type === 'confirm') {
+    loading.value = true
+    const $table = treeTableRef.value
+    let api = props.saveApi
+    if (!api) return
     try {
       if ($table) {
         let params = {
@@ -380,64 +354,61 @@ const saveHandle = async () => {
           dwId: store.getters.getOldDwId,
           kmlx: props.kmlx,
           nd: tableMsg.nd
-        };
+        }
         let tableData = await api({
           ...params
-        });
+        })
         if (tableData.success) {
-          await initTableData();
-          ElMessage.success("保存成功");
-          emit("updateTable", "save");
+          await initTableData()
+          ElMessage.success('保存成功')
+          emit('updateTable', 'save')
         } else {
-          ElMessage.error(tableData.msg);
+          ElMessage.error(tableData.msg)
         }
       }
-      loading.value = false;
+      loading.value = false
     } catch (error) {
-      loading.value = false;
+      loading.value = false
     }
   }
-};
-
+}
 const importHandle = () => {
   let newParmas = {
     busiType: props.busiType,
     dwId: store.getters.getOldDwId,
     kmlx: props.kmlx,
     nd: tableMsg.nd,
-    parentId: "-1",
+    parentId: '-1',
     specialorgid: props.specialorgid,
     xsws: tableMsg.xsws
-  };
-  let tempApi: any = props.templateApi;
-  let importApi: any = props.importDataApi;
-
-  if (!tempApi && !importApi) return;
+  }
+  let tempApi: any = props.templateApi
+  let importApi: any = props.importDataApi
+  if (!tempApi && !importApi) return
   let params = {
     tempApi: (importParams: any) => {
       let newImportParams = {
         ...newParmas,
         excelFormData: importParams.excelFormData
-      };
-      return tempApi(newImportParams);
+      }
+      return tempApi(newImportParams)
     },
     importApi: (importParams: any) => {
       let newImportParams = {
         ...newParmas,
         excelFormData: importParams.excelFormData
-      };
-      return importApi(newImportParams);
+      }
+      return importApi(newImportParams)
     },
     specialorgid: props.specialorgid,
     getTableList: initTableData
-  };
-  importRef.value.acceptParams(params);
-};
-
+  }
+  importRef.value.acceptParams(params)
+}
 const exportHandle = () => {
-  loading.value = true;
-  let api = props.exportApi;
-  if (!api) return;
+  loading.value = true
+  let api = props.exportApi
+  if (!api) return
   let params = {
     opType: props.operationFlag,
     busiType: props.busiType,
@@ -445,36 +416,34 @@ const exportHandle = () => {
     kmlx: props.kmlx,
     nd: tableMsg.nd,
     xsws: tableMsg.xsws,
-    parentId: "-1",
+    parentId: '-1',
     specialorgid: props.specialorgid
-  };
+  }
   api(params).then((res: any) => {
-    const blob = res;
-    let dom = document.createElement("a");
-    let url = window.URL.createObjectURL(blob);
-    dom.href = url;
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
     // 获取文件名
-    let filename = res.headers["content-disposition"].split(";")[1].split("=")[1];
-    dom.download = `${decodeURI(decodeURI(filename))}`;
-    document.body.appendChild(dom);
-    dom.click();
-    document.body.removeChild(dom);
-    window.URL.revokeObjectURL(url);
-    loading.value = false;
-  });
-};
-
+    let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
+    dom.download = `${decodeURI(decodeURI(filename))}`
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+    loading.value = false
+  })
+}
 const closeHandle = () => {
   // 重置数据
-  if (tableMsg.tableData) tableMsg.tableData.length = 0;
-  emit("closeDialog", !props.isShowModal);
-};
-
+  if (tableMsg.tableData) tableMsg.tableData.length = 0
+  emit('closeDialog', !props.isShowModal)
+}
 defineExpose({
   element: treeTableRef,
   closeHandle,
   saveHandle
-});
+})
 </script>
 
 <style scoped lang="less">

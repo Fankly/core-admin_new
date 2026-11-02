@@ -71,21 +71,16 @@
   <ImportExcel ref="importRef" />
 </template>
 
-<script lang="tsx">
-import { EditPen as EpEditPen } from '@element-plus/icons-vue'
-export default {
-  name: '/metrics/indicators'
-}
-</script>
+
 <script setup lang="tsx">
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
-import ImportExcel from '@/components/ImportExcel/indexSy.vue' //导入组件
-import { h } from 'vue'
-import proTable from '@/components/ProTable/index.vue' //表格组件
-import { onMounted, ref, reactive, watch } from 'vue'
+import { EditPen as EpEditPen } from '@element-plus/icons-vue'
+import userDialog from '@/components/select/userDialog.vue'
+import ImportExcel from '@/components/ImportExcel/indexSy.vue'
+import { h, onMounted, ref, reactive, watch } from 'vue'
+import proTable from '@/components/ProTable/index.vue'
 import { ElMessage, ElMessageBox, ElInput, ElIcon } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import {
   getTempData,
   exportTempData,
@@ -98,15 +93,25 @@ import {
   getImportTemplate,
   importTempData
 } from '@/api/metrics/index'
+defineOptions({
+  name: '/metrics/indicators'
+})
+ //权限弹框
+ //导入组件
+
+ //表格组件
+
+ //公共代码
 
 var numberRegex = /^[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?$/
-
 const userDialogRef = ref() // 用户角色
 const loading = ref(false)
 const isShowPage = ref(false) //未选择角色前不展示页面
 const router = useRouter()
-
-const fromParms = reactive<any>({ nd: '', yd: '' }) //接口入参
+const fromParms = reactive<any>({
+  nd: '',
+  yd: ''
+}) //接口入参
 const currentYearMonth = ref<any>('') //当前年月
 const tabMsg = ref('1') //当前页签位置
 const statType = ref<any>('')
@@ -119,28 +124,80 @@ const importRef = ref<any>() //导入ref
 const tabList = ref<any>([])
 const options = ref<any[]>([])
 const MXBtn = ref<any[]>([
-  { label: 'UPDATE', value: '更新明细数据', isSelected: false },
-  { label: 'PUSH', value: '生成预览数据', isSelected: false },
-  { label: 'EXPORT', value: '导 出', isSelected: false },
-  { label: 'DWALLOCATE', value: '单位配置', isSelected: false },
-  { label: 'LXALLOCATE', value: '类型配置', isSelected: false }
+  {
+    label: 'UPDATE',
+    value: '更新明细数据',
+    isSelected: false
+  },
+  {
+    label: 'PUSH',
+    value: '生成预览数据',
+    isSelected: false
+  },
+  {
+    label: 'EXPORT',
+    value: '导 出',
+    isSelected: false
+  },
+  {
+    label: 'DWALLOCATE',
+    value: '单位配置',
+    isSelected: false
+  },
+  {
+    label: 'LXALLOCATE',
+    value: '类型配置',
+    isSelected: false
+  }
   // { label: "CONFIRM", value: "数据确认", isSelected: false }
 ])
 const DWBtn = ref<any[]>([
-  { label: 'SAVE', value: '保 存', isSelected: false },
-  { label: 'IMPORT', value: '导 入', isSelected: false },
-  { label: 'EXPORT', value: '导 出', isSelected: false },
+  {
+    label: 'SAVE',
+    value: '保 存',
+    isSelected: false
+  },
+  {
+    label: 'IMPORT',
+    value: '导 入',
+    isSelected: false
+  },
+  {
+    label: 'EXPORT',
+    value: '导 出',
+    isSelected: false
+  },
   // { label: "DWALLOCATE", value: "单位配置", isSelected: false },
   // { label: "LXALLOCATE", value: "类型配置", isSelected: false },
-  { label: 'CONFIRM', value: '数据确认', isSelected: false }
+  {
+    label: 'CONFIRM',
+    value: '数据确认',
+    isSelected: false
+  }
 ])
 const XMBtn = ref<any[]>([
-  { label: 'SAVE', value: '保 存', isSelected: false },
-  { label: 'IMPORT', value: '导 入', isSelected: false },
-  { label: 'EXPORT', value: '导 出', isSelected: false },
+  {
+    label: 'SAVE',
+    value: '保 存',
+    isSelected: false
+  },
+  {
+    label: 'IMPORT',
+    value: '导 入',
+    isSelected: false
+  },
+  {
+    label: 'EXPORT',
+    value: '导 出',
+    isSelected: false
+  },
   // { label: "DWALLOCATE", value: "单位配置", isSelected: false },
   // { label: "LXALLOCATE", value: "类型配置", isSelected: false },
-  { label: 'CONFIRM', value: '数据确认', isSelected: false }
+  {
+    label: 'CONFIRM',
+    value: '数据确认',
+    isSelected: false
+  }
 ])
 // 方法
 onMounted(async () => {
@@ -172,7 +229,9 @@ const rowStyle = ({ row }: any) => {
 // 按钮点击事件
 const handlerBtn = async (val: any, selectedList: any) => {
   if (['DWALLOCATE', 'LXALLOCATE'].includes(val)) {
-    let params = { busiType: 'YSJSLTJ' }
+    let params = {
+      busiType: 'YSJSLTJ'
+    }
     router.push({
       path: val == 'DWALLOCATE' ? '/metrics/Configuration' : '/metrics/configData/budgetStatisticsConfig',
       query: params
@@ -247,10 +306,13 @@ const handlerBtn = async (val: any, selectedList: any) => {
       tabMsg.value == '1'
         ? '成本性项目预算结算率统计指标明细查询'
         : tabMsg.value == '2'
-        ? '按单位成本性项目预算结算率统计指标'
-        : '按类型成本性项目预算结算率统计指标'
+          ? '按单位成本性项目预算结算率统计指标'
+          : '按类型成本性项目预算结算率统计指标'
     loading.value = true
-    api({ ...fromParms, statType: statType1 }).then((res: any) => {
+    api({
+      ...fromParms,
+      statType: statType1
+    }).then((res: any) => {
       const blob = res
       let dom = document.createElement('a')
       let url = window.URL.createObjectURL(blob)
@@ -283,7 +345,10 @@ const handlerBtn = async (val: any, selectedList: any) => {
     })
       .then(async () => {
         const statType1 = tabMsg.value == '1' ? statType.value : tabMsg.value == '2' ? '1' : '2'
-        let res: any = await syncToOfficial({ ...fromParms, statType: statType1 })
+        let res: any = await syncToOfficial({
+          ...fromParms,
+          statType: statType1
+        })
         if (res.success) {
           ElMessage.success('数据同步成功！')
           getDataApi()
@@ -349,7 +414,6 @@ const handlerCom = (row: any, key1: any, key2: any, key3: any) => {
     row[key3] = null
   }
 }
-
 const initParamLists = async () => {
   const res = await getPublicData('JSL_YQ')
   if (res.success) {
@@ -364,13 +428,25 @@ const initParamLists = async () => {
 
 // 明细查询列表项
 const MXColumns = reactive<any>([
-  { prop: 'nd', label: '年度', width: '80' },
-  { prop: 'yd', label: '月度', width: '80' },
+  {
+    prop: 'nd',
+    label: '年度',
+    width: '80'
+  },
+  {
+    prop: 'yd',
+    label: '月度',
+    width: '80'
+  },
   {
     prop: 'statType',
     label: '展示维度',
     width: '150',
-    search: { el: 'select', order: 1, defaultValue: '1' },
+    search: {
+      el: 'select',
+      order: 1,
+      defaultValue: '1'
+    },
     enum: options.value,
     fieldNames: {
       label: 'name',
@@ -378,14 +454,34 @@ const MXColumns = reactive<any>([
     },
     isShow: false
   },
-  { prop: 'statItem', label: '统计项', width: '280' },
-  { prop: 'indicatorName', label: '指标项', width: '150' },
-  { prop: 'indicatorIndex', label: '指标值(万元)', width: '150' },
-  { prop: 'updateTime', label: '更新时间', width: '200' }
+  {
+    prop: 'statItem',
+    label: '统计项',
+    width: '280'
+  },
+  {
+    prop: 'indicatorName',
+    label: '指标项',
+    width: '150'
+  },
+  {
+    prop: 'indicatorIndex',
+    label: '指标值(万元)',
+    width: '150'
+  },
+  {
+    prop: 'updateTime',
+    label: '更新时间',
+    width: '200'
+  }
 ])
 // 按单位列表项
 const DWColumns = reactive<any>([
-  { prop: 'statItem', label: '单位', width: '280' },
+  {
+    prop: 'statItem',
+    label: '单位',
+    width: '280'
+  },
   {
     label: '当年结算率',
     prop: 'nd',
@@ -395,7 +491,12 @@ const DWColumns = reactive<any>([
         label: '目标值(万元)',
         width: '150',
         headerRender: () => {
-          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '目标值(万元)'])
+          return h('span', [
+            h(ElIcon, null, {
+              default: () => h(EpEditPen)
+            }),
+            '目标值(万元)'
+          ])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -420,7 +521,12 @@ const DWColumns = reactive<any>([
         prop: 'currentWcz',
         label: '完成值(万元)',
         headerRender: () => {
-          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '完成值(万元)'])
+          return h('span', [
+            h(ElIcon, null, {
+              default: () => h(EpEditPen)
+            }),
+            '完成值(万元)'
+          ])
         },
         width: '150',
         render: ({ row }: any) => {
@@ -457,7 +563,12 @@ const DWColumns = reactive<any>([
         label: '目标值(万元)',
         width: '150',
         headerRender: () => {
-          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '目标值(万元)'])
+          return h('span', [
+            h(ElIcon, null, {
+              default: () => h(EpEditPen)
+            }),
+            '目标值(万元)'
+          ])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -482,7 +593,12 @@ const DWColumns = reactive<any>([
         label: '完成值(万元)',
         width: '150',
         headerRender: () => {
-          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '完成值(万元)'])
+          return h('span', [
+            h(ElIcon, null, {
+              default: () => h(EpEditPen)
+            }),
+            '完成值(万元)'
+          ])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -502,14 +618,22 @@ const DWColumns = reactive<any>([
           })
         }
       },
-      { prop: 'lastJsl', label: '结算率(%)', width: '120' }
+      {
+        prop: 'lastJsl',
+        label: '结算率(%)',
+        width: '120'
+      }
     ]
   }
 ])
 
 // 按项目类型列表项
 const LXColumns = reactive<any>([
-  { prop: 'statItem', label: '项目类型', width: '280' },
+  {
+    prop: 'statItem',
+    label: '项目类型',
+    width: '280'
+  },
   {
     label: '当年结算率',
     prop: 'nd',
@@ -519,7 +643,12 @@ const LXColumns = reactive<any>([
         label: '目标值(万元)',
         width: '150',
         headerRender: () => {
-          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '目标值(万元)'])
+          return h('span', [
+            h(ElIcon, null, {
+              default: () => h(EpEditPen)
+            }),
+            '目标值(万元)'
+          ])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -531,7 +660,10 @@ const LXColumns = reactive<any>([
               handlerBlur(row, 'currentMbz')
               handlerCom(row, 'currentMbz', 'currentWcz', 'currentJsl')
             },
-            inputStyle: { textAlign: 'right', border: '1px solid #fff' }
+            inputStyle: {
+              textAlign: 'right',
+              border: '1px solid #fff'
+            }
           })
         }
       },
@@ -540,7 +672,12 @@ const LXColumns = reactive<any>([
         label: '完成值(万元)',
         width: '150',
         headerRender: () => {
-          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '完成值(万元)'])
+          return h('span', [
+            h(ElIcon, null, {
+              default: () => h(EpEditPen)
+            }),
+            '完成值(万元)'
+          ])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -552,11 +689,18 @@ const LXColumns = reactive<any>([
               handlerBlur(row, 'currentWcz')
               handlerCom(row, 'currentMbz', 'currentWcz', 'currentJsl')
             },
-            inputStyle: { textAlign: 'right', border: '1px solid #fff' }
+            inputStyle: {
+              textAlign: 'right',
+              border: '1px solid #fff'
+            }
           })
         }
       },
-      { prop: 'currentJsl', label: '结算率(%)', width: '120' }
+      {
+        prop: 'currentJsl',
+        label: '结算率(%)',
+        width: '120'
+      }
     ]
   },
   {
@@ -568,7 +712,12 @@ const LXColumns = reactive<any>([
         label: '目标值(万元)',
         width: '150',
         headerRender: () => {
-          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '目标值(万元)'])
+          return h('span', [
+            h(ElIcon, null, {
+              default: () => h(EpEditPen)
+            }),
+            '目标值(万元)'
+          ])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -580,7 +729,10 @@ const LXColumns = reactive<any>([
               handlerBlur(row, 'lastMbz')
               handlerCom(row, 'lastMbz', 'lastWcz', 'lastJsl')
             },
-            inputStyle: { textAlign: 'right', border: '1px solid #fff' }
+            inputStyle: {
+              textAlign: 'right',
+              border: '1px solid #fff'
+            }
           })
         }
       },
@@ -589,7 +741,12 @@ const LXColumns = reactive<any>([
         label: '完成值(万元)',
         width: '150',
         headerRender: () => {
-          return h('span', [h(ElIcon, null, { default: () => h(EpEditPen) }), '完成值(万元)'])
+          return h('span', [
+            h(ElIcon, null, {
+              default: () => h(EpEditPen)
+            }),
+            '完成值(万元)'
+          ])
         },
         render: ({ row }: any) => {
           return h(ElInput, {
@@ -601,7 +758,10 @@ const LXColumns = reactive<any>([
               handlerBlur(row, 'lastWcz')
               handlerCom(row, 'lastMbz', 'lastWcz', 'lastJsl')
             },
-            inputStyle: { textAlign: 'right', border: '1px solid #fff' }
+            inputStyle: {
+              textAlign: 'right',
+              border: '1px solid #fff'
+            }
           })
         }
       },
@@ -621,8 +781,14 @@ const getDataApi = async () => {
     const yearAndMonth: any = currentYearMonth.value.split('-')
     fromParms.nd = yearAndMonth[0]
     fromParms.yd = Number(yearAndMonth[1])
-    let res: any = await getTempData({ ...fromParms, statType: '1' })
-    let root: any = await getTempData({ ...fromParms, statType: '2' })
+    let res: any = await getTempData({
+      ...fromParms,
+      statType: '1'
+    })
+    let root: any = await getTempData({
+      ...fromParms,
+      statType: '2'
+    })
     if (res.success && root.success) {
       loading.value = false
       numReturn(res.data)

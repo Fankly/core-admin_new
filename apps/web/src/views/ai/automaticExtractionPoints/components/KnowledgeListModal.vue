@@ -117,11 +117,6 @@
   </ModalShell>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AepKnowledgeListModal'
-}
-</script>
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
@@ -131,10 +126,12 @@ import { KnowledgeListQuery } from '../types'
 import { vResizableTable } from '../directives/resizableTable'
 import ClampText from './ClampText.vue'
 import ModalShell from './ModalShell.vue'
+defineOptions({
+  name: 'AepKnowledgeListModal'
+})
 
 /** 弹窗内一次性取数上限（列表为文件维度，量不大） */
 const LIST_LIMIT = 200
-
 const props = withDefaults(
   defineProps<{
     /** 是否显示 */
@@ -142,20 +139,24 @@ const props = withDefaults(
     /** 打开时带入的查询条件（来源文件 + 点击列对应的状态条件） */
     query?: KnowledgeListQuery | null
   }>(),
-  { query: null }
+  {
+    query: null
+  }
 )
-
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'detail', row: KnowledgePointVO): void
 }>()
-
 const rows = ref<KnowledgePointVO[]>([])
 const loading = ref(false)
 const checked = ref<Array<string | number>>([])
 
 /** 弹窗内筛选（字段名与接口 pointPage 一致，1/0 编码） */
-const filters = reactive({ sourceFile: '', isConfirm: '', isSolidify: '' })
+const filters = reactive({
+  sourceFile: '',
+  isConfirm: '',
+  isSolidify: ''
+})
 
 /** 审核要点来源字典（列展示用名称：码值转名称，接口给名称则原样） */
 const { pointSourceName } = usePointSourceDict()
@@ -193,13 +194,10 @@ const loadPointList = async (): Promise<void> => {
     loading.value = false
   }
 }
-
 const allChecked = computed(() => rows.value.length > 0 && checked.value.length === rows.value.length)
-
 const toggleAll = (event: Event): void => {
   checked.value = (event.target as HTMLInputElement).checked ? rows.value.map((x) => x.pointId) : []
 }
-
 const resetFilters = (): void => {
   filters.sourceFile = ''
   filters.isConfirm = ''

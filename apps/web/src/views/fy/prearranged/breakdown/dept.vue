@@ -265,11 +265,6 @@
   <ImportExcel ref="importRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/fy/prearranged/breakdown/dept'
-}
-</script>
 
 <script setup lang="ts">
 import FyHeader from '@/views/fy/components/Header.vue'
@@ -302,6 +297,9 @@ import { useStore } from '@/store/business'
 import { startYapBmWf } from '@/api/workflow/fy'
 import { containsNd } from '@/api/fy/common'
 import { getWfTracking } from '@/api/workflow'
+defineOptions({
+  name: '/fy/prearranged/breakdown/dept'
+})
 
 const userDialogRef = ref()
 const treeTableRef = ref()
@@ -310,43 +308,32 @@ const headerRef = ref()
 const importRef = ref()
 const toolbarOneRef = ref()
 const toolbarTwoRef = ref()
-
 const store = useStore()
-
 const tableLoading = ref(false)
 const isHidenTab = ref(false)
 const isFjDisabled = computed(
-  () =>
-    !userMsg.fjUserData.id ||
-    userMsg.fjUserData.status !== '5' ||
-    userMsg.fjUserData.bmfjStatus === '1' ||
-    tableLoading.value
+  () => !userMsg.fjUserData.id || userMsg.fjUserData.status !== '5' || userMsg.fjUserData.bmfjStatus === '1' || tableLoading.value
 )
 const isWfId = computed(() => userMsg.fjUserData && !userMsg.fjUserData.wfId)
-
 const userMsg = reactive<any>({
   userData: '',
   dwName: '',
   isShowPage: false,
   fjUserData: ''
 })
-
 const kmMsg = reactive<any>({
   isShowModal: false,
   kmId: []
 })
-
 const tabMsg = reactive({
   name: '1'
 })
-
 const activeCellMethod = ({ row }: any) => {
   if (row.id && !row.leaf) {
     return true
   }
   return false
 }
-
 const linkTable = () => {
   const $table = tabMsg.name === '1' ? treeTableRef.value : treendTableRef.value
   const $toolBar = tabMsg.name === '1' ? toolbarOneRef.value : toolbarTwoRef.value
@@ -354,7 +341,6 @@ const linkTable = () => {
     $table.connect($toolBar)
   }
 }
-
 const tableMsg = reactive<TableMsg>({
   rowConfig: {
     height: 32
@@ -398,21 +384,18 @@ const tableMsg = reactive<TableMsg>({
     }
   }
 })
-
 const headerCellStyle = () => {
   return {
     padding: '8px 0',
     lineHeight: '16px'
   }
 }
-
 const getTabNameHandle = ({ props }: any) => {
   if (tableMsg.columns) tableMsg.columns.length = 0
   tabMsg.name = props.name
   initGetFormStatus()
   linkTable()
 }
-
 const openTodoTaskDesc = () => {
   if (userMsg.fjUserData.wfId) {
     const winWidth = screen.width
@@ -423,23 +406,15 @@ const openTodoTaskDesc = () => {
     let pageTop = (winHeight - height) / 2
     getWfTracking(userMsg.fjUserData.wfId).then((res: any) => {
       if (res.success) {
-        window.open(
-          res.data,
-          '_blank',
-          `width=${width},height=${height},top=${pageTop},left=${pageWidth}`
-        )
+        window.open(res.data, '_blank', `width=${width},height=${height},top=${pageTop},left=${pageWidth}`)
       } else {
         ElMessage.error(res.msg)
       }
     })
   }
 }
-
 const escalationHandle = () => {
-  if (
-    userMsg.fjUserData &&
-    (userMsg.fjUserData.bmfjStatus === null || userMsg.fjUserData.bmfjStatus === '')
-  ) {
+  if (userMsg.fjUserData && (userMsg.fjUserData.bmfjStatus === null || userMsg.fjUserData.bmfjStatus === '')) {
     ElMessage.warning('请保存后,再进行分解下达！')
     return
   }
@@ -450,9 +425,7 @@ const escalationHandle = () => {
   }).then(async () => {
     // 判断是否走工作流
     let paramFLag = '0' //0走工作流  1不走工作流
-    let isWorkFlowRes = await baseService.get(
-      '/workflow/declare/getParamValue?paramKey=YAP_DEPT_FJ_WORKFLOW'
-    )
+    let isWorkFlowRes = await baseService.get('/workflow/declare/getParamValue?paramKey=YAP_DEPT_FJ_WORKFLOW')
     if (isWorkFlowRes.success) {
       let wfUserInfo: WFUserInfo = {
         userId: store.getters.getUserMsg.id,
@@ -470,15 +443,7 @@ const escalationHandle = () => {
       paramFLag = isWorkFlowRes.data
       switch (paramFLag) {
         case '0':
-          submitWorkflow(
-            store.getters.getUserMsg.systemCode,
-            'WF_YAPBMFJ',
-            '',
-            wfUserInfo,
-            wfParam,
-            {},
-            submitWFCallback
-          )
+          submitWorkflow(store.getters.getUserMsg.systemCode, 'WF_YAPBMFJ', '', wfUserInfo, wfParam, {}, submitWFCallback)
           break
         case '1':
           res = await xd(userMsg.fjUserData.id)
@@ -496,7 +461,6 @@ const escalationHandle = () => {
     }
   })
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: any) => {
   const list: any[] = JSON.parse(wfData).WorkFlowDataList.WorkFlowData
   let obj: any = {}
@@ -530,12 +494,10 @@ const submitWFCallback = async (nextPersonAndPath: string, wfData: any) => {
 const closeModalHandle = (val: boolean) => {
   kmMsg.isShowModal = val
 }
-
 const isClickHeader = (columns: Columns[], field: string) => {
   let column = columns.findIndex((item: any) => item.eidt && item.columnKey === field)
   return column > -1
 }
-
 const cellStyle = ({ row, column }: any) => {
   const isClick = isClickHeader(tableMsg.columns as Columns[], column.field)
   if (tableMsg.editConfig && !tableMsg.editConfig.enabled) {
@@ -565,7 +527,6 @@ const cellStyle = ({ row, column }: any) => {
     }
   }
 }
-
 const saveHandle = async () => {
   const $table = tabMsg.name === '1' ? treeTableRef.value : treendTableRef.value
   if ($table) {
@@ -613,13 +574,11 @@ const saveHandle = async () => {
     }
   }
 }
-
 const isNeedNum = (columns: any[], field: string) => {
   let findIndex = columns.findIndex((item) => item.needSum && item.columnKey === field)
   if (findIndex > -1) return true
   return false
 }
-
 const formatterData = ({ column, cellValue }: any) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   if (tableMsg.columns) {
@@ -638,9 +597,10 @@ const isHideTab = async (dwId: string) => {
     isHidenTab.value = res.data
   }
 }
-
 const getRoleHandle = async () => {
-  userMsg.userData = { ...userDialogRef.value.userMsg }
+  userMsg.userData = {
+    ...userDialogRef.value.userMsg
+  }
   isHideTab(userMsg.userData.org_id)
   const isQuery = userDialogRef.value.isQuery
   tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString()
@@ -650,33 +610,18 @@ const getRoleHandle = async () => {
     linkTable()
   }
 }
-
 const oldInputValue = ref('0.00')
-
 const focusHandle = (row: any, key: string) => {
   oldInputValue.value = row[key] ? row[key] : '0.00'
 }
-
 const sumhandle = (row: any, key: string) => {
   let columnKeys = tableMsg.columns?.filter((item: any) => item.eidt)
-  row[key] = row[key]
-    ? new Decimal(row[key]).toFixed(Number(tableMsg.xsws))
-    : new Decimal('0').toFixed(Number(tableMsg.xsws))
+  row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(tableMsg.xsws)) : new Decimal('0').toFixed(Number(tableMsg.xsws))
   const config: any = tableMsg.zyTreeConfig
   const tableData = Number(tabMsg.name) === 1 ? tableMsg.tableData : tableMsg.ndData
   countYapFjValue(row, 'yapFjValue', key, columnKeys)
-  getGroupSummary(
-    tableData,
-    config,
-    key,
-    Number(tableMsg.xsws),
-    'leaf',
-    'id',
-    columnKeys,
-    'yapFjValue'
-  )
+  getGroupSummary(tableData, config, key, Number(tableMsg.xsws), 'leaf', 'id', columnKeys, 'yapFjValue')
 }
-
 const countYapFjValue = (row: any, setValueKey: string, inputKey: string, columnKeys: any) => {
   let sumValue = new Decimal('0')
   let yapSdValue = row.yapSdValue ? new Decimal(row.yapSdValue) : new Decimal('0')
@@ -694,12 +639,10 @@ const countYapFjValue = (row: any, setValueKey: string, inputKey: string, column
     row[setValueKey] = sumValue.toFixed(Number(tableMsg.xsws))
   }
 }
-
 const clearTableData = () => {
   if (tableMsg.tableData) tableMsg.tableData.length = 0
   if (tableMsg.ndData) tableMsg.ndData.length = 0
 }
-
 const changeNdHandle = async (val: string) => {
   tableMsg.nd = val
   getTableHeader('YAP', userMsg.fjUserData.dwId, tabMsg.name)
@@ -767,7 +710,6 @@ const exportHandle = () => {
     tableLoading.value = false
   })
 }
-
 const initGetFormStatus = async () => {
   let res = await getFormStatus({
     busiType: 'YAP',
@@ -780,13 +722,11 @@ const initGetFormStatus = async () => {
     userMsg.userData.org_id = res.data.dwId
     userMsg.dwName = res.data.dwName
     userMsg.isShowPage = true
-    userMsg.fjUserData = { ...res.data }
+    userMsg.fjUserData = {
+      ...res.data
+    }
     if (tableMsg.editConfig) {
-      if (
-        userMsg.fjUserData.id &&
-        userMsg.fjUserData.status === '5' &&
-        userMsg.fjUserData.bmfjStatus !== '1'
-      ) {
+      if (userMsg.fjUserData.id && userMsg.fjUserData.status === '5' && userMsg.fjUserData.bmfjStatus !== '1') {
         tableMsg.editConfig.enabled = true
       } else {
         tableMsg.editConfig.enabled = false
@@ -799,11 +739,9 @@ const initGetFormStatus = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const initData = async () => {
   userDialogRef.value.getUser()
 }
-
 const getTableHeader = async (busiType: string, dwId: string, kmlx: string) => {
   let dynamicColumnData = await getDynamicColumn(busiType, dwId, kmlx)
   if (dynamicColumnData.success) {
@@ -812,7 +750,6 @@ const getTableHeader = async (busiType: string, dwId: string, kmlx: string) => {
     ElMessage.error(dynamicColumnData.msg)
   }
 }
-
 const getDataList = async (val?: string) => {
   clearTableData()
   tableLoading.value = true
@@ -833,7 +770,6 @@ const getDataList = async (val?: string) => {
     ElMessage.error(res.msg)
   }
 }
-
 onMounted(() => {
   initData()
 })

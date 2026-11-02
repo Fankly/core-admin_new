@@ -18,26 +18,23 @@
   </el-drawer>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ColSetting"
-};
-</script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref } from 'vue'
+defineOptions({
+  name: 'ColSetting'
+})
 
-defineProps<{ colSetting: any[] }>();
-
-const drawerVisible = ref<boolean>(false);
-
+defineProps<{
+  colSetting: any[]
+}>()
+const drawerVisible = ref<boolean>(false)
 const openColSetting = () => {
-  drawerVisible.value = true;
-};
-
+  drawerVisible.value = true
+}
 defineExpose({
   openColSetting
-});
+})
 </script>
 
 <style scoped lang="less">

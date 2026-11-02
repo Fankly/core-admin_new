@@ -1,8 +1,4 @@
-<script lang="ts">
-export default {
-  name: '/matter/yydwAndGddwzzpz'
-}
-</script>
+
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, reactive, ref, computed } from 'vue'
@@ -12,37 +8,33 @@ import { ElMessage } from 'element-plus'
 import { deleteMatterDwpzData, exportMatterDwpzData, getMatterDwpzData } from '@/api/matter/matterBasic'
 import YegddwpzBasicOperation from '@/views/matter/components/YegddwpzBasicOperation/index.vue'
 import VXETable from 'vxe-table'
+defineOptions({
+  name: '/matter/yydwAndGddwzzpz'
+})
 
 interface InitParams {
   [key: string]: string
 }
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const loading = ref(false)
 const isShowPage = ref(false)
-
 const isDisabled = computed(() => loading.value)
 const initParams = ref<InitParams>({})
-
 const searchData = reactive({
   code: '',
   name: ''
 })
-
 const matterBasicMsg = reactive({
   title: '新增',
   opType: 'ADD'
 })
-
 const tableDataList = ref()
-
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1
 })
-
 const formRef = ref()
 const tableRef = ref()
 const YegddwpzBasicOperationRef = ref()
@@ -69,7 +61,6 @@ const searchHandle = async () => {
     loading.value = false
   }
 }
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
@@ -79,7 +70,6 @@ const resetHandle = () => {
   formRef.value.resetFields()
   searchHandle()
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -89,7 +79,6 @@ const limitChangeHandle = (currentLimitNum: number) => {
   page.limit = currentLimitNum
   searchHandle()
 }
-
 const getRoleHandle = () => {
   loading.value = false
   initParams.value.specialorgid = userDialogRef.value.specialorgid
@@ -118,7 +107,6 @@ const addOrEditHandle = (flag: string) => {
     }
     selectedData.value = records[0]
   }
-
   YegddwpzBasicOperationRef.value.isShowModal = true
 }
 
@@ -144,7 +132,6 @@ const deleteHandle = async () => {
     }
   }
 }
-
 const exportHandle = async () => {
   try {
     loading.value = true
@@ -173,7 +160,6 @@ const exportHandle = async () => {
     console.error(e)
   }
 }
-
 onMounted(() => {
   userDialogRef.value.getUser()
 })

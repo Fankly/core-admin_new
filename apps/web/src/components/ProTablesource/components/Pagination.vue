@@ -13,26 +13,22 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({
+  name: 'Pagination'
+})
 interface Pageable {
   current: number
   size: number
   total: number
 }
-
 interface PaginationProps {
   pageable: Pageable
   handleSizeChange: (size: number) => void
   handleCurrentChange: (currentPage: number) => void
 }
-
 defineProps<PaginationProps>()
 </script>
 
-<script lang="ts">
-export default {
-  name: 'Pagination'
-}
-</script>
 
 <style lang="less" scoped>
 .el-pagination {

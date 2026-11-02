@@ -1,192 +1,189 @@
-<script lang="ts">
-import {defineComponent, nextTick, ref, watch} from "vue";
-
-export default defineComponent({
-  name:"BaseTreeSelect",
-  props:{
-    modelValue:{
-      type:[String,Number,Array,Object],
-      default:""
-    },
-    data:{
-      type:Array,
-      default:()=>[]
-    },
-    props:{
-      type:Object,
-      default:()=>({
-        children:'children',
-        label:'label',
-        value:'value'
+<script setup lang="ts">
+import { nextTick, ref, watch } from 'vue'
+defineOptions({
+  name: 'BaseTreeSelect'
+})
+const props = defineProps({
+  modelValue: {
+    type: [String, Number, Array, Object],
+    default: ''
+  },
+  data: {
+    type: Array,
+    default: () => []
+  },
+  props: {
+    type: Object,
+    default: () => ({
+      children: 'children',
+      label: 'label',
+      value: 'value'
+    })
+  },
+  nodeKey: {
+    type: String,
+    default: 'value'
+  },
+  multiple: {
+    type: Boolean,
+    default: false
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  clearable: {
+    type: Boolean,
+    default: false
+  },
+  collapseTags: {
+    type: Boolean,
+    default: false
+  },
+  placeholder: {
+    type: String,
+    default: '请选择'
+  },
+  checkStrictly: {
+    type: Boolean,
+    default: false
+  },
+  defaultExpandedKeys: {
+    type: Array,
+    default: () => []
+  },
+  defaultCheckedKeys: {
+    type: Array,
+    default: () => []
+  },
+  onlyLeaf: {
+    type: Boolean,
+    default: false
+  },
+  returnObject: {
+    type: Boolean,
+    default: false
+  },
+  remote: {
+    type: Boolean,
+    default: false
+  },
+  lazy: {
+    type: Boolean,
+    default: false
+  },
+  loadMethod: {
+    type: Function,
+    default: null
+  }
+})
+const emit = defineEmits(['update:modelValue', 'change', 'clear', 'node-click'])
+const treeRef = ref()
+const selectedLabel = ref('')
+const selectedValue = ref(props.modelValue)
+watch(
+  () => props.modelValue,
+  (val) => {
+    selectedValue.value = val
+    if (props.multiple) {
+      nextTick(() => {
+        if (treeRef.value) {
+          treeRef.value.setCheckedKeys(val || [])
+        }
       })
-    },
-    nodeKey:{
-      type:String,
-      default:"value"
-    },
-    multiple:{
-      type: Boolean,
-      default: false
-    },
-    disabled:{
-      type: Boolean,
-      default: false
-    },
-    clearable:{
-      type: Boolean,
-      default: false
-    },
-    collapseTags:{
-      type: Boolean,
-      default: false
-    },
-    placeholder:{
-      type: String,
-      default: "请选择"
-    },
-    checkStrictly:{
-      type: Boolean,
-      default: false
-    },
-    defaultExpandedKeys:{
-      type: Array,
-      default:()=>[]
-    },
-    defaultCheckedKeys:{
-      type: Array,
-      default:()=>[]
-    },
-    onlyLeaf:{
-      type: Boolean,
-      default: false
-    },
-    returnObject:{
-      type: Boolean,
-      default: false
-    },
-    remote:{
-      type:Boolean,
-      default: false
-    },
-    lazy:{
-      type:Boolean,
-      default: false
-    },
-    loadMethod:{
-      type:Function,
-      default: null
+    } else {
+      nextTick(() => {
+        if (treeRef.value && val) {
+          treeRef.value.setCurrentKey(val)
+        }
+      })
     }
   },
-  emits:["update:modelValue",'change','clear','node-click'],
-  setup(props,{emit}){
-    const treeRef = ref();
-    const selectedLabel = ref('');
-    const selectedValue = ref(props.modelValue);
-
-    watch(() => props.modelValue, (val) => {
-      selectedValue.value = val;
-      if (props.multiple) {
-        nextTick(() => {
-          if (treeRef.value) {
-            treeRef.value.setCheckedKeys(val || []);
-          }
-        });
-      } else {
-        nextTick(() => {
-          if (treeRef.value && val) {
-            treeRef.value.setCurrentKey(val);
-          }
-        });
-      }
-    }, {
-      immediate: true
-    });
-
-    const filterNode = (value,data)=>{
-      if(!value) return true;
-      const label = data[props.props['label']] || "";
-      return label.toString().toLowerCase().includes(value.toLowerCase());
-    }
-
-    const handleSelectChange = (val)=>{
-    }
-
-    const handleClear = ()=>{
-      if(props.multiple){
-        treeRef.value.setCheckedKeys([]);
-      }else{
-        treeRef.value.setCurrentKey(null);
-      }
-      emit("update:modelValue", props.multiple ? [] : "");
-      emit("clear");
-    };
-
-    const handleCheckChange = ()=>{
-      if(!props.multiple)return;
-      let checkedNodes = treeRef.value.getCheckedNodes(props.onlyLeaf);
-      let checkedKeys = checkedNodes.map(node => props.returnObject ? node : node[props.nodeKey]);
-      emit('update:modelValue', checkedKeys);
-      emit('change',checkedKeys);
-    }
-
-    const handleNodeClick = (data)=> {
-      if(!props.multiple)return;
-      const value = props.returnObject ? data : data[props.nodeKey];
-      emit("update:modelValue", value);
-      emit("change",value);
-      emit("node-click",data);
-    }
-
-    const methods = {
-      clearSelected() {
-        handleClear();
-      },
-      getCheckedNodes(){
-        return treeRef.value.getCheckedNodes();
-      },
-      getCheckedKeys(){
-        return treeRef.value.getCheckedKeys();
-      },
-      filter(val){
-        treeRef.value.filter(val);
-      }
-    };
-
-    const handleRemoteMethod = (query)=>{
-      if(props.remote){
-        emit("search",query);
-      }else{
-        treeRef.value.filter(query);
-      }
-    };
-
-    const loadNode = (node,resolve)=>{
-      if(props.lazy && props.loadMethod){
-        props.loadMethod(node,resolve);
-      }else{
-        resolve([]);
-      }
-    };
-
-    return {
-      treeRef,
-      selectedLabel,
-      selectedValue,
-      filterNode,
-      handleSelectChange,
-      handleClear,
-      handleCheckChange,
-      handleNodeClick,
-      loadNode,
-      handleRemoteMethod,
-      ...methods
-    }
+  {
+    immediate: true
   }
+)
+const filterNode = (value, data) => {
+  if (!value) return true
+  const label = data[props.props.label] || ''
+  return label.toString().toLowerCase().includes(value.toLowerCase())
+}
+const handleSelectChange = (val) => {}
+const handleClear = () => {
+  if (props.multiple) {
+    treeRef.value.setCheckedKeys([])
+  } else {
+    treeRef.value.setCurrentKey(null)
+  }
+  emit('update:modelValue', props.multiple ? [] : '')
+  emit('clear')
+}
+const handleCheckChange = () => {
+  if (!props.multiple) return
+  let checkedNodes = treeRef.value.getCheckedNodes(props.onlyLeaf)
+  let checkedKeys = checkedNodes.map((node) => (props.returnObject ? node : node[props.nodeKey]))
+  emit('update:modelValue', checkedKeys)
+  emit('change', checkedKeys)
+}
+const handleNodeClick = (data) => {
+  if (!props.multiple) return
+  const value = props.returnObject ? data : data[props.nodeKey]
+  emit('update:modelValue', value)
+  emit('change', value)
+  emit('node-click', data)
+}
+const methods = {
+  clearSelected() {
+    handleClear()
+  },
+  getCheckedNodes() {
+    return treeRef.value.getCheckedNodes()
+  },
+  getCheckedKeys() {
+    return treeRef.value.getCheckedKeys()
+  },
+  filter(val) {
+    treeRef.value.filter(val)
+  }
+}
+const handleRemoteMethod = (query) => {
+  if (props.remote) {
+    emit('search', query)
+  } else {
+    treeRef.value.filter(query)
+  }
+}
+const loadNode = (node, resolve) => {
+  if (props.lazy && props.loadMethod) {
+    props.loadMethod(node, resolve)
+  } else {
+    resolve([])
+  }
+}
+const clearSelected = methods.clearSelected
+const getCheckedNodes = methods.getCheckedNodes
+const getCheckedKeys = methods.getCheckedKeys
+const filter = methods.filter
+defineExpose({
+  treeRef,
+  selectedLabel,
+  selectedValue,
+  filterNode,
+  handleSelectChange,
+  handleClear,
+  handleCheckChange,
+  handleNodeClick,
+  loadNode,
+  handleRemoteMethod,
+  clearSelected,
+  getCheckedNodes,
+  getCheckedKeys,
+  filter
 })
 </script>
 
 <template>
-  <el-select v-model="modelValue"></el-select>
+  <el-select :model-value="modelValue" @update:model-value="emit('update:modelValue', $event)"></el-select>
 </template>
 
 <style scoped lang="less">

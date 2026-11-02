@@ -10,34 +10,8 @@
   ></component>
 </template>
 
-<script lang="ts">
-interface TypewriterProgress {
-  raw: string
-  revealed: number
-  completed: boolean
-  updatedAt: number
-}
-
-const typewriterProgressCache = new Map<string, TypewriterProgress>()
-const TYPEWRITER_CACHE_MAX_ENTRIES = 200
-const TYPEWRITER_CACHE_TTL_MS = 30 * 60 * 1000
-
-const pruneTypewriterProgressCache = (now = Date.now()) => {
-  typewriterProgressCache.forEach((progress, key) => {
-    if (now - progress.updatedAt > TYPEWRITER_CACHE_TTL_MS) {
-      typewriterProgressCache.delete(key)
-    }
-  })
-
-  while (typewriterProgressCache.size > TYPEWRITER_CACHE_MAX_ENTRIES) {
-    const oldestKey = typewriterProgressCache.keys().next().value
-    if (oldestKey === undefined) break
-    typewriterProgressCache.delete(oldestKey)
-  }
-}
-</script>
-
 <script setup lang="ts">
+import { typewriterProgressCache, pruneTypewriterProgressCache } from './TypewriterText.module'
 import { onBeforeUnmount, ref, watch } from 'vue'
 import {
   convertAuditHtmlLineBreaks,
@@ -49,7 +23,6 @@ import {
   normalizeAuditRichText
 } from './auditDetailHelpers'
 import type { AuditAttachViewPayload, AuditImageComparePayload, AuditPriceViewPayload, AuditReviewTablePayload } from './auditDetailHelpers'
-
 const props = defineProps<{
   text?: string | null
   tag?: 'span' | 'div'
@@ -59,9 +32,7 @@ const props = defineProps<{
   // 是否播放打字机动画；为 true 时会按 persistKey 记录进度，切换 tab 后继续播放
   animate?: boolean
 }>()
-
 const tag = props.tag || 'span'
-
 const emit = defineEmits<{
   /** 点击后端下发的 .attachView，透传 data-attach-id / data-attach-name */
   (event: 'attach-preview', payload: AuditAttachViewPayload): void
@@ -74,7 +45,6 @@ const emit = defineEmits<{
   (event: 'typing-progress'): void
   (event: 'typing-complete'): void
 }>()
-
 const display = ref('')
 const typing = ref(false)
 const isMarkdown = ref(false)
@@ -98,9 +68,7 @@ const tokenize = (html: string): string[] => {
   for (const ch of html.slice(lastIndex)) tokens.push(ch)
   return tokens
 }
-
 const isTag = (token: string) => token.startsWith('<') || (token.startsWith('&') && token.endsWith(';'))
-
 const clear = () => {
   if (timer) {
     clearTimeout(timer)
@@ -108,7 +76,6 @@ const clear = () => {
   }
   typing.value = false
 }
-
 const hashText = (value: string) => {
   let hash = 2166136261
   for (let index = 0; index < value.length; index += 1) {
@@ -117,12 +84,10 @@ const hashText = (value: string) => {
   }
   return (hash >>> 0).toString(36)
 }
-
 const getCacheKey = (raw: string) => {
   if (props.persistKey !== undefined && props.persistKey !== null) return String(props.persistKey)
   return `${raw.length}:${hashText(raw)}`
 }
-
 const advanceTokens = (start: number, visibleCount: number) => {
   let next = start
   let added = 0
@@ -135,7 +100,6 @@ const advanceTokens = (start: number, visibleCount: number) => {
   }
   return next
 }
-
 const saveProgress = () => {
   if (!cacheKey) return
   const now = Date.now()
@@ -148,7 +112,6 @@ const saveProgress = () => {
   })
   pruneTypewriterProgressCache(now)
 }
-
 const start = (source: string) => {
   saveProgress()
   clear()
@@ -162,7 +125,6 @@ const start = (source: string) => {
     emit('typing-complete')
     return
   }
-
   const normalizedSource = normalizeAuditRichText(source)
   const useMarkdown = looksLikeMarkdown(normalizedSource)
   isMarkdown.value = useMarkdown || looksLikeHtml(normalizedSource)
@@ -176,7 +138,6 @@ const start = (source: string) => {
     emit('typing-complete')
     return
   }
-
   cacheKey = getCacheKey(rawText)
   tokens = tokenize(rawText)
   const visibleCount = tokens.reduce((sum, token) => sum + (isTag(token) ? 0 : 1), 0)
@@ -202,9 +163,7 @@ const start = (source: string) => {
   } else {
     revealed = 0
   }
-
   const startDelay = revealed > 0 ? 0 : Math.max(0, props.startDelay ?? 0)
-
   const type = () => {
     typing.value = true
     const next = advanceTokens(revealed, charsPerTick)
@@ -212,7 +171,6 @@ const start = (source: string) => {
     revealed = next
     saveProgress()
     emit('typing-progress')
-
     if (revealed < tokens.length) {
       timer = setTimeout(type, speed)
     } else {
@@ -221,12 +179,10 @@ const start = (source: string) => {
       emit('typing-complete')
     }
   }
-
   if (startDelay > 0) {
     timer = setTimeout(type, startDelay)
     return
   }
-
   type()
 }
 
@@ -250,13 +206,13 @@ const onHtmlKeyActivate = (event: KeyboardEvent) => {
   })
   if (handled) event.preventDefault()
 }
-
 watch(
   () => props.text,
   (value) => start(value || ''),
-  { immediate: true }
+  {
+    immediate: true
+  }
 )
-
 onBeforeUnmount(() => {
   saveProgress()
   clear()

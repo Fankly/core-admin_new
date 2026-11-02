@@ -29,21 +29,19 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'selectModalNew'
-}
-</script>
+
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, defineExpose } from 'vue'
+import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
+defineOptions({
+  name: 'selectModalNew'
+})
 
 interface ReviewModeOption {
   code: string
   name: string
 }
-
 interface propsVo {
   title: string
   label: string

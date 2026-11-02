@@ -40,31 +40,48 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AepGaugeRing'
-}
-</script>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+defineOptions({
+  name: 'AepGaugeRing'
+})
 
 /**
  * 环形图配色（最新设计稿的四张卡片：同色系青绿 / 湖水绿 / 湖蓝 / 草木绿）
  * track 为该卡片的轨道底色。
  */
 const TONES = {
-  teal: { from: '#35a98c', to: '#74cdb4', dot: '#35a98c', track: '#e6f5f1' },
-  green: { from: '#2a9d8f', to: '#6ecfc4', dot: '#2a9d8f', track: '#e3f4f0' },
-  blue: { from: '#2a8fb0', to: '#6cc2dd', dot: '#2a8fb0', track: '#e2f1f6' },
-  orange: { from: '#3f9e6a', to: '#7fd0a0', dot: '#3f9e6a', track: '#e4f2ea' }
+  teal: {
+    from: '#35a98c',
+    to: '#74cdb4',
+    dot: '#35a98c',
+    track: '#e6f5f1'
+  },
+  green: {
+    from: '#2a9d8f',
+    to: '#6ecfc4',
+    dot: '#2a9d8f',
+    track: '#e3f4f0'
+  },
+  blue: {
+    from: '#2a8fb0',
+    to: '#6cc2dd',
+    dot: '#2a8fb0',
+    track: '#e2f1f6'
+  },
+  orange: {
+    from: '#3f9e6a',
+    to: '#7fd0a0',
+    dot: '#3f9e6a',
+    track: '#e4f2ea'
+  }
 }
 
 /** 半径与圆心（viewBox 120x120） */
 const RADIUS = 50
 const CX = 60
 const CY = 60
-
 const props = withDefaults(
   defineProps<{
     /** 比率（0-100） */
@@ -95,26 +112,31 @@ const strokeUrl = computed(() => `url(#${gradientId.value})`)
 
 /** 比率收敛到 0-100 */
 const safeRate = computed(() => Math.max(0, Math.min(100, Number(props.rate) || 0)))
-
 const circumference = 2 * Math.PI * RADIUS
 const dashOffset = computed(() => circumference * (1 - safeRate.value / 100))
 
 /** 极坐标取点 */
-const pointAt = (deg: number): { x: number; y: number } => {
+const pointAt = (
+  deg: number
+): {
+  x: number
+  y: number
+} => {
   const rad = (deg * Math.PI) / 180
-  return { x: Number((CX + RADIUS * Math.cos(rad)).toFixed(2)), y: Number((CY + RADIUS * Math.sin(rad)).toFixed(2)) }
+  return {
+    x: Number((CX + RADIUS * Math.cos(rad)).toFixed(2)),
+    y: Number((CY + RADIUS * Math.sin(rad)).toFixed(2))
+  }
 }
 
 /** 仪表盘起始角度 135°，总扫过 270° */
 const GAUGE_START = 135
 const GAUGE_SWEEP = 270
-
 const trackPath = computed(() => {
   const start = pointAt(GAUGE_START)
   const end = pointAt(GAUGE_START + GAUGE_SWEEP)
   return `M ${start.x} ${start.y} A ${RADIUS} ${RADIUS} 0 1 1 ${end.x} ${end.y}`
 })
-
 const progressPath = computed(() => {
   const sweep = (GAUGE_SWEEP * safeRate.value) / 100
   const start = pointAt(GAUGE_START)
@@ -122,7 +144,6 @@ const progressPath = computed(() => {
   const largeArc = sweep > 180 ? 1 : 0
   return `M ${start.x} ${start.y} A ${RADIUS} ${RADIUS} 0 ${largeArc} 1 ${end.x} ${end.y}`
 })
-
 const dot = computed(() => {
   if (props.type === 'full') return pointAt(-90 + (360 * safeRate.value) / 100)
   return pointAt(GAUGE_START + (GAUGE_SWEEP * safeRate.value) / 100)

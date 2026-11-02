@@ -15,53 +15,60 @@
   </el-dialog>
 </template>
 
-<script>
+<script setup>
 import { CirclePlus as EpCirclePlus } from '@element-plus/icons-vue'
-
-import { defineComponent, reactive } from 'vue'
-export default defineComponent({
-  components: { EpCirclePlus },
-  computed: { EpCirclePlus: () => EpCirclePlus },
-  setup() {
-    return reactive({
-      text: '',
-      array: [],
-      newArr: [],
-      ids: '',
-      dialogVisible: false
-    })
-  },
-
-  methods: {
-    addData() {
-      this.dialogVisible = true
-    },
-    cancel() {
-      this.dialogVisible = false
-    },
-    determine() {
-      if (this.ids) {
-        let str = this.ids.replace(/\n/g, ',')
-        this.text = str
-        this.array = str.split(',')
-        if (this.array.length !== 0) this.newArr = this.array.map((item) => item.padStart(10, '0'))
-        this.dialogVisible = false
-      } else {
-        this.clear()
-        this.dialogVisible = false
-      }
-    },
-    setValue(data) {
-      this.ids = data
-      this.determine()
-    },
-    clear() {
-      this.text = ''
-      this.array = []
-      this.ids = ''
-      this.newArr = []
-    }
+import { reactive, toRef } from 'vue'
+const setupState = reactive({
+  text: '',
+  array: [],
+  newArr: [],
+  ids: '',
+  dialogVisible: false
+})
+const text = toRef(setupState, 'text')
+const array = toRef(setupState, 'array')
+const newArr = toRef(setupState, 'newArr')
+const ids = toRef(setupState, 'ids')
+const dialogVisible = toRef(setupState, 'dialogVisible')
+function addData() {
+  setupState.dialogVisible = true
+}
+function cancel() {
+  setupState.dialogVisible = false
+}
+function determine() {
+  if (setupState.ids) {
+    let str = setupState.ids.replace(/\n/g, ',')
+    setupState.text = str
+    setupState.array = str.split(',')
+    if (setupState.array.length !== 0) setupState.newArr = setupState.array.map((item) => item.padStart(10, '0'))
+    setupState.dialogVisible = false
+  } else {
+    clear()
+    setupState.dialogVisible = false
   }
+}
+function setValue(data) {
+  setupState.ids = data
+  determine()
+}
+function clear() {
+  setupState.text = ''
+  setupState.array = []
+  setupState.ids = ''
+  setupState.newArr = []
+}
+defineExpose({
+  text,
+  array,
+  newArr,
+  ids,
+  dialogVisible,
+  addData,
+  cancel,
+  determine,
+  setValue,
+  clear
 })
 </script>
 <style lang="less" scoped></style>

@@ -37,11 +37,7 @@
     </div>
   </vxe-modal>
 </template>
-<script lang="ts">
-export default {
-  name: 'matchModal'
-}
-</script>
+
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
@@ -50,6 +46,9 @@ import { ElMessage } from 'element-plus'
 import { vxeExportHandle } from '@/utils/export'
 import { getDataByCt, getDynamicColumnByCt } from '@/api/xmInfo/cityTargetValue'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({
+  name: 'matchModal'
+})
 
 //接收父组件传参
 const props = defineProps({
@@ -68,7 +67,6 @@ const isShowModal = ref(false)
 const closeHandle = () => {
   isShowModal.value = false
 }
-
 const tableInfo = reactive<any>({
   loading: false,
   headerAlign: 'center',
@@ -100,7 +98,9 @@ const newData = async () => {
 const getDataList = async () => {
   const api: any = props.flag ? getDataByCt : getDataForCt
   tableInfo.loading = true
-  let res = await api({ ...props.formData })
+  let res = await api({
+    ...props.formData
+  })
   if (res.success) {
     tableInfo.data = res.data
     tableInfo.loading = false
@@ -109,7 +109,6 @@ const getDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getFlatColumns = (columns: any[]) => {
   if (!columns || columns.length === 0) {
     return []
@@ -165,7 +164,6 @@ const getHeaderData = async (params: any) => {
     return false
   }
 }
-
 defineExpose({
   isShowModal,
   getHeaderData,

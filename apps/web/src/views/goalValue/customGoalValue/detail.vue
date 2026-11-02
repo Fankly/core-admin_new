@@ -82,11 +82,7 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
   <Log :specialorgid="userInfo.specialorgid" :nd="formData.nd" ref="logRef" title="成本性项目目标值日志" />
 </template>
-<script lang="ts">
-export default {
-  name: '/goalValue/customGoalValue/detail'
-}
-</script>
+
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -100,6 +96,9 @@ import { getPublicData, getYearData } from '@/api/common'
 import { Decimal } from 'decimal.js'
 import { formatValue, toValidNumber } from '@/utils/utils'
 import Log from '@/views/xmInfo/components/Log.vue'
+defineOptions({
+  name: '/goalValue/customGoalValue/detail'
+})
 
 interface Columns {
   columnKey: string
@@ -108,7 +107,6 @@ interface Columns {
   fixed?: boolean
   hidden?: boolean
 }
-
 const tableRef = ref()
 const userDialogRef = ref()
 const tabList = ref<any[]>([])
@@ -116,9 +114,7 @@ const isZgs = ref<any>('0')
 const userInfo = ref<any>({})
 const isCheck = ref<boolean>(false)
 const logRef = ref()
-
 const disabled = computed(() => pageInfo.loading)
-
 const pageInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -131,13 +127,10 @@ const pageInfo = reactive<{
   isShowPage: false,
   ndDataList: []
 })
-
 const formData = reactive({
   nd: ''
 })
-
 const count = ref(0)
-
 const createQueryParams = (parentId = '0'): ValueQueryParams => ({
   nd: formData.nd,
   parentId,
@@ -145,7 +138,6 @@ const createQueryParams = (parentId = '0'): ValueQueryParams => ({
   specialorgid: userInfo.value?.specialorgid || userInfo.value?.specialOrgId || '',
   checkPropackYs: isCheck.value
 })
-
 const normalizeTreeData = (data: any[] = []): any[] => {
   return data.map((item: any) => ({
     ...item,
@@ -153,7 +145,6 @@ const normalizeTreeData = (data: any[] = []): any[] => {
     children: item.children ? normalizeTreeData(item.children) : item.children
   }))
 }
-
 const tableInfo = reactive<any>({
   tableData: [],
   columns: [],
@@ -191,7 +182,6 @@ const tableInfo = reactive<any>({
     }
   }
 })
-
 const formatterData = ({ cellValue }: any) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   return formatValue(cellValue.toString(), 6)
@@ -204,7 +194,6 @@ const expandHandle = async () => {
     await expandAllTree(tableInfo.tableData, $table)
   }
 }
-
 const expandAllTree = async (data: any[], $table: any) => {
   for (const row of data) {
     if (row.leaf) {
@@ -215,13 +204,11 @@ const expandAllTree = async (data: any[], $table: any) => {
     }
   }
 }
-
 const tableCellStyle = new TableCellStyle({
   structure: 'tree',
   colorFieldSuffix: '_colorCode',
   mode: 'text'
 })
-
 const cellStyle = ({ row, column }: any) => {
   if (isCheck.value) {
     if (!(!column?.field.includes('mbz') && !column?.field.includes('propackJe'))) {
@@ -249,7 +236,6 @@ const handleCheckPack = async (val: any) => {
   await getDataList()
   if (tableRef.value) tableRef.value.setAllTreeExpand(true)
 }
-
 const getDataList = async () => {
   pageInfo.loading = true
   tableInfo.tableData.length = 0
@@ -263,7 +249,6 @@ const getDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getHeaderData = async () => {
   let res = await getValueColumns(createQueryParams())
   if (res.success) {
@@ -274,7 +259,6 @@ const getHeaderData = async () => {
     return false
   }
 }
-
 const getYearDataList = async () => {
   let res = await getYearData()
   if (res.success) {
@@ -284,7 +268,6 @@ const getYearDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const refreshData = async () => {
   tableInfo.columns.length = 0
   let res = await getHeaderData()
@@ -295,7 +278,6 @@ const refreshData = async () => {
   await getDataList()
   if (tableRef.value) tableRef.value.setAllTreeExpand(true)
 }
-
 const handleTab = async () => {
   await refreshData()
   if (tableRef.value) tableRef.value.setAllTreeExpand(true)
@@ -306,7 +288,6 @@ const changeNdHandle = async () => {
   if (!formData.nd) return
   await refreshData()
 }
-
 const initParamLists = async () => {
   const res = await getPublicData('MBZ_TAB_TYPE')
   if (res.success && res.data?.length) {
@@ -314,9 +295,10 @@ const initParamLists = async () => {
     isZgs.value = res.data[0].code
   }
 }
-
 const getRoleHandle = async () => {
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   if (isQuery) {
     pageInfo.isShowPage = true
@@ -324,13 +306,11 @@ const getRoleHandle = async () => {
     if (tableRef.value) tableRef.value.setAllTreeExpand(true)
   }
 }
-
 const initData = async () => {
   await initParamLists()
   await getYearDataList()
   userDialogRef.value.getUser()
 }
-
 const getExportData = (newArr: any[], data: any[]) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -342,7 +322,6 @@ const getExportData = (newArr: any[], data: any[]) => {
   })
   return newArr
 }
-
 const pageExportHandle = () => {
   pageInfo.loading = true
   const $table = tableRef.value
@@ -356,10 +335,8 @@ const pageExportHandle = () => {
       const nameCol = worksheet.getColumn('A')
       const newArr: any[] = []
       getExportData(newArr, tableInfo.tableData || [])
-
       const totalRows = worksheet.rowCount
       const dataCount = newArr.length
-
       const headerRows = dataCount > 0 ? totalRows - dataCount : 1
 
       // 获取所有可见列的field
@@ -377,48 +354,67 @@ const pageExportHandle = () => {
       const visibleFields = getAllFields(tableInfo.columns || [])
 
       // 处理name的缩进
-      nameCol.eachCell({ includeEmpty: false }, (cell: any, rowNumber: number) => {
-        if (rowNumber > headerRows) {
-          const dataIndex = rowNumber - headerRows - 1
-          if (newArr[dataIndex]) {
-            if (newArr[dataIndex].cj > 1) {
-              cell.value = '    '.repeat(newArr[dataIndex].cj - 1) + newArr[dataIndex].name
+      nameCol.eachCell(
+        {
+          includeEmpty: false
+        },
+        (cell: any, rowNumber: number) => {
+          if (rowNumber > headerRows) {
+            const dataIndex = rowNumber - headerRows - 1
+            if (newArr[dataIndex]) {
+              if (newArr[dataIndex].cj > 1) {
+                cell.value = '    '.repeat(newArr[dataIndex].cj - 1) + newArr[dataIndex].name
+              }
             }
           }
         }
-      })
+      )
 
       // 设置所有单元格的颜色
-      worksheet.eachRow({ includeEmpty: false }, (row: any, rowNumber: number) => {
-        if (rowNumber > headerRows) {
-          const dataIndex = rowNumber - headerRows - 1
-          const rowData = newArr[dataIndex]
-          if (rowData) {
-            row.eachCell({ includeEmpty: false }, (cell: any, colNumber: number) => {
-              const fieldIndex = colNumber - 1
-              if (fieldIndex < visibleFields.length) {
-                const field = visibleFields[fieldIndex]
-                const cellStyle = tableCellStyle.getCellStyle(rowData, field)
-                if (cellStyle) {
-                  if (cellStyle.color) {
-                    cell.font = {
-                      color: { argb: 'FF' + cellStyle.color.replace('#', '') },
-                      bold: cellStyle.fontWeight && cellStyle.fontWeight >= 600
-                    }
-                  }
-                  if (cellStyle.backgroundColor) {
-                    cell.fill = {
-                      type: 'pattern',
-                      pattern: 'solid',
-                      fgColor: { argb: 'FF' + cellStyle.backgroundColor.replace('#', '') }
+      worksheet.eachRow(
+        {
+          includeEmpty: false
+        },
+        (row: any, rowNumber: number) => {
+          if (rowNumber > headerRows) {
+            const dataIndex = rowNumber - headerRows - 1
+            const rowData = newArr[dataIndex]
+            if (rowData) {
+              row.eachCell(
+                {
+                  includeEmpty: false
+                },
+                (cell: any, colNumber: number) => {
+                  const fieldIndex = colNumber - 1
+                  if (fieldIndex < visibleFields.length) {
+                    const field = visibleFields[fieldIndex]
+                    const cellStyle = tableCellStyle.getCellStyle(rowData, field)
+                    if (cellStyle) {
+                      if (cellStyle.color) {
+                        cell.font = {
+                          color: {
+                            argb: 'FF' + cellStyle.color.replace('#', '')
+                          },
+                          bold: cellStyle.fontWeight && cellStyle.fontWeight >= 600
+                        }
+                      }
+                      if (cellStyle.backgroundColor) {
+                        cell.fill = {
+                          type: 'pattern',
+                          pattern: 'solid',
+                          fgColor: {
+                            argb: 'FF' + cellStyle.backgroundColor.replace('#', '')
+                          }
+                        }
+                      }
                     }
                   }
                 }
-              }
-            })
+              )
+            }
           }
         }
-      })
+      )
       pageInfo.loading = false
     }
   })
@@ -428,7 +424,6 @@ const pageExportHandle = () => {
 const editLogHandle = () => {
   logRef.value.showModal = true
 }
-
 onMounted(initData)
 </script>
 

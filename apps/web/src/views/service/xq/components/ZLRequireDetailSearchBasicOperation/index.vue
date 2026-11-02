@@ -83,53 +83,43 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-import TreeSelect from '@/components/TreeSelect'
-export default {
-  name: 'ZLRequireDetailSearchBasicOperation',
-  components: {
-    TreeSelect
-  }
-}
-</script>
+
 <script setup lang="ts">
-import { ref, defineExpose, defineEmits, defineProps, reactive, watch, nextTick } from 'vue'
+import TreeSelect from '@/components/TreeSelect'
+import { ref, reactive, watch, nextTick } from 'vue'
 import { saveZlxmbc, SaveXmxxbcMsg } from '@/api/matter/matterBasic'
 import { ElMessage } from 'element-plus'
 import baseService from '@/service/baseService'
+defineOptions({
+  name: 'ZLRequireDetailSearchBasicOperation'
+})
 
 interface MatterBasicMsg {
   title: string
   opType: string
 }
-
 interface userInfo {
   dwId: string
   deptId: string
 }
-
 interface Props {
   matterBasicMsg: MatterBasicMsg
   selectedData: any
   userInfo: any
 }
-
 const props = defineProps<Props>()
 const emit = defineEmits(['saveData'])
 const formRef = ref()
 const isShowModal = ref(false)
 const loading = ref(false)
-
 const formData = reactive<SaveXmxxbcMsg>({
   FZRBH: '',
   XMSZD: '',
   ALL_INVEST_TAX: '',
   ALL_INVEST_TAX_FREE: ''
 })
-
 const xmssbmOpt = ref<any>({})
 const treeData = ref<any>({})
-
 const loadOptionsData = async () => {
   const xmssbmData = await baseService.post('/commonCode/getCommonCode', {
     bmId: props.userInfo?.deptId || '',
@@ -141,7 +131,6 @@ const loadOptionsData = async () => {
       xmssbmOpt.value = xmssbmData.data[0].codes || []
     }
   }
-
   const xmszdData = await baseService.post('/commonCode/getXmszd', {
     bmId: props.userInfo?.deptId || '',
     dwId: props.userInfo?.dwId || ''
@@ -150,14 +139,36 @@ const loadOptionsData = async () => {
     treeData.value = xmszdData.data || []
   }
 }
-
 const rulesForm = reactive({
-  FZRBH: [{ required: true, message: '请选择项目实施部门', trigger: ['blur'] }],
-  XMSZD: [{ required: true, message: '请选择项目所在地', trigger: ['blur'] }],
-  ALL_INVEST_TAX: [{ required: true, message: '请输入含税总租金', trigger: ['blur'] }],
-  ALL_INVEST_TAX_FREE: [{ required: true, message: '请输入不含税总租金', trigger: ['blur'] }]
+  FZRBH: [
+    {
+      required: true,
+      message: '请选择项目实施部门',
+      trigger: ['blur']
+    }
+  ],
+  XMSZD: [
+    {
+      required: true,
+      message: '请选择项目所在地',
+      trigger: ['blur']
+    }
+  ],
+  ALL_INVEST_TAX: [
+    {
+      required: true,
+      message: '请输入含税总租金',
+      trigger: ['blur']
+    }
+  ],
+  ALL_INVEST_TAX_FREE: [
+    {
+      required: true,
+      message: '请输入不含税总租金',
+      trigger: ['blur']
+    }
+  ]
 })
-
 const showHandle = () => {
   if (props.matterBasicMsg.opType == 'xmxxbc') {
     // 项目信息补充
@@ -205,15 +216,20 @@ const saveHandle = async () => {
     }
   })
 }
-
 const checkNumberInput = (value: any, maxLen: any) => {
-  value = value.replace(/[^\d.]/g, '').replace(/\.{6,}/g, '.').replace('.', '$#$').replace(/\./g, '').replace('$#$', '.').replace(/^(\-)*(\d+)\.(\d\d\d\d\d\d).*$/, '$1$2.$3').replace(/^\./g, '');
+  value = value
+    .replace(/[^\d.]/g, '')
+    .replace(/\.{6,}/g, '.')
+    .replace('.', '$#$')
+    .replace(/\./g, '')
+    .replace('$#$', '.')
+    .replace(/^(\-)*(\d+)\.(\d\d\d\d\d\d).*$/, '$1$2.$3')
+    .replace(/^\./g, '')
   if (maxLen) {
     value = value.substr(0, maxLen)
   }
-  return value;
+  return value
 }
-
 const handleFieldChange = (prop: any, value: any) => {
   if (prop === 'ALL_INVEST_TAX_FREE') {
     // 不含税总租金(万元)
@@ -223,7 +239,6 @@ const handleFieldChange = (prop: any, value: any) => {
     }
   }
 }
-
 watch(
   () => isShowModal.value,
   (newVal) => {
@@ -235,7 +250,6 @@ watch(
     immediate: true
   }
 )
-
 defineExpose({
   isShowModal
 })

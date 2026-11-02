@@ -28,24 +28,22 @@
   </el-drawer>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'ColSetting'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { VxeGridInstance } from 'vxe-table'
+defineOptions({
+  name: 'ColSetting'
+})
 
-const props = defineProps<{ colSetting: any[]; gridRef: VxeGridInstance | undefined }>()
-
+const props = defineProps<{
+  colSetting: any[]
+  gridRef: VxeGridInstance | undefined
+}>()
 const drawerVisible = ref<boolean>(false)
-
 const openColSetting = () => {
   drawerVisible.value = true
 }
-
 const changeData = (visible: boolean, field: string) => {
   if (props.gridRef) {
     const column = props.gridRef?.getColumnByField(field)
@@ -53,7 +51,6 @@ const changeData = (visible: boolean, field: string) => {
     props.gridRef?.refreshColumn()
   }
 }
-
 defineExpose({
   openColSetting
 })

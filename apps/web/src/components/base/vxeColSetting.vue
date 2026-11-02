@@ -19,9 +19,9 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "vxeColSetting" })
 import { ref } from 'vue'
 import { VxeGridInstance } from 'vxe-table'
+defineOptions({ name: "vxeColSetting" })
 
 const props = defineProps<{ colSetting: any[]; gridRef: VxeGridInstance | undefined }>()
 const emit = defineEmits<{

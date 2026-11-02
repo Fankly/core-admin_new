@@ -81,11 +81,6 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="tsx">
-export default {
-  name: '/matter/matterOutbound'
-}
-</script>
 
 <script setup lang="tsx">
 import userDialog from '@/components/select/userDialog.vue'
@@ -98,28 +93,23 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getEjdwList, getYjdwList } from '@/api/matter'
 import { getGkbmByEjdw, getYslxct } from '@/api/matter/yssxMatter'
 import { getPublicData, getSubProtypeTree } from '@/api/common/index'
-import {
-  getCkPageList,
-  getExportData,
-  revert,
-  submit,
-  submitOutBound
-} from '@/api/matter/matterYsck'
+import { getCkPageList, getExportData, revert, submit, submitOutBound } from '@/api/matter/matterYsck'
 import { useProcess } from '@/hooks/useProcess'
 import { submitWorkflow, WFData, WFParam, WFUserInfo } from '@/hooks/useWorkflow'
 import { useStore } from '@/store/business'
 import baseService from '@/service/baseService'
+defineOptions({
+  name: '/matter/matterOutbound'
+})
 
 const userDialogRef = ref()
 const proTableRef = ref()
 const proTypeRef = ref()
 const store = useStore()
-
 const isShowPage = ref<boolean>(false)
 const specialOrgId = ref<string>('')
 const spRoleId = ref<string>('')
 const roleCode = ref<string>('')
-
 const loading = ref<boolean>(false)
 const processData = reactive({
   isShowDialog: false,
@@ -167,7 +157,6 @@ const getProjectData = () => {
     }
   })
 }
-
 const getAllProTypeList: any = (list: any[]) => {
   return list.map((item: any) => {
     // 如果没有children属性
@@ -186,7 +175,6 @@ const getAllProTypeList: any = (list: any[]) => {
     }
   })
 }
-
 const diaLogData = reactive<DialogData>({
   title: '',
   isShowPage: false
@@ -197,11 +185,9 @@ const initParam = reactive<InitParams>({
   specialorgid: '',
   roleCode: ''
 })
-
 const yjdwListData: any = ref([])
 const ejdwListData: any = ref([])
 const gkbmListData: any = ref([])
-
 const getYjdwEnum = async () => {
   let res: any = await getYjdwList(specialOrgId.value)
   if (res.success) {
@@ -239,7 +225,6 @@ const changeEjdwEnum = async (val: string) => {
     loading.value = false
   }
 }
-
 const changeGkbmEnum = async (val: string) => {
   loading.value = true
   gkbmListData.value.length = 0
@@ -260,7 +245,6 @@ const changeGkbmEnum = async (val: string) => {
     loading.value = false
   }
 }
-
 const isListEnum = reactive([
   {
     label: '是',
@@ -271,12 +255,10 @@ const isListEnum = reactive([
     value: '0'
   }
 ])
-
 const getPageList = (params: any) => {
   loading.value = true
   return getCkPageList(params)
 }
-
 const callBackHandle = (val: any) => {
   loading.value = false
   return val
@@ -284,13 +266,11 @@ const callBackHandle = (val: any) => {
 const searchHandle = () => {
   proTableRef.value?.clearSelection()
 }
-
 const resetHandle = () => {
   ejdwListData.value.length = 0
   proTypeRef.value.clearSelect()
   proTableRef.value?.clearSelection()
 }
-
 const baseMsgData = reactive<BaseMsgData>({
   yjdwListData: [],
   isYapListData: isListEnum,
@@ -303,9 +283,7 @@ const baseMsgData = reactive<BaseMsgData>({
   selectedData: {},
   jd: '2'
 })
-
 const statusEnum = ref<any[]>([])
-
 const zjlyListEnum = reactive([
   {
     label: '省专项',
@@ -320,7 +298,6 @@ const zjlyListEnum = reactive([
     value: '2'
   }
 ])
-
 const getStatusDataHandle = async () => {
   loading.value = true
   let showData = ['02', '11', '12', '13']
@@ -335,7 +312,6 @@ const getStatusDataHandle = async () => {
   }
   loading.value = false
 }
-
 const resetProTypeData = () => {
   const $table = proTableRef.value
   if (Array.isArray($table.searchParam.xmlx)) {
@@ -344,10 +320,16 @@ const resetProTypeData = () => {
     $table.searchParam.xmlx = ''
   }
 }
-
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 80 },
-  { type: 'index', width: 80, label: '序号' },
+  {
+    type: 'selection',
+    width: 80
+  },
+  {
+    type: 'index',
+    width: 80,
+    label: '序号'
+  },
   {
     prop: 'yssxbm',
     label: '事项编码',
@@ -378,7 +360,10 @@ const tableColumns = reactive<any>([
     },
     enum: getYslxct,
     isShow: false,
-    fieldNames: { label: 'ctmc', value: 'id' },
+    fieldNames: {
+      label: 'ctmc',
+      value: 'id'
+    },
     width: '140'
   },
   {
@@ -465,9 +450,18 @@ const tableColumns = reactive<any>([
     prop: 'yjdw',
     label: '一级单位',
     isShow: false,
-    search: { el: 'select', props: { onChange: changeEjdwEnum }, order: 5 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: changeEjdwEnum
+      },
+      order: 5
+    },
     enum: yjdwListData.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'yjdwName',
@@ -477,10 +471,19 @@ const tableColumns = reactive<any>([
   {
     prop: 'ejdw',
     label: '二级单位',
-    search: { el: 'select', order: 6, props: { onChange: changeGkbmEnum } },
+    search: {
+      el: 'select',
+      order: 6,
+      props: {
+        onChange: changeGkbmEnum
+      }
+    },
     enum: ejdwListData.value,
     isShow: false,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'ejdwName',
@@ -504,7 +507,10 @@ const tableColumns = reactive<any>([
         collapseTags: true
       }
     },
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     enum: gkbmListData.value,
     width: '180'
   },
@@ -557,14 +563,20 @@ const tableColumns = reactive<any>([
     label: '事项性质',
     width: '180',
     enum: () => getPublicData('ZLYS_YSSX_SXXZ'),
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'zdtx',
     label: '重点投向',
     width: '180',
     enum: () => getPublicData('ZLYS_YSSX_ZDTX'),
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'zt',
@@ -581,26 +593,55 @@ const tableColumns = reactive<any>([
       defaultValue: ['02', '11', '13']
     },
     enum: statusEnum.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'ztName',
     label: '状态',
     width: '140'
   },
-  { prop: 'zscflag', label: '删除标识', width: '140' },
-  { prop: 'ztimestamp', label: '创建时间', width: '180' },
-  { prop: 'cjrName', label: '创建人', width: '140' },
-  { prop: 'zhggrq', label: '最后更改日期', width: '180' },
-  { prop: 'zhggrName', label: '最后更改人', width: '140' },
-  { prop: 'xjjzbs', label: '续建结转标识', width: '140' },
-  { prop: 'middleId', label: '子类型', isShow: false }
+  {
+    prop: 'zscflag',
+    label: '删除标识',
+    width: '140'
+  },
+  {
+    prop: 'ztimestamp',
+    label: '创建时间',
+    width: '180'
+  },
+  {
+    prop: 'cjrName',
+    label: '创建人',
+    width: '140'
+  },
+  {
+    prop: 'zhggrq',
+    label: '最后更改日期',
+    width: '180'
+  },
+  {
+    prop: 'zhggrName',
+    label: '最后更改人',
+    width: '140'
+  },
+  {
+    prop: 'xjjzbs',
+    label: '续建结转标识',
+    width: '140'
+  },
+  {
+    prop: 'middleId',
+    label: '子类型',
+    isShow: false
+  }
 ])
-
 const selectRolesHandle = () => {
   userDialogRef.value.getUser()
 }
-
 const getRoleHandle = () => {
   specialOrgId.value = userDialogRef.value.specialorgid
   spRoleId.value = userDialogRef.value.spRoleId
@@ -614,7 +655,6 @@ const getRoleHandle = () => {
     isShowPage.value = true
   }
 }
-
 const editMsgHandle = (selectedList: List[]) => {
   if (selectedList.length !== 1) {
     ElMessage.warning('请选择一条数据进行编辑！')
@@ -624,13 +664,11 @@ const editMsgHandle = (selectedList: List[]) => {
     ElMessage.warning('仅储备审批通过或出库审批驳回状态事项才允许编辑，请检查状态！')
     return
   }
-
   diaLogData.isShowPage = true
   diaLogData.title = '预算事项-编辑'
   baseMsgData.operationFlag = 'EDIT'
   baseMsgData.selectedData = selectedList[0]
 }
-
 const wfParam = ref<WFParam>({
   SXIDS: '',
   FQZZ: '',
@@ -659,33 +697,20 @@ const submitOutBoundWorkflowHandle = (selectedList: List[]) => {
   //let selectedListIds = selectedList.map((item) => item.id);
 
   var submitListIds = selectedList.map((item) => item.id).join(',')
-
   const wfUserInfo: WFUserInfo = {
     userId: store.getters.getUserMsg.id,
     spOrgId: specialOrgId.value,
     spRoleId: spRoleId.value
   }
-
   wfParam.value.SXIDS = submitListIds
   wfParam.value.FQZZ = 'Province'
   wfParam.value.GKCS = selectedList[0].csId
   wfParam.value.GKBM = selectedList[0].zgkbmId
   loading.value = true
-
-  submitWorkflow(
-    store.getters.getUserMsg.systemCode,
-    'WF_MATTEROUTBOUNDLC',
-    '',
-    wfUserInfo,
-    wfParam.value,
-    {},
-    submitWFCallback
-  )
+  submitWorkflow(store.getters.getUserMsg.systemCode, 'WF_MATTEROUTBOUNDLC', '', wfUserInfo, wfParam.value, {}, submitWFCallback)
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
   loading.value = false
-
   loading.value = true
   let spfrom = {
     userId: store.getters.getUserMsg.id,
@@ -713,7 +738,6 @@ const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
     })
   }
 }
-
 const submitWorkflowHandle = (selectedList: List[]) => {
   let filterList: any = selectedList.filter((item: any) => {
     return !item.xmbbm
@@ -731,28 +755,24 @@ const submitWorkflowHandle = (selectedList: List[]) => {
     ElMessage.warning('仅储备审批通过或出库审批驳回状态事项才允许提交，请检查状态！')
     return
   }
-
   var paramFLag = '0' //0走工作流  1不走工作流
-  baseService
-    .get('/workflow/declare/getParamValue?paramKey=MATTER_OUTBOUND_WORKFLOW')
-    .then((res) => {
-      if (res.data != null) {
-        paramFLag = res.data
-        if (selectedList[0].zjly == '0' && paramFLag === '0') {
-          submitOutBoundWorkflowHandle(selectedList)
-        } else {
-          submitNoWorkflowHandle(selectedList)
-        }
+  baseService.get('/workflow/declare/getParamValue?paramKey=MATTER_OUTBOUND_WORKFLOW').then((res) => {
+    if (res.data != null) {
+      paramFLag = res.data
+      if (selectedList[0].zjly == '0' && paramFLag === '0') {
+        submitOutBoundWorkflowHandle(selectedList)
       } else {
-        if (selectedList[0].zjly == '0') {
-          submitOutBoundWorkflowHandle(selectedList)
-        } else {
-          submitNoWorkflowHandle(selectedList)
-        }
+        submitNoWorkflowHandle(selectedList)
       }
-    })
+    } else {
+      if (selectedList[0].zjly == '0') {
+        submitOutBoundWorkflowHandle(selectedList)
+      } else {
+        submitNoWorkflowHandle(selectedList)
+      }
+    }
+  })
 }
-
 const submitNoWorkflowHandle = (selectedList: List[]) => {
   let filterList: any = selectedList.filter((item: any) => {
     return !item.xmbbm
@@ -797,7 +817,6 @@ const submitNoWorkflowHandle = (selectedList: List[]) => {
       loading.value = false
     })
 }
-
 const returnProHandle = (selectedList: List[]) => {
   // 状态
   if (selectedList[0].zt !== '02' && selectedList[0].zt !== '13' && selectedList[0].zt !== '12') {
@@ -827,7 +846,6 @@ const returnProHandle = (selectedList: List[]) => {
       loading.value = false
     })
 }
-
 const viewMsgHandle = (selectedList: List[]) => {
   if (selectedList.length !== 1) {
     ElMessage.warning('请选择一条数据进行查看')
@@ -838,7 +856,6 @@ const viewMsgHandle = (selectedList: List[]) => {
   baseMsgData.operationFlag = 'VIEW'
   baseMsgData.selectedData = selectedList[0]
 }
-
 const exportMsgHandle = () => {
   loading.value = true
   getExportData({
@@ -859,16 +876,13 @@ const exportMsgHandle = () => {
     loading.value = false
   })
 }
-
 const closeDialogHandle = (val: boolean) => {
   proTableRef.value?.clearSelection()
   diaLogData.isShowPage = val
 }
-
 const searchTableHandle = () => {
   proTableRef.value?.search()
 }
-
 onMounted(() => {
   selectRolesHandle()
   getProjectData()

@@ -19,78 +19,84 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'PromptEditor',
-  props: {
-    value: {
-      type: String,
-      default: ''
-    },
-    tags: {
-      type: Array,
-      default: () => []
-    },
-    placeholder: {
-      type: String,
-      default: '请输入内容'
-    },
-    rows: {
-      type: Number,
-      default: 20
-    },
-    showTags: {
-      type: Boolean,
-      default: true
-    }
+<script setup>
+import { nextTick, reactive, toRef, toRefs, watch, useTemplateRef } from 'vue'
+defineOptions({
+  name: 'PromptEditor'
+})
+const componentProps = defineProps({
+  value: {
+    type: String,
+    default: ''
   },
-  data() {
-    return {
-      currentValue: ''
-    }
+  tags: {
+    type: Array,
+    default: () => []
   },
-  watch: {
-    value: {
-      immediate: true,
-      handler(val) {
-        this.currentValue = val || ''
-      }
-    },
-    currentValue(val) {
-      this.$emit('input', val)
-    }
+  placeholder: {
+    type: String,
+    default: '请输入内容'
   },
-  methods: {
-    insertTag(tag) {
-      const tagString = `{${tag}}`
+  rows: {
+    type: Number,
+    default: 20
+  },
+  showTags: {
+    type: Boolean,
+    default: true
+  }
+})
+const emit = defineEmits()
+const textareaRefRef = useTemplateRef('textareaRef')
+const componentData = reactive({
+  currentValue: ''
+})
+const currentValue = toRef(componentData, 'currentValue')
+function insertTag(tag) {
+  const tagString = `{${tag}}`
 
-      // 获取 Element UI 内部真正的原生 textarea DOM 元素
-      const textarea = this.$refs.textareaRef.$refs.textarea
+  // 获取 Element UI 内部真正的原生 textarea DOM 元素
+  const textarea = textareaRefRef.value.$refs.textarea
+  if (textarea && typeof textarea.selectionStart === 'number') {
+    // 拿到当前光标的起始和结束位置 (如果没选中文字，这俩值是相等的)
+    const startPos = textarea.selectionStart
+    const endPos = textarea.selectionEnd
 
-      if (textarea && typeof textarea.selectionStart === 'number') {
-        // 拿到当前光标的起始和结束位置 (如果没选中文字，这俩值是相等的)
-        const startPos = textarea.selectionStart
-        const endPos = textarea.selectionEnd
+    // 拼接字符串：光标前的内容 + 插入的标签 + 光标后的内容
+    const textBefore = componentData.currentValue.substring(0, startPos)
+    const textAfter = componentData.currentValue.substring(endPos)
+    componentData.currentValue = textBefore + tagString + textAfter
 
-        // 拼接字符串：光标前的内容 + 插入的标签 + 光标后的内容
-        const textBefore = this.currentValue.substring(0, startPos)
-        const textAfter = this.currentValue.substring(endPos)
-
-        this.currentValue = textBefore + tagString + textAfter
-
-        // 等待 Vue 将新的值渲染到 DOM 后，把光标移动到插入的标签后面
-        this.$nextTick(() => {
-          textarea.focus() // 确保输入框保持焦点
-          const newCursorPos = startPos + tagString.length
-          textarea.setSelectionRange(newCursorPos, newCursorPos)
-        })
-      } else {
-        // 兜底方案：如果获取不到光标（比如还没点进过输入框），就直接加在末尾
-        this.currentValue = (this.currentValue || '') + tagString
-      }
-    }
+    // 等待 Vue 将新的值渲染到 DOM 后，把光标移动到插入的标签后面
+    nextTick(() => {
+      textarea.focus() // 确保输入框保持焦点
+      const newCursorPos = startPos + tagString.length
+      textarea.setSelectionRange(newCursorPos, newCursorPos)
+    })
+  } else {
+    // 兜底方案：如果获取不到光标（比如还没点进过输入框），就直接加在末尾
+    componentData.currentValue = (componentData.currentValue || '') + tagString
   }
 }
+watch(
+  () => componentProps.value,
+  function (val) {
+    componentData.currentValue = val || ''
+  },
+  {
+    immediate: true
+  }
+)
+watch(
+  () => componentData.currentValue,
+  function (val) {
+    emit('input', val)
+  }
+)
+defineExpose({
+  insertTag,
+  ...toRefs(componentData)
+})
 </script>
 
 <style lang="less" scoped>

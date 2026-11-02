@@ -17,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "projectDetailQueryTable" })
 import { onMounted } from 'vue'
 import { useProjectDetailQueryTable } from '@/views/config/projectDetailQuery/hooks/useProjectDetailQueryTable'
+defineOptions({ name: "projectDetailQueryTable" })
 
 const { gridOptions, gridEvents, page, handleChangeSizeChange, handleChangeCurrentChange, searchData, gridRef } = useProjectDetailQueryTable()
 

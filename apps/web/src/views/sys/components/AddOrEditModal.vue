@@ -1,112 +1,126 @@
-<script lang="ts">
-export default {
-  name: "AddOrEditModal"
-};
-</script>
+
 
 <script setup lang="ts">
-import { ref, defineExpose, defineProps, reactive, defineEmits, computed } from "vue";
-import { getIconList } from "@/utils/utils";
-import { appSave, appUpdate } from "@/api/sys/appManager";
-import { ElMessage } from "element-plus";
+import { ref, reactive, computed } from 'vue'
+import { getIconList } from '@/utils/utils'
+import { appSave, appUpdate } from '@/api/sys/appManager'
+import { ElMessage } from 'element-plus'
+defineOptions({
+  name: 'AddOrEditModal'
+})
 
-const emit = defineEmits(["updateData"]);
-
+const emit = defineEmits(['updateData'])
 const props = defineProps({
   title: {
     type: String,
-    default: "Add Or Edit",
+    default: 'Add Or Edit',
     required: true
   },
   flag: {
     type: String,
-    default: "ADD",
+    default: 'ADD',
     required: true
   },
   selectData: {
     type: Object as any,
     default: null
   }
-});
-
-const isShowModal = ref(false);
-const formRef = ref();
-
+})
+const isShowModal = ref(false)
+const formRef = ref()
 const formData = reactive({
-  appNo: "",
-  appName: "",
-  appIcon: "",
-  appLink: "",
-  status: "",
-  sort: "",
-  appId: ""
-});
-
-const iconList = ref([]);
-const iconListVisible = ref(false);
-const loading = ref(false);
-
-const isDisabled = computed(() => props.flag === "VIEW");
-
+  appNo: '',
+  appName: '',
+  appIcon: '',
+  appLink: '',
+  status: '',
+  sort: '',
+  appId: ''
+})
+const iconList = ref([])
+const iconListVisible = ref(false)
+const loading = ref(false)
+const isDisabled = computed(() => props.flag === 'VIEW')
 const showHandle = () => {
-  iconList.value = getIconList();
-  if ((props.flag === "EDIT" || props.flag === "VIEW") && props.selectData) {
-    formData.appIcon = props.selectData.appIcon;
-    formData.appNo = props.selectData.appNo;
-    formData.appId = props.selectData.appId;
-    formData.appName = props.selectData.appName;
-    formData.appLink = props.selectData.appLink;
-    formData.status = props.selectData.status;
-    formData.sort = props.selectData.sort;
+  iconList.value = getIconList()
+  if ((props.flag === 'EDIT' || props.flag === 'VIEW') && props.selectData) {
+    formData.appIcon = props.selectData.appIcon
+    formData.appNo = props.selectData.appNo
+    formData.appId = props.selectData.appId
+    formData.appName = props.selectData.appName
+    formData.appLink = props.selectData.appLink
+    formData.status = props.selectData.status
+    formData.sort = props.selectData.sort
   }
-};
-
+}
 const iconListCurrentChangeHandle = (icon: string) => {
-  formData.appIcon = icon;
-  iconListVisible.value = false;
-};
+  formData.appIcon = icon
+  iconListVisible.value = false
+}
 const rulesForm = reactive({
-  appNo: { message: "请输入应用编码", trigger: "blur", required: true },
-  appName: { message: "请输入应用名称", trigger: "blur", required: true },
-  appIcon: { message: "请选择应用图标", trigger: "change", required: true },
-  appLink: { message: "请输入应用链接", trigger: "blur", required: true },
-  status: { message: "请选择状态", trigger: "change", required: true },
-  sort: { message: "请输入排序", trigger: "blur", required: true }
-});
-
+  appNo: {
+    message: '请输入应用编码',
+    trigger: 'blur',
+    required: true
+  },
+  appName: {
+    message: '请输入应用名称',
+    trigger: 'blur',
+    required: true
+  },
+  appIcon: {
+    message: '请选择应用图标',
+    trigger: 'change',
+    required: true
+  },
+  appLink: {
+    message: '请输入应用链接',
+    trigger: 'blur',
+    required: true
+  },
+  status: {
+    message: '请选择状态',
+    trigger: 'change',
+    required: true
+  },
+  sort: {
+    message: '请输入排序',
+    trigger: 'blur',
+    required: true
+  }
+})
 const saveHandle = () => {
   formRef.value.validate(async (valid) => {
     if (valid) {
-      loading.value = true;
-      let api = appSave;
-      let text = "新增";
-      if (props.flag === "EDIT") {
-        api = appUpdate;
-        text = "编辑";
+      loading.value = true
+      let api = appSave
+      let text = '新增'
+      if (props.flag === 'EDIT') {
+        api = appUpdate
+        text = '编辑'
       }
       const res = await api({
         ...formData
-      });
+      })
       if (res.success) {
-        ElMessage.success(text + "成功");
-        closeHandle();
-        emit("updateData");
-        loading.value = false;
+        ElMessage.success(text + '成功')
+        closeHandle()
+        emit('updateData')
+        loading.value = false
       } else {
-        ElMessage.error(res.msg);
-        loading.value = false;
+        ElMessage.error(res.msg)
+        loading.value = false
       }
     }
-  });
-};
+  })
+}
 const closeHandle = () => {
-  formRef.value.resetFields();
-  isShowModal.value = false;
-};
-
+  formRef.value.resetFields()
+  isShowModal.value = false
+}
 defineExpose({
   isShowModal
-});
+})
 </script>
 
 <template>

@@ -29,11 +29,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'TbhbDeptModal'
-}
-</script>
 
 <script setup lang="ts">
 import { h, ref, reactive } from 'vue'
@@ -49,9 +44,11 @@ import {
 import { vxeExportFormulaHandle, apiExporFile } from '@/utils/export'
 import type { FormulaConfig, InlineSumOptions } from '@/utils/export'
 import { applyColumnFormat, buildRows, getColumnKind, getLeafColumns } from './columns'
+defineOptions({
+  name: 'TbhbDeptModal'
+})
 
 type DeptTbhbType = 'tb' | 'hb'
-
 interface DeptTbhbModalParams {
   type: DeptTbhbType
   endDate: string
@@ -60,33 +57,33 @@ interface DeptTbhbModalParams {
   deptId: string
   title?: string
 }
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const modalTitle = ref('同比分析')
 const gridRef = ref()
 const reportLoading = ref(false)
 const currentParams = ref<DeptTbhbModalParams | null>(null)
-
 const MERGE_PROPS = ['xmlx']
 
 // 合并行（基于 xmlx 等字段，与 detailDeptData 逻辑一致）
 const objectSpanMethod = ({ row, column, rowIndex }: any) => {
   if (!MERGE_PROPS.includes(column.property)) return
-
   const tableData = gridOptions.data
   if (!tableData?.length) {
-    return { rowspan: 1, colspan: 1 }
+    return {
+      rowspan: 1,
+      colspan: 1
+    }
   }
-
   const isSameGroup = (a: any, b: any): boolean => {
     return MERGE_PROPS.every((prop) => a[prop] === b[prop])
   }
-
   if (rowIndex > 0 && isSameGroup(row, tableData[rowIndex - 1])) {
-    return { rowspan: 0, colspan: 0 }
+    return {
+      rowspan: 0,
+      colspan: 0
+    }
   }
-
   let rowspan = 1
   for (let i = rowIndex + 1; i < tableData.length; i++) {
     if (isSameGroup(tableData[i], row)) {
@@ -95,10 +92,11 @@ const objectSpanMethod = ({ row, column, rowIndex }: any) => {
       break
     }
   }
-
-  return { rowspan, colspan: 1 }
+  return {
+    rowspan,
+    colspan: 1
+  }
 }
-
 const gridOptions = reactive<any>({
   border: true,
   loading: false,
@@ -123,12 +121,13 @@ const gridOptions = reactive<any>({
   },
   rowStyle: ({ row }: any) => {
     if (row.dwName === '省公司') {
-      return { fontWeight: 'bolder' }
+      return {
+        fontWeight: 'bolder'
+      }
     }
     return {}
   }
 })
-
 const getRequestParams = (params: DeptTbhbModalParams) => {
   return {
     endDate: params.endDate,
@@ -137,15 +136,12 @@ const getRequestParams = (params: DeptTbhbModalParams) => {
     deptId: params.deptId
   }
 }
-
 const getColumnApi = (type: DeptTbhbType) => {
   return type === 'tb' ? getDynamicColumnByDeptWithXmlxForTb : getDynamicColumnByDeptWithXmlxForHb
 }
-
 const getDataApi = (type: DeptTbhbType) => {
   return type === 'tb' ? getStatDataNewWithXmlxForTb : getStatDataNewWithXmlxForHb
 }
-
 const getFxbgApi = () => {
   return currentParams.value?.type === 'tb' ? getTbFxbg : gethbFxbg
 }
@@ -155,13 +151,23 @@ const renderFormulaHeader = (title: string, formula: string) => {
   return () =>
     h(
       ElTooltip,
-      { effect: 'dark', placement: 'top', content: formula },
       {
-        default: () => h('span', { style: 'display: inline-flex; align-items: center; gap: 2px' }, [title])
+        effect: 'dark',
+        placement: 'top',
+        content: formula
+      },
+      {
+        default: () =>
+          h(
+            'span',
+            {
+              style: 'display: inline-flex; align-items: center; gap: 2px'
+            },
+            [title]
+          )
       }
     )
 }
-
 const loadData = async (params: DeptTbhbModalParams) => {
   loading.value = true
   gridOptions.loading = true
@@ -169,7 +175,6 @@ const loadData = async (params: DeptTbhbModalParams) => {
     const requestParams = getRequestParams(params)
     const columnApi = getColumnApi(params.type)
     const dataApi = getDataApi(params.type)
-
     let serverColumns: any[] = []
     try {
       const colRes = await columnApi(requestParams)
@@ -179,14 +184,12 @@ const loadData = async (params: DeptTbhbModalParams) => {
     } catch (e) {
       console.error('获取同比/环比表头失败', e)
     }
-
     if (serverColumns.length === 0) {
       gridOptions.columns = []
       gridOptions.data = []
       ElMessage.warning('未获取到表头数据')
       return
     }
-
     const columns = applyColumnFormat(serverColumns)
     // 表头公式提示：仅对带 tipContent 的叶子列挂表头 tooltip
     getLeafColumns(columns).forEach((col: any) => {
@@ -197,7 +200,6 @@ const loadData = async (params: DeptTbhbModalParams) => {
       }
     })
     gridOptions.columns = columns
-
     const dataRes = await dataApi(requestParams)
     if (dataRes.success) {
       const rows: any[] = Array.isArray(dataRes.data) ? dataRes.data : []
@@ -216,10 +218,11 @@ const loadData = async (params: DeptTbhbModalParams) => {
     gridOptions.loading = false
   }
 }
-
 const open = (params: DeptTbhbModalParams) => {
   modalTitle.value = `${params.title ?? ''}${params.type === 'tb' ? '同比分析' : '环比分析'}`
-  currentParams.value = { ...params }
+  currentParams.value = {
+    ...params
+  }
   gridOptions.exportConfig = {
     ...gridOptions.exportConfig,
     filename: `专业归口管理项目预算执行-${params.type === 'tb' ? '同比分析' : '环比分析'}`,
@@ -228,7 +231,6 @@ const open = (params: DeptTbhbModalParams) => {
   isShowModal.value = true
   loadData(params)
 }
-
 const handleClose = () => {
   isShowModal.value = false
   gridOptions.columns = []
@@ -254,7 +256,10 @@ const buildFormulaConfig = (columns: any[]): FormulaConfig | undefined => {
       if (Array.isArray(col.children) && col.children.length !== 0) {
         walk(col.children, col)
       } else {
-        leafInfos.push({ col, parent })
+        leafInfos.push({
+          col,
+          parent
+        })
       }
     })
   }
@@ -277,7 +282,6 @@ const buildFormulaConfig = (columns: any[]): FormulaConfig | undefined => {
       periodParents.push(li.parent)
     }
   })
-
   leafInfos.forEach((li) => {
     const col = li.col
     const field = String(col.field || '')
@@ -288,7 +292,13 @@ const buildFormulaConfig = (columns: any[]): FormulaConfig | undefined => {
       const valueField = findSiblingField(li.parent, '完成值')
       const targetField = findSiblingField(li.parent, '目标值')
       if (valueField && targetField) {
-        cfg[field] = { type: 'ratio', valueField, targetField, skipField: targetField, matchMode: 'exact' }
+        cfg[field] = {
+          type: 'ratio',
+          valueField,
+          targetField,
+          skipField: targetField,
+          matchMode: 'exact'
+        }
       }
     } else if (kind === 'je') {
       // 金额(同比/环比增幅) = 本期完成值 - 对比期完成值
@@ -296,7 +306,12 @@ const buildFormulaConfig = (columns: any[]): FormulaConfig | undefined => {
         const currentField = findSiblingField(periodParents[0], '完成值')
         const compareField = findSiblingField(periodParents[1], '完成值')
         if (currentField && compareField) {
-          cfg[field] = { type: 'diff', currentField, compareField, matchMode: 'exact' }
+          cfg[field] = {
+            type: 'diff',
+            currentField,
+            compareField,
+            matchMode: 'exact'
+          }
         }
       }
     } else if (kind === 'bl') {
@@ -305,7 +320,12 @@ const buildFormulaConfig = (columns: any[]): FormulaConfig | undefined => {
         const currentField = findSiblingField(periodParents[0], '完成率')
         const compareField = findSiblingField(periodParents[1], '完成率')
         if (currentField && compareField) {
-          cfg[field] = { type: 'diff', currentField, compareField, matchMode: 'exact' }
+          cfg[field] = {
+            type: 'diff',
+            currentField,
+            compareField,
+            matchMode: 'exact'
+          }
         }
       }
     }
@@ -326,10 +346,18 @@ const buildInlineSumConfig = (columns: any[]): InlineSumOptions | undefined => {
   if (valueLeaves.length === 0) return undefined
 
   // field 形如 {prefix}_{period}_{metric}，按首段 prefix 分组
-  const splitField = (field: string): { prefix: string; suffix: string } | null => {
+  const splitField = (
+    field: string
+  ): {
+    prefix: string
+    suffix: string
+  } | null => {
     const parts = String(field || '').split('_')
     if (parts.length < 2) return null
-    return { prefix: parts[0], suffix: parts.slice(1).join('_') }
+    return {
+      prefix: parts[0],
+      suffix: parts.slice(1).join('_')
+    }
   }
 
   // 合计列前缀（不区分大小写），与 lslxJsc/reportingyx.vue 的 hj_* 约定一致
@@ -337,29 +365,38 @@ const buildInlineSumConfig = (columns: any[]): InlineSumOptions | undefined => {
   const isHjPrefix = (p: string) => String(p || '').toLowerCase() === HJ_PREFIX
 
   // 找出所有「合计」前缀的 value 列，按 suffix 分组保留明细列候选
-  const hjTargets: { field: string; suffix: string }[] = []
+  const hjTargets: {
+    field: string
+    suffix: string
+  }[] = []
   const othersBySuffix: Record<string, string[]> = {}
   valueLeaves.forEach((col: any) => {
     const field = String(col.field || '')
     const info = splitField(field)
     if (!info) return
     if (isHjPrefix(info.prefix)) {
-      hjTargets.push({ field, suffix: info.suffix })
+      hjTargets.push({
+        field,
+        suffix: info.suffix
+      })
     } else {
       if (!othersBySuffix[info.suffix]) othersBySuffix[info.suffix] = []
       othersBySuffix[info.suffix].push(field)
     }
   })
-
   if (hjTargets.length === 0) return undefined
-
   const config = hjTargets
-    .map((t) => ({ targetField: t.field, sourceFields: othersBySuffix[t.suffix] || [] }))
+    .map((t) => ({
+      targetField: t.field,
+      sourceFields: othersBySuffix[t.suffix] || []
+    }))
     .filter((spec) => spec.sourceFields.length > 0)
-
-  return config.length > 0 ? { config } : undefined
+  return config.length > 0
+    ? {
+        config
+      }
+    : undefined
 }
-
 const exportDataHandle = () => {
   const $grid = gridRef.value
   if (!$grid) return
@@ -377,12 +414,13 @@ const exportDataHandle = () => {
     gridOptions.data,
     2,
     formulaConfig,
-    { tbhbMode: true },
+    {
+      tbhbMode: true
+    },
     undefined,
     inlineSumOptions
   )
 }
-
 const viewReportHandle = async () => {
   if (!currentParams.value) return
   if (reportLoading.value) return
@@ -398,8 +436,9 @@ const viewReportHandle = async () => {
     reportLoading.value = false
   }
 }
-
-defineExpose({ open })
+defineExpose({
+  open
+})
 </script>
 
 <style scoped lang="less">

@@ -62,9 +62,7 @@
     </proTable>
   </div>
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
 import proTable from '@/components/ProTable/index.vue' //表格组件
@@ -87,7 +85,10 @@ const proTableRef = ref() // 初始化页面
 const loading = ref<boolean>(false)
 // 列表查询
 const pageMeeting = (params: any) => {
-  params = { ...params, ...formData.value }
+  params = {
+    ...params,
+    ...formData.value
+  }
   params['xmbmList'] = params['xmbm'] ? params['xmbm'].split(',') : []
   return props.pageApi(params)
 }
@@ -96,7 +97,10 @@ const pageMeeting = (params: any) => {
 const resetHandle = () => {
   loading.value = true
   proTableRef.value?.clearSelection()
-  emits('pageType', { success: true, type: 'reset' })
+  emits('pageType', {
+    success: true,
+    type: 'reset'
+  })
 }
 // 搜索
 const searchHandle = (val: any) => {
@@ -106,9 +110,13 @@ const searchHandle = (val: any) => {
 // 数据回调
 const pageList = (val: any) => {
   if (val) {
-    emits('pageType', { success: true })
+    emits('pageType', {
+      success: true
+    })
   } else {
-    emits('pageType', { success: false })
+    emits('pageType', {
+      success: false
+    })
   }
   loading.value = false
   return val
@@ -121,7 +129,11 @@ const changeNdDataHandle = () => {
 
 // 点击按钮
 const handleClickBtn = (val: any, selectedList: any) => {
-  emits('btnType', { ...val, ...formData.value, selectedList: selectedList })
+  emits('btnType', {
+    ...val,
+    ...formData.value,
+    selectedList: selectedList
+  })
 }
 
 // 单击行选中当前行
@@ -134,7 +146,6 @@ const handleClickRow = async (val: any) => {
 const getParams = () => {
   return proTableRef.value?.searchParam
 }
-
 defineExpose({
   proTableRef,
   formData,

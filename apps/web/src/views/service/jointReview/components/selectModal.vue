@@ -33,14 +33,13 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'selectModal'
-}
-</script>
+
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, defineExpose, reactive } from 'vue'
+import { ref, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+defineOptions({
+  name: 'selectModal'
+})
 
 interface propsVo {
   title: string

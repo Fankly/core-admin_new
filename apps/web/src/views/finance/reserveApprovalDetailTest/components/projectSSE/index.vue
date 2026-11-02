@@ -44,172 +44,183 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { CircleCheck as EpCircleCheck } from '@element-plus/icons-vue'
-
 import SSEClient from './SSEClient'
-
-export default {
-  setup() {
-    return { EpCircleCheck }
-  },
-  components: {}, // ✅ 注册组件
-  props: {
-    id: String,
-    useItemDiff: {
-      type: Boolean,
-      default: false
+import { ElMessage } from 'element-plus'
+import { nextTick, reactive, toRef, toRefs, computed, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
+defineOptions({
+  name: 'projectSSE'
+})
+const componentProps = defineProps({
+  id: String,
+  useItemDiff: {
+    type: Boolean,
+    default: false
+  }
+})
+const emit = defineEmits()
+const scrollContainerRef = useTemplateRef('scrollContainer')
+const componentData = reactive({
+  // 保持原有逻辑变量不变
+  sseClient: null,
+  isConnected: false,
+  reconnecting: true,
+  errorMessage: '',
+  rawData: '',
+  isPaused: false,
+  isCompleted: false,
+  dataBuffer: '',
+  bufferFlushTimer: null,
+  countdown: undefined,
+  countdownTimer: null
+})
+const sseClient = toRef(componentData, 'sseClient')
+const isConnected = toRef(componentData, 'isConnected')
+const reconnecting = toRef(componentData, 'reconnecting')
+const errorMessage = toRef(componentData, 'errorMessage')
+const rawData = toRef(componentData, 'rawData')
+const isPaused = toRef(componentData, 'isPaused')
+const isCompleted = toRef(componentData, 'isCompleted')
+const dataBuffer = toRef(componentData, 'dataBuffer')
+const bufferFlushTimer = toRef(componentData, 'bufferFlushTimer')
+const countdown = toRef(componentData, 'countdown')
+const countdownTimer = toRef(componentData, 'countdownTimer')
+// ⬇️ 逻辑完全保留原样 ⬇️
+function defaultMethods() {
+  if (!componentProps.id) {
+    ElMessage.error('id为空')
+    return
+  }
+  const apiPath = componentProps.useItemDiff ? '/api/admin/app/cwProjectItemDiff/execDiff?id=' : '/api/admin/app/cwProjectDiff/execDiff?id='
+  componentData.sseClient = new SSEClient(apiPath + componentProps.id, {
+    reconnectInterval: 3000,
+    autoReconnect: true,
+    parseJson: false
+  })
+  componentData.sseClient.on('open', () => {
+    componentData.isConnected = true
+    componentData.reconnecting = false
+    componentData.errorMessage = ''
+  })
+  componentData.sseClient.on('message', handleDataChunk)
+  componentData.sseClient.on('partial', handleDataChunk)
+  componentData.sseClient.on('error', (error) => {
+    componentData.errorMessage = error.message || '连接异常'
+    componentData.reconnecting = !componentData.isCompleted
+  })
+  componentData.sseClient.on('reconnect', () => {
+    if (!componentData.isCompleted) componentData.reconnecting = true
+  })
+  componentData.sseClient.on('reconnecting', () => {
+    if (!componentData.isCompleted) componentData.reconnecting = true
+  })
+  componentData.sseClient.on('close', () => {
+    componentData.isConnected = false
+    if (!componentData.isCompleted) componentData.reconnecting = true
+  })
+  componentData.sseClient.connect()
+}
+function startCountdown(number = 5) {
+  if (componentData.countdownTimer) clearInterval(componentData.countdownTimer)
+  componentData.countdown = number
+  componentData.countdownTimer = setInterval(() => {
+    componentData.countdown--
+    onCountdownTick(componentData.countdown)
+    if (componentData.countdown <= 0) {
+      clearInterval(componentData.countdownTimer)
+      onCountdownEnd()
     }
-  },
-  name: 'projectSSE',
-  data() {
-    return {
-      // 保持原有逻辑变量不变
-      sseClient: null,
-      isConnected: false,
-      reconnecting: true,
-      errorMessage: '',
-      rawData: '',
-      isPaused: false,
-      isCompleted: false,
-      dataBuffer: '',
-      bufferFlushTimer: null,
-      countdown: undefined,
-      countdownTimer: null
+  }, 1000)
+}
+function onCountdownTick(secondsRemaining) {}
+function onCountdownEnd() {
+  emit('onCountdownEnd')
+}
+function handleDataChunk(chunk) {
+  if (componentData.isCompleted || componentData.isPaused) return
+  componentData.dataBuffer += chunk
+  if (componentData.dataBuffer.includes('[DONE]')) {
+    if (componentData.bufferFlushTimer) {
+      clearTimeout(componentData.bufferFlushTimer)
+      componentData.bufferFlushTimer = null
     }
-  },
-  mounted() {
-    this.defaultMethods()
-  },
-  methods: {
-    // ⬇️ 逻辑完全保留原样 ⬇️
-    defaultMethods() {
-      if (!this.id) {
-        this.$message.error('id为空')
-        return
-      }
-      const apiPath = this.useItemDiff ? '/api/admin/app/cwProjectItemDiff/execDiff?id=' : '/api/admin/app/cwProjectDiff/execDiff?id='
-      this.sseClient = new SSEClient(apiPath + this.id, {
-        reconnectInterval: 3000,
-        autoReconnect: true,
-        parseJson: false
+    const doneIndex = componentData.dataBuffer.indexOf('[DONE]')
+    const processedChunk = componentData.dataBuffer.substring(0, doneIndex)
+    componentData.rawData += processedChunk
+    componentData.dataBuffer = ''
+    componentData.isCompleted = true
+    closeConnection()
+    startCountdown()
+    return
+  }
+  if (!componentData.bufferFlushTimer) {
+    componentData.bufferFlushTimer = setTimeout(() => {
+      componentData.rawData += componentData.dataBuffer
+      if (componentData.rawData.length > 300000) componentData.rawData = componentData.rawData.slice(-150000)
+      componentData.dataBuffer = ''
+      componentData.bufferFlushTimer = null
+      // 自动滚动到最新位置
+      nextTick(() => {
+        const container = scrollContainerRef.value
+        if (container) container.scrollTop = container.scrollHeight
       })
-
-      this.sseClient.on('open', () => {
-        this.isConnected = true
-        this.reconnecting = false
-        this.errorMessage = ''
-      })
-
-      this.sseClient.on('message', this.handleDataChunk)
-      this.sseClient.on('partial', this.handleDataChunk)
-
-      this.sseClient.on('error', (error) => {
-        this.errorMessage = error.message || '连接异常'
-        this.reconnecting = !this.isCompleted
-      })
-
-      this.sseClient.on('reconnect', () => {
-        if (!this.isCompleted) this.reconnecting = true
-      })
-      this.sseClient.on('reconnecting', () => {
-        if (!this.isCompleted) this.reconnecting = true
-      })
-      this.sseClient.on('close', () => {
-        this.isConnected = false
-        if (!this.isCompleted) this.reconnecting = true
-      })
-      this.sseClient.connect()
-    },
-    startCountdown(number = 5) {
-      if (this.countdownTimer) clearInterval(this.countdownTimer)
-      this.countdown = number
-      this.countdownTimer = setInterval(() => {
-        this.countdown--
-        this.onCountdownTick(this.countdown)
-        if (this.countdown <= 0) {
-          clearInterval(this.countdownTimer)
-          this.onCountdownEnd()
-        }
-      }, 1000)
-    },
-    onCountdownTick(secondsRemaining) {},
-    onCountdownEnd() {
-      this.$emit('onCountdownEnd')
-    },
-    handleDataChunk(chunk) {
-      if (this.isCompleted || this.isPaused) return
-      this.dataBuffer += chunk
-      if (this.dataBuffer.includes('[DONE]')) {
-        if (this.bufferFlushTimer) {
-          clearTimeout(this.bufferFlushTimer)
-          this.bufferFlushTimer = null
-        }
-        const doneIndex = this.dataBuffer.indexOf('[DONE]')
-        const processedChunk = this.dataBuffer.substring(0, doneIndex)
-        this.rawData += processedChunk
-        this.dataBuffer = ''
-        this.isCompleted = true
-        this.closeConnection()
-        this.startCountdown()
-        return
-      }
-      if (!this.bufferFlushTimer) {
-        this.bufferFlushTimer = setTimeout(() => {
-          this.rawData += this.dataBuffer
-          if (this.rawData.length > 300000) this.rawData = this.rawData.slice(-150000)
-          this.dataBuffer = ''
-          this.bufferFlushTimer = null
-          // 自动滚动到最新位置
-          this.$nextTick(() => {
-            const container = this.$refs.scrollContainer
-            if (container) container.scrollTop = container.scrollHeight
-          })
-        }, 200)
-      }
-    },
-    closeConnection() {
-      if (this.sseClient) {
-        this.sseClient.close()
-        this.isConnected = false
-      }
-      if (this.bufferFlushTimer) {
-        clearTimeout(this.bufferFlushTimer)
-        this.bufferFlushTimer = null
-      }
-    }
-  },
-  beforeUnmount() {
-    this.closeConnection()
-    if (this.countdownTimer) clearInterval(this.countdownTimer)
-  },
-  computed: {
-    // ✅ 在原有的 decodeSpecialText 基础上增加 HTML 标签清理，防止 v-html 渲染空行
-    processedHtml() {
-      if (!this.rawData) return ''
-      return this.rawData
-        .replace(/\\n/g, '\n')
-        .replace(/\\t/g, '\t')
-        .replace(/\\\\/g, '\\')
-        .replace(/>\s+</g, '><') // 去除标签间的冗余换行/空格
-        .replace(/\n/g, '<br/>') // 将文本换行转为 HTML 换行
-    },
-    statusText() {
-      if (this.errorMessage) return `异常: ${this.errorMessage}`
-      if (this.isCompleted) return '推理完成'
-      if (this.reconnecting) return '推理中...'
-      if (this.isConnected) return this.isPaused ? '已暂停' : '推理中'
-      return '未连接'
-    },
-    statusClass() {
-      if (this.errorMessage) return 'status-error'
-      if (this.isCompleted) return 'status-completed'
-      if (this.reconnecting) return 'status-reconnecting'
-      if (this.isConnected) return this.isPaused ? 'status-paused' : 'status-active'
-      return 'status-disconnected'
-    }
+    }, 200)
   }
 }
+function closeConnection() {
+  if (componentData.sseClient) {
+    componentData.sseClient.close()
+    componentData.isConnected = false
+  }
+  if (componentData.bufferFlushTimer) {
+    clearTimeout(componentData.bufferFlushTimer)
+    componentData.bufferFlushTimer = null
+  }
+}
+const processedHtml = computed(() => {
+  if (!componentData.rawData) return ''
+  return componentData.rawData
+    .replace(/\\n/g, '\n')
+    .replace(/\\t/g, '\t')
+    .replace(/\\\\/g, '\\')
+    .replace(/>\s+</g, '><') // 去除标签间的冗余换行/空格
+    .replace(/\n/g, '<br/>') // 将文本换行转为 HTML 换行
+})
+const statusText = computed(() => {
+  if (componentData.errorMessage) return `异常: ${componentData.errorMessage}`
+  if (componentData.isCompleted) return '推理完成'
+  if (componentData.reconnecting) return '推理中...'
+  if (componentData.isConnected) return componentData.isPaused ? '已暂停' : '推理中'
+  return '未连接'
+})
+const statusClass = computed(() => {
+  if (componentData.errorMessage) return 'status-error'
+  if (componentData.isCompleted) return 'status-completed'
+  if (componentData.reconnecting) return 'status-reconnecting'
+  if (componentData.isConnected) return componentData.isPaused ? 'status-paused' : 'status-active'
+  return 'status-disconnected'
+})
+onMounted(() => {
+  defaultMethods()
+})
+onBeforeUnmount(() => {
+  closeConnection()
+  if (componentData.countdownTimer) clearInterval(componentData.countdownTimer)
+})
+defineExpose({
+  EpCircleCheck,
+  defaultMethods,
+  startCountdown,
+  onCountdownTick,
+  onCountdownEnd,
+  handleDataChunk,
+  closeConnection,
+  ...toRefs(componentData),
+  processedHtml,
+  statusText,
+  statusClass
+})
 </script>
 
 <style lang="less" scoped>

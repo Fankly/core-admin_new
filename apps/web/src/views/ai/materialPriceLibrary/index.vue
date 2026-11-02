@@ -66,7 +66,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/ai/materialPriceLibrary/index" })
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
@@ -83,6 +82,7 @@ import type { ColumnProps } from '@/components/ProTable/interface'
 import { apiExportHandle } from '@/utils/export'
 import { formatNumValue } from '@/utils/utils'
 import { exportMaterialPriceLibrary, getMaterialPriceLibraryPage, importMaterialPriceLibrary } from '@/api/ai/materialPriceLibrary'
+defineOptions({ name: "/ai/materialPriceLibrary/index" })
 
 const activeTab = ref('historyPriceSummary')
 const priceQueryMounted = ref(false)

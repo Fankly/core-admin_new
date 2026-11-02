@@ -1,6 +1,6 @@
 <template>
   <div class="form">
-    <el-form label-position="right" label-width="120px" v-model="formData">
+    <el-form label-position="right" label-width="120px" :model="formData">
       <el-row :gutter="24">
         <el-col :span="6">
           <el-form-item label="项目类型：">
@@ -101,16 +101,10 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'MbzSearchMain'
-}
-</script>
 
 <script setup lang="ts">
 import TreeSelect from '@/components/select/TreeSelect.vue'
-
-import { onMounted, defineExpose, reactive, ref, defineProps, watch, computed, defineEmits } from 'vue'
+import { onMounted, reactive, ref, watch, computed } from 'vue'
 import { getProTypeTreeNode } from '@/api/process'
 import { ElMessage } from 'element-plus'
 import { getYearData, getYjdwNew, getEjdwByYjdw, getGkbmInProvince, getPublicCodeList } from '@/api/common'
@@ -125,11 +119,13 @@ import {
 import { UserInfo } from '../../interface'
 import { VxeGridListeners, VxeGridProps, VxeTableDefines } from 'vxe-table'
 import Decimal from 'decimal.js'
+defineOptions({
+  name: 'MbzSearchMain'
+})
 
 interface InterfaceData {
   [key: string]: (params: InterfaceParams) => Promise<Result>
 }
-
 interface Params {
   dwId: number
   ejdw: string
@@ -141,37 +137,28 @@ interface Params {
   yslys: string[]
   [key: string]: string | number | string[]
 }
-
 interface InitInfo {
   userInfo: UserInfo
   isShowPage: boolean
 }
-
 interface Props {
   initInfo: InitInfo
   fileName: string
   name: string
 }
-
 interface NdList {
   yearName: string
   yearCode: string
 }
-
 interface SearchData {
   name: string
   code: string
 }
-
 const props = defineProps<Props>()
-
 const emits = defineEmits(['isDisable', 'isLoad', 'isExport'])
-
 const tableRef = ref()
 const proTypeRef = ref()
-
 const zsfs = ref('')
-
 const formData = reactive<Partial<Params>>({})
 const treeProps = reactive({
   projectTypeProps: {
@@ -179,14 +166,12 @@ const treeProps = reactive({
     label: 'name'
   }
 })
-
 const page = reactive({
   total: 0,
   limit: 10,
   page: 1,
   current: '1'
 })
-
 const selectData = reactive<{
   yjdwListData: SearchData[]
   ejdwListData: SearchData[]
@@ -204,13 +189,9 @@ const selectData = reactive<{
   tjwdList: [],
   zsfsList: []
 })
-
 const loading = ref(false)
-
 const isShowFooter = computed<boolean>(() => zsfs.value === '1')
-
 const rowIndexsArr = reactive<number[]>([])
-
 const gridOptions = reactive<any>({
   border: true,
   columnConfig: {
@@ -238,7 +219,9 @@ const gridOptions = reactive<any>({
           const row = worksheet.getRow(item + 2)
           row.eachCell((cell: any) => {
             cell.font = {
-              color: { argb: 'FFFF0000' }
+              color: {
+                argb: 'FFFF0000'
+              }
             }
           })
         })
@@ -256,7 +239,6 @@ const gridOptions = reactive<any>({
     }
   }
 })
-
 const sumNum = (list: any[], field: string) => {
   let count = new Decimal('0')
   list.forEach((item) => {
@@ -267,7 +249,6 @@ const sumNum = (list: any[], field: string) => {
   })
   return count.toFixed(4).toString()
 }
-
 const gridEvents = reactive<VxeGridListeners<any>>({
   cellMenu({ row }) {
     const $grid = tableRef.value
@@ -276,7 +257,6 @@ const gridEvents = reactive<VxeGridListeners<any>>({
     }
   }
 })
-
 const getInterfaceMethod = () => {
   let obj: InterfaceData = {
     1: mbzStatisticsByProtype,
@@ -285,28 +265,23 @@ const getInterfaceMethod = () => {
   }
   return obj[zsfs.value]
 }
-
 const clearDataHandle = () => {
   if (formData.proTypeIds) formData.proTypeIds = ''
 }
-
 const getProjectTypeHandle = (value: string[]) => {
   formData.proTypeIds = value.join(',')
 }
-
 const changeNdDataHandle = async () => {
   // 清空
   proTypeRef.value.selectChange()
   await getProjectData()
 }
-
 const changeYjdwDataHandle = async (val: string) => {
   formData.ejdw = ''
   selectData.ejdwListData.length = 0
   // 清空二级单位数据
   getEjdwData(val)
 }
-
 const resetPage = async () => {
   page.total = 0
   page.limit = 10
@@ -386,7 +361,9 @@ const getProGkbmData = async () => {
 // 获取展示维度和展示方式
 const getOtherSearchData = async () => {
   let codes = ['MBZ_ZSFS', 'XMLB_YSLY']
-  let res = await getPublicCodeList({ codes })
+  let res = await getPublicCodeList({
+    codes
+  })
   if (res.success && res.data) {
     selectData.zsfsList = res.data[codes[0]]
     selectData.tjwdList = res.data[codes[1]]
@@ -394,12 +371,10 @@ const getOtherSearchData = async () => {
     formData.yslys?.push(selectData.zsfsList[0].code)
   }
 }
-
 const clickSearchHandle = async () => {
   await searchHandle()
   if (tableRef.value && zsfs.value === '2' && formData.yjdw) tableRef.value.setAllTreeExpand(true)
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   page.page = currentPageNum
   searchHandle()
@@ -604,7 +579,6 @@ const resetHandle = async () => {
   // 调整查询
   searchHandle()
 }
-
 const exportApiHandle = async () => {
   gridOptions.loading = true
   let params: any = {
@@ -652,7 +626,6 @@ const expandHandle = async () => {
     expandAllTree(gridOptions.data, $table)
   }
 }
-
 const expandAllTree = async (data: any, $table: any) => {
   data.forEach(async (row: any) => {
     if (row.leaf) {
@@ -663,7 +636,6 @@ const expandAllTree = async (data: any, $table: any) => {
     }
   })
 }
-
 watch(
   () => zsfs.value,
   (newVal) => {
@@ -671,14 +643,12 @@ watch(
     emits('isExport', newVal !== '3')
   }
 )
-
 watch(
   () => gridOptions.loading,
   (newVal) => {
     emits('isLoad', newVal)
   }
 )
-
 onMounted(async () => {
   loading.value = true
   getNdData()
@@ -690,7 +660,6 @@ onMounted(async () => {
   await searchHandle()
   loading.value = false
 })
-
 defineExpose({
   pageExportHandle,
   exportApiHandle,

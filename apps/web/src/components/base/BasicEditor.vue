@@ -17,12 +17,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "BasicEditor" })
 import '@wangeditor/editor/dist/css/style.css'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import { ref, shallowRef, onBeforeUnmount } from 'vue'
 import {uploadAttachOnly} from '@/api/metrics/index'
 import baseService from "@/service/baseService";
+defineOptions({ name: "BasicEditor" })
 
 const editorRef = shallowRef<InstanceType<typeof Editor>>()
   // 'group-image' 图片

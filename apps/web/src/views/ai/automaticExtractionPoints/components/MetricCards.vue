@@ -184,11 +184,6 @@
   </section>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AepMetricCards'
-}
-</script>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
@@ -196,12 +191,14 @@ import { StatisticsData } from '@/api/ai/automaticExtractionPoints'
 import { CardDrillType, DeptStat, LegendDrillPayload, TrackStat } from '../types'
 import { usePointSourceDict } from '../hooks/usePointSourceDict'
 import GaugeRing from './GaugeRing.vue'
+defineOptions({
+  name: 'AepMetricCards'
+})
 
 const props = defineProps<{
   /** 统计接口返回数据（未取到时为 null，卡片显示 0） */
   statistics: StatisticsData | null
 }>()
-
 const emit = defineEmits<{
   (e: 'drilldown', type: CardDrillType): void
   (e: 'legend', payload: LegendDrillPayload): void
@@ -217,7 +214,6 @@ const METRIC_TIPS = {
 
 /** 部门分布配色（最新设计稿：同色系青绿三档 + 深浅衍生，环形图与图例圆点共用） */
 const DONUT_COLORS = ['#35a98c', '#74cdb4', '#bce9dd', '#22876f', '#8fd9c6', '#d8f2ea']
-
 const toNumber = (value: unknown): number => {
   const num = Number(value)
   return Number.isFinite(num) ? num : 0
@@ -228,7 +224,6 @@ const parseRate = (rate?: string): number => {
   const num = Number(String(rate ?? '').replace('%', ''))
   return Number.isFinite(num) ? Math.max(0, Math.min(100, Math.round(num))) : 0
 }
-
 const fileParse = computed(() => props.statistics?.fileParse)
 const pointDistribute = computed(() => props.statistics?.pointDistribute)
 const pointTranslate = computed(() => props.statistics?.pointTranslate)
@@ -236,7 +231,6 @@ const pointImplement = computed(() => props.statistics?.pointImplement)
 
 /** 审核要点来源字典（图例 label 展示名称、下钻传码值） */
 const { pointSourceName, pointSourceCodeOf } = usePointSourceDict()
-
 const fileTotal = computed(() => toNumber(fileParse.value?.total))
 const ruleTotal = computed(() => toNumber(pointDistribute.value?.total))
 
@@ -251,7 +245,13 @@ const deptStats = computed<DeptStat[]>(() =>
 )
 
 /** 环形图配色（按部门占比拼 conic-gradient） */
-const buildDonut = (stats: Array<{ count: number; color: string }>, total: number): string => {
+const buildDonut = (
+  stats: Array<{
+    count: number
+    color: string
+  }>,
+  total: number
+): string => {
   const visible = stats.filter((item) => item.count > 0)
   if (!visible.length) return '#eef2f7'
   const sum = Math.max(1, total)
@@ -278,7 +278,6 @@ const extractStat = computed(() => ({
 const extractDimension = ref<'source' | 'status'>('source')
 /** 默认维度是否已按接口初始化（接口每次刷新不回退用户的手动切换） */
 const dimensionInitialized = ref(false)
-
 watch(
   () => pointDistribute.value?.defaultGroupBy,
   (groupBy) => {
@@ -286,19 +285,33 @@ watch(
     dimensionInitialized.value = true
     extractDimension.value = groupBy
   },
-  { immediate: true }
+  {
+    immediate: true
+  }
 )
 
 /** 按状态图例配色（已确认 = 湖水绿、待确认 = 浅青绿） */
 const EXTRACT_STATUS_TONES = [
-  { color: '#2a9d8f', barColor: 'linear-gradient(90deg, #2a9d8f, #6ecfc4)' },
-  { color: '#a8e0d8', barColor: 'linear-gradient(90deg, #8bd6cb, #a8e0d8)' }
+  {
+    color: '#2a9d8f',
+    barColor: 'linear-gradient(90deg, #2a9d8f, #6ecfc4)'
+  },
+  {
+    color: '#a8e0d8',
+    barColor: 'linear-gradient(90deg, #8bd6cb, #a8e0d8)'
+  }
 ]
 
 /** 按来源图例配色（制度文件 = 湖水绿、经验知识 = 湖蓝，与卡片 2/3 配色一致） */
 const EXTRACT_SOURCE_COLORS = [
-  { color: '#2a9d8f', barColor: 'linear-gradient(90deg, #2a9d8f, #6ecfc4)' },
-  { color: '#2a8fb0', barColor: 'linear-gradient(90deg, #2a8fb0, #6cc2dd)' }
+  {
+    color: '#2a9d8f',
+    barColor: 'linear-gradient(90deg, #2a9d8f, #6ecfc4)'
+  },
+  {
+    color: '#2a8fb0',
+    barColor: 'linear-gradient(90deg, #2a8fb0, #6cc2dd)'
+  }
 ]
 
 /** 按状态：名称直接取接口 byStatus.distribution；下钻值按名称判定（待确认 = 0，其余确认 = 1） */
@@ -313,10 +326,27 @@ const extractStatusRows = computed<TrackStat[]>(() => {
         tone: EXTRACT_STATUS_TONES[index % EXTRACT_STATUS_TONES.length]
       }))
     : [
-        { label: '已确认', count: extractStat.value.confirmed, percent: extractStat.value.percent, value: '1', tone: EXTRACT_STATUS_TONES[0] },
-        { label: '待确认', count: extractStat.value.pending, percent: 100 - extractStat.value.percent, value: '0', tone: EXTRACT_STATUS_TONES[1] }
+        {
+          label: '已确认',
+          count: extractStat.value.confirmed,
+          percent: extractStat.value.percent,
+          value: '1',
+          tone: EXTRACT_STATUS_TONES[0]
+        },
+        {
+          label: '待确认',
+          count: extractStat.value.pending,
+          percent: 100 - extractStat.value.percent,
+          value: '0',
+          tone: EXTRACT_STATUS_TONES[1]
+        }
       ]
-  return rows.map((row) => ({ ...row, color: row.tone.color, barColor: row.tone.barColor, field: 'isConfirm' as const }))
+  return rows.map((row) => ({
+    ...row,
+    color: row.tone.color,
+    barColor: row.tone.barColor,
+    field: 'isConfirm' as const
+  }))
 })
 
 /**
@@ -357,7 +387,6 @@ const translateStat = computed(() => ({
   unconverted: toNumber(pointTranslate.value?.notSolidifyCnt),
   percent: parseRate(pointTranslate.value?.translateRate)
 }))
-
 const translateRows = computed<TrackStat[]>(() => [
   {
     label: '已转化AI审核要点',
@@ -367,7 +396,9 @@ const translateRows = computed<TrackStat[]>(() => [
     barColor: 'linear-gradient(90deg, #2a8fb0, #6cc2dd)',
     field: 'isSolidify',
     value: '1',
-    extra: { isConfirm: '1' }
+    extra: {
+      isConfirm: '1'
+    }
   },
   {
     label: '未转化AI审核要点',
@@ -377,7 +408,9 @@ const translateRows = computed<TrackStat[]>(() => [
     barColor: '#cbd5e1',
     field: 'isSolidify',
     value: '0',
-    extra: { isConfirm: '1' }
+    extra: {
+      isConfirm: '1'
+    }
   }
 ])
 
@@ -391,7 +424,6 @@ const implementStat = computed(() => ({
   unimplemented: toNumber(pointImplement.value?.notImplementCnt),
   percent: parseRate(pointImplement.value?.implementRate)
 }))
-
 const implementRows = computed<TrackStat[]>(() => [
   {
     label: '已实现',
@@ -401,7 +433,9 @@ const implementRows = computed<TrackStat[]>(() => [
     barColor: 'linear-gradient(90deg, #3f9e6a, #7fd0a0)',
     field: 'isImplement',
     value: '1',
-    extra: { isSolidify: '1' }
+    extra: {
+      isSolidify: '1'
+    }
   },
   {
     label: '未实现',
@@ -411,7 +445,9 @@ const implementRows = computed<TrackStat[]>(() => [
     barColor: '#cbd5e1',
     field: 'isImplement',
     value: '0',
-    extra: { isSolidify: '1' }
+    extra: {
+      isSolidify: '1'
+    }
   }
 ])
 </script>

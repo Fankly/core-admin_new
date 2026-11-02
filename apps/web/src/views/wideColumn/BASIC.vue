@@ -3,11 +3,11 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/wideColumn/BASIC" })
 import WideColumn from '@/views/wideColumn/component/wideColumn.vue'
 import { onMounted, ref } from 'vue'
 import { getDynamicColumn } from '@/api/wideColumn'
 import { ElMessage } from 'element-plus'
+defineOptions({ name: "/wideColumn/BASIC" })
 
 onMounted(() => {
   initData()

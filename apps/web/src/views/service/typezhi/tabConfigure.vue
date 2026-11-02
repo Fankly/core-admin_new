@@ -276,14 +276,9 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/typezhi/tabConfigure'
-}
-</script>
+
 <script setup lang="ts">
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
 import { nextTick, onMounted, provide, ref, reactive, watch } from 'vue'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
@@ -302,13 +297,19 @@ import {
   getList,
   getSearchAllProType
 } from '@/api/service/expertinformation'
-import ImportExcel from '@/components/ImportExcel/index.vue' //导入组件
-import { getPublicData } from '@/api/common' //公共代码
+import ImportExcel from '@/components/ImportExcel/index.vue'
+import { getPublicData } from '@/api/common'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
 import type { UserRole } from '@/components/UserRoleSelector/interface'
 import type { VxeGridInstance, VxeGridProps } from 'vxe-table'
-var value = /^[\u4E00-\u9FA5A-Za-z0-9]+$/
+defineOptions({
+  name: '/service/typezhi/tabConfigure'
+})
 
+ //导入组件
+ //公共代码
+
+var value = /^[\u4E00-\u9FA5A-Za-z0-9]+$/
 const searchForm = ref('')
 const helpModalRef = ref()
 const xmlxList = ref([])
@@ -327,7 +328,6 @@ const defaultProps1 = {
 const tabMsg = ref('1')
 const tabBtn = ref('页签管理')
 const tabList = ref<any>([])
-
 const ids = ref<any[]>([]) //选择的id
 const sxIds = ref<any[]>([]) //选择的属性id
 const checkData = ref<any>([]) //选择的数据
@@ -347,8 +347,14 @@ const editSate = ref([
     placeholder: '请选择',
     value: 'sfzs',
     options: [
-      { code: '1', name: '是' },
-      { code: '0', name: '否' }
+      {
+        code: '1',
+        name: '是'
+      },
+      {
+        code: '0',
+        name: '否'
+      }
     ]
   },
   {
@@ -358,9 +364,18 @@ const editSate = ref([
     placeholder: '请选择',
     value: 'stepType',
     options: [
-      { code: '1', name: '普通页签' },
-      { code: '2', name: '附件页签' },
-      { code: '3', name: '自定义页签' }
+      {
+        code: '1',
+        name: '普通页签'
+      },
+      {
+        code: '2',
+        name: '附件页签'
+      },
+      {
+        code: '3',
+        name: '自定义页签'
+      }
     ]
   },
   {
@@ -378,13 +393,29 @@ const editSate = ref([
     value: 'sortCode'
   }
 ])
-
 const rulesForm = reactive({
-  stepName: [{ required: true, message: '请输入页签名称', trigger: ['input'] }],
-  sfzs: [{ required: true, message: '请选择是否展示', trigger: ['change'] }],
-  stepType: [{ required: true, message: '请选择页签类型', trigger: ['change'] }]
+  stepName: [
+    {
+      required: true,
+      message: '请输入页签名称',
+      trigger: ['input']
+    }
+  ],
+  sfzs: [
+    {
+      required: true,
+      message: '请选择是否展示',
+      trigger: ['change']
+    }
+  ],
+  stepType: [
+    {
+      required: true,
+      message: '请选择页签类型',
+      trigger: ['change']
+    }
+  ]
 })
-
 const userRoleSelectorRef = ref<InstanceType<typeof UserRoleSelector>>()
 const loading = ref(false)
 const isShowPage = ref(false) //未选择角色前不展示页面
@@ -394,10 +425,15 @@ const dialogType = reactive({
   type: '新增',
   isShow: false
 })
-
 const options1 = ref([
-  { code: true, name: '是' },
-  { code: false, name: '否' }
+  {
+    code: true,
+    name: '是'
+  },
+  {
+    code: false,
+    name: '否'
+  }
 ])
 
 // 报表内容
@@ -413,13 +449,11 @@ const copyData = reactive({
   targetProTypeId: ''
 })
 const dialogFormRef = ref('')
-
 const pageData = ref([]) //表格数据
 const pageData1 = ref<any[]>([]) //表格数据
 const copyList = ref<any>() //表格数据
 const tabGridRef = ref<VxeGridInstance>()
 const attributeGridRef = ref<VxeGridInstance>()
-
 const currentUserRole = ref<UserRole>({
   bmName: '',
   dwName: '',
@@ -430,9 +464,7 @@ const currentUserRole = ref<UserRole>({
   specialOrgCode: '',
   spRoleId: ''
 })
-
 provide(CurrentUserRoleInjectionKey, currentUserRole)
-
 const gridBaseOptions: VxeGridProps<any> = {
   border: true,
   stripe: true,
@@ -450,39 +482,35 @@ const gridBaseOptions: VxeGridProps<any> = {
     highlight: true
   }
 }
-
 const textEditRender = {
   name: 'input',
   autofocus: '.el-input__inner',
   autoselect: true
 }
-
 const selectEditRender = {
   autofocus: '.vxe-input--inner'
 }
-
 const numberEditRender = {
   autofocus: '.el-input__inner'
 }
-
 const formatStepType = (value: any) => {
-  const type: any = { '1': '普通页签', '2': '附件页签', '3': '自定义页签' }
+  const type: any = {
+    '1': '普通页签',
+    '2': '附件页签',
+    '3': '自定义页签'
+  }
   const key = value === undefined || value === null ? '' : `${value}`.trim()
   return key ? type[key] || '-' : '-'
 }
-
 const formatBooleanValue = (value: any) => {
   if (value === true || value === 1 || value === '1' || value === 'true') return '是'
   if (value === false || value === 0 || value === '0' || value === 'false') return '否'
   return ''
 }
-
 const booleanFormatter = ({ cellValue }: any) => formatBooleanValue(cellValue)
-
 const handleBooleanSelectChange = (row: any, field: string, value: boolean | null | undefined) => {
   row[field] = value
 }
-
 const editableFields = [
   'label',
   'prop',
@@ -510,40 +538,74 @@ const editableFields = [
   'xzhxyzd',
   'fjId'
 ]
-
 const createTextEditColumn = (field: string, title: string, width = 180, maxWidth?: number) => ({
   field,
   title,
   width,
   editRender: textEditRender,
-  slots: { edit: `${field}_edit` },
-  params: { maxWidth }
+  slots: {
+    edit: `${field}_edit`
+  },
+  params: {
+    maxWidth
+  }
 })
-
 const createBooleanEditColumn = (field: string, title: string) => ({
   field,
   title,
   width: 180,
   formatter: booleanFormatter,
   editRender: selectEditRender,
-  slots: { edit: `${field}_edit` }
+  slots: {
+    edit: `${field}_edit`
+  }
 })
-
 const tabGridOptions = reactive<VxeGridProps<any>>({
   ...gridBaseOptions,
   height: '100%',
   columns: [
-    { type: 'checkbox', width: 55 },
-    { field: 'id', title: '页签ID', minWidth: 120 },
-    { field: 'protypeId', title: '项目类型ID', minWidth: 120 },
-    { field: 'stepName', title: '页签名称', minWidth: 140 },
-    { field: 'stepType', title: '页签类型', minWidth: 120, formatter: ({ cellValue }: any) => formatStepType(cellValue) },
-    { field: 'stepEnName', title: '自定义组件名称', minWidth: 160 },
-    { field: 'sfzsName', title: '是否展示', minWidth: 100 },
-    { field: 'sortCode', title: '排序', minWidth: 100 }
+    {
+      type: 'checkbox',
+      width: 55
+    },
+    {
+      field: 'id',
+      title: '页签ID',
+      minWidth: 120
+    },
+    {
+      field: 'protypeId',
+      title: '项目类型ID',
+      minWidth: 120
+    },
+    {
+      field: 'stepName',
+      title: '页签名称',
+      minWidth: 140
+    },
+    {
+      field: 'stepType',
+      title: '页签类型',
+      minWidth: 120,
+      formatter: ({ cellValue }: any) => formatStepType(cellValue)
+    },
+    {
+      field: 'stepEnName',
+      title: '自定义组件名称',
+      minWidth: 160
+    },
+    {
+      field: 'sfzsName',
+      title: '是否展示',
+      minWidth: 100
+    },
+    {
+      field: 'sortCode',
+      title: '排序',
+      minWidth: 100
+    }
   ]
 })
-
 const attributeGridOptions = reactive<VxeGridProps<any>>({
   ...gridBaseOptions,
   height: '100%',
@@ -555,9 +617,20 @@ const attributeGridOptions = reactive<VxeGridProps<any>>({
     beforeEditMethod: ({ column }: any) => editableFields.includes(column.field)
   },
   columns: [
-    { type: 'checkbox', width: 55 },
-    { field: 'id', title: '组件ID', width: 180 },
-    { field: 'protypeId', title: '项目类型ID', width: 180 },
+    {
+      type: 'checkbox',
+      width: 55
+    },
+    {
+      field: 'id',
+      title: '组件ID',
+      width: 180
+    },
+    {
+      field: 'protypeId',
+      title: '项目类型ID',
+      width: 180
+    },
     createTextEditColumn('label', '字段名称', 240, 30),
     createTextEditColumn('prop', '字段编码', 240, 30),
     createTextEditColumn('zdlx', '字段类型', 180, 30),
@@ -577,14 +650,18 @@ const attributeGridOptions = reactive<VxeGridProps<any>>({
       title: '占用行数',
       width: 180,
       editRender: numberEditRender,
-      slots: { edit: 'rows_edit' }
+      slots: {
+        edit: 'rows_edit'
+      }
     },
     {
       field: 'span',
       title: '占用列数',
       width: 180,
       editRender: numberEditRender,
-      slots: { edit: 'span_edit' }
+      slots: {
+        edit: 'span_edit'
+      }
     },
     createTextEditColumn('dependOnColumns', '依赖项', 180, 120),
     createTextEditColumn('placeholder', '未输入时提示', 180, 30),
@@ -597,11 +674,9 @@ const attributeGridOptions = reactive<VxeGridProps<any>>({
     createTextEditColumn('fjId', '附件id', 180, 80)
   ]
 })
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 onMounted(async () => {
   await userRoleSelectorRef.value?.getUser()
 })
@@ -660,7 +735,6 @@ const editMsgHandle = () => {
     })
     return
   }
-
   dialogType.title = `${tabBtn.value}-编辑`
   dialogType.type = 'edit'
   dialogType.isShow = true
@@ -691,7 +765,6 @@ const handelCheckRow = () => {
   ids.value = val.map((row: any) => row.id)
   checkData.value = val
 }
-
 const handelChooseRow = () => {
   const val = attributeGridRef.value?.getCheckboxRecords?.() || []
   sxIds.value.length = 0
@@ -782,11 +855,17 @@ const saveMsgHandle = () => {
   saveOrUpdate(setList).then((res: any) => {
     if (res.success) {
       loading.value = false
-      ElMessage({ type: 'success', message: '保存成功' })
+      ElMessage({
+        type: 'success',
+        message: '保存成功'
+      })
       searchDataHandle1()
     } else {
       loading.value = false
-      ElMessage({ type: 'error', message: res.msg })
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
     }
   })
 }
@@ -820,12 +899,18 @@ const pushMsgHandle = async () => {
       if (res.success) {
         loading.value = false
         disabled.value = false
-        ElMessage({ type: 'success', message: '新增成功' })
+        ElMessage({
+          type: 'success',
+          message: '新增成功'
+        })
         searchDataHandle()
       } else {
         disabled.value = true
         loading.value = false
-        ElMessage({ type: 'error', message: res.msg })
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
       }
     })
   } else if (dialogType.type == 'edit') {
@@ -844,11 +929,17 @@ const pushMsgHandle = async () => {
         }).then((res: any) => {
           if (res.success) {
             loading.value = false
-            ElMessage({ type: 'success', message: '编辑成功' })
+            ElMessage({
+              type: 'success',
+              message: '编辑成功'
+            })
             searchDataHandle()
           } else {
             loading.value = false
-            ElMessage({ type: 'error', message: res.msg })
+            ElMessage({
+              type: 'error',
+              message: res.msg
+            })
           }
         })
       })
@@ -955,7 +1046,6 @@ const delMsgHandle = () => {
 const handleTab = ({ props }: any) => {
   tabBtn.value = props.label
 }
-
 const importRef = ref()
 // 导入
 const unitDescImportHandle = () => {
@@ -1063,16 +1153,13 @@ const closeHandle1 = () => {
   searchDataHandle()
   dialogType.isShow = false
 }
-
 const clearTabSelection = () => {
   tabGridRef.value?.clearCheckboxRow?.()
 }
-
 const clearAttributeSelection = () => {
   attributeGridRef.value?.clearCheckboxRow?.()
   attributeGridRef.value?.clearEdit?.()
 }
-
 watch(
   () => searchForm.value,
   (newValue) => {

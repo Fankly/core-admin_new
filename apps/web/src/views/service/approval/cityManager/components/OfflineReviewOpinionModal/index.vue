@@ -181,8 +181,6 @@
 
 <script setup lang="ts">
 import { Edit as EpEdit } from '@element-plus/icons-vue'
-
-defineOptions({ name: "OfflineReviewOpinionModal" })
 import { computed, nextTick, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type { VxeGridInstance, VxeGridProps } from 'vxe-table'
@@ -190,6 +188,7 @@ import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import ImportExcel from '@/components/ImportExcel/index.vue'
 import { getXxyj, getXxyjTemplate, importXxyj, updateXxyj } from '@/api/service/approval/manager'
 import { getPublicData } from '@/api/common'
+defineOptions({ name: "OfflineReviewOpinionModal" })
 
 interface ModalProps {
   row: Record<string, any>

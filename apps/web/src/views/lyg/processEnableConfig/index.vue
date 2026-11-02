@@ -170,10 +170,7 @@
 
 <script setup lang="ts">
 import { Close as EpClose, Document as EpDocument, Folder as EpFolder, OfficeBuilding as EpOfficeBuilding } from '@element-plus/icons-vue'
-
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/lyg/processEnableConfig/index" })
 import { computed, nextTick, onMounted, provide, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
@@ -181,6 +178,7 @@ import { getDwTree, getWfCode, updateWfCode } from '@/api/lyg/processEnableConfi
 import { getProtypeTree } from '@/api/common'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
 import type { UserRole } from '@/components/UserRoleSelector/interface'
+defineOptions({ name: "/lyg/processEnableConfig/index" })
 
 interface TreeNode {
   id: string

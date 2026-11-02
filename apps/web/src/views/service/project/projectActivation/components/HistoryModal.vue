@@ -58,11 +58,11 @@
 </template>
 
 <script lang="ts" setup>
-defineOptions({ name: "HistoryModal" })
 import { ref } from 'vue'
 import { RowVO } from '@/views/service/project/projectActivation/interface'
 import { VxeGridInstance } from 'vxe-table'
 import { useHistoryCommon } from './hooks/useHistoryCommon'
+defineOptions({ name: "HistoryModal" })
 
 export interface AcceptParams {
   ids: string

@@ -44,126 +44,112 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: "/sys/AppManager"
-};
-</script>
 
 <script setup lang="ts">
-import userDialog from "@/components/select/userDialog.vue";
-import AddOrEditModal from "@/views/sys/components/AddOrEditModal.vue";
-import { onMounted, reactive, ref } from "vue";
-import VXETable, { VxeTableInstance } from "vxe-table";
-import { appDelete, getAppListPageData } from "@/api/sys/appManager";
-import { ElMessage } from "element-plus";
-import MenuManagerModal from "@/views/sys/components/MenuManagerModal.vue";
+import userDialog from '@/components/select/userDialog.vue'
+import AddOrEditModal from '@/views/sys/components/AddOrEditModal.vue'
+import { onMounted, reactive, ref } from 'vue'
+import VXETable, { VxeTableInstance } from 'vxe-table'
+import { appDelete, getAppListPageData } from '@/api/sys/appManager'
+import { ElMessage } from 'element-plus'
+import MenuManagerModal from '@/views/sys/components/MenuManagerModal.vue'
+defineOptions({
+  name: '/sys/AppManager'
+})
 
-const tableRef = ref<VxeTableInstance>();
-const addOrEditModalRef = ref();
-const menuManagerModalRef = ref();
-const userDialogRef = ref();
-
+const tableRef = ref<VxeTableInstance>()
+const addOrEditModalRef = ref()
+const menuManagerModalRef = ref()
+const userDialogRef = ref()
 const addOrEditModalData = reactive({
-  title: "",
+  title: '',
   selectData: null,
-  flag: ""
-});
-
-const userInfo = ref({});
-
-const loading = ref(false);
-const isShowPage = ref(false);
-
-const tableData = ref([]);
-
+  flag: ''
+})
+const userInfo = ref({})
+const loading = ref(false)
+const isShowPage = ref(false)
+const tableData = ref([])
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1
-});
-
+})
 const initData = async () => {
-  await userDialogRef.value.getUser();
-  await getTableData();
-};
-
+  await userDialogRef.value.getUser()
+  await getTableData()
+}
 const getTableData = async () => {
-  loading.value = true;
+  loading.value = true
   let params = {
     page: page.page,
     limit: page.limit
-  };
-  const res = await getAppListPageData(params);
+  }
+  const res = await getAppListPageData(params)
   if (res.success) {
-    tableData.value = res.data.records;
-    page.total = res.data.total;
-    loading.value = false;
+    tableData.value = res.data.records
+    page.total = res.data.total
+    loading.value = false
   } else {
-    ElMessage.error(res.msg);
-    loading.value = false;
+    ElMessage.error(res.msg)
+    loading.value = false
   }
-};
-
+}
 const pageChangeHandle = (currentPageNum: number) => {
-  page.page = currentPageNum;
-  getTableData();
-};
+  page.page = currentPageNum
+  getTableData()
+}
 const limitChangeHandle = (currentLimitNum: number) => {
-  page.page = 1;
-  page.limit = currentLimitNum;
-  getTableData();
-};
-
+  page.page = 1
+  page.limit = currentLimitNum
+  getTableData()
+}
 const addOrEditHandle = (flag: string, row?: any) => {
-  addOrEditModalRef.value.isShowModal = true;
-  addOrEditModalData.flag = flag;
-  addOrEditModalData.title = flag === "ADD" ? "新增" : flag === "EDIT" ? "编辑" : "查看";
-  if (flag !== "ADD" && row) {
-    addOrEditModalData.selectData = row;
+  addOrEditModalRef.value.isShowModal = true
+  addOrEditModalData.flag = flag
+  addOrEditModalData.title = flag === 'ADD' ? '新增' : flag === 'EDIT' ? '编辑' : '查看'
+  if (flag !== 'ADD' && row) {
+    addOrEditModalData.selectData = row
   }
-};
-
+}
 const removeHandle = async (row: any) => {
-  if (!row) return;
-  const type = await VXETable.modal.confirm("是否确定删除？", "提示", {
-    status: "warning"
-  });
-  if (type === "confirm") {
-    const res = await appDelete(row.appId);
+  if (!row) return
+  const type = await VXETable.modal.confirm('是否确定删除？', '提示', {
+    status: 'warning'
+  })
+  if (type === 'confirm') {
+    const res = await appDelete(row.appId)
     if (res.success) {
-      ElMessage.success("删除成功");
-      await getTableData();
+      ElMessage.success('删除成功')
+      await getTableData()
     } else {
-      ElMessage.error(res.msg);
+      ElMessage.error(res.msg)
     }
   }
-};
-
+}
 const showMenuModalHandle = (row: any) => {
-  if (!row) return;
+  if (!row) return
   if (row) {
-    addOrEditModalData.selectData = row;
-    menuManagerModalRef.value.isShowModal = true;
+    addOrEditModalData.selectData = row
+    menuManagerModalRef.value.isShowModal = true
   }
-};
-
+}
 const formatterStatus = ({ cellValue }) => {
-  if (typeof cellValue === "string") {
-    return cellValue === "1" ? "启用" : "停用";
+  if (typeof cellValue === 'string') {
+    return cellValue === '1' ? '启用' : '停用'
   }
-  return cellValue;
-};
-
+  return cellValue
+}
 const getRoleHandle = async () => {
-  const isQuery = userDialogRef.value.isQuery;
-  userInfo.value = { ...userDialogRef.value.userMsg };
-  if (isQuery) {
-    isShowPage.value = true;
+  const isQuery = userDialogRef.value.isQuery
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
   }
-};
-
-onMounted(initData);
+  if (isQuery) {
+    isShowPage.value = true
+  }
+}
+onMounted(initData)
 </script>
 
 <style scoped lang="less">

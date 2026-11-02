@@ -82,144 +82,158 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { TableWidget } from '@/utils/widget.js'
 import { CwAuditPrompt } from '@/api/mainController'
 import ScoreDialog from './ScoreDialog.vue'
-
-export default {
-  name: 'HistoryVersion',
-  props: {
-    id: {
-      type: [String, Number],
-      required: true
-    },
-    sceneId: {
-      type: [String, Number],
-      required: true
-    }
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { reactive, toRef, toRefs, onMounted, getCurrentInstance } from 'vue'
+defineOptions({
+  name: 'HistoryVersion'
+})
+const componentProps = defineProps({
+  id: {
+    type: [String, Number],
+    required: true
   },
-  data() {
-    return {
-      tableImpl: new TableWidget(this.loadTableData, this.loadTableVerify, true, false, 'createTime', false)
-    }
-  },
-  mounted() {
-    this.refreshTable(true)
-  },
-  methods: {
-    getType(status) {
-      let _type = 'primary'
-      switch (+status) {
-        case this.PromptStatusDict.UNCONFIGURED:
-          _type = 'info'
-          break
-        case this.PromptStatusDict.INACTIVE:
-          _type = 'warning'
-          break
-        case this.PromptStatusDict.ACTIVE:
-          _type = 'success'
-          break
-      }
-      return _type
-    },
-    getStatus(status) {
-      return this.PromptStatusDict.getList().find((item) => item.id == status)?.name
-    },
-    refreshTable(reloadData = false) {
-      if (reloadData) {
-        this.tableImpl.refreshTable(true, 1)
-      } else {
-        this.tableImpl.refreshTable()
-      }
-    },
-    loadTableData(params) {
-      params.cwAuditPromptDtoFilter = {
-        id: this.id,
-        sceneId: this.sceneId
-      }
-      return new Promise((resolve, reject) => {
-        CwAuditPrompt.historyList(this, params)
-          .then((res) => {
-            resolve({
-              dataList: res.data.dataList,
-              totalCount: res.data.totalCount
-            })
-          })
-          .catch((e) => {
-            reject(e)
-          })
-      })
-    },
-    loadTableVerify() {
-      return true
-    },
-    handleView(row) {
-      this.$message.info('查看功能待实现')
-    },
-    handleEdit(row) {
-      this.observer?.cancel(true, row.id)
-    },
-    handleRelease(row) {
-      this.$confirm('确认发布该版本为生效版本？')
-        .then(() => {
-          const params = {
-            cwAuditPromptDto: {
-              id: row.id,
-              sceneId: this.sceneId
-            }
-          }
-          return CwAuditPrompt.releaseNew(this, params)
-        })
-        .then(() => {
-          this.$message.success('发布成功')
-          this.refreshTable(true)
-          this.observer?.cancel(true, row.id)
-        })
-        .catch(() => {})
-    },
-    handleScore(row) {
-      this.$dialog
-        .show(
-          '评分',
-          ScoreDialog,
-          {
-            area: ['500px']
-          },
-          {
-            id: row.id,
-            score: row.effectScore,
-            remark: row.effectScoreRemark
-          }
-        )
-        .then((data) => {
-          return CwAuditPrompt.score(this, {
-            cwAuditPromptDtoFilter: {
-              id: row.id,
-              effectScore: data.effectScore,
-              effectScoreRemark: data.effectScoreRemark
-            }
-          })
-        })
-        .then(() => {
-          this.$message.success('评分成功')
-          this.refreshTable(true)
-        })
-        .catch(() => {})
-    },
-    handleDelete(row) {
-      this.$confirm('确认删除该版本？')
-        .then(() => {
-          return CwAuditPrompt.deleteBatch(this, { idList: [row.id] })
-        })
-        .then(() => {
-          this.$message.success('删除成功')
-          this.refreshTable(true)
-        })
-        .catch(() => {})
-    }
+  sceneId: {
+    type: [String, Number],
+    required: true
+  }
+})
+const componentInstance = getCurrentInstance().proxy
+const componentData = reactive({
+  tableImpl: new TableWidget(loadTableData, loadTableVerify, true, false, 'createTime', false)
+})
+const tableImpl = toRef(componentData, 'tableImpl')
+function getType(status) {
+  let _type = 'primary'
+  switch (+status) {
+    case componentInstance.PromptStatusDict.UNCONFIGURED:
+      _type = 'info'
+      break
+    case componentInstance.PromptStatusDict.INACTIVE:
+      _type = 'warning'
+      break
+    case componentInstance.PromptStatusDict.ACTIVE:
+      _type = 'success'
+      break
+  }
+  return _type
+}
+function getStatus(status) {
+  return componentInstance.PromptStatusDict.getList().find((item) => item.id == status)?.name
+}
+function refreshTable(reloadData = false) {
+  if (reloadData) {
+    componentData.tableImpl.refreshTable(true, 1)
+  } else {
+    componentData.tableImpl.refreshTable()
   }
 }
+function loadTableData(params) {
+  params.cwAuditPromptDtoFilter = {
+    id: componentProps.id,
+    sceneId: componentProps.sceneId
+  }
+  return new Promise((resolve, reject) => {
+    CwAuditPrompt.historyList(componentInstance, params)
+      .then((res) => {
+        resolve({
+          dataList: res.data.dataList,
+          totalCount: res.data.totalCount
+        })
+      })
+      .catch((e) => {
+        reject(e)
+      })
+  })
+}
+function loadTableVerify() {
+  return true
+}
+function handleView(row) {
+  ElMessage.info('查看功能待实现')
+}
+function handleEdit(row) {
+  componentInstance.observer?.cancel(true, row.id)
+}
+function handleRelease(row) {
+  ElMessageBox.confirm('确认发布该版本为生效版本？')
+    .then(() => {
+      const params = {
+        cwAuditPromptDto: {
+          id: row.id,
+          sceneId: componentProps.sceneId
+        }
+      }
+      return CwAuditPrompt.releaseNew(componentInstance, params)
+    })
+    .then(() => {
+      ElMessage.success('发布成功')
+      refreshTable(true)
+      componentInstance.observer?.cancel(true, row.id)
+    })
+    .catch(() => {})
+}
+function handleScore(row) {
+  componentInstance.$dialog
+    .show(
+      '评分',
+      ScoreDialog,
+      {
+        area: ['500px']
+      },
+      {
+        id: row.id,
+        score: row.effectScore,
+        remark: row.effectScoreRemark
+      }
+    )
+    .then((data) => {
+      return CwAuditPrompt.score(componentInstance, {
+        cwAuditPromptDtoFilter: {
+          id: row.id,
+          effectScore: data.effectScore,
+          effectScoreRemark: data.effectScoreRemark
+        }
+      })
+    })
+    .then(() => {
+      ElMessage.success('评分成功')
+      refreshTable(true)
+    })
+    .catch(() => {})
+}
+function handleDelete(row) {
+  ElMessageBox.confirm('确认删除该版本？')
+    .then(() => {
+      return CwAuditPrompt.deleteBatch(componentInstance, {
+        idList: [row.id]
+      })
+    })
+    .then(() => {
+      ElMessage.success('删除成功')
+      refreshTable(true)
+    })
+    .catch(() => {})
+}
+onMounted(() => {
+  refreshTable(true)
+})
+defineExpose({
+  getType,
+  getStatus,
+  refreshTable,
+  loadTableData,
+  loadTableVerify,
+  handleView,
+  handleEdit,
+  handleRelease,
+  handleScore,
+  handleDelete,
+  ...toRefs(componentData)
+})
 </script>
 
 <style lang="less" scoped>

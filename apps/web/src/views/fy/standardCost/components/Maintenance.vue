@@ -23,98 +23,87 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "Maintenance"
-};
-</script>
+
 <script setup lang="ts">
-import { getZxz, updateZxz } from "@/api/fy/searchConfig";
-import { ElMessage } from "element-plus";
-import { ref, defineExpose, defineProps, reactive } from "vue";
-import { VXETable, VxeTablePropTypes } from "vxe-table";
+import { getZxz, updateZxz } from '@/api/fy/searchConfig'
+import { ElMessage } from 'element-plus'
+import { ref, reactive } from 'vue'
+import { VXETable, VxeTablePropTypes } from 'vxe-table'
+defineOptions({
+  name: 'Maintenance'
+})
 
 interface Params {
-  dwId: string;
-  pzId: string;
-  month: number;
-  nd: string;
+  dwId: string
+  pzId: string
+  month: number
+  nd: string
 }
-
 interface Props {
-  parmas: Params;
+  parmas: Params
 }
-
 interface TableInfo {
-  tableData: any[];
-  editConfig: VxeTablePropTypes.EditConfig;
+  tableData: any[]
+  editConfig: VxeTablePropTypes.EditConfig
 }
-
 const beforeEditMethod = ({ column }: any) => {
-  if (props.parmas.month !== 12 && column.field === "finalYsje") {
-    return false;
+  if (props.parmas.month !== 12 && column.field === 'finalYsje') {
+    return false
   }
-  return true;
-};
-
-const props = defineProps<Props>();
-
+  return true
+}
+const props = defineProps<Props>()
 const tableInfo = reactive<TableInfo>({
   tableData: [],
   editConfig: {
-    trigger: "click",
-    mode: "cell",
+    trigger: 'click',
+    mode: 'cell',
     showStatus: true,
     enabled: true,
     beforeEditMethod: beforeEditMethod
   }
-});
-
-const showModal = ref(false);
-const loading = ref(false);
-const tableRef = ref();
-
+})
+const showModal = ref(false)
+const loading = ref(false)
+const tableRef = ref()
 const saveHandle = async () => {
-  const $table = tableRef.value;
+  const $table = tableRef.value
   if ($table) {
-    const records = $table.getUpdateRecords();
+    const records = $table.getUpdateRecords()
     if (records.length === 0) {
-      ElMessage.warning("未进行修改操作,请修改后再进行保存！");
-      return false;
+      ElMessage.warning('未进行修改操作,请修改后再进行保存！')
+      return false
     }
-    const type = await VXETable.modal.confirm("是否确定保存？", "提示", {
-      status: "warning"
-    });
-    if (type === "confirm") {
-      let res = await updateZxz(records);
+    const type = await VXETable.modal.confirm('是否确定保存？', '提示', {
+      status: 'warning'
+    })
+    if (type === 'confirm') {
+      let res = await updateZxz(records)
       if (res.success) {
-        ElMessage.success("保存成功");
-        closeHandle();
+        ElMessage.success('保存成功')
+        closeHandle()
       } else {
-        ElMessage.error(res.msg);
+        ElMessage.error(res.msg)
       }
     }
   }
-};
-
+}
 const showHandle = async () => {
-  let res = await getZxz(props.parmas.dwId, props.parmas.pzId);
+  let res = await getZxz(props.parmas.dwId, props.parmas.pzId)
   if (res.success) {
-    tableInfo.tableData = res.data;
+    tableInfo.tableData = res.data
   } else {
-    ElMessage.error(res.msg);
+    ElMessage.error(res.msg)
   }
-};
-
+}
 const closeHandle = () => {
-  showModal.value = false;
-  tableInfo.tableData.length = 0;
-};
-
+  showModal.value = false
+  tableInfo.tableData.length = 0
+}
 defineExpose({
   showModal,
   loading
-});
+})
 </script>
 
 <style scoped lang="less">

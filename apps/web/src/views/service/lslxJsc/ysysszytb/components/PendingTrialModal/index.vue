@@ -40,14 +40,9 @@
   <CentralizedModification ref="editPageRef" :userInfo="userInfo" :formData="selectData" :flag="'VIEW'" />
 </template>
 
-<script lang="tsx">
-export default {
-  name: 'PendingTrialModal'
-}
-</script>
 
 <script setup lang="tsx">
-import { ref, defineExpose, reactive, defineEmits } from 'vue'
+import { ref, reactive } from 'vue'
 import { pageUnLinkedNckXmInfoForZgkbmYs, addZgkbmNckXm } from '@/api/lslxJsc/szyBmApi'
 import { formatNumValue } from '@/utils/utils'
 import { ElMessage } from 'element-plus'
@@ -57,6 +52,9 @@ import { getCommonCodeByParentCode, getSubProtypeTree, getYjdwFromCm, getPublicD
 import ElTreeSelect from '@/components/ElTreeSelect/index'
 import { VXETable } from 'vxe-table'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
+defineOptions({
+  name: 'PendingTrialModal'
+})
 
 interface ModalProps {
   title: string
@@ -65,7 +63,6 @@ interface ModalProps {
   btnPermissions: string[]
   getTableList?: () => void
 }
-
 interface reviewData {
   version: string
   zgkbmId: string
@@ -76,7 +73,6 @@ interface ViewProps {
 }
 const props = defineProps<ViewProps>()
 const emit = defineEmits(['includeInReview'])
-
 const proTableRef = ref()
 const editPageRef = ref() //弹窗元素
 
@@ -87,12 +83,10 @@ const ejdwListData: any = ref([])
 const pszyListData: any = ref([])
 const projectTypeList: any = ref([])
 const ndDataList: any = ref([])
-
 const rowClick = (row: any) => {
   clearSelectRow()
   proTableRef.value?.element.toggleRowSelection(row)
 }
-
 const closeHandle = () => {
   yjdwListData.value.lengt = 0
   ejdwListData.value.lengt = 0
@@ -101,7 +95,6 @@ const closeHandle = () => {
   projectTypeList.value.lengt = 0
   modalVisible.value = false
 }
-
 const handleSelectAll = () => {
   const tableData = proTableRef.value?.tableData
   if (!tableData) return
@@ -116,22 +109,18 @@ const handleInverseSelect = () => {
     proTableRef.value?.element?.toggleRowSelection(row)
   })
 }
-
 const clearSelect = () => {
   ejdwListData.value.length = 0
   proTableRef.value?.clearSelection()
 }
-
 const clearSelectRow = () => {
   proTableRef.value?.clearSelection()
 }
-
 const handleProView = (selectedList: any[]) => {
   selectData.value.id = selectedList[0].xmId
   selectData.value.xmlx = selectedList[0].proType
   editPageRef.value.isShowModal = true
 }
-
 const handleIncludeInReview = async (selectedList: any[]) => {
   const type = await VXETable.modal.confirm('确认将选中项纳入拟出库项目清单？', '温馨提示', {
     status: 'warning'
@@ -140,7 +129,10 @@ const handleIncludeInReview = async (selectedList: any[]) => {
     try {
       loading.value = true
       let xmIdList = selectedList.map((item) => item.xmId)
-      const res = await addZgkbmNckXm({ xmIdList: xmIdList, ...props.formData })
+      const res = await addZgkbmNckXm({
+        xmIdList: xmIdList,
+        ...props.formData
+      })
       if (!res.success) throw new Error(res.msg)
       ElMessage.success('添加成功!')
       modalVisible.value = false
@@ -153,9 +145,7 @@ const handleIncludeInReview = async (selectedList: any[]) => {
     }
   }
 }
-
 const loading = ref(false)
-
 const getYjdwEnum = async () => {
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
@@ -174,7 +164,6 @@ const getYjdwEnum = async () => {
     ndDataList.value.push(...list.data)
   }
 }
-
 const changeEjdwEnum = async (val: string) => {
   ejdwListData.value.length = 0
   proTableRef.value.searchParam.ejdw = ''
@@ -193,7 +182,6 @@ const changeEjdwEnum = async (val: string) => {
     }
   }
 }
-
 const proTypeProps = {
   label: 'name',
   children: 'children',
@@ -213,10 +201,16 @@ const getProjectData = () => {
     }
   })
 }
-
 const xmColumns = reactive<any[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'xmbm',
     label: '项目编码',
@@ -244,7 +238,9 @@ const xmColumns = reactive<any[]>([
     search: {
       order: 4,
       render: (scope: any) => {
-        return <ElTreeSelect clearable data={projectTypeList.value} props={proTypeProps} nodeKey={'middleId'} modelValue={scope.modelValue} />
+        return (
+          <ElTreeSelect clearable data={projectTypeList.value} props={proTypeProps} nodeKey={'middleId'} modelValue={scope.modelValue} />
+        )
       }
     },
     render: ({ row }: any) => {
@@ -254,9 +250,15 @@ const xmColumns = reactive<any[]>([
   {
     prop: 'jhssnd',
     label: '计划实施年份',
-    search: { el: 'select', order: 4 },
+    search: {
+      el: 'select',
+      order: 4
+    },
     enum: ndDataList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     width: '120',
     render: ({ row }: any) => {
       const value = row.jhssnd
@@ -297,9 +299,18 @@ const xmColumns = reactive<any[]>([
     prop: 'yjdw',
     label: '一级单位',
     width: '180',
-    search: { el: 'select', props: { onChange: changeEjdwEnum }, order: 2 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: changeEjdwEnum
+      },
+      order: 2
+    },
     enum: yjdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.yjdw
     }
@@ -308,9 +319,15 @@ const xmColumns = reactive<any[]>([
     prop: 'ejdw',
     label: '二级单位',
     width: '180',
-    search: { el: 'select', order: 3 },
+    search: {
+      el: 'select',
+      order: 3
+    },
     enum: ejdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     render: ({ row }: any) => {
       return row.ejdw
     }
@@ -355,27 +372,25 @@ const xmColumns = reactive<any[]>([
     width: '120'
   }
 ])
-
 const getPageList = (params: any) => {
   loading.value = true
-  params = { ...params, ...props?.formData }
+  params = {
+    ...params,
+    ...props?.formData
+  }
   params['xmbmList'] = params['xmbm'] ? params['xmbm'].split(',') : []
   return pageUnLinkedNckXmInfoForZgkbmYs(params)
 }
-
 const callBackHandle = (val: any) => {
   loading.value = false
   return val
 }
-
 const modalVisible = ref(false)
-
 const acceptParams = () => {
   getYjdwEnum()
   getProjectData()
   modalVisible.value = true
 }
-
 defineExpose({
   acceptParams
 })

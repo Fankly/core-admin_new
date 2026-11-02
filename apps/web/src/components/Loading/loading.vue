@@ -25,59 +25,52 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AppLoading',
-};
-</script>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch } from 'vue'
+defineOptions({
+  name: 'AppLoading'
+})
 
 interface Props {
-  className?: string;
+  className?: string
   /** 最小加载时间 */
-  minLoadingTime?: number;
+  minLoadingTime?: number
   /** 加载状态 */
-  spinning?: boolean;
+  spinning?: boolean
   /** 加载文本 */
-  text?: string;
+  text?: string
 }
-
 const props = withDefaults(defineProps<Props>(), {
   minLoadingTime: 50,
   spinning: false,
-  text: '',
-});
-
-const showSpinner = ref(false);
-const renderSpinner = ref(false);
-const timer = ref<ReturnType<typeof setTimeout>>();
-
+  text: ''
+})
+const showSpinner = ref(false)
+const renderSpinner = ref(false)
+const timer = ref<ReturnType<typeof setTimeout>>()
 watch(
   () => props.spinning,
   (show) => {
     if (!show) {
-      showSpinner.value = false;
-      clearTimeout(timer.value);
-      return;
+      showSpinner.value = false
+      clearTimeout(timer.value)
+      return
     }
-
     timer.value = setTimeout(() => {
-      showSpinner.value = true;
+      showSpinner.value = true
       if (showSpinner.value) {
-        renderSpinner.value = true;
+        renderSpinner.value = true
       }
-    }, props.minLoadingTime);
+    }, props.minLoadingTime)
   },
   {
-    immediate: true,
+    immediate: true
   }
-);
-
+)
 function onTransitionEnd() {
   if (!showSpinner.value) {
-    renderSpinner.value = false;
+    renderSpinner.value = false
   }
 }
 </script>

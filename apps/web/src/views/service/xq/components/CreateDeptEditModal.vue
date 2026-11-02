@@ -1,28 +1,22 @@
 <script setup lang="ts">
 import { ElMessage } from 'element-plus'
-import { ref, defineExpose, reactive } from 'vue'
-
+import { ref, reactive } from 'vue'
 import { createDeptEditData, getBmByEjdw } from '@/api/service/requirement'
 import { VXETable } from 'vxe-table'
-
 interface ParamData {
   selectDatas: any[]
   search: () => void
 }
-
 const paramData = ref<Record<string, any>>({
   selectDatas: []
 })
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const formRef = ref()
 const formData = ref({
   createDeptId: ''
 })
-
 const bmList = ref([])
-
 const formRuls = reactive({
   createDeptId: {
     required: true,
@@ -30,7 +24,6 @@ const formRuls = reactive({
     trigger: 'change'
   }
 })
-
 const queryHandle = async () => {
   loading.value = true
   try {
@@ -59,7 +52,6 @@ const queryHandle = async () => {
     loading.value = false
   }
 }
-
 const getCreateDeptDataList = async () => {
   loading.value = true
   const selectedData = paramData.value.selectDatas
@@ -78,14 +70,12 @@ const getCreateDeptDataList = async () => {
     loading.value = false
   }
 }
-
 const closeHandle = () => {
   // 重置表单数据,清空选择框数据
   bmList.value.length = 0
   formRef.value?.resetFields()
   isShowModal.value = false
 }
-
 const acceptParams = (params: ParamData) => {
   paramData.value = {
     ...params
@@ -93,7 +83,6 @@ const acceptParams = (params: ParamData) => {
   getCreateDeptDataList()
   isShowModal.value = true
 }
-
 defineExpose({
   acceptParams
 })

@@ -24,17 +24,17 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'otherOpinion'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive, nextTick } from 'vue'
-
 import { pageXmHistoryReviewRecord, pageExpertReviewInfo } from '@/api/service/jointReview'
 import { ElMessage } from 'element-plus'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
+defineOptions({
+  name: 'otherOpinion'
+})
+
+ //表格组件
 
 const modalRef = ref()
 const isShowTable = ref<boolean>(false)
@@ -64,15 +64,19 @@ const handleTabChange = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getPageList = async (params: any) => {
-  parmasCode.value = { ...params }
+  parmasCode.value = {
+    ...params
+  }
   let res = await pageXmHistoryReviewRecord(params)
   if (res.success) {
     if (res.data.records.length == 0) return ElMessage.warning('暂无评审意见，请勿重复点击。')
     filterTabs.value = res.data.records
       .sort((a: any, b: any) => a.review_time.localeCompare(b.review_time))
-      .map((item: any, index: any) => ({ ...item, label: `专家评审意见第${index}次评审` }))
+      .map((item: any, index: any) => ({
+        ...item,
+        label: `专家评审意见第${index}次评审`
+      }))
     activeTab.value = filterTabs.value[0].label
     isShowTable.value = true
     handleTabChange()
@@ -83,18 +87,38 @@ const getPageList = async (params: any) => {
 
 // 评审意见列表
 const meetingColumns = reactive<any>([
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'reviewExpertName', label: '专家姓名', width: '100' },
-  { prop: 'reviewOpinion', label: '专家意见', width: '100' },
-  { prop: 'reviewReason', label: '意见说明', showOverflowTooltip: false },
-  { prop: 'reviewTime', label: '评审时间', width: '200', sortable: true }
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'reviewExpertName',
+    label: '专家姓名',
+    width: '100'
+  },
+  {
+    prop: 'reviewOpinion',
+    label: '专家意见',
+    width: '100'
+  },
+  {
+    prop: 'reviewReason',
+    label: '意见说明',
+    showOverflowTooltip: false
+  },
+  {
+    prop: 'reviewTime',
+    label: '评审时间',
+    width: '200',
+    sortable: true
+  }
 ])
 
 //关闭
 const closeSxModal = () => {
   isShowTable.value = false
 }
-
 defineExpose({
   isShowTable,
   loading,

@@ -39,75 +39,61 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, ref } from "vue";
-import { RowVo } from "@/views/service/budget/changes/components/budgetChangeHistory/interface";
-import GridItem from "@/components/Grid/components/GridItem.vue";
-import Grid from "@/components/Grid/index.vue";
-
-interface CheckedData {
-  checkedData: RowVo | RowVo[] | null;
-  isEdit: boolean;
-}
-
-export default defineComponent({
-  name: "wbsEditModal",
-  components: { Grid, GridItem },
-  emits: ["setData"],
-  setup(props, { emit, expose }) {
-    const isShowModal = ref(false);
-    const searchForm = ref({
-      wbsName1: "",
-      je1: 0,
-      wbsId1: ""
-    });
-    const loading = ref(false);
-    const parameter = ref<CheckedData>({
-      checkedData: null,
-      isEdit: false
-    });
-    const isShowEdit = computed(() => parameter.value.isEdit);
-    const acceptParams = (params: CheckedData) => {
-      parameter.value = { ...parameter.value, ...params };
-      if (params.checkedData) {
-        if (Array.isArray(params.checkedData)) {
-          const selectedData = params.checkedData[0];
-          searchForm.value.je1 = selectedData.je1;
-          searchForm.value.wbsName1 = selectedData.wbsName1;
-          searchForm.value.wbsId1 = selectedData.wbsId1;
-        } else {
-          searchForm.value.je1 = params.checkedData.je1;
-          searchForm.value.wbsName1 = params.checkedData.wbsName1;
-          searchForm.value.wbsId1 = params.checkedData.wbsId1;
-        }
-      }
-
-      isShowModal.value = true;
-    };
-    const handleClose = () => {
-      isShowModal.value = false;
-      searchForm.value.wbsName1 = "";
-      searchForm.value.je1 = 0;
-      searchForm.value.wbsId1 = "";
-    };
-
-    const handleDetail = () => {
-      emit("setData", searchForm.value);
-      isShowModal.value = false;
-    };
-    expose({
-      acceptParams
-    });
-    return {
-      handleDetail,
-      handleClose,
-      searchForm,
-      isShowEdit,
-      isShowModal,
-      loading
-    };
+<script setup lang="ts">
+import type { CheckedData } from './index.module'
+import { computed, ref } from 'vue'
+import { RowVo } from '@/views/service/budget/changes/components/budgetChangeHistory/interface'
+import GridItem from '@/components/Grid/components/GridItem.vue'
+import Grid from '@/components/Grid/index.vue'
+defineOptions({
+  name: 'wbsEditModal'
+})
+const props = defineProps({})
+const emit = defineEmits(['setData'])
+const isShowModal = ref(false)
+const searchForm = ref({
+  wbsName1: '',
+  je1: 0,
+  wbsId1: ''
+})
+const loading = ref(false)
+const parameter = ref<CheckedData>({
+  checkedData: null,
+  isEdit: false
+})
+const isShowEdit = computed(() => parameter.value.isEdit)
+const acceptParams = (params: CheckedData) => {
+  parameter.value = {
+    ...parameter.value,
+    ...params
   }
-});
+  if (params.checkedData) {
+    if (Array.isArray(params.checkedData)) {
+      const selectedData = params.checkedData[0]
+      searchForm.value.je1 = selectedData.je1
+      searchForm.value.wbsName1 = selectedData.wbsName1
+      searchForm.value.wbsId1 = selectedData.wbsId1
+    } else {
+      searchForm.value.je1 = params.checkedData.je1
+      searchForm.value.wbsName1 = params.checkedData.wbsName1
+      searchForm.value.wbsId1 = params.checkedData.wbsId1
+    }
+  }
+  isShowModal.value = true
+}
+const handleClose = () => {
+  isShowModal.value = false
+  searchForm.value.wbsName1 = ''
+  searchForm.value.je1 = 0
+  searchForm.value.wbsId1 = ''
+}
+const handleDetail = () => {
+  emit('setData', searchForm.value)
+  isShowModal.value = false
+}
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style scoped></style>

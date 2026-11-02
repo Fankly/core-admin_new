@@ -105,93 +105,91 @@
   <ImportExcel ref="importRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: "/fy/prearranged/report/county"
-};
-</script>
 
 <script setup lang="ts">
-import FyHeader from "@/views/fy/components/Header.vue";
-import FileUpload from "@/views/fy/components/FileUpload.vue";
-import userDialog from "@/components/select/userDialog.vue";
-import ImportExcel from "@/components/ImportExcel/index.vue";
-import type { TableMsg } from "@/views/fy/prearranged/interface";
-import { computed, onMounted, reactive, ref, watch } from "vue";
-import { countySave, escalation, getCountyYapEscalationList, judgeIsSd, getCurrentPageData, getDynamicColumn, exportData, importTemplate, importData } from "@/api/fy/report";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { Decimal } from "decimal.js";
-import { getGroupSummary } from "@/utils/prearranged";
-import { VXETable } from "vxe-table";
-import { formatValue } from "@/utils/utils";
-import { Columns } from "@/views/fy/prearranged/interface";
+import FyHeader from '@/views/fy/components/Header.vue'
+import FileUpload from '@/views/fy/components/FileUpload.vue'
+import userDialog from '@/components/select/userDialog.vue'
+import ImportExcel from '@/components/ImportExcel/index.vue'
+import type { TableMsg } from '@/views/fy/prearranged/interface'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import {
+  countySave,
+  escalation,
+  getCountyYapEscalationList,
+  judgeIsSd,
+  getCurrentPageData,
+  getDynamicColumn,
+  exportData,
+  importTemplate,
+  importData
+} from '@/api/fy/report'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Decimal } from 'decimal.js'
+import { getGroupSummary } from '@/utils/prearranged'
+import { VXETable } from 'vxe-table'
+import { formatValue } from '@/utils/utils'
+import { Columns } from '@/views/fy/prearranged/interface'
+defineOptions({
+  name: '/fy/prearranged/report/county'
+})
 
-const userDialogRef = ref();
-const treeTableRef = ref();
-const treendTableRef = ref();
-const headerRef = ref();
-const importRef = ref();
-const toolbarOneRef = ref();
-const toolbarTwoRef = ref();
-
+const userDialogRef = ref()
+const treeTableRef = ref()
+const treendTableRef = ref()
+const headerRef = ref()
+const importRef = ref()
+const toolbarOneRef = ref()
+const toolbarTwoRef = ref()
 const userMsg = reactive<any>({
-  userData: "",
-  dwName: "",
+  userData: '',
+  dwName: '',
   isShowPage: false,
   isDisabled: false
-});
-
+})
 const uploadFileIsDisabled = computed(() => {
-  return userMsg.isDisabled || tableLoading.value || !tabMsg.busiId;
-});
-
+  return userMsg.isDisabled || tableLoading.value || !tabMsg.busiId
+})
 watch(
   () => userMsg.isDisabled,
   (newData) => {
-    if (tableMsg.editConfig) tableMsg.editConfig.enabled = !newData;
+    if (tableMsg.editConfig) tableMsg.editConfig.enabled = !newData
   },
   {
     deep: true
   }
-);
-
+)
 const isDisabled = computed(() => {
-  return userMsg.isDisabled || tableLoading.value;
-});
-
+  return userMsg.isDisabled || tableLoading.value
+})
 const uploadMsg = reactive({
   isShowModal: false
-});
-
+})
 const pageMsg = reactive<any>({
-  pageData: ""
-});
-
+  pageData: ''
+})
 const tabMsg = reactive({
-  name: "1",
-  busiId: ""
-});
-
-const tableLoading = ref(false);
-
+  name: '1',
+  busiId: ''
+})
+const tableLoading = ref(false)
 const activeCellMethod = ({ column, columnIndex, row }: any) => {
   if (row.id && !row.leaf) {
-    return true;
+    return true
   }
-  return false;
-};
-
+  return false
+}
 const tableMsg = reactive<TableMsg>({
   rowConfig: {
     height: 32
   },
-  nd: "",
-  xsws: "",
+  nd: '',
+  xsws: '',
   tableData: [],
   ndData: [],
   editConfig: {
-    trigger: "click",
-    mode: "cell",
+    trigger: 'click',
+    mode: 'cell',
     showStatus: true,
     enabled: true,
     beforeEditMethod: activeCellMethod
@@ -199,344 +197,322 @@ const tableMsg = reactive<TableMsg>({
   columns: [],
   zyTreeConfig: {
     lazy: true,
-    hasChildField: "leaf",
+    hasChildField: 'leaf',
     loadMethod({ row }: any) {
       let params = {
         nd: tableMsg.nd,
         xsws: tableMsg.xsws,
         parentId: row.id,
         dwId: userMsg.userData.org_id,
-        busiType: "YAP",
+        busiType: 'YAP',
         kmlx: tabMsg.name
-      };
+      }
       return new Promise((resolve: any) => {
         getCountyYapEscalationList({
           ...params
         }).then((res: any) => {
           if (res.success) {
-            resolve(res.data);
+            resolve(res.data)
           } else {
-            ElMessage.error(res.msg);
-            resolve([]);
+            ElMessage.error(res.msg)
+            resolve([])
           }
-        });
-      });
+        })
+      })
     }
   }
-});
-
+})
 const uploadHandle = () => {
-  uploadMsg.isShowModal = true;
-};
-
+  uploadMsg.isShowModal = true
+}
 const getTabNameHandle = ({ props }: any) => {
-  tabMsg.name = props.name;
-  initDisabledBtn();
-  getTableData();
-  linkTable();
-};
-
+  tabMsg.name = props.name
+  initDisabledBtn()
+  getTableData()
+  linkTable()
+}
 const escalationHandle = () => {
-  const $table = tabMsg.name === "1" ? treeTableRef.value : treendTableRef.value;
-  let msg = "";
+  const $table = tabMsg.name === '1' ? treeTableRef.value : treendTableRef.value
+  let msg = ''
   if ($table) {
     // 获取表格录入的数据
-    const records: any[] = $table.getUpdateRecords();
-    const updateRecords = records.filter((item) => !item.leaf);
-    msg = updateRecords.length !== 0 ? "存在未保存数据,是否继续上报？" : "是否确认上报？";
+    const records: any[] = $table.getUpdateRecords()
+    const updateRecords = records.filter((item) => !item.leaf)
+    msg = updateRecords.length !== 0 ? '存在未保存数据,是否继续上报？' : '是否确认上报？'
   }
-  ElMessageBox.confirm(msg, "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "success"
+  ElMessageBox.confirm(msg, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'success'
   }).then(async () => {
     let res = await escalation({
       kmlx: tabMsg.name,
-      busiType: "YAP",
+      busiType: 'YAP',
       ejdw: userMsg.userData.org_id,
       nd: tableMsg.nd,
       xsws: tableMsg.xsws
-    });
+    })
     if (res.success) {
-      ElMessage.success("上报成功！");
-      initDisabledBtn();
-      getCurData();
+      ElMessage.success('上报成功！')
+      initDisabledBtn()
+      getCurData()
     } else {
-      ElMessage.error("上报失败,请重新再试！");
+      ElMessage.error('上报失败,请重新再试！')
     }
-  });
-};
-
+  })
+}
 const importHandle = async () => {
   let newParmas = {
     kmlx: tabMsg.name,
     ejdw: userMsg.userData.org_id,
     nd: tableMsg.nd,
     xsws: tableMsg.xsws
-  };
+  }
   let params = {
-    title: "县预安排上报导入",
+    title: '县预安排上报导入',
     tempApi: () => importTemplate(newParmas),
     importApi: (importParams: any) => {
       let newImportParams = {
         ...newParmas,
         excelFormData: importParams.excelFormData
-      };
-      return importData(newImportParams);
+      }
+      return importData(newImportParams)
     },
     getTableList: getTableData,
     specialorgid: userMsg.userData.org_id
-  };
-  importRef.value.acceptParams(params);
-};
-
+  }
+  importRef.value.acceptParams(params)
+}
 const isClickHeader = (columns: any, field: string) => {
-  let columnIndex = columns.findIndex((item: any) => item.eidt && item.columnKey === field);
-  return columnIndex > -1;
-};
-
+  let columnIndex = columns.findIndex((item: any) => item.eidt && item.columnKey === field)
+  return columnIndex > -1
+}
 const cellStyle = ({ row, column }: any) => {
   if (tableMsg.editConfig && !tableMsg.editConfig.enabled) {
     return {
-      cursor: "auto",
-      backgroundColor: "rgba(232, 234, 236,0.5)"
-    };
+      cursor: 'auto',
+      backgroundColor: 'rgba(232, 234, 236,0.5)'
+    }
   }
   if (!isClickHeader(tableMsg.columns, column.field)) {
     return {
-      cursor: "auto",
-      backgroundColor: "rgba(232, 234, 236,0.5)"
-    };
+      cursor: 'auto',
+      backgroundColor: 'rgba(232, 234, 236,0.5)'
+    }
   }
-
   if (!row.id || row.leaf) {
     return {
-      cursor: "auto",
-      backgroundColor: "rgba(232, 234, 236,0.5)"
-    };
+      cursor: 'auto',
+      backgroundColor: 'rgba(232, 234, 236,0.5)'
+    }
   }
-};
+}
 const headerCellStyle = () => {
   return {
-    padding: "8px 0",
-    lineHeight: "16px"
-  };
-};
-
+    padding: '8px 0',
+    lineHeight: '16px'
+  }
+}
 const getCurData = async () => {
   let res = await getCurrentPageData({
     nd: tableMsg.nd,
     xsws: tableMsg.xsws,
     kmlx: tabMsg.name,
     specialorgid: userMsg.userData.org_id,
-    busiType: "YAP"
-  });
-  tabMsg.busiId = res.data.dwDetailId;
-  pageMsg.pageData = res.data;
-};
-
+    busiType: 'YAP'
+  })
+  tabMsg.busiId = res.data.dwDetailId
+  pageMsg.pageData = res.data
+}
 const saveHandle = async () => {
-  const $table = tabMsg.name === "1" ? treeTableRef.value : treendTableRef.value;
+  const $table = tabMsg.name === '1' ? treeTableRef.value : treendTableRef.value
   if ($table) {
     // 获取表格录入的数据
-    const records: any[] = $table.getUpdateRecords();
+    const records: any[] = $table.getUpdateRecords()
     if (records.length === 0) {
-      ElMessage.warning("未进行修改操作,请修改后再进行保存！");
-      return;
+      ElMessage.warning('未进行修改操作,请修改后再进行保存！')
+      return
     }
-    const type = await VXETable.modal.confirm("是否确定保存？", "提示", {
-      status: "warning"
-    });
-    if (type === "confirm") {
-      const updateRecords = records.filter((item) => !item.leaf && item.id);
+    const type = await VXETable.modal.confirm('是否确定保存？', '提示', {
+      status: 'warning'
+    })
+    if (type === 'confirm') {
+      const updateRecords = records.filter((item) => !item.leaf && item.id)
       let mxList = updateRecords.map((item) => {
         return {
           sbje: item.sbje,
           yskmId: item.id,
-          detailId: item.detailId ? item.detailId : "",
+          detailId: item.detailId ? item.detailId : '',
           sbDesc: item.sbDesc
-        };
-      });
-
+        }
+      })
       let params = {
-        busiType: "YAP",
+        busiType: 'YAP',
         ejdw: userMsg.userData.org_id,
         kmlx: tabMsg.name,
         nd: tableMsg.nd,
         xsws: tableMsg.xsws,
         mxList: mxList
-      };
-      let res = await countySave(params);
+      }
+      let res = await countySave(params)
       if (res.success) {
         // 重置刷新树
-        getDataList();
-        getCurData();
-        ElMessage.success("保存成功");
+        getDataList()
+        getCurData()
+        ElMessage.success('保存成功')
       } else {
-        ElMessage.error(res.msg);
+        ElMessage.error(res.msg)
       }
     }
   }
-};
-
+}
 const changeNdHandle = (val: string) => {
-  tableMsg.nd = val;
-  initDisabledBtn();
-  getTableData();
-};
-
+  tableMsg.nd = val
+  initDisabledBtn()
+  getTableData()
+}
 const changeXswsHandle = (val: string) => {
-  tableMsg.xsws = val;
-  initDisabledBtn();
-  getTableData();
-};
-
+  tableMsg.xsws = val
+  initDisabledBtn()
+  getTableData()
+}
 const isNeedNum = (columns: any[], field: string) => {
-  let findIndex = columns.findIndex((item) => item.needSum && item.columnKey === field);
-  if (findIndex > -1) return true;
-  return false;
-};
-
+  let findIndex = columns.findIndex((item) => item.needSum && item.columnKey === field)
+  if (findIndex > -1) return true
+  return false
+}
 const formatterHandle = ({ column, cellValue }: any) => {
-  if (typeof cellValue === "undefined" || cellValue === null || cellValue === "") return "-";
+  if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   if (tableMsg.columns) {
-    const isNum = isNeedNum(tableMsg.columns, column.field);
+    const isNum = isNeedNum(tableMsg.columns, column.field)
     if (isNum) {
-      return formatValue(cellValue, Number(tableMsg.xsws));
+      return formatValue(cellValue, Number(tableMsg.xsws))
     }
   }
-  return cellValue;
-};
+  return cellValue
+}
 
 // 导出
 const exportHandle = () => {
-  tableLoading.value = true;
+  tableLoading.value = true
   let params = {
     nd: tableMsg.nd,
     xsws: tableMsg.xsws,
-    parentId: "-1",
+    parentId: '-1',
     dwId: userMsg.userData.org_id,
-    busiType: "YAP",
+    busiType: 'YAP',
     kmlx: tabMsg.name
-  };
+  }
   exportData(params).then((res: any) => {
-    const blob = res;
-    let dom = document.createElement("a");
-    let url = window.URL.createObjectURL(blob);
-    dom.href = url;
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
     // 获取文件名
-    let filename = res.headers["content-disposition"].split(";")[1].split("=")[1];
-    dom.download = `${decodeURI(decodeURI(filename))}`;
-    document.body.appendChild(dom);
-    dom.click();
-    document.body.removeChild(dom);
-    window.URL.revokeObjectURL(url);
-    tableLoading.value = false;
-  });
-};
-
+    let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
+    dom.download = `${decodeURI(decodeURI(filename))}`
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+    tableLoading.value = false
+  })
+}
 const getRoleHandle = async () => {
-  userMsg.userData = { ...userDialogRef.value.userMsg };
-  tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString();
-  tableMsg.xsws = headerRef.value.formParams.xsws || "2";
-  const isQuery = userDialogRef.value.isQuery;
-  await initDisabledBtn();
+  userMsg.userData = {
+    ...userDialogRef.value.userMsg
+  }
+  tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString()
+  tableMsg.xsws = headerRef.value.formParams.xsws || '2'
+  const isQuery = userDialogRef.value.isQuery
+  await initDisabledBtn()
   if (isQuery) {
-    userMsg.isShowPage = true;
-    await getTableData();
-    linkTable();
+    userMsg.isShowPage = true
+    await getTableData()
+    linkTable()
   }
-};
-
+}
 const linkTable = () => {
-  const $table = Number(tabMsg.name) === 1 ? treeTableRef.value : treendTableRef.value;
-  const $toolBar = Number(tabMsg.name) === 1 ? toolbarOneRef.value : toolbarTwoRef.value;
+  const $table = Number(tabMsg.name) === 1 ? treeTableRef.value : treendTableRef.value
+  const $toolBar = Number(tabMsg.name) === 1 ? toolbarOneRef.value : toolbarTwoRef.value
   if ($table && $toolBar) {
-    $table.connect($toolBar);
+    $table.connect($toolBar)
   }
-};
-
+}
 const sumhandle = (row: any) => {
-  row.sbje = row.sbje ? new Decimal(row.sbje).toFixed(Number(tableMsg.xsws)) : new Decimal("0").toFixed(Number(tableMsg.xsws));
-  const config: any = tabMsg.name === "1" ? tableMsg.zyTreeConfig : tableMsg.ndTreeConfig;
-  const tableData = Number(tabMsg.name) === 1 ? tableMsg.tableData : tableMsg.ndData;
-  getGroupSummary(tableData, config, "sbje", Number(tableMsg.xsws), "leaf", "id");
-};
-
+  row.sbje = row.sbje ? new Decimal(row.sbje).toFixed(Number(tableMsg.xsws)) : new Decimal('0').toFixed(Number(tableMsg.xsws))
+  const config: any = tabMsg.name === '1' ? tableMsg.zyTreeConfig : tableMsg.ndTreeConfig
+  const tableData = Number(tabMsg.name) === 1 ? tableMsg.tableData : tableMsg.ndData
+  getGroupSummary(tableData, config, 'sbje', Number(tableMsg.xsws), 'leaf', 'id')
+}
 const initDisabledBtn = async () => {
-  let res = await judgeIsSd("YAP", tabMsg.name, tableMsg.nd, userMsg.userData.org_id);
-  userMsg.isDisabled = res.data;
-  if (tableMsg.editConfig) tableMsg.editConfig.enabled = !res.data;
-};
-
+  let res = await judgeIsSd('YAP', tabMsg.name, tableMsg.nd, userMsg.userData.org_id)
+  userMsg.isDisabled = res.data
+  if (tableMsg.editConfig) tableMsg.editConfig.enabled = !res.data
+}
 const initData = async () => {
-  userDialogRef.value.getUser();
-  getTableHeaderName();
-};
-
+  userDialogRef.value.getUser()
+  getTableHeaderName()
+}
 const clearTableData = () => {
-  if (tableMsg.columns && tableMsg.columns.length > 0) tableMsg.columns.length = 0;
-  if (tableMsg.tableData) tableMsg.tableData.length = 0;
-  if (tableMsg.ndData) tableMsg.ndData.length = 0;
-};
-
+  if (tableMsg.columns && tableMsg.columns.length > 0) tableMsg.columns.length = 0
+  if (tableMsg.tableData) tableMsg.tableData.length = 0
+  if (tableMsg.ndData) tableMsg.ndData.length = 0
+}
 const getTableData = async () => {
-  tableLoading.value = true;
-  clearTableData();
-  getCurData();
+  tableLoading.value = true
+  clearTableData()
+  getCurData()
   let params = {
     nd: tableMsg.nd,
     xsws: tableMsg.xsws,
     kmlx: tabMsg.name
-  };
+  }
   let res = await Promise.all([
     getCountyYapEscalationList({
       ...params,
       parentId: tableMsg.nd,
       dwId: userMsg.userData.org_id,
-      busiType: "YAP"
+      busiType: 'YAP'
     }),
     getDynamicColumn({
       ...params,
       specialorgid: userMsg.userData.org_id
     })
-  ]);
+  ])
   if (res[0].success && res[1].success) {
-    Number(tabMsg.name) === 1 ? (tableMsg.tableData = res[0].data) : (tableMsg.ndData = res[0].data);
-    tableMsg.columns = res[1].data.filter((item: Columns) => item.visible);
+    Number(tabMsg.name) === 1 ? (tableMsg.tableData = res[0].data) : (tableMsg.ndData = res[0].data)
+    tableMsg.columns = res[1].data.filter((item: Columns) => item.visible)
   } else {
-    ElMessage.error("请刷新页面进行重试！");
+    ElMessage.error('请刷新页面进行重试！')
   }
-  tableLoading.value = false;
-};
-
+  tableLoading.value = false
+}
 const getTableHeaderName = () => {
-  let curYear = new Date().getFullYear(); // 当年
-  return [curYear - 3, curYear - 2, curYear - 1, curYear];
-};
-
+  let curYear = new Date().getFullYear() // 当年
+  return [curYear - 3, curYear - 2, curYear - 1, curYear]
+}
 const getDataList = async (val?: string) => {
-  tableLoading.value = true;
-  tableMsg.nd = val ? val : tableMsg.nd;
+  tableLoading.value = true
+  tableMsg.nd = val ? val : tableMsg.nd
   let res = await getCountyYapEscalationList({
     nd: tableMsg.nd,
     xsws: tableMsg.xsws,
     parentId: tableMsg.nd,
     dwId: userMsg.userData.org_id,
-    busiType: "YAP",
+    busiType: 'YAP',
     kmlx: tabMsg.name
-  });
+  })
   if (res.success) {
-    tabMsg.name === "1" ? (tableMsg.tableData = res.data) : (tableMsg.ndData = res.data);
+    tabMsg.name === '1' ? (tableMsg.tableData = res.data) : (tableMsg.ndData = res.data)
   } else {
-    ElMessage.error(res.msg);
+    ElMessage.error(res.msg)
   }
-  tableLoading.value = false;
-};
-
+  tableLoading.value = false
+}
 onMounted(() => {
-  initData();
-});
+  initData()
+})
 </script>
 
 <style scoped lang="less">

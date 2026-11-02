@@ -1,17 +1,18 @@
 <script setup lang="ts">
-defineOptions({ name: "/goalValue/customGoalValue/components/FormDialog" })
 import MultipleProType from '@/views/statistics/components/MultipleProType.vue'
 import type { InitParams } from '@/views/goalValue/customGoalValue/config.vue'
 import { ElMessage } from 'element-plus'
 import type { CustomConfigSaveData } from '@/api/goalValue/customGoalValue'
 import { saveConfig } from '@/api/goalValue/customGoalValue'
 import { getAllProtypeTreeNew } from '@/api/common'
-import { defineProps, ref, toRef, defineExpose, reactive, defineEmits, watch } from 'vue'
+import { ref, toRef, reactive, watch } from 'vue'
+defineOptions({
+  name: '/goalValue/customGoalValue/components/FormDialog'
+})
 
 interface DialogData {
   title: string
 }
-
 interface Props {
   dialogData: DialogData
   initParams: InitParams
@@ -19,19 +20,14 @@ interface Props {
   editData: any
   operationFlag: string
 }
-
 const props = defineProps<Props>()
-
 const emit = defineEmits(['updateTable', 'clearData'])
-
 const formRef = ref()
 const protypeRef = ref()
-
 const title = toRef(props.dialogData, 'title')
 const showModal = ref(false)
 const formDialogLoading = ref(false)
 const ROOT_PARENT_ID = '0'
-
 const formData = reactive<{
   name: string
   sort: string
@@ -47,9 +43,7 @@ const formData = reactive<{
   leaf: '0',
   protypeIds: ''
 })
-
 const proTypeData = ref([])
-
 const validateProType = (rules: any, value: string, callback: any) => {
   if (formData.leaf === '0') {
     callback()
@@ -61,25 +55,56 @@ const validateProType = (rules: any, value: string, callback: any) => {
   }
   callback()
 }
-
 const rules = {
-  name: [{ required: true, message: '请输入名称', trigger: 'input' }],
-  sort: [{ required: true, message: '请输入序号', trigger: 'input' }],
-  sfqy: [{ required: true, message: '请选择是否启用', trigger: 'change' }],
-  sfzgs: [{ required: true, message: '请选择是否子公司', trigger: 'change' }],
-  leaf: [{ required: true, message: '请选择是否末级节点', trigger: 'change' }],
-  protypeIds: [{ validator: validateProType, trigger: 'change' }]
+  name: [
+    {
+      required: true,
+      message: '请输入名称',
+      trigger: 'input'
+    }
+  ],
+  sort: [
+    {
+      required: true,
+      message: '请输入序号',
+      trigger: 'input'
+    }
+  ],
+  sfqy: [
+    {
+      required: true,
+      message: '请选择是否启用',
+      trigger: 'change'
+    }
+  ],
+  sfzgs: [
+    {
+      required: true,
+      message: '请选择是否子公司',
+      trigger: 'change'
+    }
+  ],
+  leaf: [
+    {
+      required: true,
+      message: '请选择是否末级节点',
+      trigger: 'change'
+    }
+  ],
+  protypeIds: [
+    {
+      validator: validateProType,
+      trigger: 'change'
+    }
+  ]
 }
-
 const toStringOrDefault = (value: any, defaultValue: string) => {
   return value === undefined || value === null || value === '' ? defaultValue : String(value)
 }
-
 const toLeafValue = (value: any) => {
   if (typeof value === 'boolean') return value ? '1' : '0'
   return toStringOrDefault(value, '0')
 }
-
 const getProTypeData = async () => {
   let res = await getAllProtypeTreeNew()
   if (res.success) {
@@ -88,7 +113,6 @@ const getProTypeData = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const showModalHandle = () => {
   if (protypeRef.value) protypeRef.value.clearHandle()
   getProTypeData()
@@ -103,7 +127,6 @@ const showModalHandle = () => {
   }
   resetMethod()
 }
-
 const getParentId = () => {
   if (props.operationFlag === 'EDIT') {
     return String(props.editData?.parentId || ROOT_PARENT_ID)
@@ -111,7 +134,6 @@ const getParentId = () => {
   const treeNodeId = props.treeParams?.id ? String(props.treeParams.id) : ROOT_PARENT_ID
   return treeNodeId === props.initParams.nd ? ROOT_PARENT_ID : treeNodeId
 }
-
 const saveDataHandle = async () => {
   if (!formRef.value) return
   try {
@@ -147,7 +169,6 @@ const saveDataHandle = async () => {
     formDialogLoading.value = false
   }
 }
-
 watch(
   () => formData.leaf,
   (newVal) => {
@@ -157,7 +178,6 @@ watch(
     }
   }
 )
-
 const resetMethod = () => {
   formData.name = ''
   formData.sort = ''
@@ -166,13 +186,11 @@ const resetMethod = () => {
   formData.leaf = '0'
   formData.protypeIds = ''
 }
-
 const closeModalHandle = () => {
   showModal.value = false
   resetMethod()
   emit('clearData')
 }
-
 defineExpose({
   title,
   showModal

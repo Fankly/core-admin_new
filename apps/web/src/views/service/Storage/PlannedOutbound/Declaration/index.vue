@@ -39,17 +39,11 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/Storage/PlannedOutbound/Declaration/index'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
-
 import SearchCriteria from '../components/SearchCriteria.vue'
 import PrimaryTable from '../components/PrimaryTable.vue'
 import ViewAdvice from '../components/ViewAdvice.vue'
@@ -57,12 +51,14 @@ import CentralizedModification from '@/views/service/xq/components/CentralizedMo
 import { RowVo } from '../interface/index'
 import { reactive, ref, onMounted, computed } from 'vue'
 import { VXETable } from 'vxe-table'
-
 import { getInfo, getPage, SearchData, submitData, viewAdvice, exportData } from '@/api/service/Storage/PlannedOutbound/Declaration'
 import { cloneDeep } from 'lodash'
 import { ElMessage } from 'element-plus'
 import { formatValue } from '@/utils/utils'
 import { useProcess } from '@/hooks/useProcess'
+defineOptions({
+  name: '/service/Storage/PlannedOutbound/Declaration/index'
+})
 
 const userDialogRef = ref<any>()
 const helpModalRef = ref<any>()
@@ -83,13 +79,11 @@ const isSelected = computed(() => {
     primaryTableRef.value.gridRef.getCheckboxRecords().filter((item: any) => item.id).length === 0
   )
 })
-
 const processData = reactive({
   isShowDialog: false,
   compName: null,
   id: ''
 })
-
 const globalParams = reactive({
   bmId: '',
   dwId: '',
@@ -101,7 +95,6 @@ const globalParams = reactive({
   isShowPage: false,
   infoType: '省级统筹项目'
 })
-
 const userInfo = ref<{
   deptId: string
   deptName: string
@@ -113,7 +106,6 @@ const userInfo = ref<{
   dwId: '',
   dwName: ''
 })
-
 const columns = reactive<any>([
   {
     type: 'checkbox',
@@ -242,9 +234,7 @@ const columns = reactive<any>([
     field: 'pfwj'
   }
 ])
-
 const tableData = ref([])
-
 const handleProMsgView = () => {
   const $grid = primaryTableRef.value?.gridRef
   if ($grid) {
@@ -260,11 +250,9 @@ const handleProMsgView = () => {
     if (editPageRef.value) editPageRef.value.isShowModal = true
   }
 }
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const handleViewAdvice = async () => {
   const $grid = primaryTableRef.value?.gridRef
   if ($grid) {
@@ -276,7 +264,6 @@ const handleViewAdvice = async () => {
     const id = records[0].id
     try {
       const res = await viewAdvice(id)
-
       if (res.success) {
         if (res.data) {
           viewAdviceRef.value?.acceptParams({
@@ -295,7 +282,6 @@ const handleViewAdvice = async () => {
     }
   }
 }
-
 const handleSubmitData = async () => {
   const $grid = primaryTableRef.value?.gridRef
   if ($grid) {
@@ -309,7 +295,6 @@ const handleSubmitData = async () => {
       ElMessage.warning('项目需求已核定，无需重复维护!')
       return
     }
-
     const type = await VXETable.modal.confirm('提交选中项目清单，发送拟出库项目信息至省预算处？', '提示', {
       status: 'warning',
       confirmButtonText: '是',
@@ -331,7 +316,6 @@ const handleSubmitData = async () => {
     }
   }
 }
-
 const handleViewProcess = async () => {
   const $grid = primaryTableRef.value?.gridRef
   if ($grid) {
@@ -343,7 +327,6 @@ const handleViewProcess = async () => {
     useProcess(records, processData)
   }
 }
-
 const handleExportData = async () => {
   primaryTableRef.value!.gridOptions.loading = true
   if (searchCriteriaRef.value) {
@@ -379,7 +362,6 @@ const handleExportData = async () => {
     })
   }
 }
-
 const getRoleHandle = async () => {
   try {
     if (userDialogRef.value) {
@@ -466,13 +448,11 @@ const getXmType = async () => {
     globalParams.infoType = res.data
   }
 }
-
 const initData = () => {
   if (userDialogRef.value) {
     userDialogRef.value.getUser()
   }
 }
-
 onMounted(() => {
   initData()
 })

@@ -297,12 +297,10 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "TheesMeetingEdit" })
 import ReviewExpertModal from '@/views/service/approval/provinceLhhsMeeting/components/ReViewModal/reviewExpertModal.vue'
 import ReviewProModal from '@/views/service/approval/provinceLhhsMeeting/components/ReViewModal/reviewProModal.vue'
 import DropdownTableSelector from '@/components/tableSelect/index'
-
-import { ref, defineExpose, reactive, defineEmits, computed, watch } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { getDataByParent, getPublicCodesList, getPublicData } from '@/api/common'
 import { ElMessage } from 'element-plus'
 import { getPageData } from '@/api/service/IhhsMeeting/approval/batch'
@@ -320,11 +318,13 @@ import {
   TemplatePspcType
 } from '@/api/service/approval/config/templateManager'
 import { VXETable, VxeTableInstance } from 'vxe-table'
+defineOptions({
+  name: 'TheesMeetingEdit'
+})
 
 interface Params {
   [key: string]: any
 }
-
 interface CodeOption {
   code?: string | number
   name?: string
@@ -332,7 +332,6 @@ interface CodeOption {
   label?: string
   [key: string]: any
 }
-
 const fileList = ref<any[]>([])
 const uploadRef = ref<VxeTableInstance>()
 const uploadFileSelection = ref<any[]>([])
@@ -373,7 +372,12 @@ const reviewProModalRef = ref<InstanceType<typeof ReviewProModal>>()
 const yslyList = ref<any[]>([])
 const deptList = ref<any[]>([])
 const ndList = ref<any[]>([])
-const attachmentTipList = ref<{ code: string; name: string }[]>([...defaultAttachmentTipList])
+const attachmentTipList = ref<
+  {
+    code: string
+    name: string
+  }[]
+>([...defaultAttachmentTipList])
 const attachTypeList = ref<CodeOption[]>([])
 const requiredAttachTypesByPspcType = reactive<Record<string, CodeOption[]>>({
   [NORMAL_PSPC_TYPE]: [],
@@ -480,19 +484,15 @@ const rules = reactive({
     }
   ]
 })
-
 const emit = defineEmits(['clearSelect'])
-
 const getCodeValue = (item: CodeOption) => {
   const value = item?.code ?? item?.value ?? ''
   return value === undefined || value === null ? '' : String(value)
 }
-
 const getCodeLabel = (item: CodeOption) => {
   const label = item?.name ?? item?.label ?? getCodeValue(item)
   return label === undefined || label === null ? '' : String(label)
 }
-
 const showReviewTemplate = computed(() => supportedTemplateTypes.includes(selectedPspcType.value))
 const currentPspcTypeName = computed(() => selectedPspcTypeName.value || '当前批次类型')
 const attachmentTipMap = computed(() => {
@@ -526,13 +526,11 @@ const currentRequiredAttachTypes = computed(() => {
   const requiredTypes = requiredAttachTypesByPspcType[String(selectedPspcType.value)] || []
   const availableAttachTypeValues = new Set(attachTypeList.value.map((item) => getCodeValue(item)).filter(Boolean))
   const requiredTypeMap = new Map<string, string>()
-
   requiredTypes.forEach((item) => {
     const value = getCodeValue(item)
     if (!value || !availableAttachTypeValues.has(value)) return
     requiredTypeMap.set(value, attachTypeMap.value[value] || getCodeLabel(item))
   })
-
   return Array.from(requiredTypeMap.entries()).map(([value, label]) => ({
     value,
     label
@@ -551,11 +549,9 @@ const getUploadTableData = () => {
 const validateRequiredAttachTypes = (records: any[]) => {
   const requiredTypes = currentRequiredAttachTypes.value
   if (requiredTypes.length === 0) return true
-
   const uploadedAttachTypes = new Set(records.map((item) => String(item.attachType ?? item.fjType ?? '')).filter(Boolean))
   const missingTypes = requiredTypes.filter((item) => !uploadedAttachTypes.has(item.value))
   if (missingTypes.length === 0) return true
-
   ElMessage.warning(`请上传必传附件：${missingTypes.map((item) => item.label).join('、')}`)
   return false
 }
@@ -571,15 +567,15 @@ const loadRequiredAttachTypes = async () => {
     requiredAttachTypesByPspcType[EMERGENCY_PSPC_TYPE] = []
   }
 }
-
 const curYear = new Date().getFullYear().toString()
-
 const selectorTableColumns = [
   {
     field: 'statusName',
     width: 120,
     title: '状态',
-    slots: { default: 'statusSlot' }
+    slots: {
+      default: 'statusSlot'
+    }
   },
   {
     field: 'pspcCode',
@@ -647,7 +643,6 @@ const selectorTableColumns = [
     title: '专业批复合规性审查结束日期'
   }
 ]
-
 const selectorSearchFields = [
   {
     field: 'pspcCode',
@@ -666,31 +661,26 @@ const selectorSearchFields = [
     defaultValue: modalProps.value.row.nd || curYear
   }
 ]
-
 const resetTemplateState = () => {
   selectedPspcType.value = ''
   selectedPspcTypeName.value = ''
   reviewTemplateList.value = []
   templateLoading.value = false
 }
-
 const setTemplateContext = (row: Record<string, any>) => {
   const pspcType = row?.pspcType ?? row?.pspcTypeCode ?? ''
   selectedPspcType.value = pspcType ? String(pspcType) : ''
   selectedPspcTypeName.value = row?.pspcTypeName || ''
 }
-
 const loadReviewTemplateList = async (pspcType: TemplatePspcType) => {
   if (!supportedTemplateTypes.includes(pspcType)) {
     reviewTemplateList.value = []
     return
   }
-
   if (templateCache[pspcType]) {
     reviewTemplateList.value = templateCache[pspcType]
     return
   }
-
   const currentRequestId = ++templateRequestId.value
   templateLoading.value = true
   try {
@@ -698,10 +688,8 @@ const loadReviewTemplateList = async (pspcType: TemplatePspcType) => {
       pspcType
     })
     if (!res.success) throw new Error(res.msg)
-
     const templateList = Array.isArray(res.data) ? res.data : []
     templateCache[pspcType] = templateList
-
     if (currentRequestId === templateRequestId.value && selectedPspcType.value === pspcType) {
       reviewTemplateList.value = templateList
     }
@@ -717,7 +705,6 @@ const loadReviewTemplateList = async (pspcType: TemplatePspcType) => {
     }
   }
 }
-
 const handleDownloadTemplate = async (file: TemplateManagerFile) => {
   try {
     const res = await downloadTemplateAttach({
@@ -725,7 +712,6 @@ const handleDownloadTemplate = async (file: TemplateManagerFile) => {
     })
     if (!res.success) throw new Error(res.msg || '附件下载失败')
     if (!res.data) throw new Error('附件下载地址为空')
-
     const link = document.createElement('a')
     link.href = res.data
     link.download = file.attachName
@@ -736,13 +722,11 @@ const handleDownloadTemplate = async (file: TemplateManagerFile) => {
     ElMessage.error((error as Error).message)
   }
 }
-
 const handlePspcChange = ({ id }: { id: string | number }) => {
   if (!id) {
     resetTemplateState()
   }
 }
-
 const getMeetingNameData = async ({ id, ...reset }: { id: string; [key: string]: any }) => {
   loading.value = true
   try {
@@ -767,7 +751,6 @@ const getMeetingNameData = async ({ id, ...reset }: { id: string; [key: string]:
     loading.value = false
   }
 }
-
 watch([selectedPspcType, modalVisible], ([pspcType, visible]) => {
   if (!visible) {
     reviewTemplateList.value = []
@@ -781,7 +764,6 @@ watch([selectedPspcType, modalVisible], ([pspcType, visible]) => {
   }
   void loadReviewTemplateList(pspcType)
 })
-
 const viewDetailMsg = (pageFlag: string, title: string) => {
   const btnPermissions = ['EXPORT']
   const row = modalProps.value.row
@@ -789,7 +771,9 @@ const viewDetailMsg = (pageFlag: string, title: string) => {
     pageFlag: pageFlag,
     title,
     isView: row['status'] === '00',
-    row: { ...row },
+    row: {
+      ...row
+    },
     btnPermissions: btnPermissions
   }
   if (pageFlag === 'PROGRAM') {
@@ -798,7 +782,6 @@ const viewDetailMsg = (pageFlag: string, title: string) => {
     reviewExpertModalRef.value?.acceptParams(params)
   }
 }
-
 const getDepteData = async () => {
   try {
     const res = await getDataByParent('QMYS_ZZJG')
@@ -811,7 +794,6 @@ const getDepteData = async () => {
     deptList.value = []
   }
 }
-
 interface ModalProps {
   userInfo: {
     deptId: string
@@ -832,7 +814,6 @@ interface ModalProps {
   getTableList?: () => void
   isProvinceFinanceBudgetSpecialist: boolean
 }
-
 const handleSubmit = async () => {
   await ruleFormRef.value.validate()
   try {
@@ -840,10 +821,11 @@ const handleSubmit = async () => {
     if (!validateRequiredAttachTypes(fullData)) {
       return
     }
-
     loading.value = true
     const uuids = fullData.map((item) => item.uuid)
-    const row: any = { ...modalProps.value.row }
+    const row: any = {
+      ...modalProps.value.row
+    }
     const major = row['major']
     row['major'] = Array.isArray(major) ? major.join(',') : major ? String(major) : ''
     const res = await modalProps.value.api!({
@@ -862,7 +844,6 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
-
 const changeStartTime = (val: string) => {
   if (val && modalProps.value.row?.endTime) {
     const startTime = new Date(val).getTime()
@@ -885,7 +866,6 @@ const changeEndTime = (val: string) => {
     }
   }
 }
-
 const fetchSelectorData = (_params: any) => {
   return getPageData({
     ..._params,
@@ -895,7 +875,6 @@ const fetchSelectorData = (_params: any) => {
     roleId: modalProps.value.userInfo.roleId
   })
 }
-
 const initParams = async () => {
   try {
     const baseCodes = ['SJTC_LHHS_PSZY', 'LHHS_COM', 'ZLYS_XMJHSSND']
@@ -927,9 +906,7 @@ const initParams = async () => {
     }))
     const tipCodes = res.success ? res.data?.[3]?.codes || [] : []
     attachmentTipList.value = tipCodes.length > 0 ? tipCodes : [...defaultAttachmentTipList]
-
     await loadRequiredAttachTypes()
-
     const attachTypeRes = await getPublicData(ATTACH_TYPE_CODE)
     if (!attachTypeRes.success) {
       throw new Error(attachTypeRes.msg)
@@ -939,11 +916,9 @@ const initParams = async () => {
     ElMessage.error((e as Error).message)
   }
 }
-
 const acceptedFileTypes = computed(() => {
   return allowedFileTypes.length > 0 ? allowedFileTypes.join(',') : undefined
 })
-
 const handleUploadClick = () => {
   if (!selectedAttachType.value) {
     ElMessage.warning('请选择附件类型')
@@ -951,13 +926,11 @@ const handleUploadClick = () => {
   }
   if (fileInput.value) fileInput.value.click()
 }
-
 const handleAttachTypeChange = () => {
   if (modalProps.value.row['meetingId']) {
     searchData()
   }
 }
-
 const acceptParams = (params: ModalProps) => {
   getDepteData()
   modalProps.value = {
@@ -970,7 +943,6 @@ const acceptParams = (params: ModalProps) => {
   searchData()
   modalVisible.value = true
 }
-
 const searchData = async () => {
   const search = modalProps.value?.searchAttachData
   if (!search) return
@@ -1001,26 +973,22 @@ const searchData = async () => {
     loading.value = false
   }
 }
-
 const changeNdData = (nd: string) => {
   selectorSearchFields[2].defaultValue = nd
   pspcRef.value?.handleClear()
   modalProps.value.row.meetingName = ''
   resetTemplateState()
 }
-
 const handleFileChange = async (event: Event) => {
   const input = event.target as HTMLInputElement | null
   const rawFiles = input?.files ? Array.from(input.files) : []
   if (!rawFiles.length) return
-
   loading.value = true
   try {
     const rejectedFiles = {
       type: [] as string[],
       size: [] as string[]
     }
-
     const createTime = new Date().toLocaleTimeString()
     const newFiles = rawFiles
       .map((file) => {
@@ -1044,8 +1012,13 @@ const handleFileChange = async (event: Event) => {
           isNew: true
         }
       })
-      .filter(Boolean) as Array<{ name: string; size: number; file: File; createTime: string; isNew: true }>
-
+      .filter(Boolean) as Array<{
+      name: string
+      size: number
+      file: File
+      createTime: string
+      isNew: true
+    }>
     if (rejectedFiles.type.length > 0) {
       VXETable.modal.message({
         content: `文件类型不符合要求:${rejectedFiles.type.join(', ')}`,
@@ -1059,11 +1032,9 @@ const handleFileChange = async (event: Event) => {
       })
     }
     if (newFiles.length === 0) return
-
     const attachNames = newFiles.map((item) => item.name)
     const data = new FormData()
     newFiles.forEach((item) => data.append('files', item.file))
-
     const meetingId = modalProps.value.row['meetingId']
     const res = meetingId
       ? await uploadRemindAttach({
@@ -1078,7 +1049,6 @@ const handleFileChange = async (event: Event) => {
           attachType: selectedAttachType.value
         })
     if (!res.success) throw new Error(res.msg)
-
     if (meetingId) {
       await searchData()
     } else {
@@ -1092,7 +1062,6 @@ const handleFileChange = async (event: Event) => {
         attachType: selectedAttachType.value,
         isNew: true
       }))
-
       uploadRef.value?.insert(records)
     }
     ElMessage.success('上传成功!')
@@ -1103,11 +1072,9 @@ const handleFileChange = async (event: Event) => {
     if (input) input.value = ''
   }
 }
-
 const handleUploadFileSelection = ({ records }: any) => {
   uploadFileSelection.value = records
 }
-
 const getFileIcon = (fileName: any) => {
   const extension = fileName.split('.').pop().toLowerCase()
   const iconMap: any = {
@@ -1127,7 +1094,6 @@ const getFileIcon = (fileName: any) => {
 const rowClassName = ({ row }: any) => {
   return row.isNew ? 'row-new' : ''
 }
-
 const handleDelete = async () => {
   if (uploadFileSelection.value && uploadFileSelection.value.length === 0) {
     VXETable.modal.message({
@@ -1159,14 +1125,17 @@ const handleDelete = async () => {
       })
       if (!res.success) throw new Error(res.msg)
     }
-    VXETable.modal.message({ content: '文件已删除', status: 'success', duration: 1500 })
+    VXETable.modal.message({
+      content: '文件已删除',
+      status: 'success',
+      duration: 1500
+    })
   } catch (error) {
     ElMessage.error((error as Error).message || '删除失败!')
   } finally {
     loading.value = false
   }
 }
-
 const handleDownload = async (row: any) => {
   loading.value = true
   try {
@@ -1175,7 +1144,6 @@ const handleDownload = async (row: any) => {
     })
     if (!res.success) throw new Error(res.msg || '附件下载失败!')
     if (!res.data) throw new Error('附件下载地址为空!')
-
     const link = document.createElement('a')
     link.href = res.data
     link.download = row.name || '附件下载'
@@ -1188,7 +1156,6 @@ const handleDownload = async (row: any) => {
     loading.value = false
   }
 }
-
 const closeHandle = () => {
   fileList.value = []
   uploadFileSelection.value = []
@@ -1196,9 +1163,7 @@ const closeHandle = () => {
   resetTemplateState()
   modalVisible.value = false
 }
-
 const ruleFormRef = ref()
-
 defineExpose({
   acceptParams
 })

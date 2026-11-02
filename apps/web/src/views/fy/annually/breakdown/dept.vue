@@ -95,11 +95,7 @@
   <ImportExcel ref="importRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/fy/annually/breakdown/dept'
-}
-</script>
+
 <script setup lang="ts">
 import unitDesc from '../components/unitDec.vue'
 import ImportExcel from '@/components/ImportExcel/index.vue'
@@ -132,25 +128,23 @@ import { useStore } from '@/store/business'
 import { startYapBmWf } from '@/api/workflow/fy'
 import { containsNd } from '@/api/fy/common'
 import { getWfTracking } from '@/api/workflow'
+defineOptions({
+  name: '/fy/annually/breakdown/dept'
+})
 
 const userDialogRef = ref()
 const headerRef = ref()
 const annuallyLayoutRef = ref()
 const unitDescRef = ref()
 const importRef = ref()
-
 const store = useStore()
-
 const tabInfo = reactive({
   kmlx: '1',
   nd: new Date().getFullYear().toString()
 })
-
 const isShowPage = ref(false)
 const isHidenTab = ref(false)
-
 const isCity = ref(true)
-
 const initParams = reactive({
   dwId: '',
   orgName: '',
@@ -160,9 +154,7 @@ const initParams = reactive({
   kmlx: '',
   parentId: ''
 })
-
 const pageLoading = ref(false)
-
 const userInfo = reactive<any>({
   orgName: '',
   orgId: '',
@@ -174,15 +166,12 @@ const userInfo = reactive<any>({
     wfId: null
   }
 })
-
 const unitDescInfo = reactive({
   isShowDec: false,
   flag: '',
   title: '市年度预算分解'
 })
-
 const isWfId = computed(() => userInfo.formStatus && !userInfo.formStatus.wfId)
-
 const isDisabled = computed(
   () =>
     (annuallyLayoutRef.value ? annuallyLayoutRef.value.tableInfo.loading : true) ||
@@ -198,7 +187,6 @@ const isHideTab = async (dwId: string) => {
     isHidenTab.value = res.data
   }
 }
-
 const getRoleHandle = async () => {
   // 初始化请求
   initParams.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString()
@@ -214,7 +202,6 @@ const getRoleHandle = async () => {
     isShowPage.value = true
   }
 }
-
 const initFormStatus = async () => {
   let res = await getFormStatus({
     busiType: 'ND',
@@ -229,13 +216,14 @@ const initFormStatus = async () => {
     userInfo.detailId = res.data.id
     userInfo.status = res.data.status
     userInfo.statusInfo = res.data.statusInfo
-    userInfo.formStatus = { ...res.data }
+    userInfo.formStatus = {
+      ...res.data
+    }
   } else {
     isCity.value = false
     ElMessage.error(res.msg)
   }
 }
-
 const openTodoTaskDesc = () => {
   if (userInfo.formStatus.wfId) {
     const winWidth = screen.width
@@ -246,24 +234,18 @@ const openTodoTaskDesc = () => {
     let pageTop = (winHeight - height) / 2
     getWfTracking(userInfo.formStatus.wfId).then((res: any) => {
       if (res.success) {
-        window.open(
-          res.data,
-          '_blank',
-          `width=${width},height=${height},top=${pageTop},left=${pageWidth}`
-        )
+        window.open(res.data, '_blank', `width=${width},height=${height},top=${pageTop},left=${pageWidth}`)
       } else {
         ElMessage.error(res.msg)
       }
     })
   }
 }
-
 const unitDescHandle = (flag: string) => {
   unitDescInfo.isShowDec = true
   unitDescInfo.flag = flag
   unitDescInfo.title = flag === 'edit' ? '部门年度预算分解' : '部门年度预算分解-查看'
 }
-
 const exportDataHandle = () => {
   pageLoading.value = true
   exportData({
@@ -288,30 +270,25 @@ const exportDataHandle = () => {
     pageLoading.value = false
   })
 }
-
 const modalCloseHandle = (val: boolean) => {
   unitDescInfo.isShowDec = val
 }
-
 const tabClickHandle = () => {
   initParams.kmlx = tabInfo.kmlx
   initFormStatus()
   annuallyLayoutRef.value.initTableData()
 }
-
 const changeNdHandle = (val: string) => {
   initParams.nd = val
   initParams.parentId = initParams.nd
   annuallyLayoutRef.value.initTableData()
   initFormStatus()
 }
-
 const changeXswsHandle = (val: string) => {
   initParams.xsws = val
   annuallyLayoutRef.value.initTableData()
   initFormStatus()
 }
-
 const saveDataHandle = async () => {
   const tableMsg = unitDescRef.value.tableInfo
   const $table = unitDescRef.value.treeTableRef
@@ -360,12 +337,8 @@ const saveDataHandle = async () => {
     }
   }
 }
-
 const releaseHandle = async () => {
-  if (
-    userInfo.formStatus &&
-    (userInfo.formStatus.bmfjStatus === null || userInfo.formStatus.bmfjStatus === '')
-  ) {
+  if (userInfo.formStatus && (userInfo.formStatus.bmfjStatus === null || userInfo.formStatus.bmfjStatus === '')) {
     ElMessage.warning('请先保存后,再进行分解下达！')
     return
   }
@@ -375,9 +348,7 @@ const releaseHandle = async () => {
   if (type === 'confirm') {
     // 判断是否走工作流
     let paramFLag = '0' //0走工作流  1不走工作流
-    let isWorkFlowRes = await baseService.get(
-      '/workflow/declare/getParamValue?paramKey=ND_DEPT_FJ_WORKFLOW'
-    )
+    let isWorkFlowRes = await baseService.get('/workflow/declare/getParamValue?paramKey=ND_DEPT_FJ_WORKFLOW')
     if (isWorkFlowRes.success) {
       let wfUserInfo: WFUserInfo = {
         userId: store.getters.getUserMsg.id,
@@ -395,15 +366,7 @@ const releaseHandle = async () => {
       paramFLag = isWorkFlowRes.data
       switch (paramFLag) {
         case '0':
-          submitWorkflow(
-            store.getters.getUserMsg.systemCode,
-            'WF_NDBMFJ',
-            '',
-            wfUserInfo,
-            wfParam,
-            {},
-            submitWFCallback
-          )
+          submitWorkflow(store.getters.getUserMsg.systemCode, 'WF_NDBMFJ', '', wfUserInfo, wfParam, {}, submitWFCallback)
           break
         case '1':
           res = await xd(userInfo.detailId)
@@ -420,7 +383,6 @@ const releaseHandle = async () => {
     }
   }
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: any) => {
   const list: any[] = JSON.parse(wfData).WorkFlowDataList.WorkFlowData
   let obj: any = {}
@@ -468,7 +430,6 @@ const unitDescExportHandle = () => {
     window.URL.revokeObjectURL(url)
   })
 }
-
 const unitDescImportHandle = () => {
   let newParmas = {
     busiType: 'ND',
@@ -480,7 +441,6 @@ const unitDescImportHandle = () => {
   }
   let tempApi: any = getImportTemplate
   let importApi: any = importData
-
   if (!tempApi && !importApi) return
   let params = {
     tempApi: (importParams: any) => {
@@ -502,11 +462,9 @@ const unitDescImportHandle = () => {
   }
   importRef.value.acceptParams(params)
 }
-
 const initData = () => {
   userDialogRef.value.getUser()
 }
-
 onMounted(() => {
   initData()
 })

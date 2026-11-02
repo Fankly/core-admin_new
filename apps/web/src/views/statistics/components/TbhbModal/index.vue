@@ -30,11 +30,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'TbhbModal'
-}
-</script>
 
 <script setup lang="ts">
 import { h, ref, reactive, computed, watch } from 'vue'
@@ -55,8 +50,19 @@ import {
 import type { TbhbApi, TbhbModalParams, TbhbRowVo } from './types'
 import Decimal from 'decimal.js'
 import { vxeExportFormulaHandle } from '@/utils/export'
-import type { FormulaConfig, SumFormulaConfig, SumRangeSpec, InlineSumConfig, InlineSumOptions, RankFormulaConfig, RankSpec } from '@/utils/export'
+import type {
+  FormulaConfig,
+  SumFormulaConfig,
+  SumRangeSpec,
+  InlineSumConfig,
+  InlineSumOptions,
+  RankFormulaConfig,
+  RankSpec
+} from '@/utils/export'
 import FxbgModal from '@/views/statistics/components/FxbgModal/index.vue'
+defineOptions({
+  name: 'TbhbModal'
+})
 
 const isShowModal = ref(false)
 const loading = ref(false)
@@ -64,10 +70,8 @@ const reportLoading = ref(false)
 const modalTitle = ref('同比分析')
 const gridRef = ref()
 const fxbgModalRef = ref()
-
 const allRows = ref<TbhbRowVo[]>([])
 const collapsedGroups = ref<Set<string>>(new Set())
-
 const displayData = computed<TbhbRowVo[]>(() => {
   if (collapsedGroups.value.size === 0) return allRows.value
   return allRows.value.filter((row: any) => {
@@ -77,7 +81,6 @@ const displayData = computed<TbhbRowVo[]>(() => {
     return true
   })
 })
-
 const rowClassName: VxeTablePropTypes.RowClassName<TbhbRowVo> = ({ row }: { row: TbhbRowVo }) => {
   const r = row as any
   const classNames: string[] = []
@@ -89,7 +92,6 @@ const rowClassName: VxeTablePropTypes.RowClassName<TbhbRowVo> = ({ row }: { row:
   }
   return classNames.length ? classNames.join(' ') : null
 }
-
 const toggleGroup = (groupType: string) => {
   const next = new Set(collapsedGroups.value)
   if (next.has(groupType)) {
@@ -99,14 +101,12 @@ const toggleGroup = (groupType: string) => {
   }
   collapsedGroups.value = next
 }
-
 const handleCellClick = ({ row }: any) => {
   const r = row as any
   if (r && r._isGroupRow && r._groupType) {
     toggleGroup(r._groupType)
   }
 }
-
 const gridOptions = reactive<VxeGridProps<TbhbRowVo>>({
   border: true,
   loading: false,
@@ -130,11 +130,9 @@ const gridOptions = reactive<VxeGridProps<TbhbRowVo>>({
     isMergeHead: true
   }
 })
-
 watch(displayData, (val) => {
   gridOptions.data = val as any
 })
-
 const getRequestParams = (params: TbhbModalParams) => {
   const { formData, dwId, type } = params
   const { ysqj, month, ...rest } = formData
@@ -156,13 +154,23 @@ const renderFormulaHeader = (title: string, formula: string) => {
   return () =>
     h(
       ElTooltip,
-      { effect: 'dark', placement: 'top', content: formula },
       {
-        default: () => h('span', { style: 'display: inline-flex; align-items: center; gap: 2px' }, [title])
+        effect: 'dark',
+        placement: 'top',
+        content: formula
+      },
+      {
+        default: () =>
+          h(
+            'span',
+            {
+              style: 'display: inline-flex; align-items: center; gap: 2px'
+            },
+            [title]
+          )
       }
     )
 }
-
 const loadData = async (params: TbhbModalParams) => {
   loading.value = true
   gridOptions.loading = true
@@ -181,7 +189,6 @@ const loadData = async (params: TbhbModalParams) => {
     } catch (e) {
       console.error('获取同比/环比表头失败', e)
     }
-
     if (serverColumns.length === 0) {
       gridOptions.columns = []
       allRows.value = []
@@ -199,7 +206,6 @@ const loadData = async (params: TbhbModalParams) => {
       }
     })
     gridOptions.columns = columns
-
     const dataRes = await getTbhbData(requestParams)
     if (dataRes.success) {
       const rows: TbhbRowVo[] = Array.isArray(dataRes.data) ? dataRes.data : []
@@ -220,7 +226,6 @@ const loadData = async (params: TbhbModalParams) => {
     gridOptions.loading = false
   }
 }
-
 const open = (params: TbhbModalParams) => {
   currentType.value = params.type
   currentParams.value = params
@@ -233,7 +238,6 @@ const open = (params: TbhbModalParams) => {
   isShowModal.value = true
   loadData(params)
 }
-
 const handleClose = () => {
   isShowModal.value = false
   allRows.value = []
@@ -306,13 +310,11 @@ const buildSumConfig = (columns: any[], data: TbhbRowVo[]): SumFormulaConfig | u
     .map((col: any) => String(col.field || ''))
     .filter(Boolean)
   if (fields.length === 0) return undefined
-
   const isGroupRow = (r: TbhbRowVo) => !!(r as any)._isGroupRow
   const isTotalRow = (r: TbhbRowVo) => !!(r as any)._isTotalRow
   const isDfjRow = (r: TbhbRowVo) => !!(r as any)._isDfjRow
   const isAggRow = (r: TbhbRowVo) => isGroupRow(r) || isTotalRow(r) || isDfjRow(r)
   const isDetail = (r: TbhbRowVo) => !isAggRow(r)
-
   const items: SumRangeSpec[] = []
 
   // 分组小计：小计行 i 的明细区间为紧随其后直到下一个聚合行之前的连续 detail 行
@@ -321,7 +323,10 @@ const buildSumConfig = (columns: any[], data: TbhbRowVo[]): SumFormulaConfig | u
     let j = i + 1
     while (j < data.length && isDetail(data[j])) j++
     if (j - 1 >= i + 1) {
-      items.push({ rowIndex: i, detailRanges: [[i + 1, j - 1]] })
+      items.push({
+        rowIndex: i,
+        detailRanges: [[i + 1, j - 1]]
+      })
     }
   }
 
@@ -346,11 +351,18 @@ const buildSumConfig = (columns: any[], data: TbhbRowVo[]): SumFormulaConfig | u
       if (isDfjRow(data[p])) ranges.push([p, p])
     }
     if (ranges.length > 0) {
-      items.push({ rowIndex: totalIdx, detailRanges: ranges })
+      items.push({
+        rowIndex: totalIdx,
+        detailRanges: ranges
+      })
     }
   }
-
-  return items.length > 0 ? { fields, items } : undefined
+  return items.length > 0
+    ? {
+        fields,
+        items
+      }
+    : undefined
 }
 
 // 构造导出「成本小计」横向求和公式配置：
@@ -381,7 +393,10 @@ const buildInlineSumConfig = (columns: any[]): InlineSumOptions | undefined => {
         .map((c: any) => String(c.field))
         .filter(Boolean)
       if (sourceFields.length === 0) return
-      specs.push({ targetField, sourceFields })
+      specs.push({
+        targetField,
+        sourceFields
+      })
     })
   })
   if (specs.length === 0) return undefined
@@ -421,14 +436,27 @@ const buildRankFormulaConfig = (columns: any[]): RankFormulaConfig | undefined =
   }
   const specs: RankSpec[] = []
   if (hasSpm) {
-    specs.push({ field: 'spm', rateField, scope: 'global', rankFieldHasValue: true, rateCalc })
+    specs.push({
+      field: 'spm',
+      rateField,
+      scope: 'global',
+      rankFieldHasValue: true,
+      rateCalc
+    })
   }
   if (hasFzpm) {
-    specs.push({ field: 'fzpm', rateField, scope: 'segment' })
+    specs.push({
+      field: 'fzpm',
+      rateField,
+      scope: 'segment'
+    })
   }
-  return specs.length > 0 ? { specs } : undefined
+  return specs.length > 0
+    ? {
+        specs
+      }
+    : undefined
 }
-
 const exportDataHandle = () => {
   const $grid = gridRef.value
   if (!$grid) return
@@ -447,13 +475,14 @@ const exportDataHandle = () => {
     gridOptions.data,
     xsws,
     formulaConfig,
-    { tbhbMode: true },
+    {
+      tbhbMode: true
+    },
     sumConfig,
     inlineSumOptions,
     rankFormulaConfig
   )
 }
-
 const viewReportHandle = async () => {
   if (!currentParams.value) return
   if (reportLoading.value) return
@@ -475,8 +504,9 @@ const viewReportHandle = async () => {
     reportLoading.value = false
   }
 }
-
-defineExpose({ open })
+defineExpose({
+  open
+})
 </script>
 
 <style scoped lang="less">

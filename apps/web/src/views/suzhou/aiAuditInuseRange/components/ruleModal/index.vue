@@ -54,15 +54,9 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'ruleModal'
-}
-</script>
 
 <script setup lang="ts">
 import { InfoFilled as EpInfoFilled, Warning as EpWarning } from '@element-plus/icons-vue'
-
 import { markRaw, nextTick, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
@@ -73,12 +67,14 @@ import { aiAuditRuleEdit, aiAuditRuleKeysEdit } from '@/api/suzhou/aiAuditInuseR
 import { getPublicData } from '@/api/common'
 import type { ColumnProps } from '@/components/ProTablePage/interface'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
+defineOptions({
+  name: 'ruleModal'
+})
 
 interface CodeItem {
   code: string
   name: string
 }
-
 interface ModalParams {
   type: string
   searchParams: {
@@ -90,11 +86,14 @@ interface ModalParams {
     useKeysEdit?: boolean
   }
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const tableLoading = ref(false)
@@ -110,7 +109,6 @@ const selectedNames = ref('')
 /** 适用审核要点：保存时改走 aiAuditRuleKeysEdit */
 const useKeysEdit = ref(false)
 const ruleStatusMap = ref<Record<string, string>>({})
-
 const formatRuleStatus = ({ cellValue }: { cellValue: any }) => {
   if (cellValue == null || cellValue === '') return ''
   return ruleStatusMap.value[String(cellValue)] ?? String(cellValue)
@@ -123,34 +121,89 @@ const formatRuleStatus = ({ cellValue }: { cellValue: any }) => {
  * - 批量编辑不回显已关联规则
  */
 const tableColumns = markRaw<VxeGridProps['columns']>([
-  { type: 'checkbox', width: 50 },
-  { type: 'seq', width: 50, title: '序号' },
+  {
+    type: 'checkbox',
+    width: 50
+  },
+  {
+    type: 'seq',
+    width: 50,
+    title: '序号'
+  },
   // { field: 'ruleMajorName', title: '规则类型', width: 100 },
-  { field: 'ruleCode', title: '规则编码', width: 150 },
-  { field: 'ruleName', title: '规则名称', minWidth: 180 },
-  { field: 'auditPointCode', title: '要点编码', minWidth: 180 },
-  { field: 'auditPointName', title: '要点名称', minWidth: 180 },
+  {
+    field: 'ruleCode',
+    title: '规则编码',
+    width: 150
+  },
+  {
+    field: 'ruleName',
+    title: '规则名称',
+    minWidth: 180
+  },
+  {
+    field: 'auditPointCode',
+    title: '要点编码',
+    minWidth: 180
+  },
+  {
+    field: 'auditPointName',
+    title: '要点名称',
+    minWidth: 180
+  },
   // { field: 'ruleDesc', title: '规则描述', minWidth: 180 },
   // { field: 'ruleClassifyName', title: '规则分类', width: 120 },
   // { field: 'ruleLevelName', title: '规则级别', width: 100 },
   // { field: 'execStageName', title: '执行阶段', width: 100 },
-  { field: 'sort', title: '排序', width: 60 },
-  { field: 'ruleStatus', title: '规则状态', width: 90, formatter: formatRuleStatus }
+  {
+    field: 'sort',
+    title: '排序',
+    width: 60
+  },
+  {
+    field: 'ruleStatus',
+    title: '规则状态',
+    width: 90,
+    formatter: formatRuleStatus
+  }
 ])
-
 const searchColumns = reactive<ColumnProps[]>([
-  { prop: 'ruleCode', label: '规则编码', search: { el: 'input', order: 1 } },
-  { prop: 'ruleName', label: '规则名称', search: { el: 'input', order: 2 } },
+  {
+    prop: 'ruleCode',
+    label: '规则编码',
+    search: {
+      el: 'input',
+      order: 1
+    }
+  },
+  {
+    prop: 'ruleName',
+    label: '规则名称',
+    search: {
+      el: 'input',
+      order: 2
+    }
+  },
   {
     prop: 'auditPointCode',
     label: '要点编码',
     search: {
       order: 1,
       render: ReMultipleText as any,
-      props: { class: 'pq-search-input', placeholder: '请输入要点编码，多个用逗号分隔' }
+      props: {
+        class: 'pq-search-input',
+        placeholder: '请输入要点编码，多个用逗号分隔'
+      }
     }
   },
-  { prop: 'auditPointName', label: '要点名称', search: { el: 'input', order: 2 } },
+  {
+    prop: 'auditPointName',
+    label: '要点名称',
+    search: {
+      el: 'input',
+      order: 2
+    }
+  },
   // { prop: 'ruleDesc', label: '规则描述', search: { el: 'input', order: 3 } },
   // {
   //   prop: 'ruleClassify',
@@ -170,11 +223,16 @@ const searchColumns = reactive<ColumnProps[]>([
     prop: 'ruleStatus',
     label: '规则状态',
     enum: () => getPublicData('ZLYS_SFQY'),
-    search: { el: 'select', order: 6 },
-    fieldNames: { label: 'name', value: 'code' }
+    search: {
+      el: 'select',
+      order: 6
+    },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   }
 ])
-
 const loadRuleStatusMap = async () => {
   try {
     const res = await getPublicData('ZLYS_SFQY')
@@ -189,7 +247,6 @@ const loadRuleStatusMap = async () => {
     // 展示层降级为原始 code，不阻断弹窗
   }
 }
-
 const callBackHandle = (data: any) => {
   tableLoading.value = false
   const selectedIdSet = new Set(pendingSelectedIds.value)
@@ -205,25 +262,21 @@ const callBackHandle = (data: any) => {
   })
   return data
 }
-
 const handleRequestError = (error: unknown) => {
   tableLoading.value = false
   if ((error as Error)?.message === 'STALE_TABLE_REQUEST') return
   ElMessage.error((error as Error)?.message || '规则列表加载失败，请重试')
 }
-
 const getPageList = (params: any) => {
   tableLoading.value = true
   return rulManageGeGetRulePage(params)
 }
-
 const getSelectedRuleIds = (): string[] => {
   const selected = proTableRef.value?.selectedList || []
   const fromTable = selected.map((item: any) => String(item.ruleId)).filter(Boolean)
   // 未加载到当前分页的回显 ID 仍参与保存，避免跨页丢关联
   return Array.from(new Set([...fromTable, ...pendingSelectedIds.value]))
 }
-
 const handleClose = () => {
   proTypeList.value = []
   pendingSelectedIds.value = []
@@ -232,13 +285,11 @@ const handleClose = () => {
   selectedNames.value = ''
   isShowModal.value = false
 }
-
 const handleSave = async () => {
   if (loading.value) return
   if (!proTypeList.value.length) return ElMessage.warning('缺少项目类型！')
   const ruleIdList = getSelectedRuleIds()
   if (ruleIdList.length === 0) return ElMessage.warning('请选择规则！')
-
   try {
     const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
       status: 'warning'
@@ -250,7 +301,6 @@ const handleSave = async () => {
   } catch {
     return
   }
-
   loading.value = true
   try {
     const res = useKeysEdit.value
@@ -264,7 +314,9 @@ const handleSave = async () => {
         })
     if (res.success) {
       ElMessage.success('保存成功！')
-      emit('searchHandle', { param: 'success' })
+      emit('searchHandle', {
+        param: 'success'
+      })
       handleClose()
     } else {
       ElMessage.error(res.msg || '保存失败')
@@ -275,7 +327,6 @@ const handleSave = async () => {
     loading.value = false
   }
 }
-
 const acceptParams = (params: ModalParams) => {
   modalTitle.value = params.type || '选择适用规则'
   proTypeList.value = params.searchParams.proTypeList || []
@@ -291,12 +342,12 @@ const acceptParams = (params: ModalParams) => {
     proTableRef.value?.reset()
   })
 }
-
 onMounted(() => {
   loadRuleStatusMap()
 })
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

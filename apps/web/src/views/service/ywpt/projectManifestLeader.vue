@@ -86,8 +86,6 @@
 
 <script setup lang="tsx">
 import { ArrowDown as EpArrowDown, ArrowRight as EpArrowRight } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/service/ywpt/projectManifestLeader" })
 import { ref, reactive, h, nextTick, onMounted } from 'vue'
 import {
   pageExpertReviewInfo,
@@ -106,22 +104,31 @@ import {
 } from '@/api/service/jointReview'
 import { saveOrUpdateTXmThxxb } from '@/api/workflow/xm'
 import { ElMessage, ElNotification } from 'element-plus'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import { formatNumValue } from '@/utils/utils'
 import reviewModal from '@/components/yssxTable/reviewModal.vue'
 import proModel from '@/views/service/ywpt/components/modelReview.vue'
 import urgeTask from '@/views/service/ywpt/components/urgeTask.vue'
 import selectModal from '@/views/service/ywpt/components/selectModalPs.vue'
 import { getEjdwData, getYjdwData } from '@/api/service/expertinformation'
-import expertReview from '@/views/service/ywpt/components/expertReview.vue' //专家评审信息
-import historyModal from '@/views/service/ywpt/components/history.vue' //专家评审信息
+import expertReview from '@/views/service/ywpt/components/expertReview.vue'
+import historyModal from '@/views/service/ywpt/components/history.vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { useStore } from '@/store/business'
 import { useRoute } from 'vue-router'
 import { decrypt } from '@/utils/crypto'
 import { getButtonList } from '@/api/common'
+defineOptions({ name: "/service/ywpt/projectManifestLeader" })
+
+ //表格组件
+
+ //导入组件
+
+ //专家评审信息
+ //专家评审信息
+
 // 初始化页面
 const userDialogRef = ref() // 用户角色
 const loading = ref(false) //接口调用加载中。。。

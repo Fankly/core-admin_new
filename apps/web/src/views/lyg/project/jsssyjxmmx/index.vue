@@ -10,9 +10,9 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/lyg/project/jsssyjxmmx/index" })
 import CqxmBaseTable from '../components/CqxmBaseTable.vue'
 import { getCqwjssshXmmxPage, exportCqwjssshXmmx } from '@/api/lyg/index'
+defineOptions({ name: "/lyg/project/jsssyjxmmx/index" })
 
 const extraColumns = [{ prop: 'actualEndDate', label: '项目竣工时间', width: 150 }]
 </script>

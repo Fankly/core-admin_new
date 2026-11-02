@@ -97,394 +97,327 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import type { ModalProps } from './index.module'
 import { DocumentCopy as EpDocumentCopy, Tickets as EpTickets, Upload as EpUpload } from '@element-plus/icons-vue'
-
-import { computed, defineComponent, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { VXETable, VxeTableInstance } from 'vxe-table'
 import { ElMessage } from 'element-plus'
 import { Result, Params } from '@/views/service/Storage/interface'
 import { maintainWh } from '@/api/service/Storage/reviewReplyUpload/index'
 import { downloadAttach } from '@/api/service/IhhsMeeting/approval/proviceIhhsMeeting'
 import { getPublicData } from '@/api/common'
-
-interface ModalProps {
-  isView: boolean
-  selectData: any[]
-  searchCode: string
-  inputText: string
-  selectText?: string
-  modalTitle: string
-  allowedFileTypes: string[]
-  maxFileSize: number
-  submitApi: null | ((params: any) => Promise<Result>)
-  searchApi: null | ((params: any) => Promise<Result>)
-}
-
-export default defineComponent({
-  name: 'batchFile',
-  props: {
-    allowedFileTypes: {
-      type: Array,
-      default: () => []
-    },
-    maxFileSize: {
-      type: Number,
-      default: 104857600
-    }
+defineOptions({
+  name: 'batchFile'
+})
+const props = defineProps({
+  allowedFileTypes: {
+    type: Array,
+    default: () => []
   },
-  emits: ['file-type-error', 'file-size-error', 'submitAfter'],
-  setup(props, { expose, emit }) {
-    const modalVisible = ref(false)
-    const tableRef = ref<VxeTableInstance>()
-    const nd = ref('')
-    const wh = ref('')
-    const fileInput = ref<any>(null)
-    const loading = ref(false)
-    const tableLoading = ref(false)
-    const submitLoading = ref(false)
-    const fileList = ref<any[]>([])
-    const selectList = ref<any[]>([])
-
-    const modalProps = ref<ModalProps>({
-      isView: false,
-      selectData: [],
-      modalTitle: '附件上传',
-      inputText: '评审意见文号',
-      allowedFileTypes: [],
-      maxFileSize: 104857600,
-      submitApi: null,
-      searchApi: null,
-      searchCode: ''
+  maxFileSize: {
+    type: Number,
+    default: 104857600
+  }
+})
+const emit = defineEmits(['file-type-error', 'file-size-error', 'submitAfter'])
+const modalVisible = ref(false)
+const tableRef = ref<VxeTableInstance>()
+const nd = ref('')
+const wh = ref('')
+const fileInput = ref<any>(null)
+const loading = ref(false)
+const tableLoading = ref(false)
+const submitLoading = ref(false)
+const fileList = ref<any[]>([])
+const selectList = ref<any[]>([])
+const modalProps = ref<ModalProps>({
+  isView: false,
+  selectData: [],
+  modalTitle: '附件上传',
+  inputText: '评审意见文号',
+  allowedFileTypes: [],
+  maxFileSize: 104857600,
+  submitApi: null,
+  searchApi: null,
+  searchCode: ''
+})
+const closeHandle = () => {
+  fileList.value = []
+  loading.value = false
+  tableLoading.value = false
+  submitLoading.value = false
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+  nd.value = ''
+  wh.value = ''
+  modalProps.value = {
+    isView: false,
+    selectData: [],
+    modalTitle: '附件上传',
+    inputText: '评审意见文号',
+    allowedFileTypes: [],
+    maxFileSize: 104857600,
+    submitApi: null,
+    searchApi: null,
+    searchCode: ''
+  }
+  modalVisible.value = false
+}
+const searchData = async () => {
+  const search = modalProps.value?.searchApi
+  if (!search) return
+  loading.value = true
+  try {
+    const IdArr = modalProps.value.selectData.map((item) => item.id)
+    if (IdArr.length !== 1) {
+      return
+    }
+    const ids = IdArr.join(',')
+    const searchDataRes = await search({
+      id: ids,
+      searchCode: modalProps.value.searchCode
     })
+    if (!searchDataRes.success) throw new Error(searchDataRes.msg)
+    wh.value = searchDataRes.data.wh
+    fileList.value = searchDataRes.data.attachLists.map((attachList: any) => {
+      return {
+        name: attachList.attachName,
+        id: attachList.id,
+        uuid: attachList.uuid,
+        isNew: false
+      }
+    })
+  } catch (error) {
+    ElMessage.error((error as Error).message)
+  } finally {
+    loading.value = false
+  }
+}
+const acceptedFileTypes = computed(() => {
+  return props.allowedFileTypes.length > 0 ? props.allowedFileTypes.join(',') : undefined
+})
+const hasFileRestrictions = computed(() => {
+  return props.allowedFileTypes.length > 0 || props.maxFileSize > 0
+})
+const allowedFileTypesDisplay = computed(() => {
+  return props.allowedFileTypes.join(', ')
+})
+const maxFileSizeDisplay = computed(() => {
+  return formatFileSize(modalProps.value.maxFileSize)
+})
+const openModal = () => {
+  modalVisible.value = true
+}
+const handleUploadClick = () => {
+  if (fileInput.value) fileInput.value.click()
+}
+const handleSave = async () => {
+  if (!wh.value) {
+    VXETable.modal.message({
+      content: `请输入${modalProps.value.inputText}!`,
+      status: 'warning'
+    })
+    return
+  }
+  if (modalProps.value.searchCode === 'PFYJSC_SJTC' && !nd.value) {
+    VXETable.modal.message({
+      content: `请输入${modalProps.value.selectText}!`,
+      status: 'warning'
+    })
+    return
+  }
+  if (fileList.value.length === 0) {
+    VXETable.modal.message({
+      content: `请上传文件!`,
+      status: 'warning'
+    })
+    return
+  }
+  loading.value = true
+  try {
+    const ids = modalProps.value.selectData.map((item) => item.id)
+    const res = await maintainWh({
+      searchCode: modalProps.value.searchCode,
+      wh: wh.value,
+      ids: ids,
+      nd: nd.value
+    })
+    if (!res.success) throw new Error(res.msg)
+    VXETable.modal.message({
+      content: `保存成功!`,
+      status: 'success'
+    })
+    emit('submitAfter')
+    closeHandle()
+  } catch (error) {
+    ElMessage.error((error as Error).message)
+  } finally {
+    loading.value = false
+  }
+}
+const handleFileChange = (event: any) => {
+  const files: any = event.target.files
+  if (!files || files.length === 0) return
+  tableLoading.value = true
+  const processFile = () => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const now = new Date()
+        const timeStr = now.toLocaleTimeString()
+        const newFiles = []
+        const rejectedFiles: any = {
+          type: [],
+          size: []
+        }
+        for (let i = 0; i < files.length; i++) {
+          const file: Params = files[i]
 
-    const closeHandle = () => {
-      fileList.value = []
-      loading.value = false
+          // 检查类型
+          const fileExtension = '.' + file.name.split('.').pop().toLowerCase()
+          const isValidType =
+            props.allowedFileTypes.length === 0 ||
+            props.allowedFileTypes.includes(fileExtension) ||
+            props.allowedFileTypes.includes(fileExtension.substring(1))
+          const isValidSize = file.size <= props.maxFileSize
+          if (!isValidType) {
+            rejectedFiles.type.push(file.name)
+            continue
+          }
+          if (!isValidSize) {
+            rejectedFiles.size.push(file.name)
+            continue
+          }
+          newFiles.push({
+            name: file.name,
+            size: file.size,
+            file: file,
+            createTime: timeStr,
+            isNew: true
+          })
+        }
+        if (rejectedFiles.type.length > 0) {
+          emit('file-type-error', rejectedFiles.type)
+          VXETable.modal.message({
+            content: `文件类型不符合要求:${rejectedFiles.type.join(', ')}`,
+            status: 'warning'
+          })
+        }
+        resolve(newFiles)
+      }, 500)
+    })
+  }
+  processFile()
+    .then(async (newFiles: any) => {
+      if (!modalProps.value.submitApi) return
+      const attachNames = newFiles.map((item: any) => item.name)
+      const data = new FormData()
+      for (const newFile of newFiles) {
+        data.append('files', newFile.file)
+      }
+      const ids = modalProps.value.selectData.map((item) => item.id)
+      const res = await modalProps.value.submitApi({
+        excelFormData: data,
+        attachNames: attachNames,
+        searchCode: modalProps.value.searchCode,
+        ids: ids
+      })
+      if (!res.success) throw new Error(res.msg)
+      const records = newFiles.map((file: any, index: number) => {
+        return {
+          name: file.name,
+          uuid: res.data[index],
+          isNew: true
+        }
+      })
+      fileList.value = records
+      ElMessage.success('上传成功!')
+    })
+    .finally(() => {
       tableLoading.value = false
-      submitLoading.value = false
-      if (fileInput.value) {
-        fileInput.value.value = ''
-      }
-      nd.value = ''
-      wh.value = ''
-      modalProps.value = {
-        isView: false,
-        selectData: [],
-        modalTitle: '附件上传',
-        inputText: '评审意见文号',
-        allowedFileTypes: [],
-        maxFileSize: 104857600,
-        submitApi: null,
-        searchApi: null,
-        searchCode: ''
-      }
-      modalVisible.value = false
-    }
-
-    const searchData = async () => {
-      const search = modalProps.value?.searchApi
-      if (!search) return
-      loading.value = true
-      try {
-        const IdArr = modalProps.value.selectData.map((item) => item.id)
-        if (IdArr.length !== 1) {
-          return
-        }
-        const ids = IdArr.join(',')
-        const searchDataRes = await search({
-          id: ids,
-          searchCode: modalProps.value.searchCode
-        })
-        if (!searchDataRes.success) throw new Error(searchDataRes.msg)
-        wh.value = searchDataRes.data.wh
-        fileList.value = searchDataRes.data.attachLists.map((attachList: any) => {
-          return {
-            name: attachList.attachName,
-            id: attachList.id,
-            uuid: attachList.uuid,
-            isNew: false
-          }
-        })
-      } catch (error) {
-        ElMessage.error((error as Error).message)
-      } finally {
-        loading.value = false
-      }
-    }
-
-    const acceptedFileTypes = computed(() => {
-      return props.allowedFileTypes.length > 0 ? props.allowedFileTypes.join(',') : undefined
     })
-
-    const hasFileRestrictions = computed(() => {
-      return props.allowedFileTypes.length > 0 || props.maxFileSize > 0
-    })
-
-    const allowedFileTypesDisplay = computed(() => {
-      return props.allowedFileTypes.join(', ')
-    })
-
-    const maxFileSizeDisplay = computed(() => {
-      return formatFileSize(modalProps.value.maxFileSize)
-    })
-
-    const openModal = () => {
-      modalVisible.value = true
-    }
-
-    const handleUploadClick = () => {
-      if (fileInput.value) fileInput.value.click()
-    }
-
-    const handleSave = async () => {
-      if (!wh.value) {
-        VXETable.modal.message({
-          content: `请输入${modalProps.value.inputText}!`,
-          status: 'warning'
-        })
+}
+const formatFileSize = (size: any) => {
+  if (size < 1024) {
+    return size + ' B'
+  } else if (size < 1024 * 1024) {
+    return (size / 1024).toFixed(2) + ' KB'
+  } else if (size < 1024 * 1024 * 1024) {
+    return (size / (1024 * 1024)).toFixed(2) + ' MB'
+  } else {
+    return (size / (1024 * 1024 * 1024)).toFixed(2) + ' GB'
+  }
+}
+const getFileIcon = (fileName: any) => {
+  const extension = fileName.split('.').pop().toLowerCase()
+  const iconMap: any = {
+    pdf: 'vxe-icon-file-pdf',
+    doc: 'vxe-icon-file',
+    docx: 'vxe-icon-file',
+    xls: 'vxe-icon-file-excel',
+    xlsx: 'vxe-icon-file-excel',
+    txt: 'vxe-icon-file',
+    jpg: 'vxe-icon-file-image',
+    jpeg: 'vxe-icon-file-image',
+    png: 'vxe-icon-file-image',
+    gif: 'vxe-icon-file-image'
+  }
+  return iconMap[extension] || 'vxe-icon-file'
+}
+const rowClassName = ({ row }: any) => {
+  return row.isNew ? 'row-new' : ''
+}
+const handleDownload = async (row: any) => {
+  loading.value = true
+  const index = fileList.value.findIndex((item: any) => item === row)
+  if (index !== -1) {
+    const fileItem = fileList.value[index]
+    if (fileItem) {
+      const res = await downloadAttach({
+        uuid: fileItem.uuid
+      })
+      if (!res.success) {
+        ElMessage.error(res.msg || '附件下载失败!')
         return
       }
-      if (modalProps.value.searchCode === 'PFYJSC_SJTC' && !nd.value) {
-        VXETable.modal.message({
-          content: `请输入${modalProps.value.selectText}!`,
-          status: 'warning'
-        })
-        return
-      }
-      if (fileList.value.length === 0) {
-        VXETable.modal.message({
-          content: `请上传文件!`,
-          status: 'warning'
-        })
-        return
-      }
-      loading.value = true
-      try {
-        const ids = modalProps.value.selectData.map((item) => item.id)
-        const res = await maintainWh({
-          searchCode: modalProps.value.searchCode,
-          wh: wh.value,
-          ids: ids,
-          nd: nd.value
-        })
-        if (!res.success) throw new Error(res.msg)
-        VXETable.modal.message({
-          content: `保存成功!`,
-          status: 'success'
-        })
-        emit('submitAfter')
-        closeHandle()
-      } catch (error) {
-        ElMessage.error((error as Error).message)
-      } finally {
-        loading.value = false
-      }
-    }
-
-    const handleFileChange = (event: any) => {
-      const files: any = event.target.files
-      if (!files || files.length === 0) return
-      tableLoading.value = true
-      const processFile = () => {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            const now = new Date()
-            const timeStr = now.toLocaleTimeString()
-
-            const newFiles = []
-
-            const rejectedFiles: any = {
-              type: [],
-              size: []
-            }
-
-            for (let i = 0; i < files.length; i++) {
-              const file: Params = files[i]
-
-              // 检查类型
-              const fileExtension = '.' + file.name.split('.').pop().toLowerCase()
-              const isValidType =
-                props.allowedFileTypes.length === 0 ||
-                props.allowedFileTypes.includes(fileExtension) ||
-                props.allowedFileTypes.includes(fileExtension.substring(1))
-              const isValidSize = file.size <= props.maxFileSize
-              if (!isValidType) {
-                rejectedFiles.type.push(file.name)
-                continue
-              }
-              if (!isValidSize) {
-                rejectedFiles.size.push(file.name)
-                continue
-              }
-              newFiles.push({
-                name: file.name,
-                size: file.size,
-                file: file,
-                createTime: timeStr,
-                isNew: true
-              })
-            }
-            if (rejectedFiles.type.length > 0) {
-              emit('file-type-error', rejectedFiles.type)
-              VXETable.modal.message({
-                content: `文件类型不符合要求:${rejectedFiles.type.join(', ')}`,
-                status: 'warning'
-              })
-            }
-            resolve(newFiles)
-          }, 500)
-        })
-      }
-      processFile()
-        .then(async (newFiles: any) => {
-          if (!modalProps.value.submitApi) return
-          const attachNames = newFiles.map((item: any) => item.name)
-          const data = new FormData()
-          for (const newFile of newFiles) {
-            data.append('files', newFile.file)
-          }
-          const ids = modalProps.value.selectData.map((item) => item.id)
-          const res = await modalProps.value.submitApi({
-            excelFormData: data,
-            attachNames: attachNames,
-            searchCode: modalProps.value.searchCode,
-            ids: ids
-          })
-          if (!res.success) throw new Error(res.msg)
-          const records = newFiles.map((file: any, index: number) => {
-            return {
-              name: file.name,
-              uuid: res.data[index],
-              isNew: true
-            }
-          })
-          fileList.value = records
-          ElMessage.success('上传成功!')
-        })
-        .finally(() => {
-          tableLoading.value = false
-        })
-    }
-
-    const formatFileSize = (size: any) => {
-      if (size < 1024) {
-        return size + ' B'
-      } else if (size < 1024 * 1024) {
-        return (size / 1024).toFixed(2) + ' KB'
-      } else if (size < 1024 * 1024 * 1024) {
-        return (size / (1024 * 1024)).toFixed(2) + ' MB'
-      } else {
-        return (size / (1024 * 1024 * 1024)).toFixed(2) + ' GB'
-      }
-    }
-
-    const getFileIcon = (fileName: any) => {
-      const extension = fileName.split('.').pop().toLowerCase()
-      const iconMap: any = {
-        pdf: 'vxe-icon-file-pdf',
-        doc: 'vxe-icon-file',
-        docx: 'vxe-icon-file',
-        xls: 'vxe-icon-file-excel',
-        xlsx: 'vxe-icon-file-excel',
-        txt: 'vxe-icon-file',
-        jpg: 'vxe-icon-file-image',
-        jpeg: 'vxe-icon-file-image',
-        png: 'vxe-icon-file-image',
-        gif: 'vxe-icon-file-image'
-      }
-      return iconMap[extension] || 'vxe-icon-file'
-    }
-    const rowClassName = ({ row }: any) => {
-      return row.isNew ? 'row-new' : ''
-    }
-
-    const handleDownload = async (row: any) => {
-      loading.value = true
-      const index = fileList.value.findIndex((item: any) => item === row)
-      if (index !== -1) {
-        const fileItem = fileList.value[index]
-        if (fileItem) {
-          const res = await downloadAttach({
-            uuid: fileItem.uuid
-          })
-          if (!res.success) {
-            ElMessage.error(res.msg || '附件下载失败!')
-            return
-          }
-          const link = document.createElement('a')
-          link.href = res.data
-          link.download = `${fileItem.attachName}.xlsx` // 获取文件名
-          document.body.appendChild(link)
-          link.click()
-          link.remove()
-        }
-      }
-      loading.value = false
-    }
-
-    const getPublicParams = async (code: string) => {
-      try {
-        const res = await getPublicData(code)
-        if (!res.success) throw new Error(res.msg)
-        selectList.value = res.data
-      } catch (error) {
-        ElMessage.error((error as Error).message)
-      }
-    }
-
-    const acceptParams = (params: ModalProps) => {
-      modalProps.value = {
-        ...modalProps.value,
-        ...params
-      }
-      if (params.selectText) {
-        getPublicParams('ZLYS_XMJHSSND')
-        if (modalProps.value.selectData && modalProps.value.selectData.length === 1) {
-          nd.value = modalProps.value.selectData[0].nd
-        } else {
-          nd.value = new Date().getFullYear().toString()
-        }
-      }
-
-      searchData()
-      modalVisible.value = true
-    }
-
-    expose({
-      acceptParams
-    })
-
-    return {
-      EpDocumentCopy,
-      EpTickets,
-      EpUpload,
-      tableRef,
-      selectList,
-      handleSave,
-      wh,
-      nd,
-      handleDownload,
-      modalProps,
-      closeHandle,
-      modalVisible,
-      fileInput,
-      loading,
-      tableLoading,
-      submitLoading,
-      fileList,
-      openModal,
-      handleUploadClick,
-      handleFileChange,
-      formatFileSize,
-      getFileIcon,
-      rowClassName,
-      acceptedFileTypes,
-      hasFileRestrictions,
-      allowedFileTypesDisplay,
-      maxFileSizeDisplay
+      const link = document.createElement('a')
+      link.href = res.data
+      link.download = `${fileItem.attachName}.xlsx` // 获取文件名
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
     }
   }
+  loading.value = false
+}
+const getPublicParams = async (code: string) => {
+  try {
+    const res = await getPublicData(code)
+    if (!res.success) throw new Error(res.msg)
+    selectList.value = res.data
+  } catch (error) {
+    ElMessage.error((error as Error).message)
+  }
+}
+const acceptParams = (params: ModalProps) => {
+  modalProps.value = {
+    ...modalProps.value,
+    ...params
+  }
+  if (params.selectText) {
+    getPublicParams('ZLYS_XMJHSSND')
+    if (modalProps.value.selectData && modalProps.value.selectData.length === 1) {
+      nd.value = modalProps.value.selectData[0].nd
+    } else {
+      nd.value = new Date().getFullYear().toString()
+    }
+  }
+  searchData()
+  modalVisible.value = true
+}
+defineExpose({
+  acceptParams
 })
 </script>
 

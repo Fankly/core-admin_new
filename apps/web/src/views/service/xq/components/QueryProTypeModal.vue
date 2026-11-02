@@ -22,26 +22,22 @@ export default {
 <script setup lang="ts">
 import { getTbcxmlxListByxmId, confimXmlx } from '@/api/service/requirement'
 import { ElMessage } from 'element-plus'
-import { ref, reactive, defineExpose } from 'vue'
+import { ref, reactive } from 'vue'
 import VXETable from 'vxe-table'
 const modalVisible = ref(false)
-
 const formData = reactive({
   proType: ''
 })
-
 const proTypeList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const closeHandle = () => {
   modalVisible.value = false
   formRef.value.resetFields()
 }
-
 const formRule = reactive({
   proType: {
     required: true,
@@ -49,12 +45,9 @@ const formRule = reactive({
     trigger: 'change'
   }
 })
-
 const loading = ref(false)
 const formRef = ref()
-
 const paramsProp = ref<any>({})
-
 const searchProTypeParams = async (id: string) => {
   try {
     loading.value = true
@@ -70,7 +63,6 @@ const searchProTypeParams = async (id: string) => {
     loading.value = false
   }
 }
-
 const detailHandle = async () => {
   try {
     const result = await formRef.value.validate()
@@ -100,7 +92,6 @@ const detailHandle = async () => {
     loading.value = false
   }
 }
-
 const acceptParams = async (params: any) => {
   paramsProp.value = {
     ...params
@@ -108,7 +99,6 @@ const acceptParams = async (params: any) => {
   modalVisible.value = true
   await searchProTypeParams(params.row['id'])
 }
-
 defineExpose({
   acceptParams
 })

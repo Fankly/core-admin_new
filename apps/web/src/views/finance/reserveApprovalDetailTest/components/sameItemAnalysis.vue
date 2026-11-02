@@ -31,84 +31,91 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
 /**
  * 三区三县
  */
 
 import { CwProjectDiff, CwProject } from '@/api/mainController'
-
-export default {
-  components: {},
-  props: {
-    projectId: {
-      type: String
-    }
-  },
-  name: 'sameItemAnalysis',
-  data() {
-    return {
-      dataList: [],
-      reserveStatus: []
-    }
-  },
-  created() {
-    this.getReserveStatus()
-  },
-  mounted() {
-    this.getList()
-  },
-  methods: {
-    getStatus(reserveStatus) {
-      return this.reserveStatus.find((item) => item.key == reserveStatus)?.value
-    },
-    getReserveStatus() {
-      CwProject.reserveStatus(this, {}).then((res) => {
-        this.reserveStatus = res.data
-      })
-    },
-    handleSelect(item) {
-      this.$emit('on-select', item)
-    },
-    getType(type) {
-      let _type = 'primary'
-      switch (+type) {
-        case this.StatusReserveDict.PENDING_SUBMIT:
-          _type = 'info'
-          break
-        case this.StatusReserveDict.REJECTED || this.StatusReserveDict.DELAYED:
-          _type = 'warning'
-          break
-        case this.StatusReserveDict.PRE_REVIEW_COMPLETED:
-          _type = 'success'
-          break
-      }
-      return _type
-    },
-    getList() {
-      CwProjectDiff.sameItemProjectList(this, {
-        cwProjectDtoFilter: {
-          projectId: this.projectId
-        }
-      }).then((res) => {
-        const { dataList = [] } = res.data
-        this.$emit('update:data', dataList)
-        this.dataList = dataList
-      })
-    }
-  },
-  computed: {},
-  watch: {
-    projectId: {
-      handler(val, oldVal) {
-        if (val && oldVal && val != oldVal) {
-          this.getList()
-        }
-      },
-      deep: true
-    }
+import { reactive, toRef, toRefs, watch, onMounted, getCurrentInstance } from 'vue'
+defineOptions({
+  name: 'sameItemAnalysis'
+})
+const componentProps = defineProps({
+  projectId: {
+    type: String
   }
+})
+const emit = defineEmits()
+const componentInstance = getCurrentInstance().proxy
+const componentData = reactive({
+  dataList: [],
+  reserveStatus: []
+})
+const dataList = toRef(componentData, 'dataList')
+const reserveStatus = toRef(componentData, 'reserveStatus')
+function getStatus(reserveStatus) {
+  return componentData.reserveStatus.find((item) => item.key == reserveStatus)?.value
 }
+function getReserveStatus() {
+  CwProject.reserveStatus(componentInstance, {}).then((res) => {
+    componentData.reserveStatus = res.data
+  })
+}
+function handleSelect(item) {
+  emit('on-select', item)
+}
+function getType(type) {
+  let _type = 'primary'
+  switch (+type) {
+    case componentInstance.StatusReserveDict.PENDING_SUBMIT:
+      _type = 'info'
+      break
+    case componentInstance.StatusReserveDict.REJECTED || componentInstance.StatusReserveDict.DELAYED:
+      _type = 'warning'
+      break
+    case componentInstance.StatusReserveDict.PRE_REVIEW_COMPLETED:
+      _type = 'success'
+      break
+  }
+  return _type
+}
+function getList() {
+  CwProjectDiff.sameItemProjectList(componentInstance, {
+    cwProjectDtoFilter: {
+      projectId: componentProps.projectId
+    }
+  }).then((res) => {
+    const { dataList = [] } = res.data
+    emit('update:data', dataList)
+    componentData.dataList = dataList
+  })
+}
+watch(
+  () => componentProps.projectId,
+  function (val, oldVal) {
+    if (val && oldVal && val != oldVal) {
+      getList()
+    }
+  },
+  {
+    deep: true
+  }
+)
+onMounted(() => {
+  getList()
+})
+;(() => {
+  getReserveStatus()
+})()
+defineExpose({
+  getStatus,
+  getReserveStatus,
+  handleSelect,
+  getType,
+  getList,
+  ...toRefs(componentData)
+})
 </script>
 <style lang="less" scoped>
 .card-container {

@@ -42,61 +42,114 @@
     </proTable>
   </div>
 </template>
-<script lang="ts">
-export default {}
-</script>
+
 <script setup lang="ts">
-import { ref, defineEmits, defineProps, nextTick, watch, computed } from 'vue'
+import { ref, nextTick, watch, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getYearData } from '@/api/common'
 import proTable from '@/components/ProTable/index.vue' //表格组件
 import { pageForProvince, pageForYjdw } from '@/api/service/balanceReporting/index'
-
 type PageType = 'province' | 'city'
 type ActionValue = '版本创建' | '版本修改' | '版本删除' | '下发单位管理' | '版本下发' | '上报查看' | '归档' | '取消归档' | '上报预计结余'
-
 interface ActionButton {
   label: string
   value: ActionValue
   requiresSelection: boolean
 }
-
 const STATUS_OPTIONS = {
   province: [
-    { value: '1', label: '草稿' },
-    { value: '2', label: '收集中' },
-    { value: '3', label: '归档' }
+    {
+      value: '1',
+      label: '草稿'
+    },
+    {
+      value: '2',
+      label: '收集中'
+    },
+    {
+      value: '3',
+      label: '归档'
+    }
   ],
   city: [
-    { value: '2', label: '收集中' },
-    { value: '3', label: '归档' }
+    {
+      value: '2',
+      label: '收集中'
+    },
+    {
+      value: '3',
+      label: '归档'
+    }
   ]
 }
-
 const STATUS_TEXT: Record<string, string> = {
   '1': '草稿',
   '2': '收集中',
   '3': '归档'
 }
-
 const ACTION_BUTTONS: Record<PageType, ActionButton[]> = {
   province: [
-    { label: '版本创建', value: '版本创建', requiresSelection: false },
-    { label: '版本修改', value: '版本修改', requiresSelection: true },
-    { label: '版本删除', value: '版本删除', requiresSelection: true },
-    { label: '下发单位管理', value: '下发单位管理', requiresSelection: true },
-    { label: '版本下发', value: '版本下发', requiresSelection: true },
-    { label: '上报查看', value: '上报查看', requiresSelection: true },
-    { label: '归 档', value: '归档', requiresSelection: true },
-    { label: '取消归档', value: '取消归档', requiresSelection: true }
+    {
+      label: '版本创建',
+      value: '版本创建',
+      requiresSelection: false
+    },
+    {
+      label: '版本修改',
+      value: '版本修改',
+      requiresSelection: true
+    },
+    {
+      label: '版本删除',
+      value: '版本删除',
+      requiresSelection: true
+    },
+    {
+      label: '下发单位管理',
+      value: '下发单位管理',
+      requiresSelection: true
+    },
+    {
+      label: '版本下发',
+      value: '版本下发',
+      requiresSelection: true
+    },
+    {
+      label: '上报查看',
+      value: '上报查看',
+      requiresSelection: true
+    },
+    {
+      label: '归 档',
+      value: '归档',
+      requiresSelection: true
+    },
+    {
+      label: '取消归档',
+      value: '取消归档',
+      requiresSelection: true
+    }
   ],
   city: [
-    { label: '上报预计结余', value: '上报预计结余', requiresSelection: true },
-    { label: '上报查看', value: '上报查看', requiresSelection: true }
+    {
+      label: '上报预计结余',
+      value: '上报预计结余',
+      requiresSelection: true
+    },
+    {
+      label: '上报查看',
+      value: '上报查看',
+      requiresSelection: true
+    }
   ]
 }
-
-const ACTION_RESTRICTIONS: Record<string, { messagePrefix: string; actions: ActionValue[] }> = {
+const ACTION_RESTRICTIONS: Record<
+  string,
+  {
+    messagePrefix: string
+    actions: ActionValue[]
+  }
+> = {
   '1': {
     messagePrefix: '草稿状态',
     actions: ['上报查看', '归档', '取消归档']
@@ -110,7 +163,6 @@ const ACTION_RESTRICTIONS: Record<string, { messagePrefix: string; actions: Acti
     actions: ['版本修改', '版本删除', '版本下发', '归档', '上报预计结余']
   }
 }
-
 const CONFIRM_ACTIONS: ActionValue[] = ['版本删除', '版本下发', '归档', '取消归档']
 const normalizeStatus = (status: any) => String(status ?? '')
 
@@ -131,27 +183,63 @@ const emit = defineEmits(['clickBtn', 'pageType'])
 const pageType = computed<PageType>(() => (props.type == 'city' ? 'city' : 'province'))
 const currentActionButtons = computed(() => ACTION_BUTTONS[pageType.value])
 const tableColumns = computed(() => [
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'versionNo', label: '版本编号', width: '130' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'versionNo',
+    label: '版本编号',
+    width: '130'
+  },
   {
     prop: 'versionName',
     label: '版本名称',
     width: '300',
-    search: { el: 'input', order: 1 }
+    search: {
+      el: 'input',
+      order: 1
+    }
   },
   {
     prop: 'status',
     label: '版本状态',
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: STATUS_OPTIONS[pageType.value],
     isShow: false
   },
-  { prop: 'nd', label: '年度', width: '80' },
-  { prop: 'statusName', label: '版本状态', width: '100' },
-  { prop: 'createDate', label: '创建日期', width: '180' },
-  { prop: 'creatorName', label: '创建人', width: '80' },
-  { prop: 'remake', label: '备注' } //,width:"430"
+  {
+    prop: 'nd',
+    label: '年度',
+    width: '80'
+  },
+  {
+    prop: 'statusName',
+    label: '版本状态',
+    width: '100'
+  },
+  {
+    prop: 'createDate',
+    label: '创建日期',
+    width: '180'
+  },
+  {
+    prop: 'creatorName',
+    label: '创建人',
+    width: '80'
+  },
+  {
+    prop: 'remake',
+    label: '备注'
+  } //,width:"430"
 ])
 
 // 初始化页面
@@ -180,7 +268,9 @@ const pageList = (val: any) => {
     val.records.forEach((item: any) => {
       item.statusName = STATUS_TEXT[normalizeStatus(item.status)] || '草稿'
     })
-    emit('pageType', { success: true })
+    emit('pageType', {
+      success: true
+    })
     proTableRef.value?.startGuide?.()
   } else {
     emit('pageType', {
@@ -223,7 +313,11 @@ const handerClickTable = (val: any) => {
 }
 // 项目评审
 const handleReview = async (selectedList: any[] = [], val: ActionValue) => {
-  const params = { value: val, selectedList: selectedList, nd: Number(nd.value) }
+  const params = {
+    value: val,
+    selectedList: selectedList,
+    nd: Number(nd.value)
+  }
   if (selectedList.length != 1 && val != '版本创建') {
     return ElMessage.warning('请选择一条数据')
   }

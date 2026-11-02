@@ -1,19 +1,13 @@
-<script lang="ts">
-export default {
-  name: '/service/jointReview/reviewFlowQuery/index'
-}
-</script>
+
 
 <script setup lang="ts">
-import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
+import { CurrentUserRoleInjectionKey, PermissionInjectionKey } from '@/components/UserRoleSelector/interface'
 import { computed, nextTick, onMounted, provide, reactive, ref } from 'vue'
 import type { VxeGridInstance, VxeGridProps } from 'vxe-table'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { useStore } from '@/store/business'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
-import { PermissionInjectionKey } from '@/components/UserRoleSelector/interface'
 import type { UserRole } from '@/components/UserRoleSelector/interface'
 import ElTreeSelect from '@/components/ElTreeSelect'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
@@ -28,6 +22,9 @@ import { formatNumValue, freezeColumns, pxWidth } from '@/utils/utils'
 import { getDynamicSearchColumn } from '@/api/service/requirement'
 import { exportReviewFlowQuery, getCtData, getReviewFlowQuerySchema, pageReviewFlowQuery } from '@/api/service/IhhsMeeting/reviewFlowQuery'
 import ReviewFlowQuerySetting from './ReviewFlowQuerySetting.vue'
+defineOptions({
+  name: '/service/jointReview/reviewFlowQuery/index'
+})
 
 type ReviewFlowUserInfo = {
   deptId: string
@@ -40,12 +37,10 @@ type ReviewFlowUserInfo = {
   specialorgcode: string
   fqzzFlag?: string
 }
-
 type ReviewFlowSearchConfig = Configs & {
   dateType?: string
   valueFormat?: string
 }
-
 const store = useStore()
 const router = useRouter()
 const userRoleSelectorRef = ref<InstanceType<typeof UserRoleSelector>>()
@@ -64,7 +59,6 @@ const searchDatas = ref<Record<string, any>>({})
 const defaultValueProp = ref<Record<string, any>>({})
 const linkLength = ref(0)
 let searchRequestSeq = 0
-
 const tableColumnFont = '14px Microsoft YaHei'
 const tableColumnPadding = 56
 const tableColumnDefaultMinWidth = 100
@@ -76,7 +70,6 @@ const requireDetailMenuLabels = ['1', '2']
 const requireDetailRetainedPermissions = ['VIEW', 'EXPORT', 'BATCH_DOWNLOAD_ATTACH', 'PROCESS']
 const ctProjectCodeField = 'xmbm'
 const ctColumnClassName = 'review-flow-query__ct-column'
-
 const userInfo = ref<ReviewFlowUserInfo>({
   deptId: '',
   deptName: '',
@@ -87,27 +80,22 @@ const userInfo = ref<ReviewFlowUserInfo>({
   spRoleId: '',
   specialorgcode: ''
 })
-
 const page = reactive({
   total: 0,
   limit: 20,
   page: 1
 })
-
 const spanComp = computed(() =>
   linkLength.value % 4 === 0 ? 24 : linkLength.value % 4 === 1 ? 18 : linkLength.value % 4 === 2 ? 12 : linkLength.value % 4 === 3 ? 6 : 24
 )
 const actionDisabled = computed(() => loading.value || exportLoading.value)
 const canExport = computed(() => userRoleSelectorRef.value?.permissions.includes('EXPORT') || false)
-
 const startLoading = () => {
   loadingCount.value += 1
 }
-
 const stopLoading = () => {
   loadingCount.value = Math.max(loadingCount.value - 1, 0)
 }
-
 async function runWithLoading<T>(handler: () => Promise<T>) {
   startLoading()
   try {
@@ -116,7 +104,6 @@ async function runWithLoading<T>(handler: () => Promise<T>) {
     stopLoading()
   }
 }
-
 const gridOptions = reactive<VxeGridProps<any>>({
   border: true,
   columnConfig: {
@@ -133,12 +120,13 @@ const gridOptions = reactive<VxeGridProps<any>>({
   data: [],
   rowStyle: ({ row }: any) => {
     if (row['pspc_type'] == '2') {
-      return { color: 'red' }
+      return {
+        color: 'red'
+      }
     }
   }
 })
 const hasTableData = computed(() => Array.isArray(gridOptions.data) && gridOptions.data.length > 0)
-
 const currentUserRole = ref<UserRole>({
   bmName: '',
   dwName: '',
@@ -149,7 +137,6 @@ const currentUserRole = ref<UserRole>({
   specialOrgCode: '',
   spRoleId: ''
 })
-
 provide(CurrentUserRoleInjectionKey, currentUserRole)
 provide(PermissionInjectionKey, {
   get permissions() {
@@ -159,7 +146,6 @@ provide(PermissionInjectionKey, {
     return userRoleSelectorRef.value?.loading || false
   }
 })
-
 const getReviewAuthParams = () => ({
   bmId: userInfo.value.deptId || '',
   dwId: userInfo.value.dwId || '',
@@ -167,7 +153,6 @@ const getReviewAuthParams = () => ({
   spRoleId: userInfo.value.spRoleId || '',
   searchCode: searchCode.value
 })
-
 const buildRequestParams = () => ({
   ...searchDatas.value,
   ...getReviewAuthParams(),
@@ -176,25 +161,19 @@ const buildRequestParams = () => ({
   current: page.page,
   size: page.limit
 })
-
 const getCurrentYear = () => new Date().getFullYear().toString()
-
 const hasDefaultValue = (value: any) => value !== undefined && value !== null && value !== ''
-
 const cloneDefaultValue = (value: any) => (Array.isArray(value) ? [...value] : value)
-
 const normalizeBoolean = (value: any, defaultValue = false) => {
   if (value === undefined || value === null || value === '') return defaultValue
   if (typeof value === 'string') return ['1', 'true', 'yes', 'y'].includes(value.trim().toLowerCase())
   return value === true || value === 1
 }
-
 const isPlanYearField = (column: ReviewFlowSearchConfig) =>
   `${column.ggdm || ''}`.toUpperCase() === 'ZLYS_XMJHSSND' ||
   column.code?.toLowerCase() === 'jhssnd' ||
   column.name?.includes('计划实施年度') ||
   column.name?.includes('计划实施年份')
-
 const getColumnDefaultValue = (column: ReviewFlowSearchConfig) => {
   if (hasDefaultValue(column.defaultValue)) {
     if (column.multiple && typeof column.defaultValue === 'string') {
@@ -206,7 +185,6 @@ const getColumnDefaultValue = (column: ReviewFlowSearchConfig) => {
     return column.multiple ? [getCurrentYear()] : getCurrentYear()
   }
 }
-
 const setDefaultSearchValue = (column: ReviewFlowSearchConfig) => {
   const defaultValue = getColumnDefaultValue(column)
   if (defaultValue === undefined) return
@@ -214,7 +192,6 @@ const setDefaultSearchValue = (column: ReviewFlowSearchConfig) => {
   defaultValueProp.value[column.code] = cloneDefaultValue(normalizedDefaultValue)
   searchDatas.value[column.code] = cloneDefaultValue(normalizedDefaultValue)
 }
-
 const normalizeMultipleTextValue = (value: any) => {
   if (Array.isArray(value)) return value.map((item) => `${item}`.trim()).filter(Boolean)
   if (value === undefined || value === null || value === '') return []
@@ -224,15 +201,11 @@ const normalizeMultipleTextValue = (value: any) => {
     .map((item) => item.trim())
     .filter(Boolean)
 }
-
 const createEmptySearchValue = (column: ReviewFlowSearchConfig) => (column.multiple || column.type === 'inputText' ? [] : '')
-
 const getMultipleTextModelValue = (value: any) => normalizeMultipleTextValue(value).join(',')
-
 const setMultipleTextValue = (code: string, value: any) => {
   searchDatas.value[code] = normalizeMultipleTextValue(value)
 }
-
 const normalizeSearchType = (column: any) => {
   const type = column.type || column.el || column.component || column.searchType || ''
   const normalizedType = String(type).toLowerCase()
@@ -242,13 +215,16 @@ const normalizeSearchType = (column: any) => {
   if (['date', 'datetime', 'daterange', 'datetimerange', 'date-picker', 'el-date-picker'].includes(normalizedType)) return 'date'
   return type || 'input'
 }
-
 const normalizeSearchColumn = (column: any): ReviewFlowSearchConfig => {
   const code = column.code || column.field || column.prop || column.key || column.columnKey || column.name
   const name = column.name || column.label || column.title || column.columnValue || code
   const valueKey = code === 'zt' ? 'code' : column.nodeKey || column.valueKey || 'id'
-  const treeProps = column.treeProps || column.props || { children: 'children', label: 'name', value: valueKey }
-
+  const treeProps = column.treeProps ||
+    column.props || {
+      children: 'children',
+      label: 'name',
+      value: valueKey
+    }
   return {
     ...column,
     code,
@@ -270,13 +246,11 @@ const normalizeSearchColumn = (column: any): ReviewFlowSearchConfig => {
     treeProps
   }
 }
-
 const clearSearchItem = (column?: ReviewFlowSearchConfig) => {
   if (!column) return
   column.options = []
   searchDatas.value[column.code] = createEmptySearchValue(column)
 }
-
 const initParamsData = async (method: string, params: any): Promise<any[]> => {
   const res = await baseService.post(method, params)
   if (res.success) {
@@ -285,11 +259,8 @@ const initParamsData = async (method: string, params: any): Promise<any[]> => {
   ElMessage.error(res.msg)
   return []
 }
-
 const hasSearchValue = (value: any) => (Array.isArray(value) ? value.length > 0 : value !== undefined && value !== null && value !== '')
-
 const getDependentColumns = (parentCode: string) => dynamciSearch.value.filter((item) => item.dependOnColumn === parentCode)
-
 const clearDependentSearchItems = (parentCode: string, clearedCodes = new Set<string>()) => {
   getDependentColumns(parentCode).forEach((child) => {
     if (clearedCodes.has(child.code)) return
@@ -298,7 +269,6 @@ const clearDependentSearchItems = (parentCode: string, clearedCodes = new Set<st
     clearDependentSearchItems(child.code, clearedCodes)
   })
 }
-
 const buildDependentRequestParams = (prop: string, value: any, column: ReviewFlowSearchConfig) => {
   if (column.ggdm) {
     return {
@@ -310,7 +280,6 @@ const buildDependentRequestParams = (prop: string, value: any, column: ReviewFlo
       nd: value
     }
   }
-
   return {
     [prop.toUpperCase()]: value,
     bmId: userInfo.value.deptId || '',
@@ -319,12 +288,10 @@ const buildDependentRequestParams = (prop: string, value: any, column: ReviewFlo
     nd: value
   }
 }
-
 const handleFieldChange = async (prop: string, value: any, column: ReviewFlowSearchConfig) => {
   const dependentColumns = getDependentColumns(prop)
   clearDependentSearchItems(prop)
   if (!hasSearchValue(value)) return
-
   await Promise.all(
     dependentColumns.map(async (dependentColumn) => {
       if (!dependentColumn.dyff) return
@@ -338,7 +305,6 @@ const handleFieldChange = async (prop: string, value: any, column: ReviewFlowSea
     })
   )
 }
-
 const getArrayByKeys = (data: any, keys: string[]): any[] => {
   if (!data || typeof data !== 'object') return []
   for (const key of keys) {
@@ -352,7 +318,6 @@ const getArrayByKeys = (data: any, keys: string[]): any[] => {
   }
   return []
 }
-
 const normalizeSearchColumnsResult = (data: any): any[] =>
   Array.isArray(data)
     ? data
@@ -367,17 +332,14 @@ const normalizeSearchColumnsResult = (data: any): any[] =>
         'dynamicSearchColumns',
         'fieldList'
       ])
-
 const normalizeTableColumnsResult = (data: any): any[] =>
   Array.isArray(data)
     ? data
     : getArrayByKeys(data, ['tableColumns', 'columns', 'headers', 'tableHeaders', 'tableHeaderList', 'columnList', 'tableColumnList'])
-
 const normalizeCtProjectCodes = (data: any): string[] => {
   const source = Array.isArray(data)
     ? data
     : getArrayByKeys(data, [ctProjectCodeField, 'projectCodes', 'projectCodeList', 'xmbmList', 'records', 'list', 'rows', 'data'])
-
   return source
     .map((item: any) => {
       if (item === undefined || item === null) return ''
@@ -386,9 +348,7 @@ const normalizeCtProjectCodes = (data: any): string[] => {
     })
     .filter(Boolean)
 }
-
 const createCtStorageKey = () => `${ctStorageKeyPrefix}${Date.now()}-${Math.random().toString(36).slice(2)}`
-
 const setCtProjectCodes = (projectCodes: string[]) => {
   const ctKey = createCtStorageKey()
   sessionStorage.setItem(
@@ -399,11 +359,8 @@ const setCtProjectCodes = (projectCodes: string[]) => {
   )
   return ctKey
 }
-
 const isCtColumn = (column: any) => normalizeBoolean(column?.canBeCt ?? column?.params?.canBeCt)
-
 const getCtColumnField = (column: any) => column?.field || column?.property || column?.params?.field || ''
-
 const getCtGlobalInfo = () => ({
   deptId: userInfo.value.deptId || '',
   deptName: userInfo.value.deptName || '',
@@ -415,33 +372,32 @@ const getCtGlobalInfo = () => ({
   specialorgcode: userInfo.value.specialorgcode || '',
   fqzzFlag: userInfo.value.fqzzFlag || ''
 })
-
 const normalizeMenuUrl = (url?: string | null) => `${url || ''}`.replace(/\/+$/, '')
-
 const getRouteMetaMenuCode = () => {
   const routeMeta = (store.state.routeToMeta || {})[requireDetailRouteName] as Partial<MenuConfig> | undefined
   return routeMeta?.outsideMenu || ''
 }
-
 const getRequireDetailMenuCode = async () => {
   const routeMetaMenuCode = getRouteMetaMenuCode()
   if (routeMetaMenuCode) return routeMetaMenuCode
-
-  const menuResults = await Promise.all(requireDetailMenuLabels.map((label) => getAppMenu({ appNo: requireDetailAppNo, label })))
+  const menuResults = await Promise.all(
+    requireDetailMenuLabels.map((label) =>
+      getAppMenu({
+        appNo: requireDetailAppNo,
+        label
+      })
+    )
+  )
   const requireDetailMenu = menuResults
     .flatMap((res: any) => (res.success && Array.isArray(res.data) ? res.data : []))
     .find((item: MenuConfig) => normalizeMenuUrl(item.url) === requireDetailRouteName)
-
   return requireDetailMenu?.outsideMenu || ''
 }
-
 const mergeRequireDetailPermissions = (permissions: any) =>
   Array.from(new Set([...(Array.isArray(permissions) ? permissions : []), ...requireDetailRetainedPermissions]))
-
 const ensureRequireDetailPermissions = async () => {
   const spRoleId = userInfo.value.spRoleId || currentUserRole.value.spRoleId
   let permissions: string[] = []
-
   try {
     const menuCode = spRoleId ? await getRequireDetailMenuCode() : ''
     if (menuCode && spRoleId) {
@@ -451,10 +407,8 @@ const ensureRequireDetailPermissions = async () => {
   } catch (e) {
     console.error(e)
   }
-
   store.commit('setPermissions', mergeRequireDetailPermissions(permissions))
 }
-
 const buildCtDataParams = (meetingId: string, searchType: string) => ({
   ...searchDatas.value,
   ...getReviewAuthParams(),
@@ -462,22 +416,17 @@ const buildCtDataParams = (meetingId: string, searchType: string) => ({
   roleCode: userInfo.value.roleCode || '',
   searchType
 })
-
 const isNeedFormatColumn = (column: any) => normalizeBoolean(column?.needFormat) || String(column?.needFormat).toLowerCase() === 'true'
-
 const formatNeedFormatValue = (value: any) => {
   if (value === undefined || value === null || value === '') return '-'
   if (value === '-') return value
   return formatNumValue(`${value}`, 6)
 }
-
 const getTableColumnMinWidth = (column: any) => {
   const minWidth = Number(column?.minWidth || tableColumnDefaultMinWidth)
   return Number.isFinite(minWidth) ? minWidth : tableColumnDefaultMinWidth
 }
-
 const getTableDisplayValue = (column: any, value: any) => (isNeedFormatColumn(column) ? formatNeedFormatValue(value) : value)
-
 const getTableCellText = (value: any): string => {
   if (value === undefined || value === null) return ''
   if (Array.isArray(value)) return value.map(getTableCellText).join(',')
@@ -492,24 +441,23 @@ const getTableCellText = (value: any): string => {
   }
   return `${value}`
 }
-
 const getRowFieldValue = (row: any, field?: string) => {
   if (!field || !row || typeof row !== 'object') return ''
   if (Object.prototype.hasOwnProperty.call(row, field)) return row[field]
   return field.split('.').reduce((value, key) => (value && typeof value === 'object' ? value[key] : undefined), row)
 }
-
 const getTextWidthWithPadding = (value: any) => Math.ceil(pxWidth(getTableCellText(value), tableColumnFont) + tableColumnPadding)
-
 const getTableColumnWidth = (column: any, rows: any[] = []) => {
   const minWidth = getTableColumnMinWidth(column)
   const titleWidth = getTextWidthWithPadding(column.title)
   const contentWidth = column.field
-    ? rows.reduce((width, row) => Math.max(width, getTextWidthWithPadding(getTableDisplayValue(column, getRowFieldValue(row, column.field)))), 0)
+    ? rows.reduce(
+        (width, row) => Math.max(width, getTextWidthWithPadding(getTableDisplayValue(column, getRowFieldValue(row, column.field)))),
+        0
+      )
     : 0
   return Math.max(minWidth, titleWidth, contentWidth)
 }
-
 const getColumnsWithWidth = (columns: any[] = [], rows: any[] = []): any[] =>
   columns.map((column) => {
     if (Array.isArray(column.children) && column.children.length) {
@@ -524,7 +472,6 @@ const getColumnsWithWidth = (columns: any[] = [], rows: any[] = []): any[] =>
       width: getTableColumnWidth(column, rows)
     }
   })
-
 const refreshTableColumnWidth = async (rows: any[] = []) => {
   if (!Array.isArray(gridOptions.columns)) return
   gridOptions.columns = getColumnsWithWidth(gridOptions.columns, rows)
@@ -532,15 +479,12 @@ const refreshTableColumnWidth = async (rows: any[] = []) => {
   await gridRef.value?.refreshColumn?.()
   await gridRef.value?.recalculate?.(true)
 }
-
 const normalizeTableColumn = (column: any): any | null => {
   const children = Array.isArray(column.children) ? column.children.map(normalizeTableColumn).filter(Boolean) : []
   const field = column.field || column.prop || column.key || column.code || column.columnKey
   const title = column.title || column.label || column.name || column.columnValue || field
-
   if (!field && !children.length && !column.type) return null
   const canBeCt = normalizeBoolean(column.canBeCt ?? column.params?.canBeCt)
-
   const normalizedColumn = {
     ...column,
     field,
@@ -551,7 +495,6 @@ const normalizeTableColumn = (column: any): any | null => {
       canBeCt
     }
   }
-
   if (children.length) {
     normalizedColumn.children = children
   } else {
@@ -565,10 +508,8 @@ const normalizeTableColumn = (column: any): any | null => {
     }
     normalizedColumn.width = getTableColumnWidth(normalizedColumn) || column.width
   }
-
   return normalizedColumn
 }
-
 const normalizePageData = (data: any) => {
   if (Array.isArray(data)) {
     return {
@@ -576,14 +517,12 @@ const normalizePageData = (data: any) => {
       total: data.length
     }
   }
-
   const records = data?.records || data?.list || data?.rows || (Array.isArray(data?.data) ? data.data : [])
   return {
     records,
     total: data?.total || data?.totalCount || data?.count || records.length || 0
   }
 }
-
 const searchConfigHandle = async () => {
   startLoading()
   try {
@@ -594,13 +533,17 @@ const searchConfigHandle = async () => {
       ElMessage.error(searchResData.msg)
       return
     }
-
     const searchColumns = normalizeSearchColumnsResult(searchResData.data || [])
       .map(normalizeSearchColumn)
       .filter((item) => item.code)
-    const commonCodeConfigs: Array<{ code: string; ggdm: string }> = []
-    const customData: Array<{ dyff: string; code: string }> = []
-
+    const commonCodeConfigs: Array<{
+      code: string
+      ggdm: string
+    }> = []
+    const customData: Array<{
+      dyff: string
+      code: string
+    }> = []
     searchDatas.value = {}
     defaultValueProp.value = {}
     searchColumns.forEach((item: ReviewFlowSearchConfig) => {
@@ -619,11 +562,9 @@ const searchConfigHandle = async () => {
         })
       }
     })
-
     linkLength.value = searchColumns.filter((item: ReviewFlowSearchConfig) => item.link).length
     dynamciSearch.value = searchColumns
     dynamicSearchMap.value = new Map(dynamciSearch.value.map((item) => [item.code, item]))
-
     await Promise.all(
       customData.map(async (item) => {
         const findData = dynamicSearchMap.value.get(item.code)
@@ -639,7 +580,6 @@ const searchConfigHandle = async () => {
         }
       })
     )
-
     if (commonCodeConfigs.length > 0) {
       const initData = await initParamsData('/commonCode/getCommonCode', {
         bmId: userInfo.value.deptId || '',
@@ -666,7 +606,6 @@ const searchConfigHandle = async () => {
     stopLoading()
   }
 }
-
 const tableColumnConfigHandle = async () => {
   startLoading()
   try {
@@ -676,7 +615,6 @@ const tableColumnConfigHandle = async () => {
       gridOptions.columns = []
       return
     }
-
     const columns = normalizeTableColumnsResult(tableResData.data || [])
       .map(normalizeTableColumn)
       .filter(Boolean)
@@ -689,7 +627,6 @@ const tableColumnConfigHandle = async () => {
     stopLoading()
   }
 }
-
 const searchDataHandle = async () => {
   const currentSeq = ++searchRequestSeq
   startLoading()
@@ -713,13 +650,11 @@ const searchDataHandle = async () => {
     stopLoading()
   }
 }
-
 const searchHandle = () => {
   if (actionDisabled.value) return
   page.page = 1
   searchDataHandle()
 }
-
 const resetHandle = () => {
   if (actionDisabled.value) return
   dynamciSearch.value.forEach((item) => {
@@ -737,20 +672,17 @@ const resetHandle = () => {
   page.page = 1
   searchDataHandle()
 }
-
 const pageChangeHandle = (currentPageNum: number) => {
   if (actionDisabled.value) return
   page.page = currentPageNum
   searchDataHandle()
 }
-
 const limitChangeHandle = (currentLimitNum: number) => {
   if (actionDisabled.value) return
   page.page = 1
   page.limit = currentLimitNum
   searchDataHandle()
 }
-
 const exportHandle = async () => {
   if (actionDisabled.value) return
   exportLoading.value = true
@@ -763,7 +695,6 @@ const exportHandle = async () => {
     exportLoading.value = false
   }
 }
-
 const cellClickHandle = async ({ row, column }: any) => {
   if (actionDisabled.value || !isCtColumn(column) || column?.type) return
   const meetingId = row?.meeting_id
@@ -772,31 +703,31 @@ const cellClickHandle = async ({ row, column }: any) => {
     ElMessage.warning('缺少穿透参数')
     return
   }
-
   await runWithLoading(async () => {
     const ctRes = await getCtData(buildCtDataParams(`${meetingId}`, searchType))
     if (!ctRes.success) {
       ElMessage.error(ctRes.msg)
       return
     }
-
     const projectCodes = normalizeCtProjectCodes(ctRes.data)
     if (!projectCodes.length) {
       ElMessage.warning('暂无可穿透项目')
       return
     }
-
     const ctKey = setCtProjectCodes(projectCodes)
     await ensureRequireDetailPermissions()
     store.commit('setXqGlobalInfo', getCtGlobalInfo())
     await router.push({
       name: requireDetailRouteName,
-      params: { formJsc: '1' },
-      query: { ctKey }
+      params: {
+        formJsc: '1'
+      },
+      query: {
+        ctKey
+      }
     })
   })
 }
-
 const showHandle = async () => {
   await runWithLoading(async () => {
     await searchConfigHandle()
@@ -804,24 +735,19 @@ const showHandle = async () => {
     await searchDataHandle()
   })
 }
-
 const showModalHandle = async () => {
   await showHandle()
 }
-
 const settingHandle = () => {
   if (actionDisabled.value) return
   settingRef.value.isShowDrawer = true
 }
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const getOptionKey = (option: any) => option.code ?? option.value ?? option.id ?? option.name
 const getOptionLabel = (option: any) => option.name ?? option.label ?? option.title ?? option.value ?? option.code ?? option.id
 const getOptionValue = (option: any) => option.code ?? option.value ?? option.id ?? option.name
-
 const getRoleHandle = async () => {
   try {
     isShowPage.value = false
@@ -850,7 +776,6 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 onMounted(async () => {
   await userRoleSelectorRef.value?.getUser()
 })

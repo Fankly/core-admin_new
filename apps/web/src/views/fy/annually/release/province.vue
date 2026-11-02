@@ -178,259 +178,259 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: "/fy/annually/release/province"
-};
-</script>
 
 <script setup lang="ts">
-import FyHeader from "@/views/fy/components/Header.vue";
-import userDialog from "@/components/select/userDialog.vue";
-import dwbzView from "@/views/fy/components/dwbzView.vue";
-import yskmView from "@/views/fy/components/yskmView.vue";
-import type { TableMsg } from "@/views/fy/prearranged/interface";
+import FyHeader from '@/views/fy/components/Header.vue'
+import userDialog from '@/components/select/userDialog.vue'
+import dwbzView from '@/views/fy/components/dwbzView.vue'
+import yskmView from '@/views/fy/components/yskmView.vue'
+import type { TableMsg } from '@/views/fy/prearranged/interface'
+import { computed, onMounted, reactive, ref } from 'vue'
+import {
+  getDataList,
+  getDynamicColumn,
+  exportForDw,
+  exportForKm,
+  judgeIsXd,
+  exportData,
+  getDataByKm,
+  getDynamicColumnByKm,
+  getDataByDw,
+  getDynamicColumnByDw,
+  csData,
+  xdData,
+  save
+} from '@/api/fy/annually/release/province'
+import { getGroupSummary } from '@/utils/prearranged'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { findPrevNode, formatValue } from '@/utils/utils'
+import { Decimal } from 'decimal.js'
+import { VXETable } from 'vxe-table'
+import { Columns } from '@/views/fy/prearranged/interface'
+defineOptions({
+  name: '/fy/annually/release/province'
+})
 
-import { computed, onMounted, reactive, ref } from "vue";
-import { getDataList, getDynamicColumn, exportForDw, exportForKm, judgeIsXd, exportData, getDataByKm, getDynamicColumnByKm, getDataByDw, getDynamicColumnByDw, csData, xdData, save } from "@/api/fy/annually/release/province";
-import { getGroupSummary } from "@/utils/prearranged";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { findPrevNode, formatValue } from "@/utils/utils";
-import { Decimal } from "decimal.js";
-import { VXETable } from "vxe-table";
-import { Columns } from "@/views/fy/prearranged/interface";
-
-const userDialogRef = ref();
-const treeTableRef = ref();
-const tableRef = ref();
-const headerRef = ref();
-const dwbzViewRef = ref();
-const toolbarOneRef = ref();
-const toolbarTwoRef = ref();
-
+const userDialogRef = ref()
+const treeTableRef = ref()
+const tableRef = ref()
+const headerRef = ref()
+const dwbzViewRef = ref()
+const toolbarOneRef = ref()
+const toolbarTwoRef = ref()
 const userMsg = reactive<any>({
   userData: null,
-  specialorgid: "",
-  dwName: "",
+  specialorgid: '',
+  dwName: '',
   isShowPage: false,
   loading: false,
-  flag: "1"
-});
-
+  flag: '1'
+})
 const dwMsg = reactive<{
-  isShowModal: boolean;
-  dwId: string;
-  title: string;
-  toolButton: any;
-  operationFlag: string;
+  isShowModal: boolean
+  dwId: string
+  title: string
+  toolButton: any
+  operationFlag: string
 }>({
   isShowModal: false,
-  dwId: "",
-  title: "年度下达 - 单位查看",
-  toolButton: ["close", "export"],
-  operationFlag: "view"
-});
-
+  dwId: '',
+  title: '年度下达 - 单位查看',
+  toolButton: ['close', 'export'],
+  operationFlag: 'view'
+})
 const tabMsg = reactive<{
-  name: string;
-  dwInfo: any;
+  name: string
+  dwInfo: any
 }>({
-  name: "1",
-  dwInfo: ""
-});
-
-const isDisableBtn = computed(() => tabMsg.dwInfo.xdzt >= "4" || userMsg.loading);
-const btnIsDisabled = computed(() => !(tabMsg.dwInfo.xdzt === "1") || userMsg.loading);
-
+  name: '1',
+  dwInfo: ''
+})
+const isDisableBtn = computed(() => tabMsg.dwInfo.xdzt >= '4' || userMsg.loading)
+const btnIsDisabled = computed(() => !(tabMsg.dwInfo.xdzt === '1') || userMsg.loading)
 const kmMsg = reactive<any>({
   isShowModal: false,
   kmId: []
-});
-
+})
 const activeCellMethod = ({ row }: any) => {
-  return row.edit;
-};
-
+  return row.edit
+}
 const tableMsg = reactive<TableMsg>({
   rowConfig: {
     height: 32
   },
-  nd: "",
-  xsws: "",
+  nd: '',
+  xsws: '',
   tableData: [],
   ndData: [],
   columns: [],
   ndColumns: [],
   editConfig: {
-    trigger: "click",
-    mode: "cell",
+    trigger: 'click',
+    mode: 'cell',
     showStatus: true,
     enabled: true,
     beforeEditMethod: activeCellMethod
   },
   zyTreeConfig: {
     lazy: true,
-    hasChildField: "leaf",
+    hasChildField: 'leaf',
     loadMethod({ row }: any) {
       let params = {
         nd: tableMsg.nd,
         xsws: tableMsg.xsws,
         specialorgid: userMsg.specialorgid,
-        kmlx: "1",
+        kmlx: '1',
         parentId: row.id,
-        busiType: "ND"
-      };
+        busiType: 'ND'
+      }
       return new Promise((resolve: any) => {
         getDataList({
           ...params
         }).then((res: any) => {
           if (res.success) {
-            resolve(res.data);
+            resolve(res.data)
           } else {
-            ElMessage.error(res.msg);
-            resolve([]);
+            ElMessage.error(res.msg)
+            resolve([])
           }
-        });
-      });
+        })
+      })
     }
   },
   ndTreeConfig: {
     lazy: true,
-    hasChildField: "leaf",
+    hasChildField: 'leaf',
     loadMethod({ row }: any) {
       let params = {
         nd: tableMsg.nd,
         xsws: tableMsg.xsws,
         specialorgid: userMsg.specialorgid,
-        kmlx: "2",
+        kmlx: '2',
         parentId: row.id,
-        busiType: "ND"
-      };
+        busiType: 'ND'
+      }
       return new Promise((resolve: any) => {
         getDataList({
           ...params
         }).then((res: any) => {
           if (res.success) {
-            resolve(res.data);
+            resolve(res.data)
           } else {
-            ElMessage.error(res.msg);
-            resolve([]);
+            ElMessage.error(res.msg)
+            resolve([])
           }
-        });
-      });
+        })
+      })
     }
   }
-});
-
+})
 const sumhandle = (row: any, key: string) => {
-  let columnKeys = tableMsg.columns?.filter((item) => item.eidt);
-  row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(tableMsg.xsws)) : new Decimal(0).toFixed(Number(tableMsg.xsws));
-  const config: any = tabMsg.name === "1" ? tableMsg.zyTreeConfig : tableMsg.ndTreeConfig;
-  const tableData = Number(tabMsg.name) === 1 ? tableMsg.tableData : tableMsg.ndData;
-  countYapFjValue(row, "je", columnKeys);
-  getGroupSummary(tableData, config, key, Number(tableMsg.xsws), "leaf", "id", columnKeys, "je");
-};
-
+  let columnKeys = tableMsg.columns?.filter((item) => item.eidt)
+  row[key] = row[key] ? new Decimal(row[key]).toFixed(Number(tableMsg.xsws)) : new Decimal(0).toFixed(Number(tableMsg.xsws))
+  const config: any = tabMsg.name === '1' ? tableMsg.zyTreeConfig : tableMsg.ndTreeConfig
+  const tableData = Number(tabMsg.name) === 1 ? tableMsg.tableData : tableMsg.ndData
+  countYapFjValue(row, 'je', columnKeys)
+  getGroupSummary(tableData, config, key, Number(tableMsg.xsws), 'leaf', 'id', columnKeys, 'je')
+}
 const countYapFjValue = (row: any, setValueKey: string, columnKeys: any) => {
-  let sumValue: any = 0;
+  let sumValue: any = 0
   if (columnKeys) {
     for (let i = 0; i < columnKeys.length; i++) {
-      const item = columnKeys[i];
-      sumValue = Decimal.add(sumValue, row[item.columnKey] ? row[item.columnKey] : 0);
+      const item = columnKeys[i]
+      sumValue = Decimal.add(sumValue, row[item.columnKey] ? row[item.columnKey] : 0)
     }
-    row[setValueKey] = sumValue.toFixed(2);
+    row[setValueKey] = sumValue.toFixed(2)
   }
-};
-
+}
 const headerDataHandle = (params: any) => {
-  params.opType = "1";
-  return getDynamicColumnByDw(params);
-};
+  params.opType = '1'
+  return getDynamicColumnByDw(params)
+}
 
 // 关闭modal
 const closeModalHandle = (val: boolean, flag: string) => {
-  flag === "dw" ? (dwMsg.isShowModal = val) : (kmMsg.isShowModal = val);
-};
-
+  flag === 'dw' ? (dwMsg.isShowModal = val) : (kmMsg.isShowModal = val)
+}
 const saveHandle = async () => {
-  const $table = tabMsg.name === "1" ? treeTableRef.value : tableRef.value;
+  const $table = tabMsg.name === '1' ? treeTableRef.value : tableRef.value
   if ($table) {
-    let resultData: any = [];
+    let resultData: any = []
     // 获取表格录入的数据
-    const records: any[] = $table.getUpdateRecords();
-    const updateRecords = records.filter((item) => item.edit);
+    const records: any[] = $table.getUpdateRecords()
+    const updateRecords = records.filter((item) => item.edit)
     if (updateRecords.length === 0) {
-      ElMessage.warning("未进行修改操作,请修改后再进行保存！");
-      return;
+      ElMessage.warning('未进行修改操作,请修改后再进行保存！')
+      return
     }
-    const type = await VXETable.modal.confirm("是否确定保存？", "提示", {
-      status: "warning"
-    });
-    if (type === "confirm") {
-      let columnKeys = tableMsg.columns?.filter((item) => item.eidt);
+    const type = await VXETable.modal.confirm('是否确定保存？', '提示', {
+      status: 'warning'
+    })
+    if (type === 'confirm') {
+      let columnKeys = tableMsg.columns?.filter((item) => item.eidt)
       updateRecords.forEach((rowData) => {
         let list: any = {
-          yskmId: "",
+          yskmId: '',
           dwValues: {}
-        };
+        }
         columnKeys?.forEach((item) => {
           if (list.yskmId !== rowData.id) {
-            list.yskmId = rowData.id;
+            list.yskmId = rowData.id
           }
-          list.dwValues[item.columnKey] = rowData[item.columnKey];
-        });
-        resultData.push(list);
-      });
+          list.dwValues[item.columnKey] = rowData[item.columnKey]
+        })
+        resultData.push(list)
+      })
       let params = {
         lists: resultData,
         nd: tableMsg.nd,
         specialorgid: userMsg.specialorgid,
         kmlx: userMsg.flag
-      };
-      let res = await save(params);
+      }
+      let res = await save(params)
       if (res.success) {
-        ElMessage.success("保存成功");
-        initAjudgeIsXd();
-        getTableData();
+        ElMessage.success('保存成功')
+        initAjudgeIsXd()
+        getTableData()
       } else {
-        ElMessage.error(res.msg);
+        ElMessage.error(res.msg)
       }
     }
   }
-};
+}
 
 // 测算
 const calclateHanle = () => {
-  ElMessageBox.confirm("是否确定测算？", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "success"
+  ElMessageBox.confirm('是否确定测算？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'success'
   }).then(async () => {
-    userMsg.loading = true;
+    userMsg.loading = true
     let res = await csData({
       nd: tableMsg.nd,
       xsws: tableMsg.xsws,
       specialorgid: userMsg.specialorgid,
       kmlx: userMsg.flag
-    });
+    })
     if (res.success) {
-      ElMessage.success("测算成功");
-      initAjudgeIsXd();
-      getTableData();
-      userMsg.loading = false;
+      ElMessage.success('测算成功')
+      initAjudgeIsXd()
+      getTableData()
+      userMsg.loading = false
     } else {
-      userMsg.loading = false;
-      ElMessage.error(res.msg);
+      userMsg.loading = false
+      ElMessage.error(res.msg)
     }
-  });
-};
+  })
+}
 
 // 下达
 const releaseHandle = async () => {
-  ElMessageBox.confirm("确定是否下达？", "提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "success"
+  ElMessageBox.confirm('确定是否下达？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'success'
   }).then(async () => {
     let res = await xdData({
       nd: tableMsg.nd,
@@ -438,210 +438,196 @@ const releaseHandle = async () => {
       specialorgid: userMsg.specialorgid,
       kmlx: userMsg.flag,
       roleId: userMsg.userData.id
-    });
+    })
     if (res.success) {
-      ElMessage.success("下达成功");
-      await initAjudgeIsXd();
-      await getTableData();
+      ElMessage.success('下达成功')
+      await initAjudgeIsXd()
+      await getTableData()
     } else {
-      ElMessage.error(res.msg);
+      ElMessage.error(res.msg)
     }
-  });
-};
+  })
+}
 
 // 导出
 const exportTableDataHandle = (flag: string) => {
-  userMsg.loading = true;
+  userMsg.loading = true
   exportData({
-    busiType: "ND",
+    busiType: 'ND',
     kmlx: userMsg.flag,
     nd: tableMsg.nd,
     xsws: tableMsg.xsws,
     specialorgid: userMsg.specialorgid,
-    parentId: "-1"
+    parentId: '-1'
   }).then((res: any) => {
-    const blob = res;
-    let dom = document.createElement("a");
-    let url = window.URL.createObjectURL(blob);
-    dom.href = url;
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
     // 获取文件名
-    let filename = res.headers["content-disposition"].split(";")[1].split("=")[1];
-    dom.download = `${decodeURI(decodeURI(filename))}`;
-    document.body.appendChild(dom);
-    dom.click();
-    document.body.removeChild(dom);
-    window.URL.revokeObjectURL(url);
-    userMsg.loading = false;
-  });
-};
+    let filename = res.headers['content-disposition'].split(';')[1].split('=')[1]
+    dom.download = `${decodeURI(decodeURI(filename))}`
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+    userMsg.loading = false
+  })
+}
 // 表头点击
 const headerCellClickHandle = ({ columnIndex, column }: any, flag: string) => {
   if (isClickHeader(tableMsg.columns as Columns[], column.field)) {
-    dwMsg.isShowModal = true;
-    dwMsg.dwId = column.field;
-    userMsg.flag = flag;
+    dwMsg.isShowModal = true
+    dwMsg.dwId = column.field
+    userMsg.flag = flag
   }
-};
-
+}
 const headerCellStyle = ({ column }: any) => {
   if (isClickHeader(tableMsg.columns as Columns[], column.field)) {
     return {
-      cursor: "pointer",
-      color: "rgb(0, 112, 107)",
-      padding: "8px 0",
-      lineHeight: "16px"
-    };
+      cursor: 'pointer',
+      color: 'rgb(0, 112, 107)',
+      padding: '8px 0',
+      lineHeight: '16px'
+    }
   }
   return {
-    cursor: "auto",
-    color: "#303133",
-    padding: "8px 0",
-    lineHeight: "16px"
-  };
-};
-
+    cursor: 'auto',
+    color: '#303133',
+    padding: '8px 0',
+    lineHeight: '16px'
+  }
+}
 const cellClickHandle = async ({ row, columnIndex, column }: any, flag: string) => {
   if (row.id && !row.leaf && columnIndex === 0) {
-    kmMsg.isShowModal = true;
-    const tableData = Number(userMsg.flag) === 1 ? tableMsg.tableData : tableMsg.ndData;
-    kmMsg.kmId = findPrevNode(tableData, row);
-    userMsg.flag = flag;
+    kmMsg.isShowModal = true
+    const tableData = Number(userMsg.flag) === 1 ? tableMsg.tableData : tableMsg.ndData
+    kmMsg.kmId = findPrevNode(tableData, row)
+    userMsg.flag = flag
   }
-};
-
+}
 const isClickHeader = (columns: Columns[], field: string) => {
-  let columnIndex = columns.findIndex((item: any) => item.eidt && item.columnKey === field);
-  return columnIndex > -1;
-};
-
+  let columnIndex = columns.findIndex((item: any) => item.eidt && item.columnKey === field)
+  return columnIndex > -1
+}
 const cellStyle = ({ row, column, columnIndex }: any) => {
   if (row.id && !row.leaf && columnIndex === 0) {
     return {
-      cursor: "pointer",
-      backgroundColor: "rgba(232, 234, 236,0.5)",
-      color: "rgb(0, 112, 107)"
-    };
+      cursor: 'pointer',
+      backgroundColor: 'rgba(232, 234, 236,0.5)',
+      color: 'rgb(0, 112, 107)'
+    }
   }
   if (tableMsg.editConfig && !tableMsg.editConfig.enabled) {
     return {
-      cursor: "auto",
-      backgroundColor: "rgba(232, 234, 236,0.5)",
-      color: "rgb(96, 98, 102)"
-    };
+      cursor: 'auto',
+      backgroundColor: 'rgba(232, 234, 236,0.5)',
+      color: 'rgb(96, 98, 102)'
+    }
   }
   if (!isClickHeader(tableMsg.columns as Columns[], column.field)) {
     return {
-      cursor: "auto",
-      backgroundColor: "rgba(232, 234, 236,0.5)",
-      color: "rgb(96, 98, 102)"
-    };
-  }
-
-  if (!row.id || row.leaf || !row.edit) {
-    return {
-      cursor: "auto",
-      backgroundColor: "rgba(232, 234, 236,0.5)",
-      color: "rgb(96, 98, 102)"
-    };
-  }
-};
-
-const formatterData = ({ column, cellValue }: any) => {
-  if (column.field === "cnx" || column.field === "name") {
-    return cellValue;
-  }
-  if (typeof cellValue === "undefined" || cellValue === null || cellValue === "") return "-";
-  return formatValue(cellValue, Number(tableMsg.xsws));
-};
-
-const getRoleHandle = async () => {
-  userMsg.userData = { ...userDialogRef.value.userMsg };
-  userMsg.specialorgid = userMsg.userData.org_id;
-  const isQuery = userDialogRef.value.isQuery;
-  tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString();
-  tableMsg.xsws = headerRef.value.formParams.xsws || "2";
-  if (isQuery) {
-    userMsg.isShowPage = true;
-    // 判断是否已经下达
-    // 获取动态列和动态表头
-    await initAjudgeIsXd();
-    await getTableData();
-    linkTable();
-  }
-};
-
-const isDisabledBtn = ({ props }: any) => {
-  userMsg.flag = props.name;
-  initAjudgeIsXd();
-  getTableData();
-  linkTable();
-};
-
-const initAjudgeIsXd = async () => {
-  let res = await judgeIsXd(userMsg.specialorgid, userMsg.flag, tableMsg.nd);
-  if (res.success) {
-    tabMsg.dwInfo = res.data;
-    userMsg.dwName = tabMsg.dwInfo.dwName;
-    if (tableMsg.editConfig) {
-      tableMsg.editConfig.enabled = tabMsg.dwInfo.xdzt === "1" || tabMsg.dwInfo.xdzt === "2" || tabMsg.dwInfo.xdzt === "3";
+      cursor: 'auto',
+      backgroundColor: 'rgba(232, 234, 236,0.5)',
+      color: 'rgb(96, 98, 102)'
     }
   }
-};
-
-const linkTable = () => {
-  const $table = Number(userMsg.flag) === 1 ? treeTableRef.value : tableRef.value;
-  const $toolBar = Number(userMsg.flag) === 1 ? toolbarOneRef.value : toolbarTwoRef.value;
-  if ($table && $toolBar) {
-    $table.connect($toolBar);
+  if (!row.id || row.leaf || !row.edit) {
+    return {
+      cursor: 'auto',
+      backgroundColor: 'rgba(232, 234, 236,0.5)',
+      color: 'rgb(96, 98, 102)'
+    }
   }
-};
-
+}
+const formatterData = ({ column, cellValue }: any) => {
+  if (column.field === 'cnx' || column.field === 'name') {
+    return cellValue
+  }
+  if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
+  return formatValue(cellValue, Number(tableMsg.xsws))
+}
+const getRoleHandle = async () => {
+  userMsg.userData = {
+    ...userDialogRef.value.userMsg
+  }
+  userMsg.specialorgid = userMsg.userData.org_id
+  const isQuery = userDialogRef.value.isQuery
+  tableMsg.nd = headerRef.value.formParams.nd || new Date().getFullYear().toString()
+  tableMsg.xsws = headerRef.value.formParams.xsws || '2'
+  if (isQuery) {
+    userMsg.isShowPage = true
+    // 判断是否已经下达
+    // 获取动态列和动态表头
+    await initAjudgeIsXd()
+    await getTableData()
+    linkTable()
+  }
+}
+const isDisabledBtn = ({ props }: any) => {
+  userMsg.flag = props.name
+  initAjudgeIsXd()
+  getTableData()
+  linkTable()
+}
+const initAjudgeIsXd = async () => {
+  let res = await judgeIsXd(userMsg.specialorgid, userMsg.flag, tableMsg.nd)
+  if (res.success) {
+    tabMsg.dwInfo = res.data
+    userMsg.dwName = tabMsg.dwInfo.dwName
+    if (tableMsg.editConfig) {
+      tableMsg.editConfig.enabled = tabMsg.dwInfo.xdzt === '1' || tabMsg.dwInfo.xdzt === '2' || tabMsg.dwInfo.xdzt === '3'
+    }
+  }
+}
+const linkTable = () => {
+  const $table = Number(userMsg.flag) === 1 ? treeTableRef.value : tableRef.value
+  const $toolBar = Number(userMsg.flag) === 1 ? toolbarOneRef.value : toolbarTwoRef.value
+  if ($table && $toolBar) {
+    $table.connect($toolBar)
+  }
+}
 const getTableData = async () => {
-  clearTableData();
-  userMsg.loading = true;
+  clearTableData()
+  userMsg.loading = true
   let params = {
-    busiType: "ND",
+    busiType: 'ND',
     nd: tableMsg.nd,
     xsws: tableMsg.xsws,
     specialorgid: userMsg.specialorgid,
     kmlx: userMsg.flag,
-    parentId: "-1"
-  };
-  let res = await Promise.all([getDynamicColumn(tableMsg.nd, userMsg.specialorgid, userMsg.flag), getDataList(params)]);
+    parentId: '-1'
+  }
+  let res = await Promise.all([getDynamicColumn(tableMsg.nd, userMsg.specialorgid, userMsg.flag), getDataList(params)])
   if (res[0].success && res[1].success) {
-    tableMsg.columns = res[0].data.filter((item: Columns) => item.visible);
-    Number(userMsg.flag) === 1 ? (tableMsg.tableData = res[1].data) : (tableMsg.ndData = res[1].data);
+    tableMsg.columns = res[0].data.filter((item: Columns) => item.visible)
+    Number(userMsg.flag) === 1 ? (tableMsg.tableData = res[1].data) : (tableMsg.ndData = res[1].data)
     // compTableWidth();
   } else {
-    ElMessage.error("请刷新页面进行重试！");
+    ElMessage.error('请刷新页面进行重试！')
   }
-  userMsg.loading = false;
-};
-
+  userMsg.loading = false
+}
 const initData = async () => {
   // 调用角色modal
-  userDialogRef.value.getUser();
-};
-
+  userDialogRef.value.getUser()
+}
 const changeNdHandle = (val: string) => {
-  tableMsg.nd = val;
-  initAjudgeIsXd();
-  getTableData();
-};
-
+  tableMsg.nd = val
+  initAjudgeIsXd()
+  getTableData()
+}
 const changeXswsHandle = (val: string) => {
-  tableMsg.xsws = val;
-  initAjudgeIsXd();
-  getTableData();
-};
-
+  tableMsg.xsws = val
+  initAjudgeIsXd()
+  getTableData()
+}
 const clearTableData = () => {
-  if (tableMsg.columns) tableMsg.columns.length = 0;
-  if (tableMsg.tableData) tableMsg.tableData.length = 0;
-  if (tableMsg.ndData) tableMsg.ndData.length = 0;
-};
-
-onMounted(initData);
+  if (tableMsg.columns) tableMsg.columns.length = 0
+  if (tableMsg.tableData) tableMsg.tableData.length = 0
+  if (tableMsg.ndData) tableMsg.ndData.length = 0
+}
+onMounted(initData)
 </script>
 
 <style scoped lang="less">

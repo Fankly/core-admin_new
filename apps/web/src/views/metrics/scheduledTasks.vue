@@ -45,36 +45,67 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: '/metrics/scheduledTasks'
-}
-</script>
+
 <script setup lang="ts">
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
 import { processLockList, processLockRemove, processLockSave, processLockInvoke } from '@/api/metrics/index'
+defineOptions({
+  name: '/metrics/scheduledTasks'
+})
+ //表格组件
 
 const loading = ref(false)
 const isShowPage = ref(false) //未选择角色前不展示页面
 const proTableRef = ref()
 const rmarkDataRef = ref()
 const dataList = ref<any>([])
-const modalRef = reactive<any>({ isShow: false, title: '' })
+const modalRef = reactive<any>({
+  isShow: false,
+  title: ''
+})
 // 弹框参数
 const rmarkData = ref<any>({})
 // 按钮
 const btnList = ref<any>([
   //isSelected 按钮是否需要选择数据
-  { label: 'ADD', value: '新 增', isSelected: false },
-  { label: 'EDIT', value: '编 辑', isSelected: true },
-  { label: 'DEL', value: '删 除', isSelected: true },
-  { label: 'REFRESH', value: '刷 新', isSelected: false }
+  {
+    label: 'ADD',
+    value: '新 增',
+    isSelected: false
+  },
+  {
+    label: 'EDIT',
+    value: '编 辑',
+    isSelected: true
+  },
+  {
+    label: 'DEL',
+    value: '删 除',
+    isSelected: true
+  },
+  {
+    label: 'REFRESH',
+    value: '刷 新',
+    isSelected: false
+  }
 ])
 const rules = {
-  jobName: [{ required: true, message: '请输入定时任务编码', trigger: 'input' }],
-  jobDesc: [{ required: true, message: '请输入定时任务名称', trigger: 'input' }]
+  jobName: [
+    {
+      required: true,
+      message: '请输入定时任务编码',
+      trigger: 'input'
+    }
+  ],
+  jobDesc: [
+    {
+      required: true,
+      message: '请输入定时任务名称',
+      trigger: 'input'
+    }
+  ]
 }
 // 关闭
 const closeHandle = async () => {
@@ -195,15 +226,46 @@ const pageList = async () => {
   }
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'jobName', label: '定时任务编码' },
-  { prop: 'jobDesc', label: '定时任务名称' },
-  { prop: 'invokeTarget', label: '调用目标' },
-  { prop: 'statusName', label: '状态锁', width: '100' },
-  { prop: 'ip', label: 'IP地址' },
-  { prop: 'startTime', label: '开始时间', width: '150' },
-  { prop: 'endTime', label: '结束时间', width: '150' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'jobName',
+    label: '定时任务编码'
+  },
+  {
+    prop: 'jobDesc',
+    label: '定时任务名称'
+  },
+  {
+    prop: 'invokeTarget',
+    label: '调用目标'
+  },
+  {
+    prop: 'statusName',
+    label: '状态锁',
+    width: '100'
+  },
+  {
+    prop: 'ip',
+    label: 'IP地址'
+  },
+  {
+    prop: 'startTime',
+    label: '开始时间',
+    width: '150'
+  },
+  {
+    prop: 'endTime',
+    label: '结束时间',
+    width: '150'
+  },
   {
     prop: 'task',
     label: '操作',

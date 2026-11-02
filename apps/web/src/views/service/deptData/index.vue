@@ -55,7 +55,6 @@
   <HelpModal ref="helpModalRef" />
 </template>
 <script setup lang="ts">
-defineOptions({ name: "/service/deptData/index" })
 import { h, reactive, ref, computed, onMounted, nextTick } from 'vue'
 import { useStore } from '@/store/business'
 import { ElMessage, ElMessageBox, ElTooltip } from 'element-plus'
@@ -71,6 +70,7 @@ import { helpModalMeun } from '@/views/service/jointReview/hooks/help'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { formatNumValue } from '@/utils/utils'
+defineOptions({ name: "/service/deptData/index" })
 
 const userDialogRef = ref() //用户角色
 const detaildeptDataRef = ref()

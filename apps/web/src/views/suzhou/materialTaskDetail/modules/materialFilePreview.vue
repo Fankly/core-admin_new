@@ -55,7 +55,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialFilePreview" })
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { ElMessage } from 'element-plus'
 import { previewMaterialTaskFile } from '@/api/suzhou/materialTask'
@@ -63,6 +62,7 @@ import OfficePreview, { getOfficeFileExtension } from '@/components/OfficePrevie
 import type { OfficePreviewSource } from '@/components/OfficePreview'
 import type { MaterialTaskDetailRow } from '@/views/suzhou/common/types/material'
 import { getFileItems, type MaterialFileItem } from '@/views/suzhou/materialTaskDetail/utils/filePreview'
+defineOptions({ name: "materialFilePreview" })
 
 // 与 smartTaskAudit 预览一致：后端 doc 已转可预览格式，前端按扩展名放行
 const SUPPORTED_PREVIEW_EXTENSIONS = new Set(['pdf', 'doc', 'docx', 'xlsx', 'xls', 'et'])

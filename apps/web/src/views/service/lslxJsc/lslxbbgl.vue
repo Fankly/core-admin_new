@@ -27,22 +27,18 @@
   <lxTree ref="lxTreeRef" @choose-data="saveTree" :tree-api="treeParams.treeApi" />
   <lxTreeBb ref="lxTreeRefBb" @choose-data="saveTreeBb" :tree-api="treeParams.treeApi" />
 </template>
-<script lang="ts">
-export default {
-  name: '/service/lslxJsc/lslxbbgl'
-}
-</script>
+
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, nextTick } from 'vue'
-import userDialog from '@/components/select/userDialog.vue' //登陆权限
-import viewTable from '@/views/service/lslxJsc/components/table.vue' //表格组件
-import viewModal from '@/views/service/balanceReporting/components/modal.vue' //新增弹窗组件
-import viewEntity from '@/views/service/lslxJsc/components/entity.vue' //单位管理组件
-import lxTree from '@/views/service/lslxJsc/components/lxTree.vue' //项目类型组件
-import lxTreeBb from '@/views/service/lslxJsc/components/lxTreeBb.vue' //项目类型组件
+import userDialog from '@/components/select/userDialog.vue'
+import viewTable from '@/views/service/lslxJsc/components/table.vue'
+import viewModal from '@/views/service/balanceReporting/components/modal.vue'
+import viewEntity from '@/views/service/lslxJsc/components/entity.vue'
+import lxTree from '@/views/service/lslxJsc/components/lxTree.vue'
+import lxTreeBb from '@/views/service/lslxJsc/components/lxTreeBb.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import {
   remove,
   add,
@@ -68,6 +64,19 @@ import { useStore } from '@/store/business'
 import { useRoute } from 'vue-router'
 import { useUser } from '@/hooks/useUser'
 import { pageInfoVO, apiVo } from '@/views/service/lslxJsc/interface/index'
+defineOptions({
+  name: '/service/lslxJsc/lslxbbgl'
+})
+
+ //登陆权限
+ //表格组件
+ //新增弹窗组件
+ //单位管理组件
+ //项目类型组件
+ //项目类型组件
+
+ //公共代码
+
 const treeParams = reactive<apiVo>({
   treeApi: getProtypeTree
 })
@@ -186,7 +195,6 @@ const btnList = ref<any[]>([
     ]
   }
 ])
-
 onMounted(async () => {
   var isRoel = await useUser('getLSGlobalInfo')
   pageInfo.loading = true
@@ -203,7 +211,9 @@ onMounted(async () => {
 const showModal = async (val: any) => {
   pageInfo.loading = true
   const api: any = val.title == '版本创建' ? add : edit
-  let res: any = await api({ ...val.rmarkData })
+  let res: any = await api({
+    ...val.rmarkData
+  })
   if (res.success) {
     ElMessage.success(`${val.title}成功`)
     closeAll()
@@ -213,8 +223,8 @@ const showModal = async (val: any) => {
   }
 }
 // 版本类型保存
-const saveTreeBb  = async (val: any) => {
-  let api: any  = title.value == '版本一上类型配置' ? getProtypeSaveVer : excludeSaveVer
+const saveTreeBb = async (val: any) => {
+  let api: any = title.value == '版本一上类型配置' ? getProtypeSaveVer : excludeSaveVer
   let res: any = await api(val)
   if (res.success) {
     ElMessage.success('保存成功！')
@@ -227,7 +237,7 @@ const saveTreeBb  = async (val: any) => {
 }
 // 全局类型保存
 const saveTree = async (val: any) => {
-  let api: any  = title.value == '全局一上类型配置' ? getProtypeSave : excludeSave
+  let api: any = title.value == '全局一上类型配置' ? getProtypeSave : excludeSave
   let res: any = await api(val)
   if (res.success) {
     ElMessage.success('保存成功！')
@@ -278,8 +288,7 @@ const clickBtn = async (val: any) => {
             userId: store.getters.getUserMsg.id,
             versionId: val.selectedList[0].versionId
           }
-          const api: any =
-            val.label == 'DELETE' ? remove : val.label == 'ALLOTSDW' ? issue : issueZgkbm
+          const api: any = val.label == 'DELETE' ? remove : val.label == 'ALLOTSDW' ? issue : issueZgkbm
           let res = await api(val.label == 'DELETE' ? paramsDel : paramsIssue)
           if (res.success) {
             ElMessage.success(`${val.value}成功`)
@@ -344,7 +353,6 @@ const clickBtn = async (val: any) => {
     console.log(error)
   }
 }
-
 const isPass = async (val: any) => {
   try {
     if (val) {
@@ -377,45 +385,81 @@ const closeAll = () => {
 
 // 权限获取
 const getRoleHandle = () => {
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   if (isQuery) {
     specialorgid.value = userInfo.value.org_id
     isPass(userInfo.value.org_id)
   }
 }
-
 const tableColumns = reactive([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'nd', label: '年度', width: '80' },
-  { prop: 'versionNo', label: '版本编号', width: '130' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'nd',
+    label: '年度',
+    width: '80'
+  },
+  {
+    prop: 'versionNo',
+    label: '版本编号',
+    width: '130'
+  },
   {
     prop: 'versionName',
     label: '版本名称',
     width: '300',
-    search: { el: 'input', order: 1 }
+    search: {
+      el: 'input',
+      order: 1
+    }
   },
   {
     prop: 'status',
     label: '版本状态',
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: lslxStatus.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     width: '200'
   },
   {
     prop: 'zgkbmIssueStatus',
     label: '省专业版本下发状态',
     width: '160',
-    render:({row}:any)=>{
-      const val = row.zgkbmIssueStatus == '1'?'已下发':'未下发'
+    render: ({ row }: any) => {
+      const val = row.zgkbmIssueStatus == '1' ? '已下发' : '未下发'
       return val
     }
   },
-  { prop: 'createDate', label: '创建日期', width: '180' },
-  { prop: 'creatorName', label: '创建人', width: '80' },
-  { prop: 'remake', label: '备注' }
+  {
+    prop: 'createDate',
+    label: '创建日期',
+    width: '180'
+  },
+  {
+    prop: 'creatorName',
+    label: '创建人',
+    width: '80'
+  },
+  {
+    prop: 'remake',
+    label: '备注'
+  }
 ])
 </script>
 

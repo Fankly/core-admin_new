@@ -1,332 +1,361 @@
-<script lang="ts">
-export default {
-  name: "/metrics/components/FormDialog"
-};
-</script>
+
 
 <script setup lang="ts">
-import MultipleProType from "@/views/metrics/components/MultipleProType.vue";
-import { InitParams } from "@/views/metrics/configData/budgetStatisticsConfig.vue";
-import TypeDialog from "@/views/metrics/components/TypeDialog.vue";
-import TreeDialog from "@/views/metrics/components/TreeDialog.vue";
-import { ElMessage } from "element-plus";
-import { deleteDataDetail, deleteSumDetail, getConfigInfo, getDataDetail, getSumDetail, saveConfig } from "@/api/statistics/budgetStatisticsConfig";
-import { getAllProtypeTree, getPublicCodeList } from "@/api/common";
-import { cloneDeep } from "lodash";
-import { VXETable } from "vxe-table";
-import { defineProps, ref, toRef, defineExpose, reactive, defineEmits, watch, nextTick } from "vue";
+import MultipleProType from '@/views/metrics/components/MultipleProType.vue'
+import { InitParams } from '@/views/metrics/configData/budgetStatisticsConfig.vue'
+import TypeDialog from '@/views/metrics/components/TypeDialog.vue'
+import TreeDialog from '@/views/metrics/components/TreeDialog.vue'
+import { ElMessage } from 'element-plus'
+import {
+  deleteDataDetail,
+  deleteSumDetail,
+  getConfigInfo,
+  getDataDetail,
+  getSumDetail,
+  saveConfig
+} from '@/api/statistics/budgetStatisticsConfig'
+import { getAllProtypeTree, getPublicCodeList } from '@/api/common'
+import { cloneDeep } from 'lodash'
+import { VXETable } from 'vxe-table'
+import { ref, toRef, reactive, watch, nextTick } from 'vue'
+defineOptions({
+  name: '/metrics/components/FormDialog'
+})
 
 interface DialogData {
-  title: string;
+  title: string
 }
-
 interface Props {
-  dialogData: DialogData;
-  initParams: InitParams;
-  treeParams: any;
-  editData: any;
-  operationFlag: string;
+  dialogData: DialogData
+  initParams: InitParams
+  treeParams: any
+  editData: any
+  operationFlag: string
 }
-
-const props = defineProps<Props>();
-const tableType = ref<any>("");
-
-const emit = defineEmits(["updateTable", "clearData"]);
-
-const typeDialogRef = ref();
-const treeDialogRef = ref();
-const protypeRef = ref();
-
-const title = toRef(props.dialogData, "title");
-const showModal = ref(false);
-
-const isShowTable = ref(false);
-const formDialogRef = ref();
-const typeTableRef = ref();
-const treeTableRef = ref();
-const treeSubRef = ref();
-const formRef = ref();
-
-const dataDetails = ref<any[]>([]);
-const dataSum = ref<any[]>([]);
-const dataAdd = ref<any[]>([]);
-const dataSub = ref<any[]>([]);
-
+const props = defineProps<Props>()
+const tableType = ref<any>('')
+const emit = defineEmits(['updateTable', 'clearData'])
+const typeDialogRef = ref()
+const treeDialogRef = ref()
+const protypeRef = ref()
+const title = toRef(props.dialogData, 'title')
+const showModal = ref(false)
+const isShowTable = ref(false)
+const formDialogRef = ref()
+const typeTableRef = ref()
+const treeTableRef = ref()
+const treeSubRef = ref()
+const formRef = ref()
+const dataDetails = ref<any[]>([])
+const dataSum = ref<any[]>([])
+const dataAdd = ref<any[]>([])
+const dataSub = ref<any[]>([])
 const formData = reactive<{
-  configName: string;
-  statMethod: string;
-  statType: string;
-  isleaf: string;
-  isDwStat:string;
-  recState: string;
-  dispOrder: string;
-  proType: string;
-  isDisplay: string;
+  configName: string
+  statMethod: string
+  statType: string
+  isleaf: string
+  isDwStat: string
+  recState: string
+  dispOrder: string
+  proType: string
+  isDisplay: string
 }>({
-  configName: "",
-  statMethod: "",
-  statType: "1",
-  isleaf: "0",
-  isDwStat:'1',
-  recState: "1",
-  isDisplay: "1",
-  dispOrder: "",
-  proType: ""
-});
-
-const proTypeData = ref([]);
-
+  configName: '',
+  statMethod: '',
+  statType: '1',
+  isleaf: '0',
+  isDwStat: '1',
+  recState: '1',
+  isDisplay: '1',
+  dispOrder: '',
+  proType: ''
+})
+const proTypeData = ref([])
 const validateStatMethod = (rules: any, value: string, callback: any) => {
-  if (formData.isleaf === "0") {
-    callback();
+  if (formData.isleaf === '0') {
+    callback()
   } else {
     if (!value) {
-      callback(new Error("请选择统计方式"));
+      callback(new Error('请选择统计方式'))
     } else {
-      callback();
+      callback()
     }
   }
-};
-
+}
 const validateStatTypeMethod = (rules: any, value: string, callback: any) => {
-  if (formData.isleaf === "0") {
-    callback();
+  if (formData.isleaf === '0') {
+    callback()
   } else {
     if (!value) {
-      callback(new Error("请选择统计类型"));
+      callback(new Error('请选择统计类型'))
     } else {
-      callback();
+      callback()
     }
   }
-};
-
+}
 const rules = {
-  configName: [{ required: true, message: "请输入名称", trigger: "input" }],
-  statMethod: [{ validator: validateStatMethod, trigger: "change" }],
-  statType: [{ validator: validateStatTypeMethod, trigger: "change" }],
-  isleaf: [{ required: true, message: "请选择是否末级节点", trigger: "change" }],
-  isDwStat: [{ required: true, message: "请选择是否纳入单位统计", trigger: "change" }],
-  recState: [{ required: true, message: "请选择是否启用", trigger: "change" }],
-  isDisplay: [{ required: true, message: "请选择是否显示", trigger: "change" }],
-  dispOrder: [{ required: true, message: "请输入序号", trigger: "input" }]
-};
-
+  configName: [
+    {
+      required: true,
+      message: '请输入名称',
+      trigger: 'input'
+    }
+  ],
+  statMethod: [
+    {
+      validator: validateStatMethod,
+      trigger: 'change'
+    }
+  ],
+  statType: [
+    {
+      validator: validateStatTypeMethod,
+      trigger: 'change'
+    }
+  ],
+  isleaf: [
+    {
+      required: true,
+      message: '请选择是否末级节点',
+      trigger: 'change'
+    }
+  ],
+  isDwStat: [
+    {
+      required: true,
+      message: '请选择是否纳入单位统计',
+      trigger: 'change'
+    }
+  ],
+  recState: [
+    {
+      required: true,
+      message: '请选择是否启用',
+      trigger: 'change'
+    }
+  ],
+  isDisplay: [
+    {
+      required: true,
+      message: '请选择是否显示',
+      trigger: 'change'
+    }
+  ],
+  dispOrder: [
+    {
+      required: true,
+      message: '请输入序号',
+      trigger: 'input'
+    }
+  ]
+}
 const publicList = ref<
   {
-    code: string;
-    name: string;
+    code: string
+    name: string
   }[]
->([]);
-
+>([])
 const statTypeList = ref<
   {
-    code: string;
-    name: string;
+    code: string
+    name: string
   }[]
->([]);
-
-const height = ref("240");
-const formDialogLoading = ref(false);
-
+>([])
+const height = ref('240')
+const formDialogLoading = ref(false)
 const addDialogHandle = () => {
-  if (formData.statMethod === "1") {
-    typeDialogRef.value.showModal = true;
+  if (formData.statMethod === '1') {
+    typeDialogRef.value.showModal = true
   }
-  if (formData.statMethod === "2") {
-    treeDialogRef.value.showModal = true;
-    treeDialogRef.value.initParamLists();
-    tableType.value = "add";
+  if (formData.statMethod === '2') {
+    treeDialogRef.value.showModal = true
+    treeDialogRef.value.initParamLists()
+    tableType.value = 'add'
   }
-};
+}
 const addTableHandle = () => {
-  treeDialogRef.value.showModal = true;
-  treeDialogRef.value.initParamLists();
-  tableType.value = "subtract";
-};
+  treeDialogRef.value.showModal = true
+  treeDialogRef.value.initParamLists()
+  tableType.value = 'subtract'
+}
 const delTableHandle = async (val: any) => {
-  let $table = val == "add" ? treeTableRef.value : treeSubRef.value;
-  let tableData: any[] = val == "add" ? cloneDeep(dataAdd.value) : cloneDeep(dataSub.value);
-  const records = $table.getCheckboxRecords();
+  let $table = val == 'add' ? treeTableRef.value : treeSubRef.value
+  let tableData: any[] = val == 'add' ? cloneDeep(dataAdd.value) : cloneDeep(dataSub.value)
+  const records = $table.getCheckboxRecords()
   if (records.length === 0) {
-    ElMessage.warning("请选择一条或多条数据进行删除!");
-    return;
+    ElMessage.warning('请选择一条或多条数据进行删除!')
+    return
   }
-  const map = new Map(records.map((item: any) => [item.tarConfigId, item]));
-  if (val == "add") {
-    dataAdd.value = tableData.filter((item) => !map.has(item.tarConfigId));
+  const map = new Map(records.map((item: any) => [item.tarConfigId, item]))
+  if (val == 'add') {
+    dataAdd.value = tableData.filter((item) => !map.has(item.tarConfigId))
   } else {
-    dataSub.value = tableData.filter((item) => !map.has(item.tarConfigId));
+    dataSub.value = tableData.filter((item) => !map.has(item.tarConfigId))
   }
-  let deleteData = tableData.filter((item) => map.has(item.tarConfigId));
+  let deleteData = tableData.filter((item) => map.has(item.tarConfigId))
   let detailIds = deleteData
     .filter((item) => item.detailId)
     .map((item) => item.detailId)
-    .join(",");
+    .join(',')
   if (detailIds) {
-    let res = await deleteSumDetail(detailIds);
+    let res = await deleteSumDetail(detailIds)
     if (res.success) {
-      ElMessage.success("删除成功!");
+      ElMessage.success('删除成功!')
     } else {
-      ElMessage.error(res.msg);
+      ElMessage.error(res.msg)
     }
   } else {
-    ElMessage.success("删除成功!");
+    ElMessage.success('删除成功!')
   }
-};
-
+}
 const delDataHandle = async () => {
-  const type = await VXETable.modal.confirm("是否确定删除？", "提示", {
-    status: "warning"
-  });
-  if (type === "confirm") {
-    let $table = formData.statMethod === "1" ? typeTableRef.value : treeTableRef.value;
+  const type = await VXETable.modal.confirm('是否确定删除？', '提示', {
+    status: 'warning'
+  })
+  if (type === 'confirm') {
+    let $table = formData.statMethod === '1' ? typeTableRef.value : treeTableRef.value
     if ($table) {
-      let tableData: any[] = formData.statMethod === "1" ? cloneDeep(dataDetails.value) : cloneDeep(dataSum.value);
-      const records = $table.getCheckboxRecords();
+      let tableData: any[] = formData.statMethod === '1' ? cloneDeep(dataDetails.value) : cloneDeep(dataSum.value)
+      const records = $table.getCheckboxRecords()
       if (records.length === 0) {
-        ElMessage.warning("请选择一条或多条数据进行删除!");
-        return;
+        ElMessage.warning('请选择一条或多条数据进行删除!')
+        return
       }
-      if (formData.statMethod === "1") {
-        const map = new Map(records.map((item: any) => [item.proType, item]));
-        dataDetails.value = tableData.filter((item) => !map.has(item.proType));
-        let deleteData = tableData.filter((item) => map.has(item.proType));
+      if (formData.statMethod === '1') {
+        const map = new Map(records.map((item: any) => [item.proType, item]))
+        dataDetails.value = tableData.filter((item) => !map.has(item.proType))
+        let deleteData = tableData.filter((item) => map.has(item.proType))
         let detailIds = deleteData
           .filter((item) => item.detailId)
           .map((item) => item.detailId)
-          .join(",");
+          .join(',')
         if (detailIds) {
-          let res = await deleteDataDetail(detailIds);
+          let res = await deleteDataDetail(detailIds)
           if (res.success) {
-            ElMessage.success("删除成功!");
+            ElMessage.success('删除成功!')
           } else {
-            ElMessage.error(res.msg);
+            ElMessage.error(res.msg)
           }
         } else {
-          ElMessage.success("删除成功!");
+          ElMessage.success('删除成功!')
         }
       } else {
-        const map = new Map(records.map((item: any) => [item.tarConfigId, item]));
-        dataSum.value = tableData.filter((item) => !map.has(item.tarConfigId));
-        let deleteData = tableData.filter((item) => map.has(item.tarConfigId));
+        const map = new Map(records.map((item: any) => [item.tarConfigId, item]))
+        dataSum.value = tableData.filter((item) => !map.has(item.tarConfigId))
+        let deleteData = tableData.filter((item) => map.has(item.tarConfigId))
         let detailIds = deleteData
           .filter((item) => item.detailId)
           .map((item) => item.detailId)
-          .join(",");
+          .join(',')
         if (detailIds) {
-          let res = await deleteSumDetail(detailIds);
+          let res = await deleteSumDetail(detailIds)
           if (res.success) {
-            ElMessage.success("删除成功!");
+            ElMessage.success('删除成功!')
           } else {
-            ElMessage.error(res.msg);
+            ElMessage.error(res.msg)
           }
         } else {
-          ElMessage.success("删除成功!");
+          ElMessage.success('删除成功!')
         }
       }
     }
   }
-};
-
+}
 const getTypeDataHandle = (typeData: any) => {
   if (typeData) {
-    let res = dataDetails.value.findIndex((item) => Number(item.proType) === Number(typeData.proType.id));
+    let res = dataDetails.value.findIndex((item) => Number(item.proType) === Number(typeData.proType.id))
     if (res !== -1) {
-      ElMessage.warning("相同项目类型不能重复添加！");
-      return;
+      ElMessage.warning('相同项目类型不能重复添加！')
+      return
     }
     dataDetails.value.push({
       packType: typeData.packType?.code,
       packTypeName: typeData.packType?.name,
       proType: typeData.proType?.id,
       proTypeName: typeData.proType?.name
-    });
+    })
   }
-};
+}
 
 // 判断是否重复
 const compareIds = (arr1: any[], arr2: any[]) => {
-  const ids1 = new Set(arr1.map((item) => item.tarConfigId));
-  return arr2.some((item) => ids1.has(item.tarConfigId));
-};
-
+  const ids1 = new Set(arr1.map((item) => item.tarConfigId))
+  return arr2.some((item) => ids1.has(item.tarConfigId))
+}
 const getTreeDataHandle = (treeData: any[]) => {
   if (treeData) {
     let treeDataList = treeData.map((item) => ({
       tarConfigId: item.id
-    }));
-    let res = compareIds(treeDataList, tableType.value == "add" ? dataAdd.value : dataSub.value);
+    }))
+    let res = compareIds(treeDataList, tableType.value == 'add' ? dataAdd.value : dataSub.value)
     if (res) {
-      ElMessage.warning("相同目标名称不能重复添加！");
-      return;
+      ElMessage.warning('相同目标名称不能重复添加！')
+      return
     }
     let treeList = treeData.map((item: any) => ({
       ...item,
       tarConfigId: item.id,
       sumMethod: tableType.value
-    }));
-    dataSum.value = dataSum.value.concat(treeList);
-    if (tableType.value == "add") {
-      dataAdd.value = dataAdd.value.concat(treeList);
+    }))
+    dataSum.value = dataSum.value.concat(treeList)
+    if (tableType.value == 'add') {
+      dataAdd.value = dataAdd.value.concat(treeList)
     } else {
-      dataSub.value = dataSub.value.concat(treeList);
+      dataSub.value = dataSub.value.concat(treeList)
     }
-    treeDialogRef.value.showModal = false;
+    treeDialogRef.value.showModal = false
   }
-};
-
+}
 const getPublicDataList = async (code: string[]) => {
-  const codes = code;
+  const codes = code
   let res = await getPublicCodeList({
     codes: codes
-  });
+  })
   if (res.success && res.data) {
-    publicList.value = res.data[codes[0]];
-    statTypeList.value = res.data[codes[1]];
+    publicList.value = res.data[codes[0]]
+    statTypeList.value = res.data[codes[1]]
   } else {
-    ElMessage.error(res.msg);
+    ElMessage.error(res.msg)
   }
-};
-
+}
 const getFormInfo = async () => {
-  formDialogLoading.value = true;
-  const configId = props.editData?.configId;
+  formDialogLoading.value = true
+  const configId = props.editData?.configId
   if (configId) {
-    let res = await getConfigInfo(configId);
+    let res = await getConfigInfo(configId)
     if (res.success && res.data) {
-      formData.isleaf = res.data.isleaf;
-      formData.dispOrder = res.data.dispOrder;
-      formData.recState = res.data.recState;
-      formData.statMethod = res.data.statMethod;
-      formData.isDwStat = res.data.isDwStat;
-      formData.statType = res.data.statType;
-      formData.configName = res.data.configName;
-      formData.proType = res.data.proType;
-      formData.isDisplay = res.data.isDisplay;
-      formDialogLoading.value = false;
+      formData.isleaf = res.data.isleaf
+      formData.dispOrder = res.data.dispOrder
+      formData.recState = res.data.recState
+      formData.statMethod = res.data.statMethod
+      formData.isDwStat = res.data.isDwStat
+      formData.statType = res.data.statType
+      formData.configName = res.data.configName
+      formData.proType = res.data.proType
+      formData.isDisplay = res.data.isDisplay
+      formDialogLoading.value = false
     } else {
-      ElMessage.error(res.msg);
-      formDialogLoading.value = false;
+      ElMessage.error(res.msg)
+      formDialogLoading.value = false
     }
   }
-};
-
+}
 const showModalHandle = () => {
-  if (protypeRef.value) protypeRef.value.clearHandle();
-  getPublicDataList(["YSTJPZ_TJFS", "YSTJPZ_TJLX"]);
-  if (props.operationFlag === "ADD") {
-    formData.statMethod = "1";
+  if (protypeRef.value) protypeRef.value.clearHandle()
+  getPublicDataList(['YSTJPZ_TJFS', 'YSTJPZ_TJLX'])
+  if (props.operationFlag === 'ADD') {
+    formData.statMethod = '1'
   } else {
-    getFormInfo();
+    getFormInfo()
   }
-};
-
+}
 const saveDataHandle = async () => {
-  if (!formRef.value) return;
+  if (!formRef.value) return
   try {
-    let validateRes = await formRef.value.validate();
+    let validateRes = await formRef.value.validate()
     if (validateRes) {
-      formDialogLoading.value = true;
+      formDialogLoading.value = true
       let params: any = {
         busiType: props.initParams.busiType,
         configName: formData.configName,
@@ -338,202 +367,191 @@ const saveDataHandle = async () => {
         dispOrder: Number(formData.dispOrder),
         recState: Number(formData.recState),
         isDisplay: formData.isDisplay
-      };
-      if (Number(formData.isleaf) === 1 && formData.statMethod === "1") {
+      }
+      if (Number(formData.isleaf) === 1 && formData.statMethod === '1') {
         if (Array.isArray(formData.proType)) {
-          formData.proType = "";
+          formData.proType = ''
         } else {
-          params.proType = formData.proType;
+          params.proType = formData.proType
         }
-        params.statType = Number(formData.statType);
+        params.statType = Number(formData.statType)
       }
       if (Number(formData.isleaf) === 0) {
-        params.statMethod = "";
+        params.statMethod = ''
       }
-      if (props.operationFlag === "EDIT") {
-        params.configId = props.editData.configId;
+      if (props.operationFlag === 'EDIT') {
+        params.configId = props.editData.configId
       }
       if (props.treeParams && Number(props.treeParams.id) !== Number(props.initParams.nd)) {
-        params.parentId = props.treeParams?.id;
+        params.parentId = props.treeParams?.id
       }
       params.dataDetails = dataDetails.value.map((item) => ({
         ...item
-      }));
+      }))
       params.sumDetails = dataSum.value.map((item) => ({
         ...item
-      }));
-      let res = await saveConfig(params);
+      }))
+      let res = await saveConfig(params)
       if (res.success) {
-        ElMessage.success("保存成功！");
-        formDialogLoading.value = false;
-        emit("updateTable");
-        closeModalHandle();
+        ElMessage.success('保存成功！')
+        formDialogLoading.value = false
+        emit('updateTable')
+        closeModalHandle()
       } else {
-        ElMessage.error(res.msg);
-        formDialogLoading.value = false;
+        ElMessage.error(res.msg)
+        formDialogLoading.value = false
       }
     }
   } catch (error) {
-    console.log(error);
+    console.log(error)
   }
-};
-
+}
 const getProTypeData = async () => {
-  let res = await getAllProtypeTree();
+  let res = await getAllProtypeTree()
   if (res.success) {
-    proTypeData.value = res.data;
+    proTypeData.value = res.data
   } else {
     ElMessage({
-      type: "error",
+      type: 'error',
       message: res.msg
-    });
+    })
   }
-};
-
+}
 watch(
   () => formData.isleaf,
   (newVal) => {
-    isShowTable.value = newVal !== "0";
-    height.value = isShowTable.value ? "670" : "240";
-    if (formData.isleaf === "1" && formData.statType && formData.statType === "2") {
-      height.value = "360";
-      isShowTable.value = false;
+    isShowTable.value = newVal !== '0'
+    height.value = isShowTable.value ? '670' : '240'
+    if (formData.isleaf === '1' && formData.statType && formData.statType === '2') {
+      height.value = '360'
+      isShowTable.value = false
     }
-    if (formData.isleaf === "1" && formData.statMethod && formData.statMethod === "2") {
-      height.value = "670";
-      isShowTable.value = true;
+    if (formData.isleaf === '1' && formData.statMethod && formData.statMethod === '2') {
+      height.value = '670'
+      isShowTable.value = true
     }
-    dataDetails.value.length = 0;
-    dataAdd.value.length = 0;
+    dataDetails.value.length = 0
+    dataAdd.value.length = 0
     dataSub.value.length = 0
-    dataSum.value.length = 0;
-    if (newVal === "1" && (dataSum.value.length === 0 || dataDetails.value.length === 0)) {
-      getDetailData(formData.statMethod);
+    dataSum.value.length = 0
+    if (newVal === '1' && (dataSum.value.length === 0 || dataDetails.value.length === 0)) {
+      getDetailData(formData.statMethod)
     }
-    if (newVal === "1") {
-      getProTypeData();
+    if (newVal === '1') {
+      getProTypeData()
     }
   }
-);
-
+)
 const getDetailData = async (flag: string) => {
-  if (!flag && formData.isleaf === "1") {
-    flag = "1";
-    formData.statMethod = "1";
+  if (!flag && formData.isleaf === '1') {
+    flag = '1'
+    formData.statMethod = '1'
   }
-  formDialogLoading.value = true;
+  formDialogLoading.value = true
   let obj: any = {
     1: getDataDetail,
     2: getSumDetail
-  };
-  const configId: string = props.editData?.configId;
+  }
+  const configId: string = props.editData?.configId
   if (configId) {
-    const res = await obj[flag](configId);
-    dataAdd.value.length = 0;
-    dataSub.value.length = 0;
+    const res = await obj[flag](configId)
+    dataAdd.value.length = 0
+    dataSub.value.length = 0
     if (res.success && res.data) {
-      if (flag === "1") {
-        dataDetails.value = res.data;
+      if (flag === '1') {
+        dataDetails.value = res.data
       } else {
         res.data.forEach((item: any) => {
-          item.name = item.tarConfigName;
-          if (item.sumMethod == "add") {
-            dataAdd.value.push(item);
+          item.name = item.tarConfigName
+          if (item.sumMethod == 'add') {
+            dataAdd.value.push(item)
           } else {
-            dataSub.value.push(item);
+            dataSub.value.push(item)
           }
-        });
-        dataSum.value = res.data;
+        })
+        dataSum.value = res.data
       }
     }
   }
-  formDialogLoading.value = false;
-};
-
+  formDialogLoading.value = false
+}
 const changeStatMethodHandle = (val: string) => {
-  if (val && val === "2") {
-    formData.proType = "";
+  if (val && val === '2') {
+    formData.proType = ''
   }
-  isShowTable.value = true;
-  height.value = "670";
-};
-
+  isShowTable.value = true
+  height.value = '670'
+}
 const changeLeafDataHandle = (val: string) => {
-  formData.proType = "";
-};
-
+  formData.proType = ''
+}
 const changeStatTypeHandle = (val: string) => {
-  formData.proType = "";
-  dataDetails.value = [];
-  if (val === "2") {
-    isShowTable.value = false;
-    height.value = "360";
+  formData.proType = ''
+  dataDetails.value = []
+  if (val === '2') {
+    isShowTable.value = false
+    height.value = '360'
   } else {
-    isShowTable.value = true;
-    height.value = "670";
+    isShowTable.value = true
+    height.value = '670'
   }
-};
-
+}
 watch(
   () => formData.statMethod,
   (newVal) => {
-    if (newVal === "1") {
-      dataSum.value.length = 0;
-      dataAdd.value.length = 0;
+    if (newVal === '1') {
+      dataSum.value.length = 0
+      dataAdd.value.length = 0
       dataSub.value.length = 0
       // 获取请求
     }
-    if (newVal === "2") {
-      dataDetails.value.length = 0;
+    if (newVal === '2') {
+      dataDetails.value.length = 0
     }
-    if (formData.isleaf === "1") getDetailData(newVal);
+    if (formData.isleaf === '1') getDetailData(newVal)
   }
-);
-
+)
 watch(
   () => height.value,
   (newVal) => {
     nextTick(() => {
       switch (newVal) {
-        case "670":
-          formDialogRef.value.setPosition(240, "center");
-          break;
-        case "360":
-          formDialogRef.value.setPosition(300, "center");
-          break;
-        case "240":
-          formDialogRef.value.setPosition(400, "center");
-          break;
+        case '670':
+          formDialogRef.value.setPosition(240, 'center')
+          break
+        case '360':
+          formDialogRef.value.setPosition(300, 'center')
+          break
+        case '240':
+          formDialogRef.value.setPosition(400, 'center')
+          break
         default:
-          formDialogRef.value.setPosition(670, "center");
-          break;
+          formDialogRef.value.setPosition(670, 'center')
+          break
       }
-    });
+    })
   }
-);
-
+)
 const resetMethod = () => {
-  formData.configName = "";
-  formData.statMethod = "";
-  formData.isleaf = "0";
-  formData.isDwStat = "1";
-  formData.recState = "1";
-  formData.dispOrder = "";
-  formData.proType = "";
-  formData.statType = "1";
-  formData.isDisplay = "1";
-};
-
+  formData.configName = ''
+  formData.statMethod = ''
+  formData.isleaf = '0'
+  formData.isDwStat = '1'
+  formData.recState = '1'
+  formData.dispOrder = ''
+  formData.proType = ''
+  formData.statType = '1'
+  formData.isDisplay = '1'
+}
 const closeModalHandle = () => {
-  showModal.value = false;
-  resetMethod();
-  emit("clearData");
-};
-
+  showModal.value = false
+  resetMethod()
+  emit('clearData')
+}
 defineExpose({
   title,
   showModal
-});
+})
 </script>
 
 <template>

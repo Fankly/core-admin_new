@@ -143,14 +143,9 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'SearchCriteria'
-}
-</script>
 
-<script lang="ts" setup>
-import { onMounted, reactive, defineExpose, ref, defineEmits, defineProps, withDefaults } from 'vue'
+<script setup lang="ts">
+import { onMounted, reactive, ref } from 'vue'
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
 import TreeSelect from '@/components/select/TreeSelect.vue'
@@ -159,6 +154,9 @@ import { getProTypeTreeNode } from '@/api/process'
 import { getGkbmInProvince, getPublicCodeList } from '@/api/common'
 import { getEjdwData, getYjdwData } from '@/api/service/expertinformation'
 import { SearchData } from '@/api/service/Storage/PlannedOutbound/Declaration'
+defineOptions({
+  name: 'SearchCriteria'
+})
 
 interface Prop {
   flag: 'DECLARATION' | 'VERIFICATION'
@@ -166,7 +164,6 @@ interface Prop {
 const props = withDefaults(defineProps<Prop>(), {
   flag: 'DECLARATION'
 })
-
 const formData = reactive<SearchData>({
   protypeIds: [],
   sgkbmId: '',
@@ -178,12 +175,9 @@ const formData = reactive<SearchData>({
   jhssnd: '',
   ejdw: ''
 })
-
 const formRef = ref()
 const proTypeRef = ref()
-
 const emit = defineEmits(['reset', 'search'])
-
 const selectData = reactive({
   projectTypeList: [],
   yjdwList: [],
@@ -192,18 +186,15 @@ const selectData = reactive({
   ztsList: [],
   gkbmList: []
 })
-
 const changeYjdwData = (val: string) => {
   if (!val) {
     formData.ejdw = ''
     selectData.ejdwList = []
   }
 }
-
 const getProjectType = (value: any) => {
   formData.protypeIds = value
 }
-
 const selectYjdwChange = async (val: any) => {
   formData.ejdw = ''
   let res: any = await getEjdwData(val['id'])
@@ -253,13 +244,11 @@ const getProGkbmData = async () => {
     selectData.gkbmList = res.data
   }
 }
-
 const clearDataHandle = () => {
   if (Array.isArray(formData.protypeIds)) {
     formData.protypeIds = []
   }
 }
-
 const resetHandle = () => {
   formRef.value.resetFields()
   formData.zts = props.flag === 'DECLARATION' ? ['300', '310', '301'] : ['310']
@@ -267,23 +256,19 @@ const resetHandle = () => {
   selectData.ejdwList = []
   emit('reset')
 }
-
 const searchHandle = () => {
   emit('search', formData)
 }
-
 const initData = () => {
   getProjectData()
   getYjdwDataList()
   getProGkbmData()
   getJhssndDataList()
 }
-
 onMounted(() => {
   formData.zts = props.flag === 'DECLARATION' ? ['300', '310', '301'] : ['310']
   initData()
 })
-
 defineExpose({
   formData
 })

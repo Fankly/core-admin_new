@@ -10,9 +10,9 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/lyg/project/cqwtxqjhxms/index" })
 import CqxmBaseTable from '../components/CqxmBaseTable.vue'
 import { getCqwtxqjhXmmxPage, exportCqwtxqjhXmmx } from '@/api/lyg/index'
+defineOptions({ name: "/lyg/project/cqwtxqjhxms/index" })
 
 const extraColumns = [
   { prop: 'erdat', label: '项目立项日期', width: 150 },

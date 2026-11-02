@@ -129,11 +129,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'pointModel'
-}
-</script>
 
 <style lang="less">
 @import '../../css/modal.less';
@@ -146,13 +141,15 @@ import { rulManageSaveRule } from '@/api/suzhou/aiAuditRuleManage'
 import { getRulePage } from '@/api/suzhou/aiAuditRulePoint'
 import { VXETable } from 'vxe-table'
 import { getPublicData } from '@/api/common'
+defineOptions({
+  name: 'pointModel'
+})
 
 /** 弹窗参数 */
 interface ModalParams {
   type: 'ADD' | 'EDIT'
   searchParams: Record<string, any>
 }
-
 interface PointItem {
   categoryRuleId: string
   ruleCode: string
@@ -173,13 +170,17 @@ interface RuleOption {
   ruleCode: string
   ruleName: string
 }
-
-const props = defineProps<{ item?: PointItem | null }>()
-
-const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+const props = defineProps<{
+  item?: PointItem | null
 }>()
-
+const emit = defineEmits<{
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
+}>()
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
@@ -191,7 +192,6 @@ const ruleStatus = ref<CodeItem[]>([])
 const implementedOptions = ref<CodeItem[]>([])
 const pointSourceOptions = ref<CodeItem[]>([])
 const ruleOptions = ref<RuleOption[]>([])
-
 const searchParams = ref<any>({})
 
 /** 重置表单数据与校验状态 */
@@ -216,7 +216,6 @@ const fetchOptions = async () => {
       getPublicData('AI_AUDIT_POINT_SOURCE_COM'),
       getRulePage({})
     ])
-
     ruleStatus.value = code6.data
     handlers.value = code7.data
     implementedOptions.value = codeImplemented.data
@@ -233,7 +232,6 @@ const fetchOptions = async () => {
 const handleSave = () => {
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -245,7 +243,6 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
       // 规则编码/名称跟着下拉选中的规则走（右侧列表要展示这两列）；选不到时保留行上的原值
@@ -258,7 +255,9 @@ const handleSave = () => {
       })
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -282,6 +281,7 @@ const acceptParams = (params: ModalParams) => {
   isShowModal.value = true
   fetchOptions()
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>

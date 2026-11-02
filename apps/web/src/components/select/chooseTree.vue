@@ -34,21 +34,18 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: '/components/select/chooseTree'
-}
-</script>
+
 <script setup lang="ts">
-import { ref, defineExpose, defineEmits } from 'vue'
+import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/components/select/chooseTree'
+})
 
 const emit = defineEmits(['chooseData', 'rowsList'])
-
 const treeRef = ref()
 const checkStrictly = ref<boolean>(false)
 const showAll = ref<boolean>(false)
-
 const treeModal = ref<boolean>(false)
 const title = ref<any>('弹窗') //弹窗标题
 const treeDataList = ref<any[]>([]) // 单位树结构

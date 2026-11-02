@@ -30,18 +30,17 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: 'fyHeader'
-}
-</script>
+
 <script setup lang="ts">
 import { getPublicCodeList, getYearData } from '@/api/common'
 import { ElMessage } from 'element-plus'
-import { onMounted, withDefaults, defineProps, defineEmits, defineExpose, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { FormParams } from '../prearranged/interface'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
+defineOptions({
+  name: 'fyHeader'
+})
 
 export interface HeaderData {
   dwName: string
@@ -53,27 +52,20 @@ const props = withDefaults(defineProps<HeaderData>(), {
   // @ts-ignore
   toolButton: true
 })
-
 const emit = defineEmits(['changeNd', 'changeXsws'])
-
 const helpModalRef = ref()
-
 const formParams = reactive<FormParams>({
   nd: '',
   xsws: '',
   ndList: [],
   xswsList: []
 })
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const initData = async () => {
   let flag = Array.isArray(props.toolButton) ? props.toolButton.includes('nd') : props.toolButton
-  let flagXsws = Array.isArray(props.toolButton)
-    ? props.toolButton.includes('xsws')
-    : props.toolButton
+  let flagXsws = Array.isArray(props.toolButton) ? props.toolButton.includes('xsws') : props.toolButton
   if (flag) {
     let res = await getYearData()
     if (res.success) {
@@ -85,7 +77,9 @@ const initData = async () => {
   }
   if (flagXsws) {
     let codes = ['XSWS']
-    const res = await getPublicCodeList({ codes })
+    const res = await getPublicCodeList({
+      codes
+    })
     if (res.success && res.data) {
       formParams.xswsList = res.data['XSWS']
       formParams.xsws = '2'
@@ -94,7 +88,6 @@ const initData = async () => {
     }
   }
 }
-
 const changeNdDataHandle = (val: string) => {
   emit('changeNd', val)
 }
@@ -103,13 +96,10 @@ const changeXswsDataHandle = (val: string) => {
   if (val) value = val.split('_')[1]
   emit('changeXsws', value)
 }
-
 const isShowTool = (key: 'nd' | 'dw' | 'xsws') => {
   return Array.isArray(props.toolButton) ? props.toolButton.includes(key) : props.toolButton
 }
-
 onMounted(initData)
-
 defineExpose({
   formParams
 })

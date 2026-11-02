@@ -24,7 +24,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "ReportBaseTable" })
 import { onMounted, ref, reactive, computed, h } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import ProTable from '@/components/ProTablePage/index.vue'
@@ -38,6 +37,7 @@ import TreeSelect from '@/components/select/TreeSelectLazy.vue'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { getEjdwList, getYjdwList } from '@/api/ai/smartTaskAudit'
 import { ElMessage } from 'element-plus'
+defineOptions({ name: "ReportBaseTable" })
 
 // ========== Props ==========
 const props = withDefaults(

@@ -32,16 +32,12 @@
   <newModal ref="newModalRef" :title="modalTitle" :zjjb="zjjb" :pszy="pszy" @show-modal="showModal" />
   <ImportExcel ref="importRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/service/ywpt/ExpertInformationZ'
-}
-</script>
+
 <script setup lang="ts">
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import userDialog from '@/components/select/userDialog.vue'
+import proTable from '@/components/ProTable/index.vue'
 import { ref, reactive, onMounted, nextTick } from 'vue'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import {
   xmExpertDelete,
   save,
@@ -54,11 +50,20 @@ import {
   getBm
 } from '@/api/service/expertinformation'
 import { ElNotification, ElMessage, ElMessageBox } from 'element-plus'
-import ImportExcel from '@/components/ImportExcel/index.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/index.vue'
 import { useStore } from '@/store/business'
 import { useUser } from '@/hooks/useUser'
 import newModal from '@/views/service/ywpt/components/newModal.vue'
 import { useRoute } from 'vue-router'
+defineOptions({
+  name: '/service/ywpt/ExpertInformationZ'
+})
+ //权限弹框
+ //表格组件
+
+ //公共代码
+
+ //导入组件
 
 const loading = ref(false)
 const isShowPage = ref(false) //未选择角色前不展示页面
@@ -77,11 +82,36 @@ const route = useRoute()
 // 按钮
 const btnList = ref<any>([
   //isSelected 按钮是否需要选择数据
-  { label: 'add', value: '新 增', isSelected: false, code: 'ADD' },
-  { label: 'edit', value: '编 辑', isSelected: true, code: 'EDIT' },
-  { label: 'del', value: '删 除', isSelected: true, code: 'DELETE' },
-  { label: 'import', value: '导 入', isSelected: false, code: 'IMPORT' },
-  { label: 'export', value: '导 出', isSelected: false, code: 'EXPORT' }
+  {
+    label: 'add',
+    value: '新 增',
+    isSelected: false,
+    code: 'ADD'
+  },
+  {
+    label: 'edit',
+    value: '编 辑',
+    isSelected: true,
+    code: 'EDIT'
+  },
+  {
+    label: 'del',
+    value: '删 除',
+    isSelected: true,
+    code: 'DELETE'
+  },
+  {
+    label: 'import',
+    value: '导 入',
+    isSelected: false,
+    code: 'IMPORT'
+  },
+  {
+    label: 'export',
+    value: '导 出',
+    isSelected: false,
+    code: 'EXPORT'
+  }
 ])
 // 搜索
 const searchHandle = () => {
@@ -122,7 +152,9 @@ const handlerBtn = async (val: any, selectedList: any) => {
       type: 'warning'
     })
       .then(async () => {
-        let res: any = await xmExpertDelete({ ids: ids })
+        let res: any = await xmExpertDelete({
+          ids: ids
+        })
         if (res.success) {
           ElMessage.success('删除成功')
           proTableRef.value?.getTableList()
@@ -238,7 +270,9 @@ const selectChange = (val: any) => {
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    const userMsg = { ...userDialogRef.value.userMsg }
+    const userMsg = {
+      ...userDialogRef.value.userMsg
+    }
     userInfo.value = userMsg.specialOrgId
     if (isQuery) {
       await initParamLists()
@@ -286,9 +320,20 @@ const searchDataHandle = async (params: any) => {
   return getListPageData(params)
 }
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'majorName', label: '专家专业', width: '120' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'majorName',
+    label: '专家专业',
+    width: '120'
+  },
   {
     prop: 'major',
     label: '专家专业',
@@ -298,7 +343,10 @@ const tableColumns = reactive<any>([
       order: 1
     },
     enum: pszy.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'expertName',
@@ -313,31 +361,94 @@ const tableColumns = reactive<any>([
     prop: 'yjdw',
     label: '一级单位',
     isShow: false,
-    search: { el: 'select', props: { onChange: selectChange }, order: 3 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: selectChange
+      },
+      order: 3
+    },
     enum: levelOne.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'ejdw',
     label: '二级单位',
     isShow: false,
-    search: { el: 'select', order: 4 },
+    search: {
+      el: 'select',
+      order: 4
+    },
     enum: levelTwo.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
-  { prop: 'yjdwname', label: '一级单位', width: '180' },
-  { prop: 'ejdwname', label: '二级单位', width: '180' },
-  { prop: 'deptname', label: '所属部门', width: '180' },
+  {
+    prop: 'yjdwname',
+    label: '一级单位',
+    width: '180'
+  },
+  {
+    prop: 'ejdwname',
+    label: '二级单位',
+    width: '180'
+  },
+  {
+    prop: 'deptname',
+    label: '所属部门',
+    width: '180'
+  },
   // { prop: 'identityCard', label: '身份证号', width: '150' },
-  { prop: 'sex', label: '专家性别', width: '80' },
-  { prop: 'account', label: '统一权限账号', width: '120' },
-  { prop: 'phoneNo', label: '联系方式', width: '120' },
-  { prop: 'mail', label: '电子邮箱', width: '150' },
-  { prop: 'talent', label: '擅长专业', width: '180' },
-  { prop: 'expertLevel', label: '专家级别', width: '80' },
-  { prop: 'resume', label: '工作简历', width: '180' },
-  { prop: 'performance', label: '主要业绩', width: '180' },
-  { prop: 'remark', label: '备注', width: '180' }
+  {
+    prop: 'sex',
+    label: '专家性别',
+    width: '80'
+  },
+  {
+    prop: 'account',
+    label: '统一权限账号',
+    width: '120'
+  },
+  {
+    prop: 'phoneNo',
+    label: '联系方式',
+    width: '120'
+  },
+  {
+    prop: 'mail',
+    label: '电子邮箱',
+    width: '150'
+  },
+  {
+    prop: 'talent',
+    label: '擅长专业',
+    width: '180'
+  },
+  {
+    prop: 'expertLevel',
+    label: '专家级别',
+    width: '80'
+  },
+  {
+    prop: 'resume',
+    label: '工作简历',
+    width: '180'
+  },
+  {
+    prop: 'performance',
+    label: '主要业绩',
+    width: '180'
+  },
+  {
+    prop: 'remark',
+    label: '备注',
+    width: '180'
+  }
   // { prop: 'createTime', label: '新增时间', width: '150' },
   // { prop: 'updateTime', label: '更新时间', width: '150' }
 ])

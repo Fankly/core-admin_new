@@ -32,16 +32,15 @@
   </div>
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle" />
 </template>
-<script lang="tsx">
-export default {
-  name: '/fy/config/xsConfig/yskz'
-}
-</script>
+
 <script setup lang="tsx">
 import { ref, reactive, nextTick } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Split from '@/components/Split/index.vue'
+defineOptions({
+  name: '/fy/config/xsConfig/yskz'
+})
 
 const loading = ref(false)
 const userDialogRef = ref()
@@ -70,10 +69,11 @@ const selectParent = (node: any) => {
     selectParent(parentNode.data)
   }
 }
-
 const getRoleHandle = async () => {
   loading.value = false
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   const isQuery = userDialogRef.value.isQuery
   if (isQuery) {
     isShowPage.value = true

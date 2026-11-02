@@ -69,17 +69,16 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/workflow/todoTasks'
-}
-</script>
+
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch, h } from 'vue'
 import proTable from '@/components/ProTable/index.vue'
 import { ColumnProps } from '@/components/ProTable/interface'
 import { ElMessage } from 'element-plus'
 import { queryWorkItemsByEmployee, getWfTracking } from '@/api/workflow'
+defineOptions({
+  name: '/workflow/todoTasks'
+})
 
 const handleSelectionChange = (val: any) => {
   if (val) {
@@ -89,21 +88,16 @@ const handleSelectionChange = (val: any) => {
 }
 const proTableRef = ref<InstanceType<typeof proTable>>()
 const iframeRef = ref()
-
 const isShowStatus = reactive({
   button: true
 })
-
 const loading = ref<boolean>(false)
-
 const todoTasksRecord = ref<any>({})
-
 const todoTasksFrame = reactive({
   title: '',
   isShowDialog: false,
   src: ''
 })
-
 onMounted(() => {
   window.onmessage = function (e) {
     if (e.data) {
@@ -113,7 +107,6 @@ onMounted(() => {
     }
   }
 })
-
 const checkAccess = () => {
   try {
     const iframe = iframeRef.value
@@ -131,17 +124,14 @@ const checkAccess = () => {
     loading.value = false
   }
 }
-
 const todoTasksFrom = reactive({
   bizName: ''
 })
-
 const initParam = reactive({
   type: 0,
   workFlowCode: '',
   state: 1
 })
-
 const urgencyEnum = reactive([
   {
     label: '一般',
@@ -156,7 +146,6 @@ const urgencyEnum = reactive([
     value: '3'
   }
 ])
-
 const tableColumns = reactive<ColumnProps<any>[]>([
   {
     prop: 'systemName',
@@ -207,12 +196,10 @@ const tableColumns = reactive<ColumnProps<any>[]>([
     isShow: false
   }
 ])
-
 const callBackHandle = (val: any) => {
   loading.value = false
   return val
 }
-
 const getPageList = (params: any) => {
   loading.value = true
   let newParams = JSON.parse(JSON.stringify(params))
@@ -224,7 +211,6 @@ const getPageList = (params: any) => {
   }
   return queryWorkItemsByEmployee(newParams)
 }
-
 const openTodoTaskDeal = () => {
   if (!Reflect.has(todoTasksRecord.value, 'id')) {
     ElMessage.warning('请先选中需要处理的待办！')
@@ -235,7 +221,6 @@ const openTodoTaskDeal = () => {
     todoTasksFrame.src = todoTasksRecord.value.url
   }
 }
-
 const openTodoTaskDesc = () => {
   if (!Reflect.has(todoTasksRecord.value, 'wfInstId')) {
     ElMessage.warning('请先选中需要查看的待办！')
@@ -255,12 +240,10 @@ const openTodoTaskDesc = () => {
     })
   }
 }
-
 const closeTodoTaskDeal = () => {
   loading.value = false
   searchPageList()
 }
-
 watch(
   () => todoTasksFrame.isShowDialog,
   (newVal) => {
@@ -272,7 +255,6 @@ watch(
     }
   }
 )
-
 const searchPageList = () => {
   loading.value = true
   if (proTableRef.value) proTableRef.value.search()

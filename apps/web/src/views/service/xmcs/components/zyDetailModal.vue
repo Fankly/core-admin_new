@@ -113,32 +113,31 @@
     </template>
   </vxe-modal>
 </template>
-<script lang="ts">
-export default {
-  name: 'zyDetailModal'
-}
-</script>
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { saveOrUpdateHandler, queryById } from '@/api/service/xmcs/workStandardCostConfig'
+defineOptions({
+  name: 'zyDetailModal'
+})
 
 interface ModalProps {
   type: string // 新增 / 编辑 / 查看
   dirId: string // 所属三级目录
   row?: any // 编辑/查看时的明细数据
 }
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const isDisabled = ref(false)
 const ruleFormRef = ref()
-const modalParams = ref<ModalProps>({ type: '', dirId: '' })
+const modalParams = ref<ModalProps>({
+  type: '',
+  dirId: ''
+})
 const formData = ref<any>({})
-
 const emits = defineEmits(['saveDataAfter'])
-
 const initForm = () => {
   formData.value = {
     id: '',
@@ -159,13 +158,18 @@ const initForm = () => {
     remark: ''
   }
 }
-
 const save = () => {
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-    const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', { status: 'warning' })
+    const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
+      status: 'warning'
+    })
     if (type !== 'confirm') return ElMessage.info('已取消')
-    const params = { ...formData.value, dirId: modalParams.value.dirId, id: formData.value.id || undefined }
+    const params = {
+      ...formData.value,
+      dirId: modalParams.value.dirId,
+      id: formData.value.id || undefined
+    }
     loading.value = true
     try {
       const res = await saveOrUpdateHandler([params])
@@ -178,16 +182,16 @@ const save = () => {
     }
   })
 }
-
 const reset = () => {
   initForm()
   isDisabled.value = false
   isShowModal.value = false
 }
-
 const acceptParams = async (params: ModalProps) => {
   initForm()
-  modalParams.value = { ...params }
+  modalParams.value = {
+    ...params
+  }
   isDisabled.value = params.type === '查看'
   isShowModal.value = true
   if (params.type === '新增') {
@@ -195,21 +199,31 @@ const acceptParams = async (params: ModalProps) => {
     return
   }
   // 编辑 / 查看：优先用列表行回显，再尝试按 id 拉取最新
-  formData.value = { ...formData.value, ...(params.row || {}) }
+  formData.value = {
+    ...formData.value,
+    ...(params.row || {})
+  }
   if (params.row?.id) {
     loading.value = true
     try {
-      const res: any = await queryById({ id: params.row.id })
+      const res: any = await queryById({
+        id: params.row.id
+      })
       if (res.success && res.data) {
         const detail = Array.isArray(res.data?.records) ? res.data.records[0] : Array.isArray(res.data) ? res.data[0] : res.data
-        if (detail) formData.value = { ...formData.value, ...detail }
+        if (detail)
+          formData.value = {
+            ...formData.value,
+            ...detail
+          }
       }
     } finally {
       loading.value = false
     }
   }
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 <style scoped lang="less"></style>

@@ -89,9 +89,9 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ConfirmOutboundTypeModal" })
 import ElTreeSelect from '@/components/ElTreeSelect'
 import { useConfirmOutboundType } from './hooks/useConfirmOutboundType'
+defineOptions({ name: "ConfirmOutboundTypeModal" })
 
 const {
   wbsData,

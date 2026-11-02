@@ -240,11 +240,6 @@
   <PointTaskProgressModal :modal="pointProgressModal" @close="closePointTaskProgress" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/ai/smartTaskAudit/index'
-}
-</script>
 
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
@@ -263,6 +258,9 @@ import smartTaskProgress from './components/smartTaskProgress.vue'
 import { Activity, CircleStop, Download, Pencil, Play, Trash2 } from '@/views/ai/workbenchView/icons'
 import { useAiSmartTaskAuditPage } from './hooks/useAiSmartTaskAuditPage'
 import { usePointTaskPanel } from './hooks/usePointTaskPanel'
+defineOptions({
+  name: '/ai/smartTaskAudit/index'
+})
 
 const {
   isShowPage,
@@ -338,7 +336,6 @@ const {
 const activeTab = ref<'task' | 'point'>('task')
 /** 单要点页签首次进入才挂载（避免页面打开就多发请求）；之后每次切换都会重新取数（见 switchTab） */
 const pointTabMounted = ref(false)
-
 const point = usePointTaskPanel()
 const {
   pointTableRef,
@@ -416,7 +413,6 @@ const openPointTaskEdit = () => {
   }
   void openEditPointTask(rows[0])
 }
-
 onMounted(() => {
   userRoleSelectorRef.value?.getUser()
 })

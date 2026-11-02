@@ -11,68 +11,73 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'TextOverHiddenTooltip',
-  props: {
-    // 允许跨几行
-    wrapNumber: {
-      type: Number,
-      default: 1
-    },
-    text: {
-      type: [String, Number],
-      default: ''
-    },
-    alwaysShow: {
-      type: Boolean
-    },
-    appendClass: {
-      type: String
-    },
-    link: {
-      type: Function,
-      default: null
-    }
+<script setup>
+import { nextTick, reactive, toRef, toRefs, computed, watch, useTemplateRef } from 'vue'
+defineOptions({
+  name: 'TextOverHiddenTooltip'
+})
+const componentProps = defineProps({
+  // 允许跨几行
+  wrapNumber: {
+    type: Number,
+    default: 1
   },
-  data() {
-    return {
-      isShow: false,
-      width: undefined,
-      height: undefined
-    }
+  text: {
+    type: [String, Number],
+    default: ''
   },
-  watch: {
-    text() {
-      // this.checkOverflow()
-    }
+  alwaysShow: {
+    type: Boolean
   },
-  mounted() {},
-  computed: {
-    varCss() {
-      return {
-        '--wrapNumber': this.wrapNumber ? this.wrapNumber * 1 : 1
-      }
-    }
+  appendClass: {
+    type: String
   },
-  methods: {
-    isShowTooltip() {
-      this.width = this.$refs.contentRefWrapper?.offsetWidth
-      this.height = this.$refs.contentRefWrapper?.offsetWidth
-      this.$nextTick(() => {
-        if (this.wrapNumber == 1) {
-          const contentWidth = this.$refs.contentRef.offsetWidth
-          const containerWidth = this.$refs.contentRef.parentElement.offsetWidth
-          this.isShow = contentWidth > containerWidth
-        } else {
-          const contentHeight = this.$refs.contentRef.offsetHeight
-          const containerHeight = this.$refs.contentRef.parentElement.offsetHeight
-          this.isShow = contentHeight > containerHeight
-        }
-      })
-    }
+  link: {
+    type: Function,
+    default: null
   }
+})
+const contentRefWrapperRef = useTemplateRef('contentRefWrapper')
+const contentRefRef = useTemplateRef('contentRef')
+const componentData = reactive({
+  isShow: false,
+  width: undefined,
+  height: undefined
+})
+const isShow = toRef(componentData, 'isShow')
+const width = toRef(componentData, 'width')
+const height = toRef(componentData, 'height')
+function isShowTooltip() {
+  componentData.width = contentRefWrapperRef.value?.offsetWidth
+  componentData.height = contentRefWrapperRef.value?.offsetWidth
+  nextTick(() => {
+    if (componentProps.wrapNumber == 1) {
+      const contentWidth = contentRefRef.value.offsetWidth
+      const containerWidth = contentRefRef.value.parentElement.offsetWidth
+      componentData.isShow = contentWidth > containerWidth
+    } else {
+      const contentHeight = contentRefRef.value.offsetHeight
+      const containerHeight = contentRefRef.value.parentElement.offsetHeight
+      componentData.isShow = contentHeight > containerHeight
+    }
+  })
 }
+const varCss = computed(() => {
+  return {
+    '--wrapNumber': componentProps.wrapNumber ? componentProps.wrapNumber * 1 : 1
+  }
+})
+watch(
+  () => componentProps.text,
+  function () {
+    // this.checkOverflow()
+  }
+)
+defineExpose({
+  isShowTooltip,
+  ...toRefs(componentData),
+  varCss
+})
 </script>
 
 <style scoped lang="less">

@@ -219,20 +219,18 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'xmModal'
-}
-</script>
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { saveOrUpdateHandler } from '@/api/service/xmcs/index'
+import { saveOrUpdateHandler, queryById, getZxcsAttach, queryZyxfList } from '@/api/service/xmcs/index'
 import dytable from '@/views/service/xmcs/components/dytable.vue'
 import fileModal from '@/views/service/xmcs/components/fileModal.vue'
-import { queryById, getZxcsAttach, queryZyxfList } from '@/api/service/xmcs/index'
 import { getPublicCodesList } from '@/api/common'
 import { VXETable } from 'vxe-table'
+defineOptions({
+  name: 'xmModal'
+})
 
 interface ModalProps {
   type: string
@@ -260,7 +258,6 @@ const modalParams = ref<ModalProps>({
   searchParams: {}
 })
 const zcxxList = ref<any[]>([])
-
 const zyxfList = ref<any[]>([])
 const aplxList = ref<any[]>([])
 const gjwdList = ref<any[]>([])
@@ -268,7 +265,6 @@ const sfList = ref<any[]>([])
 const sxList = ref<any[]>([])
 const deptList = ref<any[]>([])
 const ysyyList = ref<any[]>([])
-
 const emits = defineEmits(['searchHandle'])
 
 // 保存
@@ -288,13 +284,16 @@ const save = () => {
           }
         }
       }
-
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
       })
       if (type !== 'confirm') return ElMessage.info('已取消')
       searchParams.value.zcxxDTO = zcxxList.value
-      let res = await saveOrUpdateHandler([{ ...searchParams.value }])
+      let res = await saveOrUpdateHandler([
+        {
+          ...searchParams.value
+        }
+      ])
       if (!res.success) return ElMessage.error(res.msg)
       ElMessage.success('保存成功！')
       reset()
@@ -310,13 +309,17 @@ const reset = () => {
 }
 // 更新动因信息
 const getDyData = async () => {
-  const codes = await getPublicCodesList({ codes: ['NUMSOURCE_COM', 'ZXCSXGLX_COM'] })
+  const codes = await getPublicCodesList({
+    codes: ['NUMSOURCE_COM', 'ZXCSXGLX_COM']
+  })
   codesList.value = codes.data
   const param = {
     creatorAccount: searchParams.value.creatorAccount,
     id: searchParams.value.id
   }
-  let res: any = await queryById({ ...param })
+  let res: any = await queryById({
+    ...param
+  })
   if (res.success) {
     const data = res.data.records
     data[0].dyList.forEach((dy: any) => {
@@ -330,7 +333,11 @@ const getDyData = async () => {
     zcxxList.value = data[0].zcxxList || []
     zxcsspstatus.value = data[0].zxcsspstatus || ''
     isEditMc.value = data[0].zxcsstatus != '0' || modalParams.value.type == '查看'
-    searchParams.value = { ...data[0], creator: searchParams.value.creator, creatorAccount: searchParams.value.creatorAccount }
+    searchParams.value = {
+      ...data[0],
+      creator: searchParams.value.creator,
+      creatorAccount: searchParams.value.creatorAccount
+    }
     dyTableData.value.length = 0
     dyTableData.value = data[0].dyList.filter((dy: any) => dy.sheetname != null && dy.sheetname != '')
   }
@@ -357,11 +364,12 @@ const getPublicCodes = async () => {
   deptList.value = codesData[6].codes || []
   ysyyList.value = codesData[7].codes || []
 }
-
 const handleChangeDept = async (val: any) => {
   zyxfList.value.length = 0
   searchParams.value.zyxf = ''
-  const code: any = await queryZyxfList({ deptCode: val })
+  const code: any = await queryZyxfList({
+    deptCode: val
+  })
   if (code.success) {
     zyxfList.value = code.data
   } else {
@@ -375,13 +383,17 @@ const handleFile = async (val: any) => {
     xmId: searchParams.value.id || '',
     attachType: val
   }
-  const res = await getZxcsAttach({ ...params })
+  const res = await getZxcsAttach({
+    ...params
+  })
   if (!res.success) return ElMessage.error(res.msg)
   fileList.value = res.data
 }
 // 清空
 const clear = () => {
-  emits('searchHandle', { param: 'success' })
+  emits('searchHandle', {
+    param: 'success'
+  })
   fileList.value.length = 0
   dyTableData.value.length = 0
   zyxfList.value.length = 0
@@ -395,8 +407,12 @@ const clear = () => {
 const acceptParams = (params: ModalProps) => {
   isShowModal.value = true
   tabsPages.value = '1'
-  modalParams.value = { ...params }
-  searchParams.value = { ...params.searchParams }
+  modalParams.value = {
+    ...params
+  }
+  searchParams.value = {
+    ...params.searchParams
+  }
   isDisabled.value = modalParams.value.type == '查看'
   getPublicCodes()
   fileList.value.length = 0
@@ -407,7 +423,6 @@ const acceptParams = (params: ModalProps) => {
   handleChangeDept(searchParams.value?.dept || '')
   handleFile('1')
 }
-
 const addHandle = async (row?: number) => {
   const $table = tableRef.value
   if ($table) {
@@ -419,7 +434,6 @@ const addHandle = async (row?: number) => {
     })
   }
 }
-
 const delHandle = async () => {
   const $table = tableRef.value
   if ($table) {
@@ -441,7 +455,6 @@ const delHandle = async () => {
     }
   }
 }
-
 defineExpose({
   acceptParams
 })

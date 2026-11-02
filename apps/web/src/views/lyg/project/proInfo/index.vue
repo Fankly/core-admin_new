@@ -40,7 +40,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/lyg/project/proInfo/index" })
 import { onMounted, ref, reactive, nextTick, h, toRefs, watch } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import ProTable from '@/components/ProTablesource/index.vue'
@@ -59,6 +58,8 @@ import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { getEjdwList, getYjdwList } from '@/api/ai/smartTaskAudit'
 import xmProcess from '@/views/lyg/components/xmProcess.vue'
 import { ElMessage } from 'element-plus'
+defineOptions({ name: "/lyg/project/proInfo/index" })
+
 const xmProcessRef = ref()
 const userDialogRef = ref()
 const isShowPage = ref(false)

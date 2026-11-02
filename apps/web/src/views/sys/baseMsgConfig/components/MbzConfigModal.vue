@@ -31,12 +31,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "MbzConfigModal" })
 import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import VXETable from 'vxe-table'
 import { mbzConfig } from '@/api/sys/proCategory'
 import { getPublicData } from '@/api/common'
+defineOptions({ name: "MbzConfigModal" })
 
 interface AcceptParams {
   ids: string[]

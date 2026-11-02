@@ -66,7 +66,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/sys/versionNotice/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -74,6 +73,7 @@ import { VXETable } from 'vxe-table'
 import ProTable from '@/components/ProTablePage/index.vue'
 import maintModal from '@/views/sys/versionNotice/components/maintModal/index.vue'
 import { versionNoticePage, versionNoticeRemove, versionNoticePublish, versionNoticeRevoke } from '@/api/sys/versionNotice'
+defineOptions({ name: "/sys/versionNotice/index" })
 
 // ========== 类型定义 ==========
 

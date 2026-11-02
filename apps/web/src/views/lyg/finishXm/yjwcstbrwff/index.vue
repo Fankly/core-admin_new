@@ -55,7 +55,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/lyg/finishXm/yjwcstbrwff/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, ref, reactive, h, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
@@ -65,6 +64,7 @@ import ProTable from '@/components/ProTablesource/index.vue'
 import maintModal from '@/views/lyg/finishXm/yjwcstbrwff/components/maintModal/index.vue'
 import xmDetailModal from '@/views/lyg/finishXm/components/xmDetailModal/index.vue'
 import { finishXmPage, finishXmPublish, finishXmDelete } from '@/api/lyg/finishXm'
+defineOptions({ name: "/lyg/finishXm/yjwcstbrwff/index" })
 
 type OperationType = 'ADD' | 'EDIT'
 

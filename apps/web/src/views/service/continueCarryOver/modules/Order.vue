@@ -263,7 +263,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "Order" })
 import { computed, ref } from 'vue'
 import { operation } from '@/views/service/continueCarryOver/modules/operation'
 import Grid from '@/components/Grid/index.vue'
@@ -273,6 +272,7 @@ import { common } from '@/views/service/continueCarryOver/common'
 import { getChoosePage, saveXjjzRecord } from '@/api/service/continueCarryOver'
 import { ElMessage } from 'element-plus'
 import VXETable from 'vxe-table'
+defineOptions({ name: "Order" })
 
 interface Params {
   [key: string]: any

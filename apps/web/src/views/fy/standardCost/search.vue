@@ -219,15 +219,9 @@
   <HelpModal ref="helpModalRef" />
 </template>
 
-<script lang="ts">
-export default {
-  name: '/fy/standardCost/search'
-}
-</script>
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown, ArrowUp as EpArrowUp } from '@element-plus/icons-vue'
-
 import userDialog from '@/components/select/userDialog.vue'
 import YskmSelect from '@/views/fy/standardCost/components/YskmSelect.vue'
 import DwSelect from '@/views/fy/standardCost/components/DwSelect.vue'
@@ -243,14 +237,15 @@ import { formatNumValue } from '@/utils/utils'
 import { expandNode } from '@/utils/dataProcessing'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
+defineOptions({
+  name: '/fy/standardCost/search'
+})
 
 type Codes = 'YSZLX' | 'YSLX' | 'BZCBCX' | 'BZCBCXPZ_TEMPLATE_CODE' | 'XSWS'
-
 interface Code {
   code: string
   name: string
 }
-
 interface PublicCode {
   YSZLX: Code[]
   YSLX: Code[]
@@ -258,36 +253,24 @@ interface PublicCode {
   BZCBCXPZ_TEMPLATE_CODE: Code[]
   XSWS: Code[]
 }
-
 type ActiveName = '0' | '1' | '2'
-
 const acitveName = ref<ActiveName>('1')
-
 const userInfo = ref<any>()
-
 const isShowSearch = ref(true)
-
-const isHideTemplateCode = computed(
-  () => publicCode.BZCBCXPZ_TEMPLATE_CODE && publicCode.BZCBCXPZ_TEMPLATE_CODE.length !== 0
-)
-
+const isHideTemplateCode = computed(() => publicCode.BZCBCXPZ_TEMPLATE_CODE && publicCode.BZCBCXPZ_TEMPLATE_CODE.length !== 0)
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const flatColumns = reactive<any>([])
-
 const userDialogRef = ref()
 const helpModalRef = ref()
 const detailViewRef = ref()
 const gridRef = ref()
 const dwSelectRef = ref()
 const yskmSelectRef = ref()
-
 const year = ref('')
 const dwId = ref('')
 const dwName = ref('')
-
 const detailParams = reactive<Params>({
   dwId: '',
   startTime: '',
@@ -296,7 +279,6 @@ const detailParams = reactive<Params>({
   id: '',
   fieldId: ''
 })
-
 const publicCode = reactive<PublicCode>({
   YSZLX: [],
   YSLX: [],
@@ -304,7 +286,6 @@ const publicCode = reactive<PublicCode>({
   BZCBCXPZ_TEMPLATE_CODE: [],
   XSWS: []
 })
-
 const cellStyle: any = ({ row, column }: any) => {
   let res = isClickData(flatColumns, column.field)
   if (res && row.name !== '合计') {
@@ -321,7 +302,6 @@ const cellStyle: any = ({ row, column }: any) => {
     }
   }
 }
-
 const rowStyle: VxeTablePropTypes.RowStyle<any> = ({ row }) => {
   if (row.name === '合计') {
     return {
@@ -329,7 +309,6 @@ const rowStyle: VxeTablePropTypes.RowStyle<any> = ({ row }) => {
     }
   }
 }
-
 const gridOptions = reactive<any>({
   border: true,
   stripe: true,
@@ -386,7 +365,6 @@ const gridOptions = reactive<any>({
   columns: [],
   data: []
 })
-
 const gridEvent: {
   cellClick: ({ row, column, cell }: { row: any; column: any; cell: any }) => void
 } = {
@@ -414,7 +392,6 @@ const gridEvent: {
     }
   }
 }
-
 const searchForm = reactive<{
   dwLists: DwLists[]
   yskmLists: string[]
@@ -435,7 +412,6 @@ const searchForm = reactive<{
   xsws: '',
   templateCode: ''
 })
-
 const tabClickHandle = async () => {
   try {
     const paramStr = acitveName.value === '1' ? 'YSZLX' : 'YSZLX-DS'
@@ -449,11 +425,9 @@ const tabClickHandle = async () => {
     console.error(e)
   }
 }
-
 const isClickData = (columns: any[], field: string): boolean => {
   return !!columns.find((item) => item.canBeCt && item.field === field)
 }
-
 const startTiemHandle = (val: string) => {
   if (searchForm.endTime) {
     const endtTime = new Date(searchForm.endTime)
@@ -471,11 +445,9 @@ const startTiemHandle = (val: string) => {
     }
   }
 }
-
 const handleChangeXswsData = () => {
   getTableData()
 }
-
 watch(
   () => searchForm.startTime,
   (newVal) => {
@@ -483,10 +455,7 @@ watch(
       const startTime = new Date(newVal)
       year.value = startTime.getFullYear().toString()
       const endTime = new Date(searchForm.endTime)
-      if (
-        endTime.getFullYear() !== startTime.getFullYear() ||
-        endTime.getMonth() < startTime.getMonth()
-      ) {
+      if (endTime.getFullYear() !== startTime.getFullYear() || endTime.getMonth() < startTime.getMonth()) {
         const curMonth = startTime.getMonth() + 1
         if (curMonth === 12) {
           searchForm.endTime = year.value + '-' + curMonth.toString().padStart(2, '0')
@@ -497,7 +466,6 @@ watch(
     }
   }
 )
-
 const disabledEndMonth = (time: Date) => {
   if (!searchForm.startTime) return false
   const startTime = new Date(searchForm.startTime)
@@ -508,7 +476,6 @@ const disabledEndMonth = (time: Date) => {
   const monthDiff = (currentYear - startYear) * 12 + (currentMonth - startMonth)
   return currentYear !== startYear || monthDiff < 0
 }
-
 const setDefaultValue = async () => {
   let defaultValue: any = {
     0: ['mbz', 'zxz', 'zxl', 'wcz'],
@@ -549,7 +516,6 @@ const setDefaultValue = async () => {
   }
   searchForm.yszlx = defaultValue[acitveName.value]
 }
-
 const setFormData = async () => {
   const $dwSelect = dwSelectRef.value
   if ($dwSelect) {
@@ -596,7 +562,6 @@ const getTableData = async () => {
   }
   gridOptions.loading = false
 }
-
 const handleExpand = async () => {
   for (const row of gridOptions.data) {
     if (row.sfmrzk) {
@@ -649,7 +614,6 @@ const formatterColumns = (item: any) => {
     }
   }
 }
-
 const allExpandedRows = ref<Set<string | number>>(new Set())
 const BATCH_SIZE = 3
 
@@ -660,7 +624,6 @@ const expandHandle = async () => {
     expandNode(allExpandedRows.value, gridOptions.data, gridRef, BATCH_SIZE, 'leaf')
   }
 }
-
 const searchHandle = async () => {
   if (searchForm.yslx.length === 0) {
     ElMessage.error('预算类型不能为空！')
@@ -674,7 +637,6 @@ const searchHandle = async () => {
   await getDynamicColumnData()
   await getTableData()
 }
-
 const searchTable = (data: any) => {
   searchForm.dwLists = [
     {
@@ -684,11 +646,9 @@ const searchTable = (data: any) => {
   ]
   searchHandle()
 }
-
 const clearData = () => {
   searchForm.dwLists = []
 }
-
 const resetHandle = async () => {
   await setDefaultValue()
   await getDynamicColumnData()
@@ -699,7 +659,6 @@ const resetHandle = async () => {
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const exportHandle = async () => {
   if (searchForm.yslx.length === 0 || searchForm.yszlx.length === 0) {
     ElMessage.error('预算值类型和预算类型不能为空！')
@@ -728,10 +687,11 @@ const exportHandle = async () => {
     gridOptions.loading = false
   })
 }
-
 const getRoleHandle = async () => {
   dwId.value = userDialogRef.value.userMsg.org_id
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   let res = await getFormData(dwId.value)
   dwName.value = res.data
   const isQuery = userDialogRef.value.isQuery
@@ -742,7 +702,6 @@ const getRoleHandle = async () => {
     }
   }
 }
-
 const initParams = async () => {
   await userDialogRef.value.getUser()
   let codes: Codes[] = ['YSZLX', 'YSLX', 'BZCBCX', 'BZCBCXPZ_TEMPLATE_CODE', 'XSWS']
@@ -757,7 +716,6 @@ const initParams = async () => {
     await setDefaultValue()
   }
 }
-
 onMounted(initParams)
 </script>
 

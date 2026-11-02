@@ -85,19 +85,16 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'linkModal'
-}
-</script>
 
 <script setup lang="ts">
 import { Back as EpBack, InfoFilled as EpInfoFilled, Right as EpRight, Search as EpSearch } from '@element-plus/icons-vue'
-
 import { ref, reactive, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { VxeGridProps, VxeGridListeners } from 'vxe-table'
 import { processGetPage, getAlreadyLinkProcess, linkProcess } from '@/api/xmInfo/stageConfig'
+defineOptions({
+  name: 'linkModal'
+})
 
 interface ProcessRow {
   id: string
@@ -110,17 +107,14 @@ interface ProcessRow {
   pslx?: number | string
   [key: string]: any
 }
-
 const emit = defineEmits<{
   (e: 'success'): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const modalTitle = ref('关联步骤')
 const schemeName = ref('')
 const dataId = ref('')
-
 const leftGridRef = ref<any>(null)
 const rightGridRef = ref<any>(null)
 
@@ -130,22 +124,46 @@ const allProcesses = ref<ProcessRow[]>([])
 const rightData = ref<ProcessRow[]>([])
 /** 左表未关联 = 全量 - 已关联 */
 const leftData = ref<ProcessRow[]>([])
-
 const leftKeyword = ref('')
 const rightKeyword = ref('')
-
 const leftCheckedRows = ref<ProcessRow[]>([])
 const rightCheckedRows = ref<ProcessRow[]>([])
-
-const operationTypeMap: Record<string, string> = { '1': '普通操作', '2': '工作流审批', '3': '评审意见' }
-const pslxMap: Record<string, string> = { '1': '外围系统评审', '2': '联合会审评审', '3': '省专业预审退回', '4': '省财务、发展线下会审' }
-
+const operationTypeMap: Record<string, string> = {
+  '1': '普通操作',
+  '2': '工作流审批',
+  '3': '评审意见'
+}
+const pslxMap: Record<string, string> = {
+  '1': '外围系统评审',
+  '2': '联合会审评审',
+  '3': '省专业预审退回',
+  '4': '省财务、发展线下会审'
+}
 const sharedColumns = [
-  { type: 'checkbox', width: 48 },
-  { type: 'seq', width: 50, title: '序号' },
-  { field: 'code', title: '步骤编号', minWidth: 100 },
-  { field: 'name', title: '步骤名称', minWidth: 160 },
-  { field: 'groupName', title: '环节', width: 120 },
+  {
+    type: 'checkbox',
+    width: 48
+  },
+  {
+    type: 'seq',
+    width: 50,
+    title: '序号'
+  },
+  {
+    field: 'code',
+    title: '步骤编号',
+    minWidth: 100
+  },
+  {
+    field: 'name',
+    title: '步骤名称',
+    minWidth: 160
+  },
+  {
+    field: 'groupName',
+    title: '环节',
+    width: 120
+  },
   {
     field: 'operationType',
     title: '操作类型',
@@ -166,7 +184,6 @@ const leftFiltered = computed<ProcessRow[]>(() => {
   if (!kw) return leftData.value
   return leftData.value.filter((r) => (r.name || '').toLowerCase().includes(kw) || (r.code || '').toLowerCase().includes(kw))
 })
-
 const leftGridOptions = reactive<VxeGridProps>({
   border: true,
   stripe: true,
@@ -175,15 +192,22 @@ const leftGridOptions = reactive<VxeGridProps>({
   showOverflow: true,
   headerAlign: 'center',
   align: 'center',
-  rowConfig: { keyField: 'id', isHover: true, height: 36 },
-  checkboxConfig: { highlight: true },
+  rowConfig: {
+    keyField: 'id',
+    isHover: true,
+    height: 36
+  },
+  checkboxConfig: {
+    highlight: true
+  },
   toolbarConfig: {
-    slots: { buttons: 'toolbar_actions' }
+    slots: {
+      buttons: 'toolbar_actions'
+    }
   },
   columns: sharedColumns,
   data: []
 })
-
 const leftGridEvents: VxeGridListeners = {
   checkboxChange: () => {
     leftCheckedRows.value = leftGridRef.value?.getCheckboxRecords?.() || []
@@ -199,7 +223,6 @@ const rightFiltered = computed<ProcessRow[]>(() => {
   if (!kw) return rightData.value
   return rightData.value.filter((r) => (r.name || '').toLowerCase().includes(kw) || (r.code || '').toLowerCase().includes(kw))
 })
-
 const rightGridOptions = reactive<VxeGridProps>({
   border: true,
   stripe: true,
@@ -208,15 +231,22 @@ const rightGridOptions = reactive<VxeGridProps>({
   showOverflow: true,
   headerAlign: 'center',
   align: 'center',
-  rowConfig: { keyField: 'id', isHover: true, height: 36 },
-  checkboxConfig: { highlight: true },
+  rowConfig: {
+    keyField: 'id',
+    isHover: true,
+    height: 36
+  },
+  checkboxConfig: {
+    highlight: true
+  },
   toolbarConfig: {
-    slots: { buttons: 'toolbar_actions' }
+    slots: {
+      buttons: 'toolbar_actions'
+    }
   },
   columns: sharedColumns,
   data: []
 })
-
 const rightGridEvents: VxeGridListeners = {
   checkboxChange: () => {
     rightCheckedRows.value = rightGridRef.value?.getCheckboxRecords?.() || []
@@ -234,23 +264,29 @@ const loadData = async () => {
   }
   loading.value = true
   try {
-    const [allRes, linkedRes] = await Promise.all([processGetPage({ page: 1, limit: 1000 }), getAlreadyLinkProcess({ dataId: dataId.value })])
-
-    const records: ProcessRow[] = Array.isArray(allRes?.data?.records) ? allRes.data.records : Array.isArray(allRes?.data) ? allRes.data : []
-
+    const [allRes, linkedRes] = await Promise.all([
+      processGetPage({
+        page: 1,
+        limit: 1000
+      }),
+      getAlreadyLinkProcess({
+        dataId: dataId.value
+      })
+    ])
+    const records: ProcessRow[] = Array.isArray(allRes?.data?.records)
+      ? allRes.data.records
+      : Array.isArray(allRes?.data)
+        ? allRes.data
+        : []
     const linkedRaw = linkedRes?.data
     const linkedList: ProcessRow[] = Array.isArray(linkedRaw) ? linkedRaw : Array.isArray(linkedRaw?.records) ? linkedRaw.records : []
-
     const linkedIdSet = new Set(linkedList.map((r) => String(r.id)))
-
     rightData.value = records.filter((r) => linkedIdSet.has(String(r.id)))
     leftData.value = records.filter((r) => !linkedIdSet.has(String(r.id)))
-
     leftKeyword.value = ''
     rightKeyword.value = ''
     leftCheckedRows.value = []
     rightCheckedRows.value = []
-
     refreshLeftGrid()
     refreshRightGrid()
   } catch (e) {
@@ -259,7 +295,6 @@ const loadData = async () => {
     loading.value = false
   }
 }
-
 const refreshLeftGrid = () => {
   const grid = leftGridRef.value
   if (!grid) return
@@ -269,7 +304,6 @@ const refreshLeftGrid = () => {
     leftCheckedRows.value = []
   })
 }
-
 const refreshRightGrid = () => {
   const grid = rightGridRef.value
   if (!grid) return
@@ -284,7 +318,6 @@ const refreshRightGrid = () => {
 const handleLeftSearch = () => {
   refreshLeftGrid()
 }
-
 const handleRightSearch = () => {
   refreshRightGrid()
 }
@@ -300,7 +333,6 @@ const moveToRight = () => {
   refreshLeftGrid()
   refreshRightGrid()
 }
-
 const moveToLeft = () => {
   if (!rightCheckedRows.value.length) return
   const moveIds = new Set(rightCheckedRows.value.map((r) => String(r.id)))
@@ -335,7 +367,6 @@ const handleSave = async () => {
     loading.value = false
   }
 }
-
 const handleClose = () => {
   isShowModal.value = false
   allProcesses.value = []
@@ -346,7 +377,6 @@ const handleClose = () => {
   leftCheckedRows.value = []
   rightCheckedRows.value = []
 }
-
 const acceptParams = (params: { id: string; name: string }) => {
   dataId.value = params.id
   schemeName.value = params.name || ''
@@ -356,8 +386,9 @@ const acceptParams = (params: { id: string; name: string }) => {
     loadData()
   })
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

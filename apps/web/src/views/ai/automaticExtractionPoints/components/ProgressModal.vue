@@ -26,18 +26,15 @@
   </Teleport>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AepProgressModal'
-}
-</script>
 
 <script setup lang="ts">
+defineOptions({
+  name: 'AepProgressModal'
+})
 defineProps<{
   /** 是否显示 */
   visible: boolean
 }>()
-
 const emit = defineEmits<{
   (e: 'close'): void
 }>()

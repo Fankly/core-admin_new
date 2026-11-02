@@ -97,11 +97,6 @@
   </ModalShell>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AepConfirmModal'
-}
-</script>
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
@@ -110,6 +105,9 @@ import type { ConfirmPreviewFile } from '../types'
 import { POINT_SOURCE_DEFAULT_CODE, usePointSourceDict } from '../hooks/usePointSourceDict'
 import FilePreviewPane from './FilePreviewPane.vue'
 import ModalShell from './ModalShell.vue'
+defineOptions({
+  name: 'AepConfirmModal'
+})
 
 const props = withDefaults(
   defineProps<{
@@ -124,15 +122,18 @@ const props = withDefaults(
     /** 左侧来源文件预览（经验知识没有来源文件，不传则不展示预览） */
     previewFile?: ConfirmPreviewFile | null
   }>(),
-  { pointId: '', readonly: false, mode: 'confirm', previewFile: null }
+  {
+    pointId: '',
+    readonly: false,
+    mode: 'confirm',
+    previewFile: null
+  }
 )
-
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'confirm', form: Record<string, string>): void
   (e: 'save', form: Record<string, string>): void
 }>()
-
 const loading = ref(false)
 /** 审核要点确认弹窗全屏态（关闭后恢复普通尺寸） */
 const isFullscreen = ref(false)
@@ -168,7 +169,6 @@ const previewEmptyDesc = computed(() => {
 })
 /** 解析序号：关闭 / 切换要点时丢弃旧响应 */
 let previewSeq = 0
-
 const resetPreview = (): void => {
   previewSeq += 1
   previewUuid.value = ''
@@ -223,7 +223,9 @@ const resolvePreviewFile = async (): Promise<void> => {
 /** 提交：确认模式走 confirm 接口，经验知识维护走新增接口（必填校验由页面入口统一处理） */
 const handleSubmit = (): void => {
   if (loading.value) return
-  emit(isExperience.value ? 'save' : 'confirm', { ...form })
+  emit(isExperience.value ? 'save' : 'confirm', {
+    ...form
+  })
 }
 
 /** 审核要点来源字典（只读展示用名称：码值转名称，默认码值 2 经验知识） */
@@ -304,6 +306,8 @@ watch(
       loading.value = false
     }
   },
-  { immediate: true }
+  {
+    immediate: true
+  }
 )
 </script>

@@ -8,22 +8,28 @@
   <reporting ref="reportTable" :formData="formData" :title="'预计结余-查看'" />
   <viewEntity ref="entityRef" :specialorgid="specialorgid" />
 </template>
-<script lang="ts">
-export default {
-  name: '/service/balanceReporting/balanceProvince'
-}
-</script>
+
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import userDialog from '@/components/select/userDialog.vue' //登陆权限
-import viewTable from '@/views/service/balanceReporting/components/table.vue' //表格组件
-import viewModal from '@/views/service/balanceReporting/components/modal.vue' //新增弹窗组件
-import viewEntity from '@/views/service/balanceReporting/components/entity.vue' //单位管理组件
+import userDialog from '@/components/select/userDialog.vue'
+import viewTable from '@/views/service/balanceReporting/components/table.vue'
+import viewModal from '@/views/service/balanceReporting/components/modal.vue'
+import viewEntity from '@/views/service/balanceReporting/components/entity.vue'
 import { ElMessage } from 'element-plus'
 import { remove, issue, filed, add, edit, cancelFiled } from '@/api/service/balanceReporting/index'
-import reporting from '@/views/service/balanceReporting/components/reporting.vue' //表格组件
+import reporting from '@/views/service/balanceReporting/components/reporting.vue'
 import { useStore } from '@/store/business'
+defineOptions({
+  name: '/service/balanceReporting/balanceProvince'
+})
+
+ //登陆权限
+ //表格组件
+ //新增弹窗组件
+ //单位管理组件
+
+ //表格组件
 
 const store = useStore()
 const userDialogRef = ref()
@@ -47,7 +53,9 @@ onMounted(() => {
 // 权限获取
 const getRoleHandle = () => {
   pageInfo.loading = false
-  userInfo.value = { ...userDialogRef.value?.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value?.userMsg
+  }
   const isQuery = userDialogRef.value?.isQuery
   if (isQuery) {
     specialorgid.value = userInfo.value.org_id
@@ -57,7 +65,9 @@ const getRoleHandle = () => {
 const showModal = async (val: any) => {
   const isCreate = val.title == '版本创建'
   const api = isCreate ? add : edit
-  const res: any = await api({ ...val.rmarkData })
+  const res: any = await api({
+    ...val.rmarkData
+  })
   if (res.success) {
     ElMessage.success(isCreate ? '版本创建成功' : '版本修改成功')
     closeAll()
@@ -82,7 +92,6 @@ const refreshTable = () => {
 const runVersionAction = async (val: any, api: (versionId: any) => Promise<any>) => {
   const selectedVersion = getSelectedVersion(val)
   if (!selectedVersion?.versionId) return
-
   const res: any = await api(selectedVersion.versionId)
   if (res.success) {
     ElMessage.success(`${val.value}成功`)
@@ -94,7 +103,6 @@ const runVersionAction = async (val: any, api: (versionId: any) => Promise<any>)
 const openReport = (val: any) => {
   const selectedVersion = getSelectedVersion(val)
   if (!selectedVersion?.versionId) return
-
   formData.value = {
     versionId: selectedVersion.versionId,
     versionName: selectedVersion.versionName,
@@ -112,7 +120,6 @@ const openReport = (val: any) => {
 const openEntity = (val: any) => {
   const selectedVersion = getSelectedVersion(val)
   if (!selectedVersion || !entityRef.value) return
-
   entityRef.value.versionStatus = selectedVersion
   entityRef.value.pageMeeting?.()
   entityRef.value.isShowModel = true
@@ -120,7 +127,6 @@ const openEntity = (val: any) => {
 const openVersionModal = (val: any) => {
   const selectedVersion = getSelectedVersion(val)
   if (!modalRef.value) return
-
   modalRef.value.rmarkData =
     val.value == '版本创建'
       ? {}
@@ -141,7 +147,6 @@ const clickBtn = async (val: any) => {
     } else if (val.value == '版本下发') {
       const selectedVersion = getSelectedVersion(val)
       if (!selectedVersion?.versionId) return
-
       let iss = await issue({
         spOrgId: userInfo.value?.specialorgid,
         spRoleId: userInfo.value?.id,

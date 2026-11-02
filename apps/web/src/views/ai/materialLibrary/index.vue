@@ -70,10 +70,7 @@
 
 <script setup lang="ts">
 import { EnumMapInjectionKey } from '@/components/ProTable/interface'
-
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/ai/materialLibrary/index" })
 import { nextTick, onMounted, provide, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useStore } from '@/store/business'
@@ -93,6 +90,7 @@ import { apiExportHandle } from '@/utils/export'
 import ElTreeSelect from '@/components/ElTreeSelect/index'
 import { exportMaterialLibrary, getMaterialLibraryColumns, getMaterialLibraryPage } from '@/api/ai/materialLibrary'
 import type { MaterialLibraryColumn, MaterialLibrarySearchParams } from '@/api/ai/materialLibrary'
+defineOptions({ name: "/ai/materialLibrary/index" })
 
 /** 物料库标签页公共代码（后端配置，返回 {code,name} 列表） */
 const MATERIAL_LIBRARY_TAB_CODE = 'AI_MATERIAL_LIBRARY_SJLY_COM'

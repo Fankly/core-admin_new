@@ -33,13 +33,13 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ApplyOutboundConfirmModal" })
-// 父组件传过来的参数
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { getProtypeTreeYearAll } from '@/api/common'
 import { getSqckProtypeConfirmChoosedData, saveSqckProtypeConfirmData } from '@/api/config/sqckProtypeConfirmConfig'
+defineOptions({ name: "ApplyOutboundConfirmModal" })
+// 父组件传过来的参数
 
 interface RowVO {
   protypeName: string

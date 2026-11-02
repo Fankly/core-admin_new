@@ -438,11 +438,6 @@
   </section>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'AepListPanel'
-}
-</script>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
@@ -452,6 +447,9 @@ import { usePointSourceDict } from '../hooks/usePointSourceDict'
 import { FileFilters, KnowledgeFilters, KnowledgeListQuery, ListTab } from '../types'
 import { vResizableTable } from '../directives/resizableTable'
 import ClampText from './ClampText.vue'
+defineOptions({
+  name: 'AepListPanel'
+})
 
 const props = defineProps<{
   /** 当前页签 */
@@ -475,7 +473,6 @@ const props = defineProps<{
   /** 是否处于全屏展示 */
   isFullscreen: boolean
 }>()
-
 const emit = defineEmits<{
   (e: 'update:activeTab', tab: ListTab): void
   (e: 'update:fileFilter', filters: FileFilters): void
@@ -518,7 +515,6 @@ watch(
 
 /** 知识管理勾选状态（存 pointId，字符串安全；单选，最多一条） */
 const knowledgeChecked = ref<Array<string | number>>([])
-
 const fileRegionRef = ref<HTMLElement>()
 const knowledgeRegionRef = ref<HTMLElement>()
 const fileRowCount = computed(() => props.fileRows.length)
@@ -537,12 +533,27 @@ const eventValue = (event: Event): string => (event.target as HTMLInputElement |
  * （提取审核要点 = 全部；确认/转化/已实现 = 对应状态为 1）
  */
 const COUNT_LIST_CONDITIONS = {
-  提取审核要点: { field: '', value: '', label: '' },
-  确认审核要点: { field: 'isConfirm', value: '1', label: '确认审核要点（已确认）' },
-  转化AI审核要点: { field: 'isSolidify', value: '1', label: '转化AI审核要点（已转化）' },
-  系统已实现审核要点: { field: 'isImplement', value: '1', label: '系统已实现审核要点（已实现）' }
+  提取审核要点: {
+    field: '',
+    value: '',
+    label: ''
+  },
+  确认审核要点: {
+    field: 'isConfirm',
+    value: '1',
+    label: '确认审核要点（已确认）'
+  },
+  转化AI审核要点: {
+    field: 'isSolidify',
+    value: '1',
+    label: '转化AI审核要点（已转化）'
+  },
+  系统已实现审核要点: {
+    field: 'isImplement',
+    value: '1',
+    label: '系统已实现审核要点（已实现）'
+  }
 } as const
-
 const openCountList = (row: KnowledgeFileVO, columnTitle: keyof typeof COUNT_LIST_CONDITIONS): void => {
   const condition = COUNT_LIST_CONDITIONS[columnTitle]
   emit('open-knowledge-list', {
@@ -553,21 +564,29 @@ const openCountList = (row: KnowledgeFileVO, columnTitle: keyof typeof COUNT_LIS
     label: condition.label
   })
 }
-
 const setFileFilter = (key: keyof FileFilters, event: Event): void => {
-  emit('update:fileFilter', { ...props.fileFilter, [key]: eventValue(event) })
+  emit('update:fileFilter', {
+    ...props.fileFilter,
+    [key]: eventValue(event)
+  })
 }
-
 const setFileYear = (value: string | null): void => {
-  emit('update:fileFilter', { ...props.fileFilter, fwYear: value || '' })
+  emit('update:fileFilter', {
+    ...props.fileFilter,
+    fwYear: value || ''
+  })
 }
-
 const setKnowledgeFilter = (key: keyof KnowledgeFilters, event: Event): void => {
-  emit('update:knowledgeFilter', { ...props.knowledgeFilter, [key]: eventValue(event) })
+  emit('update:knowledgeFilter', {
+    ...props.knowledgeFilter,
+    [key]: eventValue(event)
+  })
 }
-
 const setKnowledgeYear = (value: string | null): void => {
-  emit('update:knowledgeFilter', { ...props.knowledgeFilter, fwYear: value || '' })
+  emit('update:knowledgeFilter', {
+    ...props.knowledgeFilter,
+    fwYear: value || ''
+  })
 }
 
 /** 文件后缀（pdf/doc/docx…），用于名称前的小标签 */
@@ -577,7 +596,12 @@ const fileSuffix = (name: string): string => {
 }
 
 /** 提取状态文案兜底（后端 extractStatusName 优先，缺失时按编码兜底）：1 待提取 2 提取中 3 已提取 4 提取失败 */
-const EXTRACT_STATUS_TEXT: Record<string, string> = { '1': '待提取', '2': '提取中', '3': '已提取', '4': '提取失败' }
+const EXTRACT_STATUS_TEXT: Record<string, string> = {
+  '1': '待提取',
+  '2': '提取中',
+  '3': '已提取',
+  '4': '提取失败'
+}
 
 /** 提取状态文案：接口 name 优先，编码兜底 */
 const extractStatusText = (row: KnowledgeFileVO): string => row.extractStatusName || EXTRACT_STATUS_TEXT[String(row.extractStatus)] || '—'
@@ -589,7 +613,6 @@ const extractStatusClass = (code: string): string => {
   if (code === '2') return 'aep-badge--warning'
   return 'aep-badge--gray'
 }
-
 const extractStatusColor = (code: string): string => {
   if (code === '3') return 'var(--aep-primary)'
   if (code === '4') return 'var(--aep-danger)'

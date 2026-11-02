@@ -47,8 +47,8 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "TargetBudgetVersion" })
 import { useTargetBudgetVersion } from '@/views/targetBudget/provinceTarget/components/hooks/useTargetBudgetVersion'
+defineOptions({ name: "TargetBudgetVersion" })
 
 interface TargetBudgetVersionProps {
   search: () => void

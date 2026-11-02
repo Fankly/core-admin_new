@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { Document as EpDocument, Search as EpSearch } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/service/jointReview/main" })
 import userDialog from '@/components/select/userDialog.vue'
 import { computed, onMounted, reactive, ref, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -20,10 +18,14 @@ import {
 } from '@/api/service/expertinformation'
 import { useStore } from '@/store/business'
 import SvgIcon from '@/components/base/svg-icon/index'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import sxTable from '@/components/yssxTable/sxTable.vue'
 import hyTable from '@/views/service/jointReview/components/hyTable.vue'
 import { getCropLimitInfo } from '@/api/lkyptzl'
+defineOptions({ name: "/service/jointReview/main" })
+
+ //公共代码
+
 const userDialogRef = ref()
 const modalTbaleRef = ref()
 const hyTbaleRef = ref()

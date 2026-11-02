@@ -14,12 +14,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/fy/config/budget/capital/index" })
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
 import BudgetConfigLayout from '@/views/fy/config/budget/layout/BudgetConfigLayout.vue'
 import { useCapital } from './useCapital'
 import { onMounted } from 'vue'
 import columns from './columns'
+defineOptions({ name: "/fy/config/budget/capital/index" })
 
 const { userRoleSelectorRef, getRoleHandle, isShowPage } = useCapital()
 

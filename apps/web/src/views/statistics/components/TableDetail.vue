@@ -24,32 +24,25 @@
 
 <script setup lang="ts">
 import { Close as EpClose } from '@element-plus/icons-vue'
-
-import MatterDeclMsg from "@/views/statistics/components/MatterDeclMsg.vue";
-import Backlog from "@/views/statistics/components/Backlog.vue";
-import ExtensionMsg from "@/views/statistics/components/ExtensionMsg.vue";
-import { ref, defineProps, defineExpose, toRef } from "vue";
-import { TableDetailParams } from "../interface";
-
+import MatterDeclMsg from '@/views/statistics/components/MatterDeclMsg.vue'
+import Backlog from '@/views/statistics/components/Backlog.vue'
+import ExtensionMsg from '@/views/statistics/components/ExtensionMsg.vue'
+import { ref, toRef } from 'vue'
+import { TableDetailParams } from '../interface'
 interface Props {
-  detailParams: TableDetailParams;
+  detailParams: TableDetailParams
 }
-
-const props = defineProps<Props>();
-
-const detailTableParams = toRef(props, "detailParams");
-
-const activeName = ref<string>("eventReserve");
-const isShowModal = ref(false);
-
+const props = defineProps<Props>()
+const detailTableParams = toRef(props, 'detailParams')
+const activeName = ref<string>('eventReserve')
+const isShowModal = ref(false)
 const closeHandle = () => {
-  isShowModal.value = false;
-  activeName.value = "eventReserve";
-};
-
+  isShowModal.value = false
+  activeName.value = 'eventReserve'
+}
 defineExpose({
   isShowModal
-});
+})
 </script>
 
 <style lang="less">

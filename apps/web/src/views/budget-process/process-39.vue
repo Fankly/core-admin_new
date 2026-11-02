@@ -204,7 +204,7 @@
   <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -213,319 +213,373 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { ElMessage } from 'element-plus'
 import copyTextBox from '@/components/select/copyTextBox.vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { showHelpMsg } from '@/utils/message'
-
-export default defineComponent({
-  name: '/budget-process/process-39',
-  components: {
-    copyTextBox,
-    userDialog
+defineOptions({
+  name: '/budget-process/process-39'
+})
+const userDialogRef = useTemplateRef('userDialog')
+const pspidRef = useTemplateRef('pspid')
+const ebelnRef = useTemplateRef('ebeln')
+const lifnrRef = useTemplateRef('lifnr')
+const prctrRef = useTemplateRef('prctr')
+const zsqdhRef = useTemplateRef('zsqdh')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  helpHandle,
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1',
+    dialogTotal: 0,
+    dialogLimit: 5,
+    dialogPage: 1,
+    dialogCurrent: '1'
   },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+  searchShow: true,
+  segment: [
+    {
+      value: 'prctr',
+      label: '利润中心',
+      checked: true
+    },
+    {
+      value: 'ltext',
+      label: '利润中心描述',
+      checked: true
+    },
+    {
+      value: 'pspid',
+      label: '项目定义',
+      checked: true
+    },
+    {
+      value: 'post1',
+      label: '项目描述',
+      checked: true
+    },
+    {
+      value: 'ebeln',
+      label: '采购凭证',
+      checked: true
+    },
+    {
+      value: 'lifnr',
+      label: '供应商',
+      checked: true
+    },
+    {
+      value: 'name1',
+      label: '供应商名称',
+      checked: true
+    },
+    {
+      value: 'zhtbh',
+      label: '合同编号',
+      checked: true
+    },
+    {
+      value: 'kpje',
+      label: '开票金额',
+      checked: true
+    },
+    {
+      value: 'zysqje',
+      label: '已申请金额',
+      checked: true
+    },
+    {
+      value: 'zyfkje',
+      label: '已付款金额',
+      checked: true
+    },
+    {
+      value: 'syksqje',
+      label: '剩余可申请金额',
+      checked: true
+    },
+    {
+      value: 'contracttitle',
+      label: '合同名称',
+      checked: true
+    },
+    {
+      value: 'zhszj',
+      label: '合同金额',
+      checked: true
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      helpHandle,
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1',
-        dialogTotal: 0,
-        dialogLimit: 5,
-        dialogPage: 1,
-        dialogCurrent: '1'
-      },
-      searchShow: true,
-      segment: [
-        {
-          value: 'prctr',
-          label: '利润中心',
-          checked: true
-        },
-        {
-          value: 'ltext',
-          label: '利润中心描述',
-          checked: true
-        },
-        {
-          value: 'pspid',
-          label: '项目定义',
-          checked: true
-        },
-        {
-          value: 'post1',
-          label: '项目描述',
-          checked: true
-        },
-        {
-          value: 'ebeln',
-          label: '采购凭证',
-          checked: true
-        },
-        {
-          value: 'lifnr',
-          label: '供应商',
-          checked: true
-        },
-        {
-          value: 'name1',
-          label: '供应商名称',
-          checked: true
-        },
-        {
-          value: 'zhtbh',
-          label: '合同编号',
-          checked: true
-        },
-        {
-          value: 'kpje',
-          label: '开票金额',
-          checked: true
-        },
-        {
-          value: 'zysqje',
-          label: '已申请金额',
-          checked: true
-        },
-        {
-          value: 'zyfkje',
-          label: '已付款金额',
-          checked: true
-        },
-        {
-          value: 'syksqje',
-          label: '剩余可申请金额',
-          checked: true
-        },
-        {
-          value: 'contracttitle',
-          label: '合同名称',
-          checked: true
-        },
-        {
-          value: 'zhszj',
-          label: '合同金额',
-          checked: true
-        }
-      ],
-      example: [],
-      zzfrq: '',
-      cjdat: '',
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      loading: false,
-      userCode: '',
-      userId: '',
-      dialogExample: [],
-      specialorgid: '',
-      dialogVisible: false,
-      columnObj: {},
-      dialogId: '',
-      dialogCode: ''
-    })
-  },
-  mounted() {
-    this.handleColumn()
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser()
-  },
-  methods: {
-    dialogPageChangeHandle(currentPageNum) {
-      this.page.dialogPage = currentPageNum
-      this.jump(this.dialogId, this.dialogCode)
-    },
-    dialogLimitChangeHandle(currentLimitNum) {
-      this.page.dialogPage = 1
-      this.page.dialogLimit = currentLimitNum
-      this.jump(this.dialogId, this.dialogCode)
-    },
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    limitChangeHandle(currentLimitNum) {
-      this.page.page = 1
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-    },
-    //项目环节
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked
-        }
-      }
-    },
-    jump(id, code) {
-      this.dialogId = id
-      this.dialogCode = code
-      baseService
-        .post('/process37/ct', {
-          ebeln: code,
-          page: this.page.dialogPage,
-          limit: this.page.dialogLimit
-        })
-        .then((res) => {
-          if (res.success) {
-            this.dialogExample = res.data.records
-            this.page.dialogTotal = res.data.total
-            this.dialogVisible = true
-          } else {
-            this.loading = false
-            ElMessage({
-              type: 'error',
-              message: res.msg
-            })
-          }
-        })
-    },
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 80 + 'px'
-      } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 80 + 'px'
-      }
-    },
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.columnObj[item.value] = item.checked
-      })
-    },
-    formatDate(date) {
-      let time = new Date(date)
-      let zyear = time.getFullYear()
-      let zmonth = time.getMonth() + 1
-      let zday = time.getDate()
-      return JSON.stringify(zyear) + JSON.stringify(zmonth).padStart(2, '0') + JSON.stringify(zday).padStart(2, '0')
-    },
-    //搜索按钮
-    loadData() {
-      this.loading = true
-      let cjdatNew = ''
-      let zzfrqnew = ''
-      if (this.cjdat) {
-        cjdatNew = this.formatDate(this.cjdat)
-      }
-      if (this.zzfrq) {
-        zzfrqnew = this.formatDate(this.zzfrq)
-      }
-      const params = {
-        specialorgid: this.specialorgid,
-        page: this.page.page,
-        limit: this.page.limit,
-        pspids: this.$refs.pspid.array,
-        ebelns: this.$refs.ebeln.array,
-        lifnrs: this.$refs.lifnr.array,
-        prctrs: this.$refs.prctr.array,
-        zsqdhs: this.$refs.zsqdh.array,
-        cjdat: cjdatNew,
-        zzfrq: zzfrqnew
-      }
-      baseService.post('/process37/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.example = res.data.records
-          this.page.total = res.data.total
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-
-    //重置按钮
-    reset() {
-      this.page.page = 1
-      this.page.limit = 10
-      this.page.total = 0
-      this.$refs.pspid.clear()
-      this.$refs.ebeln.clear()
-      this.$refs.lifnr.clear()
-      this.$refs.prctr.clear()
-      this.$refs.zsqdh.clear()
-      this.cjdat = ''
-      this.zzfrq = ''
-      // 清楚搜索条件
-      this.example = []
-      this.loadData()
-    },
-
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-
-    // 数据导出
-    exportData() {
-      this.loading = true
-      let cjdatNew = ''
-      let zzfrqnew = ''
-      if (this.cjdat) {
-        cjdatNew = this.formatDate(this.cjdat)
-      }
-      if (this.zzfrq) {
-        zzfrqnew = this.formatDate(this.zzfrq)
-      }
-      const params = {
-        specialorgid: this.specialorgid,
-        cjdat: cjdatNew,
-        ebelns: this.$refs.ebeln.array,
-        lifnrs: this.$refs.lifnr.array,
-        page: this.page.page,
-        limit: this.page.limit,
-        prctrs: this.$refs.prctr.array,
-        pspids: this.$refs.pspid.array,
-        zsqdhs: this.$refs.zsqdh.array,
-        zzfrq: zzfrqnew
-      }
-      baseService.export('/process37/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '资金支付信息查询表.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
+  ],
+  example: [],
+  zzfrq: '',
+  cjdat: '',
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  loading: false,
+  userCode: '',
+  userId: '',
+  dialogExample: [],
+  specialorgid: '',
+  dialogVisible: false,
+  columnObj: {},
+  dialogId: '',
+  dialogCode: ''
+})
+const page = toRef(setupState, 'page')
+const searchShow = toRef(setupState, 'searchShow')
+const segment = toRef(setupState, 'segment')
+const example = toRef(setupState, 'example')
+const zzfrq = toRef(setupState, 'zzfrq')
+const cjdat = toRef(setupState, 'cjdat')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const loading = toRef(setupState, 'loading')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const dialogExample = toRef(setupState, 'dialogExample')
+const specialorgid = toRef(setupState, 'specialorgid')
+const dialogVisible = toRef(setupState, 'dialogVisible')
+const columnObj = toRef(setupState, 'columnObj')
+const dialogId = toRef(setupState, 'dialogId')
+const dialogCode = toRef(setupState, 'dialogCode')
+function dialogPageChangeHandle(currentPageNum) {
+  setupState.page.dialogPage = currentPageNum
+  jump(setupState.dialogId, setupState.dialogCode)
+}
+function dialogLimitChangeHandle(currentLimitNum) {
+  setupState.page.dialogPage = 1
+  setupState.page.dialogLimit = currentLimitNum
+  jump(setupState.dialogId, setupState.dialogCode)
+}
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.page = 1
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+}
+//项目环节
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
     }
   }
+}
+function jump(id, code) {
+  setupState.dialogId = id
+  setupState.dialogCode = code
+  baseService
+    .post('/process37/ct', {
+      ebeln: code,
+      page: setupState.page.dialogPage,
+      limit: setupState.page.dialogLimit
+    })
+    .then((res) => {
+      if (res.success) {
+        setupState.dialogExample = res.data.records
+        setupState.page.dialogTotal = res.data.total
+        setupState.dialogVisible = true
+      } else {
+        setupState.loading = false
+        ElMessage({
+          type: 'error',
+          message: res.msg
+        })
+      }
+    })
+}
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 80 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 80 + 'px'
+  }
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+function formatDate(date) {
+  let time = new Date(date)
+  let zyear = time.getFullYear()
+  let zmonth = time.getMonth() + 1
+  let zday = time.getDate()
+  return JSON.stringify(zyear) + JSON.stringify(zmonth).padStart(2, '0') + JSON.stringify(zday).padStart(2, '0')
+}
+//搜索按钮
+function loadData() {
+  setupState.loading = true
+  let cjdatNew = ''
+  let zzfrqnew = ''
+  if (setupState.cjdat) {
+    cjdatNew = formatDate(setupState.cjdat)
+  }
+  if (setupState.zzfrq) {
+    zzfrqnew = formatDate(setupState.zzfrq)
+  }
+  const params = {
+    specialorgid: setupState.specialorgid,
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    pspids: pspidRef.value.array,
+    ebelns: ebelnRef.value.array,
+    lifnrs: lifnrRef.value.array,
+    prctrs: prctrRef.value.array,
+    zsqdhs: zsqdhRef.value.array,
+    cjdat: cjdatNew,
+    zzfrq: zzfrqnew
+  }
+  baseService.post('/process37/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.example = res.data.records
+      setupState.page.total = res.data.total
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+//重置按钮
+function reset() {
+  setupState.page.page = 1
+  setupState.page.limit = 10
+  setupState.page.total = 0
+  pspidRef.value.clear()
+  ebelnRef.value.clear()
+  lifnrRef.value.clear()
+  prctrRef.value.clear()
+  zsqdhRef.value.clear()
+  setupState.cjdat = ''
+  setupState.zzfrq = ''
+  // 清楚搜索条件
+  setupState.example = []
+  loadData()
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+// 数据导出
+function exportData() {
+  setupState.loading = true
+  let cjdatNew = ''
+  let zzfrqnew = ''
+  if (setupState.cjdat) {
+    cjdatNew = formatDate(setupState.cjdat)
+  }
+  if (setupState.zzfrq) {
+    zzfrqnew = formatDate(setupState.zzfrq)
+  }
+  const params = {
+    specialorgid: setupState.specialorgid,
+    cjdat: cjdatNew,
+    ebelns: ebelnRef.value.array,
+    lifnrs: lifnrRef.value.array,
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    prctrs: prctrRef.value.array,
+    pspids: pspidRef.value.array,
+    zsqdhs: zsqdhRef.value.array,
+    zzfrq: zzfrqnew
+  }
+  baseService.export('/process37/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '资金支付信息查询表.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+onMounted(() => {
+  handleColumn()
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser()
+})
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  helpHandle,
+  page,
+  searchShow,
+  segment,
+  example,
+  zzfrq,
+  cjdat,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  loading,
+  userCode,
+  userId,
+  dialogExample,
+  specialorgid,
+  dialogVisible,
+  columnObj,
+  dialogId,
+  dialogCode,
+  dialogPageChangeHandle,
+  dialogLimitChangeHandle,
+  pageChangeHandle,
+  limitChangeHandle,
+  loadCompany,
+  listShow,
+  jump,
+  setTableHeight,
+  handleColumn,
+  formatDate,
+  loadData,
+  reset,
+  showSearch,
+  exportData
 })
 </script>
 

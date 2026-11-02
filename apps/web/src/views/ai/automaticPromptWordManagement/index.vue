@@ -37,8 +37,6 @@
 
 <script setup lang="ts">
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/ai/automaticPromptWordManagement/index" })
 import { nextTick, onMounted, provide, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
@@ -49,6 +47,7 @@ import type { UserRole } from '@/components/UserRoleSelector/interface'
 import editModal from '@/views/ai/automaticPromptWordManagement/components/editModal/index.vue'
 import { listPromptTemplate, removePromptTemplate } from '@/api/ai/automaticPromptWordManagement'
 import type { PromptTemplateVO } from '@/api/ai/automaticPromptWordManagement'
+defineOptions({ name: "/ai/automaticPromptWordManagement/index" })
 
 const editModalRef = ref()
 const tableRef = ref<any>(null)

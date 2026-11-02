@@ -105,23 +105,19 @@
   </div>
   <flowAudit ref="flowAuditRef" @get-pass="getPass" :formData="formData" />
 </template>
-<script lang="ts">
-export default {
-  name: '/lslxJsc/components/dwTable'
-}
-</script>
+
 <script setup lang="ts">
-import { reactive, ref, defineEmits, defineExpose } from 'vue'
-import {
-  getCollectionProgress,
-  passForYs,
-  rejectForYs,
-  passForEs,
-  rejectForEs
-} from '@/api/lslxJsc/index'
+import { reactive, ref } from 'vue'
+import { getCollectionProgress, passForYs, rejectForYs, passForEs, rejectForEs } from '@/api/lslxJsc/index'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import flowAudit from '@/views/service/lslxJsc/components/flowAudit.vue' //上报审核组件
-import { getPublicData } from '@/api/common' //公共代码
+import flowAudit from '@/views/service/lslxJsc/components/flowAudit.vue'
+import { getPublicData } from '@/api/common'
+defineOptions({
+  name: '/lslxJsc/components/dwTable'
+})
+
+ //上报审核组件
+ //公共代码
 
 const dialogFormRef = ref()
 const flowAuditRef = ref()
@@ -130,7 +126,6 @@ const userInfo = ref()
 const pageData = ref<any>([])
 const isShowModel = ref(false)
 const emits = defineEmits(['pushPage'])
-
 const dwInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -138,7 +133,6 @@ const dwInfo = reactive<{
   loading: false,
   isShowPage: false
 })
-
 const closeHandle = () => {
   emits('pushPage', true)
 }
@@ -148,7 +142,6 @@ const pageMeeting = async (val: any) => {
   dwInfo.loading = true
   const item: any = await getPublicData('MBZYS_STATUS')
   const status: any = await getPublicData('MBZES_STATUS')
-
   if (item.success && item.data.length !== 0) {
     let res: any = await getCollectionProgress(val)
     if (res.success && res.data.length !== 0 && status.success && status.data.length !== 0) {
@@ -169,7 +162,6 @@ const pageMeeting = async (val: any) => {
     }
   }
 }
-
 const getPass = (val: any) => {
   if (val) {
     pageMeeting(formData.value.versionId)
@@ -190,7 +182,6 @@ const handleClick = (type: any, row: any) => {
     }
     const val = type == 'PASS' ? '通过' : '驳回'
     const api = type == 'PASS' ? passForYs : rejectForYs
-
     ElMessageBox.confirm(`操作不可逆，是否${val}？`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
@@ -231,7 +222,6 @@ const handleBtn = (type: any, row: any) => {
     }
     const val = type == 'PASS' ? '通过' : '驳回'
     const api = type == 'PASS' ? passForEs : rejectForEs
-
     ElMessageBox.confirm(`操作不可逆，是否${val}？`, '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
@@ -262,7 +252,6 @@ const handleBtn = (type: any, row: any) => {
     flowAuditRef.value.isShowModel = true
   }
 }
-
 defineExpose({
   isShowModel,
   closeHandle,

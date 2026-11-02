@@ -36,76 +36,72 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "ViewAdvice"
-};
-</script>
+
 <script setup lang="ts">
-import { submitData } from "@/api/service/Storage/PlannedOutbound/Verification";
-import { ElMessage } from "element-plus";
-import { ref, defineExpose } from "vue";
-import { VXETable } from "vxe-table";
+import { submitData } from '@/api/service/Storage/PlannedOutbound/Verification'
+import { ElMessage } from 'element-plus'
+import { ref } from 'vue'
+import { VXETable } from 'vxe-table'
+defineOptions({
+  name: 'ViewAdvice'
+})
 
 interface ModalProps {
-  title: string;
-  isView: boolean;
-  row: Partial<any>;
-  otherData?: any;
-  getTableList?: () => void;
+  title: string
+  isView: boolean
+  row: Partial<any>
+  otherData?: any
+  getTableList?: () => void
 }
-
 const modalProps = ref<ModalProps>({
   isView: false,
-  title: "核定意见-查看",
+  title: '核定意见-查看',
   row: {},
   otherData: {}
-});
-
-const modalVisible = ref(false);
-
+})
+const modalVisible = ref(false)
 const saveHandle = async () => {
   try {
-    const type = await VXETable.modal.confirm("确定是否保存？", "提示", {
-      status: "warning",
-      confirmButtonText: "是",
-      cancelButtonText: "否"
-    });
-    if (type === "confirm") {
+    const type = await VXETable.modal.confirm('确定是否保存？', '提示', {
+      status: 'warning',
+      confirmButtonText: '是',
+      cancelButtonText: '否'
+    })
+    if (type === 'confirm') {
       const res = await submitData({
         ...modalProps.value.otherData,
         ...modalProps.value.row
-      });
+      })
       if (res.success) {
-        const msg = modalProps.value.otherData.res === "Y" ? "通过" : "驳回";
-        ElMessage.success(msg + "成功!");
-        modalVisible.value = false;
-        if (modalProps.value.getTableList) modalProps.value.getTableList();
+        const msg = modalProps.value.otherData.res === 'Y' ? '通过' : '驳回'
+        ElMessage.success(msg + '成功!')
+        modalVisible.value = false
+        if (modalProps.value.getTableList) modalProps.value.getTableList()
       } else {
-        throw new Error(res.msg);
+        throw new Error(res.msg)
       }
     }
   } catch (error: any) {
-    ElMessage.error(error.message);
+    ElMessage.error(error.message)
   }
-};
-
+}
 const closeHandle = () => {
-  modalVisible.value = false;
-};
-
+  modalVisible.value = false
+}
 const acceptParams = (params: ModalProps) => {
-  modalProps.value.isView = params.isView;
-  modalProps.value.title = params.title;
-  modalProps.value.row = params.row;
-  if (params.getTableList) modalProps.value.getTableList = params.getTableList;
-  if (params.otherData) modalProps.value.otherData = { ...params.otherData };
-  modalVisible.value = true;
-};
-
+  modalProps.value.isView = params.isView
+  modalProps.value.title = params.title
+  modalProps.value.row = params.row
+  if (params.getTableList) modalProps.value.getTableList = params.getTableList
+  if (params.otherData)
+    modalProps.value.otherData = {
+      ...params.otherData
+    }
+  modalVisible.value = true
+}
 defineExpose({
   acceptParams
-});
+})
 </script>
 
 <style scoped></style>

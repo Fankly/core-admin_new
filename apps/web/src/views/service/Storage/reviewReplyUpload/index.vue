@@ -194,8 +194,6 @@
 
 <script setup lang="ts">
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/service/Storage/reviewReplyUpload/index" })
 import { onMounted, ref, watch, provide, defineAsyncComponent, computed } from 'vue'
 import { ServiceGeneralReport } from '@/components/service'
 import type { UserInfo } from '@/components/service/ServiceGeneralReport/types'
@@ -222,6 +220,7 @@ import PendingReportModal from '@/views/service/Storage/reviewReplyUpload/compon
 import NoMeetingUpload from '@/views/service/Storage/reviewReplyUpload/components/noMeetingUpload/index.vue'
 import BatchMaintenance from '@/views/service/Storage/components/BatchMaintenance/index.vue'
 import CentralizedModification from '@/views/service/xq/components/CentralizedModification.vue'
+defineOptions({ name: "/service/Storage/reviewReplyUpload/index" })
 
 const UploadFileModal = defineAsyncComponent(() => import('@/views/service/Storage/reviewReplyUpload/components/batchFile/index.vue'))
 

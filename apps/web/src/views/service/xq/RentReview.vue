@@ -125,22 +125,10 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/xq/RentReview'
-}
-</script>
 
 <script setup lang="ts">
 import { getDataByParent, getParamValueMulti, getPublicCodeList } from '@/api/common'
-import {
-  exportData,
-  fallback,
-  getPage,
-  skipToScw,
-  zlxqzswhSubmitWf,
-  zlxqzyshSubmitWf
-} from '@/api/service/zlxqszy'
+import { exportData, fallback, getPage, skipToScw, zlxqzswhSubmitWf, zlxqzyshSubmitWf } from '@/api/service/zlxqszy'
 import proTable from '@/components/ProTable/index.vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { useProcess } from '@/hooks/useProcessNew'
@@ -156,10 +144,12 @@ import { useStore } from '@/store/business'
 import VXETable from 'vxe-table'
 import ReMultipleText from '@/components/ReMultipleText'
 import { checkSameProperty } from '@/utils/utils'
+defineOptions({
+  name: '/service/xq/RentReview'
+})
 
 const route = useRoute()
 const store = useStore()
-
 interface PublicCode {
   code: string
   name: string
@@ -167,23 +157,30 @@ interface PublicCode {
 
 // 状态
 const ZL_STATUS = {
-  PROVINCE_YS_SUBMIT: 'Q50', // 租赁需求待省预算提交
-  PROVINCE_GK_REJECT: 'Q51', // 租赁需求省归口驳回
-  PROVINCE_GK_APPROVE: 'Q52', // 租赁需求省归口审批中
-  PROVINCE_GK_FINISHED: 'Q53', // 租赁需求省归口已审批
-  PROVINCE_CS_REJECT: 'Q54', // 租赁需求省财务处室审批驳回
-  PROVINCE_YS_REJECT: 'Q55', // 租赁需求省预算专职驳回
-  PROVINCE_ZJC_REJECT: 'Q56', // 租赁需求省资金处专职驳回
-  PROVINCE_CWC_APPROVE: 'Q57', // 租赁需求省财务处室审批中
-  PROVINCE_CWC_PASS: 'Q58', // 租赁需求省财务处室审批通过
-  PROVINCE_YS_PASS: 'Q59', // 租赁需求省预算专职审批通过
+  PROVINCE_YS_SUBMIT: 'Q50',
+  // 租赁需求待省预算提交
+  PROVINCE_GK_REJECT: 'Q51',
+  // 租赁需求省归口驳回
+  PROVINCE_GK_APPROVE: 'Q52',
+  // 租赁需求省归口审批中
+  PROVINCE_GK_FINISHED: 'Q53',
+  // 租赁需求省归口已审批
+  PROVINCE_CS_REJECT: 'Q54',
+  // 租赁需求省财务处室审批驳回
+  PROVINCE_YS_REJECT: 'Q55',
+  // 租赁需求省预算专职驳回
+  PROVINCE_ZJC_REJECT: 'Q56',
+  // 租赁需求省资金处专职驳回
+  PROVINCE_CWC_APPROVE: 'Q57',
+  // 租赁需求省财务处室审批中
+  PROVINCE_CWC_PASS: 'Q58',
+  // 租赁需求省财务处室审批通过
+  PROVINCE_YS_PASS: 'Q59',
+  // 租赁需求省预算专职审批通过
   FINISHED: 'Q60' // 租赁需求审批完成
 }
-
 const checkassStatus = ['Q52', 'Q57', 'Q58', 'Q59', 'Q60']
-
 const isShowBtn = computed(() => searchCode.value === 'ZLXQ_SZY')
-
 const wfParam = ref<{
   XMIDS: string
   GKBM_WF: string
@@ -197,7 +194,6 @@ const wfParam = ref<{
   YSC: '',
   ZJC: ''
 })
-
 const ztsList = ref<any[]>([])
 const listData = ref<any[]>([])
 const zzjgList = ref<any[]>([])
@@ -211,7 +207,6 @@ const provinceYwModalRef = ref<InstanceType<typeof ProvinceYwModal>>()
 const userDialogRef = ref<InstanceType<typeof userDialog>>()
 const proTableRef = ref<InstanceType<typeof proTable>>()
 const selectData = ref()
-
 const userInfo = ref<{
   deptId: string
   deptName: string
@@ -239,42 +234,46 @@ const modalForm = reactive({
   gkcs: ''
 })
 const modalFormRules = reactive({
-  gkcs: [{ required: true, message: '请选择财务处室', trigger: ['change'] }]
+  gkcs: [
+    {
+      required: true,
+      message: '请选择财务处室',
+      trigger: ['change']
+    }
+  ]
 })
 const returnModalForm = ref({
   spyj: ''
 })
 const returnModalFormRules = reactive({
-  spyj: [{ required: true, message: '请填写意见', trigger: 'blur' }]
+  spyj: [
+    {
+      required: true,
+      message: '请填写意见',
+      trigger: 'blur'
+    }
+  ]
 })
 const userInfOther = ref()
-
 const editPageRef = ref()
-
 const isShowPage = ref<boolean>(false)
-
 const loading = ref<boolean>(false)
 
 // 如果表格需要初始化请求参数，直接定义传给 ProTable (之后每次请求都会自动带上该参数，此参数更改之后也会一直带上，改变此参数会自动刷新表格数据)
 const initParam = ref<any>({})
-
 const searchCode = ref('ZLXQ_SZY')
-
 const handleClose = () => {
   isShowResetModal.value = false
   loading.value = false
   modalForm.gkcs = ''
 }
-
 const returnHandleClose = () => {
   isShowReturnModal.value = false
   loading.value = false
-  returnModalForm.value.spyj = ""
+  returnModalForm.value.spyj = ''
   selectedListData.value = []
 }
-
 const selectedData = ref<any[]>([])
-
 const handleSubmit = async () => {
   // 提交工作流
   const type = await VXETable.modal.confirm('确认是否提交?', '提示', {
@@ -286,7 +285,6 @@ const handleSubmit = async () => {
     submitWorkflowHandle(selectedData.value, modalForm.gkcs)
   }
 }
-
 const returnHandleSubmit = async () => {
   // 退回
   if (!returnModalForm.value.spyj) {
@@ -307,30 +305,44 @@ const returnHandleSubmit = async () => {
     throw new Error(res.msg)
   }
 }
-
 const getPageList = (params: any) => {
   params['searchCode'] = searchCode.value
   loading.value = true
   return getPage(params)
 }
-
 const callBackHandle = (val: any) => {
   loading.value = false
   return val
 }
-
 const searchHandle = () => {
   if (proTableRef.value) proTableRef.value.clearSelection()
 }
-
 const tableColumns = reactive<any[]>([
-  { type: 'selection', width: 80 },
-  { type: 'index', width: 80, label: '序号' },
-  { prop: 'ztName', width: 200, label: '状态' },
+  {
+    type: 'selection',
+    width: 80
+  },
+  {
+    type: 'index',
+    width: 80,
+    label: '序号'
+  },
+  {
+    prop: 'ztName',
+    width: 200,
+    label: '状态'
+  },
   {
     prop: 'zts',
     label: '状态',
-    search: { el: 'select', order: 5, props: { multiple: true, collapseTags: true } },
+    search: {
+      el: 'select',
+      order: 5,
+      props: {
+        multiple: true,
+        collapseTags: true
+      }
+    },
     enum: ztsList.value,
     fieldNames: {
       label: 'name',
@@ -338,9 +350,21 @@ const tableColumns = reactive<any[]>([
     },
     isShow: false
   },
-  { prop: 'sdkbm', width: 200, label: '省对口专业部门' },
-  { prop: 'sgbm', width: 200, label: '省业务归口部门' },
-  { prop: 'xmlb', width: 200, label: '项目类别' },
+  {
+    prop: 'sdkbm',
+    width: 200,
+    label: '省对口专业部门'
+  },
+  {
+    prop: 'sgbm',
+    width: 200,
+    label: '省业务归口部门'
+  },
+  {
+    prop: 'xmlb',
+    width: 200,
+    label: '项目类别'
+  },
   {
     prop: 'sgbmId',
     width: 200,
@@ -383,9 +407,21 @@ const tableColumns = reactive<any[]>([
       }
     }
   },
-  { prop: 'requestor', width: 200, label: '承租方' },
-  { prop: 'zlxz', width: 200, label: '租赁性质1' },
-  { prop: 'zlxz2', width: 200, label: '租赁性质2' },
+  {
+    prop: 'requestor',
+    width: 200,
+    label: '承租方'
+  },
+  {
+    prop: 'zlxz',
+    width: 200,
+    label: '租赁性质1'
+  },
+  {
+    prop: 'zlxz2',
+    width: 200,
+    label: '租赁性质2'
+  },
   {
     prop: 'xmbms',
     width: 200,
@@ -393,7 +429,9 @@ const tableColumns = reactive<any[]>([
     search: {
       order: 1,
       render: (scope: any) => {
-        return h(ReMultipleText, { modelValue: scope.modelValue })
+        return h(ReMultipleText, {
+          modelValue: scope.modelValue
+        })
       }
     },
     isShow: false
@@ -403,7 +441,11 @@ const tableColumns = reactive<any[]>([
     width: 200,
     label: '租赁需求编码'
   },
-  { prop: 'xmmc', width: 200, label: '租赁需求名称' },
+  {
+    prop: 'xmmc',
+    width: 200,
+    label: '租赁需求名称'
+  },
   {
     prop: 'czf',
     width: 200,
@@ -416,30 +458,117 @@ const tableColumns = reactive<any[]>([
       }
     }
   },
-  { prop: 'czfsx', width: 200, label: '出租方属性' },
-  { prop: 'zlSfqdhtName', width: 200, label: '是否已签订合同' },
-  { prop: 'zlHtqdrq', width: 200, label: '合同签订日期' },
-  { prop: 'zlHtbm', width: 200, label: '合同编码' },
-  { prop: 'ssnr', width: 200, label: '实施内容及必要性说明' },
-  { prop: 'zrzclb', width: 200, label: '租入资产类型' },
-  { prop: 'zrzcjtmc', width: 200, label: '租入资产具体名称' },
-  { prop: 'sl', width: 200, label: '数量' },
-  { prop: 'dw', width: 200, label: '单位' },
-  { prop: 'fwghyt', width: 200, label: '房屋/仓库规划用途' },
-  { prop: 'fwmj', width: 200, label: '房屋/仓库面积(平方米)' },
-  { prop: 'zrzcjzTax', width: 200, label: '含税租入资产价值(元)' },
-  { prop: 'allInvestTax', width: 200, label: '含税总租金(万元)' },
-  { prop: 'zzjgc', width: 200, label: '含税总租构成' },
-  { prop: 'prjSdate', width: 200, label: '预计起租日' },
-  { prop: 'prjEdate', width: 200, label: '预计到期日' },
-  { prop: 'leasemonth', width: 200, label: '租赁期(月)' },
-  { prop: 'dqclfs', width: 200, label: '到期处置方式' },
-  { prop: 'jcyj', width: 200, label: '需求决策依据' },
-  { prop: 'zjzjyj', width: 200, label: '租金作价依据' },
-  { prop: 'xmssr', width: 200, label: '填报人' },
-  { prop: 'phoneNum', width: 200, label: '联系方式' }
+  {
+    prop: 'czfsx',
+    width: 200,
+    label: '出租方属性'
+  },
+  {
+    prop: 'zlSfqdhtName',
+    width: 200,
+    label: '是否已签订合同'
+  },
+  {
+    prop: 'zlHtqdrq',
+    width: 200,
+    label: '合同签订日期'
+  },
+  {
+    prop: 'zlHtbm',
+    width: 200,
+    label: '合同编码'
+  },
+  {
+    prop: 'ssnr',
+    width: 200,
+    label: '实施内容及必要性说明'
+  },
+  {
+    prop: 'zrzclb',
+    width: 200,
+    label: '租入资产类型'
+  },
+  {
+    prop: 'zrzcjtmc',
+    width: 200,
+    label: '租入资产具体名称'
+  },
+  {
+    prop: 'sl',
+    width: 200,
+    label: '数量'
+  },
+  {
+    prop: 'dw',
+    width: 200,
+    label: '单位'
+  },
+  {
+    prop: 'fwghyt',
+    width: 200,
+    label: '房屋/仓库规划用途'
+  },
+  {
+    prop: 'fwmj',
+    width: 200,
+    label: '房屋/仓库面积(平方米)'
+  },
+  {
+    prop: 'zrzcjzTax',
+    width: 200,
+    label: '含税租入资产价值(元)'
+  },
+  {
+    prop: 'allInvestTax',
+    width: 200,
+    label: '含税总租金(万元)'
+  },
+  {
+    prop: 'zzjgc',
+    width: 200,
+    label: '含税总租构成'
+  },
+  {
+    prop: 'prjSdate',
+    width: 200,
+    label: '预计起租日'
+  },
+  {
+    prop: 'prjEdate',
+    width: 200,
+    label: '预计到期日'
+  },
+  {
+    prop: 'leasemonth',
+    width: 200,
+    label: '租赁期(月)'
+  },
+  {
+    prop: 'dqclfs',
+    width: 200,
+    label: '到期处置方式'
+  },
+  {
+    prop: 'jcyj',
+    width: 200,
+    label: '需求决策依据'
+  },
+  {
+    prop: 'zjzjyj',
+    width: 200,
+    label: '租金作价依据'
+  },
+  {
+    prop: 'xmssr',
+    width: 200,
+    label: '填报人'
+  },
+  {
+    prop: 'phoneNum',
+    width: 200,
+    label: '联系方式'
+  }
 ])
-
 const searchTableHandle = (flag: string) => {
   if (proTableRef.value) {
     ztsList.value.length = 0
@@ -452,14 +581,12 @@ const searchTableHandle = (flag: string) => {
     proTableRef.value.search()
   }
 }
-
 const refreshData = () => {
   if (proTableRef.value) {
     proTableRef.value.clearSelection()
     proTableRef.value.search()
   }
 }
-
 const selectRolesHandle = () => {
   userDialogRef.value && userDialogRef.value.getUser()
 }
@@ -471,16 +598,15 @@ const handerClickTable = async (val: any) => {
     proTableRef.value?.element?.toggleRowSelection(val, true)
   })
 }
-
 const getRoleHandle = async () => {
   try {
     if (userDialogRef.value) {
       const isQuery = userDialogRef.value.isQuery
-      userInfOther.value = { ...userDialogRef.value.userMsg }
+      userInfOther.value = {
+        ...userDialogRef.value.userMsg
+      }
       if (isQuery) {
-        const flagData = await baseService.post(
-          `/workflow/cbxqsh/getFqzz?spOrgId=${userInfOther.value.specialorgid}`
-        )
+        const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfOther.value.specialorgid}`)
         if (flagData.success && flagData.data) {
           const userInfoOthers = {
             deptId: userInfOther.value.specialorgid,
@@ -507,7 +633,6 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 const handlePass = async (selectedList: any[]) => {
   if (selectedList.length === 0) {
     ElMessage.warning('请至少选择一条数据进行操作！')
@@ -529,7 +654,6 @@ const handlePass = async (selectedList: any[]) => {
       return
     }
   }
-
   const filterData = []
   for (let i = 0; i < selectedList.length; i++) {
     const status = selectedList[i].zt
@@ -587,7 +711,6 @@ const noSubmitWorkflowHandle = async (selectedList: any[]) => {
     loading.value = false
   }
 }
-
 const submitWorkflowHandle = (selectedList: any[], gkcs?: string) => {
   const wfUserInfo: WFUserInfo = {
     userId: store.getters.getUserMsg.id,
@@ -602,18 +725,8 @@ const submitWorkflowHandle = (selectedList: any[], gkcs?: string) => {
   wfParam.value.ZJC = ZJC_CODE.value
   wfParam.value.YSC = YSC_CODE.value
   loading.value = true
-
-  submitWorkflow(
-    store.getters.getUserMsg.systemCode,
-    wfCode,
-    '',
-    wfUserInfo,
-    wfParam.value,
-    {},
-    submitWFCallback
-  )
+  submitWorkflow(store.getters.getUserMsg.systemCode, wfCode, '', wfUserInfo, wfParam.value, {}, submitWFCallback)
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
   loading.value = true
   const wfCode = searchCode.value === 'ZLXQ_SZY' ? 'WF_ZLXQSZYSHLC' : 'WF_ZLXQSCWSHLC'
@@ -645,7 +758,6 @@ const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
     })
   }
 }
-
 const handleReject = async (selectedList: any[]) => {
   if (selectedList.length === 0) {
     ElMessage.warning('请至少选择一条数据进行操作！')
@@ -654,7 +766,6 @@ const handleReject = async (selectedList: any[]) => {
   const filterData: any[] = []
   for (let i = 0; i < selectedList.length; i++) {
     const status = selectedList[i].zt
-
     const statusType = publicCodeList['ZLYS_ZLCANBEBH_STATUS'].map(({ code }: any) => code)
     // if (!publicCodeList["ZLYS_ZLCANBEBH_STATUS"].includes(status)) {
     //   filterData.push(selectedList[i]);
@@ -668,13 +779,11 @@ const handleReject = async (selectedList: any[]) => {
     ElMessage.warning(`项目:${name}的状态不支持退回操作,请检查后,再进行尝试!`)
     return
   }
-
   try {
     const type = await VXETable.modal.confirm('确认是否退回?', '提示', {
       confirmButtonText: '是',
       cancelButtonText: '否'
     })
-
     if (type === 'confirm') {
       selectedListData.value = selectedList
       isShowReturnModal.value = true
@@ -700,7 +809,6 @@ const handleViewData = (selectedList: any[]) => {
   console.log(111, selectData.value)
   editPageRef.value.isShowModal = true
 }
-
 const provinceEdit = (selectedList: any[]) => {
   const status = ['Q50', 'Q51']
   const findData = selectedList.filter((item) => !status.includes(item.zt))
@@ -720,7 +828,6 @@ const provinceEdit = (selectedList: any[]) => {
     provinceYwModalRef.value.acceptParams(params)
   }
 }
-
 const handleProcess = (selectedList: any[]) => {
   const selectList = selectedList.map((item) => {
     return {
@@ -771,7 +878,6 @@ const getPublicCodeData = async () => {
     ztsList.value.push(...publicCodeList['ZLXQ_SZY_STATUS'])
   }
 }
-
 const ZJC_CODE = ref('')
 const YSC_CODE = ref('')
 
@@ -783,7 +889,6 @@ const getParamsConfigData = async () => {
     YSC_CODE.value = res.data['YSC_CODE']
   }
 }
-
 const getPublicCode = async () => {
   try {
     const res = await getDataByParent('QMYS_ZZJG')
@@ -800,7 +905,6 @@ const getPublicCode = async () => {
     return false
   }
 }
-
 onMounted(async () => {
   getPublicCodeData()
   getPublicCode()

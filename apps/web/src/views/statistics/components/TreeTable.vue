@@ -1,20 +1,18 @@
-<script lang="ts">
-export default {
-  name: '/statistics/components/TreeTable'
-}
-</script>
+
 
 <script setup lang="ts">
-import { ref, defineProps, onMounted, watch, defineEmits, reactive, defineExpose } from 'vue'
+import { ref, onMounted, watch, reactive } from 'vue'
 import { getConfigList, getNodeTree } from '@/api/statistics/budgetStatisticsConfig'
 import { InitParams } from '@/views/statistics/budgetStatisticsConfig.vue'
 import { VxeTablePropTypes } from 'vxe-table'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/statistics/components/TreeTable'
+})
 
 interface Props {
   initParams: InitParams
 }
-
 interface RowVo {
   children: RowVo[]
   dispOrder: number | string
@@ -24,17 +22,13 @@ interface RowVo {
   parentId: string | null
   recState: number | string
 }
-
 const emits = defineEmits(['treeTableChange', 'mainTableData'])
-
 const props = defineProps<Props>()
-
 const treeRef = ref()
 const loading = ref(false)
 const treeData = ref<RowVo[]>([])
 let currentTreeRequestToken = 0
 let currentTableRequestToken = 0
-
 const treeConfig = reactive<VxeTablePropTypes.TreeConfig>({})
 const expandConfig = reactive<VxeTablePropTypes.ExpandConfig>({})
 const rowConfig = reactive<VxeTablePropTypes.RowConfig>({
@@ -42,7 +36,6 @@ const rowConfig = reactive<VxeTablePropTypes.RowConfig>({
   isCurrent: true,
   keyField: 'id'
 })
-
 const treeNodeClickHandle = async () => {
   const $treeTable = treeRef.value
   if ($treeTable) {
@@ -53,7 +46,6 @@ const treeNodeClickHandle = async () => {
     emits('treeTableChange', curData)
   }
 }
-
 const getTableData = async (parentId: string) => {
   if (!props.initParams.nd || !props.initParams.busiType || !parentId) {
     emits('mainTableData', [])
@@ -68,7 +60,6 @@ const getTableData = async (parentId: string) => {
     ElMessage.error(res.msg)
   }
 }
-
 const getTreeTable = async () => {
   const requestToken = ++currentTreeRequestToken
   loading.value = true
@@ -106,41 +97,34 @@ const getTreeTable = async () => {
     }
   }
 }
-
 const expandData = () => {
   if (!treeRef.value || treeData.value.length === 0) return
   treeRef.value.setTreeExpand(treeData.value, true)
 }
-
 const expandRowData = (row: any) => {
   treeRef.value.setTreeExpand(row, true)
 }
-
 const clearTreeData = () => {
   currentTreeRequestToken += 1
   currentTableRequestToken += 1
   treeData.value = []
   loading.value = false
 }
-
 const initData = async () => {
   await getTreeTable()
   await getTableData(props.initParams.nd)
 }
-
 const rowStyle = () => {
   return {
     cursor: 'pointer'
   }
 }
-
 watch(
   () => props.initParams.nd,
   () => {
     getTreeTable()
   }
 )
-
 defineExpose({
   clearTreeData,
   getTreeTable,
@@ -150,7 +134,6 @@ defineExpose({
   treeData,
   expandRowData
 })
-
 onMounted(initData)
 </script>
 

@@ -161,7 +161,7 @@
   <userDialog ref="userDialog" @loadCompany="loadCompany"></userDialog>
 </template>
 
-<script>
+<script setup>
 import {
   ArrowDown as EpArrowDown,
   ArrowUp as EpArrowUp,
@@ -170,538 +170,651 @@ import {
   RefreshRight as EpRefreshRight,
   Search as EpSearch
 } from '@element-plus/icons-vue'
-import { markRaw as markElementIconRaw } from 'vue'
-
-import { defineComponent, reactive } from 'vue'
+import { markRaw as markElementIconRaw, reactive, toRef, onMounted, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import userDialog from '@/components/select/userDialog.vue'
 import { useStore } from '@/store/business'
 import { ElMessage } from 'element-plus'
 import copyTextBox from '@/components/select/copyTextBox.vue'
 import { showHelpMsg } from '@/utils/message'
-
-export default defineComponent({
-  name: '/budget-process/process-41',
-  components: { userDialog, copyTextBox },
-  setup() {
-    const store = useStore()
-    const helpHandle = () => {
-      const url = store.getters.getMenuMsg.url
-      showHelpMsg(url)
+defineOptions({
+  name: '/budget-process/process-41'
+})
+const userDialogRef = useTemplateRef('userDialog')
+const cbbmRef = useTemplateRef('cbbm')
+const gwxmbmRef = useTemplateRef('gwxmbm')
+const store = useStore()
+const helpHandle = () => {
+  const url = store.getters.getMenuMsg.url
+  showHelpMsg(url)
+}
+const setupState = reactive({
+  EpArrowDown: markElementIconRaw(EpArrowDown),
+  EpArrowUp: markElementIconRaw(EpArrowUp),
+  EpDownload: markElementIconRaw(EpDownload),
+  EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
+  EpRefreshRight: markElementIconRaw(EpRefreshRight),
+  EpSearch: markElementIconRaw(EpSearch),
+  store,
+  helpHandle,
+  loading: false,
+  searchShow: true,
+  tableHeight: '',
+  topHeight: '',
+  heightNum: '',
+  searchHeight: '',
+  userCode: '',
+  userId: '',
+  specialorgid: '',
+  example: [],
+  dialogExample: [],
+  columnObj: {},
+  segmentIds: [],
+  segment: [
+    {
+      value: 'yjdw',
+      label: '一级单位',
+      checked: true
+    },
+    {
+      value: 'ejdw',
+      label: '二级单位',
+      checked: true
+    },
+    {
+      value: 'xmmc',
+      label: '项目名称',
+      checked: true
+    },
+    {
+      value: 'gwxmbm',
+      label: '国网项目编码',
+      checked: true
+    },
+    {
+      value: 'xmfl',
+      label: '项目类型（三级分类）',
+      checked: true
+    },
+    {
+      value: 'xmbmc',
+      label: '项目包名称',
+      checked: true
+    },
+    {
+      value: 'xmbbm',
+      label: '项目包编码',
+      checked: true
+    },
+    {
+      value: 'dnys',
+      label: '当年预算（万元）',
+      checked: true
+    },
+    {
+      value: 'sfdk',
+      label: '是否打捆',
+      checked: true
+    },
+    {
+      value: 'mxbm',
+      label: '明细编码',
+      checked: true
+    },
+    {
+      value: 'mxmc',
+      label: '明细名称',
+      checked: true
+    },
+    {
+      value: 'sfgjsb',
+      label: '是否挂接设备',
+      checked: true
+    },
+    {
+      value: 'sfglzc',
+      label: '是否关联资产',
+      checked: true
+    },
+    {
+      value: 'zb',
+      label: '占比（%）',
+      checked: true
+    },
+    {
+      value: 'tztime',
+      label: '调整日期',
+      checked: true
+    },
+    {
+      value: 'sqr',
+      label: '调整人',
+      checked: true
+    },
+    {
+      value: 'operate',
+      label: '调整类型',
+      checked: true
+    },
+    {
+      value: 'oldsbbh',
+      label: 'PMS设备编号(调整前)',
+      checked: true
+    },
+    {
+      value: 'oldzcbh',
+      label: 'ERP资产编号(调整前)',
+      checked: true
+    },
+    {
+      value: 'newsbbh',
+      label: 'PMS设备编号(调整后)',
+      checked: true
+    },
+    {
+      value: 'newzcbh',
+      label: 'ERP资产编号(调整后)',
+      checked: true
     }
-    return reactive({
-      EpArrowDown: markElementIconRaw(EpArrowDown),
-      EpArrowUp: markElementIconRaw(EpArrowUp),
-      EpDownload: markElementIconRaw(EpDownload),
-      EpQuestionFilled: markElementIconRaw(EpQuestionFilled),
-      EpRefreshRight: markElementIconRaw(EpRefreshRight),
-      EpSearch: markElementIconRaw(EpSearch),
-      store,
-      helpHandle,
-      loading: false,
-      searchShow: true,
-      tableHeight: '',
-      topHeight: '',
-      heightNum: '',
-      searchHeight: '',
-      userCode: '',
-      userId: '',
-      specialorgid: '',
-      example: [],
-      dialogExample: [],
-      columnObj: {},
-      segmentIds: [],
-      segment: [
-        {
-          value: 'yjdw',
-          label: '一级单位',
-          checked: true
-        },
-        {
-          value: 'ejdw',
-          label: '二级单位',
-          checked: true
-        },
-        {
-          value: 'xmmc',
-          label: '项目名称',
-          checked: true
-        },
-        {
-          value: 'gwxmbm',
-          label: '国网项目编码',
-          checked: true
-        },
-        {
-          value: 'xmfl',
-          label: '项目类型（三级分类）',
-          checked: true
-        },
-        {
-          value: 'xmbmc',
-          label: '项目包名称',
-          checked: true
-        },
-        {
-          value: 'xmbbm',
-          label: '项目包编码',
-          checked: true
-        },
-        {
-          value: 'dnys',
-          label: '当年预算（万元）',
-          checked: true
-        },
-        {
-          value: 'sfdk',
-          label: '是否打捆',
-          checked: true
-        },
-        {
-          value: 'mxbm',
-          label: '明细编码',
-          checked: true
-        },
-        {
-          value: 'mxmc',
-          label: '明细名称',
-          checked: true
-        },
-        {
-          value: 'sfgjsb',
-          label: '是否挂接设备',
-          checked: true
-        },
-        {
-          value: 'sfglzc',
-          label: '是否关联资产',
-          checked: true
-        },
-        {
-          value: 'zb',
-          label: '占比（%）',
-          checked: true
-        },
-        {
-          value: 'tztime',
-          label: '调整日期',
-          checked: true
-        },
-        {
-          value: 'sqr',
-          label: '调整人',
-          checked: true
-        },
-        {
-          value: 'operate',
-          label: '调整类型',
-          checked: true
-        },
-        {
-          value: 'oldsbbh',
-          label: 'PMS设备编号(调整前)',
-          checked: true
-        },
-        {
-          value: 'oldzcbh',
-          label: 'ERP资产编号(调整前)',
-          checked: true
-        },
-        {
-          value: 'newsbbh',
-          label: 'PMS设备编号(调整后)',
-          checked: true
-        },
-        {
-          value: 'newzcbh',
-          label: 'ERP资产编号(调整后)',
-          checked: true
-        }
-      ],
-      dataList: {
-        month: new Date(),
-        post1: ''
-      },
-      page: {
-        total: 0,
-        limit: 10,
-        page: 1,
-        current: '1'
-      },
-      //   跨行所需数据
-      flag: 0,
-      spanArr: [], // 用于存放需要合并的行的个数
-      spanArr1: [], // 用于存放需要合并的行的个数
-      spanArr2: [], // 用于存放需要合并的行的个数
-      spanArr3: [], // 用于存放需要合并的行的个数
-      spanArr4: [], // 用于存放需要合并的行的个数
-      spanIndex: 0, // 记录spanArr数组的下标
-      spanIndex1: 0, // 记录spanArr数组的下标
-      spanIndex2: 0, // 记录spanArr数组的下标
-      spanIndex3: 0, // 记录spanArr数组的下标
-      spanIndex4: 0, // 记录spanArr数组的下标
-      //一级单位
-      yjdw: [],
-      yjdwValue: '',
-      //二级单位
-      ejdw: [],
-      ejdwValue: '',
-      // 三级分类
-      sjfl: [],
-      sjflValue: '',
-      // 项目名称
-      projectName: '',
-      //本地下拉数据
-      selectList: [
-        { code: '0', name: '否' },
-        { code: '1', name: '是' }
-      ],
-      // 是否挂接设备
-      sfgjsb: '',
-      // 是否关联资产
-      sfglzc: '',
-      // 年度
-      year: new Date().getFullYear().toString(),
-      dialogVisible: false
-    })
+  ],
+  dataList: {
+    month: new Date(),
+    post1: ''
   },
-  created() {
-    this.handleColumn()
-    //获取一级单位
-    baseService.get('/commonCode/getYjdw').then((res) => {
-      if (res.success) {
-        this.yjdw = res.data
-      } else {
-        this.loading = false
-        ElMessage({
-          type: 'error',
-          message: res.msg
-        })
-      }
-    })
-    //获取三级分类
-    baseService.get('/commonCode/getSjfl').then((res) => {
-      if (res.success) {
-        this.sjfl = res.data
-      } else {
-        this.loading = false
-        ElMessage({
-          type: 'error',
-          message: res.msg
-        })
-      }
-    })
+  page: {
+    total: 0,
+    limit: 10,
+    page: 1,
+    current: '1'
   },
-  mounted() {
-    this.topHeight = document.querySelector('.topBox').clientHeight
-    this.heightNum = document.querySelector('.el-card').clientHeight
-    this.searchHeight = document.querySelector('.search').clientHeight
-    this.setTableHeight()
-    this.loading = true
-    this.$refs.userDialog.getUser(this.userId, this.userCode)
-  },
-
-  methods: {
-    //根据一级单位获取二级单位
-    getEjdw(code) {
-      baseService.get(`/commonCode/getEjdwByYjdw?yjdw=${code}`).then((res) => {
-        if (res.success) {
-          this.ejdw = res.data
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
+  //   跨行所需数据
+  flag: 0,
+  spanArr: [],
+  // 用于存放需要合并的行的个数
+  spanArr1: [],
+  // 用于存放需要合并的行的个数
+  spanArr2: [],
+  // 用于存放需要合并的行的个数
+  spanArr3: [],
+  // 用于存放需要合并的行的个数
+  spanArr4: [],
+  // 用于存放需要合并的行的个数
+  spanIndex: 0,
+  // 记录spanArr数组的下标
+  spanIndex1: 0,
+  // 记录spanArr数组的下标
+  spanIndex2: 0,
+  // 记录spanArr数组的下标
+  spanIndex3: 0,
+  // 记录spanArr数组的下标
+  spanIndex4: 0,
+  // 记录spanArr数组的下标
+  //一级单位
+  yjdw: [],
+  yjdwValue: '',
+  //二级单位
+  ejdw: [],
+  ejdwValue: '',
+  // 三级分类
+  sjfl: [],
+  sjflValue: '',
+  // 项目名称
+  projectName: '',
+  //本地下拉数据
+  selectList: [
+    {
+      code: '0',
+      name: '否'
     },
-    //计算表格高度
-    setTableHeight() {
-      if (this.searchShow == true) {
-        this.tableHeight = this.heightNum - this.topHeight - 80 + 'px'
+    {
+      code: '1',
+      name: '是'
+    }
+  ],
+  // 是否挂接设备
+  sfgjsb: '',
+  // 是否关联资产
+  sfglzc: '',
+  // 年度
+  year: new Date().getFullYear().toString(),
+  dialogVisible: false
+})
+const loading = toRef(setupState, 'loading')
+const searchShow = toRef(setupState, 'searchShow')
+const tableHeight = toRef(setupState, 'tableHeight')
+const topHeight = toRef(setupState, 'topHeight')
+const heightNum = toRef(setupState, 'heightNum')
+const searchHeight = toRef(setupState, 'searchHeight')
+const userCode = toRef(setupState, 'userCode')
+const userId = toRef(setupState, 'userId')
+const specialorgid = toRef(setupState, 'specialorgid')
+const example = toRef(setupState, 'example')
+const dialogExample = toRef(setupState, 'dialogExample')
+const columnObj = toRef(setupState, 'columnObj')
+const segmentIds = toRef(setupState, 'segmentIds')
+const segment = toRef(setupState, 'segment')
+const dataList = toRef(setupState, 'dataList')
+const page = toRef(setupState, 'page')
+const flag = toRef(setupState, 'flag')
+const spanArr = toRef(setupState, 'spanArr')
+const spanArr1 = toRef(setupState, 'spanArr1')
+const spanArr2 = toRef(setupState, 'spanArr2')
+const spanArr3 = toRef(setupState, 'spanArr3')
+const spanArr4 = toRef(setupState, 'spanArr4')
+const spanIndex = toRef(setupState, 'spanIndex')
+const spanIndex1 = toRef(setupState, 'spanIndex1')
+const spanIndex2 = toRef(setupState, 'spanIndex2')
+const spanIndex3 = toRef(setupState, 'spanIndex3')
+const spanIndex4 = toRef(setupState, 'spanIndex4')
+const yjdw = toRef(setupState, 'yjdw')
+const yjdwValue = toRef(setupState, 'yjdwValue')
+const ejdw = toRef(setupState, 'ejdw')
+const ejdwValue = toRef(setupState, 'ejdwValue')
+const sjfl = toRef(setupState, 'sjfl')
+const sjflValue = toRef(setupState, 'sjflValue')
+const projectName = toRef(setupState, 'projectName')
+const selectList = toRef(setupState, 'selectList')
+const sfgjsb = toRef(setupState, 'sfgjsb')
+const sfglzc = toRef(setupState, 'sfglzc')
+const year = toRef(setupState, 'year')
+const dialogVisible = toRef(setupState, 'dialogVisible')
+//根据一级单位获取二级单位
+function getEjdw(code) {
+  baseService.get(`/commonCode/getEjdwByYjdw?yjdw=${code}`).then((res) => {
+    if (res.success) {
+      setupState.ejdw = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+//计算表格高度
+function setTableHeight() {
+  if (setupState.searchShow == true) {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight - 80 + 'px'
+  } else {
+    setupState.tableHeight = setupState.heightNum - setupState.topHeight + setupState.searchHeight - 80 + 'px'
+  }
+}
+//搜索展示与隐藏
+function showSearch(i) {
+  setupState.searchShow = i
+  setTableHeight()
+}
+//处理环节数据
+function handleColumn() {
+  setupState.segment.forEach((item) => {
+    setupState.segmentIds.push(item.value)
+    setupState.columnObj[item.value] = item.checked
+  })
+}
+//项目环节
+function listShow(value, checked) {
+  for (let i in setupState.columnObj) {
+    if (i == value) {
+      setupState.columnObj[i] = checked
+    }
+  }
+}
+function loadCompany() {
+  setupState.loading = false
+  setupState.specialorgid = parseInt(userDialogRef.value.specialorgid)
+}
+function loadData() {
+  setupState.flag = 0
+  setupState.spanArr = []
+  setupState.spanArr1 = []
+  setupState.spanArr2 = []
+  setupState.spanArr3 = []
+  setupState.spanArr4 = []
+  setupState.spanIndex = 0
+  setupState.spanIndex1 = 0
+  setupState.spanIndex2 = 0
+  setupState.spanIndex3 = 0
+  setupState.spanIndex4 = 0
+  setupState.example = []
+  setupState.loading = true
+  let params = {
+    specialorgid: setupState.specialorgid,
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    yjdw: setupState.yjdwValue,
+    ejdw: setupState.ejdwValue,
+    sjfl: setupState.sjflValue,
+    xmbms: cbbmRef.value.array,
+    gwxmbms: gwxmbmRef.value.array,
+    xmmc: setupState.projectName,
+    sfglzc: setupState.sfglzc,
+    sfgjsb: setupState.sfgjsb,
+    year: setupState.year
+  }
+  baseService.post('process39/', params).then((res) => {
+    if (res.success) {
+      setupState.loading = false
+      setupState.example = res.data.records
+      setupState.page.total = res.data.total
+      getSpanArr(setupState.example)
+      getSpanArr1(setupState.example)
+      getSpanArr2(setupState.example)
+      getSpanArr3(setupState.example)
+      getSpanArr4(setupState.example)
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+}
+function exportBtn() {
+  setupState.loading = true
+  let params = {
+    specialorgid: setupState.specialorgid,
+    page: setupState.page.page,
+    limit: setupState.page.limit,
+    yjdw: setupState.yjdwValue,
+    ejdw: setupState.ejdwValue,
+    sjfl: setupState.sjflValue,
+    xmbms: cbbmRef.value.array,
+    gwxmbms: gwxmbmRef.value.array,
+    xmmc: setupState.projectName,
+    sfglzc: setupState.sfglzc,
+    sfgjsb: setupState.sfgjsb,
+    year: setupState.year
+  }
+  baseService.export('/process39/export', params).then((res) => {
+    setupState.loading = false
+    const blob = res
+    let dom = document.createElement('a')
+    let url = window.URL.createObjectURL(blob)
+    dom.href = url
+    dom.download = '项目关联设备资产调整记录.xlsx'
+    document.body.appendChild(dom)
+    dom.click()
+    document.body.removeChild(dom)
+    window.URL.revokeObjectURL(url)
+  })
+}
+function reset() {
+  setupState.flag = 0
+  setupState.page.page = 1
+  setupState.page.limit = 10
+  setupState.page.total = 0
+  setupState.yjdwValue = ''
+  setupState.ejdwValue = ''
+  setupState.ejdw = []
+  setupState.sjflValue = ''
+  cbbmRef.value.clear()
+  gwxmbmRef.value.clear()
+  setupState.projectName = ''
+  setupState.sfglzc = ''
+  setupState.sfgjsb = ''
+  setupState.year = new Date().getFullYear().toString()
+  setupState.example = []
+  loadData()
+}
+// 分页控件当前页修改事件
+function pageChangeHandle(currentPageNum) {
+  setupState.page.page = currentPageNum
+  loadData()
+}
+// 分页控件请求数量修改事件
+function limitChangeHandle(currentLimitNum) {
+  setupState.page.limit = currentLimitNum
+  loadData()
+}
+function getSpanArr(data) {
+  let len = 0
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) {
+      len += 1
+      setupState.spanArr.push(1)
+      setupState.spanIndex = 0
+    } else {
+      // 判断当前行与前一行内容是否相同
+      if (data[i].yjdw === data[i - 1].yjdw) {
+        setupState.spanArr[setupState.spanIndex] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
+        setupState.spanArr.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
+        len += 1
       } else {
-        this.tableHeight = this.heightNum - this.topHeight + this.searchHeight - 80 + 'px'
-      }
-    },
-    //搜索展示与隐藏
-    showSearch(i) {
-      this.searchShow = i
-      this.setTableHeight()
-    },
-    //处理环节数据
-    handleColumn() {
-      this.segment.forEach((item) => {
-        this.segmentIds.push(item.value)
-        this.columnObj[item.value] = item.checked
-      })
-    },
-
-    //项目环节
-    listShow(value, checked) {
-      for (let i in this.columnObj) {
-        if (i == value) {
-          this.columnObj[i] = checked
-        }
-      }
-    },
-    loadCompany() {
-      this.loading = false
-      this.specialorgid = parseInt(this.$refs.userDialog.specialorgid)
-    },
-    loadData() {
-      this.flag = 0
-      this.spanArr = []
-      this.spanArr1 = []
-      this.spanArr2 = []
-      this.spanArr3 = []
-      this.spanArr4 = []
-      this.spanIndex = 0
-      this.spanIndex1 = 0
-      this.spanIndex2 = 0
-      this.spanIndex3 = 0
-      this.spanIndex4 = 0
-      this.example = []
-      this.loading = true
-      let params = {
-        specialorgid: this.specialorgid,
-        page: this.page.page,
-        limit: this.page.limit,
-        yjdw: this.yjdwValue,
-        ejdw: this.ejdwValue,
-        sjfl: this.sjflValue,
-        xmbms: this.$refs.cbbm.array,
-        gwxmbms: this.$refs.gwxmbm.array,
-        xmmc: this.projectName,
-        sfglzc: this.sfglzc,
-        sfgjsb: this.sfgjsb,
-        year: this.year
-      }
-
-      baseService.post('process39/', params).then((res) => {
-        if (res.success) {
-          this.loading = false
-          this.example = res.data.records
-          this.page.total = res.data.total
-          this.getSpanArr(this.example)
-          this.getSpanArr1(this.example)
-          this.getSpanArr2(this.example)
-          this.getSpanArr3(this.example)
-          this.getSpanArr4(this.example)
-        } else {
-          this.loading = false
-          ElMessage({
-            type: 'error',
-            message: res.msg
-          })
-        }
-      })
-    },
-    exportBtn() {
-      this.loading = true
-      let params = {
-        specialorgid: this.specialorgid,
-        page: this.page.page,
-        limit: this.page.limit,
-        yjdw: this.yjdwValue,
-        ejdw: this.ejdwValue,
-        sjfl: this.sjflValue,
-        xmbms: this.$refs.cbbm.array,
-        gwxmbms: this.$refs.gwxmbm.array,
-        xmmc: this.projectName,
-        sfglzc: this.sfglzc,
-        sfgjsb: this.sfgjsb,
-        year: this.year
-      }
-      baseService.export('/process39/export', params).then((res) => {
-        this.loading = false
-        const blob = res
-        let dom = document.createElement('a')
-        let url = window.URL.createObjectURL(blob)
-        dom.href = url
-        dom.download = '项目关联设备资产调整记录.xlsx'
-        document.body.appendChild(dom)
-        dom.click()
-        document.body.removeChild(dom)
-        window.URL.revokeObjectURL(url)
-      })
-    },
-    reset() {
-      this.flag = 0
-      this.page.page = 1
-      this.page.limit = 10
-      this.page.total = 0
-      this.yjdwValue = ''
-      this.ejdwValue = ''
-      this.ejdw = []
-      this.sjflValue = ''
-      this.$refs.cbbm.clear()
-      this.$refs.gwxmbm.clear()
-      this.projectName = ''
-      this.sfglzc = ''
-      this.sfgjsb = ''
-      this.year = new Date().getFullYear().toString()
-      this.example = []
-      this.loadData()
-    },
-    // 分页控件当前页修改事件
-    pageChangeHandle(currentPageNum) {
-      this.page.page = currentPageNum
-      this.loadData()
-    },
-    // 分页控件请求数量修改事件
-    limitChangeHandle(currentLimitNum) {
-      this.page.limit = currentLimitNum
-      this.loadData()
-    },
-    getSpanArr(data) {
-      let len = 0
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) {
-          len += 1
-          this.spanArr.push(1)
-          this.spanIndex = 0
-        } else {
-          // 判断当前行与前一行内容是否相同
-          if (data[i].yjdw === data[i - 1].yjdw) {
-            this.spanArr[this.spanIndex] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
-            this.spanArr.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
-            len += 1
-          } else {
-            len = 1
-            this.spanArr.push(1) // 否则，依旧是一行
-            this.spanIndex = i
-          }
-        }
-      }
-    },
-    getSpanArr1(data) {
-      let len = 0
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) {
-          len += 1
-          this.spanArr1.push(1)
-          this.spanIndex1 = 0
-        } else {
-          // 判断当前行与前一行内容是否相同
-          if (data[i].ejdw === data[i - 1].ejdw) {
-            this.spanArr1[this.spanIndex1] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
-            this.spanArr1.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
-            len += 1
-          } else {
-            len = 1
-            this.spanArr1.push(1) // 否则，依旧是一行
-            this.spanIndex1 = i
-          }
-        }
-      }
-    },
-    getSpanArr2(data) {
-      let len = 0
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) {
-          len += 1
-          this.spanArr2.push(1)
-          this.spanIndex2 = 0
-        } else {
-          // 判断当前行与前一行内容是否相同
-          if (data[i].gwxmbm === data[i - 1].gwxmbm) {
-            this.spanArr2[this.spanIndex2] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
-            this.spanArr2.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
-            len += 1
-          } else {
-            len = 1
-            this.spanArr2.push(1) // 否则，依旧是一行
-            this.spanIndex2 = i
-          }
-        }
-      }
-    },
-    getSpanArr3(data) {
-      let len = 0
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) {
-          len += 1
-          this.spanArr3.push(1)
-          this.spanIndex3 = 0
-        } else {
-          // 判断当前行与前一行内容是否相同
-          if (data[i].gwxmbm === data[i - 1].gwxmbm && data[i].mxbm === data[i - 1].mxbm) {
-            this.spanArr3[this.spanIndex3] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
-            this.spanArr3.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
-            len += 1
-          } else {
-            len = 1
-            this.spanArr3.push(1) // 否则，依旧是一行
-            this.spanIndex3 = i
-          }
-        }
-      }
-    },
-    getSpanArr4(data) {
-      let len = 0
-      for (let i = 0; i < data.length; i++) {
-        if (i === 0) {
-          len += 1
-          this.spanArr4.push(1)
-          this.spanIndex4 = 0
-        } else {
-          // 判断当前行与前一行内容是否相同
-          if (data[i].gwxmbm === data[i - 1].gwxmbm && data[i].mxbm === data[i - 1].mxbm) {
-            this.spanArr4[this.spanIndex4] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
-            this.spanArr4.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
-            len += 1
-          } else {
-            len = 1
-            this.spanArr4.push(1) // 否则，依旧是一行
-            this.spanIndex4 = i
-          }
-        }
-      }
-    },
-    objectSpanMethod({ rowIndex, columnIndex }) {
-      if (columnIndex === 0) {
-        const _row = this.spanArr[rowIndex] // 行数
-        const _col = _row > 0 ? 1 : 0 // 列数
-        return {
-          rowspan: _row,
-          colspan: _col
-        }
-      }
-      if (columnIndex === 1) {
-        const _row = this.spanArr1[rowIndex] // 行数
-        const _col = _row > 0 ? 1 : 0 // 列数
-        return {
-          rowspan: _row,
-          colspan: _col
-        }
-      }
-      if (columnIndex < 9) {
-        const _row = this.spanArr2[rowIndex] // 行数
-        const _col = _row > 0 ? 1 : 0 // 列数
-        return {
-          rowspan: _row,
-          colspan: _col
-        }
-      }
-      if (columnIndex === 9) {
-        const _row = this.spanArr4[rowIndex] // 行数
-        const _col = _row > 0 ? 1 : 0 // 列数
-        return {
-          rowspan: _row,
-          colspan: _col
-        }
-      }
-      if (columnIndex > 9 && columnIndex <= 13) {
-        const _row = this.spanArr3[rowIndex] // 行数
-        const _col = _row > 0 ? 1 : 0 // 列数
-        return {
-          rowspan: _row,
-          colspan: _col
-        }
+        len = 1
+        setupState.spanArr.push(1) // 否则，依旧是一行
+        setupState.spanIndex = i
       }
     }
   }
+}
+function getSpanArr1(data) {
+  let len = 0
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) {
+      len += 1
+      setupState.spanArr1.push(1)
+      setupState.spanIndex1 = 0
+    } else {
+      // 判断当前行与前一行内容是否相同
+      if (data[i].ejdw === data[i - 1].ejdw) {
+        setupState.spanArr1[setupState.spanIndex1] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
+        setupState.spanArr1.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
+        len += 1
+      } else {
+        len = 1
+        setupState.spanArr1.push(1) // 否则，依旧是一行
+        setupState.spanIndex1 = i
+      }
+    }
+  }
+}
+function getSpanArr2(data) {
+  let len = 0
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) {
+      len += 1
+      setupState.spanArr2.push(1)
+      setupState.spanIndex2 = 0
+    } else {
+      // 判断当前行与前一行内容是否相同
+      if (data[i].gwxmbm === data[i - 1].gwxmbm) {
+        setupState.spanArr2[setupState.spanIndex2] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
+        setupState.spanArr2.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
+        len += 1
+      } else {
+        len = 1
+        setupState.spanArr2.push(1) // 否则，依旧是一行
+        setupState.spanIndex2 = i
+      }
+    }
+  }
+}
+function getSpanArr3(data) {
+  let len = 0
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) {
+      len += 1
+      setupState.spanArr3.push(1)
+      setupState.spanIndex3 = 0
+    } else {
+      // 判断当前行与前一行内容是否相同
+      if (data[i].gwxmbm === data[i - 1].gwxmbm && data[i].mxbm === data[i - 1].mxbm) {
+        setupState.spanArr3[setupState.spanIndex3] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
+        setupState.spanArr3.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
+        len += 1
+      } else {
+        len = 1
+        setupState.spanArr3.push(1) // 否则，依旧是一行
+        setupState.spanIndex3 = i
+      }
+    }
+  }
+}
+function getSpanArr4(data) {
+  let len = 0
+  for (let i = 0; i < data.length; i++) {
+    if (i === 0) {
+      len += 1
+      setupState.spanArr4.push(1)
+      setupState.spanIndex4 = 0
+    } else {
+      // 判断当前行与前一行内容是否相同
+      if (data[i].gwxmbm === data[i - 1].gwxmbm && data[i].mxbm === data[i - 1].mxbm) {
+        setupState.spanArr4[setupState.spanIndex4] += 1 // 相同的话，当前下标所代表的值加一，例如：第一列的前三行可合并
+        setupState.spanArr4.push(0) // 记录完毕后，再往数组里添加一个元素0，作为下一次合并的初始值
+        len += 1
+      } else {
+        len = 1
+        setupState.spanArr4.push(1) // 否则，依旧是一行
+        setupState.spanIndex4 = i
+      }
+    }
+  }
+}
+function objectSpanMethod({ rowIndex, columnIndex }) {
+  if (columnIndex === 0) {
+    const _row = setupState.spanArr[rowIndex] // 行数
+    const _col = _row > 0 ? 1 : 0 // 列数
+    return {
+      rowspan: _row,
+      colspan: _col
+    }
+  }
+  if (columnIndex === 1) {
+    const _row = setupState.spanArr1[rowIndex] // 行数
+    const _col = _row > 0 ? 1 : 0 // 列数
+    return {
+      rowspan: _row,
+      colspan: _col
+    }
+  }
+  if (columnIndex < 9) {
+    const _row = setupState.spanArr2[rowIndex] // 行数
+    const _col = _row > 0 ? 1 : 0 // 列数
+    return {
+      rowspan: _row,
+      colspan: _col
+    }
+  }
+  if (columnIndex === 9) {
+    const _row = setupState.spanArr4[rowIndex] // 行数
+    const _col = _row > 0 ? 1 : 0 // 列数
+    return {
+      rowspan: _row,
+      colspan: _col
+    }
+  }
+  if (columnIndex > 9 && columnIndex <= 13) {
+    const _row = setupState.spanArr3[rowIndex] // 行数
+    const _col = _row > 0 ? 1 : 0 // 列数
+    return {
+      rowspan: _row,
+      colspan: _col
+    }
+  }
+}
+onMounted(() => {
+  setupState.topHeight = document.querySelector('.topBox').clientHeight
+  setupState.heightNum = document.querySelector('.el-card').clientHeight
+  setupState.searchHeight = document.querySelector('.search').clientHeight
+  setTableHeight()
+  setupState.loading = true
+  userDialogRef.value.getUser(setupState.userId, setupState.userCode)
+})
+;(() => {
+  handleColumn()
+  //获取一级单位
+  baseService.get('/commonCode/getYjdw').then((res) => {
+    if (res.success) {
+      setupState.yjdw = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+  //获取三级分类
+  baseService.get('/commonCode/getSjfl').then((res) => {
+    if (res.success) {
+      setupState.sjfl = res.data
+    } else {
+      setupState.loading = false
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
+    }
+  })
+})()
+defineExpose({
+  EpArrowDown,
+  EpArrowUp,
+  EpDownload,
+  EpQuestionFilled,
+  EpRefreshRight,
+  EpSearch,
+  store,
+  helpHandle,
+  loading,
+  searchShow,
+  tableHeight,
+  topHeight,
+  heightNum,
+  searchHeight,
+  userCode,
+  userId,
+  specialorgid,
+  example,
+  dialogExample,
+  columnObj,
+  segmentIds,
+  segment,
+  dataList,
+  page,
+  flag,
+  spanArr,
+  spanArr1,
+  spanArr2,
+  spanArr3,
+  spanArr4,
+  spanIndex,
+  spanIndex1,
+  spanIndex2,
+  spanIndex3,
+  spanIndex4,
+  yjdw,
+  yjdwValue,
+  ejdw,
+  ejdwValue,
+  sjfl,
+  sjflValue,
+  projectName,
+  selectList,
+  sfgjsb,
+  sfglzc,
+  year,
+  dialogVisible,
+  getEjdw,
+  setTableHeight,
+  showSearch,
+  handleColumn,
+  listShow,
+  loadCompany,
+  loadData,
+  exportBtn,
+  reset,
+  pageChangeHandle,
+  limitChangeHandle,
+  getSpanArr,
+  getSpanArr1,
+  getSpanArr2,
+  getSpanArr3,
+  getSpanArr4,
+  objectSpanMethod
 })
 </script>
 

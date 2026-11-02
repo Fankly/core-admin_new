@@ -55,15 +55,9 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'knowledgeModal'
-}
-</script>
 
 <script setup lang="ts">
 import { InfoFilled as EpInfoFilled, Warning as EpWarning } from '@element-plus/icons-vue'
-
 import { markRaw, nextTick, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
@@ -73,15 +67,16 @@ import { getOutsourceAdaptListPage } from '@/api/ai/outsourceAdaptList'
 import { aiAuditKnowledgeEdit } from '@/api/suzhou/aiAuditInuseRange'
 import { getCommonDict } from '@/api/common'
 import type { ColumnProps } from '@/components/ProTablePage/interface'
+defineOptions({
+  name: 'knowledgeModal'
+})
 
 /** 业务大类 / 小类公共代码（级联：大类 getCommonDict(code)，小类 getCommonDict(code, pCode)） */
 const BIZ_CAT_CODE = 'OUTSOURCE_RULE_KB_BIZ_CAT'
-
 interface CodeItem {
   code: string
   name: string
 }
-
 interface ModalParams {
   type: string
   searchParams: {
@@ -91,11 +86,14 @@ interface ModalParams {
     selectedNames?: string
   }
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const tableLoading = ref(false)
@@ -129,23 +127,51 @@ const handleMajorCatChange = async (val: string) => {
     ElMessage.error((e as Error).message)
   }
 }
-
 const tableColumns = markRaw<VxeGridProps['columns']>([
-  { type: 'checkbox', width: 50 },
-  { type: 'seq', width: 50, title: '序号' },
-  { field: 'seqNo', title: '清单序号', width: 100 },
-  { field: 'bizMajorCatName', title: '业务大类', width: 140 },
-  { field: 'bizSubCatName', title: '业务小类', width: 140 },
-  { field: 'prohibitedBiz', title: '禁止外包的整项业务', minWidth: 200 },
-  { field: 'allowedAuxBiz', title: '整项业务中外包的辅助性业务', minWidth: 220 }
+  {
+    type: 'checkbox',
+    width: 50
+  },
+  {
+    type: 'seq',
+    width: 50,
+    title: '序号'
+  },
+  {
+    field: 'seqNo',
+    title: '清单序号',
+    width: 100
+  },
+  {
+    field: 'bizMajorCatName',
+    title: '业务大类',
+    width: 140
+  },
+  {
+    field: 'bizSubCatName',
+    title: '业务小类',
+    width: 140
+  },
+  {
+    field: 'prohibitedBiz',
+    title: '禁止外包的整项业务',
+    minWidth: 200
+  },
+  {
+    field: 'allowedAuxBiz',
+    title: '整项业务中外包的辅助性业务',
+    minWidth: 220
+  }
 ])
-
 const searchColumns = reactive<ColumnProps[]>([
   {
     prop: 'bizMajorCat',
     label: '业务大类',
     enum: () => getCommonDict(BIZ_CAT_CODE),
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     search: {
       el: 'select',
       order: 1,
@@ -161,7 +187,10 @@ const searchColumns = reactive<ColumnProps[]>([
     prop: 'bizSubCat',
     label: '业务小类',
     enum: bizSubCatList.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     search: {
       el: 'select',
       order: 2,
@@ -173,11 +202,9 @@ const searchColumns = reactive<ColumnProps[]>([
     }
   }
 ])
-
 const handleSearchReset = () => {
   bizSubCatList.value.length = 0
 }
-
 const callBackHandle = (data: any) => {
   tableLoading.value = false
   const selectedIdSet = new Set(pendingSelectedIds.value)
@@ -193,13 +220,11 @@ const callBackHandle = (data: any) => {
   })
   return data
 }
-
 const handleRequestError = (error: unknown) => {
   tableLoading.value = false
   if ((error as Error)?.message === 'STALE_TABLE_REQUEST') return
   ElMessage.error((error as Error)?.message || '外包负面清单加载失败，请重试')
 }
-
 const getPageList = (params: any) => {
   tableLoading.value = true
   return getOutsourceAdaptListPage({
@@ -215,14 +240,12 @@ const getPageList = (params: any) => {
     limit: String(params.limit ?? '')
   })
 }
-
 const getSelectedKbIds = (): string[] => {
   const selected = proTableRef.value?.selectedList || []
   const fromTable = selected.map((item: any) => String(item.id)).filter(Boolean)
   // 未加载到当前分页的回显 ID 仍参与保存，避免跨页丢关联
   return Array.from(new Set([...fromTable, ...pendingSelectedIds.value]))
 }
-
 const handleClose = () => {
   proTypeList.value = []
   pendingSelectedIds.value = []
@@ -232,13 +255,11 @@ const handleClose = () => {
   bizSubCatList.value.length = 0
   isShowModal.value = false
 }
-
 const handleSave = async () => {
   if (loading.value) return
   if (!proTypeList.value.length) return ElMessage.warning('缺少项目类型！')
   const kbIdList = getSelectedKbIds()
   if (kbIdList.length === 0) return ElMessage.warning('请选择外包负面清单！')
-
   try {
     const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
       status: 'warning'
@@ -250,7 +271,6 @@ const handleSave = async () => {
   } catch {
     return
   }
-
   loading.value = true
   try {
     const res = await aiAuditKnowledgeEdit({
@@ -259,7 +279,9 @@ const handleSave = async () => {
     })
     if (res.success) {
       ElMessage.success('保存成功！')
-      emit('searchHandle', { param: 'success' })
+      emit('searchHandle', {
+        param: 'success'
+      })
       handleClose()
     } else {
       ElMessage.error(res.msg || '保存失败')
@@ -270,7 +292,6 @@ const handleSave = async () => {
     loading.value = false
   }
 }
-
 const acceptParams = (params: ModalParams) => {
   modalTitle.value = params.type || '选择外包负面清单'
   proTypeList.value = params.searchParams.proTypeList || []
@@ -286,8 +307,9 @@ const acceptParams = (params: ModalParams) => {
     proTableRef.value?.reset()
   })
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

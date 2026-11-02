@@ -3,10 +3,10 @@
   <div class="operation"></div>
 </template>
 
-<script lang="ts">
-export default {
+<script setup lang="ts">
+defineOptions({
   name: 'materialTaskDetailTestToolbar'
-}
+})
 </script>
 
 <style scoped></style>

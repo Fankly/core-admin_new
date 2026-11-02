@@ -53,13 +53,13 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "ContinueCarryoverModal" })
-// 父组件传过来的参数
 import { reactive, ref } from 'vue'
 import { RowVo } from '../ContinueCarryover.vue'
 import { editData } from '@/api/config/continueCarryover'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
+defineOptions({ name: "ContinueCarryoverModal" })
+// 父组件传过来的参数
 
 interface ParameterProps extends RowVo {
   name: string

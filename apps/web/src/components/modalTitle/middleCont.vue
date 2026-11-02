@@ -33,13 +33,12 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'middleCont'
-}
-</script>
+
 <script setup lang="ts">
-import { ref, defineEmits } from 'vue'
+import { ref } from 'vue'
+defineOptions({
+  name: 'middleCont'
+})
 
 const emits = defineEmits(['changeView'])
 const viewMethod = ref<string>('1')

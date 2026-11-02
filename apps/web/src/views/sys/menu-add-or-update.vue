@@ -124,185 +124,291 @@
   </el-dialog>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { ArrowDown as EpArrowDown, CircleClose as EpCircleClose } from '@element-plus/icons-vue'
-
 import useView from '@/hooks/useView'
-import { defineComponent, reactive, toRefs, watch } from 'vue'
+import { reactive, toRefs, watch, proxyRefs, toRef, nextTick, computed, useTemplateRef } from 'vue'
 import baseService from '@/service/baseService'
 import { getIconList, useDebounce } from '@/utils/utils'
 import { IObject } from '@/types/interface'
 import { useStore } from '@/store/business'
-
-export default defineComponent({
-  setup() {
-    const store = useStore()
-    const state = reactive({
-      visible: false,
-      menuList: [],
-      menuListVisible: false,
-      iconList: [] as string[],
-      iconListVisible: false,
-      submitLoading: false,
-      treeList: [],
-      cascaderProps: {
-        label: 'title',
-        value: 'label',
-        children: 'children'
-      },
-      dataForm: {
-        id: '',
-        isFrame: 0,
-        frameSrc: '',
-        type: 0,
-        name: '',
-        pid: '0',
-        parentName: '',
-        url: '',
-        isShow: 1,
-        isMainPage: 0,
-        sort: 0,
-        icon: '',
-        openStyle: 0,
-        outsideMenu: ''
+import { ElMessage } from 'element-plus'
+const emit = defineEmits()
+const dataFormRefRef = useTemplateRef('dataFormRef')
+const menuListTreeRef = useTemplateRef('menuListTree')
+const store = useStore()
+const state = reactive({
+  visible: false,
+  menuList: [],
+  menuListVisible: false,
+  iconList: [] as string[],
+  iconListVisible: false,
+  submitLoading: false,
+  treeList: [],
+  cascaderProps: {
+    label: 'title',
+    value: 'label',
+    children: 'children'
+  },
+  dataForm: {
+    id: '',
+    isFrame: 0,
+    frameSrc: '',
+    type: 0,
+    name: '',
+    pid: '0',
+    parentName: '',
+    url: '',
+    isShow: 1,
+    isMainPage: 0,
+    sort: 0,
+    icon: '',
+    openStyle: 0,
+    outsideMenu: ''
+  }
+})
+// 监听isFrame
+watch(
+  () => state.dataForm.isFrame,
+  (newVal) => {
+    if (newVal === 0) {
+      state.dataForm.frameSrc = ''
+    }
+  }
+)
+const setupState = proxyRefs({
+  EpArrowDown,
+  EpCircleClose,
+  ...useView(state),
+  ...toRefs(state),
+  store
+})
+const query = toRef(setupState, 'query')
+const dataListSelectionChangeHandle = toRef(setupState, 'dataListSelectionChangeHandle')
+const dataListSortChangeHandle = toRef(setupState, 'dataListSortChangeHandle')
+const pageSizeChangeHandle = toRef(setupState, 'pageSizeChangeHandle')
+const pageCurrentChangeHandle = toRef(setupState, 'pageCurrentChangeHandle')
+const getDataList = toRef(setupState, 'getDataList')
+const addHandle = toRef(setupState, 'addHandle')
+const addOrUpdateHandle = toRef(setupState, 'addOrUpdateHandle')
+const deleteHandle = toRef(setupState, 'deleteHandle')
+const exportHandle = toRef(setupState, 'exportHandle')
+const closeCurrentTab = toRef(setupState, 'closeCurrentTab')
+const handleFlowRoute = toRef(setupState, 'handleFlowRoute')
+const flowDetailRoute = toRef(setupState, 'flowDetailRoute')
+const createdIsNeed = toRef(setupState, 'createdIsNeed')
+const activatedIsNeed = toRef(setupState, 'activatedIsNeed')
+const getDataListURL = toRef(setupState, 'getDataListURL')
+const getDataListIsPage = toRef(setupState, 'getDataListIsPage')
+const deleteURL = toRef(setupState, 'deleteURL')
+const deleteIsBatch = toRef(setupState, 'deleteIsBatch')
+const deleteIsBatchKey = toRef(setupState, 'deleteIsBatchKey')
+const exportURL = toRef(setupState, 'exportURL')
+const dataForm = toRef(setupState, 'dataForm')
+const dataList = toRef(setupState, 'dataList')
+const order = toRef(setupState, 'order')
+const orderField = toRef(setupState, 'orderField')
+const page = toRef(setupState, 'page')
+const limit = toRef(setupState, 'limit')
+const total = toRef(setupState, 'total')
+const dataListLoading = toRef(setupState, 'dataListLoading')
+const dataListSelections = toRef(setupState, 'dataListSelections')
+const addOrUpdateVisible = toRef(setupState, 'addOrUpdateVisible')
+const addOrUpdate = toRef(setupState, 'addOrUpdate')
+const elTable = toRef(setupState, 'elTable')
+const visible = toRef(setupState, 'visible')
+const menuList = toRef(setupState, 'menuList')
+const menuListVisible = toRef(setupState, 'menuListVisible')
+const iconList = toRef(setupState, 'iconList')
+const iconListVisible = toRef(setupState, 'iconListVisible')
+const submitLoading = toRef(setupState, 'submitLoading')
+const treeList = toRef(setupState, 'treeList')
+const cascaderProps = toRef(setupState, 'cascaderProps')
+function getUserList() {
+  const id = setupState.store.getters.getUserMsg.id
+  baseService.get(`/sys/getUserMenuTree?userId=${id}`).then((res) => {
+    if (res.success) {
+      setupState.treeList = res.data
+    }
+  })
+}
+function handle(value: any) {
+  if (!value) setupState.dataForm.outsideMenu = ''
+  else setupState.dataForm.outsideMenu = value[value.length - 1]
+}
+function init(patientRow?: IObject) {
+  setupState.visible = true
+  nextTick(() => {
+    dataFormRefRef.value.resetFields()
+    setupState.iconList = getIconList()
+    if (patientRow) {
+      setupState.dataForm.id = ''
+      setupState.dataForm.pid = patientRow.id
+      setupState.dataForm.parentName = patientRow.name
+    } else {
+      setupState.dataForm.parentName = '项目过程管控平台'
+    }
+    getMenuList().then(() => {
+      if (setupState.dataForm.id) {
+        getInfo()
       }
     })
-    // 监听isFrame
-    watch(
-      () => state.dataForm.isFrame,
-      (newVal) => {
-        if (newVal === 0) {
-          state.dataForm.frameSrc = ''
-        }
-      }
-    )
-
-    return {
-      EpArrowDown,
-      EpCircleClose, ...useView(state), ...toRefs(state), store }
-  },
-  computed: {
-    dataRule() {
-      return {
-        name: [{ required: true, message: '必填项不能为空', trigger: 'blur' }],
-        parentName: [{ required: true, message: '必填项不能为空', trigger: 'change' }]
-      }
+  })
+}
+// 获取菜单列表
+function getMenuList() {
+  return baseService.get('/sys/menu/list?type=0').then((res) => {
+    if (res.code !== 0) {
+      return ElMessage.error(res.msg)
     }
-  },
-  created() {
-    this.dataFormSubmitHandle = useDebounce(this.dataFormSubmitHandle)
-    this.getUserList()
-  },
-  methods: {
-    getUserList() {
-      const id = this.store.getters.getUserMsg.id
-      baseService.get(`/sys/getUserMenuTree?userId=${id}`).then((res) => {
-        if (res.success) {
-          this.treeList = res.data
+    setupState.menuList = res.data
+  })
+}
+// 获取信息
+function getInfo() {
+  baseService.get(`/sys/menu/${setupState.dataForm.id}`).then((res) => {
+    if (res.code !== 0) {
+      return ElMessage.error(res.msg)
+    }
+    setupState.dataForm = {
+      ...setupState.dataForm,
+      ...res.data
+    }
+    if (setupState.dataForm.pid === '0') {
+      return deptListTreeSetDefaultHandle()
+    }
+    menuListTreeRef.value.setCurrentKey(setupState.dataForm.pid)
+  })
+}
+// 上级菜单树, 设置默认值
+function deptListTreeSetDefaultHandle() {
+  setupState.dataForm.pid = '0'
+  setupState.dataForm.parentName = '项目过程管控平台'
+}
+// 上级菜单树, 选中
+function menuListTreeCurrentChangeHandle(data: IObject) {
+  setupState.dataForm.pid = data.id
+  setupState.dataForm.parentName = data.name
+  setupState.menuListVisible = false
+}
+// 图标, 选中
+function iconListCurrentChangeHandle(icon: string) {
+  setupState.dataForm.icon = icon
+  setupState.iconListVisible = false
+}
+function clearIconHandle() {
+  setupState.dataForm.icon = ''
+  setupState.iconListVisible = false
+}
+let dataFormSubmitHandle = function () {
+  if (setupState.submitLoading) {
+    return
+  }
+  dataFormRefRef.value.validate((valid: boolean) => {
+    if (!valid) {
+      return false
+    }
+    setupState.submitLoading = true
+    const url = setupState.dataForm.id ? '/sys/menu/update' : '/sys/menu'
+    baseService
+      .post(url, setupState.dataForm)
+      .then((res) => {
+        if (res.code !== 0) {
+          return ElMessage.error(res.msg)
         }
-      })
-    },
-    handle(value: any) {
-      if (!value) this.dataForm.outsideMenu = ''
-      else this.dataForm.outsideMenu = value[value.length - 1]
-    },
-    init(patientRow?: IObject) {
-      this.visible = true
-      this.$nextTick(() => {
-        this.$refs['dataFormRef'].resetFields()
-        this.iconList = getIconList()
-        if (patientRow) {
-          this.dataForm.id = ''
-          this.dataForm.pid = patientRow.id
-          this.dataForm.parentName = patientRow.name
-        } else {
-          this.dataForm.parentName = '项目过程管控平台'
-        }
-        this.getMenuList().then(() => {
-          if (this.dataForm.id) {
-            this.getInfo()
+        ElMessage({
+          message: '操作成功',
+          type: 'success',
+          duration: 500,
+          onClose: () => {
+            setupState.visible = false
+            emit('refreshDataList')
           }
         })
       })
-    },
-    // 获取菜单列表
-    getMenuList() {
-      return baseService.get('/sys/menu/list?type=0').then((res) => {
-        if (res.code !== 0) {
-          return this.$message.error(res.msg)
-        }
-        this.menuList = res.data
+      .finally(() => {
+        setupState.submitLoading = false
       })
-    },
-    // 获取信息
-    getInfo() {
-      baseService.get(`/sys/menu/${this.dataForm.id}`).then((res) => {
-        if (res.code !== 0) {
-          return this.$message.error(res.msg)
-        }
-        this.dataForm = {
-          ...this.dataForm,
-          ...res.data
-        }
-        if (this.dataForm.pid === '0') {
-          return this.deptListTreeSetDefaultHandle()
-        }
-        this.$refs.menuListTree.setCurrentKey(this.dataForm.pid)
-      })
-    },
-    // 上级菜单树, 设置默认值
-    deptListTreeSetDefaultHandle() {
-      this.dataForm.pid = '0'
-      this.dataForm.parentName = '项目过程管控平台'
-    },
-    // 上级菜单树, 选中
-    menuListTreeCurrentChangeHandle(data: IObject) {
-      this.dataForm.pid = data.id
-      this.dataForm.parentName = data.name
-      this.menuListVisible = false
-    },
-    // 图标, 选中
-    iconListCurrentChangeHandle(icon: string) {
-      this.dataForm.icon = icon
-      this.iconListVisible = false
-    },
-    clearIconHandle() {
-      this.dataForm.icon = ''
-      this.iconListVisible = false
-    },
-    // 表单提交
-    dataFormSubmitHandle() {
-      if (this.submitLoading) {
-        return
+  })
+}
+const dataRule = computed(() => {
+  return {
+    name: [
+      {
+        required: true,
+        message: '必填项不能为空',
+        trigger: 'blur'
       }
-      this.$refs['dataFormRef'].validate((valid: boolean) => {
-        if (!valid) {
-          return false
-        }
-        this.submitLoading = true
-        const url = this.dataForm.id ? '/sys/menu/update' : '/sys/menu'
-        baseService
-          .post(url, this.dataForm)
-          .then((res) => {
-            if (res.code !== 0) {
-              return this.$message.error(res.msg)
-            }
-            this.$message({
-              message: '操作成功',
-              type: 'success',
-              duration: 500,
-              onClose: () => {
-                this.visible = false
-                this.$emit('refreshDataList')
-              }
-            })
-          })
-          .finally(() => {
-            this.submitLoading = false
-          })
-      })
-    }
+    ],
+    parentName: [
+      {
+        required: true,
+        message: '必填项不能为空',
+        trigger: 'change'
+      }
+    ]
   }
+})
+;(() => {
+  dataFormSubmitHandle = useDebounce(dataFormSubmitHandle)
+  getUserList()
+})()
+defineExpose({
+  EpArrowDown,
+  EpCircleClose,
+  query,
+  dataListSelectionChangeHandle,
+  dataListSortChangeHandle,
+  pageSizeChangeHandle,
+  pageCurrentChangeHandle,
+  getDataList,
+  addHandle,
+  addOrUpdateHandle,
+  deleteHandle,
+  exportHandle,
+  closeCurrentTab,
+  handleFlowRoute,
+  flowDetailRoute,
+  createdIsNeed,
+  activatedIsNeed,
+  getDataListURL,
+  getDataListIsPage,
+  deleteURL,
+  deleteIsBatch,
+  deleteIsBatchKey,
+  exportURL,
+  dataForm,
+  dataList,
+  order,
+  orderField,
+  page,
+  limit,
+  total,
+  dataListLoading,
+  dataListSelections,
+  addOrUpdateVisible,
+  addOrUpdate,
+  elTable,
+  visible,
+  menuList,
+  menuListVisible,
+  iconList,
+  iconListVisible,
+  submitLoading,
+  treeList,
+  cascaderProps,
+  store,
+  getUserList,
+  handle,
+  init,
+  getMenuList,
+  getInfo,
+  deptListTreeSetDefaultHandle,
+  menuListTreeCurrentChangeHandle,
+  iconListCurrentChangeHandle,
+  clearIconHandle,
+  dataFormSubmitHandle,
+  dataRule
 })
 </script>
 

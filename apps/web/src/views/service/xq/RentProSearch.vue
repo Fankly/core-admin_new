@@ -1,8 +1,4 @@
-<script lang="ts">
-export default {
-  name: '/service/xq/RentProSearch'
-}
-</script>
+
 
 <script setup lang="ts">
 import { getDataByParent, getPublicCodeList } from '@/api/common'
@@ -18,6 +14,9 @@ import { ElMessage } from 'element-plus'
 import { nextTick, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from '@/store/business'
+defineOptions({
+  name: '/service/xq/RentProSearch'
+})
 
 const proTableRef = ref<InstanceType<typeof ProTable>>()
 const userInfOther = ref()
@@ -82,7 +81,6 @@ const getXmlbData = async () => {
     xmlbList.value = res.data
   }
 }
-
 const getPublicCode = async () => {
   try {
     const res = await getDataByParent('QMYS_ZZJG')
@@ -142,15 +140,36 @@ const getDataList = (params: any) => {
 const initParam: any = ref()
 // 表格配置项
 const columns = reactive<any[]>([
-  { type: 'selection', width: 80 },
-  { type: 'index', width: 80, label: '序号' },
-  { prop: 'tjsj', width: 200, label: '发起时间' },
-  { prop: 'spsj', width: 200, label: '通过时间' },
-  
+  {
+    type: 'selection',
+    width: 80
+  },
+  {
+    type: 'index',
+    width: 80,
+    label: '序号'
+  },
+  {
+    prop: 'tjsj',
+    width: 200,
+    label: '发起时间'
+  },
+  {
+    prop: 'spsj',
+    width: 200,
+    label: '通过时间'
+  },
   {
     prop: 'zts',
     label: '状态',
-    search: { el: 'select', order: 5, props: { multiple: true, collapseTags: true } },
+    search: {
+      el: 'select',
+      order: 5,
+      props: {
+        multiple: true,
+        collapseTags: true
+      }
+    },
     enum: publicCodeList['ZLYS_ZLBB_ZT'],
     fieldNames: {
       label: 'name',
@@ -161,19 +180,44 @@ const columns = reactive<any[]>([
   {
     prop: 'tjsj',
     label: '发起时间',
-    search: { el: 'date-picker', order: 7, props: { type: 'daterange', valueFormat: 'YYYY-MM-DD', multiple: true, collapseTags: true } },
+    search: {
+      el: 'date-picker',
+      order: 7,
+      props: {
+        type: 'daterange',
+        valueFormat: 'YYYY-MM-DD',
+        multiple: true,
+        collapseTags: true
+      }
+    },
     isShow: false
   },
   {
     prop: 'spsj',
     label: '通过时间',
-    search: { el: 'date-picker', order: 8, props: { type: 'daterange', valueFormat: 'YYYY-MM-DD', multiple: true, collapseTags: true } },
+    search: {
+      el: 'date-picker',
+      order: 8,
+      props: {
+        type: 'daterange',
+        valueFormat: 'YYYY-MM-DD',
+        multiple: true,
+        collapseTags: true
+      }
+    },
     isShow: false
   },
   {
     prop: 'xmlb',
     label: '项目类别',
-    search: { el: 'select',  order: 9, props: { multiple: true, collapseTags: true } },
+    search: {
+      el: 'select',
+      order: 9,
+      props: {
+        multiple: true,
+        collapseTags: true
+      }
+    },
     enum: xmlbList,
     fieldNames: {
       label: 'name',
@@ -181,11 +225,31 @@ const columns = reactive<any[]>([
     },
     isShow: false
   },
-  { prop: 'yssxName', width: 200, label: '预算事项' },
-  { prop: 'ztName', width: 200, label: '状态' },
-  { prop: 'protypeName', width: 200, label: '项目类别' },
-  { prop: 'sdkbm', width: 200, label: '省对口专业部门' },
-  { prop: 'sgbm', width: 200, label: '省业务归口部门' },
+  {
+    prop: 'yssxName',
+    width: 200,
+    label: '预算事项'
+  },
+  {
+    prop: 'ztName',
+    width: 200,
+    label: '状态'
+  },
+  {
+    prop: 'protypeName',
+    width: 200,
+    label: '项目类别'
+  },
+  {
+    prop: 'sdkbm',
+    width: 200,
+    label: '省对口专业部门'
+  },
+  {
+    prop: 'sgbm',
+    width: 200,
+    label: '省业务归口部门'
+  },
   {
     prop: 'sgbmId',
     width: 200,
@@ -216,8 +280,16 @@ const columns = reactive<any[]>([
     },
     isShow: false
   },
-  { prop: 'zlxmZysgyj', label: '专业审核意见（同意/不同意）', width: 200 },
-  { prop: 'zlxmShly', label: '审核理由', width: 180 },
+  {
+    prop: 'zlxmZysgyj',
+    label: '专业审核意见（同意/不同意）',
+    width: 200
+  },
+  {
+    prop: 'zlxmShly',
+    label: '审核理由',
+    width: 180
+  },
   {
     prop: 'requestor',
     label: '租赁单位（承租人）',
@@ -264,13 +336,41 @@ const columns = reactive<any[]>([
       return formatNumValue(scope.row['allInvestTax'], 2)
     }
   },
-  { prop: 'htqx', label: '合同期限', width: 120 },
-  { prop: 'prjSdate', label: '起租日', width: 120 },
-  { prop: 'prjEdate', label: '结束日', width: 120 },
-  { prop: 'jcyj', label: '决策依据', width: 120 },
-  { prop: 'czfsx', label: '是否江苏公司系统内租赁', width: 180 },
-  { prop: 'xmssr', label: '填报人', width: 120 },
-  { prop: 'phoneNum', label: '联系方式', width: 160 }
+  {
+    prop: 'htqx',
+    label: '合同期限',
+    width: 120
+  },
+  {
+    prop: 'prjSdate',
+    label: '起租日',
+    width: 120
+  },
+  {
+    prop: 'prjEdate',
+    label: '结束日',
+    width: 120
+  },
+  {
+    prop: 'jcyj',
+    label: '决策依据',
+    width: 120
+  },
+  {
+    prop: 'czfsx',
+    label: '是否江苏公司系统内租赁',
+    width: 180
+  },
+  {
+    prop: 'xmssr',
+    label: '填报人',
+    width: 120
+  },
+  {
+    prop: 'phoneNum',
+    label: '联系方式',
+    width: 160
+  }
 ])
 const store = useStore()
 const route = useRoute()
@@ -293,15 +393,14 @@ const userInfo = ref<{
   specialorgcode: '',
   roleId: ''
 })
-
 const getRoleHandle = async () => {
   try {
     const isQuery = userDialogRef.value.isQuery
-    userInfOther.value = { ...userDialogRef.value.userMsg }
+    userInfOther.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
-      const flagData = await baseService.post(
-        `/workflow/cbxqsh/getFqzz?spOrgId=${userInfOther.value.specialorgid}`
-      )
+      const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfOther.value.specialorgid}`)
       if (flagData.success && flagData.data) {
         const userInfoOthers = {
           deptId: userInfOther.value.specialorgid,
@@ -324,7 +423,6 @@ const getRoleHandle = async () => {
     console.error(e)
   }
 }
-
 onMounted(async () => {
   const isRoel = await useUser('getZlGlobalInfo')
   getPublicCode()

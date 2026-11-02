@@ -107,7 +107,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "materialTaskDetailSearch" })
 import { inject, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useStore } from '@/store/business'
@@ -118,6 +117,7 @@ import ElTreeSelect from '@/components/ElTreeSelect'
 import { CrudTableRefInjectionKey } from '@/views/suzhou/common/types/crud'
 import type { CrudQueryParams } from '@/views/suzhou/common/types/crud'
 import { MATERIAL_TASK_DETAIL_STATUS_CODE, MATERIAL_JUDGMENT_DETAIL_CONFIRM_IS_GDZC_COM } from '@/views/suzhou/materialTaskDetail/config'
+defineOptions({ name: "materialTaskDetailSearch" })
 
 const store = useStore()
 const materialTableRef = inject(CrudTableRefInjectionKey, ref())

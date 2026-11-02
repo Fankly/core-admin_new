@@ -38,7 +38,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/service/xmcs/csqrReviewWatch" })
 import { onMounted, ref } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import { reviewGetBindXmByUser, reviewWhyj } from '@/api/service/xmcs/index'
@@ -51,6 +50,7 @@ import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { VXETable } from 'vxe-table'
 import modalWatch from '@/views/service/xmcs/components/modalWatch.vue'
 import searchModal from './components/searchModal.vue'
+defineOptions({ name: "/service/xmcs/csqrReviewWatch" })
 
 const userDialogRef = ref()
 const isShowPage = ref(false)

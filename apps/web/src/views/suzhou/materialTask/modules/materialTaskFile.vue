@@ -44,13 +44,13 @@
 
 <script setup lang="ts">
 import { Delete as EpDelete, Document as EpDocument, Download as EpDownload } from '@element-plus/icons-vue'
-
-defineOptions({ name: "materialTaskFile" })
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import VXETable from 'vxe-table'
 import { apiExporFile } from '@/utils/export'
 import { getMaterialTaskFilePage, getMaterialTaskFileUpload, getMaterialTaskFileDownload, getMaterialTaskFileRemove } from '@/api/suzhou/materialTask'
+defineOptions({ name: "materialTaskFile" })
+
 interface OpenParams {
   detailId: string
   onSuccess?: () => void | Promise<void>

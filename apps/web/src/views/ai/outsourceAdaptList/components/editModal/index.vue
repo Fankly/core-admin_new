@@ -91,11 +91,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'outsourceAdaptListEditModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -104,6 +99,9 @@ import { editOutsourceAdaptList } from '@/api/ai/outsourceAdaptList'
 import type { OutsourceAdaptListEditParams } from '@/api/ai/outsourceAdaptList'
 import { getCommonDict } from '@/api/common'
 import { VXETable } from 'vxe-table'
+defineOptions({
+  name: 'outsourceAdaptListEditModal'
+})
 
 /** 业务大类 / 小类公共代码（级联：大类 getCommonDict(code)，小类 getCommonDict(code, pCode)） */
 const BIZ_CAT_CODE = 'OUTSOURCE_RULE_KB_BIZ_CAT'
@@ -119,7 +117,6 @@ interface ModalParams {
   type: string
   searchParams: Partial<OutsourceAdaptListEditParams>
 }
-
 interface EditFormData {
   id?: string
   seqNo: string
@@ -128,18 +125,20 @@ interface EditFormData {
   prohibitedBiz: string
   allowedAuxBiz: string
 }
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
 const modalTitle = ref('')
 const bizMajorCatList = ref<CodeItem[]>([])
 const bizSubCatList = ref<CodeItem[]>([])
-
 const createEmptyForm = (): EditFormData => ({
   id: undefined,
   seqNo: '',
@@ -148,9 +147,7 @@ const createEmptyForm = (): EditFormData => ({
   prohibitedBiz: '',
   allowedAuxBiz: ''
 })
-
 const formData = ref<EditFormData>(createEmptyForm())
-
 const handleClose = () => {
   ruleFormRef.value?.resetFields()
   formData.value = createEmptyForm()
@@ -195,12 +192,10 @@ const handleMajorCatChange = async (val: string) => {
   formData.value.bizSubCat = ''
   await fetchSubOptions(val || '')
 }
-
 const handleSave = () => {
   if (loading.value) return
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -212,7 +207,6 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
       const payload: OutsourceAdaptListEditParams = {
@@ -228,7 +222,9 @@ const handleSave = () => {
       const res = await editOutsourceAdaptList(payload)
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -240,7 +236,6 @@ const handleSave = () => {
     }
   })
 }
-
 const acceptParams = async (params: ModalParams) => {
   modalTitle.value = params.type
   formData.value = {
@@ -264,8 +259,9 @@ const acceptParams = async (params: ModalParams) => {
     loading.value = false
   }
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

@@ -111,15 +111,11 @@
 
 <script setup lang="ts">
 import { ArrowDown as EpArrowDown } from '@element-plus/icons-vue'
-
-import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/service/approval/cityManager/index" })
+import { CurrentUserRoleInjectionKey, PermissionInjectionKey } from '@/components/UserRoleSelector/interface'
 import { computed, defineAsyncComponent, nextTick, onMounted, provide, reactive, ref } from 'vue'
 import { ElForm, ElMessage, ElMessageBox } from 'element-plus'
 import type { VxeGridInstance, VxeGridProps } from 'vxe-table'
 import UserRoleSelector from '@/components/UserRoleSelector/index.vue'
-import { PermissionInjectionKey } from '@/components/UserRoleSelector/interface'
 import type { UserRole } from '@/components/UserRoleSelector/interface'
 import { getBmInfo, getPublicData } from '@/api/common'
 import { getLhhsMeetingPageData } from '@/api/service/IhhsMeeting/approval/cityLhhsMeeting'
@@ -131,29 +127,29 @@ import OnlinePreReviewOpinionModal from '@/views/service/approval/cityManager/co
 import OfflineReviewOpinionModal from '@/views/service/approval/cityManager/components/OfflineReviewOpinionModal/index.vue'
 import AutoMeetingModal from '@/views/service/approval/cityManager/components/AutoMeetingModal/index.vue'
 import { REVIEW_MODE_ASSIGNED_CODE, useReviewModeCode } from '@/hooks/useReviewModeCode'
+defineOptions({
+  name: '/service/approval/cityManager/index'
+})
 
 const ExpertManagementModal = defineAsyncComponent(
   () => import('@/views/service/approval/provinceLhhsMeeting/components/expertManagementModal/index.vue')
 )
-
 const TaskAssignmentModal = defineAsyncComponent(
   () => import('@/views/service/approval/provinceLhhsMeeting/components/taskAssignmentModal/index.vue')
 )
-
-const MeetingStatusModal = defineAsyncComponent(() => import('@/views/service/approval/cityManager/components/MeetingStatusModal/index.vue'))
-
+const MeetingStatusModal = defineAsyncComponent(
+  () => import('@/views/service/approval/cityManager/components/MeetingStatusModal/index.vue')
+)
 interface OperationDropdown {
   label: string
   permission: string
   children: OperationDropdownItem[]
 }
-
 interface OperationDropdownItem {
   label: string
   permission: string
   permissions?: string[]
 }
-
 const PermissionCode = {
   meetingManage: 'MEETING_MANAGE',
   meetingStatusUpdate: 'MEET_STATUS_UP',
@@ -169,27 +165,43 @@ const PermissionCode = {
   attachmentManage: 'ATTACH_MANAGE',
   attachmentReplace: 'ATTACH_REPL'
 } as const
-
 const operationDropdowns: OperationDropdown[] = [
   {
     label: '会议管理',
     permission: PermissionCode.meetingManage,
     children: [
-      { label: '会议状态更新', permission: PermissionCode.meetingStatusUpdate },
-      { label: '会议分工调整', permission: PermissionCode.meetingAssignmentAdjust },
-      { label: '自动纳会', permission: PermissionCode.autoMeeting }
+      {
+        label: '会议状态更新',
+        permission: PermissionCode.meetingStatusUpdate
+      },
+      {
+        label: '会议分工调整',
+        permission: PermissionCode.meetingAssignmentAdjust
+      },
+      {
+        label: '自动纳会',
+        permission: PermissionCode.autoMeeting
+      }
     ]
   },
   {
     label: '评审管理',
     permission: PermissionCode.reviewManage,
-    children: [{ label: '评审专家调整', permission: PermissionCode.reviewExpertAdjust }]
+    children: [
+      {
+        label: '评审专家调整',
+        permission: PermissionCode.reviewExpertAdjust
+      }
+    ]
   },
   {
     label: '意见管理',
     permission: PermissionCode.opinionManage,
     children: [
-      { label: '修改线上预审意见', permission: PermissionCode.onlinePreReviewOpinionEdit },
+      {
+        label: '修改线上预审意见',
+        permission: PermissionCode.onlinePreReviewOpinionEdit
+      },
       {
         label: '修改线下会审及终评意见',
         permission: PermissionCode.offlineFinalReviewOpinionEdit,
@@ -200,12 +212,15 @@ const operationDropdowns: OperationDropdown[] = [
   {
     label: '附件管理',
     permission: PermissionCode.attachmentManage,
-    children: [{ label: '附件替换', permission: PermissionCode.attachmentReplace }]
+    children: [
+      {
+        label: '附件替换',
+        permission: PermissionCode.attachmentReplace
+      }
+    ]
   }
 ]
-
 type MeetingRow = Record<string, any>
-
 const userRoleSelectorRef = ref<InstanceType<typeof UserRoleSelector>>()
 const searchFormRef = ref<InstanceType<typeof ElForm>>()
 const gridRef = ref<VxeGridInstance>()
@@ -217,7 +232,6 @@ const reviewExpertModalRef = ref<InstanceType<typeof ReviewExpertModal>>()
 const onlinePreReviewOpinionModalRef = ref<InstanceType<typeof OnlinePreReviewOpinionModal>>()
 const offlineReviewOpinionModalRef = ref<InstanceType<typeof OfflineReviewOpinionModal>>()
 const autoMeetingModalRef = ref<InstanceType<typeof AutoMeetingModal>>()
-
 const isShowPage = ref(false)
 const loading = ref(false)
 const tableData = ref<MeetingRow[]>([])
@@ -238,16 +252,13 @@ const bmInfo = ref({
   name: '',
   code: ''
 })
-
 const hasOperationPermission = (permission: string) => {
   return checkPermission(userRoleSelectorRef.value?.permissions || [], permission)
 }
-
 const hasOperationItemPermission = (item: OperationDropdownItem) => {
   const permissions = item.permissions || [item.permission]
   return permissions.some((permission) => hasOperationPermission(permission))
 }
-
 const visibleOperationDropdowns = computed(() => {
   return operationDropdowns
     .filter((dropdown) => hasOperationPermission(dropdown.permission))
@@ -257,7 +268,6 @@ const visibleOperationDropdowns = computed(() => {
     }))
     .filter((dropdown) => dropdown.children.length > 0)
 })
-
 const currentUserRole = ref<UserRole>({
   bmName: '',
   dwName: '',
@@ -268,7 +278,6 @@ const currentUserRole = ref<UserRole>({
   specialOrgCode: '',
   spRoleId: ''
 })
-
 const userInfo = computed(() => ({
   deptId: currentUserRole.value.bmId,
   deptName: currentUserRole.value.bmName,
@@ -279,57 +288,222 @@ const userInfo = computed(() => ({
   specialorgcode: currentUserRole.value.specialOrgCode,
   roleId: currentUserRole.value.roleId
 }))
-
 const searchForm = reactive<Record<string, any>>({
   meetingName: '',
   status: '',
   meetingCode: ''
 })
-
 const page = reactive({
   page: 1,
   limit: 20,
   total: 0
 })
-
-const centerConfig = { align: 'center', headerAlign: 'center' } as const
+const centerConfig = {
+  align: 'center',
+  headerAlign: 'center'
+} as const
 const gridOptions = reactive<VxeGridProps<MeetingRow>>({
   border: true,
   height: '100%',
   showOverflow: true,
   showHeaderOverflow: true,
-  checkboxConfig: { trigger: 'row', highlight: true, range: true },
-  rowConfig: { isHover: true, height: 32 },
-  columnConfig: { resizable: true },
+  checkboxConfig: {
+    trigger: 'row',
+    highlight: true,
+    range: true
+  },
+  rowConfig: {
+    isHover: true,
+    height: 32
+  },
+  columnConfig: {
+    resizable: true
+  },
   columns: [
-    { type: 'checkbox', width: 50, fixed: 'left', ...centerConfig },
-    { type: 'seq', width: 60, title: '序号', fixed: 'left', ...centerConfig },
-    { field: 'meetingName', title: '会议名称', width: 320, fixed: 'left', showOverflow: true, ...centerConfig },
-    { field: 'status', title: '会议状态', width: 110, slots: { default: 'statusSlot' }, ...centerConfig },
-    { field: 'meetingCode', title: '会议编号', width: 130, ...centerConfig },
-    { field: 'bmName', title: '专业部门', width: 150, ...centerConfig },
-    { field: 'sbje', title: '初始申报金额(万元)', width: 150, align: 'right', headerAlign: 'center', slots: { default: 'amountSlot' } },
-    { field: 'nhje', title: '首次纳会金额（万元）', width: 150, align: 'right', headerAlign: 'center', slots: { default: 'amountSlot' } },
-    { field: 'sdje', title: '审定金额(万元)', width: 140, align: 'right', headerAlign: 'center', slots: { default: 'amountSlot' } },
-    { field: 'hjje', title: '会审核减（万元）', width: 140, align: 'right', headerAlign: 'center', slots: { default: 'amountSlot' } },
-    { field: 'xmNum', title: '评审项目数量', width: 110, ...centerConfig },
-    { field: 'sumJe', title: '评审项目金额(万元)', width: 150, align: 'right', headerAlign: 'center', slots: { default: 'amountSlot' } },
-    { field: 'zjNum', title: '评审专家人数', width: 110, ...centerConfig },
-    { field: 'psms', title: '评审模式', width: 100, slots: { default: 'psmsSlot' }, ...centerConfig },
-    { field: 'pspcName', title: '评审批次', width: 320, showOverflow: true, ...centerConfig },
-    { field: 'meetingAddr', title: '会议地点', width: 180, showOverflow: true, ...centerConfig },
-    { field: 'organizer', title: '组织人', width: 90, ...centerConfig },
-    { field: 'phone', title: '组织电话', width: 120, ...centerConfig },
-    { field: 'yslyName', title: '预算来源', width: 110, ...centerConfig },
-    { field: 'lhhsSkTime', title: '需求申请与提报截止日期', width: 190, ...centerConfig },
-    { field: 'lhhsOneStartTime', title: '线上预审开始日期', width: 170, ...centerConfig },
-    { field: 'lhhsOneEndTime', title: '线上预审结束日期', width: 170, ...centerConfig },
-    { field: 'lhhsTwoStartTime', title: '线下会审开始日期', width: 170, ...centerConfig },
-    { field: 'lhhsTwoEndTime', title: '线下会审结束日期', width: 170, ...centerConfig },
-    { field: 'majorName', title: '评审专业', width: 220, showOverflow: true, ...centerConfig }
+    {
+      type: 'checkbox',
+      width: 50,
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      type: 'seq',
+      width: 60,
+      title: '序号',
+      fixed: 'left',
+      ...centerConfig
+    },
+    {
+      field: 'meetingName',
+      title: '会议名称',
+      width: 320,
+      fixed: 'left',
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'status',
+      title: '会议状态',
+      width: 110,
+      slots: {
+        default: 'statusSlot'
+      },
+      ...centerConfig
+    },
+    {
+      field: 'meetingCode',
+      title: '会议编号',
+      width: 130,
+      ...centerConfig
+    },
+    {
+      field: 'bmName',
+      title: '专业部门',
+      width: 150,
+      ...centerConfig
+    },
+    {
+      field: 'sbje',
+      title: '初始申报金额(万元)',
+      width: 150,
+      align: 'right',
+      headerAlign: 'center',
+      slots: {
+        default: 'amountSlot'
+      }
+    },
+    {
+      field: 'nhje',
+      title: '首次纳会金额（万元）',
+      width: 150,
+      align: 'right',
+      headerAlign: 'center',
+      slots: {
+        default: 'amountSlot'
+      }
+    },
+    {
+      field: 'sdje',
+      title: '审定金额(万元)',
+      width: 140,
+      align: 'right',
+      headerAlign: 'center',
+      slots: {
+        default: 'amountSlot'
+      }
+    },
+    {
+      field: 'hjje',
+      title: '会审核减（万元）',
+      width: 140,
+      align: 'right',
+      headerAlign: 'center',
+      slots: {
+        default: 'amountSlot'
+      }
+    },
+    {
+      field: 'xmNum',
+      title: '评审项目数量',
+      width: 110,
+      ...centerConfig
+    },
+    {
+      field: 'sumJe',
+      title: '评审项目金额(万元)',
+      width: 150,
+      align: 'right',
+      headerAlign: 'center',
+      slots: {
+        default: 'amountSlot'
+      }
+    },
+    {
+      field: 'zjNum',
+      title: '评审专家人数',
+      width: 110,
+      ...centerConfig
+    },
+    {
+      field: 'psms',
+      title: '评审模式',
+      width: 100,
+      slots: {
+        default: 'psmsSlot'
+      },
+      ...centerConfig
+    },
+    {
+      field: 'pspcName',
+      title: '评审批次',
+      width: 320,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'meetingAddr',
+      title: '会议地点',
+      width: 180,
+      showOverflow: true,
+      ...centerConfig
+    },
+    {
+      field: 'organizer',
+      title: '组织人',
+      width: 90,
+      ...centerConfig
+    },
+    {
+      field: 'phone',
+      title: '组织电话',
+      width: 120,
+      ...centerConfig
+    },
+    {
+      field: 'yslyName',
+      title: '预算来源',
+      width: 110,
+      ...centerConfig
+    },
+    {
+      field: 'lhhsSkTime',
+      title: '需求申请与提报截止日期',
+      width: 190,
+      ...centerConfig
+    },
+    {
+      field: 'lhhsOneStartTime',
+      title: '线上预审开始日期',
+      width: 170,
+      ...centerConfig
+    },
+    {
+      field: 'lhhsOneEndTime',
+      title: '线上预审结束日期',
+      width: 170,
+      ...centerConfig
+    },
+    {
+      field: 'lhhsTwoStartTime',
+      title: '线下会审开始日期',
+      width: 170,
+      ...centerConfig
+    },
+    {
+      field: 'lhhsTwoEndTime',
+      title: '线下会审结束日期',
+      width: 170,
+      ...centerConfig
+    },
+    {
+      field: 'majorName',
+      title: '评审专业',
+      width: 220,
+      showOverflow: true,
+      ...centerConfig
+    }
   ]
 })
-
 provide(CurrentUserRoleInjectionKey, currentUserRole)
 provide(PermissionInjectionKey, {
   get permissions() {
@@ -339,7 +513,6 @@ provide(PermissionInjectionKey, {
     return userRoleSelectorRef.value?.loading || false
   }
 })
-
 const statusMap = computed<Record<string, any>>(() => {
   const map: Record<string, any> = {}
   statusEnum.value.forEach((item) => {
@@ -347,7 +520,6 @@ const statusMap = computed<Record<string, any>>(() => {
   })
   return map
 })
-
 const getStatusTag = (status: unknown) => {
   const item = statusMap.value[String(status)] || {}
   const index = statusEnum.value.findIndex((statusItem) => String(statusItem.code) === String(status))
@@ -357,22 +529,18 @@ const getStatusTag = (status: unknown) => {
     type: item.tagType || tagTypes[index] || 'info'
   }
 }
-
 const formatAmount = (value: unknown) => {
   if (value === undefined || value === null || value === '') return '-'
   return formatNumValue(value as string | number, 6)
 }
-
 const formatMeetingAmount = (row: MeetingRow, field: string) => {
-  const value = field === 'sbje' || field === 'sdje' ? row[field] ?? row.sumJe : row[field]
+  const value = field === 'sbje' || field === 'sdje' ? (row[field] ?? row.sumJe) : row[field]
   return formatAmount(value)
 }
-
 const clearSelect = () => {
   selectedRows.value = []
   gridRef.value?.clearCheckboxRow()
 }
-
 const loadMeetingList = async () => {
   loading.value = true
   try {
@@ -400,12 +568,10 @@ const loadMeetingList = async () => {
     loading.value = false
   }
 }
-
 const searchMainPage = () => {
   page.page = 1
   loadMeetingList()
 }
-
 const resetSearch = () => {
   searchFormRef.value?.resetFields()
   Object.keys(searchForm).forEach((key) => {
@@ -415,29 +581,24 @@ const resetSearch = () => {
   page.limit = 20
   loadMeetingList()
 }
-
 const pageChangeHandle = (currentPage: number) => {
   page.page = currentPage
   loadMeetingList()
 }
-
 const limitChangeHandle = (limit: number) => {
   page.page = 1
   page.limit = limit
   loadMeetingList()
 }
-
 const handleSelection = ({ records }: any) => {
   selectedRows.value = records || []
 }
-
 const handleCellClick = async ({ row, column }: any) => {
   if (column.type === 'checkbox') return
   await gridRef.value?.clearCheckboxRow()
   await gridRef.value?.setCheckboxRow(row, true)
   selectedRows.value = [row]
 }
-
 const handleOperationClick = (permission: string) => {
   if (permission === PermissionCode.meetingStatusUpdate) {
     openMeetingStatusModal()
@@ -463,7 +624,6 @@ const handleOperationClick = (permission: string) => {
     openOfflineReviewOpinionModal()
   }
 }
-
 const openMeetingStatusModal = () => {
   if (selectedRows.value.length === 0) {
     ElMessage.warning('请选择需要更新状态的会议')
@@ -471,7 +631,6 @@ const openMeetingStatusModal = () => {
   }
   meetingStatusModalRef.value?.acceptParams()
 }
-
 const handleUpdateMeetingStatus = async (status: string) => {
   meetingStatusModalRef.value?.setLoading(true)
   try {
@@ -495,7 +654,6 @@ const handleUpdateMeetingStatus = async (status: string) => {
     meetingStatusModalRef.value?.setLoading(false)
   }
 }
-
 const managerAssignmentApis = {
   deleteExpertProject,
   psfgData: (params: any) => {
@@ -509,7 +667,6 @@ const managerAssignmentApis = {
     })
   }
 }
-
 const choosePsms = () => {
   if (selectedRows.value.length === 0) {
     ElMessage.warning('请至少选择一条数据进行评审分工操作!')
@@ -530,7 +687,6 @@ const choosePsms = () => {
   meetingId.value = row.meetingId
   psms.value = row.psms || ''
 }
-
 const showModal = (val: string) => {
   const value = getReviewModeUpdateMessage(val)
   const text = psms.value ? (val === psms.value ? '当前评审模式保持不变，请确认。' : '是否调整评审模式？') : '是否选择当前评审模式？'
@@ -566,7 +722,6 @@ const showModal = (val: string) => {
       ElMessage.error((error as Error).message || String(error))
     })
 }
-
 const showAssigned = (currentMeetingId: string) => {
   expertManagementModalRef.value?.acceptParams({
     title: '项目分配',
@@ -580,7 +735,6 @@ const showAssigned = (currentMeetingId: string) => {
     assignmentApis: managerAssignmentApis
   })
 }
-
 const openReviewExpertModal = () => {
   if (selectedRows.value.length === 0) {
     ElMessage.warning('请选择一条数据进行评审专家调整操作!')
@@ -590,7 +744,9 @@ const openReviewExpertModal = () => {
     ElMessage.warning('请选择一条数据进行评审专家调整操作!')
     return
   }
-  const row = { ...selectedRows.value[0] }
+  const row = {
+    ...selectedRows.value[0]
+  }
   const btnPermissions = row['status'] === '00' ? ['ADD', 'DELETE', 'EXPORT'] : ['EXPORT']
   reviewExpertModalRef.value?.acceptParams({
     search: loadMeetingList,
@@ -601,7 +757,6 @@ const openReviewExpertModal = () => {
     btnPermissions
   })
 }
-
 const openOnlinePreReviewOpinionModal = () => {
   if (selectedRows.value.length === 0) {
     ElMessage.warning('请选择一条数据进行线上预审意见修改操作!')
@@ -611,7 +766,9 @@ const openOnlinePreReviewOpinionModal = () => {
     ElMessage.warning('请选择一条数据进行线上预审意见修改操作!')
     return
   }
-  const row = { ...selectedRows.value[0] }
+  const row = {
+    ...selectedRows.value[0]
+  }
   if (!row.meetingId) {
     ElMessage.warning('未获取到会议ID')
     return
@@ -621,7 +778,6 @@ const openOnlinePreReviewOpinionModal = () => {
     userInfo: userInfo.value
   })
 }
-
 const openOfflineReviewOpinionModal = () => {
   const operationName = '线下会审及终评意见'
   if (selectedRows.value.length === 0) {
@@ -632,7 +788,9 @@ const openOfflineReviewOpinionModal = () => {
     ElMessage.warning(`请选择一条数据进行${operationName}修改操作!`)
     return
   }
-  const row = { ...selectedRows.value[0] }
+  const row = {
+    ...selectedRows.value[0]
+  }
   if (!row.meetingId) {
     ElMessage.warning('未获取到会议ID')
     return
@@ -642,7 +800,6 @@ const openOfflineReviewOpinionModal = () => {
     row
   })
 }
-
 const openAutoMeetingModal = () => {
   if (selectedRows.value.length === 0) {
     ElMessage.warning('请选择一条数据进行自动纳会操作!')
@@ -652,7 +809,9 @@ const openAutoMeetingModal = () => {
     ElMessage.warning('请选择一条数据进行自动纳会操作!')
     return
   }
-  const row = { ...selectedRows.value[0] }
+  const row = {
+    ...selectedRows.value[0]
+  }
   if (!row.meetingId) {
     ElMessage.warning('未获取到会议ID')
     return
@@ -663,7 +822,6 @@ const openAutoMeetingModal = () => {
     search: loadMeetingList
   })
 }
-
 const getPublicCodeData = async () => {
   try {
     const res = await getPublicData('LHHS_MEETING_STATUS')
@@ -677,7 +835,6 @@ const getPublicCodeData = async () => {
     ElMessage.error((error as Error).message)
   }
 }
-
 const getBmInfoData = async (bmId: string) => {
   try {
     const res = await getBmInfo(bmId)
@@ -687,7 +844,6 @@ const getBmInfoData = async (bmId: string) => {
     ElMessage.error((error as Error).message)
   }
 }
-
 const getRoleHandle = async () => {
   if (!userRoleSelectorRef.value) return
   isShowPage.value = Boolean(userRoleSelectorRef.value.canRender)
@@ -695,7 +851,6 @@ const getRoleHandle = async () => {
   await getBmInfoData(userInfo.value.deptId)
   await loadMeetingList()
 }
-
 const psmsView = async (row: any) => {
   if (!getPsmsName(row.psms)) {
     return ElMessage.warning('暂未选择评审模式，请选择后查看。')
@@ -712,11 +867,9 @@ const psmsView = async (row: any) => {
     assignmentApis: managerAssignmentApis
   })
 }
-
 const searchData = () => {
   expertManagementModalRef.value?.isRoleSearch()
 }
-
 onMounted(async () => {
   await Promise.all([getPublicCodeData(), loadReviewModeOptions()])
   await nextTick()

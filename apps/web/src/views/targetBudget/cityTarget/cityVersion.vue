@@ -26,14 +26,18 @@
   ></component>
 </template>
 <script setup lang="ts">
-defineOptions({ name: "/service/lslxJsc/lslxbbgl" })
 import { onMounted } from 'vue'
-import userDialog from '@/components/select/userDialog.vue' //登陆权限
-import btnTable from '@/components/ProTable/table.vue' //表格组件
-import viewModal from '@/views/service/balanceReporting/components/modal.vue' //新增弹窗组件
+import userDialog from '@/components/select/userDialog.vue'
+import btnTable from '@/components/ProTable/table.vue'
+import viewModal from '@/views/service/balanceReporting/components/modal.vue'
 import reporting from '@/views/targetBudget/cityTarget/components/reporting.vue'
 import matchModal from '@/views/targetBudget/cityTarget/components/matchModal.vue'
 import { useVersion } from '@/views/targetBudget/cityTarget/hooks/cityversion'
+defineOptions({ name: "/service/lslxJsc/lslxbbgl" })
+
+ //登陆权限
+ //表格组件
+ //新增弹窗组件
 
 const {
   isShowPage,

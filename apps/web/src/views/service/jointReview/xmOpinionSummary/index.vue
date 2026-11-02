@@ -84,8 +84,6 @@
 </template>
 <script setup lang="ts">
 import { Search as EpSearch } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/service/jointReview/xmOpinionSummary/index" })
 import { ref, reactive, nextTick, onMounted } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import baseService from '@/service/baseService'
@@ -93,14 +91,16 @@ import { GlobalInfo } from '@/views/service/jointReview/expertReview/interface'
 import { useStore } from '@/store/business'
 import { useRoute } from 'vue-router'
 import { useUser } from '@/hooks/useUser'
-import proTable from '@/components/ProTable/index.vue' //表格组件
+import proTable from '@/components/ProTable/index.vue'
 import { getPublicData } from '@/api/common'
 import { getMeetingPage, getDynamicColumn, getTableData, exportData } from '@/api/service/IhhsMeeting/xmOpinionSummary'
-
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { ElMessage } from 'element-plus'
 import { apiExportHandle } from '@/utils/export'
 import { formatValue } from '@/utils/utils'
+defineOptions({ name: "/service/jointReview/xmOpinionSummary/index" })
+
+ //表格组件
 
 const isShowPage = ref<boolean>(false)
 const userDialogRef = ref()

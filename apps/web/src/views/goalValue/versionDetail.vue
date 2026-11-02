@@ -93,51 +93,42 @@
   <ImportExcel ref="importRef" />
   <Notify :versionId="userInfo.versionId" v-model:visible="notifyVisible" ref="userManagerRef" :special-org-id="userInfo.specialOrgId" />
 </template>
-<script lang="ts">
-export default {
-  name: '/goalValue/versionDetail'
-}
-</script>
+
 
 <script setup lang="ts">
 import ImportExcel from '@/components/ImportExcel/index.vue'
 import Notify from '@/views/goalValue/components/Notify.vue'
-
 import { getDynamicColumn, getImportTemplate } from '@/api/xmInfo/mbz'
 import { exportData, getData, importData, saveData, SaveParam } from '@/api/goalValue/versionDetail'
 import { activeVersion } from '@/api/goalValue/version'
-// 待分解、父级合计用带保护的汇总：多根行时不把首行覆盖成所有根行之和（prearranged 版会覆盖首行）
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import VXETable from 'vxe-table'
 import { ElMessage } from 'element-plus'
-import { getYearData } from '@/api/common'
+import { getYearData, getPublicData } from '@/api/common'
 import { Decimal } from 'decimal.js'
 import { formatValue, summaryValue, toValidNumber } from '@/utils/utils'
-
 import { useRoute } from 'vue-router'
 import { Columns } from '@/views/xmInfo/interface'
 import emits from '@/utils/emits'
 import { decrypt } from '@/utils/crypto'
-import { getPublicData } from '@/api/common' //公共代码
+defineOptions({
+  name: '/goalValue/versionDetail'
+})
+
+// 待分解、父级合计用带保护的汇总：多根行时不把首行覆盖成所有根行之和（prearranged 版会覆盖首行）
+
+//公共代码
 
 const route = useRoute()
-
 const tableRef = ref()
 const importRef = ref()
 const userManagerRef = ref()
-
 const notifyVisible = ref<Boolean>(false)
-
 const tabList = ref<any[]>([])
-
 const isZgs = ref<any>('0')
-
 const disabled = computed(() => pageInfo.loading)
-
 const isShow = computed(() => Number(userInfo.status) !== 3 && Number(userInfo.status) !== 4)
-
 const showPage = computed(() => pageInfo.isShowPage)
-
 const pageInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -152,11 +143,9 @@ const pageInfo = reactive<{
   pageFlag: false,
   ndDataList: []
 })
-
 const formData = reactive({
   nd: ''
 })
-
 const userInfo = reactive<{
   specialOrgId: string
   versionId: string
@@ -172,11 +161,8 @@ const userInfo = reactive<{
   versionNo: '',
   status: ''
 })
-
 const updateParams = reactive<SaveParam[]>([])
-
 const count = ref(0)
-
 const tableInfo = reactive<any>({
   tableData: [],
   columns: [],
@@ -221,7 +207,6 @@ const tableInfo = reactive<any>({
     }
   }
 })
-
 const getExportData = (newArr: any[], data: any[]) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -240,7 +225,6 @@ const formatterData = ({ cellValue }: any) => {
   if (typeof cellValue === 'undefined' || cellValue === null || cellValue === '') return '-'
   return formatValue(cellValue.toString(), 6)
 }
-
 const sumhandle = (row: any, key: string) => {
   row[key] = new Decimal(toValidNumber(row[key])).toFixed(6)
   const config: any = tableInfo.treeConfig
@@ -278,7 +262,11 @@ const getEditDataHandle = ({ row }: any) => {
   // 每次编辑后重新收集整行可编辑列，未编辑的列也随行提交。
   const dwValues = columns
     .filter((item: Columns) => item.eidt === true && item.columnKey !== dfjKey)
-    .map((item: Columns) => ({ dwId: item.columnKey, dwName: item.columnValue, ysje: row[item.columnKey] ?? null }))
+    .map((item: Columns) => ({
+      dwId: item.columnKey,
+      dwName: item.columnValue,
+      ysje: row[item.columnKey] ?? null
+    }))
   const updateParam: SaveParam = {
     code: row.code,
     id: row.id,
@@ -328,7 +316,6 @@ const expandHandle = async () => {
     await expandAllTree(tableInfo.tableData, $table)
   }
 }
-
 const expandAllTree = async (data: any[], $table: any) => {
   for (const row of data) {
     if (row.leaf) {
@@ -416,17 +403,14 @@ const versionActiveHandle = async () => {
     }
   }
 }
-
 const isClickHeader = (columns: any, field: string) => {
   let columnsData = columns.filter((item: any) => item.eidt)
   let column = columnsData.find((item: any) => item.columnKey === field)
   return !!column
 }
-
 const cellClassName = ({ row, column }: any) => {
   return column.field === 'ylz' || !row.id || row.leaf ? 'calculated-cell' : ''
 }
-
 const cellStyle = ({ row, column }: any) => {
   if (tableInfo.editConfig && !tableInfo.editConfig.enabled) {
     return {
@@ -440,7 +424,6 @@ const cellStyle = ({ row, column }: any) => {
       backgroundColor: 'rgba(232, 234, 236,0.5)'
     }
   }
-
   if (!row.id || row.leaf) {
     return {
       cursor: 'auto',
@@ -448,7 +431,6 @@ const cellStyle = ({ row, column }: any) => {
     }
   }
 }
-
 const getDataList = async () => {
   pageInfo.loading = true
   tableInfo.tableData.length = 0
@@ -471,7 +453,6 @@ const getDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getHeaderData = async (specialOrgId: string) => {
   let res = await getDynamicColumn(specialOrgId, isZgs.value, 'EDIT')
   if (res.success) {
@@ -485,7 +466,6 @@ const getHeaderData = async (specialOrgId: string) => {
     return false
   }
 }
-
 const getYearDataList = async () => {
   let res = await getYearData()
   if (res.success) {
@@ -500,7 +480,6 @@ const getYearDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const getRoleHandle = async () => {
   pageInfo.loading = false
   const params = JSON.parse(decrypt(route.query.versionParams as string))
@@ -531,7 +510,6 @@ const handleTab = async () => {
     if (tableRef.value) tableRef.value.setAllTreeExpand(true)
   }
 }
-
 const initParamLists = async () => {
   // 获取公共代码
   const res = await getPublicData('MBZ_TAB_TYPE')
@@ -540,13 +518,11 @@ const initParamLists = async () => {
     isZgs.value = res.data[0].code
   }
 }
-
 const initData = () => {
   initParamLists()
   getYearDataList()
   getRoleHandle()
 }
-
 watch(
   () => route.query,
   () => {
@@ -569,7 +545,6 @@ watch(
     deep: true
   }
 )
-
 onMounted(initData)
 </script>
 

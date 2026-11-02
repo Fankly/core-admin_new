@@ -12,18 +12,21 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="tsx">
-export default {
-  name: '/service/detailQueryReport/decomposeDW'
-}
-</script>
+
 <script setup lang="tsx">
 import { onMounted, ref, reactive } from 'vue'
-import { getPublicData, getBizOrgXzTreeExcludeBmNoPermissionNoLazy } from '@/api/common' //公共代码
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
-import otherTable from '@/views/service/detailQueryReport/components/table.vue' //表格组件
+import { getPublicData, getBizOrgXzTreeExcludeBmNoPermissionNoLazy } from '@/api/common'
+import userDialog from '@/components/select/userDialog.vue'
+import otherTable from '@/views/service/detailQueryReport/components/table.vue'
 import { formatNumValue } from '@/utils/utils'
 import TreeSelect from '@/components/select/TreeSelectLazy.vue'
+defineOptions({
+  name: '/service/detailQueryReport/decomposeDW'
+})
+
+ //公共代码
+ //权限弹框
+ //表格组件
 
 const userDialogRef = ref() // 用户角色
 const isShowPage = ref(false) //未选择角色前不展示页面
@@ -85,7 +88,6 @@ const initParamLists = async () => {
     dwList.value.push(...data.data)
   }
 }
-
 const reset = (val: any) => {
   if (val.type == 'RESET') {
     proDwRef.value?.clearSelect()
@@ -106,9 +108,12 @@ const resetDwData = () => {
     $table.searchParam.dwIdList = ''
   }
 }
-
 const columns = reactive<any>([
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'nd',
     label: '年度',
@@ -127,25 +132,43 @@ const columns = reactive<any>([
     prop: 'busiType',
     label: '业务类型',
     isShow: false,
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: ywlxList.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'kmlx',
     label: '科目类型',
     isShow: false,
-    search: { el: 'select', order: 3 },
+    search: {
+      el: 'select',
+      order: 3
+    },
     enum: kmlxList.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'tzType',
     label: '调整类型',
     isShow: false,
-    search: { el: 'select', order: 8 },
+    search: {
+      el: 'select',
+      order: 8
+    },
     enum: tzList.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'dwIdList',
@@ -171,10 +194,26 @@ const columns = reactive<any>([
     },
     isShow: false
   },
-  { prop: 'nd', label: '年度', width: '100' },
-  { prop: 'busiTypeName', label: '业务类型', width: '100' },
-  { prop: 'kmlxName', label: '科目类型', width: '100' },
-  { prop: 'tzTypeName', label: '调整类型', width: '100' },
+  {
+    prop: 'nd',
+    label: '年度',
+    width: '100'
+  },
+  {
+    prop: 'busiTypeName',
+    label: '业务类型',
+    width: '100'
+  },
+  {
+    prop: 'kmlxName',
+    label: '科目类型',
+    width: '100'
+  },
+  {
+    prop: 'tzTypeName',
+    label: '调整类型',
+    width: '100'
+  },
   {
     prop: 'yskmName',
     label: '预算科目',
@@ -184,7 +223,9 @@ const columns = reactive<any>([
       props: {
         maxlength: 20,
         showWordLimit: true,
-        inputStyle: { paddingRight: '80px' }
+        inputStyle: {
+          paddingRight: '80px'
+        }
       }
     },
     width: '180'
@@ -198,13 +239,19 @@ const columns = reactive<any>([
       props: {
         maxlength: 20,
         showWordLimit: true,
-        inputStyle: { paddingRight: '80px' }
+        inputStyle: {
+          paddingRight: '80px'
+        }
       }
     },
     width: '240'
   },
-  { prop: 'dwName', label: '单位', width: '280' },
-    {
+  {
+    prop: 'dwName',
+    label: '单位',
+    width: '280'
+  },
+  {
     prop: 'fjje',
     label: '分解金额(万元)',
     width: '160',
@@ -220,11 +267,21 @@ const columns = reactive<any>([
     prop: 'status',
     label: '状态',
     isShow: false,
-    search: { el: 'select', order: 7 },
+    search: {
+      el: 'select',
+      order: 7
+    },
     enum: ztList.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
-  { prop: 'statusName', label: '状态', width: '80' },
+  {
+    prop: 'statusName',
+    label: '状态',
+    width: '80'
+  },
   {
     prop: 'xdje',
     label: '下达金额(万元)',
@@ -237,7 +294,11 @@ const columns = reactive<any>([
       return formatNumValue(value, 4)
     }
   },
-  { prop: 'sbStatus', label: '上报状态', width: '100' },
+  {
+    prop: 'sbStatus',
+    label: '上报状态',
+    width: '100'
+  },
   {
     prop: 'sbje',
     label: '上报金额(万元)',
@@ -250,8 +311,16 @@ const columns = reactive<any>([
       return formatNumValue(value, 4)
     }
   },
-  { prop: 'sbDesc', label: '上报说明', width: '200' },
-  { prop: 'sdStatus', label: '审定状态', width: '100' },
+  {
+    prop: 'sbDesc',
+    label: '上报说明',
+    width: '200'
+  },
+  {
+    prop: 'sdStatus',
+    label: '审定状态',
+    width: '100'
+  },
   {
     prop: 'sdje',
     label: '审定金额(万元)',
@@ -264,19 +333,33 @@ const columns = reactive<any>([
       return formatNumValue(value, 4)
     }
   },
-  { prop: 'sdTime', label: '审定时间', width: '100' },
-  { prop: 'fjStatus', label: '分解状态', width: '100' },
-  { prop: 'fjTime', label: '分解时间', width: '100' },
+  {
+    prop: 'sdTime',
+    label: '审定时间',
+    width: '100'
+  },
+  {
+    prop: 'fjStatus',
+    label: '分解状态',
+    width: '100'
+  },
+  {
+    prop: 'fjTime',
+    label: '分解时间',
+    width: '100'
+  }
 ])
 
 // 选择角色
 const getRoleHandle = async () => {
   try {
-    const userInfo = { ...userDialogRef.value.userMsg }
+    const userInfo = {
+      ...userDialogRef.value.userMsg
+    }
     const isQuery = userDialogRef.value.isQuery
     if (isQuery) {
       isShowPage.value = true
-      otherTableRef.value.dwId=userInfo.org_id
+      otherTableRef.value.dwId = userInfo.org_id
       otherTableRef.value?.proTableRef.getTableList()
     }
   } catch (e) {

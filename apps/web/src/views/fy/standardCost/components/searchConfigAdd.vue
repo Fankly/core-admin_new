@@ -39,180 +39,171 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: "searchConfigAdd"
-};
-</script>
+
 <script setup lang="ts">
-import MultipleTreeSelect from "@/components/select/MultipleTreeSelect.vue";
-import { ElMessage } from "element-plus";
-import { defineProps, ref, defineEmits, defineExpose, reactive, computed } from "vue";
-import { updateData, saveData } from "@/api/fy/searchConfig";
-import { getCnxTree } from "@/api/common";
+import MultipleTreeSelect from '@/components/select/MultipleTreeSelect.vue'
+import { ElMessage } from 'element-plus'
+import { ref, reactive, computed } from 'vue'
+import { updateData, saveData } from '@/api/fy/searchConfig'
+import { getCnxTree } from '@/api/common'
+defineOptions({
+  name: 'searchConfigAdd'
+})
 
 interface SelectData {
-  id?: string;
-  pid: string;
-  name: string;
-  isEdit: string;
-  sort: string;
-  sfmrzk: string;
+  id?: string
+  pid: string
+  name: string
+  isEdit: string
+  sort: string
+  sfmrzk: string
   cnxs: {
-    cnx: string;
-    cnxId: string;
-  }[];
+    cnx: string
+    cnxId: string
+  }[]
 }
-
 interface Props {
-  title: string;
-  opeartionFlag: string;
-  selectedCnxDatas: any[];
-  nd: string;
-  templateCode: string;
-  selectData: SelectData;
-  sort: number;
-  cnxDisabled: boolean;
+  title: string
+  opeartionFlag: string
+  selectedCnxDatas: any[]
+  nd: string
+  templateCode: string
+  selectData: SelectData
+  sort: number
+  cnxDisabled: boolean
 }
-
-const props = defineProps<Props>();
-const emit = defineEmits(["close", "save"]);
-
-const selectedDatas = computed(() => props.selectedCnxDatas);
-const disabled = computed(() => props.cnxDisabled);
-
-const showModal = ref(false);
-const loading = ref(false);
-const modalTitle = ref("");
-const formRef = ref();
-
+const props = defineProps<Props>()
+const emit = defineEmits(['close', 'save'])
+const selectedDatas = computed(() => props.selectedCnxDatas)
+const disabled = computed(() => props.cnxDisabled)
+const showModal = ref(false)
+const loading = ref(false)
+const modalTitle = ref('')
+const formRef = ref()
 const cnxProps = {
-  children: "children",
-  isLeaf: "leaf",
-  label: "name"
-};
-
+  children: 'children',
+  isLeaf: 'leaf',
+  label: 'name'
+}
 const formData = reactive<{
-  id?: string;
-  isEdit: string;
-  name: string;
-  nd: string;
-  pid: string;
-  sort: string;
-  isWtyw: string;
-  sfmrzk: string;
+  id?: string
+  isEdit: string
+  name: string
+  nd: string
+  pid: string
+  sort: string
+  isWtyw: string
+  sfmrzk: string
   cnxs: {
-    cnx: string;
-    cnxId: string;
-  }[];
-  [key: string]: any;
+    cnx: string
+    cnxId: string
+  }[]
+  [key: string]: any
 }>({
-  isEdit: "0",
-  name: "",
-  sfmrzk: "",
-  nd: "",
-  pid: "",
-  id: "",
-  sort: "",
-  isWtyw: "0",
+  isEdit: '0',
+  name: '',
+  sfmrzk: '',
+  nd: '',
+  pid: '',
+  id: '',
+  sort: '',
+  isWtyw: '0',
   cnxs: []
-});
-
+})
 const selectList = reactive<any>({
   cnxList: [],
   cnxListData: [],
   statusList: [
     {
-      label: "是",
-      value: "1"
+      label: '是',
+      value: '1'
     },
     {
-      label: "否",
-      value: "0"
+      label: '否',
+      value: '0'
     }
   ]
-});
-
+})
 const dialogFormRules = reactive({
-  name: [{ required: true, message: "请输入名称", trigger: "blur" }]
-});
-
+  name: [
+    {
+      required: true,
+      message: '请输入名称',
+      trigger: 'blur'
+    }
+  ]
+})
 const saveHandle = async () => {
-  loading.value = true;
-  const formEl = formRef.value;
-  if (!formEl) return;
+  loading.value = true
+  const formEl = formRef.value
+  if (!formEl) return
   await formEl.validate(async (valid: any, fields: any) => {
     if (valid) {
-      let res: any;
-      if (props.opeartionFlag !== "add" && props.selectData.id) {
+      let res: any
+      if (props.opeartionFlag !== 'add' && props.selectData.id) {
         res = await updateData({
           ...formData,
           templateCode: props.templateCode
-        });
+        })
       } else {
         res = await saveData({
           ...formData,
           templateCode: props.templateCode
-        });
+        })
       }
       if (res.success) {
-        loading.value = false;
-        ElMessage.success("保存成功！");
-        emit("save");
-        cancelHandle();
+        loading.value = false
+        ElMessage.success('保存成功！')
+        emit('save')
+        cancelHandle()
       } else {
-        loading.value = false;
-        ElMessage.error(res.msg);
+        loading.value = false
+        ElMessage.error(res.msg)
       }
     }
-  });
-};
-
+  })
+}
 const loadMethod = async (node: any) => {
-  let flag = false;
-  if (node.length === 0) flag = false;
-  else flag = true;
-  const id = flag ? node.id : "-1";
-  return getCnxTree(id);
-};
-
+  let flag = false
+  if (node.length === 0) flag = false
+  else flag = true
+  const id = flag ? node.id : '-1'
+  return getCnxTree(id)
+}
 const cancelHandle = () => {
-  closeHandle();
-};
-
+  closeHandle()
+}
 const showHandle = async () => {
-  modalTitle.value = props.title;
-  formData.pid = props.selectData.pid;
-  formData.nd = props.nd;
-  if (props.opeartionFlag !== "add") {
-    formData.id = props.selectData.id;
-    formData.name = props.selectData.name;
-    formData.isEdit = props.selectData.isEdit ? "1" : "0";
-    formData.sfmrzk = props.selectData.sfmrzk ? "1" : "0";
-    formData.sort = props.selectData.sort;
-    formData.cnxs = props.selectData.cnxs;
+  modalTitle.value = props.title
+  formData.pid = props.selectData.pid
+  formData.nd = props.nd
+  if (props.opeartionFlag !== 'add') {
+    formData.id = props.selectData.id
+    formData.name = props.selectData.name
+    formData.isEdit = props.selectData.isEdit ? '1' : '0'
+    formData.sfmrzk = props.selectData.sfmrzk ? '1' : '0'
+    formData.sort = props.selectData.sort
+    formData.cnxs = props.selectData.cnxs
   } else {
-    formData.sort = (props.sort + 1).toString();
+    formData.sort = (props.sort + 1).toString()
   }
-};
-
+}
 const closeHandle = () => {
   for (const key in formData) {
     if (Array.isArray(formData[key])) {
-      formData[key] = [];
+      formData[key] = []
     } else {
-      formData[key] = "";
+      formData[key] = ''
     }
   }
-  formData.isEdit = "0";
-  formData.isWtyw = "0";
-  showModal.value = false;
-  emit("close", showModal.value);
-};
-
+  formData.isEdit = '0'
+  formData.isWtyw = '0'
+  showModal.value = false
+  emit('close', showModal.value)
+}
 defineExpose({
   showModal
-});
+})
 </script>
 
 <style scoped>

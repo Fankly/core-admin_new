@@ -26,16 +26,15 @@
   </div>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/xmInfo/xmysConfig/index'
-}
-</script>
+
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 import WorkflowTreeView from '@/views/service/xq/components/WorkflowTreeView.vue'
 import { getDataByXmid, getDataByXmidOrderByTime } from '@/api/xmInfo/stageConfig'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: '/xmInfo/xmysConfig/index'
+})
 
 interface Props {
   selectData: any
@@ -50,7 +49,6 @@ const props = withDefaults(defineProps<Props>(), {
   globalParams: null,
   opType: 'EDIT'
 })
-
 const projectName = ref<string | undefined>(undefined)
 const stages = ref<any[] | undefined>(undefined)
 const steps = ref<any[] | undefined>(undefined)
@@ -58,7 +56,6 @@ const loading = ref(false)
 const empty = ref(false)
 // 时间排序方向：1=升序 2=降序，默认降序（与 WorkflowTreeView 的 timeSortOrder 默认 desc 一致）
 const timeOrderType = ref(2)
-
 const rootRef = ref<HTMLElement | null>(null)
 // 是否已触发过首次加载，避免 IntersectionObserver 重复触发
 const loadTriggered = ref(false)
@@ -83,7 +80,6 @@ const handleTimeSortChange = async (orderType: number) => {
     // 静默失败，保留现有数据
   }
 }
-
 const initData = async () => {
   loading.value = true
   empty.value = false
@@ -93,7 +89,9 @@ const initData = async () => {
     pageType: props.pageType ?? 'null'
   }
   try {
-    const res: any = await getDataByXmid({ ...params })
+    const res: any = await getDataByXmid({
+      ...params
+    })
     if (res.success) {
       const list = res.data?.processLists ?? []
       stages.value = list
@@ -102,7 +100,10 @@ const initData = async () => {
       ElMessage.error(res.msg)
       empty.value = true
     }
-    const con: any = await getDataByXmidOrderByTime({ ...params, orderType: timeOrderType.value })
+    const con: any = await getDataByXmidOrderByTime({
+      ...params,
+      orderType: timeOrderType.value
+    })
     if (con.success) {
       const data = con.data?.processLists ?? []
       steps.value = data
@@ -117,7 +118,6 @@ const initData = async () => {
     loading.value = false
   }
 }
-
 onMounted(() => {
   // 等 tab 页被点击切换进来、组件真正可见后再调接口，
   // 避免一打开弹窗就并发拉取所有 tab 的流程数据。
@@ -140,11 +140,12 @@ onMounted(() => {
         }
       }
     },
-    { threshold: 0 }
+    {
+      threshold: 0
+    }
   )
   observer.observe(el)
 })
-
 onBeforeUnmount(() => {
   observer?.disconnect()
   observer = null

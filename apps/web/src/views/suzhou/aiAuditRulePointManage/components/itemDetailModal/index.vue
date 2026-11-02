@@ -59,11 +59,6 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'itemDetailModal'
-}
-</script>
 
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -72,23 +67,29 @@ import type { VxeGridProps } from 'vxe-table'
 import RangeVxeTable from '@/components/RangeVxeTable/index.vue'
 import { getProTypeRelaSsyd } from '@/api/suzhou/aiAuditRuleMonitoring'
 import type { ProTypeSsydRow } from '@/api/suzhou/aiAuditRuleMonitoring'
+defineOptions({
+  name: 'itemDetailModal'
+})
 
 /** 表格行：接口字段 + 表格要求的唯一 rowKey */
 interface ItemDetailTableRow extends ProTypeSsydRow {
   rowId: string
 }
-
 interface ModalParams {
   /** 项目类型名称，仅用于标题 */
   proTypeName?: string
   /** 项目类型id，接口必传 */
   id?: string
 }
-
 const emit = defineEmits<{
-  (event: 'open-yssx-point-list', payload: { zyssxbm: string; zyssxmc: string }): void
+  (
+    event: 'open-yssx-point-list',
+    payload: {
+      zyssxbm: string
+      zyssxmc: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const modalTitle = ref('事项明细')
 const proTypeId = ref('')
@@ -103,7 +104,10 @@ const proTypeId = ref('')
 const openPointList = (row: ItemDetailTableRow) => {
   const zyssxbm = String(row.zyssxbm || '').trim()
   if (!zyssxbm) return ElMessage.warning('当前预算事项缺少编码（zyssxbm），无法查看关联审核要点')
-  emit('open-yssx-point-list', { zyssxbm, zyssxmc: String(row.zyssxmc || '') })
+  emit('open-yssx-point-list', {
+    zyssxbm,
+    zyssxmc: String(row.zyssxmc || '')
+  })
 }
 
 /**
@@ -112,11 +116,47 @@ const openPointList = (row: ItemDetailTableRow) => {
  * 原型里的 item、points、pointList 三个名字后端都不用，已改回真实字段名。
  */
 const columns: VxeGridProps['columns'] = [
-  { type: 'seq', title: '序号', width: 70, headerAlign: 'center' },
-  { field: 'name', title: '项目类型', width: 130, headerAlign: 'center', slots: { default: 'proType' } },
-  { field: 'zyssxmc', title: '事项名称', minWidth: 180, align: 'left', headerAlign: 'center' },
-  { field: 'ssydCnt', title: '已分配审核要点数量', width: 170, headerAlign: 'center', slots: { default: 'points' } },
-  { field: 'ssyds', title: '已分配审核要点', minWidth: 380, align: 'left', headerAlign: 'center', slots: { default: 'pointList' } }
+  {
+    type: 'seq',
+    title: '序号',
+    width: 70,
+    headerAlign: 'center'
+  },
+  {
+    field: 'name',
+    title: '项目类型',
+    width: 130,
+    headerAlign: 'center',
+    slots: {
+      default: 'proType'
+    }
+  },
+  {
+    field: 'zyssxmc',
+    title: '事项名称',
+    minWidth: 180,
+    align: 'left',
+    headerAlign: 'center'
+  },
+  {
+    field: 'ssydCnt',
+    title: '已分配审核要点数量',
+    width: 170,
+    headerAlign: 'center',
+    slots: {
+      default: 'points'
+    }
+  },
+  {
+    field: 'ssyds',
+    title: '已分配审核要点',
+    minWidth: 380,
+    align: 'left',
+    headerAlign: 'center',
+    slots: {
+      default: 'pointList'
+    }
+  }
 ]
 
 /**
@@ -126,26 +166,36 @@ const columns: VxeGridProps['columns'] = [
  * （useRangeVxeTable.ts:430/439），返回裸数组会让 res.data 变成 undefined，表格静默空白。
  */
 const getList = async () => {
-  const res = await getProTypeRelaSsyd({ id: proTypeId.value })
+  const res = await getProTypeRelaSsyd({
+    id: proTypeId.value
+  })
   if (!res.success) {
     ElMessage.error(res.msg || '事项明细获取失败')
-    return { ...res, data: [] as ProTypeSsydRow[] }
+    return {
+      ...res,
+      data: [] as ProTypeSsydRow[]
+    }
   }
   const rows: ProTypeSsydRow[] = Array.isArray(res.data) ? res.data : []
-  return { ...res, data: rows.map((item, index) => ({ ...item, rowId: `${proTypeId.value}-${index}` })) }
+  return {
+    ...res,
+    data: rows.map((item, index) => ({
+      ...item,
+      rowId: `${proTypeId.value}-${index}`
+    }))
+  }
 }
-
 const handleClose = () => {
   isShowModal.value = false
 }
-
 const acceptParams = (params: ModalParams = {}) => {
   proTypeId.value = params.id || ''
   modalTitle.value = params.proTypeName ? `${params.proTypeName} · 事项明细` : '事项明细'
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less">

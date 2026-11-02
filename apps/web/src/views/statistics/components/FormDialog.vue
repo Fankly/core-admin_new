@@ -1,5 +1,4 @@
 <script setup lang="ts">
-defineOptions({ name: "/statistics/components/FormDialog" })
 import MultipleProType from '@/views/statistics/components/MultipleProType.vue'
 import type { InitParams } from '@/views/statistics/budgetStatisticsConfig.vue'
 import TypeDialog from '@/views/statistics/components/TypeDialog.vue'
@@ -17,13 +16,15 @@ import {
 import { getAllProtypeTreeNew, getPublicCodeList } from '@/api/common'
 import { cloneDeep } from 'lodash'
 import { VXETable } from 'vxe-table'
-import { computed, defineProps, ref, toRef, defineExpose, reactive, defineEmits, watch, nextTick } from 'vue'
+import { computed, ref, toRef, reactive, watch, nextTick } from 'vue'
 import { useWindowSize } from '@vueuse/core'
+defineOptions({
+  name: '/statistics/components/FormDialog'
+})
 
 interface DialogData {
   title: string
 }
-
 interface Props {
   dialogData: DialogData
   initParams: InitParams
@@ -33,30 +34,23 @@ interface Props {
   showExecutionFields?: boolean
   showBoldField?: boolean
 }
-
 const props = defineProps<Props>()
 
 // 分析报告节点类型、普通分析节点：预算统计配置 / 预算执行分析配置两个页面展示
 const showJdFields = computed(() => Boolean(props.showBoldField || props.showExecutionFields))
-
 const emit = defineEmits(['updateTable', 'clearData'])
-
 const typeDialogRef = ref()
 const treeDialogRef = ref()
 const protypeRef = ref()
-
 const title = toRef(props.dialogData, 'title')
 const showModal = ref(false)
-
 const isShowTable = ref(false)
 const formDialogRef = ref()
 const typeTableRef = ref()
 const treeTableRef = ref()
 const formRef = ref()
-
 const dataDetails = ref<any[]>([])
 const dataSum = ref<any[]>([])
-
 const formData = reactive<{
   configName: string
   statMethod: string
@@ -92,9 +86,7 @@ const formData = reactive<{
   bgjdType: '',
   bgjdValue: ''
 })
-
 const proTypeData = ref([])
-
 const validateStatMethod = (rules: any, value: string, callback: any) => {
   if (formData.isleaf === '0') {
     callback()
@@ -106,7 +98,6 @@ const validateStatMethod = (rules: any, value: string, callback: any) => {
     }
   }
 }
-
 const validateStatTypeMethod = (rules: any, value: string, callback: any) => {
   if (formData.isleaf === '0') {
     callback()
@@ -118,7 +109,6 @@ const validateStatTypeMethod = (rules: any, value: string, callback: any) => {
     }
   }
 }
-
 const validateProTypes = (rules: any, value: string, callback: any) => {
   if (formData.statMethod === '2') {
     callback()
@@ -142,50 +132,88 @@ const validateBgjdValue = (rules: any, value: string, callback: any) => {
     callback()
   }
 }
-
 const rules = {
-  configName: [{ required: true, message: '请输入名称', trigger: 'input' }],
-  statMethod: [{ validator: validateStatMethod, trigger: 'change' }],
-  statType: [{ validator: validateStatTypeMethod, trigger: 'change' }],
-  isleaf: [{ required: true, message: '请选择是否末级节点', trigger: 'change' }],
-  recState: [{ required: true, message: '请选择是否启用', trigger: 'change' }],
-  isDisplay: [{ required: true, message: '请选择是否显示', trigger: 'change' }],
-  dispOrder: [{ required: true, message: '请输入序号', trigger: 'input' }],
-  bgjdValue: [{ validator: validateBgjdValue, trigger: 'change' }]
+  configName: [
+    {
+      required: true,
+      message: '请输入名称',
+      trigger: 'input'
+    }
+  ],
+  statMethod: [
+    {
+      validator: validateStatMethod,
+      trigger: 'change'
+    }
+  ],
+  statType: [
+    {
+      validator: validateStatTypeMethod,
+      trigger: 'change'
+    }
+  ],
+  isleaf: [
+    {
+      required: true,
+      message: '请选择是否末级节点',
+      trigger: 'change'
+    }
+  ],
+  recState: [
+    {
+      required: true,
+      message: '请选择是否启用',
+      trigger: 'change'
+    }
+  ],
+  isDisplay: [
+    {
+      required: true,
+      message: '请选择是否显示',
+      trigger: 'change'
+    }
+  ],
+  dispOrder: [
+    {
+      required: true,
+      message: '请输入序号',
+      trigger: 'input'
+    }
+  ],
+  bgjdValue: [
+    {
+      validator: validateBgjdValue,
+      trigger: 'change'
+    }
+  ]
 }
-
 const publicList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const statTypeList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const bgjdTypeList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const bgjdValueList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const getCollapsedHeight = () => String(props.showExecutionFields ? 470 : props.showBoldField ? 330 : 240)
 const getTextModeHeight = () => String(props.showExecutionFields ? 590 : props.showBoldField ? 450 : 360)
 const getTableModeHeight = () => String(props.showExecutionFields ? 830 : props.showBoldField ? 690 : 600)
-
 const height = ref(getCollapsedHeight())
 const { width: windowWidth, height: windowHeight } = useWindowSize()
 const dialogWidth = computed(() => (props.showBoldField ? Math.min(860, windowWidth.value - 32) : '50%'))
@@ -195,21 +223,16 @@ const dialogHeight = computed(() => {
   return Math.min(contentHeight, windowHeight.value - 48)
 })
 const formDialogLoading = ref(false)
-
 const updateDialogLayout = () => {
   const isLeaf = formData.isleaf === '1'
   const isTextMode = isLeaf && formData.statMethod === '1' && formData.statType === '2'
-
   isShowTable.value = isLeaf && !isTextMode
-
   if (!isLeaf) {
     height.value = getCollapsedHeight()
     return
   }
-
   height.value = isShowTable.value ? getTableModeHeight() : getTextModeHeight()
 }
-
 const getDialogTop = (preferredHeight: string) => {
   if (props.showBoldField) {
     return Math.max(24, (windowHeight.value - Number(dialogHeight.value)) / 2)
@@ -223,12 +246,10 @@ const getDialogTop = (preferredHeight: string) => {
   }
   return props.showExecutionFields ? 300 : 400
 }
-
 const addDialogHandle = () => {
   if (formData.statMethod === '1') typeDialogRef.value.showModal = true
   if (formData.statMethod === '2') treeDialogRef.value.showModal = true
 }
-
 const delDataHandle = async () => {
   const type = await VXETable.modal.confirm('是否确定删除？', '提示', {
     status: 'warning'
@@ -282,7 +303,6 @@ const delDataHandle = async () => {
     }
   }
 }
-
 const getTypeDataHandle = (typeData: any) => {
   if (typeData) {
     let res = dataDetails.value.findIndex((item) => Number(item.proType) === Number(typeData.proType.id))
@@ -304,7 +324,6 @@ const compareIds = (arr1: any[], arr2: any[]) => {
   const ids1 = new Set(arr1.map((item) => item.tarConfigId))
   return arr2.some((item) => ids1.has(item.tarConfigId))
 }
-
 const getTreeDataHandle = (treeData: any[]) => {
   if (treeData) {
     let treeDataList = treeData.map((item) => ({
@@ -322,7 +341,6 @@ const getTreeDataHandle = (treeData: any[]) => {
   }))
   dataSum.value = dataSum.value.concat(treeList)
 }
-
 const getPublicDataList = async (code: string[]) => {
   const codes = showJdFields.value ? [...code, 'YSZXFXBG_JDTYPE', 'YSZXFX_PTJDTYPE'] : code
   let res = await getPublicCodeList({
@@ -337,7 +355,6 @@ const getPublicDataList = async (code: string[]) => {
     ElMessage.error(res.msg)
   }
 }
-
 const getFormInfo = async () => {
   formDialogLoading.value = true
   const configId = props.editData?.configId
@@ -369,7 +386,6 @@ const getFormInfo = async () => {
     }
   }
 }
-
 const showModalHandle = () => {
   if (protypeRef.value) protypeRef.value.clearHandle()
   getPublicDataList(['YSTJPZ_TJFS', 'YSTJPZ_TJLX'])
@@ -380,7 +396,6 @@ const showModalHandle = () => {
     getFormInfo()
   }
 }
-
 const saveDataHandle = async () => {
   if (!formRef.value) return
   try {
@@ -452,7 +467,6 @@ const saveDataHandle = async () => {
     console.log(error)
   }
 }
-
 const getProTypeData = async () => {
   let res = await getAllProtypeTreeNew()
   if (res.success) {
@@ -464,7 +478,6 @@ const getProTypeData = async () => {
     })
   }
 }
-
 watch(
   () => formData.isleaf,
   (newVal) => {
@@ -479,7 +492,6 @@ watch(
     }
   }
 )
-
 const getDetailData = async (flag: string) => {
   if (!flag && formData.isleaf === '1') {
     flag = '1'
@@ -506,18 +518,15 @@ const getDetailData = async (flag: string) => {
   }
   formDialogLoading.value = false
 }
-
 const changeStatMethodHandle = (val: string) => {
   if (val && val === '2') {
     formData.proType = ''
   }
   updateDialogLayout()
 }
-
 const changeLeafDataHandle = (val: string) => {
   formData.proType = ''
 }
-
 const changeStatTypeHandle = (val: string) => {
   formData.proType = ''
   dataDetails.value = []
@@ -531,7 +540,6 @@ const changeBgjdTypeHandle = (val: string) => {
   }
   nextTick(() => formRef.value?.clearValidate?.('bgjdValue'))
 }
-
 watch(
   () => formData.statMethod,
   (newVal) => {
@@ -545,7 +553,6 @@ watch(
     if (formData.isleaf === '1') getDetailData(newVal)
   }
 )
-
 watch([height, windowHeight, windowWidth], ([newVal]) => {
   nextTick(() => {
     if (!showModal.value) return
@@ -553,7 +560,6 @@ watch([height, windowHeight, windowWidth], ([newVal]) => {
     formDialogRef.value?.setPosition(getDialogTop(String(newVal)), left)
   })
 })
-
 const resetMethod = () => {
   formData.configName = ''
   formData.statMethod = ''
@@ -572,13 +578,11 @@ const resetMethod = () => {
   formData.bgjdType = ''
   formData.bgjdValue = ''
 }
-
 const closeModalHandle = () => {
   showModal.value = false
   resetMethod()
   emit('clearData')
 }
-
 defineExpose({
   title,
   showModal

@@ -29,54 +29,77 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'ProjectTypeAdjustment',
-  components: {}
-}
-</script>
+
 <script setup lang="ts">
 import ProTable from '@/components/ProTable/index.vue'
 import { getYssxForZl, zlxmXgXmlx } from '@/api/common'
 import { ColumnProps } from '@/components/ProTable/interface'
-import { ref, toRef, defineExpose, defineEmits, defineProps, reactive, watch } from 'vue'
+import { ref, toRef, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: 'ProjectTypeAdjustment'
+})
 
 interface TypeAdjustMsg {
   title: string
   opType: string
 }
-
 interface Props {
   typeAdjustMsg: TypeAdjustMsg
   selectedData: any
   userInfo: any
   xmIds: string
 }
-
 const props = defineProps<Props>()
 const emit = defineEmits(['confirmData'])
-
 const xmIds = toRef(props, 'xmIds')
 const isShowModal = ref(false)
 const loading = ref(false)
-
 const columns = reactive<ColumnProps<any>[]>([
-  { type: 'selection', width: 80 },
-  { prop: 'zyssxbm', label: '预算事项编码', width: '180' },
-  { prop: 'zyssxmc', label: '预算事项名称', width: '180' },
-  { prop: 'yslyName', label: '预算类型', width: '180' },
-  { prop: 'xmlxName', label: '项目类型', width: '180' },
-  { prop: 'yjflName', label: '一级分类', width: '180' },
-  { prop: 'ejflName', label: '二级分类', width: '180' },
-  { prop: 'sjflName', label: '三级分类', width: '180' }
+  {
+    type: 'selection',
+    width: 80
+  },
+  {
+    prop: 'zyssxbm',
+    label: '预算事项编码',
+    width: '180'
+  },
+  {
+    prop: 'zyssxmc',
+    label: '预算事项名称',
+    width: '180'
+  },
+  {
+    prop: 'yslyName',
+    label: '预算类型',
+    width: '180'
+  },
+  {
+    prop: 'xmlxName',
+    label: '项目类型',
+    width: '180'
+  },
+  {
+    prop: 'yjflName',
+    label: '一级分类',
+    width: '180'
+  },
+  {
+    prop: 'ejflName',
+    label: '二级分类',
+    width: '180'
+  },
+  {
+    prop: 'sjflName',
+    label: '三级分类',
+    width: '180'
+  }
 ])
-
 const dataCallBack = (data: any[]) => {
   loading.value = false
   return data || []
 }
-
 const getPageList = async (params: any) => {
   loading.value = true
   let newParams = JSON.parse(JSON.stringify(params))
@@ -116,7 +139,6 @@ const confirmHandle = async (list: any[]) => {
     }
   })
 }
-
 watch(
   () => isShowModal.value,
   (newVal) => {
@@ -127,7 +149,6 @@ watch(
     immediate: true
   }
 )
-
 defineExpose({
   isShowModal
 })

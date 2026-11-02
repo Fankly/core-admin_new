@@ -62,7 +62,6 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "/service/overview/index" })
 import { computed, onMounted, ref, watch } from 'vue'
 import { useStore } from '@/store/business'
 import XEUtils from 'xe-utils'
@@ -87,6 +86,7 @@ import type {
   RoleContext,
   StageId
 } from './types'
+defineOptions({ name: "/service/overview/index" })
 
 const filters = ref<Filters>({
   year: '',

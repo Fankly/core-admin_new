@@ -140,8 +140,6 @@ import {
   SetUp as EpSetUp,
   Warning as EpWarning
 } from '@element-plus/icons-vue'
-
-defineOptions({ name: "/xmInfo/stageConfig/index" })
 import userDialog from '@/components/select/userDialog.vue'
 import { onMounted, onBeforeUnmount, onActivated, ref, nextTick, defineAsyncComponent, markRaw } from 'vue'
 import { ElMessage } from 'element-plus'
@@ -149,6 +147,7 @@ import { VXETable } from 'vxe-table'
 import { useStore } from '@/store/business'
 import RangeVxeTableStyle from '@/components/RangeVxeTableStyle/index.vue'
 import { configGetPage, configSaveOrUpdate, configDelete, getAlreadyLinkProcess } from '@/api/xmInfo/stageConfig'
+defineOptions({ name: "/xmInfo/stageConfig/index" })
 
 // 弹窗按需异步加载，降低首屏解析成本
 const directoryModal = defineAsyncComponent(() => import('@/views/xmInfo/stageConfig/components/directoryModal/index.vue'))

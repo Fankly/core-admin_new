@@ -19,16 +19,14 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'FxbgModal'
-}
-</script>
 
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getFxbg as defaultGetFxbg } from '@/api/statistics/yszxfx'
+defineOptions({
+  name: 'FxbgModal'
+})
 
 const isShowModal = ref(false)
 const loading = ref(false)
@@ -51,7 +49,6 @@ const recenterModal = async () => {
   const left = Math.max(0, Math.round((visibleWidth - box.offsetWidth) / 2))
   modal.setPosition?.(top, left)
 }
-
 const open = async (params: any, getFxbg?: (params: any) => Promise<any>) => {
   isShowModal.value = true
   reportText.value = ''
@@ -72,13 +69,13 @@ const open = async (params: any, getFxbg?: (params: any) => Promise<any>) => {
     recenterModal()
   }
 }
-
 const handleClose = () => {
   isShowModal.value = false
   reportText.value = ''
 }
-
-defineExpose({ open })
+defineExpose({
+  open
+})
 </script>
 
 <style lang="less">

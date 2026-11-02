@@ -16,81 +16,83 @@
     </projectViewItem>
   </div>
 </template>
-<script>
+
+<script setup>
+import { isImage } from './conclusionView.module'
 import projectViewItem from './projectViewItem.vue'
-
 import { CwProjectClosure } from '@/api/mainController'
-
-const isImage = (fileName) => {
-  return /\.(png|jpe?g|gif|bmp|webp)$/i.test(fileName)
+import { reactive, toRef, toRefs, computed, onMounted, getCurrentInstance } from 'vue'
+defineOptions({
+  name: 'conclusionView'
+})
+const componentProps = defineProps({
+  projectId: {
+    type: String
+  },
+  showScroll: {
+    type: Boolean
+  }
+})
+const componentInstance = getCurrentInstance().proxy
+const componentData = reactive({
+  dataValue: undefined
+})
+const dataValue = toRef(componentData, 'dataValue')
+function download(filename) {
+  const obj = {
+    id: componentData.dataValue.id,
+    filename,
+    fieldName: 'supportDoc',
+    asImage: isImage(filename)
+  }
+  CwProjectClosure.download(componentInstance, obj, 'get')
 }
-
-export default {
-  components: {
-    projectViewItem
-  },
-  props: {
-    projectId: {
-      type: String
-    },
-    showScroll: {
-      type: Boolean
+function getInfo() {
+  CwProjectClosure.view(componentInstance, {
+    projectId: componentProps.projectId
+  }).then((res) => {
+    const { projectImpact, supportDoc, ...otherValues } = res.data
+    componentData.dataValue = {
+      projectImpact: JSON.parse(projectImpact),
+      supportDoc: JSON.parse(supportDoc).reduce(
+        (arr, item) => [
+          ...arr,
+          {
+            name: item
+          }
+        ],
+        []
+      ),
+      ...otherValues
     }
-  },
-  name: 'conclusionView',
-  data() {
-    return {
-      dataValue: undefined
-    }
-  },
-  created() {},
-  mounted() {
-    this.getInfo()
-  },
-  methods: {
-    download(filename) {
-      const obj = {
-        id: this.dataValue.id,
-        filename,
-        fieldName: 'supportDoc',
-        asImage: isImage(filename)
-      }
-      CwProjectClosure.download(this, obj, 'get')
-    },
-    getInfo() {
-      CwProjectClosure.view(this, {
-        projectId: this.projectId
-      }).then((res) => {
-        const { projectImpact, supportDoc, ...otherValues } = res.data
-        this.dataValue = {
-          projectImpact: JSON.parse(projectImpact),
-          supportDoc: JSON.parse(supportDoc).reduce((arr, item) => [...arr, { name: item }], []),
-          ...otherValues
-        }
-      })
-    }
-  },
-  computed: {
-    keyValues() {
-      return [
-        {
-          name: '单体项目名称',
-          value: 'projectName'
-        },
-        {
-          name: '证明材料',
-          value: 'supportDoc',
-          slot: true
-        },
-        {
-          name: '项目成效（提升指标）',
-          value: 'projectImpact',
-          slot: true
-        }
-      ]
-    }
-  },
-  watch: {}
+  })
 }
+const keyValues = computed(() => {
+  return [
+    {
+      name: '单体项目名称',
+      value: 'projectName'
+    },
+    {
+      name: '证明材料',
+      value: 'supportDoc',
+      slot: true
+    },
+    {
+      name: '项目成效（提升指标）',
+      value: 'projectImpact',
+      slot: true
+    }
+  ]
+})
+onMounted(() => {
+  getInfo()
+})
+defineExpose({
+  download,
+  getInfo,
+  ...toRefs(componentData),
+  keyValues
+})
 </script>
 <style lang="less" scoped></style>

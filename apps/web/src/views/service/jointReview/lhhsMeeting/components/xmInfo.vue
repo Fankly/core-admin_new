@@ -16,17 +16,23 @@
   <select-modal ref="selectModalRef" @show-modal="showModal" :title="'联合会审终评意见'" :label="'专家组长终评意见'" :options="options" />
   <review-modal ref="returnModal" :title="'退回意见'" :label="'退回意见'" @show-modal="returnMag"></review-modal>
 </template>
-<script lang="tsx">
-export default {
-  name: 'xmInfo'
-}
-</script>
+
 <script setup lang="tsx">
 import { onActivated, ref, reactive, nextTick } from 'vue'
-import { leaderReviewPageXmInfo, canLeaderReview, saveLeaderReviewRecord, saveLeaderReviewRecordNew, getLeaderReviewRecordImportTemplate, importLeaderReviewRecord, canLeaderReviewTh, leaderReviewTh, getExpertReviewReason } from '@/api/service/jointReview'
+import {
+  leaderReviewPageXmInfo,
+  canLeaderReview,
+  saveLeaderReviewRecord,
+  saveLeaderReviewRecordNew,
+  getLeaderReviewRecordImportTemplate,
+  importLeaderReviewRecord,
+  canLeaderReviewTh,
+  leaderReviewTh,
+  getExpertReviewReason
+} from '@/api/service/jointReview'
 import { ElMessage } from 'element-plus'
-import proTable from '@/components/ProTable/index.vue' //表格组件
-import ImportExcel from '@/components/ImportExcel/indexZx.vue' //导入组件
+import proTable from '@/components/ProTable/index.vue'
+import ImportExcel from '@/components/ImportExcel/indexZx.vue'
 import { formatNumValue } from '@/utils/utils'
 import reviewModal from '@/components/yssxTable/reviewModal.vue'
 import proModel from '@/views/service/ywpt/components/modelReview.vue'
@@ -34,13 +40,18 @@ import selectModal from '@/views/service/ywpt/components/selectModalPs.vue'
 import { getEjdwData, getYjdwData } from '@/api/service/expertinformation'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import { useStore } from '@/store/business'
+defineOptions({
+  name: 'xmInfo'
+})
+
+ //表格组件
+ //导入组件
 
 interface meetingVo {
   expertName: string
   expertId: string
   meetingId: string
 }
-
 interface propsVo {
   title: string
   pageApi: (params: any) => Promise<any> // 表格接口
@@ -73,7 +84,6 @@ const options = ref<any[]>([
     code: '0'
   }
 ])
-
 const levelOne = ref<any>([]) // 一级单位
 const levelTwo = ref<any>([]) // 二级单位
 const selectChange = (val: any) => {
@@ -198,11 +208,17 @@ const pushMsgHandle = (val: any) => {
   }).then((res: any) => {
     if (res.success) {
       modelForm.value?.closeHandle()
-      ElMessage({ type: 'success', message: '保存成功' })
+      ElMessage({
+        type: 'success',
+        message: '保存成功'
+      })
       proTableRef.value?.getTableList()
       proTableRef.value?.clearSelection()
     } else {
-      ElMessage({ type: 'error', message: res.msg })
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
     }
   })
 }
@@ -217,11 +233,17 @@ const showModal = (val: any) => {
   }).then((res: any) => {
     if (res.success) {
       selectModalRef.value.isShowModel = false
-      ElMessage({ type: 'success', message: '保存成功' })
+      ElMessage({
+        type: 'success',
+        message: '保存成功'
+      })
       proTableRef.value?.getTableList()
       proTableRef.value?.clearSelection()
     } else {
-      ElMessage({ type: 'error', message: res.msg })
+      ElMessage({
+        type: 'error',
+        message: res.msg
+      })
     }
   })
 }
@@ -309,7 +331,6 @@ const unitDescImportHandle = () => {
     expertId: props.meetingInfo.expertId,
     meetingId: props.meetingInfo.meetingId
   }
-
   let tempApi: any = getLeaderReviewRecordImportTemplate
   let importApi: any = importLeaderReviewRecord
   if (!importApi) return
@@ -363,18 +384,36 @@ const initParamLists = async () => {
     proTableRef.value?.clearSelection()
   }
 }
-
 const tableColumns = reactive<any>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
-  { prop: 'review_expert_name', label: '专家组长', width: '80' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
+  {
+    prop: 'review_expert_name',
+    label: '专家组长',
+    width: '80'
+  },
   {
     prop: 'review_opinion',
     label: '专家组长终评意见',
     width: '120'
   },
-  { prop: 'review_reason', label: '专家组长终评意见说明', width: '200' },
-  { prop: 'sfthName', label: '是否退回', width: '100' },
+  {
+    prop: 'review_reason',
+    label: '专家组长终评意见说明',
+    width: '200'
+  },
+  {
+    prop: 'sfthName',
+    label: '是否退回',
+    width: '100'
+  },
   {
     prop: 'xmbm',
     label: '项目编码',
@@ -390,28 +429,66 @@ const tableColumns = reactive<any>([
     prop: 'xmmc',
     label: '项目名称',
     width: '280',
-    search: { el: 'input', order: 2 }
+    search: {
+      el: 'input',
+      order: 2
+    }
   },
-  { prop: 'sfgmb', label: '是否规模包', width: '100' },
-  { prop: 'gmbbm', label: '规模包编码', width: '180' },
-  { prop: 'gmbmc', label: '规模包名称', width: '200' },
-  { prop: "isPackName", label: "是否打捆项目", width: "100" },
-  { prop: 'pro_type_name', label: '项目类型', width: '280' },
+  {
+    prop: 'sfgmb',
+    label: '是否规模包',
+    width: '100'
+  },
+  {
+    prop: 'gmbbm',
+    label: '规模包编码',
+    width: '180'
+  },
+  {
+    prop: 'gmbmc',
+    label: '规模包名称',
+    width: '200'
+  },
+  {
+    prop: 'isPackName',
+    label: '是否打捆项目',
+    width: '100'
+  },
+  {
+    prop: 'pro_type_name',
+    label: '项目类型',
+    width: '280'
+  },
   {
     prop: 'yjdw',
     label: '一级单位',
     isShow: false,
-    search: { el: 'select', props: { onChange: selectChange }, order: 3 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: selectChange
+      },
+      order: 3
+    },
     enum: levelOne.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'ejdw',
     label: '二级单位',
     isShow: false,
-    search: { el: 'select', order: 4 },
+    search: {
+      el: 'select',
+      order: 4
+    },
     enum: levelTwo.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'yjdwName',
@@ -427,25 +504,53 @@ const tableColumns = reactive<any>([
     prop: 'expertReviewStatus',
     label: '是否已专家评审',
     isShow: false,
-    search: { el: 'select', order: 5 },
+    search: {
+      el: 'select',
+      order: 5
+    },
     enum: [
-      { code: '1', name: '已专家评审' },
-      { code: '0', name: '未专家评审' }
+      {
+        code: '1',
+        name: '已专家评审'
+      },
+      {
+        code: '0',
+        name: '未专家评审'
+      }
     ],
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'leaderReviewStatus',
     label: '是否已组长终评',
     isShow: false,
-    search: { el: 'select', order: 6 },
+    search: {
+      el: 'select',
+      order: 6
+    },
     enum: [
-      { code: '1', name: '已组长评审' },
-      { code: '0', name: '未组长评审' }
+      {
+        code: '1',
+        name: '已组长评审'
+      },
+      {
+        code: '0',
+        name: '未组长评审'
+      }
     ],
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
-  { prop: 'apply_center', label: '成本中心', width: '280' },
+  {
+    prop: 'apply_center',
+    label: '成本中心',
+    width: '280'
+  },
   {
     prop: 'amount',
     label: '申报金额（万元）',
@@ -458,28 +563,116 @@ const tableColumns = reactive<any>([
       return formatNumValue(value, 6)
     }
   },
-  { prop: 'jhssnd', label: '计划实施年份', width: '140' },
-  { prop: 'zdtx', label: '重点投向', width: '180' },
-  { prop: 'zgkbm', label: '省归口部门', width: '180' },
-  { prop: 'yssxmc', label: '预算事项名称', width: '200' },
-  { prop: 'yssx_remark', label: '预算事项说明', width: '280' },
-  { prop: 'yjfl', label: '一级分类', width: '140' },
-  { prop: 'ejfl', label: '二级分类', width: '140' },
-  { prop: 'sjfl', label: '三级分类', width: '140' },
-  { prop: 'ssbm', label: '实施部门', width: '180' },
-  { prop: 'xmssr', label: '项目实施人', width: '180' },
-  { prop: 'zyfjftrtjfw', label: '研发投入统计范围', width: '180' },
-  { prop: 'zyqcg', label: '预期成果', width: '180' },
-  { prop: 'jryftrbfb', label: '研发投入百分比', width: '180' },
-  { prop: 'bfbjsfssm', label: '百分比说明', width: '180' },
-  { prop: 'sfaqsc', label: '是否安全生产', width: '140' },
-  { prop: 'aqscfylx', label: '安全生产费用类型', width: '180' },
-  { prop: 'xllx', label: '线路类型', width: '140' },
-  { prop: 'dydj', label: '电压等级', width: '140' },
-  { prop: 'ssnr', label: '项目实施内容', width: '280' },
-  { prop: 'fj1', label: '项目建议书（数量）', width: '140' },
-  { prop: 'fj2', label: '可研（数量）', width: '140' },
-  { prop: 'fj3', label: '批复文件（数量）', width: '140' }
+  {
+    prop: 'jhssnd',
+    label: '计划实施年份',
+    width: '140'
+  },
+  {
+    prop: 'zdtx',
+    label: '重点投向',
+    width: '180'
+  },
+  {
+    prop: 'zgkbm',
+    label: '省归口部门',
+    width: '180'
+  },
+  {
+    prop: 'yssxmc',
+    label: '预算事项名称',
+    width: '200'
+  },
+  {
+    prop: 'yssx_remark',
+    label: '预算事项说明',
+    width: '280'
+  },
+  {
+    prop: 'yjfl',
+    label: '一级分类',
+    width: '140'
+  },
+  {
+    prop: 'ejfl',
+    label: '二级分类',
+    width: '140'
+  },
+  {
+    prop: 'sjfl',
+    label: '三级分类',
+    width: '140'
+  },
+  {
+    prop: 'ssbm',
+    label: '实施部门',
+    width: '180'
+  },
+  {
+    prop: 'xmssr',
+    label: '项目实施人',
+    width: '180'
+  },
+  {
+    prop: 'zyfjftrtjfw',
+    label: '研发投入统计范围',
+    width: '180'
+  },
+  {
+    prop: 'zyqcg',
+    label: '预期成果',
+    width: '180'
+  },
+  {
+    prop: 'jryftrbfb',
+    label: '研发投入百分比',
+    width: '180'
+  },
+  {
+    prop: 'bfbjsfssm',
+    label: '百分比说明',
+    width: '180'
+  },
+  {
+    prop: 'sfaqsc',
+    label: '是否安全生产',
+    width: '140'
+  },
+  {
+    prop: 'aqscfylx',
+    label: '安全生产费用类型',
+    width: '180'
+  },
+  {
+    prop: 'xllx',
+    label: '线路类型',
+    width: '140'
+  },
+  {
+    prop: 'dydj',
+    label: '电压等级',
+    width: '140'
+  },
+  {
+    prop: 'ssnr',
+    label: '项目实施内容',
+    width: '280'
+  },
+  {
+    prop: 'fj1',
+    label: '项目建议书（数量）',
+    width: '140'
+  },
+  {
+    prop: 'fj2',
+    label: '可研（数量）',
+    width: '140'
+  },
+  {
+    prop: 'fj3',
+    label: '批复文件（数量）',
+    width: '140'
+  }
 ])
 defineExpose({
   isShowModel

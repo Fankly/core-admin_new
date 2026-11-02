@@ -60,8 +60,6 @@
 
 <script setup lang="ts">
 import { CurrentUserRoleInjectionKey } from '@/components/UserRoleSelector/interface'
-
-defineOptions({ name: "/service/Storage/Review/index" })
 import { onMounted, ref, provide } from 'vue'
 import { ServiceGeneralReport } from '@/components/service'
 import type { UserInfo } from '@/components/service/ServiceGeneralReport/types'
@@ -74,6 +72,7 @@ import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { useStore } from '@/store/business'
 import reviewModal from '@/components/yssxTable/reviewModal.vue'
+defineOptions({ name: "/service/Storage/Review/index" })
 
 const store = useStore()
 

@@ -87,19 +87,20 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: '/lslxJsc/components/reportingView'
-}
-</script>
+
 
 <script setup lang="ts">
-import { reactive, ref, defineProps, defineExpose, defineEmits } from 'vue'
+import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { formatValue } from '@/utils/utils'
 import { apiExportHandle, vxeExportHandle } from '@/utils/export'
 import { formDataVo } from '@/views/service/lslxJsc/interface/index'
-import middleCont from '@/components/modalTitle/middleCont.vue' //表格组件
+import middleCont from '@/components/modalTitle/middleCont.vue'
+defineOptions({
+  name: '/lslxJsc/components/reportingView'
+})
+
+ //表格组件
 
 //接收父组件传参
 const props = defineProps<{
@@ -112,8 +113,6 @@ const emits = defineEmits(['pushPage'])
 const tableRef = ref()
 const dialogFormRef = ref()
 const toolbarRef = ref()
-
-
 const pageInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -121,14 +120,12 @@ const pageInfo = reactive<{
   loading: true,
   isShowPage: false
 })
-
 const count = ref(0)
 const viewMethod = ref<string>('1')
 const isShowModel = ref(false)
 const closeHandle = () => {
   emits('pushPage', true)
 }
-
 const tableInfo = reactive<any>({
   border: true,
   tableData: [],
@@ -178,7 +175,6 @@ const tableInfo = reactive<any>({
     }
   }
 })
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -267,7 +263,6 @@ const newData = async () => {
   await getDataList()
   await threeLevel()
 }
-
 const getDataList = async () => {
   pageInfo.loading = true
   tableInfo.tableData.length = 0
@@ -302,7 +297,6 @@ const getHeaderData = async (params: any) => {
     return false
   }
 }
-
 defineExpose({
   isShowModel,
   getHeaderData,

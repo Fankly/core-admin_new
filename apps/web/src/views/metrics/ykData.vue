@@ -94,20 +94,21 @@
   <projectData ref="projectPageRef" />
   <HelpModal ref="helpModalRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/metrics/ykData'
-}
-</script>
+
 <script setup lang="ts">
 import { getDynamicColumnByDw, getDynamicColumnByType, getStatDataByDw, getStatDataByType } from '@/api/metrics/index'
 import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
-import userDialog from '@/components/select/userDialog.vue' //权限弹框
+import userDialog from '@/components/select/userDialog.vue'
 import { formatValue } from '@/utils/utils'
 import projectData from '@/views/metrics/components/projectData.vue'
 import { ElMessage, ElNotification } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
+defineOptions({
+  name: '/metrics/ykData'
+})
+
+ //权限弹框
 
 const userDialogRef = ref() // 用户角色
 const helpModalRef = ref() // 用户角色
@@ -117,7 +118,6 @@ const typeRef = ref()
 const projectPageRef = ref()
 const nd = ref<any>('')
 const busiType = ref<any>('YKSJTJ')
-
 const pageInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -167,11 +167,9 @@ const cellStyle = ({ row, column }: any) => {
     }
   }
 }
-
 const getHelpMessageHandle = () => {
   if (helpModalRef.value) helpModalRef.value.showModal = true
 }
-
 const headerCellStyle = ({ row, column }: any) => {
   if (column.title.includes('年')) {
     return {
@@ -226,11 +224,18 @@ const getRoleHandle = async () => {
   try {
     nd.value = new Date().getFullYear().toString()
     const isQuery = userDialogRef.value.isQuery
-    const userMsg = { ...userDialogRef.value.userMsg }
+    const userMsg = {
+      ...userDialogRef.value.userMsg
+    }
     userInfo.value = userMsg.specialOrgId
     if (isQuery) {
-      getHeaderData({ busiType: busiType.value })
-      getHeaderTypeData({ busiType: busiType.value, nd: nd.value })
+      getHeaderData({
+        busiType: busiType.value
+      })
+      getHeaderTypeData({
+        busiType: busiType.value,
+        nd: nd.value
+      })
       pageInfo.isShowPage = true
     }
   } catch (e) {
@@ -242,7 +247,10 @@ const handleHeaderCell = (row: any) => {
   const val: any = row.column.title
   if (val.includes('年')) {
     nd.value = row.column.field
-    getHeaderTypeData({ busiType: busiType.value, nd: nd.value })
+    getHeaderTypeData({
+      busiType: busiType.value,
+      nd: nd.value
+    })
   }
 }
 

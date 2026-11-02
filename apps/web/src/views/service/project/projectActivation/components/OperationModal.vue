@@ -34,11 +34,11 @@
 </template>
 
 <script lang="ts" setup>
-defineOptions({ name: "OperationModal" })
 import { ref } from 'vue'
 import { RowVO } from '@/views/service/project/projectActivation/interface'
 import { useCommon } from './hooks/useCommon'
 import { VxeGridInstance } from 'vxe-table'
+defineOptions({ name: "OperationModal" })
 
 export interface AcceptParams {
   ids: string

@@ -45,7 +45,6 @@
   <xmTable ref="xmTableRef" />
 </template>
 <script setup lang="tsx">
-defineOptions({ name: "DimensionStatistics" })
 import { nextTick, ref, reactive } from 'vue'
 import Grid from '@/components/Grid/index.vue'
 import GridItem from '@/components/Grid/components/GridItem.vue'
@@ -55,6 +54,7 @@ import { tjfxGetData } from '@/api/service/IhhsMeeting/approval/proviceIhhsMeeti
 import { ElMessage } from 'element-plus'
 import xmTable from '@/views/service/approval/provinceMeetingReport/components/xmTable/index.vue'
 import { vxeExportSixHandle, exportXlsx } from '@/utils/export'
+defineOptions({ name: "DimensionStatistics" })
 
 const modalVisible = ref<boolean>(false)
 const loading = ref<boolean>(false)

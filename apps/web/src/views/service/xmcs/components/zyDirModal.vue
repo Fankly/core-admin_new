@@ -43,16 +43,15 @@
     </template>
   </vxe-modal>
 </template>
-<script lang="ts">
-export default {
-  name: 'zyDirModal'
-}
-</script>
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { saveOrUpdateDir } from '@/api/service/xmcs/workStandardCostConfig'
+defineOptions({
+  name: 'zyDirModal'
+})
 
 interface ModalProps {
   type: string // 新增 / 编辑
@@ -64,15 +63,24 @@ interface ModalProps {
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
-const modalParams = ref<ModalProps>({ type: '', parentId: '0', nodeLevel: 1 })
-const formData = ref<any>({ id: '', dirName: '', sortNo: 0, remark: '' })
-
+const modalParams = ref<ModalProps>({
+  type: '',
+  parentId: '0',
+  nodeLevel: 1
+})
+const formData = ref<any>({
+  id: '',
+  dirName: '',
+  sortNo: 0,
+  remark: ''
+})
 const emits = defineEmits(['saveDataAfter'])
-
 const save = () => {
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-    const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', { status: 'warning' })
+    const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
+      status: 'warning'
+    })
     if (type !== 'confirm') return ElMessage.info('已取消')
     const params = {
       id: formData.value.id || undefined,
@@ -94,14 +102,19 @@ const save = () => {
     }
   })
 }
-
 const reset = () => {
-  formData.value = { id: '', dirName: '', sortNo: 0, remark: '' }
+  formData.value = {
+    id: '',
+    dirName: '',
+    sortNo: 0,
+    remark: ''
+  }
   isShowModal.value = false
 }
-
 const acceptParams = (params: ModalProps) => {
-  modalParams.value = { ...params }
+  modalParams.value = {
+    ...params
+  }
   if (params.type === '编辑' && params.row) {
     formData.value = {
       id: params.row.id || '',
@@ -110,11 +123,17 @@ const acceptParams = (params: ModalProps) => {
       remark: params.row.remark || ''
     }
   } else {
-    formData.value = { id: '', dirName: '', sortNo: 0, remark: '' }
+    formData.value = {
+      id: '',
+      dirName: '',
+      sortNo: 0,
+      remark: ''
+    }
   }
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 <style scoped lang="less"></style>

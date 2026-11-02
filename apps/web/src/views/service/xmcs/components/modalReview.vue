@@ -58,14 +58,13 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'modalReview'
-}
-</script>
+
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { getPublicCodeList } from '@/api/common'
+defineOptions({
+  name: 'modalReview'
+})
 
 // 子组件
 const emit = defineEmits(['showModal', 'getReason'])
@@ -108,7 +107,10 @@ const open = async (params: any) => {
 const pushMsgHandle = async () => {
   rmarkDataRef.value.validate(async (valid: any) => {
     if (!valid) return
-    emit('showModal', { ...rmarkData, xmIds: ids.value })
+    emit('showModal', {
+      ...rmarkData,
+      xmIds: ids.value
+    })
   })
 }
 // 子组件暴露方法到父组件

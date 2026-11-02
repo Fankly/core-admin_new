@@ -8,86 +8,96 @@
   </dialogContainer>
 </template>
 
-<script>
-export default {
-  name: 'ScoreDialog',
-  props: {
-    id: {
-      type: [String, Number],
-      required: true
-    },
-    score: {
-      type: [Number, String],
-      default: 0
-    },
-    remark: {
-      type: String,
-      default: ''
-    }
+<script setup>
+import { reactive, toRef, toRefs, computed, watch, getCurrentInstance, useTemplateRef } from 'vue'
+defineOptions({
+  name: 'ScoreDialog'
+})
+const componentProps = defineProps({
+  id: {
+    type: [String, Number],
+    required: true
   },
-  data() {
-    return {
-      buttonLoading: false,
-      formData: {
-        effectScore: 0,
-        effectScoreRemark: ''
-      }
-    }
+  score: {
+    type: [Number, String],
+    default: 0
   },
-  watch: {
-    score: {
-      immediate: true,
-      handler(val) {
-        this.formData.effectScore = val || 0
-      }
-    },
-    remark: {
-      immediate: true,
-      handler(val) {
-        this.formData.effectScoreRemark = val || ''
-      }
-    }
-  },
-  methods: {
-    handleCancel() {
-      if (this.observer != null) {
-        this.observer.cancel(false)
-      }
-    },
-    handleSubmit() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          if (this.observer != null) {
-            this.observer.cancel(true, this.formData)
-          }
-        }
-      })
-    }
-  },
-  computed: {
-    rules() {
-      return {}
-    },
-    infoOptions() {
-      return [
-        {
-          prop: 'effectScore',
-          label: '效果评分',
-          slot: true
-        },
-        {
-          tag: 'textarea',
-          prop: 'effectScoreRemark',
-          label: '备注说明',
-          attrs: {
-            placeholder: '请输入',
-            rows: 5
-          }
-        }
-      ]
-    }
+  remark: {
+    type: String,
+    default: ''
+  }
+})
+const componentInstance = getCurrentInstance().proxy
+const formRef = useTemplateRef('form')
+const componentData = reactive({
+  buttonLoading: false,
+  formData: {
+    effectScore: 0,
+    effectScoreRemark: ''
+  }
+})
+const buttonLoading = toRef(componentData, 'buttonLoading')
+const formData = toRef(componentData, 'formData')
+function handleCancel() {
+  if (componentInstance.observer != null) {
+    componentInstance.observer.cancel(false)
   }
 }
+function handleSubmit() {
+  formRef.value.validate((valid) => {
+    if (valid) {
+      if (componentInstance.observer != null) {
+        componentInstance.observer.cancel(true, componentData.formData)
+      }
+    }
+  })
+}
+const rules = computed(() => {
+  return {}
+})
+const infoOptions = computed(() => {
+  return [
+    {
+      prop: 'effectScore',
+      label: '效果评分',
+      slot: true
+    },
+    {
+      tag: 'textarea',
+      prop: 'effectScoreRemark',
+      label: '备注说明',
+      attrs: {
+        placeholder: '请输入',
+        rows: 5
+      }
+    }
+  ]
+})
+watch(
+  () => componentProps.score,
+  function (val) {
+    componentData.formData.effectScore = val || 0
+  },
+  {
+    immediate: true
+  }
+)
+watch(
+  () => componentProps.remark,
+  function (val) {
+    componentData.formData.effectScoreRemark = val || ''
+  },
+  {
+    immediate: true
+  }
+)
+defineExpose({
+  handleCancel,
+  handleSubmit,
+  ...toRefs(componentData),
+  rules,
+  infoOptions
+})
 </script>
 
 <style lang="less" scoped>

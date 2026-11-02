@@ -45,7 +45,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "reViewProModal" })
 import { nextTick, ref, reactive } from 'vue'
 import {
   deleteYnrxmWhenPsz,
@@ -65,6 +64,7 @@ import PendingTrialProModal from '@/views/service/approval/cityLhhsMeeting/compo
 import { VXETable } from 'vxe-table'
 import { downloadExportBlob } from '@/views/service/approval/cityLhhsMeeting/utils/download'
 import { buildRoleRequestParams, appendRoleRequestParams } from '@/views/service/approval/cityLhhsMeeting/utils/roleParams'
+defineOptions({ name: "reViewProModal" })
 
 interface ModalProps {
   title: string

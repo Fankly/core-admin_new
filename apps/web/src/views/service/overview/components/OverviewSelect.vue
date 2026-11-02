@@ -43,16 +43,10 @@
   </div>
 </template>
 
-<script lang="ts">
-// 每个实例的 listbox / option id 需要全页唯一，供 aria-controls 与 aria-activedescendant 引用。
-let selectSeed = 0
-</script>
-
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 import { Check, ChevronDown } from '@lucide/vue'
 import type { OverviewSelectOption } from '../types'
-
 const props = withDefaults(
   defineProps<{
     modelValue: string
@@ -64,50 +58,50 @@ const props = withDefaults(
     /** 已设置非默认值：胶囊改为浅青底，提示条件已生效。 */
     applied?: boolean
   }>(),
-  { disabled: false, placeholder: '--', applied: false }
+  {
+    disabled: false,
+    placeholder: '--',
+    applied: false
+  }
 )
-const emit = defineEmits<{ (event: 'update:modelValue', value: string): void }>()
-
-const uid = `overview-select-${++selectSeed}`
+const emit = defineEmits<{
+  (event: 'update:modelValue', value: string): void
+}>()
+const uid = `overview-select-${useId()}`
 const labelId = `${uid}-label`
 const valueId = `${uid}-value`
 const listId = `${uid}-list`
 const optionId = (index: number) => `${uid}-option-${index}`
-
 const rootRef = ref<HTMLElement | null>(null)
 const listRef = ref<HTMLElement | null>(null)
 const open = ref(false)
 const activeIndex = ref(-1)
 const selectedIndex = computed(() => props.options.findIndex((option) => option.value === props.modelValue))
 const selectedOption = computed(() => props.options[selectedIndex.value])
-
 const scrollActiveIntoView = () => {
   nextTick(() => {
     if (activeIndex.value < 0) return
-    listRef.value?.querySelector<HTMLElement>(`#${optionId(activeIndex.value)}`)?.scrollIntoView({ block: 'nearest' })
+    listRef.value?.querySelector<HTMLElement>(`#${optionId(activeIndex.value)}`)?.scrollIntoView({
+      block: 'nearest'
+    })
   })
 }
-
 const openMenu = (index = selectedIndex.value) => {
   if (props.disabled || !props.options.length) return
   open.value = true
   activeIndex.value = Math.min(Math.max(index, 0), props.options.length - 1)
   scrollActiveIntoView()
 }
-
 const closeMenu = () => {
   open.value = false
   activeIndex.value = -1
 }
-
 const toggle = () => (open.value ? closeMenu() : openMenu())
-
 const choose = (index: number) => {
   const option = props.options[index]
   if (option && option.value !== props.modelValue) emit('update:modelValue', option.value)
   closeMenu()
 }
-
 const moveActive = (index: number) => {
   activeIndex.value = Math.min(Math.max(index, 0), props.options.length - 1)
   scrollActiveIntoView()
@@ -162,7 +156,6 @@ const handleKeydown = (event: KeyboardEvent) => {
       break
   }
 }
-
 const handleFocusOut = (event: FocusEvent) => {
   if (open.value && !rootRef.value?.contains(event.relatedTarget as Node | null)) closeMenu()
 }

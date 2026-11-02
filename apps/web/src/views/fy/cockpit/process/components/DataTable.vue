@@ -38,28 +38,26 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits, defineProps } from "vue";
 // Props定义
 interface TableColumn {
-  key: string;
-  label: string;
-  type?: string;
-  action?: string;
-  actionText?: string;
+  key: string
+  label: string
+  type?: string
+  action?: string
+  actionText?: string
 }
-
 const props = defineProps<{
-  columns: TableColumn[];
-  data: any[];
-}>();
+  columns: TableColumn[]
+  data: any[]
+}>()
 
 // Emits定义
-const emit = defineEmits(["action-click"]);
+const emit = defineEmits(['action-click'])
 
 // 处理操作
 const handleAction = (action: string, item: any) => {
-  emit("action-click", action, item);
-};
+  emit('action-click', action, item)
+}
 </script>
 
 <style scoped>

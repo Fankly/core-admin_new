@@ -143,15 +143,9 @@
   <userDialog ref="userDialogRef" @loadCompany="getRoleHandle"></userDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/service/xq/BatchRequirement'
-}
-</script>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { Upload as EpUpload } from '@element-plus/icons-vue'
-
 import { getProtypeTreeNoMiddle, getXqlrNum } from '@/api/service/requirement'
 import baseService from '@/service/baseService'
 import MyCart from '@/views/service/xq/components/MyCart.vue'
@@ -159,7 +153,6 @@ import { ElMessage } from 'element-plus'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useStore } from '@/store/business'
 import VXETable, { VxeTablePropTypes } from 'vxe-table'
-
 import { getAppMenu } from '@/api/menu/menuConfig'
 import { importTemplateDownload, xmExcelVerify, xmImport } from '@/api/service/batchRequirement'
 import ElTreeSelect from '@/components/ElTreeSelect/index.vue'
@@ -168,11 +161,13 @@ import { useUser } from '@/hooks/useUser'
 import { MenuConfig } from '@/views/service/xq/interface'
 import { useRoute } from 'vue-router'
 import { getYearData } from '@/api/common'
+defineOptions({
+  name: '/service/xq/BatchRequirement'
+})
 
 interface Params {
   [key: string]: string
 }
-
 const loading = ref(false)
 const activeStep = ref(1)
 const isShowPage = ref(false)
@@ -182,9 +177,7 @@ const store = useStore()
 const operationBtn = ref<MenuConfig[]>([])
 const searchBtn = ref<MenuConfig[]>([])
 const route = useRoute()
-
 const isDisabled = computed(() => loading.value)
-
 const userInfOther = ref()
 const formOneRef = ref()
 const proTypeName = ref('')
@@ -193,14 +186,12 @@ const ndList = ref([])
 const attachData = ref<any[]>([])
 const attachFile = ref()
 const xlsxFile = ref()
-
 const changeHandle = (_value: any, globalParams: any) => {
   if (_value) {
     proTypeName.value = globalParams['name']
     flag.value = false
   }
 }
-
 const formData = reactive<Params>({
   proTypeId: ''
 })
@@ -213,10 +204,8 @@ const formRules = reactive({
     }
   ]
 })
-
 const proTypeTreeData = ref([])
 const uploadRef = ref()
-
 const userInfo = ref<{
   deptId: string
   deptName: string
@@ -240,18 +229,14 @@ const userInfo = ref<{
   userName: '',
   userId: ''
 })
-
 const isChange = ref(false)
-
 const flag = ref(false)
 // 父组件传过来的参数
 const fileTypeOne = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
 const fileTypeTwo = ['application/x-zip-compressed']
-
 const onRemoveFile = () => {
   flag.value = false
 }
-
 const uploadExcel = async (param: any, type: string) => {
   const { file, onSuccess, onError } = param
   // 校验信息
@@ -317,7 +302,6 @@ const uploadExcel = async (param: any, type: string) => {
     attachFile.value = param
   }
 }
-
 const spanMethod: VxeTablePropTypes.SpanMethod<any> = ({ row, _rowIndex, column, visibleData }) => {
   const fields = ['rowNo', 'xmbm', 'xmmc', 'name']
   const cellValue = row[column.field]
@@ -364,22 +348,30 @@ const beforeExcelUpload = (file: any, type: string) => {
         type: 'warning'
       })
     }
-
   return isExcel
 }
-
 const steps = ref([
-  { stepId: '1', stepName: '需求模板下载', stepType: '1' },
-  { stepId: '2', stepName: '需求信息导入', stepType: '2' },
-  { stepId: '3', stepName: '附件信息上传', stepType: '3' }
+  {
+    stepId: '1',
+    stepName: '需求模板下载',
+    stepType: '1'
+  },
+  {
+    stepId: '2',
+    stepName: '需求信息导入',
+    stepType: '2'
+  },
+  {
+    stepId: '3',
+    stepName: '附件信息上传',
+    stepType: '3'
+  }
 ])
-
 const prevStep = () => {
   if (activeStep.value > 1) {
     activeStep.value--
   }
 }
-
 const nextStep = async () => {
   try {
     if (activeStep.value === 1) {
@@ -397,7 +389,6 @@ const nextStep = async () => {
     ElMessage.error('请填写完毕后,再点击下一步!')
   }
 }
-
 const downloadHandle = async () => {
   const validate = await formOneRef.value.validate()
   if (validate) {
@@ -424,7 +415,6 @@ const downloadHandle = async () => {
     })
   }
 }
-
 const submitForm = async () => {
   const type = await VXETable.modal.confirm('是否确认导入?', '提示', {
     confirmButtonText: '是',
@@ -440,7 +430,6 @@ const submitForm = async () => {
       name = user.name
     }
     const formDatas = new FormData()
-
     if (xlsxFile.value) formDatas.append('xmExcel', xlsxFile.value.file)
     if (attachFile.value) formDatas.append('xmAttach', attachFile.value.file)
     const params = {
@@ -464,7 +453,6 @@ const submitForm = async () => {
     }
   }
 }
-
 const showHandle = async (dwId: string, bmId: string) => {
   const xqlrNum = await getXqlrNum({
     bmId: bmId || '',
@@ -475,7 +463,6 @@ const showHandle = async (dwId: string, bmId: string) => {
     notifyNumber.value = xqlrNum.data
   }
 }
-
 const closeHandle = () => {
   activeStep.value = 1
   xlsxFile.value = null
@@ -487,18 +474,17 @@ const closeHandle = () => {
     uploadRef.value.clearFiles()
   }
 }
-
 const handleShopping = () => {
   myCartRef.value.isShowModal = true
 }
-
 const userDialogRef = ref()
-
 const getRoleHandle = async () => {
   try {
     loading.value = true
     const isQuery = userDialogRef.value.isQuery
-    userInfOther.value = { ...userDialogRef.value.userMsg }
+    userInfOther.value = {
+      ...userDialogRef.value.userMsg
+    }
     if (isQuery) {
       isShowPage.value = true
       const flagData = await baseService.post(`/workflow/cbxqsh/getFqzz?spOrgId=${userInfOther.value.specialorgid}`)
@@ -528,7 +514,6 @@ const getRoleHandle = async () => {
     loading.value = false
   }
 }
-
 const getProTypeTreeData = async (deptId: string, dwId: string) => {
   proTypeTreeData.value.length = 0
   const res = await getProtypeTreeNoMiddle()
@@ -537,7 +522,6 @@ const getProTypeTreeData = async (deptId: string, dwId: string) => {
   }
   proTypeTreeData.value = res.data
 }
-
 const getYearDataList = async () => {
   const res = await getYearData()
   if (res.success) {
@@ -547,7 +531,6 @@ const getYearDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 onMounted(async () => {
   const isRoel = await useUser()
   if (isRoel && route.params.formJsc) {

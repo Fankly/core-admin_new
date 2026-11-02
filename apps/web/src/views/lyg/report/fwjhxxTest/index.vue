@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "/lyg/report/fwjhxxTest/index" })
 import { onMounted, ref, reactive, computed } from 'vue'
 import userDialog from '@/components/select/userDialog.vue'
 import ProTable from '@/components/ProTablePage/index.vue'
@@ -27,6 +26,7 @@ import { useStore } from '@/store/business'
 import { getPublicData } from '@/api/common'
 import { fwjhxxPage } from '@/api/lyg/report'
 import { columns } from './columns'
+defineOptions({ name: "/lyg/report/fwjhxxTest/index" })
 
 // ========== 响应式状态 ==========
 const userDialogRef = ref()

@@ -201,15 +201,11 @@
   </div>
   <ImportExcel ref="importRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/lslxJsc/components/reporting'
-}
-</script>
+
 
 <script setup lang="ts">
-import { reactive, ref, defineProps, defineExpose, defineEmits } from 'vue'
-import { summaryValue } from '@/utils/utils' //合计项目类型值
+import { reactive, ref } from 'vue'
+import { summaryValue, formatValue } from '@/utils/utils'
 import {
   getTableDataForEs,
   getDynamicColumnForEs,
@@ -222,11 +218,17 @@ import {
 } from '@/api/lslxJsc/index'
 import { ElMessage, ElNotification, ElMessageBox } from 'element-plus'
 import { Decimal } from 'decimal.js'
-import { formatValue } from '@/utils/utils'
-import ImportExcel from '@/components/ImportExcel/indexNew.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexNew.vue'
 import { submitWorkflow, WFData, WFParam, WFUserInfo } from '@/hooks/useWorkflow'
 import { useStore } from '@/store/business'
 import { apiExportHandle, vxeExportHandle } from '@/utils/export'
+defineOptions({
+  name: '/lslxJsc/components/reporting'
+})
+
+ //合计项目类型值
+
+ //导入组件
 
 const wfParam = ref<WFParam>({
   XMIDS: '',
@@ -247,7 +249,6 @@ const tableRef = ref()
 const dialogFormRef = ref()
 const importRef = ref<any>()
 const userInfo = ref()
-
 const pageInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -255,9 +256,7 @@ const pageInfo = reactive<{
   loading: true,
   isShowPage: false
 })
-
 const updateParams = reactive<any[]>([])
-
 const count = ref(0)
 const isShowModel = ref(false)
 const closeHandle = () => {
@@ -374,7 +373,6 @@ const tableInfo = reactive<any>({
     }
   }
 })
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -395,7 +393,6 @@ const formatterData = ({ cellValue, column }: any) => {
   if (column.title.includes('%')) return formatValue(cellValue.toString(), 6)
   return formatValue(cellValue.toString(), 6)
 }
-
 const sumhandle = (row: any, key: string) => {
   row[key] = row[key] ? new Decimal(row[key]).toFixed(6) : '0.000000'
   row[`${props.formData?.dwId}_sytc_nckqr`] = row[`${props.formData?.dwId}_sytc_nckqr`]
@@ -412,10 +409,7 @@ const sumhandle = (row: any, key: string) => {
 }
 // 计算市域统筹金额
 const getEssytcje = () => {
-  let gmSum = tableInfo.tableData.reduce(
-    (gmSum: number, item: any) => gmSum + Number(item[`${props.formData?.dwId}_sytcje`]),
-    0
-  )
+  let gmSum = tableInfo.tableData.reduce((gmSum: number, item: any) => gmSum + Number(item[`${props.formData?.dwId}_sytcje`]), 0)
   const isMessage = Number(rmarkData.esLimit) < Number(gmSum)
   return isMessage
 }
@@ -426,20 +420,12 @@ const getViewMethod = () => {
 
 // 获取编辑数据表格
 const getEditDataHandle = ({ column, row }: any) => {
-  if (
-    typeof row[column.field] == 'undefined' ||
-    row[column.field] == null ||
-    row[column.field] == ''
-  )
-    return
+  if (typeof row[column.field] == 'undefined' || row[column.field] == null || row[column.field] == '') return
   const code: string = row['code']
   const id: string = row['id']
   const outIndex = updateParams.findIndex((item: any) => item.id === id)
-
   if (outIndex > -1) {
-    const index = updateParams[outIndex].dwValueList.findIndex(
-      (item: any) => item.field === column.field
-    )
+    const index = updateParams[outIndex].dwValueList.findIndex((item: any) => item.field === column.field)
     if (index > -1) {
       updateParams[outIndex].dwValueList[index].value = row[column.field]
     } else {
@@ -587,13 +573,11 @@ const newData = async () => {
   await threeLevel()
   await gmSumData()
 }
-
 const isClickHeader = (columns: any, field: string) => {
   let columnsData = columns.filter((item: any) => item.edit)
   let column = columnsData.find((item: any) => item.field === field)
   return !!column
 }
-
 const getDataList = async () => {
   pageInfo.loading = true
   const api: any = getTableDataForEs
@@ -676,17 +660,8 @@ const submitCbxqshWorkflowHandle = () => {
   }
   wfParam.value.VERSION_ID = props.formData?.versionId
   wfParam.value.DW_ID = props.formData?.dwId
-  submitWorkflow(
-    store.getters.getUserMsg.systemCode,
-    'ESSHLC',
-    '',
-    wfUserInfo,
-    wfParam.value,
-    {},
-    submitWFCallback
-  )
+  submitWorkflow(store.getters.getUserMsg.systemCode, 'ESSHLC', '', wfUserInfo, wfParam.value, {}, submitWFCallback)
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
   let spfrom = {
     userId: store.getters.getUserMsg.id,
@@ -713,7 +688,6 @@ const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
     })
   }
 }
-
 defineExpose({
   isShowModel,
   getHeaderData,

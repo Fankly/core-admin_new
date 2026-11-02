@@ -87,30 +87,32 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "TableSelectorModal" })
-import { ref, reactive, defineProps, defineEmits } from 'vue'
+import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VxeTableInstance } from 'vxe-table'
+defineOptions({
+  name: 'TableSelectorModal'
+})
 
 interface SearchField {
   field: string
   label: string
   type?: 'input' | 'select'
-  options?: Array<{ label: string; value: any }>
+  options?: Array<{
+    label: string
+    value: any
+  }>
   disabled?: boolean
   defaultValue?: any
 }
-
 interface TableColumn {
   field: string
   title: string
   width?: number
 }
-
 interface TableData {
   [key: string]: any
 }
-
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -149,28 +151,23 @@ const props = defineProps({
     required: true
   }
 })
-
 const emit = defineEmits(['update:modelValue', 'confirm', 'close'])
-
 const modalVisible = ref(false)
 const loading = ref(false)
 const xTable = ref<VxeTableInstance<any>>()
 const tableData = ref<TableData[]>([])
 const selectedRow = ref<TableData | null>(null)
-
 const searchParams = reactive<Record<string, any>>({})
 const pagination = reactive({
   page: 1,
   limit: 20,
   total: 0
 })
-
 const initSearchParams = () => {
   props.searchFields.forEach((field: SearchField) => {
     searchParams[field.field] = field.defaultValue !== undefined ? field.defaultValue : ''
   })
 }
-
 const fetchTableData = async () => {
   try {
     loading.value = true
@@ -193,38 +190,31 @@ const fetchTableData = async () => {
     loading.value = false
   }
 }
-
 const handleSearch = () => {
   pagination.page = 1
   fetchTableData()
 }
-
 const resetSearch = () => {
   initSearchParams()
   pagination.page = 1
   fetchTableData()
 }
-
 const pageChangeHandle = (currentPage: number) => {
   pagination.page = currentPage
   fetchTableData()
 }
-
 const limitChangeHandle = (pageSize: number) => {
   pagination.page = 1
   pagination.limit = pageSize
   fetchTableData()
 }
-
 const handleRadioChange = ({ row }: any) => {
   selectedRow.value = row
 }
-
 const handleRowClick = ({ row }: any) => {
   selectedRow.value = row
   xTable.value?.setRadioRow(row)
 }
-
 const handleConfirm = () => {
   if (!selectedRow.value) {
     ElMessage.warning('请选择一条数据')
@@ -238,7 +228,6 @@ const handleConfirm = () => {
   emit('confirm', data)
   handleClose()
 }
-
 const handleClose = () => {
   modalVisible.value = false
   emit('update:modelValue', false)
@@ -247,7 +236,6 @@ const handleClose = () => {
   xTable.value?.clearRadioRow()
   resetSearch()
 }
-
 const open = async () => {
   modalVisible.value = true
   initSearchParams()
@@ -255,7 +243,6 @@ const open = async () => {
   xTable.value?.clearRadioRow()
   await fetchTableData()
 }
-
 defineExpose({
   open,
   modalVisible

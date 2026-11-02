@@ -105,9 +105,7 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "BreakdownModal" })
 import ImportExcel from '@/components/ImportExcel/index.vue'
-
 import { enableVersion, exportFjmx, getDynamicColumn, getFjDetail, getImportTemplate, importFjmx, saveFjmx } from '@/api/mbz/index'
 import { formatValue, summaryValue, toValidNumber } from '@/utils/utils'
 import { computed, reactive, ref } from 'vue'
@@ -116,6 +114,7 @@ import { ElMessage } from 'element-plus'
 import { getYearData } from '@/api/common'
 import { Decimal } from 'decimal.js'
 import { Columns } from '@/views/xmInfo/interface'
+defineOptions({ name: "BreakdownModal" })
 
 export interface Params {
   cjr: string

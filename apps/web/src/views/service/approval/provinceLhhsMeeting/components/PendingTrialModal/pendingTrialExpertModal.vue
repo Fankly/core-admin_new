@@ -37,14 +37,16 @@
 </template>
 
 <script setup lang="tsx">
-defineOptions({ name: "PendingTrialExpertModal" })
-import { ref, defineExpose, reactive, defineEmits } from 'vue'
+import { ref, reactive } from 'vue'
 import { getDnrhszjPage, saveZj, YnrhsxmPage, YnrhszjPage } from '@/api/service/IhhsMeeting/approval/proviceIhhsMeeting'
 import { ElMessage } from 'element-plus'
 import ReMultipleText from '@/components/ReMultipleText/src/index.vue'
 import ProTable from '@/components/ProTablePage/index.vue'
 import { getCommonCodeByParentCode, getYjdwFromCm, getPublicData } from '@/api/common'
 import { VXETable } from 'vxe-table'
+defineOptions({
+  name: 'PendingTrialExpertModal'
+})
 
 interface ModalProps {
   title: string
@@ -57,21 +59,17 @@ interface ModalProps {
   btnPermissions: string[]
   getTableList?: () => void
 }
-
 const proTableRef = ref()
 const emit = defineEmits(['includeInReview'])
-
 const yjdwListData: any = ref([])
 const ejdwListData: any = ref([])
 const pszyListData: any = ref([])
 const projectTypeList: any = ref([])
 const ndDataList: any = ref([])
-
 const rowClick = (row: any) => {
   clearSelectRow()
   proTableRef.value?.element.toggleRowSelection(row)
 }
-
 const modalProps = ref<ModalProps>({
   isView: false,
   title: '',
@@ -82,7 +80,6 @@ const modalProps = ref<ModalProps>({
   isPsz: false,
   btnPermissions: []
 })
-
 const closeHandle = () => {
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
@@ -90,7 +87,6 @@ const closeHandle = () => {
   ndDataList.value.length = 0
   projectTypeList.value.length = 0
 }
-
 const handleSelectAll = () => {
   const tableData = proTableRef.value?.tableData
   if (!tableData) return
@@ -105,16 +101,13 @@ const handleInverseSelect = () => {
     proTableRef.value?.element?.toggleRowSelection(row)
   })
 }
-
 const clearSelect = () => {
   ejdwListData.value.length = 0
   proTableRef.value?.clearSelection()
 }
-
 const clearSelectRow = () => {
   proTableRef.value?.clearSelection()
 }
-
 const handleIncludeInReview = async (selectedList: any[]) => {
   const type = await VXETable.modal.confirm('确认将选中项纳入会审？', '温馨提示', {
     status: 'warning'
@@ -141,9 +134,7 @@ const handleIncludeInReview = async (selectedList: any[]) => {
     }
   }
 }
-
 const loading = ref(false)
-
 const getYjdwEnum = async () => {
   yjdwListData.value.length = 0
   ejdwListData.value.length = 0
@@ -162,7 +153,6 @@ const getYjdwEnum = async () => {
     ndDataList.value.push(...list.data)
   }
 }
-
 const getPublicCode = async () => {
   pszyListData.value.length = 0
   let list = await getPublicData('MAJOR_COM')
@@ -172,7 +162,6 @@ const getPublicCode = async () => {
     ElMessage.error(list.msg)
   }
 }
-
 const changeEjdwEnum = async (val: string) => {
   ejdwListData.value.length = 0
   proTableRef.value.searchParam.ejdw = ''
@@ -191,10 +180,16 @@ const changeEjdwEnum = async (val: string) => {
     }
   }
 }
-
 const expertColumns = reactive<any[]>([
-  { type: 'selection', width: 50 },
-  { type: 'index', width: 50, label: '序号' },
+  {
+    type: 'selection',
+    width: 50
+  },
+  {
+    type: 'index',
+    width: 50,
+    label: '序号'
+  },
   {
     prop: 'majorName',
     label: '专家专业',
@@ -209,7 +204,10 @@ const expertColumns = reactive<any[]>([
       order: 5
     },
     enum: pszyListData.value,
-    fieldNames: { label: 'name', value: 'code' }
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    }
   },
   {
     prop: 'expertName',
@@ -252,9 +250,18 @@ const expertColumns = reactive<any[]>([
     prop: 'yjdw',
     label: '一级单位',
     width: '180',
-    search: { el: 'select', props: { onChange: changeEjdwEnum }, order: 1 },
+    search: {
+      el: 'select',
+      props: {
+        onChange: changeEjdwEnum
+      },
+      order: 1
+    },
     enum: yjdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   },
   {
@@ -266,9 +273,15 @@ const expertColumns = reactive<any[]>([
     prop: 'ejdw',
     label: '二级单位',
     width: '280',
-    search: { el: 'select', order: 2 },
+    search: {
+      el: 'select',
+      order: 2
+    },
     enum: ejdwListData.value,
-    fieldNames: { label: 'name', value: 'code' },
+    fieldNames: {
+      label: 'name',
+      value: 'code'
+    },
     isShow: false
   },
   {
@@ -291,7 +304,6 @@ const expertColumns = reactive<any[]>([
     }
   }
 ])
-
 const getPageList = (params: YnrhsxmPage & YnrhszjPage) => {
   loading.value = true
   params['current'] = params['page']
@@ -305,20 +317,19 @@ const getPageList = (params: YnrhsxmPage & YnrhszjPage) => {
     loading.value = false
   })
 }
-
 const callBackHandle = (val: any) => {
   return val
 }
-
 const modalVisible = ref(false)
-
 const acceptParams = (params: ModalProps) => {
   getYjdwEnum()
-  modalProps.value = { ...modalProps.value, ...params }
+  modalProps.value = {
+    ...modalProps.value,
+    ...params
+  }
   getPublicCode()
   modalVisible.value = true
 }
-
 defineExpose({
   acceptParams
 })

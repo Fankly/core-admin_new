@@ -37,12 +37,12 @@
 </template>
 
 <script setup lang="ts">
-defineOptions({ name: "WBSModal" })
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getXmWbsTree } from '@/api/common'
 import VXETable from 'vxe-table'
 import { editWbs } from '@/api/sys/proCategory'
+defineOptions({ name: "WBSModal" })
 
 interface AcceptParams {
   ids: string[]

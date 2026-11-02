@@ -58,19 +58,16 @@
   </vxe-modal>
 </template>
 
-<script lang="ts">
-export default {
-  name: 'maintModal'
-}
-</script>
 
 <script setup lang="ts">
 import { Upload as EpUpload } from '@element-plus/icons-vue'
-
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { VXETable } from 'vxe-table'
 import { knowledgeBaseSave, knowledgeBaseUpload } from '@/api/lyg/knowledgeBase'
+defineOptions({
+  name: 'maintModal'
+})
 
 /** 弹窗参数 */
 interface ModalParams {
@@ -79,13 +76,15 @@ interface ModalParams {
   specialorgid: string
   org_id: string
 }
-
 const fileList = 'doc, docx, xls, xlsx, pdf'
-
 const emit = defineEmits<{
-  (e: 'searchHandle', val: { param: string }): void
+  (
+    e: 'searchHandle',
+    val: {
+      param: string
+    }
+  ): void
 }>()
-
 const isShowModal = ref(false)
 const loading = ref(false)
 const ruleFormRef = ref()
@@ -113,7 +112,9 @@ const handleChange = async (file: any) => {
     loading.value = true
     const formData = new FormData()
     formData.append('file', file.raw)
-    const res = await knowledgeBaseUpload({ excelFormData: formData })
+    const res = await knowledgeBaseUpload({
+      excelFormData: formData
+    })
     if (!res.success) throw new Error(res.msg)
     // 后端返回 fileUuid；文件名取本地选中文件名
     searchParams.value.fileUuid = res.data?.fileUuid || res.data?.uuid || res.data
@@ -131,7 +132,6 @@ const handleChange = async (file: any) => {
 const handleSave = () => {
   ruleFormRef.value.validate(async (valid: boolean) => {
     if (!valid) return
-
     try {
       const type = await VXETable.modal.confirm('是否保存，请确定！', '提示', {
         status: 'warning'
@@ -143,10 +143,11 @@ const handleSave = () => {
     } catch {
       return
     }
-
     loading.value = true
     try {
-      const payload: any = { mainContent: searchParams.value.mainContent }
+      const payload: any = {
+        mainContent: searchParams.value.mainContent
+      }
       if (modalTitle.value === '编辑') {
         payload.kbId = searchParams.value.kbId
         payload.fileUuid = searchParams.value.fileUuid
@@ -162,7 +163,9 @@ const handleSave = () => {
       const res = await knowledgeBaseSave(payload)
       if (res.success) {
         ElMessage.success('保存成功！')
-        emit('searchHandle', { param: 'success' })
+        emit('searchHandle', {
+          param: 'success'
+        })
         handleClose()
       } else {
         ElMessage.error(res.msg)
@@ -177,13 +180,16 @@ const handleSave = () => {
 
 /** 打开弹窗 */
 const acceptParams = async (params: ModalParams) => {
-  userInfo.value = { ...params }
+  userInfo.value = {
+    ...params
+  }
   modalTitle.value = params.type
   searchParams.value = params.searchParams
   isShowModal.value = true
 }
-
-defineExpose({ acceptParams })
+defineExpose({
+  acceptParams
+})
 </script>
 
 <style lang="less" scoped>

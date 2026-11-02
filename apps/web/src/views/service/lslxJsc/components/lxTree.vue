@@ -46,22 +46,19 @@
     </vxe-modal>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'lxTree'
-}
-</script>
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
+defineOptions({
+  name: 'lxTree'
+})
 
 interface apiVo {
   treeApi: (params: any) => Promise<any>
 }
-
 const props = defineProps<apiVo>()
 const emit = defineEmits(['chooseData', 'rowsList'])
-
 const treeModal = ref<boolean>(false)
 const checkStrictly = ref<boolean>(false)
 const title = ref<any>('弹窗') //弹窗标题
@@ -97,7 +94,6 @@ const handleNode = (currentNode: any, checkedStatus: any) => {
     }
   }
 }
-
 const selectParent = (node: any) => {
   const $tree: any = treeRef.value
   let parentNode = $tree.getNode(node).parent

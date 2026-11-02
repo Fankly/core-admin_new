@@ -31,11 +31,6 @@
   ></FormDialog>
 </template>
 
-<script lang="ts">
-export default {
-  name: '/statistics/budgetStatisticsConfig'
-}
-</script>
 
 <script setup lang="ts">
 import userDialog from '@/components/select/userDialog.vue'
@@ -47,37 +42,33 @@ import { nextTick, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { batchDeleteConfig } from '@/api/statistics/budgetStatisticsConfig'
 import { VXETable } from 'vxe-table'
+defineOptions({
+  name: '/statistics/budgetStatisticsConfig'
+})
 
 export type InitParams = {
   nd: string
   busiType: string
 }
-
 const userDialogRef = ref()
 const formDialogRef = ref()
 const treeTableRef = ref()
 const mainTableRef = ref()
 const operationFlag = ref('')
 const userInfo = ref<any>()
-
 const treeParams = ref<any>(null)
 const mainTableData = ref<any>([])
-
 const editData = ref('')
-
 const dialogData = reactive({
   title: ''
 })
-
 const pageInfo = reactive({
   isShowPage: false
 })
-
 const initParams = reactive<InitParams>({
   nd: '',
   busiType: 'YSZXYL'
 })
-
 const deleteDataHandle = async () => {
   const $table = mainTableRef.value.mainTableRef
   if ($table) {
@@ -87,7 +78,6 @@ const deleteDataHandle = async () => {
       return
     }
     let index = records.findIndex((item: any) => item.recState === '1')
-
     if (index !== -1) {
       ElMessage.warning('存在启用状态的数据,无法删除！')
       return
@@ -130,15 +120,15 @@ const addOrEditDataHandle = (flag: string) => {
   operationFlag.value = flag
   formDialogRef.value.showModal = true
 }
-
 const getRoleHandle = async () => {
   const isQuery = userDialogRef.value.isQuery
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   if (isQuery) {
     pageInfo.isShowPage = true
   }
 }
-
 const changeNdHandle = async (val: string) => {
   initParams.nd = val
   treeParams.value = null
@@ -149,17 +139,14 @@ const changeNdHandle = async (val: string) => {
     await $table.getTableData(val)
   }
 }
-
 const treeTableChangeHandle = (val: any) => {
   treeParams.value = val
 }
-
 const mainTableDataHandle = (val: any[]) => {
   mainTableRef.value.mainLoading = true
   mainTableData.value = val
   mainTableRef.value.mainLoading = false
 }
-
 const updateTableHandle = async () => {
   // 更新树形表格和右边表格
   const $table = treeTableRef.value
@@ -174,7 +161,6 @@ const updateTableHandle = async () => {
     await $table.getTableData(selectId)
   }
 }
-
 const findPath = (data: any[], targetId: string, path: any[] = []) => {
   for (const item of data) {
     if (item.id === targetId) {
@@ -187,7 +173,6 @@ const findPath = (data: any[], targetId: string, path: any[] = []) => {
   }
   return null
 }
-
 const expandAndSelectNode = async (dataList: any[], targetId: string, treeTableRef: any) => {
   const path = findPath(dataList, targetId)
   if (path) {
@@ -199,15 +184,12 @@ const expandAndSelectNode = async (dataList: any[], targetId: string, treeTableR
     treeTableRef.setCurrentRow(targetNode)
   }
 }
-
 const clearDataHandle = () => {
   editData.value = ''
 }
-
 const initData = () => {
   userDialogRef.value.getUser()
 }
-
 onMounted(initData)
 </script>
 

@@ -1,8 +1,4 @@
-<script lang="ts">
-export default {
-  name: '/ygConfigData/components/FormDialog'
-}
-</script>
+
 
 <script setup lang="ts">
 import MultipleProType from '@/views/ygConfigData/components/MultipleProType.vue'
@@ -14,12 +10,14 @@ import { deleteDataDetail, deleteSumDetail, getConfigInfo, getDataDetail, getSum
 import { getAllProtypeTree, getPublicCodeList } from '@/api/common'
 import { cloneDeep } from 'lodash'
 import { VXETable } from 'vxe-table'
-import { defineProps, ref, toRef, defineExpose, reactive, defineEmits, watch, nextTick } from 'vue'
+import { ref, toRef, reactive, watch, nextTick } from 'vue'
+defineOptions({
+  name: '/ygConfigData/components/FormDialog'
+})
 
 interface DialogData {
   title: string
 }
-
 interface Props {
   dialogData: DialogData
   initParams: InitParams
@@ -27,31 +25,24 @@ interface Props {
   editData: any
   operationFlag: string
 }
-
 const props = defineProps<Props>()
 const tableType = ref<any>('')
-
 const emit = defineEmits(['updateTable', 'clearData'])
-
 const typeDialogRef = ref()
 const treeDialogRef = ref()
 const protypeRef = ref()
-
 const title = toRef(props.dialogData, 'title')
 const showModal = ref(false)
-
 const isShowTable = ref(false)
 const formDialogRef = ref()
 const typeTableRef = ref()
 const treeTableRef = ref()
 const treeSubRef = ref()
 const formRef = ref()
-
 const dataDetails = ref<any[]>([])
 const dataSum = ref<any[]>([])
 const dataAdd = ref<any[]>([])
 const dataSub = ref<any[]>([])
-
 const formData = reactive<{
   configCode: string
   configName: string
@@ -77,9 +68,7 @@ const formData = reactive<{
   proType: '',
   indicatorType: ''
 })
-
 const proTypeData = ref([])
-
 const validateStatMethod = (rules: any, value: string, callback: any) => {
   if (formData.isleaf === '0') {
     callback()
@@ -91,7 +80,6 @@ const validateStatMethod = (rules: any, value: string, callback: any) => {
     }
   }
 }
-
 const validateStatTypeMethod = (rules: any, value: string, callback: any) => {
   if (formData.isleaf === '0') {
     callback()
@@ -103,44 +91,96 @@ const validateStatTypeMethod = (rules: any, value: string, callback: any) => {
     }
   }
 }
-
 const rules = {
-  configCode: [{ required: true, message: '请输入编码', trigger: 'blur' }],
-  configName: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-  statMethod: [{ validator: validateStatMethod, trigger: 'change' }],
-  statType: [{ validator: validateStatTypeMethod, trigger: 'change' }],
-  isleaf: [{ required: true, message: '请选择是否末级节点', trigger: 'change' }],
-  isDwStat: [{ required: true, message: '请选择是否纳入单位统计', trigger: 'change' }],
-  recState: [{ required: true, message: '请选择是否启用', trigger: 'change' }],
-  isDisplay: [{ required: true, message: '请选择是否显示', trigger: 'change' }],
-  dispOrder: [{ required: true, message: '请输入序号', trigger: 'blur' }],
-  indicatorType: [{ required: true, message: '请选择指标类型', trigger: 'change' }]
+  configCode: [
+    {
+      required: true,
+      message: '请输入编码',
+      trigger: 'blur'
+    }
+  ],
+  configName: [
+    {
+      required: true,
+      message: '请输入名称',
+      trigger: 'blur'
+    }
+  ],
+  statMethod: [
+    {
+      validator: validateStatMethod,
+      trigger: 'change'
+    }
+  ],
+  statType: [
+    {
+      validator: validateStatTypeMethod,
+      trigger: 'change'
+    }
+  ],
+  isleaf: [
+    {
+      required: true,
+      message: '请选择是否末级节点',
+      trigger: 'change'
+    }
+  ],
+  isDwStat: [
+    {
+      required: true,
+      message: '请选择是否纳入单位统计',
+      trigger: 'change'
+    }
+  ],
+  recState: [
+    {
+      required: true,
+      message: '请选择是否启用',
+      trigger: 'change'
+    }
+  ],
+  isDisplay: [
+    {
+      required: true,
+      message: '请选择是否显示',
+      trigger: 'change'
+    }
+  ],
+  dispOrder: [
+    {
+      required: true,
+      message: '请输入序号',
+      trigger: 'blur'
+    }
+  ],
+  indicatorType: [
+    {
+      required: true,
+      message: '请选择指标类型',
+      trigger: 'change'
+    }
+  ]
 }
-
 const publicList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const indicatorTypeList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const statTypeList = ref<
   {
     code: string
     name: string
   }[]
 >([])
-
 const height = ref('300')
 const formDialogLoading = ref(false)
-
 const addDialogHandle = () => {
   if (formData.statMethod === '1') {
     typeDialogRef.value.showModal = true
@@ -186,7 +226,6 @@ const delTableHandle = async (val: any) => {
     ElMessage.success('删除成功!')
   }
 }
-
 const delDataHandle = async () => {
   const type = await VXETable.modal.confirm('是否确定删除？', '提示', {
     status: 'warning'
@@ -240,7 +279,6 @@ const delDataHandle = async () => {
     }
   }
 }
-
 const getTypeDataHandle = (typeData: any) => {
   if (typeData) {
     let res = dataDetails.value.findIndex((item) => Number(item.proType) === Number(typeData.proType.id))
@@ -262,7 +300,6 @@ const compareIds = (arr1: any[], arr2: any[]) => {
   const ids1 = new Set(arr1.map((item) => item.tarConfigId))
   return arr2.some((item) => ids1.has(item.tarConfigId))
 }
-
 const getTreeDataHandle = (treeData: any[]) => {
   if (treeData) {
     let treeDataList = treeData.map((item) => ({
@@ -287,7 +324,6 @@ const getTreeDataHandle = (treeData: any[]) => {
     treeDialogRef.value.showModal = false
   }
 }
-
 const getPublicDataList = async (code: string[]) => {
   const codes = code
   let res = await getPublicCodeList({
@@ -301,7 +337,6 @@ const getPublicDataList = async (code: string[]) => {
     ElMessage.error(res.msg)
   }
 }
-
 const getFormInfo = async () => {
   formDialogLoading.value = true
   const configId = props.editData?.configId
@@ -326,7 +361,6 @@ const getFormInfo = async () => {
     }
   }
 }
-
 const showModalHandle = () => {
   if (protypeRef.value) protypeRef.value.clearHandle()
   getPublicDataList(['YSTJPZ_TJFS', 'YSTJPZ_TJLX', 'YSSX_ZBX'])
@@ -336,7 +370,6 @@ const showModalHandle = () => {
     getFormInfo()
   }
 }
-
 const saveDataHandle = async () => {
   if (!formRef.value) return
   try {
@@ -395,7 +428,6 @@ const saveDataHandle = async () => {
     console.log(error)
   }
 }
-
 const getProTypeData = async () => {
   let res = await getAllProtypeTree()
   if (res.success) {
@@ -407,7 +439,6 @@ const getProTypeData = async () => {
     })
   }
 }
-
 watch(
   () => formData.isleaf,
   (newVal) => {
@@ -433,7 +464,6 @@ watch(
     }
   }
 )
-
 const getDetailData = async (flag: string) => {
   if (!flag && formData.isleaf === '1') {
     flag = '1'
@@ -467,7 +497,6 @@ const getDetailData = async (flag: string) => {
   }
   formDialogLoading.value = false
 }
-
 const changeStatMethodHandle = (val: string) => {
   if (val && val === '2') {
     formData.proType = ''
@@ -475,11 +504,9 @@ const changeStatMethodHandle = (val: string) => {
   isShowTable.value = true
   height.value = '700'
 }
-
 const changeLeafDataHandle = (val: string) => {
   formData.proType = ''
 }
-
 const changeStatTypeHandle = (val: string) => {
   formData.proType = ''
   dataDetails.value = []
@@ -491,7 +518,6 @@ const changeStatTypeHandle = (val: string) => {
     height.value = '700'
   }
 }
-
 watch(
   () => formData.statMethod,
   (newVal) => {
@@ -507,7 +533,6 @@ watch(
     if (formData.isleaf === '1') getDetailData(newVal)
   }
 )
-
 watch(
   () => height.value,
   (newVal) => {
@@ -529,7 +554,6 @@ watch(
     })
   }
 )
-
 const resetMethod = () => {
   formData.configCode = ''
   formData.configName = ''
@@ -543,13 +567,11 @@ const resetMethod = () => {
   formData.isDisplay = '1'
   formData.indicatorType = ''
 }
-
 const closeModalHandle = () => {
   showModal.value = false
   resetMethod()
   emit('clearData')
 }
-
 defineExpose({
   title,
   showModal

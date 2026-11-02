@@ -149,17 +149,12 @@
   </div>
   <ImportExcel ref="importRef" />
 </template>
-<script lang="ts">
-export default {
-  name: 'reporting'
-}
-</script>
+
 
 <script setup lang="ts">
 import { DArrowRight as EpDArrowRight } from '@element-plus/icons-vue'
-
 import { reactive, ref } from 'vue'
-import { summaryValue } from '@/utils/utils' //合计项目类型值
+import { summaryValue, formatValue } from '@/utils/utils'
 import {
   submitWf,
   syncCurrentMbz,
@@ -172,14 +167,19 @@ import {
   importData,
   getProtypeNameListWithCurrentMbzChange
 } from '@/api/targetBudget/cityTarget'
-
 import { ElMessage, ElNotification, ElMessageBox } from 'element-plus'
 import { Decimal } from 'decimal.js'
-import { formatValue } from '@/utils/utils'
-import ImportExcel from '@/components/ImportExcel/indexNew.vue' //导入组件
+import ImportExcel from '@/components/ImportExcel/indexNew.vue'
 import { apiExportHandle, vxeExportStyle } from '@/utils/export'
 import { submitWorkflow, WFData, WFParam, WFUserInfo } from '@/hooks/useWorkflow'
 import { useStore } from '@/store/business'
+defineOptions({
+  name: 'reporting'
+})
+
+ //合计项目类型值
+
+ //导入组件
 
 //接收父组件传参
 const props = defineProps({
@@ -198,7 +198,6 @@ const wfParam = ref<WFParam>({
   FQBM: ''
 })
 const store = useStore()
-
 const emits = defineEmits(['getPass'])
 const tableRef = ref()
 const toolbarRef = ref()
@@ -237,9 +236,7 @@ const pageInfo = reactive<{
   loading: true,
   isShowPage: false
 })
-
 const updateParams = reactive<any[]>([])
-
 const count = ref(0)
 const isShowModal = ref(false)
 const closeHandle = () => {
@@ -249,7 +246,6 @@ const closeHandle = () => {
   isShowModal.value = false
   disabled.value = false
 }
-
 const tableInfo = reactive<any>({
   toolbarConfig: {
     custom: true
@@ -320,10 +316,10 @@ const tableInfo = reactive<any>({
           row.mbzGkjb == '1'
             ? 'rgba(255, 76, 82, 1)'
             : row.mbzGkjb == '2'
-            ? 'rgba(252, 185, 0, 1)'
-            : row.mbzGkjb == '3'
-            ? 'rgba(17, 194, 109, 1)'
-            : ''
+              ? 'rgba(252, 185, 0, 1)'
+              : row.mbzGkjb == '3'
+                ? 'rgba(17, 194, 109, 1)'
+                : ''
       }
     }
     if (!props.formData?.isShow) {
@@ -353,7 +349,6 @@ const tableInfo = reactive<any>({
     }
   }
 })
-
 const getExportData = (newArr: any[], data: any[], cj: number) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -558,7 +553,6 @@ const newData = async () => {
   await getDataList()
   await threeLevel()
 }
-
 const isClickHeader = (columns: any, field: string) => {
   let columnsData = columns.filter((item: any) => item.edit)
   let column = columnsData.find((item: any) => item.field === field)
@@ -690,7 +684,6 @@ const submitCbxqshWorkflowHandle = () => {
   wfParam.value.DW_ID = props.formData?.dwId
   submitWorkflow(store.getters.getUserMsg.systemCode, 'WF_SYTC_MBZ_PHTZ', '', wfUserInfo, wfParam.value, {}, submitWFCallback)
 }
-
 const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
   let spfrom = {
     userId: store.getters.getUserMsg.id,
@@ -717,7 +710,6 @@ const submitWFCallback = async (nextPersonAndPath: string, wfData: WFData) => {
     })
   }
 }
-
 defineExpose({
   isShowModal,
   getHeaderData,

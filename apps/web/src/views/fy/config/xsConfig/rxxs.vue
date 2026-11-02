@@ -89,11 +89,7 @@
   <HelpModal ref="helpModalRef" />
   <handleCopy :title="'容差系数'" :nd-list="pageInfo.ndDataList" :nd="formData.nd" :get-api="save" ref="handleCopyRef" />
 </template>
-<script lang="ts">
-export default {
-  name: '/fy/config/xsConfig/rxxs'
-}
-</script>
+
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
@@ -105,8 +101,13 @@ import HelpModal from '@/components/HelpModal/index.vue'
 import ToolbarButtons from '@/components/ToolbarButtons/index.vue'
 import { ElMessage } from 'element-plus'
 import { formatValue } from '@/utils/utils'
-import { getPublicData } from '@/api/common' //公共代码
+import { getPublicData } from '@/api/common'
 import handleCopy from '@/views/fy/config/xsConfig/components/handleCopy.vue'
+defineOptions({
+  name: '/fy/config/xsConfig/rxxs'
+})
+
+ //公共代码
 
 interface TableInfo {
   tableData: any[]
@@ -114,7 +115,6 @@ interface TableInfo {
   treeConfig: VxeTablePropTypes.TreeConfig
   exportConfig: VxeTablePropTypes.ExportConfig
 }
-
 interface UpdateValue {
   dwId: string
   dwName: string
@@ -125,7 +125,6 @@ interface UpdateParam {
   id: string
   dwValues: UpdateValue[]
 }
-
 const tableRef = ref()
 const helpModalRef = ref()
 const userDialogRef = ref()
@@ -134,7 +133,6 @@ const importRef = ref()
 const tabList = ref<any[]>([])
 const isZgs = ref<any>('0')
 const disabled = computed(() => pageInfo.loading)
-
 const pageInfo = reactive<{
   loading: boolean
   isShowPage: boolean
@@ -149,17 +147,12 @@ const pageInfo = reactive<{
   pageFlag: false,
   ndDataList: []
 })
-
 const formData = reactive({
   nd: ''
 })
-
 const userInfo = ref<any>({})
-
 const updateParams = reactive<UpdateParam[]>([])
-
 const count = ref(0)
-
 const tableInfo = reactive<TableInfo>({
   tableData: [],
   columns: [],
@@ -205,7 +198,6 @@ const tableInfo = reactive<TableInfo>({
       getExportData(newArr, tableInfo.tableData || [])
       const totalRows = worksheet.rowCount
       const dataCount = newArr.length
-
       const headerRows = dataCount > 0 ? totalRows - dataCount : 1
 
       // 获取所有可见列的field
@@ -223,25 +215,28 @@ const tableInfo = reactive<TableInfo>({
       const visibleFields = getAllFields(tableInfo.columns || [])
 
       // 处理name的缩进
-      nameCol.eachCell({ includeEmpty: false }, (cell: any, rowNumber: number) => {
-        if (rowNumber > headerRows) {
-          const dataIndex = rowNumber - headerRows - 1
-          if (newArr[dataIndex]) {
-            if (newArr[dataIndex].cj > 1) {
-              cell.value = '    '.repeat(newArr[dataIndex].cj - 1) + newArr[dataIndex].name
+      nameCol.eachCell(
+        {
+          includeEmpty: false
+        },
+        (cell: any, rowNumber: number) => {
+          if (rowNumber > headerRows) {
+            const dataIndex = rowNumber - headerRows - 1
+            if (newArr[dataIndex]) {
+              if (newArr[dataIndex].cj > 1) {
+                cell.value = '    '.repeat(newArr[dataIndex].cj - 1) + newArr[dataIndex].name
+              }
             }
           }
         }
-      })
+      )
       pageInfo.loading = false
     }
   }
 })
-
 const getHelpMessageHandle = () => {
   helpModalRef.value.showModal = true
 }
-
 const getExportData = (newArr: any[], data: any[]) => {
   const $table = tableRef.value
   data.forEach((item) => {
@@ -283,11 +278,16 @@ const getEditDataHandle = ({ column, row }: any) => {
     updateParams.push({
       code: code,
       id: id,
-      dwValues: [{ dwId: column?.field.split('_')[0], dwName: column.title, ysje: row[column.field] }]
+      dwValues: [
+        {
+          dwId: column?.field.split('_')[0],
+          dwName: column.title,
+          ysje: row[column.field]
+        }
+      ]
     })
   }
 }
-
 const selectNdHandle = (val: string) => {
   updateParams.length = 0
   getDataList()
@@ -336,7 +336,6 @@ const expandHandle = async () => {
     expandAllTree(tableInfo.tableData, $table)
   }
 }
-
 const expandAllTree = async (data: any[], $table: any) => {
   data.forEach(async (row) => {
     if (row.leaf) {
@@ -401,10 +400,11 @@ const handleGetCopy = () => {
 
 // 发布
 const handleRelese = () => {}
-
 const getRoleHandle = async () => {
   pageInfo.loading = false
-  userInfo.value = { ...userDialogRef.value.userMsg }
+  userInfo.value = {
+    ...userDialogRef.value.userMsg
+  }
   // 请求数据
   let res = await getHeaderData(userInfo.value.specialorgid)
   if (!res) return
@@ -415,14 +415,12 @@ const getRoleHandle = async () => {
     pageInfo.isShowPage = true
   }
 }
-
 const cellStyle = ({ row, column }: any) => {
   return {
     cursor: 'auto',
     backgroundColor: 'rgba(232, 234, 236,0.5)'
   }
 }
-
 const getHeaderData = async (specialOrgId: string) => {
   let res = await getDynamicColumnCheck(specialOrgId, isZgs.value, '1')
   if (res.success) {
@@ -434,7 +432,6 @@ const getHeaderData = async (specialOrgId: string) => {
     return false
   }
 }
-
 const getDataList = async () => {
   pageInfo.loading = true
   tableInfo.tableData.length = 0
@@ -456,7 +453,6 @@ const getDataList = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const initParamLists = async () => {
   // 获取公共代码
   const res = await getPublicData('NDCX')
@@ -467,13 +463,11 @@ const initParamLists = async () => {
     ElMessage.error(res.msg)
   }
 }
-
 const initData = () => {
   initParamLists()
   pageInfo.loading = true
   userDialogRef.value.getUser()
 }
-
 onMounted(initData)
 </script>
 
