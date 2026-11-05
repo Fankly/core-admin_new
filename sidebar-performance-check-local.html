@@ -1,0 +1,25 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><title>侧栏性能验证</title></head><body><div id="app"></div><script type="module">
+import {createApp,defineComponent,provide,ref,computed,nextTick} from 'vue'
+import {createStore} from 'vuex'
+import {createRouter,createWebHashHistory} from 'vue-router'
+import ElementPlus from 'element-plus'
+import 'element-plus/lib/theme-chalk/index.css'
+import '/src/assets/css/app.less'
+import '/src/assets/theme/index.less'
+import '/src/assets/css/header.less'
+import SidebarNav from '/src/layout/sidebar/sidebar-nav.vue'
+import {MenuFavoritesKey,useMenuFavorites} from '/src/layout/sidebar/menu-favorites.ts'
+const roots=12,branches=8,leaves=12
+const menus=Array.from({length:roots},(_,a)=>({path:'/g'+a,meta:{title:'业务模块 '+a},children:Array.from({length:branches},(_,b)=>({path:`/g${a}/b${b}`,meta:{title:'预算管理 '+b},children:Array.from({length:leaves},(_,c)=>({path:`/g${a}/b${b}/p${c}`,meta:{title:'预算执行分析 '+c}}))}))}))
+const store=createStore({state:{user:{id:'sidebar-lag-check'}}})
+const router=createRouter({history:createWebHashHistory(),routes:[{path:'/:pathMatch(.*)*',component:{template:'<div />'}}]})
+const Preview=defineComponent({components:{SidebarNav},setup(){
+provide(MenuFavoritesKey,useMenuFavorites())
+const collapsed=ref(false),dark=ref(false),nav=ref()
+const frame=()=>new Promise(resolve=>requestAnimationFrame(resolve))
+window.preview={collapsed,dark,router,nav,menus,nextTick,frame,
+async measureToggle(value){await frame();const oldRoot=document.querySelector('.rr-nav__root');const oldRail=document.querySelector('.rr-nav__rail');const t=performance.now();collapsed.value=value;await nextTick();const patch=performance.now()-t;document.querySelector('.rr-sidebar').getBoundingClientRect();await frame();return {collapsed:value,patchMs:+patch.toFixed(1),frameMs:+(performance.now()-t).toFixed(1),elements:document.querySelectorAll('*').length,popups:document.querySelectorAll('.rr-nav--flyout').length,retainedRoot:oldRoot===document.querySelector('.rr-nav__root'),retainedRail:!!oldRail&&oldRail===document.querySelector('.rr-nav__rail')}}}
+return {menus,collapsed,dark,nav,path:computed(()=>router.currentRoute.value.path)}
+},template:`<div class="rr ui-navLayout-left ui-topHeader-light" :class="[collapsed?'ui-sidebarCollapse-true':'ui-sidebarCollapse-false',dark?'ui-sidebar-dark':'ui-sidebar-light']" style="--rr-sidebar-width:300px;height:100vh;display:flex;flex-direction:column"><header style="height:50px;display:flex;align-items:center"><button id="collapse" @click="collapsed=!collapsed">切换收缩</button><button id="theme" @click="dark=!dark">切换主题</button><span>当前页面：{{path}}</span></header><main style="display:flex;flex:1;min-height:0"><aside class="rr-sidebar" style="margin-top:0;min-height:0;height:100%"><sidebar-nav ref="nav" :menus="menus" :active-path="path" :collapsed="collapsed" :popper-class="dark?'rr-sidebar-menu-pop-dark':'rr-sidebar-menu-pop-light'" router /></aside><section style="flex:1;padding:28px;background:#f3f6f8"><h2>侧栏性能验证</h2></section></main></div>`})
+await router.push('/g0/b0/p0');createApp(Preview).use(store).use(router).use(ElementPlus).mount('#app')
+</script></body></html>

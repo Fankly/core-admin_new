@@ -1,0 +1,628 @@
+// 顶栏（base-header.vue）
+// 版式对齐 core-admin_new：品牌区与侧栏同宽 + 工具条（收起 / 刷新 / 面包屑或横向导航）+ 右侧操作区
+// 用户区按「云卡悬浮」：圆形首字头像 + 姓名 + 下拉箭头，整块撑满顶栏高度
+// 颜色只走 --masthead-* 变量，三种顶栏主题（light / dark / primary）只覆盖变量
+
+.rr {
+  --masthead-height: 50px;
+  --masthead-bg: var(--color-primary);
+  --masthead-text: #fff;
+  --masthead-muted: rgb(255 255 255 / 76%);
+  --masthead-text-active: #fff;
+  --masthead-hover: rgb(0 0 0 / 10%);
+  --masthead-line: rgb(255 255 255 / 16%);
+  --masthead-accent: #8ee0d2;
+  --masthead-avatar-bg: rgb(255 255 255 / 92%);
+  --masthead-avatar-text: var(--color-primary);
+  --masthead-brand-bg: var(--masthead-bg);
+  --masthead-brand-text: var(--masthead-text);
+  --masthead-brand-line: var(--masthead-line);
+}
+
+.ui-topHeader-light {
+  --masthead-bg: #fff;
+  --masthead-text: #17231f;
+  --masthead-muted: #5d6d66;
+  --masthead-text-active: var(--color-primary);
+  --masthead-hover: #eef7f4;
+  --masthead-line: #e1e8e3;
+  --masthead-accent: var(--color-primary);
+  --masthead-avatar-bg: #e6f4f3;
+  --masthead-avatar-text: var(--color-primary);
+}
+
+.ui-topHeader-dark {
+  --masthead-bg: #263238;
+  --masthead-text: #f2faf7;
+  --masthead-muted: rgb(231 243 239 / 66%);
+  --masthead-text-active: #fff;
+  --masthead-hover: rgb(255 255 255 / 9%);
+  --masthead-line: rgb(255 255 255 / 12%);
+  --masthead-accent: #8ee0d2;
+  --masthead-avatar-bg: rgb(255 255 255 / 14%);
+  --masthead-avatar-text: #fff;
+}
+
+// 深色侧栏 + 浅色顶栏：品牌区跟随侧栏，与左侧导航连成一条深色立柱
+.ui-sidebar-dark.ui-topHeader-light:not(.ui-navLayout-top) {
+  --masthead-brand-bg: #263238;
+  --masthead-brand-text: #f8fffd;
+  --masthead-brand-line: rgb(255 255 255 / 8%);
+}
+
+.rr-header {
+  background: var(--masthead-bg);
+}
+
+.rr-masthead {
+  display: flex;
+  width: 100%;
+  height: var(--masthead-height);
+  color: var(--masthead-text);
+  background: var(--masthead-bg);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 8%);
+}
+
+.ui-topHeader-light .rr-masthead {
+  border-bottom: 1px solid var(--masthead-line);
+  box-shadow: none;
+}
+
+// ---------- 品牌区：与侧栏同宽，收起时只留标记 ----------
+.rr-masthead__brand {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 11px;
+  width: var(--rr-sidebar-width, 268px);
+  height: 100%;
+  padding: 0 20px;
+  overflow: hidden;
+  color: var(--masthead-brand-text);
+  text-decoration: none;
+  background: var(--masthead-brand-bg);
+  border-right: 1px solid var(--masthead-brand-line);
+  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1), padding 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover,
+  &:focus,
+  &:focus-visible {
+    color: var(--masthead-brand-text);
+  }
+}
+
+.ui-sidebarCollapse-true:not(.ui-navLayout-top) .rr-masthead__brand {
+  justify-content: center;
+  width: 76px;
+  padding: 0;
+
+  .rr-masthead__type {
+    display: none;
+  }
+}
+
+.ui-navLayout-top .rr-masthead__brand {
+  width: auto;
+  min-width: 220px;
+  border-right: 0;
+}
+
+.is-sidebar-resizing .rr-masthead__brand {
+  transition: none;
+}
+
+.rr-masthead__mark {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: inherit;
+
+  // 品牌图标使用透明底 PNG，本身即为完整图形，不再叠加边框 / 底色
+  .rr-masthead__mark-img {
+    display: block;
+    width: 32px;
+    height: 32px;
+    pointer-events: none;
+    user-select: none;
+    object-fit: contain;
+  }
+}
+
+.rr-masthead__type {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.1;
+}
+
+.rr-masthead__name {
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.rr-masthead__descriptor {
+  margin-top: 4px;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.17em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  opacity: 0.54;
+}
+
+// ---------- 工具条 ----------
+.rr-masthead__bar {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+  height: 100%;
+  padding: 0 0 0 12px;
+}
+
+.rr-masthead__leading {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: 100%;
+}
+
+.rr-masthead__btn {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  color: var(--masthead-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.14s ease, background-color 0.14s ease;
+
+  &:hover {
+    color: var(--masthead-text-active);
+    background: var(--masthead-hover);
+  }
+
+  svg {
+    display: block;
+  }
+}
+
+// ---------- 右侧操作区（无菜单搜索） ----------
+.rr-masthead__actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+}
+
+.rr-masthead__support {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: 8px;
+  margin-right: 4px;
+  border-right: 1px solid var(--masthead-line);
+}
+
+// 设置抽屉 append-to-body，外层不参与排版
+.rr-masthead__setting {
+  display: contents;
+}
+
+// ---------- 用户区：云卡悬浮 ----------
+.rr-masthead__user-wrap.el-dropdown {
+  display: flex;
+  height: 100%;
+}
+
+.rr-masthead__user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 100%;
+  padding: 0 14px 0 12px;
+  color: var(--masthead-text);
+  font: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: background-color 0.14s ease;
+
+  &:hover,
+  &:focus-visible,
+  &.is-open {
+    background: var(--masthead-hover);
+  }
+
+  &.is-open .rr-masthead__chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.rr-masthead__user--static {
+  cursor: default;
+
+  &:hover {
+    background: transparent;
+  }
+}
+
+.rr-masthead__avatar {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--masthead-avatar-text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  background: var(--masthead-avatar-bg);
+  border-radius: 50%;
+}
+
+.rr-masthead__username {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.rr-masthead__chevron {
+  flex: 0 0 auto;
+  opacity: 0.8;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+// ---------- 头像下拉：只承载「系统管理」（user-menu-panel.vue） ----------
+// 菜单树复用侧栏节点与样式（sidebar-nav.less）：层级图标、缩进、列表底色、选中态都和左侧导航一致
+// 面板 append-to-body，不在 .rr 作用域内，颜色变量挂在面板自身
+.el-dropdown__popper.el-popper[role='tooltip']:has(.rr-masthead-user-panel) {
+  border-color: #e3ecea;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgb(15 60 55 / 6%), 0 14px 36px -12px rgb(15 60 55 / 24%);
+
+  .el-popper__arrow {
+    display: none;
+  }
+}
+
+.rr-masthead-user-panel {
+  --um-primary: var(--color-primary, #00706b);
+  --um-text-strong: #1e293b;
+  --um-text-dim: #94a3b8;
+  --um-tile-bg: color-mix(in srgb, var(--um-primary) 9%, #fff);
+
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+
+  &__head {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px 11px;
+    border-bottom: 1px solid #edf2f1;
+  }
+
+  &__mark {
+    display: grid;
+    flex: 0 0 26px;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    color: var(--um-primary);
+    background: var(--um-tile-bg);
+    border-radius: 8px;
+  }
+
+  &__title {
+    color: var(--um-text-strong);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  &__search {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 7px;
+    height: 34px;
+    margin: 10px 12px 4px;
+    padding: 0 8px 0 10px;
+    color: var(--um-text-dim);
+    background: #f8fbfa;
+    border: 1px solid #e2eeed;
+    border-radius: 8px;
+
+    &:focus-within {
+      background: #fff;
+      border-color: var(--um-primary);
+    }
+
+    > svg {
+      flex: 0 0 auto;
+    }
+
+    input {
+      flex: 1;
+      width: 100%;
+      min-width: 0;
+      padding: 0;
+      color: var(--um-text-strong);
+      font: inherit;
+      font-size: 13px;
+      background: none;
+      border: 0;
+      outline: none;
+
+      &::placeholder {
+        color: var(--um-text-dim);
+      }
+    }
+  }
+
+  &__clear {
+    display: grid;
+    flex: 0 0 24px;
+    place-items: center;
+    height: 24px;
+    padding: 0;
+    color: var(--um-text-dim);
+    background: transparent;
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--um-primary);
+      background: var(--um-tile-bg);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--um-primary);
+      outline-offset: 1px;
+    }
+  }
+
+  // 顶部 50px 顶栏 + 浮层间距 + 面板标题与搜索框，余下的高度给菜单滚动
+  // 顶部内边距放在列表上，吸顶的分组标题才能贴住滚动区顶边
+  // position: relative 让它成为子项的 offsetParent，user-menu-panel.vue 按 offsetTop 计算滚动位置
+  &__body {
+    position: relative;
+    max-height: ~'min(520px, calc(100vh - 176px))';
+    padding: 0 6px 6px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(140 140 140 / 30%) transparent;
+  }
+
+  // .rr-nav 在侧栏里是撑满高度的纵向容器，放进浮层时改为按内容高度排列
+  &__nav.rr-nav {
+    display: block;
+    flex: none;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+  }
+
+  &__root-list {
+    padding-top: 6px;
+  }
+
+  // 展开中的顶层分组标题吸顶：翻到深层时仍知道身在哪组，也能一键收起
+  // 吸顶行要不透明底挡住下方滚动内容，所以铺白底而不是半透明悬停色
+  &__root-list > .rr-nav__node.is-open > .rr-nav__trigger {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--nav-card-bg, #fff);
+
+    &:hover {
+      background: color-mix(in srgb, var(--nav-primary, #00706b) 6%, #fff);
+    }
+
+    // 贴住顶边时（data-stuck 由 user-menu-panel.vue 按滚动位置切换）加投影，示意下方内容从它下面滚过
+    &[data-stuck] {
+      box-shadow: 0 8px 10px -8px rgb(15 60 55 / 18%);
+    }
+  }
+
+  &__empty {
+    margin: 0;
+    padding: 28px 16px;
+    color: var(--um-text-dim);
+    font-size: 13px;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rr-masthead__chevron {
+    transition: none;
+  }
+}
+
+// ---------- 横向导航（顶部 / 混合布局） ----------
+.rr-masthead__nav {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+
+  .rr-sidebar-menu.el-menu--horizontal {
+    display: flex;
+    height: 100%;
+    background: transparent !important;
+    border-bottom: 0 !important;
+
+    > .el-menu-item,
+    > .el-submenu > .el-submenu__title {
+      position: relative;
+      height: var(--masthead-height);
+      padding: 0 13px !important;
+      color: var(--masthead-muted) !important;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: var(--masthead-height);
+      background: transparent !important;
+      border-bottom: 0 !important;
+
+      a,
+      i {
+        color: inherit !important;
+      }
+
+      &:hover,
+      &:focus {
+        color: var(--masthead-text) !important;
+        background: transparent !important;
+      }
+    }
+
+    > .el-menu-item.is-active:not(.isLink),
+    > .el-submenu.is-active > .el-submenu__title {
+      color: var(--masthead-text) !important;
+
+      &::after {
+        position: absolute;
+        right: 13px;
+        bottom: 0;
+        left: 13px;
+        height: 2px;
+        content: '';
+        background: var(--masthead-accent);
+        border-radius: 2px 2px 0 0;
+      }
+    }
+
+    .rr-sidebar-menu-entry__icon {
+      margin-right: 6px !important;
+    }
+
+    .el-submenu__icon-arrow {
+      margin-left: 4px;
+    }
+  }
+}
+
+// 侧栏主题里的 .is-active 规则权重更高，会把顶栏选中项染成主色（同色底上不可见），这里按顶栏变量压回
+.rr-masthead .rr-masthead__nav .rr-sidebar-menu.el-menu--horizontal {
+  .rr-sidebar-menu-entry {
+    &.el-menu-item,
+    > .el-submenu__title {
+      color: var(--masthead-muted) !important;
+      background: transparent !important;
+      border-bottom: 0 !important;
+
+      a,
+      i {
+        color: inherit !important;
+      }
+    }
+
+    &.el-menu-item:hover,
+    > .el-submenu__title:hover,
+    &:focus {
+      color: var(--masthead-text) !important;
+      background: transparent !important;
+    }
+
+    &.is-active:not(.isLink) > .el-submenu__title,
+    &.el-menu-item.is-active:not(.isLink),
+    > .el-submenu.is-active > .el-submenu__title {
+      color: var(--masthead-text) !important;
+    }
+  }
+}
+
+// ---------- 面包屑 ----------
+.rr-crumb {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding-left: 4px;
+}
+
+.rr-crumb__list {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-size: 12px;
+  white-space: nowrap;
+  list-style: none;
+}
+
+.rr-crumb__item {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+
+  & + &::before {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 1px;
+    margin: 0 8px;
+    content: '';
+    background: var(--masthead-line);
+  }
+}
+
+.rr-crumb__root {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--masthead-muted);
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: var(--masthead-text-active);
+  }
+}
+
+.rr-crumb__root-mark {
+  width: 4px;
+  height: 4px;
+  background: var(--masthead-accent);
+  border-radius: 50%;
+}
+
+.rr-crumb__link,
+.rr-crumb__current {
+  max-width: 180px;
+  overflow: hidden;
+  color: var(--masthead-muted);
+  text-overflow: ellipsis;
+}
+
+.rr-crumb__current {
+  color: var(--masthead-text);
+  font-weight: 500;
+}
+
+@media (max-width: 1100px) {
+  .rr-masthead__username {
+    display: none;
+  }
+}

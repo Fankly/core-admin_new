@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>分析报告弹窗（FxbgModal）样式预览</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 32px 24px 48px;
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      color: #2f3a45;
+      background: #eef1f5;
+    }
+    .panel {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 22px 24px;
+      background: #fff;
+      border: 1px solid #e5e9f0;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px -18px rgba(15, 35, 60, 0.35);
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .tip {
+      margin: 0 0 18px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #7a8699;
+    }
+    .tip code {
+      padding: 1px 5px;
+      font-size: 12px;
+      color: #0f766e;
+      background: #effaf7;
+      border-radius: 4px;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    button {
+      padding: 7px 16px;
+      font-size: 13px;
+      color: #0f766e;
+      cursor: pointer;
+      background: #f2fbf9;
+      border: 1px solid #b7e3da;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      color: #fff;
+      background: #12968a;
+      border-color: #12968a;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .metric {
+      padding: 10px 12px;
+      background: #f8fafc;
+      border: 1px solid #ecf0f5;
+      border-radius: 8px;
+    }
+    .metric dt {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .metric dd {
+      margin: 4px 0 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .metric dd.ok {
+      color: #0f9488;
+    }
+    .metric dd.bad {
+      color: #dc2626;
+    }
+    .idle {
+      margin-top: 20px;
+      padding: 14px;
+      font-size: 13px;
+      color: #94a3b8;
+      text-align: center;
+      background: #f8fafc;
+      border: 1px dashed #e2e8f0;
+      border-radius: 8px;
+    }
+  </style>
+
+  <div id="app"></div>
+
+  <script type="module">
+    import { createApp, h, nextTick, onMounted, ref } from 'vue'
+    import ElementPlus from 'element-plus'
+    import 'element-plus/lib/theme-chalk/index.css'
+    import VXETable from 'vxe-table'
+    import 'vxe-table/lib/style.css'
+    import axios from 'axios'
+    // 注册 mock（与 dev 环境一致），正文文案来自 mock/fixtures/statistics/fxbgReport.ts
+    import '/mock/index.ts'
+    import FxbgModal from '/src/views/statistics/components/FxbgModal/index.vue'
+    import { getFxbgSceneList } from '/mock/fixtures/statistics/fxbgReport.ts'
+
+    const scenes = getFxbgSceneList()
+
+    const app = createApp({
+      setup() {
+        const modalRef = ref(null)
+        const metrics = ref(null)
+
+        // 走真实 mock 接口：axios → mockjs 拦截 → mock/modules/statisticsReport.ts
+        const fetchScene = (scene) => async () => {
+          const res = await axios.post('/api/yszxfx/getFxbg', { scene })
+          return res.data
+        }
+
+        const measure = async (label) => {
+          await nextTick()
+          window.setTimeout(() => {
+            const box = document.querySelector('.fxbg-modal .vxe-modal--box')
+            const body = document.querySelector('.fxbg-modal .fxbg-content')
+            const text = document.querySelector('.fxbg-modal .fxbg-text')
+            if (!box || !body) return
+            const viewportH = window.innerHeight
+            const boxRect = box.getBoundingClientRect()
+            metrics.value = {
+              label,
+              boxHeight: Math.round(boxRect.height),
+              viewportHeight: viewportH,
+              fitsViewport: boxRect.top >= 0 && boxRect.bottom <= viewportH,
+              visibleHeight: body.clientHeight,
+              contentHeight: body.scrollHeight,
+              scrollable: body.scrollHeight > body.clientHeight + 1,
+              // 正文自身是否横向溢出（word-break 处理是否到位）
+              horizontalOverflow: text ? text.scrollWidth > text.clientWidth + 1 : false,
+              pageHorizontalOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth
+            }
+          }, 700)
+        }
+
+        const openScene = (scene) => {
+          metrics.value = null
+          modalRef.value?.open({ scene: scene.key }, fetchScene(scene.key))
+          measure(scene.label)
+        }
+
+        // 支持 ?scene=long&zoom=1 直接打开并最大化，便于截图/回归对比
+        onMounted(() => {
+          const params = new URLSearchParams(location.search)
+          const scene = scenes.find((item) => item.key === params.get('scene'))
+          if (!scene) return
+          window.setTimeout(() => {
+            openScene(scene)
+            if (params.get('zoom') === '1') {
+              window.setTimeout(() => {
+                document.querySelector('.fxbg-modal .vxe-modal--zoom-btn')?.click()
+                measure(`${scene.label}（最大化）`)
+              }, 900)
+            }
+          }, 120)
+        })
+
+        return () =>
+          h('div', { class: 'panel' }, [
+            h('h1', '分析报告弹窗（FxbgModal）样式预览'),
+            h('p', { class: 'tip' }, [
+              '点按钮通过 mock 接口取文案并打开弹窗；下方指标用于确认：弹窗不超出视口、长文本只在正文区纵向滚动、不出现横向溢出。',
+              h('br'),
+              '可通过请求参数 ',
+              h('code', 'scene'),
+              ' 切换 mock 文案：short / long / extreme / empty。'
+            ]),
+            h(
+              'div',
+              { class: 'actions' },
+              scenes.map((scene) =>
+                h('button', { key: scene.key, onClick: () => openScene(scene), title: scene.desc }, `${scene.label}（${scene.key}）`)
+              )
+            ),
+            metrics.value
+              ? h(
+                  'dl',
+                  { class: 'metrics' },
+                  [
+                    ['场景', metrics.value.label, ''],
+                    ['弹窗高度', `${metrics.value.boxHeight}px / 视口 ${metrics.value.viewportHeight}px`, metrics.value.fitsViewport ? 'ok' : 'bad'],
+                    ['正文可视 / 内容高度', `${metrics.value.visibleHeight} / ${metrics.value.contentHeight}px`, 'ok'],
+                    ['正文纵向滚动', metrics.value.scrollable ? '是（预期）' : '否', metrics.value.scrollable ? 'ok' : ''],
+                    ['正文横向溢出', metrics.value.horizontalOverflow ? '是（异常）' : '否', metrics.value.horizontalOverflow ? 'bad' : 'ok'],
+                    ['页面横向溢出', metrics.value.pageHorizontalOverflow ? '是（异常）' : '否', metrics.value.pageHorizontalOverflow ? 'bad' : 'ok']
+                  ].map(([label, value, state]) => h('div', { class: 'metric', key: label }, [h('dt', label), h('dd', { class: state }, value)]))
+                )
+              : h('div', { class: 'idle' }, '尚未打开弹窗'),
+            h(FxbgModal, { ref: modalRef })
+          ])
+      }
+    })
+
+    app.use(ElementPlus)
+    app.use(VXETable)
+    app.mount('#app')
+  </script>
+</html>

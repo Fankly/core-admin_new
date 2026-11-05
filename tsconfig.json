@@ -1,12 +1,30 @@
 {
-  // 根 tsconfig 只覆盖 workspace 根上的配置文件与 packages/* 下的共享包，
-  // 让编辑器打开 eslint.config.js / prettier.config.js 时有类型上下文。
-  // 业务代码的 tsconfig 在 apps/web/tsconfig.json。
-  "extends": "@repo/tsconfig/base.json",
   "compilerOptions": {
-    "noEmit": true,
-    "types": ["node"]
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "noImplicitThis": true,
+    "jsx": "preserve",
+    "allowJs": true,
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "types": ["vite/client"],
+    "paths": {
+      "@/*": ["src/*"],
+      "@file-viewer/core/browser": ["src/types/file-viewer/core-browser.ts"],
+      "@file-viewer/renderer-word": ["src/types/file-viewer/renderer-word.ts"],
+      "@file-viewer/renderer-spreadsheet": ["src/types/file-viewer/renderer-spreadsheet.ts"]
+    },
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+    "outDir": "./dist"
   },
-  "include": ["*.js", "packages/**/*.js", "packages/**/*.ts"],
-  "exclude": ["node_modules", "**/node_modules", "**/dist", "apps"]
+  "include": ["src/**/*.ts", "src/**/*.vue", "tests/**/*.ts"],
+  "exclude": ["node_modules"]
 }

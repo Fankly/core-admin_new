@@ -1,0 +1,775 @@
+// 纵向侧栏导航（sidebar-nav.vue）
+// 设计稿：云卡悬浮（仅菜单）—— 一级业务域卡片 + 青绿渐变选中态；侧栏外壳沿用项目原有样式
+// 图标只由层级决定：L1 层叠（实色框）· L2 文件夹（雾青框）· L3 文件（描边框）· L4 圆点（无框）
+// 状态只改颜色，不改图形与尺寸；色彩全部走 --nav-* 变量，深色侧栏（.ui-sidebar-dark）只覆盖变量
+
+.rr-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.rr-nav {
+  --nav-primary: var(--color-primary, #00706b);
+  --nav-accent: #2a9a92;
+  --nav-text: #475569;
+  --nav-text-dim: #94a3b8;
+  --nav-text-strong: var(--nav-primary);
+  --nav-text-open: #1e293b;
+  --nav-hover: rgb(0 112 107 / 5%);
+  --nav-row-pad: 10px;
+  --nav-indent: 14px;
+  --nav-row-radius: 10px;
+
+  // 层级图标：同层同框、同图形、同色
+  --nav-icon-box-1: 30px;
+  --nav-icon-glyph-1: 17px;
+  --nav-icon-bg-1: var(--nav-primary);
+  --nav-icon-fg-1: #fff;
+  --nav-icon-radius-1: 9px;
+  --nav-icon-ring-1: 0 4px 10px -5px rgb(0 112 107 / 60%);
+
+  --nav-icon-box-2: 24px;
+  --nav-icon-glyph-2: 14px;
+  --nav-icon-bg-2: #e6f4f3;
+  --nav-icon-fg-2: var(--nav-primary);
+  --nav-icon-radius-2: 7px;
+
+  --nav-icon-box-3: 22px;
+  --nav-icon-glyph-3: 13px;
+  --nav-icon-bg-3: #fff;
+  --nav-icon-fg-3: var(--nav-accent);
+  --nav-icon-radius-3: 6px;
+  --nav-icon-ring-3: inset 0 0 0 1px #cfe7e4;
+
+  --nav-icon-box-4: 18px;
+  --nav-icon-glyph-4: 11px;
+  --nav-icon-bg-4: transparent;
+  --nav-icon-fg-4: #9fb8b5;
+  --nav-icon-radius-4: 4px;
+
+  --nav-icon-bg-path-1: var(--nav-primary);
+  --nav-icon-fg-path-1: #fff;
+  --nav-icon-ring-path-1: 0 6px 14px -5px rgb(0 112 107 / 70%);
+  --nav-icon-fg-path: var(--nav-primary);
+
+  // 一级业务域卡片
+  --nav-card-bg: #fff;
+  --nav-card-border: #edf4f3;
+  --nav-card-shadow: 0 1px 2px rgb(15 60 55 / 3%);
+  --nav-card-open-border: #d8efec;
+  --nav-card-open-shadow: 0 10px 24px -14px rgb(0 112 107 / 35%);
+
+  --nav-list-bg-2: transparent;
+  --nav-list-bg-3: rgb(242 249 248 / 90%);
+  --nav-list-bg-4: rgb(230 244 243 / 75%);
+  --nav-list-radius: 10px;
+
+  --nav-active-bg: linear-gradient(100deg, var(--nav-primary), var(--nav-accent));
+  --nav-active-text: #fff;
+  --nav-active-icon: #fff;
+  --nav-active-shadow: 0 6px 16px -6px rgb(0 112 107 / 60%);
+
+  --nav-search-bg: rgb(255 255 255 / 85%);
+  --nav-search-focus-bg: #fff;
+  --nav-search-border: #e2eeed;
+  --nav-search-radius: 10px;
+  --nav-scroll-thumb: rgb(140 140 140 / 30%);
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  color: var(--nav-text);
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // ---------- 搜索 / 工具 ----------
+  &__tools {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 6px;
+    padding: 12px 10px 8px;
+  }
+
+  &__search {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    height: 32px;
+    margin: 0;
+    padding: 0 8px 0 10px;
+    color: var(--nav-text-dim);
+    background: var(--nav-search-bg);
+    border: 1px solid var(--nav-search-border);
+    border-radius: var(--nav-search-radius);
+    cursor: text;
+    transition: border-color 0.15s, background 0.15s;
+
+    &:focus-within {
+      background: var(--nav-search-focus-bg);
+      border-color: var(--nav-primary);
+    }
+
+    svg {
+      flex: 0 0 auto;
+      width: 14px;
+      height: 14px;
+      stroke-width: 1.75;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      padding: 0;
+      color: var(--nav-text);
+      font: inherit;
+      font-size: 13px;
+      background: none;
+      border: 0;
+      outline: none;
+
+      &::placeholder {
+        color: var(--nav-text-dim);
+      }
+    }
+
+    kbd {
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+      color: var(--nav-text-dim);
+      font-family: inherit;
+      font-size: 11px;
+      line-height: 1;
+      border: 1px solid var(--nav-search-border);
+      border-radius: 4px;
+    }
+  }
+
+  &__tool {
+    display: grid;
+    flex: 0 0 32px;
+    place-items: center;
+    height: 32px;
+    padding: 0;
+    color: var(--nav-text-dim);
+    background: var(--nav-search-bg);
+    border: 1px solid var(--nav-search-border);
+    border-radius: var(--nav-search-radius);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+
+    &:hover {
+      color: var(--nav-text-strong);
+      border-color: var(--nav-primary);
+    }
+
+    svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 1.75;
+    }
+  }
+
+  &__scroll {
+    flex: 1;
+    min-height: 0;
+    padding: 2px 10px 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--nav-scroll-thumb) transparent;
+  }
+
+  &__list {
+    position: relative;
+  }
+
+  // ---------- 一级业务域 = 卡片 ----------
+  &__root > &__list > &__node {
+    margin-bottom: 8px;
+    background: var(--nav-card-bg);
+    border: 1px solid var(--nav-card-border);
+    border-radius: 12px;
+    box-shadow: var(--nav-card-shadow);
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+
+  &__root > &__list > &__node.is-open {
+    border-color: var(--nav-card-open-border);
+    box-shadow: var(--nav-card-open-shadow);
+  }
+
+  &__root > &__list > &__node:last-child {
+    margin-bottom: 0;
+  }
+
+  // ---------- 行 ----------
+  &__node {
+    position: relative;
+  }
+
+  // 带收藏按钮的叶子节点给按钮让位，其余行保持正常右内边距
+  & &__node.has-favorite > &__row {
+    padding-right: 42px;
+  }
+
+  &__favorite {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+  }
+
+  &__node[data-level='1'] > &__favorite {
+    top: 10px;
+  }
+
+  &__node[data-level='2'] > &__favorite {
+    top: 7px;
+  }
+
+  &__node[data-level='4'] > &__favorite {
+    top: 5px;
+  }
+
+  // 选中行里未收藏的星标跟随白色文字；已收藏的保持黄色星标不被覆盖
+  &__link.is-active + &__favorite:not(.is-favorite) {
+    color: var(--nav-active-text);
+
+    &:hover {
+      background: rgb(255 255 255 / 16%);
+    }
+  }
+
+  &__tool.is-active {
+    color: var(--nav-text-strong);
+    border-color: var(--nav-primary);
+
+    svg {
+      fill: currentColor;
+    }
+  }
+
+  // 缩进按层级累加：--depth 由节点写入，表达式整体转义，避免 Less 编译期求值
+  &__row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: var(--row-h);
+    margin: 0;
+    padding: 6px 10px 6px ~'calc(var(--nav-row-pad) + (var(--depth) - 1) * var(--nav-indent))';
+    color: var(--nav-text);
+    font-family: inherit;
+    font-size: var(--fs);
+    font-weight: var(--fw);
+    line-height: 1.4;
+    text-align: left;
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    border-radius: var(--nav-row-radius);
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+
+    &:focus-visible {
+      outline: 2px solid var(--nav-primary);
+      outline-offset: -2px;
+    }
+  }
+
+  // 压过全局 a:hover / a:focus 的主色
+  & &__row:hover,
+  & &__row:focus {
+    color: var(--nav-text);
+  }
+
+  & &__row:hover {
+    background: var(--nav-hover);
+  }
+
+  // 同层同框、同图形、同色
+  &__node[data-level='1'] > &__row {
+    --row-h: 48px;
+    --fs: 14px;
+    --fw: 600;
+    --box: var(--nav-icon-box-1);
+    --glyph: var(--nav-icon-glyph-1);
+    --icon-bg: var(--nav-icon-bg-1);
+    --icon-fg: var(--nav-icon-fg-1);
+    --icon-radius: var(--nav-icon-radius-1);
+    --icon-ring: var(--nav-icon-ring-1);
+    padding-right: 10px;
+    border-radius: 12px;
+  }
+
+  &__node[data-level='2'] > &__row {
+    --row-h: 42px;
+    --fs: 13.5px;
+    --fw: 500;
+    --box: var(--nav-icon-box-2);
+    --glyph: var(--nav-icon-glyph-2);
+    --icon-bg: var(--nav-icon-bg-2);
+    --icon-fg: var(--nav-icon-fg-2);
+    --icon-radius: var(--nav-icon-radius-2);
+  }
+
+  &__node[data-level='3'] > &__row {
+    --row-h: 40px;
+    --fs: 13px;
+    --fw: 400;
+    --box: var(--nav-icon-box-3);
+    --glyph: var(--nav-icon-glyph-3);
+    --icon-bg: var(--nav-icon-bg-3);
+    --icon-fg: var(--nav-icon-fg-3);
+    --icon-radius: var(--nav-icon-radius-3);
+    --icon-ring: var(--nav-icon-ring-3);
+  }
+
+  &__node[data-level='4'] > &__row {
+    --row-h: 38px;
+    --fs: 12.5px;
+    --fw: 400;
+    --box: var(--nav-icon-box-4);
+    --glyph: var(--nav-icon-glyph-4);
+    --icon-bg: var(--nav-icon-bg-4);
+    --icon-fg: var(--nav-icon-fg-4);
+    --icon-radius: var(--nav-icon-radius-4);
+  }
+
+  & &__node[data-level='1'].is-open > &__row {
+    color: var(--nav-text-open);
+    border-radius: 12px 12px 0 0;
+  }
+
+  & &__node[data-level='1'].on-path > &__row {
+    --icon-bg: var(--nav-icon-bg-path-1);
+    --icon-fg: var(--nav-icon-fg-path-1);
+    --icon-ring: var(--nav-icon-ring-path-1);
+    color: var(--nav-text-strong);
+  }
+
+  & &__node:not([data-level='1']).on-path > &__row {
+    --icon-fg: var(--nav-icon-fg-path);
+    color: var(--nav-text-strong);
+  }
+
+  &__icon {
+    display: grid;
+    flex: 0 0 var(--box);
+    place-items: center;
+    width: var(--box);
+    height: var(--box);
+    color: var(--icon-fg);
+    background: var(--icon-bg);
+    border-radius: var(--icon-radius);
+    box-shadow: var(--icon-ring);
+    transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+
+    svg {
+      width: var(--glyph);
+      height: var(--glyph);
+      stroke-width: 1.75;
+    }
+  }
+
+  &__dot {
+    width: 5px;
+    height: 5px;
+    background: currentColor;
+    border-radius: 50%;
+  }
+
+  // 名称单行显示，超出部分省略
+  &__text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__short {
+    display: none;
+  }
+
+  &__arrow {
+    display: grid;
+    flex: 0 0 16px;
+    place-items: center;
+    color: var(--nav-text-dim);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+
+    svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 1.75;
+    }
+  }
+
+  &__node.is-open > &__trigger &__arrow {
+    transform: rotate(180deg);
+  }
+
+  & &__node.on-path > &__trigger &__arrow {
+    color: var(--nav-icon-fg-path);
+  }
+
+  // ---------- 选中项：青绿渐变胶囊 ----------
+  // 选择器要压过 .rr-nav__node[data-level] > .rr-nav__row，否则图标色不会跟随选中态
+  // 图标底框必须一起清掉：白图形压在浅色框上会看不见
+  & &__node > &__link.is-active {
+    --fw: 600;
+    --icon-bg: transparent;
+    --icon-fg: var(--nav-active-icon);
+    --icon-ring: none;
+    color: var(--nav-active-text);
+    background: var(--nav-active-bg);
+    box-shadow: var(--nav-active-shadow);
+  }
+
+  // ---------- 手风琴：grid 0fr → 1fr ----------
+  &__panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &__node.is-open > &__panel {
+    grid-template-rows: 1fr;
+  }
+
+  &__panel-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  &__list[data-level='2'] {
+    padding: 0 6px 6px;
+  }
+
+  &__list[data-level='3'],
+  &__list[data-level='4'] {
+    margin: 2px 0 4px;
+    padding: 3px;
+    border-radius: var(--nav-list-radius);
+  }
+
+  &__list[data-level='3'] {
+    background: var(--nav-list-bg-3);
+  }
+
+  &__list[data-level='4'] {
+    background: var(--nav-list-bg-4);
+  }
+
+  &__empty {
+    padding: 36px 12px;
+    color: var(--nav-text-dim);
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: center;
+
+    svg {
+      display: block;
+      width: 28px;
+      height: 28px;
+      margin: 0 auto 10px;
+      opacity: 0.45;
+    }
+
+    strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--nav-text);
+      font-weight: 600;
+    }
+  }
+
+  // ---------- 收起态：图标卡片 + 向右展开的级联菜单 ----------
+  &.is-collapsed {
+    .rr-nav__tools,
+    .rr-nav__favorite,
+    .rr-nav__panel {
+      display: none;
+    }
+
+    .rr-nav__scroll {
+      padding: 10px 6px;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    .rr-nav__rail > .rr-nav__flyout-item .rr-nav__row {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      min-height: 61px;
+      height: auto;
+      width: 100%;
+      padding: 6px 0;
+      overflow: visible;
+      border-radius: 12px;
+      visibility: visible;
+
+      .rr-nav__text,
+      .rr-nav__arrow {
+        display: none;
+      }
+
+      .rr-nav__short {
+        display: block;
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        overflow: hidden;
+        font-size: 11px;
+        font-weight: 500;
+        line-height: 1.2;
+        text-overflow: ellipsis;
+        visibility: visible;
+        white-space: nowrap;
+      }
+    }
+
+    .rr-nav__rail .rr-nav__node {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+      visibility: visible;
+    }
+
+    .rr-nav__rail .rr-nav__icon {
+      display: grid;
+      width: var(--box);
+      height: var(--box);
+      overflow: visible;
+      visibility: visible;
+    }
+  }
+}
+
+// 保留现有行组件的层级几何，清除 Element Plus 标题和条目自带的重复间距。
+.rr-nav .rr-nav__rail,
+.rr-nav.rr-nav--flyout {
+  .rr-nav__flyout-item,
+  .rr-nav__flyout-item > .el-submenu__title {
+    height: auto;
+    margin: 0;
+    padding: 0 !important;
+    line-height: normal;
+    background: transparent !important;
+    border: 0;
+  }
+
+  .rr-nav__node {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    visibility: visible;
+  }
+
+  .el-submenu__icon-arrow {
+    display: none;
+  }
+
+  .rr-nav__icon {
+    display: grid;
+    width: var(--box);
+    height: var(--box);
+    margin: 0;
+    color: var(--icon-fg);
+    vertical-align: initial;
+  }
+
+  .rr-nav__flyout-item .rr-nav__node > .rr-nav__row {
+    margin: 0;
+    color: var(--nav-text) !important;
+  }
+
+  .rr-nav__flyout-item .rr-nav__node.on-path > .rr-nav__row {
+    color: var(--nav-text-strong) !important;
+  }
+
+  .rr-nav__flyout-item .rr-nav__node > .rr-nav__row.is-active {
+    color: var(--nav-active-text) !important;
+  }
+
+  .rr-nav__text,
+  .rr-nav__short {
+    display: block;
+    width: auto;
+    margin: 0;
+    color: inherit;
+  }
+
+  .rr-nav__arrow {
+    display: grid;
+    width: 16px;
+    margin: 0;
+    color: var(--nav-text-dim);
+  }
+
+  .rr-nav__dot {
+    display: block;
+    width: 5px;
+    margin: 0;
+    color: inherit;
+  }
+}
+
+.rr-nav .rr-nav__rail.el-menu {
+  width: 100% !important;
+  background: transparent;
+  border: 0;
+
+  .rr-nav__flyout-item .rr-nav__node,
+  .rr-nav__flyout-item .rr-nav__row > span {
+    margin-left: 0;
+  }
+
+  > .rr-nav__flyout-item {
+    margin: 0 0 8px;
+    background: var(--nav-card-bg) !important;
+    border: 1px solid var(--nav-card-border);
+    border-radius: 12px;
+    box-shadow: var(--nav-card-shadow);
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:hover,
+    &.is-opened,
+    &.on-path {
+      border-color: var(--nav-card-open-border);
+      box-shadow: var(--nav-card-open-shadow);
+    }
+
+    &.on-path {
+      background: color-mix(in srgb, var(--nav-primary) 6%, var(--nav-card-bg)) !important;
+
+      .rr-nav__short {
+        font-weight: 600;
+      }
+    }
+
+    > .el-submenu__title .rr-nav__row:hover {
+      background: transparent;
+    }
+  }
+}
+
+// 弹出层 teleport 到 body，需要自带主题变量；每一级可独立滚动且不会裁切下一级。
+.rr-nav.rr-nav--flyout {
+  display: block;
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+
+  &.el-popper {
+    padding: 0;
+    background: var(--nav-card-bg);
+    border: 1px solid var(--nav-card-border);
+    box-shadow: 0 12px 32px -8px rgb(15 60 55 / 22%);
+  }
+
+  .el-menu.el-menu--popup {
+    width: max-content;
+    min-width: 208px;
+    max-width: min(360px, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+    margin: 0;
+    padding: 6px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background: var(--nav-card-bg);
+    border: 0;
+    border-radius: 12px;
+    box-shadow: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--nav-scroll-thumb) transparent;
+  }
+
+  .rr-nav__flyout-item {
+    margin: 1px 0;
+  }
+
+  .rr-nav__row {
+    box-sizing: border-box;
+  }
+
+  .rr-nav__text {
+    max-width: 240px;
+  }
+
+  .rr-nav__arrow {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rr-nav__panel,
+  .rr-nav__arrow,
+  .rr-nav__row,
+  .rr-nav__icon {
+    transition: none;
+  }
+}
+
+// ---------- 深色侧栏 ----------
+.ui-sidebar-dark .rr-nav,
+.rr-nav.rr-nav--flyout-dark {
+  --nav-text: rgb(255 255 255 / 72%);
+  --nav-text-dim: rgb(255 255 255 / 45%);
+  --nav-text-strong: #fff;
+  --nav-text-open: #fff;
+  --nav-hover: rgb(255 255 255 / 6%);
+
+  --nav-icon-bg-1: #0f827b;
+  --nav-icon-fg-1: #fff;
+  --nav-icon-ring-1: none;
+  --nav-icon-bg-2: rgb(95 208 195 / 14%);
+  --nav-icon-fg-2: #5fd0c3;
+  --nav-icon-bg-3: rgb(255 255 255 / 4%);
+  --nav-icon-fg-3: rgb(255 255 255 / 70%);
+  --nav-icon-ring-3: inset 0 0 0 1px rgb(255 255 255 / 10%);
+  --nav-icon-fg-4: rgb(255 255 255 / 38%);
+  --nav-icon-bg-path-1: #0f827b;
+  --nav-icon-fg-path-1: #fff;
+  --nav-icon-fg-path: #5fd0c3;
+
+  --nav-card-bg: #212c31;
+  --nav-card-border: rgb(255 255 255 / 6%);
+  --nav-card-shadow: none;
+  --nav-card-open-border: rgb(95 208 195 / 24%);
+  --nav-card-open-shadow: 0 10px 24px -16px rgb(0 0 0 / 60%);
+
+  --nav-list-bg-3: rgb(255 255 255 / 3%);
+  --nav-list-bg-4: rgb(255 255 255 / 5%);
+
+  --nav-active-bg: linear-gradient(100deg, #00706b, #2a9a92);
+  --nav-active-text: #fff;
+  --nav-active-icon: #fff;
+  --nav-active-shadow: 0 6px 16px -6px rgb(0 0 0 / 50%);
+
+  --nav-search-bg: rgb(255 255 255 / 5%);
+  --nav-search-focus-bg: rgb(255 255 255 / 8%);
+  --nav-search-border: rgb(255 255 255 / 8%);
+  --nav-scroll-thumb: rgb(255 255 255 / 16%);
+}

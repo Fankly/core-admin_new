@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>非分页合计检查</title>
+<style>
+body { margin: 20px; font-family: 'PingFang SC', sans-serif; color: #334155; background: #f5fafa; }
+#app { --overview-gap: 12px; --overview-border: #c6e5e8; --overview-teal: #00978e; container-type: inline-size; }
+.preview { display: flex; height: 490px; background: white; margin-top: 12px; }
+.chart { height: 370px; }
+button { margin-right: 8px; }
+</style>
+<script>window.SITE_CONFIG = { apiURL: '/api' }</script>
+<div id="app"></div>
+<script type="module">
+import { createApp, h, nextTick, reactive, ref } from 'vue'
+import StageDetail from '/src/views/service/overview/components/StageDetail.vue'
+import OverviewChart from '/src/views/service/overview/components/OverviewChart.vue'
+const props = reactive({stageId:'01',title:'需求储备库',year:'',month:'',dimension:'unit',orgType:'city',roleContext:{},statMode:'amount',amountUnit:'万元',viewMode:'chart'})
+const detail = ref(null)
+const mode = ref('chart')
+const data = [
+ {code:'A',name:'下级单位一',amount:'100',num:'2',datas:[{jdbm:'01',jdmc:'需求储备库',amount:'100',amountZb:'100',num:'2',numZb:'100'}]},
+ {code:'B',name:'下级单位二',amount:'300',num:'6',datas:[{jdbm:'01',jdmc:'需求储备库',amount:'300',amountZb:'100',num:'6',numZb:'100'}]}
+]
+createApp({setup:()=>()=>h('div',[
+ h('button',{onClick:()=>props.statMode=props.statMode==='amount'?'count':'amount'},'切换金额/数量'),
+ h('button',{onClick:()=>mode.value=mode.value==='chart'?'table':'chart'},'切换穿透图表/表格'),
+ h('div',{class:'preview'},[h(StageDetail,{...props,ref:detail})]),
+ h('div',{class:'preview chart'},[h(OverviewChart,{...props,visible:true,data,scopeName:'南京 · 需求储备库',rowLabel:'二级单位',viewMode:mode.value})])
+])}).mount('#app')
+await nextTick()
+const s=detail.value.$.setupState
+s.glData={sytcJe:'10000.12',sjtcJe:'30000.34',sumJe:'40000.46',sytcJeZb:25,sjtcJeZb:75,sytcSl:'1',sjtcSl:'3',sumSl:'4',sytcSlZb:25,sjtcSlZb:75}
+s.xmlxList=[{xmlxId:'X',xmlxName:'基建项目',amount:'10000.12',num:'1'},{xmlxId:'Y',xmlxName:'运维项目',amount:'30000.34',num:'3'}]
+s.dwRanking=[{id:'A',name:'南京',amount:'10000.12',num:'1'},{id:'B',name:'苏州',amount:'30000.34',num:'3'}]
+s.xmlxRanking=[{id:'X',name:'基建项目',amount:'10000.12',num:'1'},{id:'Y',name:'运维项目',amount:'30000.34',num:'3'}]
+window.totalsPreview={props,detail,mode}
+</script>
+</html>
