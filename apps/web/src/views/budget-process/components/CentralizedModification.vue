@@ -58,7 +58,7 @@
 import { getGmb, getSgbm, getTabColumns, getXmbm, getXmInfo, saveXmInfo } from '@/api/service/requirement'
 import { getYssxByXmid } from '@/api/service/budget'
 import { pageGetXmInfo } from '@/api/service/jointReview'
-import { ref, reactive, computed, defineAsyncComponent } from 'vue'
+import { ref, reactive, computed, defineAsyncComponent, markRaw } from 'vue'
 import { FormItems } from '@/views/service/xq/interface'
 import DynamicFormXm from '@/components/DynamicFormXm/index.vue'
 import { ElMessage } from 'element-plus'
@@ -227,7 +227,8 @@ const showHandle = async () => {
           // params["path"] = defineAsyncComponent(() => import(/* @vite-ignore */ `/src/views/service/xq/components/${item.stepEnname}.vue`));
           const componentLoader = getComponentLoader(item.stepEnname)
           if (componentLoader) {
-            params.path = defineAsyncComponent(componentLoader)
+            // formConfigs 是 reactive 数组，组件对象必须 markRaw，否则会被代理并触发 Vue 警告
+            params.path = markRaw(defineAsyncComponent(componentLoader))
           }
         } else {
           for (const element of item.columns) {

@@ -62,7 +62,8 @@ interface Props {
   selectData?: any
   globalParams?: any
   opType?: string
-  pageType: string
+  // 页面上下文类型；从智能审核等入口进入时可能没有，接口按无上下文处理
+  pageType?: string
 }
 
 type Names = 'estimate'

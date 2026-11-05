@@ -40,7 +40,8 @@ interface Props {
   selectData?: any
   globalParams?: any
   opType?: string
-  pageType: string
+  // 页面上下文类型；部分入口不携带，接口侧按 'null' 处理
+  pageType?: string
 }
 
 // 默认值

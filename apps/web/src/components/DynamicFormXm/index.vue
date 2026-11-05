@@ -197,7 +197,6 @@
                 :show-preview="field.uploadShowPreview !== false"
                 :show-download="field.uploadShowDownload !== false"
                 :show-delete="!field.disabled"
-                :show-status="field.uploadShowStatus || false"
                 :show-actions="field.uploadShowActions !== false"
                 @change="(files:any) => {
                   handleUploadGroupChange(files);
